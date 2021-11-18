@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -24,8 +24,9 @@ package org.pentaho.platform.util;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.action.ActionInvocationException;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -33,21 +34,23 @@ import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.workitem.DummyPublisher;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.isA;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.mockStatic;
 
-@RunWith( PowerMockRunner.class )
+@RunWith( MockitoJUnitRunner.class )
 @PrepareForTest( { PentahoSystem.class, ActionUtil.class } )
 public class ActionUtilTest {
 
@@ -64,13 +67,13 @@ public class ActionUtilTest {
 
   @Test( expected = ActionInvocationException.class )
   public void createActionBeanIllegalArgumentExceptionWithEmptyStrings()
-    throws PluginBeanException, ActionInvocationException {
+    throws ActionInvocationException {
     ActionUtil.createActionBean( "", "" );
   }
 
   @Test( expected = ActionInvocationException.class )
   public void createActionBeanIllegalArgumentExceptionWithNulls()
-    throws PluginBeanException, ActionInvocationException {
+    throws ActionInvocationException {
     ActionUtil.createActionBean( null, null );
   }
 
@@ -87,14 +90,12 @@ public class ActionUtilTest {
     Class<?> clazz = MyTestAction.class;
 
     IPluginManager pluginManager = mock( IPluginManager.class );
-    PowerMockito.mockStatic( PentahoSystem.class );
-    BDDMockito.given( PentahoSystem.get( IPluginManager.class ) ).willReturn( pluginManager );
-
-    Mockito.doReturn( clazz ).when( pluginManager ).loadClass( anyString() );
-
-    Class<?> aClass = ActionUtil.resolveActionClass( MyTestAction.class.getName(), beanId );
-
-    assertEquals( MyTestAction.class, aClass );
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
+      pentahoSystem.when( () -> PentahoSystem.get( eq( IPluginManager.class ) ) ).thenReturn( pluginManager );
+      Mockito.doReturn( clazz ).when( pluginManager ).loadClass( anyString() );
+      Class<?> aClass = ActionUtil.resolveActionClass( MyTestAction.class.getName(), beanId );
+      assertEquals( MyTestAction.class, aClass );
+    }
   }
 
   @Test
@@ -105,7 +106,7 @@ public class ActionUtilTest {
 
 
   @Test
-  public void removeFromMapHappyPathTest() throws Exception {
+  public void removeFromMapHappyPathTest() {
     Map<String, String> testMap = new HashMap<>();
     testMap.put( "one", "one" );
     testMap.put( "two", "two" );
@@ -115,7 +116,7 @@ public class ActionUtilTest {
   }
 
   @Test
-  public void removeFromMapSecondHappyPathTest() throws Exception {
+  public void removeFromMapSecondHappyPathTest() {
     Map<String, String> testMap = new HashMap<>();
     testMap.put( "one", "one" );
     testMap.put( "two", "two" );
@@ -126,7 +127,7 @@ public class ActionUtilTest {
   }
 
   @Test
-  public void removeFromMapHappyPathMappedKeyTest() throws Exception {
+  public void removeFromMapHappyPathMappedKeyTest() {
     Map<String, String> testMap = new HashMap<>();
     testMap.put( ActionUtil.QUARTZ_ACTIONCLASS, "one" );
     testMap.put( "two", "two" );
@@ -136,36 +137,36 @@ public class ActionUtilTest {
   }
 
   @Test
-  public void prepareMapNullTest() throws Exception {
+  public void prepareMapNullTest() {
     Map<String, Serializable> testMap = null;
     ActionUtil.prepareMap( testMap );
     assertNull( testMap );
   }
 
   @Test
-  public void prepareMapTest() throws Exception {
+  public void prepareMapTest() {
     Map<String, Serializable> testMap = new HashMap<>();
     testMap.put( ActionUtil.QUARTZ_ACTIONCLASS, "one" );
     testMap.put( ActionUtil.QUARTZ_ACTIONUSER, "two" );
     ActionUtil.prepareMap( testMap );
-    assertEquals( testMap.get( ActionUtil.QUARTZ_ACTIONCLASS ), null );
-    assertEquals( testMap.get( ActionUtil.QUARTZ_ACTIONUSER ), null );
+    assertNull( testMap.get( ActionUtil.QUARTZ_ACTIONCLASS ) );
+    assertNull( testMap.get( ActionUtil.QUARTZ_ACTIONUSER ) );
   }
 
   @Test
   public void testExtractName() {
-    // fake the publisher, so that a call to extractName returns a value and puts it in the params map
-    PowerMockito.mockStatic( PentahoSystem.class );
-    when( PentahoSystem.get( isA( IWorkItemLifecycleEventPublisher.class.getClass() ) ) ).thenReturn( new DummyPublisher() );
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
+      // fake the publisher, so that a call to extractName returns a value and puts it in the params map
+      pentahoSystem.when( () -> PentahoSystem.get( eq( IWorkItemLifecycleEventPublisher.class ) ) ).thenReturn( new DummyPublisher() );
+      final Map<String, Serializable> params = new HashMap<>();
 
-    final Map<String, Serializable> params = new HashMap<>();
-
-    assertNotNull( ActionUtil.extractName( params ) );
-    // the map should now contain a uid
-    assertTrue( params.containsKey( ActionUtil.WORK_ITEM_NAME ) );
-    final String uid = (String) params.get( ActionUtil.WORK_ITEM_NAME );
-    assertEquals( uid, ActionUtil.extractName( params ) );
-    assertEquals( 1, params.size() );
+      assertNotNull( ActionUtil.extractName( params ) );
+      // the map should now contain a uid
+      assertTrue( params.containsKey( ActionUtil.WORK_ITEM_NAME ) );
+      final String uid = (String) params.get( ActionUtil.WORK_ITEM_NAME );
+      assertEquals( uid, ActionUtil.extractName( params ) );
+      assertEquals( 1, params.size() );
+    }
   }
 
   @Test
@@ -177,24 +178,10 @@ public class ActionUtilTest {
     assertFalse( params.containsKey( ActionUtil.WORK_ITEM_UID ) );
   }
 
-  /**
-   * Mocks the value returned by a call to System.currentTimeMillis(), so that we can properly test the generated
-   * work item uids, which contain the current timestamp.
-   */
-  private long freezeTime() {
-    // mock the value returned by a call to System.currentTimeMillis(), so that we can properrly test the generated
-    // work item uids, which contain the current millis
-    final long currentTime = System.currentTimeMillis();
-    PowerMockito.mockStatic( System.class );
-    PowerMockito.when( System.currentTimeMillis() ).thenReturn( currentTime );
-    return currentTime;
-  }
-
   @Test
-  public void testGenerateWorkItemNameWithMap() throws NoSuchFieldException, IllegalAccessException {
+  public void testGenerateWorkItemNameWithMap() {
 
-    final long currentTime = freezeTime();
-    Map map = null;
+    Map<String, Serializable> map = null;
     String result;
 
     // null map
@@ -202,50 +189,50 @@ public class ActionUtilTest {
     assertEquals( "[]", result );
 
     // empty map
-    map = new HashMap();
+    map = new HashMap<>();
     result = ActionUtil.generateWorkItemName( map );
     assertEquals( "[]", result );
 
     // quartz username only
-    map = new HashMap();
+    map = new HashMap<>();
     map.put( ActionUtil.QUARTZ_ACTIONUSER, "quartzAdmin" );
     result = ActionUtil.generateWorkItemName( map );
     assertEquals( "[quartzAdmin]", result );
 
     // action username only
-    map = new HashMap();
+    map = new HashMap<>();
     map.put( ActionUtil.INVOKER_ACTIONUSER, "actionAdmin" );
     result = ActionUtil.generateWorkItemName( map );
     assertEquals( "[actionAdmin]", result );
 
     // quartz and action username
-    map = new HashMap();
+    map = new HashMap<>();
     map.put( ActionUtil.QUARTZ_ACTIONUSER, "quartzAdmin" );
     map.put( ActionUtil.INVOKER_ACTIONUSER, "actionAdmin" );
     result = ActionUtil.generateWorkItemName( map );
     assertEquals( "[actionAdmin]", result );
 
     // quartz username only
-    map = new HashMap();
+    map = new HashMap<>();
     map.put( ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE, "quartzInputFile" );
     result = ActionUtil.generateWorkItemName( map );
     assertEquals( "quartzInputFile[]", result );
 
     // action username only
-    map = new HashMap();
+    map = new HashMap<>();
     map.put( ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE, "adminInputFile" );
     result = ActionUtil.generateWorkItemName( map );
     assertEquals( "adminInputFile[]", result );
 
     // quartz and action username
-    map = new HashMap();
+    map = new HashMap<>();
     map.put( ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE, "quartzInputFile" );
     map.put( ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE, "adminInputFile" );
     result = ActionUtil.generateWorkItemName( map );
     assertEquals( "adminInputFile[]", result );
 
     // all values present
-    map = new HashMap();
+    map = new HashMap<>();
     map.put( ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE, "quartzInputFile" );
     map.put( ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE, "adminInputFile" );
     map.put( ActionUtil.QUARTZ_ACTIONUSER, "quartzAdmin" );
@@ -256,9 +243,7 @@ public class ActionUtilTest {
   }
 
   @Test
-  public void testGenerateWorkItemName() throws NoSuchFieldException, IllegalAccessException {
-
-    final long currentTime = freezeTime();
+  public void testGenerateWorkItemName() {
     String result;
 
     // simple case
@@ -294,7 +279,7 @@ public class ActionUtilTest {
       Assert.fail();
     }
 
-    final Map<String, Serializable> map = new HashMap();
+    final Map<String, Serializable> map = new HashMap<>();
     map.put( ActionUtil.QUARTZ_ACTIONCLASS, "actionClass" );
     map.put( ActionUtil.QUARTZ_ACTIONUSER, "user" );
     map.put( ActionUtil.INVOKER_ACTIONUSER, "user" );
@@ -302,7 +287,7 @@ public class ActionUtilTest {
     map.put( ActionUtil.INVOKER_ACTIONID, "actionId" );
     map.put( ActionUtil.INVOKER_STREAMPROVIDER_INPUT_FILE, "inputFile" );
     // clone the original map
-    final Map<String, Serializable> clone = new HashMap( map );
+    final Map<String, Serializable> clone = new HashMap<>( map );
 
     // bad keys, verify map isn't changed
     ActionUtil.removeKeyFromMap( map, null );

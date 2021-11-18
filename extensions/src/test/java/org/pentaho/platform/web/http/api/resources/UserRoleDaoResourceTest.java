@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -44,9 +44,9 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -138,7 +138,7 @@ public class UserRoleDaoResourceTest {
     String user = "testUser1";
     String roles = "testRole1";
     doThrow( new SecurityException() ).when( userRoleService )
-      .assignRolesToUser( anyString(), anyString() );
+      .assignRolesToUser( nullable( String.class ), nullable( String.class ) );
 
     try {
       userRoleResource.assignRolesToUser( user, roles );
@@ -152,7 +152,7 @@ public class UserRoleDaoResourceTest {
     String user = "testUser1";
     String roles = "testRole1";
     doThrow( new UncategorizedUserRoleDaoException( "expectedTestException" ) ).when( userRoleService )
-      .assignRolesToUser( anyString(), anyString() );
+      .assignRolesToUser( nullable( String.class ), nullable( String.class ) );
 
     try {
       userRoleResource.assignRolesToUser( user, roles );
@@ -167,7 +167,7 @@ public class UserRoleDaoResourceTest {
     String roles = "testRole1";
 
     doThrow( new NotFoundException( "expectedTestException" ) ).when( userRoleService )
-      .assignRolesToUser( anyString(), anyString() );
+      .assignRolesToUser( nullable( String.class ), nullable( String.class ) );
 
     try {
       userRoleResource.assignRolesToUser( user, roles );
@@ -197,7 +197,7 @@ public class UserRoleDaoResourceTest {
     String roles = "testRole1";
 
     doThrow( new SecurityException( "expectedTestException" ) ).when( userRoleService )
-      .removeRolesFromUser( anyString(), anyString() );
+      .removeRolesFromUser( nullable( String.class ), nullable( String.class ) );
 
     try {
       userRoleResource.removeRolesFromUser( user, roles );
@@ -213,7 +213,7 @@ public class UserRoleDaoResourceTest {
     String roles = "testRole1";
 
     doThrow( new UncategorizedUserRoleDaoException( "expectedTestException" ) ).when( userRoleService )
-      .removeRolesFromUser( anyString(), anyString() );
+      .removeRolesFromUser( nullable( String.class ), nullable( String.class ) );
 
     try {
       userRoleResource.removeRolesFromUser( user, roles );
@@ -229,7 +229,7 @@ public class UserRoleDaoResourceTest {
     String roles = "testRole1";
 
     doThrow( new NotFoundException( "expectedTestException" ) ).when( userRoleService )
-      .removeRolesFromUser( anyString(), anyString() );
+      .removeRolesFromUser( nullable( String.class ), nullable( String.class ) );
 
     try {
       userRoleResource.removeRolesFromUser( user, roles );
@@ -251,7 +251,7 @@ public class UserRoleDaoResourceTest {
   public void testDeleteUserUnauthorizedException() {
     String users = "user1\tuser2\tuser3\t";
 
-    doThrow( new SecurityException() ).when( userRoleService ).deleteUsers( anyString() );
+    doThrow( new SecurityException() ).when( userRoleService ).deleteUsers( nullable( String.class ) );
 
     try {
       Response response = userRoleResource.deleteUsers( users );
@@ -265,7 +265,7 @@ public class UserRoleDaoResourceTest {
     String users = "user1\tuser2\tuser3\t";
 
     doThrow( new UncategorizedUserRoleDaoException( "expectedTestException" ) ).when( userRoleService )
-      .deleteUsers( anyString() );
+      .deleteUsers( nullable( String.class ) );
 
     try {
       Response response = userRoleResource.deleteUsers( users );
@@ -336,7 +336,7 @@ public class UserRoleDaoResourceTest {
   public void testDeleteRoleSecurityException() {
     String roles = "role1\trole2";
 
-    doThrow( new SecurityException() ).when( userRoleService ).deleteRoles( anyString() );
+    doThrow( new SecurityException() ).when( userRoleService ).deleteRoles( nullable( String.class ) );
 
     try {
       userRoleResource.deleteRoles( roles );
@@ -350,7 +350,7 @@ public class UserRoleDaoResourceTest {
     String roles = "role1\trole2";
 
     doThrow( new UncategorizedUserRoleDaoException( "expectedTestException" ) ).when( userRoleService )
-      .deleteRoles( anyString() );
+      .deleteRoles( nullable( String.class ) );
 
     try {
       userRoleResource.deleteRoles( roles );
@@ -364,7 +364,7 @@ public class UserRoleDaoResourceTest {
     String locale = "en";
 
     SystemRolesMap systemRoles = mock( SystemRolesMap.class );
-    when( userRoleService.getRoleBindingStruct( anyString() ) ).thenReturn( systemRoles );
+    when( userRoleService.getRoleBindingStruct( nullable( String.class ) ) ).thenReturn( systemRoles );
 
     assertEquals( systemRoles, userRoleResource.getRoleBindingStruct( locale ) );
   }
@@ -378,7 +378,7 @@ public class UserRoleDaoResourceTest {
     } catch ( WebApplicationException e ) {
       assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
     }
-    when( userRoleService.getRoleBindingStruct( anyString() ) ).thenThrow( new SecurityException() );
+    when( userRoleService.getRoleBindingStruct( nullable( String.class ) ) ).thenThrow( new SecurityException() );
   }
 
   @Test
@@ -462,7 +462,7 @@ public class UserRoleDaoResourceTest {
   private void changePassException( Exception ex, int expectedStatus, String name, String newPass, String oldPass )
     throws Exception {
     UserRoleDaoService mockService = mock( UserRoleDaoService.class );
-    doThrow( ex ).when( mockService ).changeUserPassword( anyString(), anyString(), anyString() );
+    doThrow( ex ).when( mockService ).changeUserPassword( nullable( String.class ), nullable( String.class ), nullable( String.class ) );
     UserRoleDaoResource resource =
       new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
@@ -511,7 +511,7 @@ public class UserRoleDaoResourceTest {
   @Test
   public void testCreateRoleSecurityException() throws Exception {
     UserRoleDaoService mockService = mock( UserRoleDaoService.class );
-    doThrow( new SecurityException() ).when( mockService ).createRole( anyString() );
+    doThrow( new SecurityException() ).when( mockService ).createRole( nullable( String.class ) );
     UserRoleDaoResource resource =
       new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
@@ -524,7 +524,7 @@ public class UserRoleDaoResourceTest {
   @Test
   public void testCreateRoleEmptyName() throws Exception {
     UserRoleDaoService mockService = mock( UserRoleDaoService.class );
-    doThrow( new UserRoleDaoService.ValidationFailedException() ).when( mockService ).createRole( anyString() );
+    doThrow( new UserRoleDaoService.ValidationFailedException() ).when( mockService ).createRole( nullable( String.class ) );
     UserRoleDaoResource resource =
       new UserRoleDaoResource( roleBindingDao, tenantManager, systemRoles, adminRole, mockService );
     try {
@@ -556,7 +556,7 @@ public class UserRoleDaoResourceTest {
   @Test
   public void testUpdateRolesForCurrentSession() {
     RoleListWrapper roleListWrapper = mock( RoleListWrapper.class );
-    doReturn( roleListWrapper ).when( userRoleService ).getRolesForUser( anyString() );
+    doReturn( roleListWrapper ).when( userRoleService ).getRolesForUser( nullable( String.class ) );
     doReturn( new ArrayList<String>() {{
         add( "Administrator" );
         add( "Power User" );
@@ -564,7 +564,7 @@ public class UserRoleDaoResourceTest {
     userRoleResource = spy( userRoleResource );
     IPentahoSession session = mock( IPentahoSession.class );
     doReturn( session ).when( userRoleResource ).getSession();
-    doNothing().when( session ).setAttribute( anyString(), anyCollection() );
+    doNothing().when( session ).setAttribute( nullable( String.class ), anyCollection() );
 
     List<GrantedAuthority> expectedAuthorities = new ArrayList<GrantedAuthority>() {{
         add( new SimpleGrantedAuthority( "Administrator" ) );

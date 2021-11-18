@@ -14,41 +14,74 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.repository.solution.filebased;
 
-
-import mockit.Deencapsulation;
-import mockit.Verifications;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileSystemException;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.repository2.unified.IAclNodeHelper;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import java.io.ByteArrayInputStream;
-import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.util.EnumSet;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.nullable;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@RunWith( MockitoJUnitRunner.class )
 public class SolutionRepositoryVfsFileObjectTest {
+  private static MockedStatic<PentahoSystem> pentahoSystemMock;
+  private static IUnifiedRepository mockUnifiedRepository;
 
+  @BeforeClass
+  public static void beforeAll() {
+    pentahoSystemMock = Mockito.mockStatic( PentahoSystem.class );
+    mockUnifiedRepository = mock( IUnifiedRepository.class );
+    pentahoSystemMock.when( () -> PentahoSystem.get( eq( IUnifiedRepository.class ), any() ) )
+      .thenAnswer( invocation -> mockUnifiedRepository );
+  }
+
+  @AfterClass
+  public static void afterAll() {
+    pentahoSystemMock.close();
+  }
+
+  @After
+  public void afterEach() {
+    reset( mockUnifiedRepository );
+  }
 
   @Test
-  public void initFileTest() throws Exception {
+  public void initFileTest() {
 
     String fileRef = "/etc/mondrian/SteelWheels/schema.xml";
     String dsRef = "/etc/mondrian/SteelWheels";
@@ -62,7 +95,7 @@ public class SolutionRepositoryVfsFileObjectTest {
     doReturn( true ).when( aclNodeHelper ).canAccess( file, EnumSet.of( RepositoryFilePermission.READ ) );
 
     IUnifiedRepository repository = mock( IUnifiedRepository.class );
-    doReturn( file ).when( repository ).getFile( fileRef );
+    doReturn( file ).when( repository ).getFile( any() );
     doReturn( repository ).when( fileObjectSpy ).getRepository();
 
     fileObjectSpy.getName();
@@ -91,117 +124,97 @@ public class SolutionRepositoryVfsFileObjectTest {
     String expectedFileRef = "dummyFileRef";
     SolutionRepositoryVfsFileObject solutionRepositoryVfsFileObject =
       new SolutionRepositoryVfsFileObject( "dummyFileRef" );
-    assertThat( solutionRepositoryVfsFileObject.getFileRef(), is( expectedFileRef ) );
+    assertEquals( expectedFileRef, solutionRepositoryVfsFileObject.getFileRef() );
   }
 
   @Test
-  public void testGetRepo( @mockit.Mocked IUnifiedRepository mockUnifiedRepository ) {
-    Deencapsulation.setField( SolutionRepositoryVfsFileObject.class, "repository", mockUnifiedRepository );
+  public void testGetRepo() {
     SolutionRepositoryVfsFileObject solutionRepositoryVfsFileObject =
       new SolutionRepositoryVfsFileObject( "dummyFileRef" );
-    assertThat( solutionRepositoryVfsFileObject.getRepository(), is( mockUnifiedRepository ) );
+    assertEquals( mockUnifiedRepository, solutionRepositoryVfsFileObject.getRepository() );
   }
 
   @Test
-  public void testGetConvertHandler( @mockit.Mocked final IRepositoryContentConverterHandler mockConvertHandler ) {
+  public void testGetConvertHandler() {
+    IRepositoryContentConverterHandler mockConvertHandler = mock( IRepositoryContentConverterHandler.class );
+    pentahoSystemMock.when( () -> PentahoSystem.get( eq( IRepositoryContentConverterHandler.class ) ) )
+      .thenReturn( mockConvertHandler );
     SolutionRepositoryVfsFileObject solutionRepositoryVfsFileObject =
       new SolutionRepositoryVfsFileObject( "dummyFileRef" );
-    Deencapsulation.setField( solutionRepositoryVfsFileObject, "converterHandler", mockConvertHandler );
-    assertThat( solutionRepositoryVfsFileObject.getConverterHandler(), is( mockConvertHandler ) );
+    assertEquals( mockConvertHandler, solutionRepositoryVfsFileObject.getConverterHandler() );
   }
 
   //TODO: change or remove this test once getUrl is fixed or removed
   @Test
-  public void testGetUrl() throws FileSystemException, MalformedURLException {
+  public void testGetUrl() throws FileSystemException {
     String fileRef = "/etc/mondrian/SteelWheels/schema.xml";
     SolutionRepositoryVfsFileObject solutionRepositoryVfsFileObject = new SolutionRepositoryVfsFileObject( fileRef );
-    assertThat( solutionRepositoryVfsFileObject.getURL(), is( nullValue() ) );
+    assertNull( solutionRepositoryVfsFileObject.getURL() );
   }
 
   @Test
-  public void testExists( @mockit.Mocked final RepositoryFile mockRepoFile,
-                          @mockit.Mocked final IAclNodeHelper mockAclHelper,
-                          @mockit.Mocked final IUnifiedRepository mockUnifiedRepository ) throws FileSystemException {
+  public void testExists() throws FileSystemException {
     String fileRef = "/etc/mondrian/SteelWheels/schema.xml";
-    Deencapsulation.setField( SolutionRepositoryVfsFileObject.class, "repository", mockUnifiedRepository );
+    RepositoryFile mockRepoFile = mock( RepositoryFile.class );
+    IAclNodeHelper mockAclHelper = mock( IAclNodeHelper.class );
+
     SolutionRepositoryVfsFileObject testObject = new SolutionRepositoryVfsFileObject( fileRef );
-    Deencapsulation.setField( testObject, "aclHelper", mockAclHelper );
-    new mockit.NonStrictExpectations() {
-      //CHECKSTYLE IGNORE check FOR NEXT 4 LINES
-      {
-        mockUnifiedRepository.getFile( anyString ); result = mockRepoFile;
-        mockAclHelper.canAccess( mockRepoFile, EnumSet.of( RepositoryFilePermission.READ ) ); result = true;
-      }
-    };
-    assertThat( testObject.exists(), is( true ) );
+    SolutionRepositoryVfsFileObject.setTestAclHelper( mockAclHelper );
 
-    new Verifications() {
-      //CHECKSTYLE IGNORE check FOR NEXT 4 LINES
-      {
-        mockUnifiedRepository.getFile( anyString ); times = 2;
-        mockAclHelper.canAccess( mockRepoFile, EnumSet.of( RepositoryFilePermission.READ ) ); times = 1;
-      }
-    };
+    when( mockUnifiedRepository.getFile( nullable( String.class ) ) ).thenReturn( mockRepoFile );
+    when( mockAclHelper.canAccess( mockRepoFile, EnumSet.of( RepositoryFilePermission.READ ) ) ).thenReturn( true );
+    assertTrue( testObject.exists() );
+
+    verify( mockUnifiedRepository, times( 2 ) ).getFile( nullable( String.class ) );
+    verify( mockAclHelper ).canAccess( mockRepoFile, EnumSet.of( RepositoryFilePermission.READ ) );
   }
 
   @Test
-  @SuppressWarnings( { "checkstyle:onestatementperline", "multiple statements help understand the mock definition" } )
-  public void testExistsNot( @mockit.Mocked final IAclNodeHelper mockAclHelper,
-                             @mockit.Mocked final IUnifiedRepository mockUnifiedRepository )
-    throws FileSystemException {
+  public void testExistsNot() throws FileSystemException {
     String fileRef = "/etc/mondrian/SteelWheels/schema.xml";
-    Deencapsulation.setField( SolutionRepositoryVfsFileObject.class, "repository", mockUnifiedRepository );
+    IAclNodeHelper mockAclHelper = mock( IAclNodeHelper.class );
+
     SolutionRepositoryVfsFileObject solutionRepositoryVfsFileObject = new SolutionRepositoryVfsFileObject( fileRef );
-    Deencapsulation.setField( solutionRepositoryVfsFileObject, "aclHelper", mockAclHelper );
-    new mockit.NonStrictExpectations() {
-      //CHECKSTYLE IGNORE check FOR NEXT 4 LINES
-      {
-        mockUnifiedRepository.getFile( anyString ); result = null;
-        mockAclHelper.canAccess( null, EnumSet.of( RepositoryFilePermission.READ ) ); result = true;
-      }
-    };
-    assertThat( solutionRepositoryVfsFileObject.exists(), is( false ) );
-    new Verifications() {
-      //CHECKSTYLE IGNORE check FOR NEXT 4 LINES
-      {
-        mockUnifiedRepository.getFile( anyString ); times = 2;
-        mockAclHelper.canAccess( null, EnumSet.of( RepositoryFilePermission.READ ) ); times = 1;
-      }
-    };
+    SolutionRepositoryVfsFileObject.setTestAclHelper( mockAclHelper );
+
+    when( mockUnifiedRepository.getFile( nullable( String.class ) ) ).thenReturn( null );
+    when( mockAclHelper.canAccess( null, EnumSet.of( RepositoryFilePermission.READ ) ) ).thenReturn( true );
+
+    assertFalse( solutionRepositoryVfsFileObject.exists() );
+
+    verify( mockUnifiedRepository, times( 2 ) ).getFile( nullable( String.class ) );
+    verify( mockAclHelper ).canAccess( null, EnumSet.of( RepositoryFilePermission.READ ) );
   }
 
   @Test
-  @SuppressWarnings( { "checkstyle:onestatementperline", "multiple statements help understand the mock definition" } )
-  public void testContentRelatedMethods( @mockit.Mocked final RepositoryFile mockRepoFile,
-                                         @mockit.Mocked final IAclNodeHelper mockAclHelper,
-                                         @mockit.Mocked final IUnifiedRepository mockUnifiedRepository,
-                                         @mockit.Mocked final SimpleRepositoryFileData mockFileData )
-    throws FileSystemException {
+  public void testContentRelatedMethods() throws FileSystemException {
     String fileRef = "/etc/mondrian/SteelWheels/schema.xml";
-    new mockit.NonStrictExpectations() {
-      //CHECKSTYLE IGNORE check FOR NEXT 6 LINES
-      {
-        mockUnifiedRepository.getFile( anyString ); result = mockRepoFile;
-        mockUnifiedRepository.getDataForRead( (Serializable) any, (Class) any ); result = mockFileData;
-        mockAclHelper.canAccess( mockRepoFile, EnumSet.of( RepositoryFilePermission.READ ) ); result = true;
-        mockFileData.getStream(); result = new ByteArrayInputStream( "some string".getBytes() );
-      }
-    };
-    Deencapsulation.setField( SolutionRepositoryVfsFileObject.class, "repository", mockUnifiedRepository );
+
+    RepositoryFile mockRepoFile = mock( RepositoryFile.class );
+    IAclNodeHelper mockAclHelper = mock( IAclNodeHelper.class );
+    SimpleRepositoryFileData mockFileData = mock( SimpleRepositoryFileData.class );
+
+    when( mockUnifiedRepository.getFile( nullable( String.class ) ) ).thenReturn( mockRepoFile );
+    when( mockAclHelper.canAccess( mockRepoFile, EnumSet.of( RepositoryFilePermission.READ ) ) ).thenReturn( true );
+    when( mockUnifiedRepository.getDataForRead( any(), any() ) ).thenReturn( mockFileData );
+    when( mockFileData.getStream() ).thenReturn( new ByteArrayInputStream( "some string".getBytes() ) );
+
     SolutionRepositoryVfsFileObject solutionRepositoryVfsFileObject = new SolutionRepositoryVfsFileObject( fileRef );
-    Deencapsulation.setField( solutionRepositoryVfsFileObject, "aclHelper", mockAclHelper );
+
+    SolutionRepositoryVfsFileObject.setTestAclHelper( mockAclHelper );
+
     FileContent someFileContent = solutionRepositoryVfsFileObject.getContent();
-    assertThat( someFileContent, is( notNullValue() ) );
-    assertThat( solutionRepositoryVfsFileObject.isContentOpen(), is( false ) );
+    assertNotNull( someFileContent );
+    assertFalse( solutionRepositoryVfsFileObject.isContentOpen() );
     someFileContent.getInputStream();
-    assertThat( solutionRepositoryVfsFileObject.isContentOpen(), is( true ) );
+    assertTrue( solutionRepositoryVfsFileObject.isContentOpen() );
     someFileContent.close();
-    assertThat( solutionRepositoryVfsFileObject.isContentOpen(), is( false ) );
+    assertFalse( solutionRepositoryVfsFileObject.isContentOpen() );
 
     someFileContent = solutionRepositoryVfsFileObject.getContent();
     someFileContent.getInputStream();
-    assertThat( solutionRepositoryVfsFileObject.isContentOpen(), is( true ) );
+    assertTrue( solutionRepositoryVfsFileObject.isContentOpen() );
     solutionRepositoryVfsFileObject.close();
-    assertThat( solutionRepositoryVfsFileObject.isContentOpen(), is( false ) );
+    assertFalse( solutionRepositoryVfsFileObject.isContentOpen() );
   }
 }

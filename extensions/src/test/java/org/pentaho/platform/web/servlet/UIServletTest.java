@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2018 Hitachi Vantara.  All rights reserved.
+ * Copyright (c) 2021 Hitachi Vantara.  All rights reserved.
  */
 
 package org.pentaho.platform.web.servlet;
@@ -22,7 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.IPentahoSession;
 
 import javax.servlet.ServletOutputStream;
@@ -32,8 +32,7 @@ import javax.servlet.http.HttpSession;
 
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.anyObject;
+import static org.mockito.Mockito.nullable;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.doReturn;
@@ -56,15 +55,14 @@ public class UIServletTest {
         return logger;
       }
     } );
-    doNothing().when( logger ).fatal( anyString(), anyObject() );
-    doNothing().when( uiServlet ).formatErrorMessage( any( IPentahoSession.class ), any( StringBuffer.class ), anyString() );
+    doNothing().when( logger ).fatal( nullable( String.class ), any() );
+    doNothing().when( uiServlet ).formatErrorMessage( nullable( IPentahoSession.class ), nullable( StringBuffer.class ), nullable( String.class ) );
   }
 
   @Test
   public void testDoGet() throws Exception {
     doReturn( responseOutputStream ).when( response ).getOutputStream();
     doReturn( session ).when( request ).getSession();
-    doNothing().when( session ).setAttribute( anyString(), anyObject() );
 
     doReturn( "application/json" ).when( request ).getParameter( "type" );
     doReturn( "/><system.alert(\"hi!\")/><" ).doReturn( "UIServlet" ).when( request ).getParameter( "component" );

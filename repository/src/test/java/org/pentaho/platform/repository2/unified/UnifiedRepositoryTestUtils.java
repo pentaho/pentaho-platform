@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -49,7 +49,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 import static org.mockito.Mockito.doReturn;
 
 /**
@@ -104,7 +109,7 @@ public class UnifiedRepositoryTestUtils {
   public static void stubCreateFile( final IUnifiedRepository repo, final String path ) {
     final String parentPath = StringUtils.substringBeforeLast( path, RepositoryFile.SEPARATOR );
     doReturn( makeFileObject( path, true ) ).when( repo ).createFile( eq( makeIdObject( parentPath ) ),
-        argThat( isLikeFile( makeFileObject( path, false ) ) ), any( IRepositoryFileData.class ), anyString() );
+        argThat( isLikeFile( makeFileObject( path, false ) ) ), any( IRepositoryFileData.class ), nullable( String.class ) );
   }
 
   /**
@@ -113,7 +118,7 @@ public class UnifiedRepositoryTestUtils {
   public static void stubCreateFolder( final IUnifiedRepository repo, final String path ) {
     final String parentPath = StringUtils.substringBeforeLast( path, RepositoryFile.SEPARATOR );
     doReturn( makeFileObject( path, true ) ).when( repo ).createFolder( eq( makeIdObject( parentPath ) ),
-        argThat( isLikeFile( makeFolderObject( path, false ) ) ), anyString() );
+        argThat( isLikeFile( makeFolderObject( path, false ) ) ), nullable( String.class ) );
   }
 
   /**
@@ -191,7 +196,7 @@ public class UnifiedRepositoryTestUtils {
    */
 
   public static void stubGetChildren( final IUnifiedRepository repo, RepositoryRequest request, final String... childrenNames ) {
-    List<RepositoryFile> children = new ArrayList<RepositoryFile>( childrenNames.length );
+    List<RepositoryFile> children = new ArrayList<>( childrenNames.length );
     for ( String childName : childrenNames ) {
       if ( childName.startsWith( RepositoryFile.SEPARATOR ) ) {
         throw new IllegalArgumentException( "child names must not begin with a forward slash" );
@@ -201,7 +206,7 @@ public class UnifiedRepositoryTestUtils {
               + RepositoryFile.SEPARATOR
               + ( childName.endsWith( RepositoryFile.SEPARATOR ) ? StringUtils.substringBefore( childName,
                   RepositoryFile.SEPARATOR ) : childName );
-      RepositoryFile child = null;
+      RepositoryFile child;
       if ( childName.endsWith( RepositoryFile.SEPARATOR ) ) {
         child = makeFolderObject( fullChildPath, true );
       } else {
@@ -227,7 +232,7 @@ public class UnifiedRepositoryTestUtils {
    */
   public static void stubGetChildren( final IUnifiedRepository repo, final String path,
                                       final String... childrenNames ) {
-    List<RepositoryFile> children = new ArrayList<RepositoryFile>( childrenNames.length );
+    List<RepositoryFile> children = new ArrayList<>( childrenNames.length );
     for ( String childName : childrenNames ) {
       if ( childName.startsWith( RepositoryFile.SEPARATOR ) ) {
         throw new IllegalArgumentException( "child names must not begin with a forward slash" );
@@ -237,7 +242,7 @@ public class UnifiedRepositoryTestUtils {
               + RepositoryFile.SEPARATOR
               + ( childName.endsWith( RepositoryFile.SEPARATOR ) ? StringUtils.substringBefore( childName,
                   RepositoryFile.SEPARATOR ) : childName );
-      RepositoryFile child = null;
+      RepositoryFile child;
       if ( childName.endsWith( RepositoryFile.SEPARATOR ) ) {
         child = makeFolderObject( fullChildPath, true );
       } else {
@@ -287,8 +292,6 @@ public class UnifiedRepositoryTestUtils {
       String[] pathSegments = pair.getPath().substring( prefix.length() + 1 ).split( "/" );
       addChild( rootNode, pair.getProperty(), pathSegments, 0 );
     }
-    doReturn( new NodeRepositoryFileData( rootNode ) ).when( repo ).getDataForRead( makeIdObject( path ),
-        NodeRepositoryFileData.class );
   }
 
   private static void addChild( final DataNode rootNode, final DataProperty property, final String[] pathSegments,
@@ -353,7 +356,7 @@ public class UnifiedRepositoryTestUtils {
       boolean leafIsFolder = path.endsWith( RepositoryFile.SEPARATOR );
       addChild( root, leafIsFolder, pathSegments, 0 );
     }
-    doReturn( root.build() ).when( repo ).getTree( eq( rootPath ), anyInt(), anyString(), anyBoolean() );
+    doReturn( root.build() ).when( repo ).getTree( eq( rootPath ), anyInt(), nullable( String.class ), anyBoolean() );
   }
 
   /**
@@ -374,7 +377,7 @@ public class UnifiedRepositoryTestUtils {
         root.getFile().getPath() + RepositoryFile.SEPARATOR
             + StringUtils.join( Arrays.copyOfRange( pathSegments, 0, currentSegmentIdx + 1 ),
               RepositoryFile.SEPARATOR );
-    RepositoryFile file = null;
+    RepositoryFile file;
     if ( ( currentSegmentIdx < pathSegments.length - 1 )
         || ( currentSegmentIdx == pathSegments.length - 1 && leafIsFolder ) ) {
       file = makeFolderObject( reconstructedPath, true );
@@ -391,7 +394,6 @@ public class UnifiedRepositoryTestUtils {
   /**
    * A {@link SimpleRepositoryFileData} that resets its stream every time the stream is requested.
    */
-  @SuppressWarnings( "serial" )
   private static class AutoResetSimpleRepositoryFileData extends SimpleRepositoryFileData {
 
     public AutoResetSimpleRepositoryFileData( final InputStream stream, final String encoding, final String mimeType ) {
@@ -435,7 +437,7 @@ public class UnifiedRepositoryTestUtils {
 
     private static final String shortName = "hasData";
 
-    private PathPropertyPair[] pairs;
+    private final PathPropertyPair[] pairs;
 
     public NodeRepositoryFileDataMatcher( PathPropertyPair... pairs ) {
       for ( PathPropertyPair pair : pairs ) {
@@ -487,11 +489,11 @@ public class UnifiedRepositoryTestUtils {
 
     private static final String shortName = "hasData";
 
-    private String expectedMimeType;
+    private final String expectedMimeType;
 
-    private String expectedEncoding;
+    private final String expectedEncoding;
 
-    private byte[] expectedBytes;
+    private final byte[] expectedBytes;
 
     public SimpleRepositoryFileDataMatcher( final byte[] expectedBytes, final String expectedEncoding,
         final String expectedMimeType ) {
@@ -514,7 +516,7 @@ public class UnifiedRepositoryTestUtils {
         throw new RuntimeException( "cannot test for match on stream that cannot be reset" );
       }
       stream.mark( Integer.MAX_VALUE );
-      byte[] actualBytes = null;
+      byte[] actualBytes;
       try {
         actualBytes = IOUtils.toByteArray( stream );
         stream.reset(); // leave it like we found it
@@ -533,7 +535,7 @@ public class UnifiedRepositoryTestUtils {
       if ( StringUtils.isNotBlank( expectedEncoding ) ) {
         description.appendText( "text=" );
 
-        String text = null;
+        String text;
         try {
           text = new String( expectedBytes, expectedEncoding );
         } catch ( UnsupportedEncodingException e ) {
@@ -595,14 +597,13 @@ public class UnifiedRepositoryTestUtils {
 
     private static final String shortName = "isLikeAcl";
 
-    private RepositoryFileAcl expectedAcl;
+    private final RepositoryFileAcl expectedAcl;
 
-    private boolean testAcesUsingEquals;
+    private final boolean testAcesUsingEquals;
 
     /**
      * Creates an instance where {@code testAcesUsingEquals} is {@code false}.
-     * 
-     * @param expectedAcl
+     *
      */
     public SelectiveRepositoryFileAclMatcher( RepositoryFileAcl expectedAcl ) {
       this( expectedAcl, false );
@@ -626,10 +627,10 @@ public class UnifiedRepositoryTestUtils {
      */
     @Override
     public boolean matchesSafely( final RepositoryFileAcl acl ) {
-      return ( expectedAcl.getId() != null ? expectedAcl.getId().equals( acl.getId() ) : true )
-          && expectedAcl.isEntriesInheriting() == acl.isEntriesInheriting()
-          && ( testAcesUsingEquals ? acl.getAces().equals( expectedAcl.getAces() ) : acl.getAces().containsAll(
-              expectedAcl.getAces() ) );
+      return ( expectedAcl.getId() == null || expectedAcl.getId().equals( acl.getId() ) )
+        && expectedAcl.isEntriesInheriting() == acl.isEntriesInheriting()
+        && ( testAcesUsingEquals ? acl.getAces().equals( expectedAcl.getAces() ) : acl.getAces().containsAll(
+        expectedAcl.getAces() ) );
     }
 
     @Override
@@ -666,7 +667,7 @@ public class UnifiedRepositoryTestUtils {
 
     private static final String shortName = "isLikeFile";
 
-    private RepositoryFile expectedFile;
+    private final RepositoryFile expectedFile;
 
     public SelectiveRepositoryFileMatcher( final RepositoryFile expectedFile ) {
       this.expectedFile = expectedFile;
@@ -677,17 +678,15 @@ public class UnifiedRepositoryTestUtils {
      */
     @Override
     public boolean matchesSafely( final RepositoryFile file ) {
-      return ( expectedFile.getId() != null ? expectedFile.getId().equals( file.getId() ) : true )
-          && ( expectedFile.getName() != null ? expectedFile.getName().equals( file.getName() ) : true )
-          && ( expectedFile.getTitle() != null ? expectedFile.getTitle().equals( file.getTitle() ) : true )
-          && ( expectedFile.getPath() != null ? expectedFile.getPath().equals( file.getPath() ) : true )
-          && ( expectedFile.getCreatedDate() != null ? expectedFile.getCreatedDate().equals( file.getCreatedDate() )
-              : true )
-          && ( expectedFile.getLastModifiedDate() != null ? expectedFile.getLastModifiedDate().equals(
-              file.getLastModifiedDate() ) : true )
-          && ( expectedFile.getVersionId() != null ? expectedFile.getVersionId().equals( file.getVersionId() ) : true )
-          && ( expectedFile.getDeletedDate() != null ? expectedFile.getDeletedDate().equals( file.getDeletedDate() )
-              : true );
+      return ( expectedFile.getId() == null || expectedFile.getId().equals( file.getId() ) )
+          && ( expectedFile.getName() == null || expectedFile.getName().equals( file.getName() ) )
+          && ( expectedFile.getTitle() == null || expectedFile.getTitle().equals( file.getTitle() ) )
+          && ( expectedFile.getPath() == null || expectedFile.getPath().equals( file.getPath() ) )
+          && ( expectedFile.getCreatedDate() == null || expectedFile.getCreatedDate().equals( file.getCreatedDate() ) )
+          && ( expectedFile.getLastModifiedDate() == null || expectedFile.getLastModifiedDate().equals(
+        file.getLastModifiedDate() ) )
+          && ( expectedFile.getVersionId() == null || expectedFile.getVersionId().equals( file.getVersionId() ) )
+          && ( expectedFile.getDeletedDate() == null || expectedFile.getDeletedDate().equals( file.getDeletedDate() ) );
     }
 
     @Override
@@ -765,8 +764,8 @@ public class UnifiedRepositoryTestUtils {
    *          expected MIME type
    * @return matcher
    */
-  public static <T> Matcher<SimpleRepositoryFileData>
-  hasData( final byte[] expectedBytes, final String expectedMimeType ) {
+  public static Matcher<SimpleRepositoryFileData>
+    hasData( final byte[] expectedBytes, final String expectedMimeType ) {
     return new SimpleRepositoryFileDataMatcher( expectedBytes, null, expectedMimeType );
   }
 
@@ -789,9 +788,9 @@ public class UnifiedRepositoryTestUtils {
    *          expected MIME type
    * @return matcher
    */
-  public static <T> Matcher<SimpleRepositoryFileData> hasData( final String expectedText, final String encoding,
+  public static Matcher<SimpleRepositoryFileData> hasData( final String expectedText, final String encoding,
       final String expectedMimeType ) {
-    byte[] expectedBytes = null;
+    byte[] expectedBytes;
     try {
       expectedBytes = expectedText.getBytes( encoding );
     } catch ( UnsupportedEncodingException e ) {
@@ -816,7 +815,7 @@ public class UnifiedRepositoryTestUtils {
    *          expected file
    * @return matcher
    */
-  public static <T> Matcher<RepositoryFile> isLikeFile( final RepositoryFile expectedFile ) {
+  public static Matcher<RepositoryFile> isLikeFile( final RepositoryFile expectedFile ) {
     return new SelectiveRepositoryFileMatcher( expectedFile );
   }
 
@@ -838,10 +837,9 @@ public class UnifiedRepositoryTestUtils {
    * @param testAcesUsingEquals
    *          if {@code true}, use {@code acl.getAces().equals(expectedAcl.getAces())} else
    *          {@code acl.getAces().containsAll(expectedAcl.getAces())}
-   * @return
    */
-  public static <T> Matcher<RepositoryFileAcl> isLikeAcl( final RepositoryFileAcl expectedAcl,
-      final boolean testAcesUsingEquals ) {
+  public static Matcher<RepositoryFileAcl> isLikeAcl( final RepositoryFileAcl expectedAcl,
+                                                      final boolean testAcesUsingEquals ) {
     return new SelectiveRepositoryFileAclMatcher( expectedAcl, testAcesUsingEquals );
   }
 
@@ -861,7 +859,7 @@ public class UnifiedRepositoryTestUtils {
    * @param expectedAcl
    * @return
    */
-  public static <T> Matcher<RepositoryFileAcl> isLikeAcl( final RepositoryFileAcl expectedAcl ) {
+  public static Matcher<RepositoryFileAcl> isLikeAcl( final RepositoryFileAcl expectedAcl ) {
     return new SelectiveRepositoryFileAclMatcher( expectedAcl );
   }
 
@@ -881,7 +879,7 @@ public class UnifiedRepositoryTestUtils {
    *          path property pairs
    * @return matcher
    */
-  public static <T> Matcher<NodeRepositoryFileData> hasData( final PathPropertyPair... pairs ) {
+  public static Matcher<NodeRepositoryFileData> hasData( final PathPropertyPair... pairs ) {
     return new NodeRepositoryFileDataMatcher( pairs );
   }
 
@@ -979,9 +977,9 @@ public class UnifiedRepositoryTestUtils {
    */
   public static class PathPropertyPair {
 
-    private String path;
+    private final String path;
 
-    private DataProperty property;
+    private final DataProperty property;
 
     /**
      * Constructs a path property pair. If {@code property} is {@code null} then this path represents a node.

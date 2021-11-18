@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -152,14 +152,12 @@ public class PentahoMetadataDomainRepositoryConcurrencyTest {
     final int addersAmount = 20;
 
     createRepositoryFiles( readersAmount );
-    doAnswer( new Answer() {
-      @Override public Object answer( InvocationOnMock invocation ) throws Throwable {
-        String domainId = (String) invocation.getArguments()[ 0 ];
-        repository.createFile( null, createRepositoryFile( domainId ), null, null );
-        repository.setFileMetadata( domainId, generateMetadataFor( domainId ) );
-        return null;
-      }
-    } ).when( domainRepository ).createUniqueFile( anyString(), anyString(), any( SimpleRepositoryFileData.class ) );
+    doAnswer( invocation -> {
+      String domainId = (String) invocation.getArguments()[ 0 ];
+      repository.createFile( null, createRepositoryFile( domainId ), null, null );
+      repository.setFileMetadata( domainId, generateMetadataFor( domainId ) );
+      return null;
+    } ).when( domainRepository ).createUniqueFile( nullable( String.class ), nullable( String.class ), any( SimpleRepositoryFileData.class ) );
 
     domainRepository.setXmiParser( mockXmiParser() );
 

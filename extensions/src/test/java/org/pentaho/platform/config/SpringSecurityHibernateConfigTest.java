@@ -25,7 +25,7 @@ import org.dom4j.Node;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.repository2.userroledao.jackrabbit.security.DefaultPentahoPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -35,7 +35,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -54,7 +54,7 @@ public class SpringSecurityHibernateConfigTest {
     config = new SpringSecurityHibernateConfig( document );
     Node node = mock( Node.class );
     when( node.getText() ).thenReturn( DefaultPentahoPasswordEncoder.class.getName() );
-    when( document.selectSingleNode( anyString() ) ).thenReturn( node );
+    when( document.selectSingleNode( nullable( String.class ) ) ).thenReturn( node );
 
     PasswordEncoder passwordEncoder = config.getPasswordEncoder();
     assertTrue( passwordEncoder instanceof DefaultPentahoPasswordEncoder );
@@ -65,7 +65,7 @@ public class SpringSecurityHibernateConfigTest {
     config = new SpringSecurityHibernateConfig( document );
     Node node = mock( Node.class );
     when( node.getText() ).thenReturn( "org.pentaho.ClassNotFoundEncoder" );
-    when( document.selectSingleNode( anyString() ) ).thenReturn( node );
+    when( document.selectSingleNode( nullable( String.class ) ) ).thenReturn( node );
 
     PasswordEncoder passwordEncoder = config.getPasswordEncoder();
     assertNull( passwordEncoder );

@@ -10,7 +10,7 @@
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * Copyright 2006 - 2019 Hitachi Vantara.  All rights reserved.
+ * Copyright 2006 - 2021 Hitachi Vantara.  All rights reserved.
  *
  */
 
@@ -26,10 +26,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -49,13 +49,23 @@ import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by Dmitriy Stepanov on 28.03.18.
  */
 @RunWith( PowerMockRunner.class )
+@PowerMockIgnore( "jdk.internal.reflect.*" )
 @PrepareForTest( { SpringServlet.class, ServletContainer.class, JAXRSServlet.class } )
 public class JAXRSServletTest {
 
@@ -197,15 +207,13 @@ public class JAXRSServletTest {
   private void checkMime( HttpServletRequest request, HttpServletResponse response, String NOT_MIME_TYPE,
                           AtomicBoolean fail ) throws ServletException, IOException {
     doAnswer(
-      new Answer<Object>() {
-        @Override public Object answer( InvocationOnMock invocation ) throws Throwable {
-          Object[] arguments = invocation.getArguments();
-          HttpServletRequest req = (HttpServletRequest) arguments[ 2 ];
-          if ( req.getHeader( JAXRSServlet.ACCEPT ).equals( NOT_MIME_TYPE ) ) {
-            fail.set( true );
-          }
-          return null;
+      (Answer<Object>) invocation -> {
+        Object[] arguments = invocation.getArguments();
+        HttpServletRequest req = (HttpServletRequest) arguments[ 2 ];
+        if ( req.getHeader( JAXRSServlet.ACCEPT ).equals( NOT_MIME_TYPE ) ) {
+          fail.set( true );
         }
+        return null;
       } ).when( (SpringServlet) jaxrsServlet ).service( eq( request ), eq( response ) );
   }
 

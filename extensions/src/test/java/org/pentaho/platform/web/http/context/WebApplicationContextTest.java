@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,9 +25,9 @@ import org.junit.Test;
 import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +47,7 @@ public class WebApplicationContextTest {
   public void testGetPentahoServerName() throws Exception {
     webAppContext = new WebApplicationContext( "rootPath", null, null );
     ISystemSettings settingsService = mock( ISystemSettings.class );
-    when( settingsService.getSystemSetting( eq( "name"), anyString() ) ).thenReturn( "PENTAHO" );
+    when( settingsService.getSystemSetting( eq( "name"), nullable( String.class ) ) ).thenReturn( "PENTAHO" );
     PentahoSystem.setSystemSettingsService( settingsService );
     assertEquals( "PENTAHO", webAppContext.getPentahoServerName() );
   }

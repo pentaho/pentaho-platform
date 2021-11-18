@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -24,7 +24,6 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -46,14 +45,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.matches;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
@@ -85,7 +84,7 @@ public class GetResourceIT {
     servlet = spy( new GetResource() );
     final ServletConfig servletConfig = mock( ServletConfig.class );
     final ServletContext servletContext = mock( ServletContext.class );
-    when( servletContext.getMimeType( anyString() ) ).thenReturn( TEST_MIME_TYPE );
+    when( servletContext.getMimeType( nullable( String.class ) ) ).thenReturn( TEST_MIME_TYPE );
     when( servletConfig.getServletContext() ).thenReturn( servletContext );
     servlet.init( servletConfig );
 
@@ -110,12 +109,9 @@ public class GetResourceIT {
 
     final ServletOutputStream outputStream = mock( ServletOutputStream.class );
     final MutableInt fileLength = new MutableInt( 0 );
-    doAnswer( new Answer<Void>() {
-      @Override
-      public Void answer( InvocationOnMock invocation ) throws Throwable {
-        fileLength.add( (Integer) invocation.getArguments()[2] );
-        return null;
-      }
+    doAnswer( (Answer<Void>) invocation -> {
+      fileLength.add( (Integer) invocation.getArguments()[2] );
+      return null;
     } ).when( outputStream ).write( any( byte[].class ), anyInt(), anyInt() );
     when( response.getOutputStream() ).thenReturn( outputStream );
 

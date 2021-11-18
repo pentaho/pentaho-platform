@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -23,8 +23,9 @@ package org.pentaho.platform.plugin.services.importexport;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -141,14 +142,14 @@ public class ZipExportProcessorTest {
       }
 
     };
-    Mockito.doAnswer( answerRepoGetFile ).when( repo ).getFile( anyString() );
-    Mockito.doAnswer( answerRepoGetFile ).when( repo ).getFile( anyString(), Mockito.anyBoolean() );
-    Mockito.doAnswer( answerRepoGetFile ).when( repo ).getFile( anyString(), Mockito.anyBoolean(),
+    Mockito.doAnswer( answerRepoGetFile ).when( repo ).getFile( nullable( String.class ) );
+    Mockito.doAnswer( answerRepoGetFile ).when( repo ).getFile( nullable( String.class ), anyBoolean() );
+    Mockito.doAnswer( answerRepoGetFile ).when( repo ).getFile( nullable( String.class ), anyBoolean(),
         any( IPentahoLocale.class ) );
-    Mockito.doAnswer( answerRepoGetFile ).when( repo ).getFile( anyString(), any( IPentahoLocale.class ) );
+    Mockito.doAnswer( answerRepoGetFile ).when( repo ).getFile( nullable( String.class ), any( IPentahoLocale.class ) );
     Mockito.doAnswer( answerRepoGetFile ).when( repo ).getFileById( any( Serializable.class ) );
-    Mockito.doAnswer( answerRepoGetFile ).when( repo ).getFileById( any( Serializable.class ), Mockito.anyBoolean() );
-    Mockito.doAnswer( answerRepoGetFile ).when( repo ).getFileById( any( Serializable.class ), Mockito.anyBoolean(),
+    Mockito.doAnswer( answerRepoGetFile ).when( repo ).getFileById( any( Serializable.class ), anyBoolean() );
+    Mockito.doAnswer( answerRepoGetFile ).when( repo ).getFileById( any( Serializable.class ), anyBoolean(),
         any( IPentahoLocale.class ) );
     Mockito.doAnswer( answerRepoGetFile ).when( repo ).getFileById( any( Serializable.class ),
         any( IPentahoLocale.class ) );
@@ -179,8 +180,7 @@ public class ZipExportProcessorTest {
     doReturn( availableLocales ).when( repo ).getAvailableLocalesForFileById( Mockito.any( Serializable.class ) );
     doReturn( availableLocales ).when( repo ).getAvailableLocalesForFileByPath( Mockito.any( String.class ) );
 
-    doReturn( localePropertries ).when( repo ).getLocalePropertiesForFileById( Mockito.any( File.class ),
-        Mockito.anyString() );
+    doReturn( localePropertries ).when( repo ).getLocalePropertiesForFileById( Mockito.any( String.class ), Mockito.any( String.class ) );
 
     RepositoryFileSid sid = mock( RepositoryFileSid.class );
     doReturn( "testUser" ).when( sid ).getName();

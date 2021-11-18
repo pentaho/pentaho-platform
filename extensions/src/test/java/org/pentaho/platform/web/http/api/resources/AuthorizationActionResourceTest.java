@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -24,8 +24,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.pentaho.di.core.util.Assert;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
@@ -67,10 +70,10 @@ public class AuthorizationActionResourceTest {
     when( service.getActionList() ).thenReturn( Arrays.asList( new IAuthorizationAction[] { readAction } ) );
     when( service.getPolicy() ).thenReturn( policy );
 
-    when( service.validateAuth( anyString() ) ).thenCallRealMethod();
+    when( service.validateAuth( nullable( String.class ) ) ).thenCallRealMethod();
 
     when( resource.getAuthorizationActionService() ).thenReturn( service );
-    when( resource.validateAuth( anyString() ) ).thenCallRealMethod();
+    when( resource.validateAuth( nullable( String.class ) ) ).thenCallRealMethod();
   }
 
   @Test

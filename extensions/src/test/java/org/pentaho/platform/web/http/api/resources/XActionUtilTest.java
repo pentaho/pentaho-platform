@@ -14,13 +14,23 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.anyMap;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.nullable;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
@@ -95,20 +105,20 @@ public class XActionUtilTest {
     MockitoAnnotations.initMocks( this );
     Map<String, String[]> map = mock( Map.class );
     when( httpServletRequest.getParameterMap() ).thenReturn( map );
-    when( httpServletRequest.getParameter( anyString() ) ).thenReturn( null );
+    when( httpServletRequest.getParameter( nullable( String.class ) ) ).thenReturn( null );
 
-    when( repository.getFile( anyString() ) ).thenReturn( generatedFile );
+    when( repository.getFile( nullable( String.class ) ) ).thenReturn( generatedFile );
 
     List<IContentItem> items = Arrays.asList( mock( RepositoryFileContentItem.class ) );
     IRuntimeContext context = mock( IRuntimeContext.class );
     when( context.getOutputContentItems() ).thenReturn( items );
 
-    when( engine.execute( anyString(), anyString(), anyBoolean(), anyBoolean(), anyString(), anyBoolean(), anyMap(),
-        any( IOutputHandler.class ), any( IActionCompleteListener.class ), any( IPentahoUrlFactory.class ),
+    when( engine.execute( nullable( String.class ), nullable( String.class ), anyBoolean(), anyBoolean(), nullable( String.class ), anyBoolean(), anyMap(),
+        nullable( IOutputHandler.class ), nullable( IActionCompleteListener.class ), nullable( IPentahoUrlFactory.class ),
         anyList() ) ).thenReturn( context );
     pentahoObjectFactoryUnified = mock( IPentahoObjectFactory.class );
-    when( pentahoObjectFactoryUnified.objectDefined( anyString() ) ).thenReturn( true );
-    when( pentahoObjectFactoryUnified.get( this.anyClass(), anyString(), any( IPentahoSession.class ) ) ).thenAnswer( new Answer<Object>() {
+    when( pentahoObjectFactoryUnified.objectDefined( nullable( String.class ) ) ).thenReturn( true );
+    when( pentahoObjectFactoryUnified.get( this.anyClass(), nullable( String.class ), nullable( IPentahoSession.class ) ) ).thenAnswer( new Answer<Object>() {
         @Override
         public Object answer( InvocationOnMock invocation ) throws Throwable {
           if ( IUnifiedRepository.class.toString().equals( invocation.getArguments()[0].toString() ) ) {
@@ -127,7 +137,7 @@ public class XActionUtilTest {
     PentahoSystem.registerObjectFactory( pentahoObjectFactoryUnified );
 
     ISystemSettings systemSettingsService = mock( ISystemSettings.class );
-    when( systemSettingsService.getSystemSetting( anyString(), anyString() ) ).thenAnswer( new Answer<String>() {
+    when( systemSettingsService.getSystemSetting( nullable( String.class ), nullable( String.class ) ) ).thenAnswer( new Answer<String>() {
       @Override
       public String answer( InvocationOnMock invocation ) throws Throwable {
         return invocation.getArguments()[0].toString();
@@ -146,43 +156,43 @@ public class XActionUtilTest {
   @Test
   public void executeXActionSequence() throws Exception {
     XactionUtil.execute( MediaType.TEXT_HTML, xactionFile, httpServletRequest, httpServletResponse, userSession, mimeTypeListener );
-    verify( repository, times( 1 ) ).deleteFile( anyString(), anyBoolean(), anyString() );
+    verify( repository ).deleteFile( nullable( String.class ), anyBoolean(), nullable( String.class ) );
   }
 
   @Test
   public void testDeleteContentItem_null() throws Exception {
     XactionUtil.deleteContentItem( null, null ); // No exception
     XactionUtil.deleteContentItem( null, mock( IUnifiedRepository.class ) ); // No exception
-    verify( repository, times( 0 ) ).deleteFile( anyString(), anyBoolean(), anyString() );
+    verify( repository, times( 0 ) ).deleteFile( nullable( String.class ), anyBoolean(), nullable( String.class ) );
   }
 
   @Test
   public void testDeleteContentItem_simple() throws Exception {
     final IContentItem contentItem = mock( SimpleContentItem.class );
-    doReturn( mock( OutputStream.class ) ).when( contentItem ).getOutputStream( anyObject() );
+    doReturn( mock( OutputStream.class ) ).when( contentItem ).getOutputStream( any() );
     try {
       XactionUtil.deleteContentItem( contentItem, null );
     } finally {
       contentItem.getOutputStream( null ).close();
     }
-    verify( repository, times( 0 ) ).deleteFile( anyString(), anyBoolean(), anyString() );
+    verify( repository, times( 0 ) ).deleteFile( nullable( String.class ), anyBoolean(), nullable( String.class ) );
   }
 
   @Test
   public void testDeleteContentItem_repo() throws Exception {
     IContentItem item = mock( RepositoryFileContentItem.class );
-    doReturn( mock( OutputStream.class ) ).when( item ).getOutputStream( anyObject() );
+    doReturn( mock( OutputStream.class ) ).when( item ).getOutputStream( any() );
     XactionUtil.deleteContentItem( item, repository );
-    verify( repository, times( 1 ) ).deleteFile( anyString(), anyBoolean(), anyString() );
+    verify( repository, times( 1 ) ).deleteFile( nullable( String.class ), anyBoolean(), nullable( String.class ) );
   }
 
   @Test
   public void testDeleteContentItem_repoNoFile() throws Exception {
-    doReturn( null ).when( repository ).getFile( anyString() );
+    doReturn( null ).when( repository ).getFile( nullable( String.class ) );
     IContentItem item = mock( RepositoryFileContentItem.class );
-    doReturn( mock( OutputStream.class ) ).when( item ).getOutputStream( anyObject() );
+    doReturn( mock( OutputStream.class ) ).when( item ).getOutputStream( any() );
     XactionUtil.deleteContentItem( item, repository );
-    verify( repository, times( 0 ) ).deleteFile( anyString(), anyBoolean(), anyString() );
+    verify( repository, times( 0 ) ).deleteFile( nullable( String.class ), anyBoolean(), nullable( String.class ) );
   }
 
   @After
@@ -196,9 +206,9 @@ public class XActionUtilTest {
     return argThat( new AnyClassMatcher() );
   }
 
-  private class AnyClassMatcher extends ArgumentMatcher<Class<?>> {
+  private class AnyClassMatcher implements ArgumentMatcher<Class<?>> {
     @Override
-    public boolean matches( final Object arg ) {
+    public boolean matches( final Class<?> arg ) {
       return true;
     }
   }

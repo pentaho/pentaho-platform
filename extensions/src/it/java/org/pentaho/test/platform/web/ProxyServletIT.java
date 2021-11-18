@@ -43,7 +43,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -156,7 +156,7 @@ public class ProxyServletIT extends BaseTestCase {
   // IT tests are not in the same package of classes being tested.
   // One way of spying protected methods is to inherit from the class, locally.
   // We're only stubbing the parts where network access would occur.
-  private class TestProxyServlet extends ProxyServlet {
+  private static class TestProxyServlet extends ProxyServlet {
     @Override
     protected void doProxyCore( URI requestUri, HttpServletResponse response ) {
       // Do not access network.

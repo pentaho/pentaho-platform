@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,11 +22,15 @@ package org.pentaho.platform.plugin.services.importer;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.mimetype.IMimeType;
-import org.pentaho.platform.api.repository2.unified.Converter;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -37,8 +41,6 @@ import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLo
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
 import org.pentaho.platform.util.XmlTestConstants;
 import org.pentaho.platform.util.messages.LocaleHelper;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -59,25 +61,35 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.reflect.Whitebox.setInternalState;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( PentahoSystem.class )
+@RunWith( MockitoJUnitRunner.class )
 public class LocaleImportHandlerTest {
 
   private static final String DEFAULT_ENCODING = "UTF-8";
   private static final String FILE_BUNDLE_PATH = "/pentaho-solutions/my-test/";
+
+  private static MockedStatic<PentahoSystem> pentahoSystemMock;
+  private IUnifiedRepository mockUnifiedRepository;
+
+  @BeforeClass
+  public static void beforeAll() {
+    pentahoSystemMock = mockStatic( PentahoSystem.class );
+  }
+
+  @AfterClass
+  public static void afterAll() {
+    pentahoSystemMock.close();
+  }
 
   PentahoPlatformImporter importer;
   LocaleFilesProcessor localeFilesProcessor;
@@ -85,14 +97,16 @@ public class LocaleImportHandlerTest {
 
   @Before
   public void setUp() throws Exception {
+    mockUnifiedRepository = mock( IUnifiedRepository.class );
+    pentahoSystemMock.when( () -> PentahoSystem.get( IUnifiedRepository.class ) ).thenReturn( mockUnifiedRepository );
 
     NameBaseMimeResolver nameResolver = new NameBaseMimeResolver();
     PentahoSystem.registerObject( nameResolver );
 
     IRepositoryContentConverterHandler converterHandler =
-        new DefaultRepositoryContentConverterHandler( new HashMap<String, Converter>() );
+        new DefaultRepositoryContentConverterHandler( new HashMap<>() );
 
-    List<IMimeType> localeMimeList = new ArrayList<IMimeType>();
+    List<IMimeType> localeMimeList = new ArrayList<>();
     localeMimeList.add( new MimeType( "text/locale", "locale" ) );
 
     nameResolver.addMimeType( new MimeType( "text/prptMimeType", "prpt" ) );
@@ -106,7 +120,9 @@ public class LocaleImportHandlerTest {
     mimeType.setHidden( true );
     nameResolver.addMimeType( mimeType );
 
-    List<String> allowedArtifacts = new ArrayList<String>();
+    pentahoSystemMock.when( () -> PentahoSystem.get( IPlatformMimeResolver.class ) ).thenReturn( nameResolver );
+
+    List<String> allowedArtifacts = new ArrayList<>();
     allowedArtifacts.add( "xaction" );
     allowedArtifacts.add( "url" );
     allowedArtifacts.add( "properties" );
@@ -116,7 +132,7 @@ public class LocaleImportHandlerTest {
     Log log = mock( Log.class );
     doReturn( log ).when( spylocaleImportHandler ).getLogger();
 
-    List<IPlatformImportHandler> handlers = new ArrayList<IPlatformImportHandler>();
+    List<IPlatformImportHandler> handlers = new ArrayList<>();
     handlers.add( spylocaleImportHandler );
 
     importer = new PentahoPlatformImporter( handlers, converterHandler );
@@ -144,12 +160,10 @@ public class LocaleImportHandlerTest {
   }
 
   @Test
-  public void testImportDefaultPropertiesFiles() throws Exception {
+  public void testImportDefaultPropertiesFiles() {
 
-    IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
@@ -159,30 +173,28 @@ public class LocaleImportHandlerTest {
             "description=Some Description\n"
                     + "title=Some Title";
     RepositoryFileImportBundle importBundle = createBundle( propertiesContent, "someFile.xaction" );
-    when( mockUnifiedRepository.getFile( anyString() ) ).thenReturn( importBundle.getFile() );
+    when( mockUnifiedRepository.getFile( nullable( String.class ) ) ).thenReturn( importBundle.getFile() );
 
     List<RepositoryFile> localeFolderChildren = new ArrayList<>( );
     localeFolderChildren.add( importBundle.getFile() );
-    when( mockUnifiedRepository.getChildren( anyInt() ) ).thenReturn( localeFolderChildren );
+    when( mockUnifiedRepository.getChildren( nullable( Integer.class ) ) ).thenReturn( localeFolderChildren );
 
 
     RepositoryFile localeParent = localeImportHandler.getLocaleParent( mockLocale, mockProperties );
 
-    verify( mockUnifiedRepository, times( 1 ) ).getFile( anyString() );
-    verify( mockUnifiedRepository, times( 1 ) ).getChildren( anyInt() );
+    verify( mockUnifiedRepository ).getFile( nullable( String.class ) );
+    verify( mockUnifiedRepository ).getChildren( nullable( Integer.class ) );
 
     assertNotNull( localeParent );
   }
 
   @Test
-  public void testImportLocalizedPropertiesFiles_fr() throws Exception {
+  public void testImportLocalizedPropertiesFiles_fr() {
 
     LocaleHelper.setThreadLocaleBase( new Locale( "fr" ) );
 
-    IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
@@ -192,30 +204,28 @@ public class LocaleImportHandlerTest {
             "description=Some Description\n"
                     + "title=Some Title";
     RepositoryFileImportBundle importBundle = createBundle( propertiesContent, "someFile.xaction" );
-    when( mockUnifiedRepository.getFile( anyString() ) ).thenReturn( importBundle.getFile() );
+    when( mockUnifiedRepository.getFile( nullable( String.class ) ) ).thenReturn( importBundle.getFile() );
 
     List<RepositoryFile> localeFolderChildren = new ArrayList<>( );
     localeFolderChildren.add( importBundle.getFile() );
-    when( mockUnifiedRepository.getChildren( anyInt() ) ).thenReturn( localeFolderChildren );
+    when( mockUnifiedRepository.getChildren( nullable( Integer.class ) ) ).thenReturn( localeFolderChildren );
 
 
     RepositoryFile localeParent = localeImportHandler.getLocaleParent( mockLocale, mockProperties );
 
-    verify( mockUnifiedRepository, times( 1 ) ).getFile( anyString() );
-    verify( mockUnifiedRepository, times( 1 ) ).getChildren( anyInt() );
+    verify( mockUnifiedRepository ).getFile( nullable( String.class ) );
+    verify( mockUnifiedRepository ).getChildren( nullable( Integer.class ) );
 
     assertNotNull( localeParent );
   }
 
   @Test
-  public void testImportLocalizedPropertiesFiles_en_us() throws Exception {
+  public void testImportLocalizedPropertiesFiles_en_us() {
 
     LocaleHelper.setThreadLocaleBase( new Locale( "en_US" ) );
 
-    IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
@@ -225,61 +235,55 @@ public class LocaleImportHandlerTest {
             "description=Some Description\n"
                     + "title=Some Title";
     RepositoryFileImportBundle importBundle = createBundle( propertiesContent, "someFile.xaction" );
-    when( mockUnifiedRepository.getFile( anyString() ) ).thenReturn( importBundle.getFile() );
+    when( mockUnifiedRepository.getFile( nullable( String.class ) ) ).thenReturn( importBundle.getFile() );
 
     List<RepositoryFile> localeFolderChildren = new ArrayList<>( );
     localeFolderChildren.add( importBundle.getFile() );
-    when( mockUnifiedRepository.getChildren( anyInt() ) ).thenReturn( localeFolderChildren );
+    when( mockUnifiedRepository.getChildren( nullable( Integer.class ) ) ).thenReturn( localeFolderChildren );
 
 
     RepositoryFile localeParent = localeImportHandler.getLocaleParent( mockLocale, mockProperties );
 
-    verify( mockUnifiedRepository, times( 1 ) ).getFile( anyString() );
-    verify( mockUnifiedRepository, times( 1 ) ).getChildren( anyInt() );
+    verify( mockUnifiedRepository ).getFile( nullable( String.class ) );
+    verify( mockUnifiedRepository ).getChildren( nullable( Integer.class ) );
 
     assertNotNull( localeParent );
   }
 
   @Test
-  public void testImportLocalizedPropertiesFiles_en_gb() throws Exception {
-
+  public void testImportLocalizedPropertiesFiles_en_gb() {
     LocaleHelper.setThreadLocaleBase( new Locale( "en_GB" ) );
 
-    IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
     when( mockLocale.getFile().getName() ).thenReturn( "someFile_en_GB.properties" );
 
     String propertiesContent =
-            "description=Some Description\n"
-                    + "title=Some Title";
+      "description=Some Description\n"
+        + "title=Some Title";
     RepositoryFileImportBundle importBundle = createBundle( propertiesContent, "someFile.xaction" );
-    when( mockUnifiedRepository.getFile( anyString() ) ).thenReturn( importBundle.getFile() );
+    when( mockUnifiedRepository.getFile( nullable( String.class ) ) ).thenReturn( importBundle.getFile() );
 
-    List<RepositoryFile> localeFolderChildren = new ArrayList<>( );
+    List<RepositoryFile> localeFolderChildren = new ArrayList<>();
     localeFolderChildren.add( importBundle.getFile() );
-    when( mockUnifiedRepository.getChildren( anyInt() ) ).thenReturn( localeFolderChildren );
-
+    when( mockUnifiedRepository.getChildren( nullable( Integer.class ) ) ).thenReturn( localeFolderChildren );
 
     RepositoryFile localeParent = localeImportHandler.getLocaleParent( mockLocale, mockProperties );
 
-    verify( mockUnifiedRepository, times( 1 ) ).getFile( anyString() );
-    verify( mockUnifiedRepository, times( 1 ) ).getChildren( anyInt() );
+    verify( mockUnifiedRepository ).getFile( nullable( String.class ) );
+    verify( mockUnifiedRepository ).getChildren( nullable( Integer.class ) );
 
     assertNotNull( localeParent );
   }
 
   @Test
-  public void testImportDefaultWithFileExtensionPropertiesFiles() throws Exception {
+  public void testImportDefaultWithFileExtensionPropertiesFiles() {
 
-    IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
@@ -289,28 +293,26 @@ public class LocaleImportHandlerTest {
             "description=Some Description\n"
                     + "title=Some Title";
     RepositoryFileImportBundle importBundle = createBundle( propertiesContent, "someFile.xaction" );
-    when( mockUnifiedRepository.getFile( anyString() ) ).thenReturn( importBundle.getFile() );
+    when( mockUnifiedRepository.getFile( nullable( String.class ) ) ).thenReturn( importBundle.getFile() );
 
     List<RepositoryFile> localeFolderChildren = new ArrayList<>( );
     localeFolderChildren.add( importBundle.getFile() );
-    when( mockUnifiedRepository.getChildren( anyInt() ) ).thenReturn( localeFolderChildren );
+    when( mockUnifiedRepository.getChildren( nullable( Integer.class ) ) ).thenReturn( localeFolderChildren );
 
 
     RepositoryFile localeParent = localeImportHandler.getLocaleParent( mockLocale, mockProperties );
 
-    verify( mockUnifiedRepository, times( 1 ) ).getFile( anyString() );
-    verify( mockUnifiedRepository, times( 1 ) ).getChildren( anyInt() );
+    verify( mockUnifiedRepository ).getFile( nullable( String.class ) );
+    verify( mockUnifiedRepository ).getChildren( nullable( Integer.class ) );
 
     assertNotNull( localeParent );
   }
 
   @Test
-  public void testImportLocalizedWithFileExtensionPropertiesFiles_fr() throws Exception {
+  public void testImportLocalizedWithFileExtensionPropertiesFiles_fr() {
 
-    IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
@@ -320,28 +322,26 @@ public class LocaleImportHandlerTest {
             "description=Some Description\n"
                     + "title=Some Title";
     RepositoryFileImportBundle importBundle = createBundle( propertiesContent, "some_File.xaction" );
-    when( mockUnifiedRepository.getFile( anyString() ) ).thenReturn( importBundle.getFile() );
+    when( mockUnifiedRepository.getFile( nullable( String.class ) ) ).thenReturn( importBundle.getFile() );
 
     List<RepositoryFile> localeFolderChildren = new ArrayList<>( );
     localeFolderChildren.add( importBundle.getFile() );
-    when( mockUnifiedRepository.getChildren( anyInt() ) ).thenReturn( localeFolderChildren );
+    when( mockUnifiedRepository.getChildren( nullable( Integer.class ) ) ).thenReturn( localeFolderChildren );
 
 
     RepositoryFile localeParent = localeImportHandler.getLocaleParent( mockLocale, mockProperties );
 
-    verify( mockUnifiedRepository, times( 1 ) ).getFile( anyString() );
-    verify( mockUnifiedRepository, times( 1 ) ).getChildren( anyInt() );
+    verify( mockUnifiedRepository ).getFile( nullable( String.class ) );
+    verify( mockUnifiedRepository ).getChildren( nullable( Integer.class ) );
 
     assertNotNull( localeParent );
   }
 
   @Test
-  public void testImportLocalizedWithFileExtensionPropertiesFiles_en_us() throws Exception {
+  public void testImportLocalizedWithFileExtensionPropertiesFiles_en_us() {
 
-    IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
@@ -351,30 +351,28 @@ public class LocaleImportHandlerTest {
             "description=Some Description\n"
                     + "title=Some Title";
     RepositoryFileImportBundle importBundle = createBundle( propertiesContent, "someFile.xaction" );
-    when( mockUnifiedRepository.getFile( anyString() ) ).thenReturn( importBundle.getFile() );
+    when( mockUnifiedRepository.getFile( nullable( String.class ) ) ).thenReturn( importBundle.getFile() );
 
     List<RepositoryFile> localeFolderChildren = new ArrayList<>( );
     localeFolderChildren.add( importBundle.getFile() );
-    when( mockUnifiedRepository.getChildren( anyInt() ) ).thenReturn( localeFolderChildren );
+    when( mockUnifiedRepository.getChildren( nullable( Integer.class ) ) ).thenReturn( localeFolderChildren );
 
 
     RepositoryFile localeParent = localeImportHandler.getLocaleParent( mockLocale, mockProperties );
 
-    verify( mockUnifiedRepository, times( 1 ) ).getFile( anyString() );
-    verify( mockUnifiedRepository, times( 1 ) ).getChildren( anyInt() );
+    verify( mockUnifiedRepository ).getFile( nullable( String.class ) );
+    verify( mockUnifiedRepository ).getChildren( nullable( Integer.class ) );
 
     assertNotNull( localeParent );
   }
 
   @Test
-  public void testImportLocalizedWithFileExtensionPropertiesFiles_en_gb() throws Exception {
+  public void testImportLocalizedWithFileExtensionPropertiesFiles_en_gb() {
 
     LocaleHelper.setThreadLocaleBase( new Locale( "en_GB" ) );
 
-    IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
     RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     when( mockLocale.getName() ).thenReturn( "Some File Name" );
     when( mockLocale.getFile() ).thenReturn( mock( RepositoryFile.class ) );
@@ -384,17 +382,17 @@ public class LocaleImportHandlerTest {
             "description=Some Description\n"
                     + "title=Some Title";
     RepositoryFileImportBundle importBundle = createBundle( propertiesContent, "someFile.xaction" );
-    when( mockUnifiedRepository.getFile( anyString() ) ).thenReturn( importBundle.getFile() );
+    when( mockUnifiedRepository.getFile( nullable( String.class ) ) ).thenReturn( importBundle.getFile() );
 
     List<RepositoryFile> localeFolderChildren = new ArrayList<>( );
     localeFolderChildren.add( importBundle.getFile() );
-    when( mockUnifiedRepository.getChildren( anyInt() ) ).thenReturn( localeFolderChildren );
+    when( mockUnifiedRepository.getChildren( nullable( Integer.class ) ) ).thenReturn( localeFolderChildren );
 
 
     RepositoryFile localeParent = localeImportHandler.getLocaleParent( mockLocale, mockProperties );
 
-    verify( mockUnifiedRepository, times( 1 ) ).getFile( anyString() );
-    verify( mockUnifiedRepository, times( 1 ) ).getChildren( anyInt() );
+    verify( mockUnifiedRepository ).getFile( nullable( String.class ) );
+    verify( mockUnifiedRepository ).getChildren( nullable( Integer.class ) );
 
     assertNotNull( localeParent );
   }
@@ -410,9 +408,9 @@ public class LocaleImportHandlerTest {
     try {
       importer.importFile( importBundle );
 
-      verify( unifiedRepository, times( 1 ) ).getFile( anyString() );
-      verify( unifiedRepository, never() ).getChildren( anyInt() );
-      verify( unifiedRepository, times( 1 ) ).setLocalePropertiesForFile( any( RepositoryFile.class ), anyString(),
+      verify( unifiedRepository ).getFile( nullable( String.class ) );
+      verify( unifiedRepository, never() ).getChildren( nullable( Integer.class ) );
+      verify( unifiedRepository ).setLocalePropertiesForFile( any( RepositoryFile.class ), nullable( String.class ),
           any( Properties.class ) );
     } catch ( PlatformImportException e ) {
       fail( e.getMessage() );
@@ -431,9 +429,9 @@ public class LocaleImportHandlerTest {
     try {
       importer.importFile( importBundle );
 
-      verify( unifiedRepository, times( 1 ) ).getFile( anyString() );
-      verify( unifiedRepository, times( 1 ) ).getChildren( anyInt() );
-      verify( unifiedRepository, never() ).setLocalePropertiesForFile( any( RepositoryFile.class ), anyString(),
+      verify( unifiedRepository ).getFile( nullable( String.class ) );
+      verify( unifiedRepository ).getChildren( nullable( Integer.class ) );
+      verify( unifiedRepository, never() ).setLocalePropertiesForFile( any( RepositoryFile.class ), nullable( String.class ),
           any( Properties.class ) );
     } catch ( PlatformImportException e ) {
       fail( e.getMessage() );
@@ -451,9 +449,9 @@ public class LocaleImportHandlerTest {
     try {
       importer.importFile( importBundle );
 
-      verify( unifiedRepository, times( 1 ) ).getFile( anyString() );
-      verify( unifiedRepository, times( 1 ) ).getChildren( anyInt() );
-      verify( unifiedRepository, never() ).setLocalePropertiesForFile( any( RepositoryFile.class ), anyString(),
+      verify( unifiedRepository ).getFile( nullable( String.class ) );
+      verify( unifiedRepository ).getChildren( nullable( Integer.class ) );
+      verify( unifiedRepository, never() ).setLocalePropertiesForFile( any( RepositoryFile.class ), nullable( String.class ),
           any( Properties.class ) );
     } catch ( PlatformImportException e ) {
       fail( e.getMessage() );
@@ -463,10 +461,7 @@ public class LocaleImportHandlerTest {
 
   @Test
   public void testImportLocaleFolderChild() {
-    IUnifiedRepository mockUnifiedRepository = mock( IUnifiedRepository.class );
-    RepositoryFileImportBundle mockLocale = mock( RepositoryFileImportBundle.class );
     Properties mockProperties = mock( Properties.class );
-    setInternalState( localeImportHandler, "unifiedRepository", mockUnifiedRepository );
 
     String someFile1 = "someFile.xaction";
     String someFile2 = "someFile_rf.xaction";
@@ -489,15 +484,15 @@ public class LocaleImportHandlerTest {
     localeFolderChildren.add( importBundle1.getFile() );
     localeFolderChildren.add( importBundle2.getFile() );
     localeFolderChildren.add( importBundle3.getFile() );
-    when( mockUnifiedRepository.getChildren( anyInt() ) ).thenReturn( localeFolderChildren );
+    when( mockUnifiedRepository.getChildren( nullable( Integer.class ) ) ).thenReturn( localeFolderChildren );
 
     RepositoryFile localeParent1 = localeImportHandler.getLocaleParent( importBundle1, mockProperties );
     RepositoryFile localeParent2 = localeImportHandler.getLocaleParent( importBundle2, mockProperties );
     RepositoryFile localeParent3 = localeImportHandler.getLocaleParent( importBundle3, mockProperties );
     RepositoryFile localeParent4 = localeImportHandler.getLocaleParent( importProperties, mockProperties );
 
-    verify( mockUnifiedRepository, times( 4 ) ).getFile( anyString() );
-    verify( mockUnifiedRepository, times( 4 ) ).getChildren( anyInt() );
+    verify( mockUnifiedRepository, times( 4 ) ).getFile( nullable( String.class ) );
+    verify( mockUnifiedRepository, times( 4 ) ).getChildren( nullable( Integer.class ) );
 
     assertNotNull( localeParent1 );
     assertNotNull( localeParent2 );
@@ -629,21 +624,13 @@ public class LocaleImportHandlerTest {
   }
 
   @Test
-  public void loadPropertiesByXmlWrongFormatTest() throws Exception {
+  public void loadPropertiesByXmlWrongFormatTest() {
     RepositoryFileImportBundle repFileBundleMock = mock( RepositoryFileImportBundle.class );
     RepositoryFile repFileMock = mock( RepositoryFile.class );
     IPlatformImporter platformImporterMock = mock( IPlatformImporter.class );
-    IRepositoryImportLogger logMock = mock( IRepositoryImportLogger.class );
-    mockStatic( PentahoSystem.class );
     when( repFileBundleMock.getFile() ).thenReturn( repFileMock );
     when( repFileMock.getName() ).thenReturn( "index.xml" );
-    when( PentahoSystem.get( IPlatformImporter.class ) ).thenReturn( platformImporterMock );
-    when( platformImporterMock.getRepositoryImportLogger() ).thenReturn( logMock );
-    when( logMock.hasLogger() ).thenReturn( true );
-    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-      + "<name>the name</name>"
-      + "<description>the description</description>";
-    when( repFileBundleMock.getInputStream() ).thenReturn( new ByteArrayInputStream( xml.getBytes() ) );
+    pentahoSystemMock.when( () -> PentahoSystem.get( IPlatformImporter.class ) ).thenReturn( platformImporterMock );
     assertEquals( localeImportHandler.loadPropertiesByXml( repFileBundleMock ).size(), 0 );
   }
 
@@ -653,17 +640,11 @@ public class LocaleImportHandlerTest {
     RepositoryFile repFileMock = mock( RepositoryFile.class );
     IPlatformImporter platformImporterMock = mock( IPlatformImporter.class );
     IRepositoryImportLogger logMock = mock( IRepositoryImportLogger.class );
-    mockStatic( PentahoSystem.class );
     when( repFileBundleMock.getFile() ).thenReturn( repFileMock );
     when( repFileMock.getName() ).thenReturn( "index.xml" );
-    when( PentahoSystem.get( IPlatformImporter.class ) ).thenReturn( platformImporterMock );
+    pentahoSystemMock.when( () -> PentahoSystem.get( IPlatformImporter.class ) ).thenReturn( platformImporterMock );
     when( platformImporterMock.getRepositoryImportLogger() ).thenReturn( logMock );
     when( logMock.hasLogger() ).thenReturn( true );
-    /*String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-      + "<index>"
-      + "<name></name>"
-      + "<description></description>"
-      + "</index>";*/
     when( repFileBundleMock.getInputStream() ).thenThrow( new IOException( "" ) );
 
     assertEquals( localeImportHandler.loadPropertiesByXml( repFileBundleMock ).size(), 0 );

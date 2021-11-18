@@ -22,11 +22,12 @@ package org.pentaho.platform.plugin.services.importexport;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Collection;
 
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -40,23 +41,22 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.mockito.MockedStatic;
 import org.pentaho.platform.engine.core.output.MultiOutputStream;
 import org.pentaho.platform.plugin.services.importexport.CommandLineProcessor.RequestType;
 
-import mockit.Deencapsulation;
-import mockit.Mock;
-import mockit.MockUp;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.nullable;
+import static org.mockito.Mockito.when;
+
 
 @FixMethodOrder( MethodSorters.NAME_ASCENDING )
 public class CommandLineProcessorTest extends Assert {
 
-  private static final String MESSAGE = "message";
-
   private static final PrintStream CONSOLE_OUT = System.out;
   private static final ByteArrayOutputStream CONSOLE_BUFFER = new ByteArrayOutputStream();
-
-  private static CommandLineProcessor clpMock;
-
   private static boolean brokenConstructor = false;
 
   private static final String[] ARGS_INVALID = {
@@ -78,15 +78,6 @@ public class CommandLineProcessorTest extends Assert {
 
     PrintStream ps = new PrintStream( multiOut );
     System.setOut( ps );
-
-    MockUp<CommandLineProcessor> mock = new MockUp<CommandLineProcessor>() {
-      @Mock
-      public void $init( String[] args ) {
-      }
-    };
-    clpMock = new CommandLineProcessor( null );
-    mock.tearDown();
-
   }
 
   @AfterClass
@@ -172,18 +163,36 @@ public class CommandLineProcessorTest extends Assert {
   }
 
   @Test
-  public void get003WriteFiletest() throws IOException {
-    File file = File.createTempFile( "CommandLineProcessorTest", ".log" );
+  public void get003WriteFiletest() throws Exception {
+    String exception = "Throw exception on purpose to test the writeFile() method.";
 
-    try {
-      Deencapsulation.invoke( clpMock, "writeFile", MESSAGE, file.getPath() );
-      assertEquals( MESSAGE, FileUtils.readFileToString( file ) );
-    } finally {
-      file.delete();
+    try ( MockedStatic<Client> clientMock = mockStatic( Client.class ) ) {
+      Client mockClient = mock( Client.class );
+      WebResource mockWebResource = mock( WebResource.class );
+      when( mockWebResource.type( nullable( String.class ) ) ).thenThrow( new RuntimeException( exception ) );
+      when( mockClient.resource( nullable( String.class ) ) ).thenReturn( mockWebResource );
+      clientMock.when( () -> Client.create( any() ) ).thenReturn( mockClient );
+
+      File file = File.createTempFile( "CommandLineProcessorTest", ".log" );
+
+      String[] unknownHostUrl = {
+        "--import",
+        "--url=http://test/pentaho",
+        "--username=admin",
+        "--password=password",
+        "--path=/test/test/test",
+        "--file-path=" + file.getAbsolutePath(),
+        "--logfile=" + file.getAbsolutePath()};
+
+      //When an unknown host URL is used with an import, the private method writeFile() is called.
+      CommandLineProcessor.main( unknownHostUrl );
+      try {
+        assertEquals( exception, FileUtils.readFileToString( file ) );
+      } finally {
+        file.delete();
+      }
+      assertTrue( CONSOLE_BUFFER.toString().contains( exception ) );
     }
-
-    Deencapsulation.invoke( clpMock, "writeFile", MESSAGE, "http://brokenPath" );
-    CONSOLE_BUFFER.toString().contains( "IOException" );
   }
 
   @Test

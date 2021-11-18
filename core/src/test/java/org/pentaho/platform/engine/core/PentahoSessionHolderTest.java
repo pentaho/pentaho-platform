@@ -14,14 +14,15 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.engine.core;
 
-import org.jmock.Mockery;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
@@ -29,14 +30,14 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import java.util.Hashtable;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
 
-@SuppressWarnings( "nls" )
+@RunWith( MockitoJUnitRunner.class )
 public class PentahoSessionHolderTest {
-
-  Mockery mockery = new Mockery();
-
-  static Map<Thread, Boolean> threadFailureMap = new Hashtable<Thread, Boolean>();
+  static Map<Thread, Boolean> threadFailureMap = new Hashtable<>();
 
   @Test
   public void testStandaloneSessionLifecycle() {
@@ -54,7 +55,7 @@ public class PentahoSessionHolderTest {
 
   @Test
   public void testNullSession() {
-    final IPentahoSession mockSession = mockery.mock( IPentahoSession.class );
+    final IPentahoSession mockSession = mock( IPentahoSession.class );
     PentahoSessionHolder.setSession( mockSession );
     assertSame( mockSession, PentahoSessionHolder.getSession() );
     PentahoSessionHolder.removeSession();
@@ -63,8 +64,8 @@ public class PentahoSessionHolderTest {
 
   @Test
   public void testThreadsManageOwnSessions() throws InterruptedException {
-    final IPentahoSession mockSession = mockery.mock( IPentahoSession.class );
-    final IPentahoSession threadMockSession = mockery.mock( IPentahoSession.class, "threadMockSession" );
+    final IPentahoSession mockSession = mock( IPentahoSession.class );
+    final IPentahoSession threadMockSession = mock( IPentahoSession.class, "threadMockSession" );
 
     PentahoSessionHolder.setSession( mockSession );
     assertSame( mockSession, PentahoSessionHolder.getSession() );
@@ -96,7 +97,7 @@ public class PentahoSessionHolderTest {
 
   @Test
   public void testThreadedInheritsSession() throws InterruptedException {
-    final IPentahoSession mockSession = mockery.mock( IPentahoSession.class );
+    final IPentahoSession mockSession = mock( IPentahoSession.class );
     PentahoSessionHolder.setSession( mockSession );
 
     Thread t = new Thread( "testThreadedInheritsSession-1" ) {

@@ -14,12 +14,15 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.junit.*;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -31,43 +34,53 @@ import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.OK;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( { PentahoSessionHolder.class, PentahoSystem.class, SystemUtils.class } )
+@RunWith( MockitoJUnitRunner.class )
 public class SystemRefreshResourceTest {
 
-  private IOlapService olapService = mock( IOlapService.class );
-  private IPentahoSession session = mock( IPentahoSession.class );
-  private SystemRefreshResource resource = spy( new SystemRefreshResource() );
+  private static final IOlapService olapService = mock( IOlapService.class );
+  private static final IPentahoSession session = mock( IPentahoSession.class );
+  private final SystemRefreshResource resource = spy( new SystemRefreshResource() );
 
-  @Before
-  public void setup() {
-    mockStatic( PentahoSessionHolder.class );
-    mockStatic( PentahoSystem.class );
-    mockStatic( SystemUtils.class );
+  private static MockedStatic<PentahoSessionHolder> pentahoSessionHolderMock;
+  private static MockedStatic<PentahoSystem> pentahoSystemMock;
+  private static MockedStatic<SystemUtils> systemUtilsMock;
 
-    when( PentahoSessionHolder.getSession() ).thenReturn( session );
-    when( PentahoSystem.get( IOlapService.class, "IOlapService", session ) ).thenReturn( olapService );
+  @BeforeClass
+  public static void beforeAll() {
+    pentahoSessionHolderMock = mockStatic( PentahoSessionHolder.class );
+    pentahoSystemMock = mockStatic( PentahoSystem.class );
+    systemUtilsMock = mockStatic( SystemUtils.class );
+
+    pentahoSessionHolderMock.when( PentahoSessionHolder::getSession ).thenAnswer( invocationOnMock -> session );
+    pentahoSystemMock.when( () -> PentahoSystem.get( IOlapService.class, "IOlapService", session ) ).thenAnswer( invocationOnMock -> olapService );
+  }
+
+  @AfterClass
+  public static void afterAll() {
+    pentahoSessionHolderMock.close();
+    pentahoSystemMock.close();
+    systemUtilsMock.close();
+  }
+
+  @After
+  public void afterEach() {
+    reset( olapService );
+    reset( session );
   }
 
   @Test
@@ -94,7 +107,7 @@ public class SystemRefreshResourceTest {
     doThrow( IOlapServiceException.class ).when( olapService ).flush( session, "schemaX" );
 
     try {
-      Response response = resource.flushMondrianSchemaCache( "schemaX" );
+      resource.flushMondrianSchemaCache( "schemaX" );
       fail();
     } catch ( IOlapServiceException e ) {
       verify( olapService, times( 1 ) ).flush( session, "schemaX" );

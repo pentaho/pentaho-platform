@@ -14,13 +14,15 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -161,7 +163,7 @@ public class NonPooledDatasourceSystemListenerTest {
   private void stubGetListOfDatabaseConnectionsMethod( DatabaseAccessType... databaseAccessTypes )
     throws ObjectFactoryException, DatasourceMgmtServiceException {
 
-    List<IDatabaseConnection> databaseConnections = new LinkedList<IDatabaseConnection>();
+    List<IDatabaseConnection> databaseConnections = new LinkedList<>();
     for ( DatabaseAccessType databaseAccessType : databaseAccessTypes ) {
       IDatabaseConnection connection = mock( DatabaseConnection.class );
       when( connection.getAccessType() ).thenReturn( databaseAccessType );
@@ -203,8 +205,8 @@ public class NonPooledDatasourceSystemListenerTest {
   }
 
   private void putInRegionCacheWasCalled( int wishedTimes ) {
-    verify( ICacheManagerMock, times( wishedTimes ) ).putInRegionCache( eq( IDBDatasourceService.JDBC_DATASOURCE ), anyString(),
-        anyObject() );
+    verify( ICacheManagerMock, times( wishedTimes ) ).putInRegionCache( eq( IDBDatasourceService.JDBC_DATASOURCE ), nullable( String.class ),
+        any() );
   }
 
   private void isPortUsedByServerCalled( int wishedTimes ) {

@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -36,9 +36,15 @@ import org.pentaho.platform.engine.core.system.objfac.references.SingletonPentah
 import java.util.Collections;
 import java.util.Dictionary;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by nbaker on 5/3/15.
@@ -51,7 +57,7 @@ public class OSGIRuntimeObjectFactoryTest {
   private BundleContext bundleContext;
 
   @Before
-  public void setup(){
+  public void setup() {
     objectFactory = new OSGIRuntimeObjectFactory();
     MockitoAnnotations.initMocks( this );
   }
@@ -60,8 +66,8 @@ public class OSGIRuntimeObjectFactoryTest {
   @Test
   public void testRegisterReferenceHeldUntilOSGIReady() throws Exception {
 
-    SingletonPentahoObjectReference<String> ref = new SingletonPentahoObjectReference<String>( String.class, "Testing",
-        Collections.<String, Object>singletonMap( "foo", "bar" ), 10 );
+    SingletonPentahoObjectReference<String> ref = new SingletonPentahoObjectReference<>( String.class, "Testing",
+      Collections.singletonMap( "foo", "bar" ), 10 );
     objectFactory.registerReference( ref, String.class );
     String s = objectFactory.get( String.class, null );
     assertEquals( "Testing", s );
@@ -77,10 +83,10 @@ public class OSGIRuntimeObjectFactoryTest {
 
 
   @Test
-  public void testRegisterReferencePassesToOSGI() throws Exception {
+  public void testRegisterReferencePassesToOSGI() {
     objectFactory.setBundleContext( bundleContext );
-    SingletonPentahoObjectReference<String> ref = new SingletonPentahoObjectReference<String>( String.class, "Testing",
-        Collections.<String, Object>singletonMap( "foo", "bar" ), 10 );
+    SingletonPentahoObjectReference<String> ref = new SingletonPentahoObjectReference<>( String.class, "Testing",
+      Collections.singletonMap( "foo", "bar" ), 10 );
     objectFactory.registerReference( ref, String.class );
     ArgumentCaptor<ServiceFactory> serviceFactoryArgumentCaptor = ArgumentCaptor.forClass( ServiceFactory.class );
     verify( bundleContext ).registerService( eq( String.class.getName() ), serviceFactoryArgumentCaptor.capture(),
@@ -95,8 +101,8 @@ public class OSGIRuntimeObjectFactoryTest {
 
     assertFalse( objectFactory.objectDefined( String.class ) );
 
-    SingletonPentahoObjectReference<String> ref = new SingletonPentahoObjectReference<String>( String.class, "Testing",
-        Collections.<String, Object>singletonMap( "foo", "bar" ), 10 );
+    SingletonPentahoObjectReference<String> ref = new SingletonPentahoObjectReference<>( String.class, "Testing",
+      Collections.singletonMap( "foo", "bar" ), 10 );
     IPentahoObjectRegistration iPentahoObjectRegistration = objectFactory.registerReference( ref, String.class );
     String s = objectFactory.get( String.class, null );
     assertEquals( "Testing", s );
@@ -105,15 +111,15 @@ public class OSGIRuntimeObjectFactoryTest {
     ServiceRegistration registration2 = mock( ServiceRegistration.class );
     ServiceReference mockRef = mock( ServiceReference.class );
 
-    when(bundleContext.registerService( eq(String.class.getName()), anyObject(), any( Dictionary.class ))).thenReturn(
-        registration );
-    when(bundleContext.registerService( eq(IPentahoObjectReference.class.getName()), anyObject(), any( Dictionary.class ))).thenReturn( registration2 );
+    when( bundleContext.registerService( eq( String.class.getName() ), any(), any( Dictionary.class ) ) ).thenReturn(
+      registration );
+    when( bundleContext.registerService( eq( IPentahoObjectReference.class.getName() ), any(), any( Dictionary.class ) ) ).thenReturn( registration2 );
 
     objectFactory.setBundleContext( bundleContext );
-    when( bundleContext.getServiceReference( String.class )).thenReturn( mockRef );
+    when( bundleContext.getServiceReference( String.class ) ).thenReturn( mockRef );
     assertTrue( objectFactory.objectDefined( String.class ) );
     iPentahoObjectRegistration.remove();
-    verify( registration, times(1) ).unregister();
+    verify( registration, times( 1 ) ).unregister();
 
   }
 

@@ -14,14 +14,14 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -83,7 +83,7 @@ public class DirectoryResourceTest {
     Response testResponse = directoryResource.createDirs( null );
 
     assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), testResponse.getStatus() );
-    verify( directoryResource.fileService, times( 0 ) ).doCreateDirSafe( anyString() );
+    verify( directoryResource.fileService, times( 0 ) ).doCreateDirSafe( nullable( String.class ) );
   }
 
   @Test
@@ -98,12 +98,12 @@ public class DirectoryResourceTest {
 
   @Test
   public void testCreateDirs_Forbidden() throws Exception {
-    doReturn( false ).when( directoryResource.fileService ).doCreateDirSafe( anyString() );
+    doReturn( false ).when( directoryResource.fileService ).doCreateDirSafe( nullable( String.class ) );
 
     Response testResponse = directoryResource.createDirs( ROOTLEVEL_PATH );
 
     assertEquals( Response.Status.FORBIDDEN.getStatusCode(), testResponse.getStatus() );
-    verify( directoryResource.fileService, times( 0 ) ).doCreateDirSafe( anyString() );
+    verify( directoryResource.fileService, times( 0 ) ).doCreateDirSafe( nullable( String.class ) );
   }
 
   @Test
@@ -134,9 +134,9 @@ public class DirectoryResourceTest {
   }
 
   @Test
-  public void testIsVisibleWhenFolderIsHidden() throws Exception {
+  public void testIsVisibleWhenFolderIsHidden() {
     doReturn( "false" ).when( directoryResource.fileService ).doGetIsVisible( "/home/suzy" );
-    Response testResponse = directoryResource.isDirVisible( "/home/suzy");
+    Response testResponse = directoryResource.isDirVisible( "/home/suzy" );
 
     assertEquals( Response.Status.OK.getStatusCode(), testResponse.getStatus() );
     assertEquals( "false", testResponse.getEntity() );
@@ -144,11 +144,11 @@ public class DirectoryResourceTest {
   }
 
   @Test
-  public void testIsVisibleWhenFolderIsVisible() throws Exception {
+  public void testIsVisibleWhenFolderIsVisible() {
     doReturn( true ).when( directoryResource.fileService ).doesExist( "/home/joe" );
     doReturn( true ).when( directoryResource.fileService ).isFolder( "/home/joe" );
     doReturn( "true" ).when( directoryResource.fileService ).doGetIsVisible( "/home/joe" );
-    Response response = directoryResource.isDirVisible( "/home/joe");
+    Response response = directoryResource.isDirVisible( "/home/joe" );
 
     assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
     assertEquals( "true", response.getEntity() );
@@ -158,16 +158,16 @@ public class DirectoryResourceTest {
   }
 
   @Test
-  public void testGetDefaultLocation() throws Exception {
+  public void testGetDefaultLocation() {
     doReturn( "/public" ).when( directoryResource.fileService ).doGetDefaultLocation( "/home/suzy" );
-    Response testResponse = directoryResource.getDefaultLocation( "/home/suzy");
+    Response testResponse = directoryResource.getDefaultLocation( "/home/suzy" );
 
     assertEquals( Response.Status.OK.getStatusCode(), testResponse.getStatus() );
     assertEquals( "/public", testResponse.getEntity() );
     verify( directoryResource.fileService, times( 1 ) ).doGetDefaultLocation( "/home/suzy" );
 
     doReturn( "/home/joe" ).when( directoryResource.fileService ).doGetDefaultLocation( "/home/joe" );
-    Response response = directoryResource.getDefaultLocation( "/home/joe");
+    Response response = directoryResource.getDefaultLocation( "/home/joe" );
 
     assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
     assertEquals( "/home/joe", response.getEntity() );

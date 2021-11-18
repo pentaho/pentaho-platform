@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -37,7 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -133,12 +133,12 @@ public class SoapHelperTest extends TestCase {
     IRuntimeContext context = mock( IRuntimeContext.class );
     when( context.getOutputNames() ).thenReturn( outputNames );
     when( context.getStatus() ).thenReturn( IRuntimeContext.RUNTIME_STATUS_SUCCESS );
-    when( context.getOutputParameter( anyString() ) ).thenReturn( actionParameter );
+    when( context.getOutputParameter( nullable( String.class ) ) ).thenReturn( actionParameter );
     List messages = new ArrayList();
 
     IOutputHandler outputHandler = mock( IOutputHandler.class );
     IContentItem contentItem = mock( IContentItem.class );
-    when( outputHandler.getOutputContentItem( anyString(), anyString(), anyString(), anyString() ) ).thenReturn( contentItem );
+    when( outputHandler.getOutputContentItem( nullable( String.class ), nullable( String.class ), nullable( String.class ), nullable( String.class ) ) ).thenReturn( contentItem );
     when( contentItem.getMimeType() ).thenReturn( "text/xml" );
 
     OutputStream contentStream = mock( OutputStream.class );

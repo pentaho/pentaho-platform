@@ -14,14 +14,18 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.services.importexport;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -117,7 +121,7 @@ public class ImportSessionTest {
     ExportManifestEntity entity = mock( ExportManifestEntity.class );
     RepositoryFileExtraMetaData repositoryFileExtraMetaData = mock( RepositoryFileExtraMetaData.class );
 
-    when( manifest.getExportManifestEntity( anyString() )).thenReturn( entity );
+    when( manifest.getExportManifestEntity( nullable( String.class ) )).thenReturn( entity );
     when( entity.getRepositoryFileExtraMetaData() ).thenReturn( repositoryFileExtraMetaData );
 
     Whitebox.setInternalState( importSession, "manifest", manifest );

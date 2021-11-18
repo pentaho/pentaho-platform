@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -36,9 +36,11 @@ import javax.jcr.Value;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by nbaker on 10/6/15.
@@ -80,7 +82,7 @@ public class RepositoryGCOrphanTest {
     when( uuid.getValue() ).thenReturn( value );
     when( uuid.getString() ).thenReturn( "Foo" );
 
-    when( systemSession.getNodeByIdentifier( anyString() ) ).thenThrow( new RepositoryException( "err" ) );
+    when( systemSession.getNodeByIdentifier( any() ) ).thenThrow( new RepositoryException( "err" ) );
 
     Version parent = mock( Version.class );
     VersionHistory grandParent = mock( VersionHistory.class );

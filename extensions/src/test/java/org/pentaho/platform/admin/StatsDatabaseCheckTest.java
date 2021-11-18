@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -24,16 +24,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.pentaho.di.core.exception.KettleXMLException;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.di.job.JobMeta;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by rfellows on 10/20/15.
@@ -52,7 +55,7 @@ public class StatsDatabaseCheckTest {
   }
 
   @Test
-  public void testGetJobFileFullPath() throws Exception {
+  public void testGetJobFileFullPath() {
     when( appContext.getSolutionPath( "system" ) ).thenReturn( TestResourceLocation.TEST_RESOURCES + "/FileOutputResourceTest/system" );
     statsDatabaseCheck.setJobFileName( "HelloWorld.kjb" );
 
@@ -61,13 +64,13 @@ public class StatsDatabaseCheckTest {
   }
 
   @Test
-  public void testShutdown() throws Exception {
+  public void testShutdown() {
     // code coverage test
     statsDatabaseCheck.shutdown();
   }
 
   @Test
-  public void testStartup() throws Exception {
+  public void testStartup() {
     StatsDatabaseCheck spyCheck = spy( statsDatabaseCheck );
     doReturn( null ).when( spyCheck ).getJobFileFullPath();
 
@@ -76,7 +79,7 @@ public class StatsDatabaseCheckTest {
   }
 
   @Test
-  public void testExecuteJob() throws Exception {
+  public void testExecuteJob() {
     JobMeta jobMeta = mock( JobMeta.class );
     String filePath = TestResourceLocation.TEST_RESOURCES + "/FileOutputResourceTest/system/HelloWorld.kjb";
     when( jobMeta.getFilename() ).thenReturn( filePath );

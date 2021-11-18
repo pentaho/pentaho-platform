@@ -14,18 +14,16 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2020-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.test.platform.plugin.services.security.userrole.ldap;
 
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.PentahoCachingLdapAuthoritiesPopulator;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,8 +32,8 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import java.util.Collection;
 import java.util.HashSet;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -58,13 +56,13 @@ public class PentahoCachingLdapAuthoritiesPopulatorTest {
     SimpleGrantedAuthority role1 = new SimpleGrantedAuthority( "someRole" );
     Collection<SimpleGrantedAuthority> authList = new HashSet<>();
     authList.add( role1 );
-    doReturn( authList ).when( mockPopulator ).getGrantedAuthorities( any(), anyString() );
+    doReturn( authList ).when( mockPopulator ).getGrantedAuthorities( any(), nullable( String.class ) );
 
     cachingLdapAuthoritiesPopulator.getGrantedAuthorities( mockDirContextOperations, "fred" );
     cachingLdapAuthoritiesPopulator.getGrantedAuthorities( mockDirContextOperations, "fred" );
     cachingLdapAuthoritiesPopulator.getGrantedAuthorities( mockDirContextOperations, "fred" );
 
-    verify( mockPopulator, times( 1 ) ).getGrantedAuthorities( any(), anyString() );
+    verify( mockPopulator, times( 1 ) ).getGrantedAuthorities( any(), nullable( String.class ) );
   }
 
   @Test

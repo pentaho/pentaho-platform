@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -24,7 +24,7 @@ import org.apache.jackrabbit.spi.commons.name.NameConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -74,10 +74,11 @@ import java.util.Random;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.endsWith;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.ArgumentMatchers.endsWith;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -113,7 +114,7 @@ public class DefaultDeleteHelperTest {
 
     final RepositoryFileProxy repositoryFileProxy = mock( RepositoryFileProxy.class );
     final RepositoryFileProxyFactory repositoryFileProxyFactory = mock( RepositoryFileProxyFactory.class );
-    when( repositoryFileProxyFactory.getProxy( Matchers.<Node>anyObject(), Matchers.<IPentahoLocale>anyObject() ) )
+    when( repositoryFileProxyFactory.getProxy( ArgumentMatchers.<Node>any(), ArgumentMatchers.<IPentahoLocale>any() ) )
         .thenReturn( repositoryFileProxy );
     // set file ID to random value to make different files not equal
     when( repositoryFileProxy.getId() ).thenAnswer( new Answer<Object>() {
@@ -140,12 +141,12 @@ public class DefaultDeleteHelperTest {
     final Node nodeDeletedFile = mock( Node.class );
 
     final Node nodeTrash = mock( Node.class );
-    when( nodeTrash.hasNode( anyString() ) ).thenReturn( true );
-    when( nodeTrash.getNode( anyString() ) ).thenReturn( nodeDeletedFile );
+    when( nodeTrash.hasNode( nullable( String.class ) ) ).thenReturn( true );
+    when( nodeTrash.getNode( nullable( String.class ) ) ).thenReturn( nodeDeletedFile );
 
     final Node nodeUserFolder = mock( Node.class );
-    when( nodeUserFolder.hasNode( anyString() ) ).thenReturn( true );
-    when( nodeUserFolder.getNode( anyString() ) ).thenReturn( nodeTrash );
+    when( nodeUserFolder.hasNode( nullable( String.class ) ) ).thenReturn( true );
+    when( nodeUserFolder.getNode( nullable( String.class ) ) ).thenReturn( nodeTrash );
 
     final Node nodeDeletedParent = mock( Node.class );
     when( nodeDeletedParent.getPath() ).thenReturn( "parentPath" );
@@ -155,16 +156,16 @@ public class DefaultDeleteHelperTest {
     when( nodeToRemove.getParent() ).thenReturn( nodeDeletedParent );
 
     when( session.getNodeByIdentifier( fileID ) ).thenReturn( nodeToRemove );
-    when( session.getItem( anyString() ) ).thenReturn( nodeUserFolder );
+    when( session.getItem( nullable( String.class ) ) ).thenReturn( nodeUserFolder );
 
     try {
       defaultDeleteHelper.deleteFile( session, pentahoJcrConstants, fileID );
 
       verify( nodeDeletedFile ).setProperty( eq( pentahoJcrConstants.getPHO_DELETEDDATE() ), any( Calendar.class ) );
-      verify( nodeDeletedFile ).setProperty( eq( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ), anyString() );
-      verify( nodeDeletedFile ).setProperty( eq( pentahoJcrConstants.getPHO_ORIGNAME() ), anyString() );
+      verify( nodeDeletedFile ).setProperty( eq( pentahoJcrConstants.getPHO_ORIGPARENTFOLDERPATH() ), nullable( String.class ) );
+      verify( nodeDeletedFile ).setProperty( eq( pentahoJcrConstants.getPHO_ORIGNAME() ), nullable( String.class ) );
 
-      verify( session ).move( eq( nodeToRemove.getPath() ), anyString() );
+      verify( session ).move( eq( nodeToRemove.getPath() ), nullable( String.class ) );
     } catch ( Exception e ) {
       fail();
     }
@@ -188,10 +189,10 @@ public class DefaultDeleteHelperTest {
     when( nodeTrash.getNodes() ).thenReturn( nodeIterator );
 
     final Node nodeUserFolder = mock( Node.class );
-    when( nodeUserFolder.hasNode( anyString() ) ).thenReturn( true );
-    when( nodeUserFolder.getNode( anyString() ) ).thenReturn( nodeTrash );
+    when( nodeUserFolder.hasNode( nullable( String.class ) ) ).thenReturn( true );
+    when( nodeUserFolder.getNode( nullable( String.class ) ) ).thenReturn( nodeTrash );
 
-    when( session.getItem( anyString() ) ).thenReturn( nodeUserFolder );
+    when( session.getItem( nullable( String.class ) ) ).thenReturn( nodeUserFolder );
 
     final List<RepositoryFile> deletedFiles = defaultDeleteHelper.getDeletedFiles( session, pentahoJcrConstants );
     assertNotNull( deletedFiles );
@@ -252,8 +253,8 @@ public class DefaultDeleteHelperTest {
     when( nodeTrash.getNodes() ).thenReturn( nodeIterator );
 
     final Node nodeUserFolder = mock( Node.class );
-    when( nodeUserFolder.hasNode( anyString() ) ).thenReturn( true );
-    when( nodeUserFolder.getNode( anyString() ) ).thenReturn( nodeTrash );
+    when( nodeUserFolder.hasNode( nullable( String.class ) ) ).thenReturn( true );
+    when( nodeUserFolder.getNode( nullable( String.class ) ) ).thenReturn( nodeTrash );
     when( nodeUserFolder.getIdentifier() ).thenReturn( "nodeUserFolderID" );
 
     final Selector selector = mock( Selector.class );
@@ -261,14 +262,14 @@ public class DefaultDeleteHelperTest {
     final Value value = mock( Value.class );
 
     final ValueFactory valueFactory = mock( ValueFactory.class );
-    when( valueFactory.createValue( anyString() ) ).thenReturn( value );
+    when( valueFactory.createValue( nullable( String.class ) ) ).thenReturn( value );
 
     final QueryObjectModel queryObjectModel = mock( QueryObjectModel.class );
 
     final QueryObjectModelFactory qomFactory = mock( QueryObjectModelFactory.class );
-    when( qomFactory.createQuery( Matchers.<Source>any(), Matchers.<Constraint>any(), Matchers.<Ordering[]>any(),
-        Matchers.<Column[]>any() ) ).thenReturn( queryObjectModel );
-    when( qomFactory.selector( anyString(), anyString() ) ).thenReturn( selector );
+    when( qomFactory.createQuery( ArgumentMatchers.<Source>any(), ArgumentMatchers.<Constraint>any(), ArgumentMatchers.<Ordering[]>any(),
+        ArgumentMatchers.<Column[]>any() ) ).thenReturn( queryObjectModel );
+    when( qomFactory.selector( nullable( String.class ), nullable( String.class ) ) ).thenReturn( selector );
 
     final QueryResult queryResult = mock( QueryResult.class );
     when( queryResult.getNodes() ).thenReturn( nodeIterator );
@@ -278,15 +279,15 @@ public class DefaultDeleteHelperTest {
 
     final QueryManager queryManager = mock( QueryManager.class );
     when( queryManager.getQOMFactory() ).thenReturn( qomFactory );
-    when( queryManager.createQuery( anyString(), anyString() ) ).thenReturn( query );
+    when( queryManager.createQuery( nullable( String.class ), nullable( String.class ) ) ).thenReturn( query );
 
     final Workspace workspace = mock( Workspace.class );
     when( workspace.getQueryManager() ).thenReturn( queryManager );
 
-    when( session.getItem( anyString() ) ).thenReturn( nodeUserFolder );
+    when( session.getItem( nullable( String.class ) ) ).thenReturn( nodeUserFolder );
     when( session.getValueFactory() ).thenReturn( valueFactory );
     when( session.getWorkspace() ).thenReturn( workspace );
-    when( session.itemExists( anyString() ) ).thenReturn( true );
+    when( session.itemExists( nullable( String.class ) ) ).thenReturn( true );
 
     final String someFilter = "someFilter";
     final List<RepositoryFile> deletedFiles =

@@ -14,15 +14,23 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.action.builtin;
 
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.anyMap;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.nullable;
+import static org.mockito.Mockito.when;
 
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -58,13 +66,13 @@ public class ActionSequenceActionTest {
     when( context.getStatus() ).thenReturn( IRuntimeContext.RUNTIME_STATUS_SUCCESS );
 
     final ISolutionEngine engine = mock( ISolutionEngine.class );
-    when( engine.execute( anyString(), anyString(), anyBoolean(), anyBoolean(), anyString(), anyBoolean(),
-        anyMap(), any( IOutputHandler.class ), any( IActionCompleteListener.class ),
-        any( IPentahoUrlFactory.class ), anyList() ) ).thenReturn( context );
+    when( engine.execute( nullable( String.class ), nullable( String.class ), anyBoolean(), anyBoolean(), nullable( String.class ), anyBoolean(),
+        anyMap(), any( IOutputHandler.class ), nullable( IActionCompleteListener.class ),
+        nullable( IPentahoUrlFactory.class ), anyList() ) ).thenReturn( context );
 
     pentahoObjectFactory = mock( IPentahoObjectFactory.class );
-    when( pentahoObjectFactory.objectDefined( anyString() ) ).thenReturn( true );
-    when( pentahoObjectFactory.get( this.anyClass(), anyString(), any( IPentahoSession.class ) ) ).thenAnswer( new Answer<Object>() {
+    when( pentahoObjectFactory.objectDefined( nullable( String.class ) ) ).thenReturn( true );
+    when( pentahoObjectFactory.get( this.anyClass(), nullable( String.class ), nullable( IPentahoSession.class ) ) ).thenAnswer( new Answer<Object>() {
       @Override
       public ISolutionEngine answer( InvocationOnMock invocation ) throws Throwable {
         return engine;
@@ -95,9 +103,9 @@ public class ActionSequenceActionTest {
     return argThat( new AnyClassMatcher() );
   }
 
-  private class AnyClassMatcher extends ArgumentMatcher<Class<?>> {
+  private class AnyClassMatcher implements ArgumentMatcher<Class<?>> {
     @Override
-    public boolean matches( final Object arg ) {
+    public boolean matches( Class<?> arg ) {
       // We return true, because we want to acknowledge all class types
       return true;
     }

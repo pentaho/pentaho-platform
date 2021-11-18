@@ -46,9 +46,8 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -83,14 +82,14 @@ public class FileServiceTest {
     final IPentahoObjectReference pentahoObjectReference = mock( IPentahoObjectReference.class );
     when( pentahoObjectReference.getObject() ).thenReturn( systemConfig );
     try {
-      when( objectFactory.getObjectReferences( eq( ISystemConfig.class ), any( IPentahoSession.class ),
-          any( Map.class ) ) ).thenReturn( new LinkedList() { {
+      when( objectFactory.getObjectReferences( eq( ISystemConfig.class ), nullable( IPentahoSession.class ),
+          nullable( Map.class ) ) ).thenReturn( new LinkedList() { {
               add( pentahoObjectReference );
             } } );
     } catch ( ObjectFactoryException e ) {
       e.printStackTrace();
     }
-    when( settingsService.getSystemSetting( anyString(), anyString() ) ).thenReturn( "" );
+    when( settingsService.getSystemSetting( nullable( String.class ), nullable( String.class ) ) ).thenReturn( "" );
     PentahoSystem.registerObjectFactory( objectFactory );
   }
 
@@ -107,7 +106,7 @@ public class FileServiceTest {
     InputStream inputStream = mock( InputStream.class );
     RepositoryFileOutputStream repositoryFileOutputStream = mock( RepositoryFileOutputStream.class );
 
-    doReturn( repositoryFileOutputStream ).when( fileService ).getRepositoryFileOutputStream( anyString() );
+    doReturn( repositoryFileOutputStream ).when( fileService ).getRepositoryFileOutputStream( nullable( String.class ) );
     doReturn( 1 ).when( fileService ).copy( inputStream, repositoryFileOutputStream );
 
     fileService.createFile( UTF_8, PATH_SPECIAL_CHARACTERS, inputStream );
@@ -119,7 +118,7 @@ public class FileServiceTest {
     InputStream inputStream = mock( InputStream.class );
     RepositoryFileOutputStream repositoryFileOutputStream = mock( RepositoryFileOutputStream.class );
 
-    doReturn( repositoryFileOutputStream ).when( fileService ).getRepositoryFileOutputStream( anyString() );
+    doReturn( repositoryFileOutputStream ).when( fileService ).getRepositoryFileOutputStream( nullable( String.class ) );
     doReturn( 1 ).when( fileService ).copy( inputStream, repositoryFileOutputStream );
 
     fileService.createFile( UTF_8, PATH_JAPANESE_CHARACTERS, inputStream );
@@ -138,7 +137,7 @@ public class FileServiceTest {
   public void testDoCreateDirSafe_Special_Characters() throws Exception {
     DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
     doReturn( RepoWs ).when( fileService ).getRepoWs();
-    doReturn( true ).when( fileService ).doCreateDirFor( anyString() );
+    doReturn( true ).when( fileService ).doCreateDirFor( nullable( String.class ) );
 
     assertTrue( fileService.doCreateDirSafe( PATH_SPECIAL_CHARACTERS ) );
   }
@@ -147,7 +146,7 @@ public class FileServiceTest {
   public void testDoCreateDirSafe_Japanese_Characters() throws Exception {
     DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
     doReturn( RepoWs ).when( fileService ).getRepoWs();
-    doReturn( true ).when( fileService ).doCreateDirFor( anyString() );
+    doReturn( true ).when( fileService ).doCreateDirFor( nullable( String.class ) );
 
     assertTrue( fileService.doCreateDirSafe( PATH_JAPANESE_CHARACTERS ) );
   }

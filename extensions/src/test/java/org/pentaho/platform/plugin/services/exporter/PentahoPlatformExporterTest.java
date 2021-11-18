@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -80,7 +80,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.anyBoolean;
 
@@ -187,7 +187,7 @@ public class PentahoPlatformExporterTest {
     map.put( "testRole", permissions );
     RoleBindingStruct struct = mock( RoleBindingStruct.class );
     struct.bindingMap = map;
-    when( roleBindingDao.getRoleBindingStruct( anyString() ) ).thenReturn( struct );
+    when( roleBindingDao.getRoleBindingStruct( nullable( String.class ) ) ).thenReturn( struct );
 
     ArgumentCaptor<UserExport> userCaptor = ArgumentCaptor.forClass( UserExport.class );
     ArgumentCaptor<RoleExport> roleCaptor = ArgumentCaptor.forClass( RoleExport.class );
@@ -202,7 +202,7 @@ public class PentahoPlatformExporterTest {
 
     List<GrantedAuthority> authList = new ArrayList<>();
     UserDetails userDetails = new User( "testUser", "testPassword", true, true, true, true, authList );
-    when( userDetailsService.loadUserByUsername( anyString() ) ).thenReturn( userDetails );
+    when( userDetailsService.loadUserByUsername( nullable( String.class ) ) ).thenReturn( userDetails );
 
     exporter.exportUsersAndRoles();
 
@@ -298,7 +298,7 @@ public class PentahoPlatformExporterTest {
     exporterSpy.exportMondrianSchemas();
 
     verify( exportManifest, never() ).addMondrian( any( ExportManifestMondrian.class ) );
-    verify( mondrianCatalogRepositoryHelper, never() ).getModrianSchemaFiles( anyString() );
+    verify( mondrianCatalogRepositoryHelper, never() ).getModrianSchemaFiles( nullable( String.class ) );
   }
 
   @Test
@@ -309,7 +309,7 @@ public class PentahoPlatformExporterTest {
     executeExportMondrianSchemasForDataSourceInfo( catalogName, dataSourceInfo );
 
     verify( exportManifest ).addMondrian( any( ExportManifestMondrian.class ) );
-    verify( mondrianCatalogRepositoryHelper ).getModrianSchemaFiles( anyString() );
+    verify( mondrianCatalogRepositoryHelper ).getModrianSchemaFiles( nullable( String.class ) );
     assertEquals( catalogName, exportManifest.getMondrianList().get( 0 ).getCatalogName() );
     assertTrue( exportManifest.getMondrianList().get( 0 ).isXmlaEnabled() );
     verify( exporterSpy.zos ).putNextEntry( any( ZipEntry.class ) );

@@ -14,15 +14,19 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.services.importer;
 
 import org.apache.commons.logging.Log;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryDefaultAclHandler;
@@ -33,19 +37,16 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.core.mimetype.MimeType;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
-import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
-import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository.ICurrentUserProvider;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 /**
@@ -65,8 +66,7 @@ import static org.mockito.Mockito.when;
  * @author tkafalas
  *
  */
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( { DefaultUnifiedRepositoryWebService.class, FileService.class } )
+@RunWith( MockitoJUnitRunner.class )
 public class RepositoryFileImportFileHandlerTest {
   private static final String USER_NAME = "__root__"; // The mock unified repository gives this user full access
   private static final String USER_NAME2 = "mickeyMouse"; // Used with acls
@@ -77,6 +77,9 @@ public class RepositoryFileImportFileHandlerTest {
   private static final String TARGET_RESOURCE_NAME_ERREXT = "resourceName.err";
   private static final String MIMENAME = "mimeName";
   private static final String MIME_EXTENSION = "dum";
+
+  private static MockedStatic<PentahoSystem> pentahoSystemMock;
+
   DefaultTenantedPrincipleNameResolver principleNameResolver = new DefaultTenantedPrincipleNameResolver();
 
   RepositoryFileImportFileHandler fileHandler;
@@ -85,21 +88,32 @@ public class RepositoryFileImportFileHandlerTest {
   RepositoryFileImportBundle mockBundle;
   UserProvider userProvider;
 
+  @BeforeClass
+  public static void beforeAll() {
+    pentahoSystemMock = mockStatic( PentahoSystem.class );
+    pentahoSystemMock.when( () -> PentahoSystem.get( IUnifiedRepository.class ) ).thenReturn( mock( IUnifiedRepository.class ) );
+  }
+
+  @AfterClass
+  public static void afterAll() {
+    pentahoSystemMock.close();
+  }
+
   @Test
-  public void testGetImportSession() throws Exception {
+  public void testGetImportSession() {
     setup( MIMENAME, MIME_EXTENSION, "", "", false );
     assertNotNull( importSession );
   }
 
   @Test
-  public void testGetLogger() throws Exception {
+  public void testGetLogger() {
     setup( MIMENAME, MIME_EXTENSION, "", "", false );
     Log logger = fileHandler.getLogger();
     assertNotNull( logger );
   }
 
   @Test
-  public void testGetMimeTypeMap() throws Exception {
+  public void testGetMimeTypeMap() {
     setup( MIMENAME, MIME_EXTENSION, "", "", false );
     Map<String, IMimeType> map = fileHandler.getMimeTypeMap();
     assertNotNull( map );
@@ -349,7 +363,7 @@ public class RepositoryFileImportFileHandlerTest {
   }
 
   @Test
-  public void testExtensionNotTruncated() throws Exception {
+  public void testExtensionNotTruncated() {
     String name = "file.csv";
     setup( MIMENAME, MIME_EXTENSION, "", "", false );
     String title = fileHandler.getTitle( name );
@@ -357,7 +371,7 @@ public class RepositoryFileImportFileHandlerTest {
   }
 
   @Test
-  public void testExtensionTruncated() throws Exception {
+  public void testExtensionTruncated() {
     String name = "file.prpt";
     setup( MIMENAME, MIME_EXTENSION, "", "", false );
     String title = fileHandler.getTitle( name );
@@ -365,7 +379,7 @@ public class RepositoryFileImportFileHandlerTest {
   }
 
   @Test
-  public void testFileWithoutExtension() throws Exception {
+  public void testFileWithoutExtension() {
     String name = "file";
     setup( MIMENAME, MIME_EXTENSION, "", "", false );
     String title = fileHandler.getTitle( name );
@@ -424,12 +438,11 @@ public class RepositoryFileImportFileHandlerTest {
     return new RepositoryFileAcl( "", sid, inheriting, aces );
   }
 
-  private void setup( String mimeTypeName, String extension, String path, String fileName, boolean folder )
-    throws Exception {
-    List<String> extensions = Arrays.asList( extension );
+  private void setup( String mimeTypeName, String extension, String path, String fileName, boolean folder ) {
+    List<String> extensions = Collections.singletonList( extension );
     IMimeType mimeType = new MimeType( mimeTypeName, extensions );
     mimeType.setConverter( mock( Converter.class ) );
-    List<IMimeType> mimeTypeList = Arrays.asList( mimeType );
+    List<IMimeType> mimeTypeList = Collections.singletonList( mimeType );
     NameBaseMimeResolver mimeResolver = new NameBaseMimeResolver();
     mimeResolver.addMimeType( mimeType );
     SolutionFileImportHelper.testMimeResolver = mimeResolver;
@@ -437,15 +450,9 @@ public class RepositoryFileImportFileHandlerTest {
     userProvider = new UserProvider();
     mockRepository = new MockUnifiedRepository( userProvider );
     fileHandler = new RepositoryFileImportFileHandler( mimeTypeList );
-
-    FileService fileService = spy( FileService.class );
-    DefaultUnifiedRepositoryWebService repoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    PowerMockito.whenNew( DefaultUnifiedRepositoryWebService.class ).withNoArguments().thenReturn( repoWs );
-    PowerMockito.whenNew( FileService.class ).withNoArguments().thenReturn( fileService );
-
     fileHandler.setRepository( mockRepository );
     fileHandler.setDefaultAclHandler( new DefaultAclHandler() );
-    fileHandler.setKnownExtensions( Arrays.asList( "prpt" ) );
+    fileHandler.setKnownExtensions( Collections.singletonList( "prpt" ) );
     IPlatformImporter mockPlatformImporter = mock( IPlatformImporter.class );
     when( mockPlatformImporter.getRepositoryImportLogger() ).thenReturn( new Log4JRepositoryImportLogger() );
     ImportSession.iPlatformImporter = mockPlatformImporter;
@@ -469,7 +476,6 @@ public class RepositoryFileImportFileHandlerTest {
     private final String path;
     private final String targetName;
     private final String mimename;
-    private final String mimeExtension = MIME_EXTENSION;
     private final boolean folder;
 
     public ImportTester( boolean fileExists,
@@ -489,8 +495,8 @@ public class RepositoryFileImportFileHandlerTest {
       this.mimename = mimename;
     }
 
-    public ImportTester initialSetup() throws Exception {
-      setup( mimename, mimeExtension, path, targetName, folder );
+    public ImportTester initialSetup() {
+      setup( mimename, MIME_EXTENSION, path, targetName, folder );
       return this;
     }
 

@@ -14,50 +14,46 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.workitem;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.mockito.Matchers.isA;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mockStatic;
 
-@RunWith( PowerMockRunner.class )
+@RunWith( MockitoJUnitRunner.class )
 @PrepareForTest( { PentahoSystem.class } )
 public class WorkItemLifecycleEventUtilTest {
 
-  private IWorkItemLifecycleEventPublisher publisherMock = null;
-  private WorkItemLifecycleEvent workItemLifecycleEventMock = null;
-  private String workItemUid = "foo";
-  private String workItemDetails = "foe";
-  private WorkItemLifecyclePhase lifecyclePhase = WorkItemLifecyclePhase.DISPATCHED;
-  private String lifecycleDetails = "foe";
-
-  @Before
-  public void setup() throws Exception {
-    PowerMockito.mockStatic( PentahoSystem.class );
-    publisherMock = Mockito.spy( new DummyPublisher() );
-    when( PentahoSystem.get( isA( IWorkItemLifecycleEventPublisher.class.getClass() ) ) ).thenReturn( publisherMock );
-
-    workItemLifecycleEventMock = Mockito.spy( new WorkItemLifecycleEvent( workItemUid, workItemDetails,
-      lifecyclePhase, lifecycleDetails, null ) );
-  }
+  private final WorkItemLifecyclePhase lifecyclePhase = WorkItemLifecyclePhase.DISPATCHED;
 
   @Test
-  public void testPublisher() throws InterruptedException {
-    WorkItemLifecycleEventUtil.publish( workItemLifecycleEventMock );
-    // verify that the publishEvent method is called as expected
-    Mockito.verify( publisherMock, Mockito.times( 1 ) ).publish( workItemLifecycleEventMock );
+  public void testPublisher() {
+
+    IWorkItemLifecycleEventPublisher publisherMock = Mockito.spy( new DummyPublisher() );
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
+
+      pentahoSystem.when( () -> PentahoSystem.get( eq( IWorkItemLifecycleEventPublisher.class ) ) ).thenReturn( publisherMock );
+      String workItemUid = "foo";
+      String workItemDetails = "foe";
+      String lifecycleDetails = "foe";
+      WorkItemLifecycleEvent workItemLifecycleEventMock = Mockito.spy( new WorkItemLifecycleEvent( workItemUid, workItemDetails,
+        lifecyclePhase, lifecycleDetails, null ) );
+
+      WorkItemLifecycleEventUtil.publish( workItemLifecycleEventMock );
+      // verify that the publishEvent method is called as expected
+      Mockito.verify( publisherMock, Mockito.times( 1 ) ).publish( workItemLifecycleEventMock );
+    }
   }
 }

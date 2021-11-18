@@ -14,18 +14,21 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.services.importer;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Assert;
@@ -34,7 +37,6 @@ import org.junit.Test;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IUserRoleListService;
-import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.Job.JobState;
@@ -60,7 +62,7 @@ public class SolutionImportHandlerIT extends Assert {
     mp.define( IUserRoleListService.class, StubUserRoleListService.class );
 
     IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+    when( policy.isAllowed( nullable( String.class ) ) ).thenReturn( true );
     mp.defineInstance( IAuthorizationPolicy.class, policy );
 
     mp.start();
@@ -70,12 +72,11 @@ public class SolutionImportHandlerIT extends Assert {
   }
 
   @Test
-  @SuppressWarnings( "unchecked" )
   public void testImportSchedules() throws PlatformImportException, SchedulerException {
     SolutionImportHandler importHandler = new SolutionImportHandler( Collections.emptyList() );
     importHandler = spy( importHandler );
 
-    List<JobScheduleRequest> requests = new ArrayList<JobScheduleRequest>( 4 );
+    List<JobScheduleRequest> requests = new ArrayList<>( 4 );
     requests.add( createJobScheduleRequest( "NORMAL", JobState.NORMAL ) );
     requests.add( createJobScheduleRequest( "PAUSED", JobState.PAUSED ) );
     requests.add( createJobScheduleRequest( "PAUSED", JobState.COMPLETE ) );
@@ -84,17 +85,11 @@ public class SolutionImportHandlerIT extends Assert {
     doReturn( new ArrayList<Job>(  ) ).when( importHandler ).getAllJobs( any() );
     importHandler.importSchedules( requests );
 
-    List<Job> jobs = scheduler.getJobs( new IJobFilter() {
-      @Override
-      public boolean accept( Job job ) {
-        return true;
-      }
-    } );
+    List<Job> jobs = scheduler.getJobs( job -> true );
 
     assertEquals( 4, jobs.size() );
 
-    for ( Iterator<?> iterator = jobs.iterator(); iterator.hasNext(); ) {
-      Job job = (Job) iterator.next();
+    for ( Job job : jobs ) {
       assertEquals( job.getJobName(), job.getState().toString() );
     }
   }

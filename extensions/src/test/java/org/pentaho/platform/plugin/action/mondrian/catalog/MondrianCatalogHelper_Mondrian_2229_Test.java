@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -26,10 +26,13 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Thee tests related to MONDRIAN-2229 issue
@@ -67,7 +70,7 @@ public class MondrianCatalogHelper_Mondrian_2229_Test {
     doReturn( contextPathStub ).when( helperSpy ).contextPathFromRequestContextHolder();
 
     doNothing().when( helperSpy )
-      .appendCatalogsSection( any( IUnifiedRepository.class ), anyString(), any( RepositoryFile.class ),
+      .appendCatalogsSection( any( IUnifiedRepository.class ), nullable( String.class ), any( RepositoryFile.class ),
         any( StringBuffer.class ) );
 
     return helperSpy.generateInMemoryDatasourcesXml( unifiedRepositoryMock );

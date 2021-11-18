@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -44,8 +44,8 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.doReturn;
@@ -93,7 +93,7 @@ public class LocaleFilesProcessorTest {
     localeFilesProcessor.processLocaleFiles( importer );
 
     Mockito.verify( localeFilesProcessor, times( 1 ) )
-      .proceed( any( IPlatformImporter.class ), any( RepositoryFileImportBundle.Builder.class ), anyString(),
+      .proceed( any( IPlatformImporter.class ), any( RepositoryFileImportBundle.Builder.class ), nullable( String.class ),
         any( LocaleFileDescriptor.class ) );
   }
 
@@ -119,7 +119,7 @@ public class LocaleFilesProcessorTest {
     localeFilesProcessor.processLocaleFiles( importer );
 
     Mockito.verify( localeFilesProcessor, times( 1 ) )
-      .proceed( any( IPlatformImporter.class ), any( RepositoryFileImportBundle.Builder.class ), anyString(),
+      .proceed( any( IPlatformImporter.class ), any( RepositoryFileImportBundle.Builder.class ), nullable( String.class ),
         any( LocaleFileDescriptor.class ) );
   }
 

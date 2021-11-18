@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2021 by Hitachi Vantara : http://www.pentaho.com
  *
  * ******************************************************************************
  *
@@ -30,13 +30,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 /**
  * Created by dstepanov on 01/06/17.
  */
 public class GenericServletTest {
-
-
   @Test
   public void doGetTest() throws Exception {
     GenericServlet gs = Mockito.spy( new GenericServlet() );
@@ -55,7 +52,7 @@ public class GenericServletTest {
     orderInvocation.verify( req ).getServletPath();
     orderInvocation.verify( req ).getPathInfo();
     orderInvocation.verify( req ).getParameterMap();
-    orderInvocation.verify( req ).getParameter( Mockito.anyString() );
+    orderInvocation.verify( req ).getParameter( Mockito.nullable( String.class ) );
     orderInvocation.verify( req ).getInputStream();
   }
 

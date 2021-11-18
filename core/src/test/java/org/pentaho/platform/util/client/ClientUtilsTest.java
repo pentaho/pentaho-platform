@@ -32,7 +32,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2021 Hitachi Vantara..  All rights reserved.
 */
 
 package org.pentaho.platform.util.client;
@@ -54,7 +54,7 @@ import java.io.StringReader;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -109,7 +109,7 @@ public class ClientUtilsTest {
     when( httpClientMock.execute( any( HttpUriRequest.class ) ) ).thenReturn( httpResponseMock );
     when( statusLineMock.getStatusCode() ).thenReturn( 500 );
 
-    Document document = null;
+    Document document;
     document = ClientUtil.getResultDom4jDocument( httpClientMock, method );
     assertNull( document );
   }
@@ -126,7 +126,7 @@ public class ClientUtilsTest {
     when( httpClientMock.execute( any( HttpUriRequest.class ) ) ).thenReturn( httpResponseMock );
     when( statusLineMock.getStatusCode() ).thenReturn( OK_CODE );
 
-    Document document = null;
+    Document document;
     when( httpResponseMock.getEntity() ).thenReturn( httpEntityMock );
     when( httpEntityMock.getContent() ).thenThrow( new IOException() );
 
@@ -149,7 +149,7 @@ public class ClientUtilsTest {
     InputStream inputStream = new ReaderInputStream( new StringReader( XML_BROKEN ) );
     when( httpResponseMock.getEntity() ).thenReturn( httpEntityMock );
     when( httpEntityMock.getContent() ).thenReturn( inputStream );
-    Document document = null;
+    Document document;
     document = ClientUtil.getResultDom4jDocument( httpClientMock, method );
     assertNull( document );
   }
