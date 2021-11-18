@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -59,7 +59,9 @@ public class PentahoMDCFilter implements Filter {
     MDC.put( MDCUtil.REMOTE_PORT, String.valueOf( request.getRemotePort() ) );
     MDC.put( MDCUtil.SERVER_NAME, request.getServerName() );
     MDC.put( MDCUtil.SERVER_PORT, String.valueOf( request.getServerPort() ) );
-    MDC.put( MDCUtil.LOCAL_ADDR, request.getLocalAddr() );
+    if ( request.getLocalAddr() != null ) { // Fix BISERVER-14710
+      MDC.put( MDCUtil.LOCAL_ADDR, request.getLocalAddr() );
+    }
     MDC.put( MDCUtil.LOCAL_NAME, request.getLocalName() );
     MDC.put( MDCUtil.LOCAL_PORT, String.valueOf( request.getLocalPort() ) );
     if ( authentication != null ) {
