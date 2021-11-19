@@ -2064,13 +2064,13 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
-      <version>${project.version}</version>
+      <version>8.3.0.0-371</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${project.version}</version>
+      <version>8.3.0.0-371</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -2088,13 +2088,13 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-scheduler</artifactId>
-      <version>${project.version}</version>
+      <version>8.3.0.0-371</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${project.version}</version>
+      <version>8.3.0.0-371</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -2120,7 +2120,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-scheduler</artifactId>
-      <version>${project.version}</version>
+      <version>8.3.0.0-371</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
