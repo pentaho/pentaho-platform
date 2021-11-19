@@ -683,22 +683,22 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-connections</artifactId>
-      <version>${project.version}</version>
+      <version>9.0.0.7-758</version>
     </dependency>
     <dependency>
       <groupId>org.pentaho</groupId>
       <artifactId>pentaho-metadata</artifactId>
-      <version>${project.version}</version>
+      <version>9.0.0.7-758</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
-      <version>${project.version}</version>
+      <version>9.0.0.7-758</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${project.version}</version>
+      <version>9.0.0.7-758</version>
     </dependency>
     <dependency>
       <groupId>org.javassist</groupId>
@@ -720,7 +720,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${project.version}</version>
+      <version>9.0.0.7-758</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -884,7 +884,7 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>${project.artifactId}-${project.version}</finalName>
+    <finalName>${project.artifactId}-9.0.0.7-758</finalName>
     <plugins>
       <plugin>
         <groupId>com.mycila</groupId>
