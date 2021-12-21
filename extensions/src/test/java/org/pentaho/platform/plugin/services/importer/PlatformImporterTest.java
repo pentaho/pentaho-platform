@@ -20,7 +20,7 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 import org.junit.Test;
 import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.Converter;

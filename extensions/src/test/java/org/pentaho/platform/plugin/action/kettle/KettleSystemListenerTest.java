@@ -20,18 +20,24 @@
 
 package org.pentaho.platform.plugin.action.kettle;
 
-import org.apache.log4j.FileAppender;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.appender.FileAppender;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IApplicationContext;
+import org.pentaho.platform.api.util.LogUtil;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.XmlTestConstants;
 import org.xml.sax.SAXException;
+import sun.rmi.runtime.Log;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringBufferInputStream;
+import java.io.StringWriter;
 
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -44,18 +50,19 @@ import static org.mockito.Mockito.when;
 
 public class KettleSystemListenerTest {
   private IApplicationContext mockApplicationContext;
-  private FileAppender fileAppender = new FileAppender();
+  private Appender appender;
 
   @Before
   public void setup() {
     mockApplicationContext = mock( IApplicationContext.class );
-    org.apache.log4j.Logger.getRootLogger().addAppender( fileAppender );
+    appender = LogUtil.makeAppender("test-appender", new StringWriter(), "layout");
+    LogUtil.addAppender(appender, LogManager.getLogger(), Level.INFO);
     PentahoSystem.setApplicationContext( mockApplicationContext );
   }
 
   @After
   public void teardown() {
-    org.apache.log4j.Logger.getRootLogger().removeAppender( fileAppender );
+    LogUtil.removeAppender(appender, LogManager.getLogger());
   }
 
   @Test
