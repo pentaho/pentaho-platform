@@ -23,7 +23,7 @@ package org.pentaho.platform.repository2.unified.webservices.jaxws;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

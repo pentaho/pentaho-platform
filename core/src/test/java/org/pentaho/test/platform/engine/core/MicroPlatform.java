@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,6 +22,9 @@ package org.pentaho.test.platform.engine.core;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.DefaultConfiguration;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
@@ -108,6 +111,9 @@ public class MicroPlatform extends PentahoSystemBoot {
   @Override
   public boolean start() throws PlatformInitializationException {
     PentahoSystem.setSystemSettingsService( new PathBasedSystemSettings() );
+    // initialize log4j to write to the console
+    Configurator.initialize(new DefaultConfiguration());
+    Configurator.setRootLevel(Level.INFO);
     boolean ret = super.start();
     // set log levels
     // FIXME: find a better way to set log levels programmatically than this.. this can cause NPEs

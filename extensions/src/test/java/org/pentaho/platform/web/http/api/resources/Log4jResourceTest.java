@@ -20,16 +20,20 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.helpers.Loader;
-import org.apache.log4j.xml.DOMConfigurator;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.core.util.Loader;
+//import org.apache.logging.log4j.core.xml.DOMConfigurator;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.util.LogUtil;
 
 import javax.ws.rs.core.Response;
 import java.util.Enumeration;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -41,11 +45,11 @@ public class Log4jResourceTest {
 
   @Test
   public void resetLogLevel() throws Exception {
-    Logger root = LogManager.getRootLogger();
-    Level initialLevel = root.getLevel();
+
+    Level initialLevel = LogManager.getLogger().getLevel();
     assertNotEquals( initialLevel, Level.ALL );
-    root.setLevel( Level.ALL );
-    assertEquals( Level.ALL, root.getLevel() );
+    LogUtil.setLevel(LogManager.getLogger(), Level.ALL);
+    assertEquals( Level.ALL, LogManager.getLogger().getLevel() );
 
     Response res = target.reloadConfiguration();
     assertNotEquals( Level.ALL,  LogManager.getRootLogger().getLevel() );
@@ -60,10 +64,10 @@ public class Log4jResourceTest {
 
     res = target.updateLogLevel( "debug", null );
     int notDebug = 0;
-    Enumeration e = LogManager.getCurrentLoggers();
-    while ( e.hasMoreElements() ) {
-      Logger logger = (Logger) e.nextElement();
-      if ( !Level.DEBUG.equals( logger.getLevel() ) ) {
+    LoggerContext logContext = (LoggerContext) LogManager.getContext(false);
+    Map<String, LoggerConfig> map = logContext.getConfiguration().getLoggers();
+    for(LoggerConfig lc: map.values()) {
+      if ( !Level.DEBUG.equals( lc.getLevel() ) ) {
         notDebug++;
       }
     }
@@ -89,7 +93,7 @@ public class Log4jResourceTest {
 
   @Before
   public void readFromConfig() {
-    DOMConfigurator.configure( Loader.getResource( CONFIG ) );
+    //DOMConfigurator.configure( Loader.getResource( CONFIG ) );
   }
 
 }
