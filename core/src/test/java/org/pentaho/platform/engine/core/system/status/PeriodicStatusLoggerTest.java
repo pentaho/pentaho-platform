@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -27,9 +27,16 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,15 +56,26 @@ public class PeriodicStatusLoggerTest {
 
   @Before
   public void setup() {
+    logger = LogManager.getRootLogger();
     appender = new TestAppender();
-    logger = Logger.getRootLogger();
-    logger.addAppender( appender );
+    LoggerContext ctx = (LoggerContext) LogManager.getContext( false );
+    Configuration config = ctx.getConfiguration();
+    appender.start();
+    config.addAppender( appender );
+    LoggerConfig loggerConfig = config.getLoggerConfig( logger.getName() );
+    loggerConfig.addAppender( appender, Level.DEBUG, null );
+    ctx.updateLoggers();
     serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
   }
 
   @After
   public void shutdown() {
-    logger.removeAppender( appender );
+    appender.stop();
+    LoggerContext ctx = (LoggerContext) LogManager.getContext( false );
+    Configuration config = ctx.getConfiguration();
+    LoggerConfig loggerConfig = config.getLoggerConfig( logger.getName() );
+    loggerConfig.removeAppender( appender.getName() );
+    ctx.updateLoggers();
   }
 
   @Test
@@ -81,11 +99,13 @@ public class PeriodicStatusLoggerTest {
     }
     PeriodicStatusLogger.stop();
 
-    final List<LoggingEvent> log = appender.getLog();
-    assertTrue( "log size was " + log.size() + ". Excpected it to be greater than 3.", log.size() > 3 ); // Should be at least 2 messages
-    assertEquals( TEST_MESSAGE1, log.get( 0 ).getMessage() );
-    assertEquals( TEST_MESSAGE1, log.get( 1 ).getMessage() );
-    assertEquals( TEST_MESSAGE2, log.get( 2 ).getMessage() );
+    final List<String> log = appender.getLog();
+    assertTrue( "log size was " + log.size() + ". Excpected it to be greater than 3.", log.size() > 3 ); // Should be at
+                                                                                                         // least 2
+                                                                                                         // messages
+    assertEquals( TEST_MESSAGE1, log.get( 0 ) );
+    assertEquals( TEST_MESSAGE1, log.get( 1 ) );
+    assertEquals( TEST_MESSAGE2, log.get( 2 ) );
 
     try {
       PeriodicStatusLogger.stop();
@@ -95,25 +115,20 @@ public class PeriodicStatusLoggerTest {
     }
   }
 
-  public class TestAppender extends AppenderSkeleton {
-    private final List<LoggingEvent> log = new ArrayList<LoggingEvent>();
+  public class TestAppender extends AbstractAppender  {
+    private final List<String> log = new ArrayList<>();
 
-    @Override
-    public boolean requiresLayout() {
-      return false;
+    protected TestAppender() {
+      super("TestAppender", null, PatternLayout.createDefaultLayout(), true, Property.EMPTY_ARRAY);
     }
 
     @Override
-    protected void append( final LoggingEvent loggingEvent ) {
-      log.add( loggingEvent );
+    public void append( final LogEvent loggingEvent ) {
+      log.add( loggingEvent.getMessage().getFormattedMessage() );
     }
 
-    @Override
-    public void close() {
-    }
-
-    public List<LoggingEvent> getLog() {
-      return new ArrayList<LoggingEvent>( log );
+    public List<String> getLog() {
+      return log;
     }
   }
 

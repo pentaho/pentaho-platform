@@ -14,14 +14,14 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.engine.core;
 
-import org.apache.log4j.MDC;
 import org.pentaho.platform.engine.core.audit.MDCUtil;
+import org.slf4j.MDC;
 
 import junit.framework.TestCase;
 
