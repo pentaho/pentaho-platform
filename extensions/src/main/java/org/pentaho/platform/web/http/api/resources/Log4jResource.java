@@ -28,6 +28,7 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
+import org.apache.logging.log4j.core.util.Loader;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.owasp.encoder.Encode;
@@ -46,7 +47,7 @@ import java.util.Collection;
 public class Log4jResource {
 
   private static final Logger LOGGER = LogManager.getLogger( Log4jResource.class );
-  private static final String CONFIG = "log4j.xml";
+  private static final String CONFIG = "log4j2.xml";
 
   @PUT
   @Path ( "/reload" )
@@ -57,7 +58,7 @@ public class Log4jResource {
   public Response reloadConfiguration() throws Exception {
     LogUtil.setLevel(LOGGER, Level.INFO);
     LOGGER.info( "Reloading configuration..." );
-    InputStream is = this.getClass().getResourceAsStream(CONFIG);
+    InputStream is = Loader.getResourceAsStream( CONFIG, Loader.getClassLoader() );
     ConfigurationSource source = new ConfigurationSource(is);
     LoggerContext ctx = (LoggerContext) LogManager.getContext(true);
     Configuration config = XmlConfigurationFactory.getInstance().getConfiguration(ctx, source);
@@ -86,9 +87,9 @@ public class Log4jResource {
 
       if ( StringUtils.isNotBlank( category ) ) {
         LOGGER.info( "Request to set log level for package: " + category );
-        Logger catLog = LogManager.getLogger(category );
-        if ( catLog != null ) {
-          LogUtil.setLevel(catLog, Level.toLevel( targetLevel, root.getLevel() ));
+        if ( LogUtil.exists( category ) ) {
+          Logger catLog = LogManager.getLogger( category );
+          LogUtil.setLevel( catLog, Level.toLevel( targetLevel, root.getLevel() ) );
           return Response.ok( "Setting log level for: '" + catLog.getName() + "' to be: " + catLog.getLevel() ).build();
         }
         return Response.notModified( "Category: '" + Encode.forHtml( category ) + "' not found, log level not modified." ).build();

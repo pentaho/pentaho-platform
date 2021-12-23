@@ -73,7 +73,7 @@ public class Log4JRepositoryImportLogger implements IRepositoryImportLogger {
 
   @Override
   public void error( Exception e ) {
-    getLogger().error( e );
+    getLogger().error( e.getMessage(), e );
 
   }
 
