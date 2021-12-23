@@ -60,7 +60,7 @@ public class KettleSystemListener implements IPentahoSystemListener {
    */
   private boolean usePlatformLogFile = true;
 
-  private org.slf4j.Logger logger = LoggerFactory.getLogger( getClass() );
+  private org.apache.logging.log4j.Logger logger = LogManager.getLogger( getClass() );
 
   public boolean startup( final IPentahoSession session ) {
 

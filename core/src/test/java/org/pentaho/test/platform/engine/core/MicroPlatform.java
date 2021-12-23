@@ -111,9 +111,6 @@ public class MicroPlatform extends PentahoSystemBoot {
   @Override
   public boolean start() throws PlatformInitializationException {
     PentahoSystem.setSystemSettingsService( new PathBasedSystemSettings() );
-    // initialize log4j to write to the console
-    Configurator.initialize(new DefaultConfiguration());
-    Configurator.setRootLevel(Level.INFO);
     boolean ret = super.start();
     // set log levels
     // FIXME: find a better way to set log levels programmatically than this.. this can cause NPEs

@@ -32,6 +32,8 @@ import org.junit.Test;
 import org.pentaho.platform.api.util.LogUtil;
 
 import javax.ws.rs.core.Response;
+
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Map;
 
@@ -46,7 +48,7 @@ public class Log4jResourceTest {
   @Test
   public void resetLogLevel() throws Exception {
 
-    Level initialLevel = LogManager.getLogger().getLevel();
+    Level initialLevel = LogManager.getRootLogger().getLevel();
     assertNotEquals( initialLevel, Level.ALL );
     LogUtil.setLevel(LogManager.getLogger(), Level.ALL);
     assertEquals( Level.ALL, LogManager.getLogger().getLevel() );
@@ -65,9 +67,8 @@ public class Log4jResourceTest {
     res = target.updateLogLevel( "debug", null );
     int notDebug = 0;
     LoggerContext logContext = (LoggerContext) LogManager.getContext(false);
-    Map<String, LoggerConfig> map = logContext.getConfiguration().getLoggers();
-    for(LoggerConfig lc: map.values()) {
-      if ( !Level.DEBUG.equals( lc.getLevel() ) ) {
+    for ( Logger l : logContext.getLoggers() ) {
+      if ( !Level.DEBUG.equals( l.getLevel() ) ) {
         notDebug++;
       }
     }

@@ -23,12 +23,16 @@ package org.pentaho.platform.plugin.services.importexport;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.StringLayout;
 import org.apache.logging.log4j.core.layout.ByteBufferDestination;
 import org.apache.logging.log4j.status.StatusLogger;
+import org.apache.logging.log4j.core.util.Throwables;
 import org.apache.logging.log4j.core.util.Transform;
 import org.apache.logging.log4j.util.Strings;
+import org.slf4j.MDC;
 
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -43,7 +47,7 @@ import java.util.Map;
  * 
  * @author tkafalas
  */
-public class RepositoryImportHTMLLayout implements Layout {
+public class RepositoryImportHTMLLayout implements StringLayout {
 
   protected static final int BUF_SIZE = 256;
   protected static final int MAX_CAPACITY = 1024;
@@ -90,7 +94,6 @@ public class RepositoryImportHTMLLayout implements Layout {
     return "text/html";
   }
 
-  @Override
   public Map<String, String> getContentFormat() {
     return null;
   }
@@ -130,7 +133,7 @@ public class RepositoryImportHTMLLayout implements Layout {
 
     sbuf.append( "<td title=\"importFile\">" );
 
-    sbuf.append( Transform.escapeHtmlTags( event.getContextData().toMap().get(Log4JRepositoryImportLog.FILE_KEY)) );
+    sbuf.append( Transform.escapeHtmlTags( MDC.getMDCAdapter().get( Log4JRepositoryImportLog.FILE_KEY ) ) );
     sbuf.append( "</td>" + LINE_SEP );
 
     if ( showLevelColumn() ) {
@@ -179,12 +182,13 @@ public class RepositoryImportHTMLLayout implements Layout {
       sbuf.append("</td></tr>").append(Strings.LINE_SEPARATOR);
     }
 
-    String[] s = event.getContextStack().toArray(new String[0]);;
-    if ( s != null ) {
+    if (event.getThrown() != null) {
+      String[] s = Throwables.toStringList( event.getThrown() ).toArray( new String[0] );
       sbuf.append( "<tr><td bgcolor=\"#993300\" style=\"color:White; font-size : xx-small;\" colspan=\"6\">" );
       appendThrowableAsHTML( s, sbuf );
       sbuf.append( "</td></tr>" + LINE_SEP );
     }
+    
 
     return sbuf.toString();
   }
@@ -246,14 +250,8 @@ public class RepositoryImportHTMLLayout implements Layout {
     return sbuf.toString().getBytes(StandardCharsets.UTF_8);
   }
 
-  @Override
   public byte[] toByteArray(LogEvent event) {
     return new byte[0];
-  }
-
-  @Override
-  public Serializable toSerializable(LogEvent event) {
-    return null;
   }
 
   /**
@@ -287,8 +285,20 @@ public class RepositoryImportHTMLLayout implements Layout {
     return true;
   }
 
-  @Override
-  public void encode(Object source, ByteBufferDestination destination) {
 
+  @Override
+  public String toSerializable( LogEvent event ) {
+    return format (event);
+  }
+
+  @Override
+  public void encode( LogEvent source, ByteBufferDestination destination ) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public Charset getCharset() {
+    return StandardCharsets.UTF_8;
   }
 }

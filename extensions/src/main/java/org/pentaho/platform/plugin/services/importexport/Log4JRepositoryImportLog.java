@@ -20,22 +20,23 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.Layout;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.pentaho.platform.api.util.LogUtil;
-import org.slf4j.MDC;
-import org.apache.logging.log4j.core.appender.WriterAppender;
-
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.WriterAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.pentaho.platform.api.util.LogUtil;
+import org.slf4j.MDC;
 
 public class Log4JRepositoryImportLog {
 
@@ -63,11 +64,13 @@ public class Log4JRepositoryImportLog {
 
   private void init() {
     logName = "RepositoryImportLog." + getThreadName();
-    logger = LogManager.getContext().getLogger( logName );
+    logger = LogManager.getLogger( logName );
+    LogUtil.setLevel( logger, logLevel );
     RepositoryImportHTMLLayout htmlLayout = new RepositoryImportHTMLLayout( logLevel );
     htmlLayout.setTitle( "Repository Import Log" );
-    appender = makeAppender(logName, new OutputStreamWriter( outputStream, Charset.forName( "utf-8" ) ), htmlLayout );
-    addAppender(appender, logger, logLevel);
+    appender =
+        LogUtil.makeAppender( logName, new OutputStreamWriter( outputStream, Charset.forName( "utf-8" ) ), htmlLayout );
+    LogUtil.addAppender( appender, logger, logLevel );
   }
 
   public Logger getLogger() {
@@ -104,33 +107,10 @@ public class Log4JRepositoryImportLog {
       System.out.println( e );
       // Don't try logging a log error.
     }
-    removeAppender(appender, logger);
+    LogUtil.removeAppender( appender, logger );
   }
 
   private String getThreadName() {
     return Thread.currentThread().getName();
-  }
-
-  public static void addAppender(Appender appender, org.apache.logging.log4j.Logger logger, Level level) {
-    LoggerContext ctx = (LoggerContext) LogManager.getContext( false );
-    Configuration config = ctx.getConfiguration();
-    appender.start();
-    config.addAppender(appender);
-    LoggerConfig loggerConfig = config.getLoggerConfig( logger.getName() );
-    loggerConfig.addAppender( appender, level, null );
-    ctx.updateLoggers();
-  }
-
-  public static Appender makeAppender(String name, Writer writer, Layout layout) {
-    return WriterAppender.newBuilder().setName(name).setLayout(layout).setTarget(writer).build();
-  }
-
-  public static void removeAppender(Appender appender, Logger logger) {
-    appender.stop();
-    LoggerContext ctx = (LoggerContext) LogManager.getContext( false );
-    Configuration config = ctx.getConfiguration();
-    LoggerConfig loggerConfig = config.getLoggerConfig( logger.getName() );
-    loggerConfig.removeAppender( appender.getName() );
-    ctx.updateLoggers();
   }
 }
