@@ -2,6 +2,7 @@ package org.pentaho.platform.api.util;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -62,6 +63,9 @@ public class LogUtil {
     return WriterAppender.newBuilder().setName( name ).setLayout( layout ).setTarget( writer ).build();
   }
 
+  public static Appender makeAppender(String name, Writer writer, Filter filter, Layout layout ) {
+    return WriterAppender.newBuilder().setName( name ).setFilter(filter).setLayout( layout ).setTarget( writer ).build();
+  }
   /**
    * Sets level of a logger creating a logger specific LoggerConfig if necessary.
    * 
