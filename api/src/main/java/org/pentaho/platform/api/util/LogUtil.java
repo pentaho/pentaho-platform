@@ -15,16 +15,22 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Map;
 
+/**
+ * Various utility methods for working with log4j2
+ *
+ */
 public class LogUtil {
 
   /**
-   * Adds an appender to a logger creating a LoggerConfig if necessary
-   * so that the appender only applies to the logger and not parent loggers.
+   * Adds an appender to a logger creating a LoggerConfig if necessary so that the appender only listens to the
+   * specified logger and not parent loggers.
    * 
    * @param appender
    * @param logger
    * @param level
+   *          - Set to null if appender should log all events
    */
   public static void addAppender( Appender appender, Logger logger, Level level ) {
     LoggerContext ctx = (LoggerContext) LogManager.getContext( false );
@@ -36,6 +42,12 @@ public class LogUtil {
     LoggerConfig specificConfig = loggerConfig;
 
     if ( !loggerConfig.getName().equals( logger.getName() ) ) {
+      // With log4j2, Logger and LoggerConfig are separate objects so if you attach an appender to a
+      // Logger, you are actually attaching to the logger's LoggerConfig which could point to a parent logger.
+      // For example, assuming a logger "foo.bar" isn't configured but it's parent "foo" is configured. When
+      // retrieving the LoggerConfig for "foo.bar", you're going to get a LoggerConfig for "foo". If you attach the
+      // appender to "foo" LoggerConfig, then your appender will end up receiving "foo" events (in addition to "foo.bar"
+      // events).mvn cle
       specificConfig = new LoggerConfig( logger.getName(), null, true );
       specificConfig.setParent( loggerConfig );
       config.addLogger( logger.getName(), specificConfig );
@@ -83,10 +95,9 @@ public class LogUtil {
     loggerConfig.setLevel( level );
     ctx.updateLoggers();
   }
-  
+
   /**
-   * Returns true if the specific logger has been configured such as defined
-   * in log4j2.xml
+   * Returns true if the specific logger has been configured such as defined in log4j2.xml
    * 
    * @param logger
    * @return
@@ -95,5 +106,26 @@ public class LogUtil {
     LoggerContext ctx = (LoggerContext) LogManager.getContext( false );
     Configuration config = ctx.getConfiguration();
     return config.getLoggers().keySet().contains( logger );
+  }
+
+  /**
+   * Returns true if appender is attached to logger.
+   * 
+   * @param logger
+   * @param appender
+   * @return
+   */
+  public static boolean isAttached( Logger logger, Appender appender ) {
+    LoggerContext ctx = (LoggerContext) LogManager.getContext( false );
+    Configuration config = ctx.getConfiguration();
+    LoggerConfig loggerConfig = config.getLoggerConfig( logger.getName() );
+    return loggerConfig.getAppenders().containsKey( appender.getName() );
+  }
+
+  public static Map<String, Appender> getAppenders( Logger logger ) {
+    LoggerContext ctx = (LoggerContext) LogManager.getContext( false );
+    Configuration config = ctx.getConfiguration();
+    LoggerConfig loggerConfig = config.getLoggerConfig( logger.getName() );
+    return loggerConfig.getAppenders();
   }
 }
