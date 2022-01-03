@@ -20,7 +20,6 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
-import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.StringLayout;
@@ -31,7 +30,6 @@ import org.apache.logging.log4j.core.util.Transform;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.MDC;
 
-import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
