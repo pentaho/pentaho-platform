@@ -70,7 +70,7 @@ import java.util.Locale;
  *
  * <p>
  * The <code>HttpSession</code> will be queried to retrieve the <code>IPentahoSession</code> that should be stored
- * against the <code>PentahoSessiontHolder</code> for the duration of the web request. At the end of the web request,
+ * against the <code>PentahoSessionHolder</code> for the duration of the web request. At the end of the web request,
  * any updates made to the <code>PentahoSessionHolder</code> will be persisted back to the <code>HttpSession</code> by
  * this filter.
  * </p>

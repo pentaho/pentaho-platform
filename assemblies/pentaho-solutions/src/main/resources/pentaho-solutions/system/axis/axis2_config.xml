@@ -18,6 +18,9 @@
   -->
 
 <axisconfig name="AxisJava2.0">
+    <!-- See https://axis.apache.org/axis2/java/core/docs/axis2config.html for
+         information on how to configure this file. -->
+
     <!-- ================================================= -->
     <!-- Parameters -->
     <!-- ================================================= -->
@@ -65,7 +68,7 @@
     <!-- Following parameter will completely disable REST handling in Axis2-->
     <parameter name="disableREST" locked="false">false</parameter>
 
-    <!--POJO deployer , this will alow users to drop .class file and make that into a service-->
+    <!--POJO deployer , this will allow users to drop .class file and make that into a service-->
     <deployer extension=".class" directory="pojo" class="org.apache.axis2.deployment.POJODeployer"/>
 
     <!-- Following parameter will set the host name for the epr-->
@@ -117,7 +120,7 @@
                          class="org.apache.axis2.builder.ApplicationXMLBuilder"/>
         <messageBuilder contentType="application/x-www-form-urlencoded"
                          class="org.apache.axis2.builder.XFormURLEncodedBuilder"/>
-        <!--Left commented because it adds the depandancy of servlet-api to other modules.
+        <!--Left commented because it adds the dependency of servlet-api to other modules.
         Please uncomment to Receive messages in multipart/form-data format-->
         <!--<messageBuilder contentType="multipart/form-data"-->
                          <!--class="org.apache.axis2.builder.MultipartFormDataBuilder"/>-->

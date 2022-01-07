@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -102,8 +102,6 @@ public class HttpSessionReuseDetectionFilter implements Filter, InitializingBean
       }
 
       // TODO: this should use LogoutHandlers in latest Spring Security
-
-      if ( null != httpRequest ) {
         String remoteUser = httpRequest.getRemoteUser();
         if ( ( null != remoteUser ) && ( remoteUser.length() > 0 ) ) {
           if ( HttpSessionReuseDetectionFilter.logger.isDebugEnabled() ) {
@@ -132,7 +130,7 @@ public class HttpSessionReuseDetectionFilter implements Filter, InitializingBean
           return;
         }
       }
-    }
+
     chain.doFilter( request, response );
   }
 

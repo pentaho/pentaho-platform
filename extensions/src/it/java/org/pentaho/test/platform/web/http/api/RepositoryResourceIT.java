@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -35,6 +35,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -56,6 +57,7 @@ import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDto;
+import org.pentaho.platform.api.util.LogUtil;
 import org.pentaho.platform.engine.core.solution.ContentInfo;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.BaseContentGenerator;
@@ -140,11 +142,12 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
   @BeforeClass
   public static void beforeClass() throws Exception {
     System.setProperty( SYSTEM_PROPERTY, "MODE_GLOBAL" );
-    Logger.getLogger( "org" ).setLevel( Level.WARN );
-    Logger.getLogger( "org.pentaho" ).setLevel( Level.WARN );
-    Logger.getLogger( RepositoryResource.class ).setLevel( Level.DEBUG );
-    // Logger.getLogger(RequestProxy.class).setLevel(Level.DEBUG);
-    Logger.getLogger( "MIME_TYPE" ).setLevel( Level.TRACE );
+
+    LogUtil.setLevel( LogManager.getLogger( "org" ), Level.WARN );
+    LogUtil.setLevel( LogManager.getLogger( "org.pentaho" ), Level.WARN );
+    LogUtil.setLevel( LogManager.getLogger( RepositoryResource.class ), Level.DEBUG );
+    // LogUtil.setLevel( LogManager.getLogger( RequestProxy.class ), Level.DEBUG );
+    LogUtil.setLevel( LogManager.getLogger( "MIME_TYPE" ), Level.TRACE );
 
     DefaultUnifiedRepositoryBase.setUpClass();
   }

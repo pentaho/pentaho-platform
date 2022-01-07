@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -41,19 +41,20 @@ public class PentahoBasicAuthenticationEntryPoint extends BasicAuthenticationEnt
     IOException {
 
     // The BasicAuthenticationEntryPoint will send a WWW-Authenticate header and a 401 status code back to the browser,
-    // forcing the user to autenticate. If there is a session end cookie present, this will trigger a second authentication.
+    // forcing the user to authenticate. If there is a session end cookie present, this will trigger a second authentication.
     // In order to prevent a second authentication, we must clear the session end cookie before sending the 401 status code.
     Cookie[] cookies = request.getCookies();
-
     if ( cookies != null ) {
       for ( Cookie c : cookies ) {
         if ( c.getName().endsWith( "session-flushed" ) ) {
           c.setMaxAge( 0 );
           c.setPath( request.getContextPath() != null ? request.getContextPath() : "/" );
+
           response.addCookie( c );
         }
       }
     }
+
     super.commence( request, response, authException );
   }
 }
