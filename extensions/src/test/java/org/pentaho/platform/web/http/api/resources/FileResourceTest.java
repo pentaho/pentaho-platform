@@ -794,7 +794,8 @@ public class FileResourceTest {
     verify( fileResource.fileService, times( 2 ) ).idToPath( PATH_ID );
     verify( fileResource.repository, times( 2 ) ).getFile( path );
     verify( fileResource, times( 2 ) ).hasParameterUi( mockRepositoryFile );
-    verify( mockNoSuchBeanDefinitionException, times( 1 ) ).getMessage();
+    // 3 times accounts for 1 + those of the logger.error implementation.
+    verify( mockNoSuchBeanDefinitionException, times( 3 ) ).getMessage();
     verify( mockMessages, times( 1 ) ).getString( key, exceptionMessage );
   }
 

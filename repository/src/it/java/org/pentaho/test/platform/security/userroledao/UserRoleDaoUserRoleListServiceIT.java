@@ -14,12 +14,13 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.test.platform.security.userroledao;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,7 +49,7 @@ public class UserRoleDaoUserRoleListServiceIT extends DefaultUnifiedRepositoryBa
   public static final String MAIN_TENANT_1 = "maintenant1";
   public static final String MAIN_TENANT_2 = "maintenant2";
 
-  private Logger logger = Logger.getLogger( UserRoleDaoUserRoleListServiceIT.class );
+  private Logger logger = LogManager.getLogger( UserRoleDaoUserRoleListServiceIT.class );
 
   private ITenant mainTenant_1;
   private ITenant mainTenant_2;
