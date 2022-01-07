@@ -33,12 +33,14 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.Properties;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -53,7 +55,13 @@ public class RequestParameterAuthenticationFilterTest {
   public void beforeTest() throws KettleException, IOException {
     KettleClientEnvironment.init();
     filter = new RequestParameterAuthenticationFilter();
+
+    Authentication authMock = mock( Authentication.class );
+    doReturn( "auth-name" ).when( authMock ).getName();
+
     authManagerMock = mock( AuthenticationManager.class );
+    doReturn( authMock ).when( authManagerMock ).authenticate( any( Authentication.class ) );
+
     filter.setAuthenticationManager( authManagerMock );
     final Properties properties = new Properties();
     properties.setProperty( "requestParameterAuthenticationEnabled", "true" );
