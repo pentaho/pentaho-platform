@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ===================================================================== -->
+<!--                                                                       -->
+<!--  Log4j2 Configuration                                                  -->
+<!--                                                                       -->
+<!-- ===================================================================== -->
+
+<!--
+   | For more configuration information and examples see the Apache Log4j
+   | website: https://logging.apache.org/log4j/2.x/manual/configuration.html
+ -->
+
+<Configuration name="PentahoPlatform" status="INFO" dest="out">
+    <Appenders>
+        <!-- ================================= -->
+        <!-- Preserve messages in a local file -->
+        <!-- ================================= -->
+        
+        <!-- A time/date based rolling appender -->
+        <RollingFile name="PENTAHOFILE" fileName="../logs/pentaho.log" filePattern="../logs/pentaho.%d{yyyy-MM-dd}-%i.log" append="false" bufferedIO="true" immediateFlush="true">
+            <PatternLayout>
+                <!-- The default pattern: Date Priority [Category] Message\n -->
+                <Pattern>%d %-5p [%c] %m%n</Pattern>
+                <!-- The full pattern: Date MS Priority [Category] (Thread:NDC) Message\n
+                <Pattern>%d %-5r %-5p [%c] (%t:%x) %m%n</Pattern>
+                 -->
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="2" fileIndex="min"/>
+        </RollingFile>
+
+        <RollingFile name="pdi-execution-appender" fileName="../logs/pdi.log" filePattern="../logs/pdi.%d{yyyy-MM-dd}-%i.log" append="false" bufferedIO="true" immediateFlush="true">
+            <PatternLayout>
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p &lt;%t&gt; %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="2" fileIndex="min"/>
+        </RollingFile>
+
+        <!-- ============================== -->
+        <!-- Append messages to the console -->
+        <!-- ============================== -->
+        <Console name="PENTAHOCONSOLE">
+            <PatternLayout>
+                <Pattern>%d{ABSOLUTE} %-5p [%c{1}] %m%n</Pattern>
+            </PatternLayout>
+        </Console>
+
+        <!-- ========================================================= -->
+        <!-- Special Log File specifically for Mondrian                -->
+        <!-- ========================================================= -->
+        <!--
+        <RollingFile name="MONDRIAN" fileName="../logs/mondrian.log" filePattern="../logs/mondrian.%d{yyyy-MM-dd}-%i.log" append="false" bufferedIO="true" immediateFlush="true">
+            <PatternLayout>
+                <Pattern>%d %-5p [%c] %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="2" fileIndex="min"/>
+        </RollingFile>
+        <RollingFile name="MDXLOG" fileName="../logs/mondrian_mdx.log" filePattern="../logs/mondrian_mdx.%d{yyyy-MM-dd}-%i.log" append="false" bufferedIO="true" immediateFlush="true">
+            <PatternLayout>
+                <Pattern>%d %-5p [%c] %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="2" fileIndex="min"/>
+        </RollingFile>
+        <RollingFile name="SQLLOG" fileName="../logs/mondrian_sql.log" filePattern="../logs/mondrian_sql.%d{yyyy-MM-dd}-%i.log" append="false" bufferedIO="true" immediateFlush="true">
+            <PatternLayout>
+                <Pattern>%d %-5p [%c] %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="2" fileIndex="min"/>
+        </RollingFile>
+         -->
+
+        <!-- ========================================================== -->
+        <!-- Special log file specifically for sensitive data access    -->
+        <!-- on a per user/session/IP level                             -->
+        <!-- Available MDC properties:                                  -->
+        <!-- sessionId, sessionName, instanceId, remoteAddr, remoteHost,-->
+        <!-- remotePort, serverName, serverPort,                        -->
+        <!-- localAddr, localName, localPort                            -->
+        <!-- ========================================================== -->
+        <!--
+        <RollingFile name="SESSION_DATA_ACCESS_LOG" fileName="../logs/session_data_access.log" filePattern="../logs/session_data_access.%d{yyyy-MM-dd}-%i.log" append="false" bufferedIO="true" immediateFlush="true">
+            <PatternLayout>
+                <Pattern>%d %-5p [%c] sessionId:%X{sessionId} sessionName:%X{sessionName} instanceId:%X{instanceId} remoteAddr:%X{remoteAddr} %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="2" fileIndex="min"/>
+        </RollingFile>
+         -->
+
+    </Appenders>
+
+    <!-- ================ -->
+    <!-- Limit loggers    -->
+    <!-- ================ -->
+    <Loggers>
+        <Logger name="org.apache.hadoop.io.retry" level="INFO"/>
+        <Logger name="org.hibernate" level="ERROR"/>
+        <Logger name="net.sf.ehcache" level="ERROR"/>
+        <Logger name="org.quartz" level="ERROR"/>
+        <Logger name="org.springframework" level="ERROR"/>
+        <Logger name="org.springframework.security" level="ERROR"/>
+        <Logger name="org.pentaho" level="ERROR"/>
+        <Logger name="com.pentaho" level="ERROR"/>
+        <Logger name="org.jfree.JCommon" level="ERROR"/>
+        <Logger name="org.apache.jackrabbit.core.security.authentication.AbstractLoginModule" level="ERROR"/>
+        <Logger name="org.pentaho.hadoop.shim" level="INFO"/>
+        <Logger name="org.pentaho.platform.osgi" level="INFO"/>
+        <Logger name="org.pentaho.platform.web.http.context" level="WARN"/>
+        <Logger name="org.pentaho.di.osgi" level="ERROR"/>
+        <Logger name="org.pentaho.di.monitor" level="ERROR"/>
+        <Logger name="org.pentaho.platform.engine.core.system.status" level="INFO"/>
+        <Logger name="com.pentaho.yarn" level="INFO"/>
+        <Logger name="com.pentaho.big.data.bundles" level="INFO"/>
+        <Logger name="com.pentaho.big.data.ee" level="INFO"/>
+
+        <!-- =========================== -->
+        <!-- Repository Import Log Level -->
+        <!-- =========================== -->
+        <Logger name="RepositoryImportLog" level="INFO"/>
+        <Logger name="org.pentaho.di.trans.Trans" level="INFO" additivity="false">
+            <appender-ref ref="pdi-execution-appender"/>
+        </Logger>
+        <Logger name="org.pentaho.di.job.Job" level="INFO" additivity="false">
+            <appender-ref ref="pdi-execution-appender"/>
+        </Logger>
+
+        <!-- =========================== -->
+        <!-- Mondrian Log Levels         -->
+        <!-- =========================== -->
+        <!--
+        <Logger name="mondrian" level="DEBUG" additivity="false">
+                <appender-ref ref="MONDRIAN"/>
+            </Logger>
+        <Logger name="mondrian.mdx" level="DEBUG" additivity="false">
+                <appender-ref ref="MDXLOG"/>
+            </Logger>
+        <Logger name="mondrian.sql" level="DEBUG" additivity="false">
+                <appender-ref ref="SQLLOG"/>
+            </Logger>
+        -->
+
+        <!-- =========================== -->
+        <!-- Sensitive Data Access       -->
+        <!-- =========================== -->
+        <!--
+        <Logger name="mondrian.rolap.RolapUtil" level="DEBUG" additivity="false">
+            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+        </Logger>
+        <Logger name="org.pentaho.metadata.query.impl.sql.SqlGenerator" level="TRACE" additivity="false">
+            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+        </Logger>
+        <Logger name="org.pentaho.reporting.engine.classic.core.modules.misc.datafactory.sql" level="DEBUG" additivity="false">
+            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+        </Logger>
+        <Logger name="org.pentaho.reporting.platform" level="INFO" additivity="false">
+            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+        </Logger>
+        <Logger name="org.pentaho.reporting.engine.classic.core.parameters" level="DEBUG" additivity="false">
+            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+        </Logger>
+        <Logger name="org.pentaho.reporting.platform.plugin.ExecuteReportContentHandler" level="DEBUG" additivity="false">
+            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+        </Logger>
+        <Logger name="org.pentaho.platform.plugin.action.sql.SQLLookupRule" level="DEBUG" additivity="false">
+            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+        </Logger>
+        <Logger name="pt.webdetails.cda.dataaccess.SimpleDataAccess" level="DEBUG" additivity="false">
+            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
+        </Logger>
+         -->
+
+        <!-- ======================= -->
+        <!-- Setup the Root Level    -->
+        <!-- ======================= -->
+        <Root level="ERROR">
+            <appender-ref ref="PENTAHOCONSOLE"/>
+            <appender-ref ref="PENTAHOFILE"/>
+        </Root>
+    </Loggers>
+</Configuration>
