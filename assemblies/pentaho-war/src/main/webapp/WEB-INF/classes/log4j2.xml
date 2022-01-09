@@ -17,7 +17,7 @@
         <!-- ================================= -->
         
         <!-- A time/date based rolling appender -->
-        <RollingFile name="PENTAHOFILE" fileName="../logs/pentaho.log" filePattern="../logs/pentaho.%d{yyyy-MM-dd}-%i.log" append="false" bufferedIO="true" immediateFlush="true">
+        <RollingFile name="PENTAHOFILE" fileName="../logs/pentaho.log" filePattern="../logs/pentaho.log.%d{yyyy-MM-dd}" append="false" bufferedIO="true" immediateFlush="true">
             <PatternLayout>
                 <!-- The default pattern: Date Priority [Category] Message\n -->
                 <Pattern>%d %-5p [%c] %m%n</Pattern>
@@ -27,22 +27,20 @@
             </PatternLayout>
             <Policies>
                 <OnStartupTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="10 MB" />
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy max="2" fileIndex="min"/>
+            <DefaultRolloverStrategy />
         </RollingFile>
 
-        <RollingFile name="pdi-execution-appender" fileName="../logs/pdi.log" filePattern="../logs/pdi.%d{yyyy-MM-dd}-%i.log" append="false" bufferedIO="true" immediateFlush="true">
+        <RollingFile name="pdi-execution-appender" fileName="../logs/pdi.log" filePattern="../logs/pdi.%d{yyyy-MM-dd}.log" append="false" bufferedIO="true" immediateFlush="true">
             <PatternLayout>
                 <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p &lt;%t&gt; %m%n</Pattern>
             </PatternLayout>
             <Policies>
                 <OnStartupTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="10 MB" />
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy max="2" fileIndex="min"/>
+            <DefaultRolloverStrategy />
         </RollingFile>
 
         <!-- ============================== -->
@@ -58,41 +56,38 @@
         <!-- Special Log File specifically for Mondrian                -->
         <!-- ========================================================= -->
         <!--
-        <RollingFile name="MONDRIAN" fileName="../logs/mondrian.log" filePattern="../logs/mondrian.%d{yyyy-MM-dd}-%i.log" append="false" bufferedIO="true" immediateFlush="true">
+        <RollingFile name="MONDRIAN" fileName="../logs/mondrian.log" filePattern="../logs/mondrian.log.%i" append="false" bufferedIO="true" immediateFlush="true">
             <PatternLayout>
                 <Pattern>%d %-5p [%c] %m%n</Pattern>
             </PatternLayout>
             <Policies>
                 <OnStartupTriggeringPolicy />
                 <SizeBasedTriggeringPolicy size="10 MB" />
-                <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy max="2" fileIndex="min"/>
+            <DefaultRolloverStrategy max="1" />
         </RollingFile>
-        <RollingFile name="MDXLOG" fileName="../logs/mondrian_mdx.log" filePattern="../logs/mondrian_mdx.%d{yyyy-MM-dd}-%i.log" append="false" bufferedIO="true" immediateFlush="true">
+        <RollingFile name="MDXLOG" fileName="../logs/mondrian_mdx.log" filePattern="../logs/mondrian_mdx.log.%i" append="false" bufferedIO="true" immediateFlush="true">
             <PatternLayout>
                 <Pattern>%d %-5p [%c] %m%n</Pattern>
             </PatternLayout>
             <Policies>
                 <OnStartupTriggeringPolicy />
                 <SizeBasedTriggeringPolicy size="10 MB" />
-                <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy max="2" fileIndex="min"/>
+            <DefaultRolloverStrategy max="1" />
         </RollingFile>
-        <RollingFile name="SQLLOG" fileName="../logs/mondrian_sql.log" filePattern="../logs/mondrian_sql.%d{yyyy-MM-dd}-%i.log" append="false" bufferedIO="true" immediateFlush="true">
+        <RollingFile name="SQLLOG" fileName="../logs/mondrian_sql.log" filePattern="../logs/mondrian_sql.log.%i" append="false" bufferedIO="true" immediateFlush="true">
             <PatternLayout>
                 <Pattern>%d %-5p [%c] %m%n</Pattern>
             </PatternLayout>
             <Policies>
                 <OnStartupTriggeringPolicy />
                 <SizeBasedTriggeringPolicy size="10 MB" />
-                <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy max="2" fileIndex="min"/>
+            <DefaultRolloverStrategy max="1" />
         </RollingFile>
          -->
-
+         
         <!-- ========================================================== -->
         <!-- Special log file specifically for sensitive data access    -->
         <!-- on a per user/session/IP level                             -->
@@ -102,16 +97,15 @@
         <!-- localAddr, localName, localPort                            -->
         <!-- ========================================================== -->
         <!--
-        <RollingFile name="SESSION_DATA_ACCESS_LOG" fileName="../logs/session_data_access.log" filePattern="../logs/session_data_access.%d{yyyy-MM-dd}-%i.log" append="false" bufferedIO="true" immediateFlush="true">
+        <RollingFile name="SESSION_DATA_ACCESS_LOG" fileName="../logs/session_data_access.log" filePattern="../logs/session_data_access.log.%d{yyyy-MM-dd}" append="false" bufferedIO="true" immediateFlush="true">
             <PatternLayout>
                 <Pattern>%d %-5p [%c] sessionId:%X{sessionId} sessionName:%X{sessionName} instanceId:%X{instanceId} remoteAddr:%X{remoteAddr} %m%n</Pattern>
             </PatternLayout>
             <Policies>
                 <OnStartupTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="10 MB" />
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy max="2" fileIndex="min"/>
+            <DefaultRolloverStrategy />
         </RollingFile>
          -->
 
@@ -157,15 +151,15 @@
         <!-- =========================== -->
         <!--
         <Logger name="mondrian" level="DEBUG" additivity="false">
-                <appender-ref ref="MONDRIAN"/>
-            </Logger>
+            <appender-ref ref="MONDRIAN"/>
+        </Logger>
         <Logger name="mondrian.mdx" level="DEBUG" additivity="false">
-                <appender-ref ref="MDXLOG"/>
-            </Logger>
+            <appender-ref ref="MDXLOG"/>
+        </Logger>
         <Logger name="mondrian.sql" level="DEBUG" additivity="false">
-                <appender-ref ref="SQLLOG"/>
-            </Logger>
-        -->
+            <appender-ref ref="SQLLOG"/>
+        </Logger>
+         -->
 
         <!-- =========================== -->
         <!-- Sensitive Data Access       -->
