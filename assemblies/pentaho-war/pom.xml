@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>9.3.0.0-SNAPSHOT</version>
+    <version>9.3.0.0-38</version>
   </parent>
   <artifactId>pentaho-war</artifactId>
-  <version>9.3.0.0-SNAPSHOT</version>
+  <version>9.3.0.0-38</version>
   <packaging>war</packaging>
   <properties>
     <snakeyaml.version>1.13</snakeyaml.version>
     <rdbms>hsqldb</rdbms>
-    <commons-database.version>9.3.0.0-SNAPSHOT</commons-database.version>
+    <commons-database.version>9.3.0.0-38</commons-database.version>
     <prepared.war.directory>${pentaho-server.directory}/tomcat/webapps/pentaho</prepared.war.directory>
-    <pentaho-hadoop-shims.version>9.3.0.0-SNAPSHOT</pentaho-hadoop-shims.version>
+    <pentaho-hadoop-shims.version>9.3.2021.05.00-38</pentaho-hadoop-shims.version>
     <prepared.war.lib.directory>${prepared.war.directory}/WEB-INF/lib</prepared.war.lib.directory>
     <jettison.version>1.3.3</jettison.version>
     <datasource.resources.directory>${basedir}/src/main/resources/datasources</datasource.resources.directory>
@@ -28,7 +27,7 @@
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
     <replacer.version>1.5.2</replacer.version>
     <rxjava.version>2.2.3</rxjava.version>
-    <big-data-plugin.version>9.3.0.0-SNAPSHOT</big-data-plugin.version>
+    <big-data-plugin.version>9.3.0.0-38</big-data-plugin.version>
   </properties>
   <dependencies>
     <!-- region - Fasterxml jackson providers are required to be in the main classloader for serialization of POJOs
@@ -1047,7 +1046,7 @@
             </goals>
             <configuration>
               <target>
-                <copy file="${project.build.directory}/webjars/META-INF/resources/webjars/jquery/${jquery.version}/dist/jquery.min.js" todir="${project.build.directory}/pentaho-server/tomcat/webapps/pentaho/docs/" />
+                <copy file="${project.build.directory}/webjars/META-INF/resources/webjars/jquery/${jquery.version}/dist/jquery.min.js" todir="${project.build.directory}/pentaho-server/tomcat/webapps/pentaho/docs/"/>
               </target>
             </configuration>
           </execution>
