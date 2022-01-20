@@ -20,7 +20,7 @@
 
 package org.pentaho.test.platform.security.userroledao;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.mt.ITenant;

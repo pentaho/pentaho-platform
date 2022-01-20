@@ -26,8 +26,8 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 import org.dom4j.Node;
 import org.junit.After;
 import org.junit.Before;
@@ -41,6 +41,7 @@ import org.pentaho.actionsequence.dom.actions.ResultSetCompareAction;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IRuntimeContext;
+import org.pentaho.platform.api.util.LogUtil;
 
 public class ResultSetCompareComponentTest {
 
@@ -54,7 +55,7 @@ public class ResultSetCompareComponentTest {
 
   @Before
   public void setUp() {
-    LogManager.getRootLogger().setLevel( Level.OFF );
+    LogUtil.setLevel(LogManager.getLogger(), Level.OFF);
   }
 
   @Test
@@ -157,7 +158,7 @@ public class ResultSetCompareComponentTest {
 
   @After
   public void tearDown() {
-    LogManager.getRootLogger().setLevel( level );
+    LogUtil.setLevel(LogManager.getLogger(), Level.OFF);
   }
 
   private static int callValidationWithResultSets( IPentahoResultSet resultSet1, IPentahoResultSet resultSet2 ) {

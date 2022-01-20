@@ -20,8 +20,8 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 
 import java.io.OutputStream;
 
@@ -73,7 +73,7 @@ public class Log4JRepositoryImportLogger implements IRepositoryImportLogger {
 
   @Override
   public void error( Exception e ) {
-    getLogger().error( e );
+    getLogger().error( e.getMessage(), e );
 
   }
 
@@ -145,12 +145,12 @@ public class Log4JRepositoryImportLogger implements IRepositoryImportLogger {
 
   @Override
   public boolean isErrorEnabled() {
-    return Level.ERROR.isGreaterOrEqual( getLogger().getLevel() );
+    return Level.ERROR.isMoreSpecificThan( getLogger().getLevel() );
   }
 
   @Override
   public boolean isFatalEnabled() {
-    return Level.FATAL.isGreaterOrEqual( getLogger().getLevel() );
+    return Level.FATAL.isMoreSpecificThan( getLogger().getLevel() );
   }
 
   @Override
@@ -165,7 +165,7 @@ public class Log4JRepositoryImportLogger implements IRepositoryImportLogger {
 
   @Override
   public boolean isWarnEnabled() {
-    return Level.WARN.isGreaterOrEqual( getLogger().getLevel() );
+    return Level.WARN.isMoreSpecificThan( getLogger().getLevel() );
   }
 
   @Override
