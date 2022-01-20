@@ -30,9 +30,11 @@ import com.sun.jersey.test.framework.spi.container.grizzly.GrizzlyTestContainerF
 import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.DefaultConfiguration;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -48,6 +50,7 @@ import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.repository.IContentItem;
+import org.pentaho.platform.api.util.LogUtil;
 import org.pentaho.platform.engine.core.solution.ContentGeneratorInfo;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.services.solution.BaseContentGenerator;
@@ -101,8 +104,9 @@ public class FilePerspectiveResourceIT extends JerseyTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    BasicConfigurator.configure();
-    Logger.getLogger( RequestProxy.class ).setLevel( Level.DEBUG );
+    Configurator.initialize(new DefaultConfiguration());
+    Configurator.setRootLevel(Level.INFO);
+    LogUtil.setLevel(LogManager.getLogger(), Level.DEBUG);
   }
 
   @AfterClass

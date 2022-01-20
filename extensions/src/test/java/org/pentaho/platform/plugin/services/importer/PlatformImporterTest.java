@@ -20,7 +20,7 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 import org.junit.Test;
 import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.Converter;
@@ -80,7 +80,8 @@ public class PlatformImporterTest {
       importer.setRepositoryImportLogger( importLogger );
       importer.importFile( bundle1 );
       String result = new String( outputStream.toByteArray() );
-      assertTrue( result.contains( "Error computing or retrieving mime-type" ) );
+      assertTrue( result.contains( "Start Import Job" ) ); // Logged at INFO level
+      assertTrue( result.contains( "Error computing or retrieving mime-type" ) ); // Logged at ERROR level
     } catch ( PlatformImportException e ) {
       e.printStackTrace();
       return;
