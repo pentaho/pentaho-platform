@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration status="Warn">
+
+	<Appenders>
+		<Console name="PENTAHOCONSOLE">
+			<PatternLayout>
+				<Pattern>%d{ABSOLUTE} %-5p [%c{1}] %m%n</Pattern>
+			</PatternLayout>
+		</Console>
+
+	</Appenders>
+
+	<Loggers>
+
+		<Logger name="org.hibernate" level="error">
+			<appender-ref ref="PENTAHOCONSOLE" />
+		</Logger>
+		<Logger name="net.sf.ehcache" level="error">
+			<appender-ref ref="PENTAHOCONSOLE" />
+		</Logger>
+		<Logger name="org.quartz" level="error">
+			<appender-ref ref="PENTAHOCONSOLE" />
+		</Logger>
+		<Logger name="org.springframework" level="error">
+			<appender-ref ref="PENTAHOCONSOLE" />
+		</Logger>
+		<Logger name="org.springframework.security" level="error">
+			<appender-ref ref="PENTAHOCONSOLE" />
+		</Logger>
+		<Logger name="org.pentaho" level="warn">
+			<appender-ref ref="PENTAHOCONSOLE" />
+		</Logger>
+		<Logger name="com.pentaho" level="warn">
+			<appender-ref ref="PENTAHOCONSOLE" />
+		</Logger>
+		<Logger name="org.pentaho.platform.engine.core.system.status"
+			level="info">
+			<appender-ref ref="PENTAHOCONSOLE" />
+		</Logger>
+
+		<Root level="warn">
+			<appender-ref ref="PENTAHOCONSOLE" />
+		</Root>
+
+	</Loggers>
+
+</Configuration>

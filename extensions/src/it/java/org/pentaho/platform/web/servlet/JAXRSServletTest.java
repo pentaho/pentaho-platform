@@ -22,12 +22,14 @@ import com.sun.jersey.spi.container.WebApplication;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 import com.sun.jersey.spi.container.servlet.WebServletConfig;
 import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
+import org.apache.logging.log4j.LogManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.pentaho.platform.api.util.LogUtil;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -48,9 +50,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
-
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+
 
 /**
  * Created by Dmitriy Stepanov on 28.03.18.
@@ -241,7 +243,7 @@ public class JAXRSServletTest {
     java.util.logging.Logger.getLogger( JAXRSServlet.class.getName() ).setLevel( Level.ALL );
 
     // Try Log4J as backend
-    org.apache.log4j.Logger.getLogger( JAXRSServlet.class ).setLevel( org.apache.log4j.Level.DEBUG );
+    LogUtil.setLevel(LogManager.getLogger(JAXRSServlet.class), org.apache.logging.log4j.Level.DEBUG);
   }
 
   @Test

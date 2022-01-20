@@ -20,14 +20,23 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
-import org.apache.log4j.WriterAppender;
-
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.WriterAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.pentaho.platform.api.util.LogUtil;
+import org.slf4j.MDC;
 
 public class Log4JRepositoryImportLog {
 
@@ -38,7 +47,7 @@ public class Log4JRepositoryImportLog {
   private String logName;
   private String importRootPath;
   private Level logLevel;
-  private WriterAppender writeAppender;
+  private Appender appender;
 
   /**
    * Constructs an object that keeps track of additional fields for Log4j logging and writes/formats an html file to the
@@ -55,12 +64,13 @@ public class Log4JRepositoryImportLog {
 
   private void init() {
     logName = "RepositoryImportLog." + getThreadName();
-    logger = Logger.getLogger( logName );
-    logger.setLevel( logLevel );
+    logger = LogManager.getLogger( logName );
+    LogUtil.setLevel( logger, logLevel );
     RepositoryImportHTMLLayout htmlLayout = new RepositoryImportHTMLLayout( logLevel );
     htmlLayout.setTitle( "Repository Import Log" );
-    writeAppender = new WriterAppender( htmlLayout, new OutputStreamWriter( outputStream, Charset.forName( "utf-8" ) ) );
-    logger.addAppender( writeAppender );
+    appender =
+        LogUtil.makeAppender( logName, new OutputStreamWriter( outputStream, Charset.forName( "utf-8" ) ), htmlLayout );
+    LogUtil.addAppender( appender, logger, logLevel );
   }
 
   public Logger getLogger() {
@@ -92,16 +102,15 @@ public class Log4JRepositoryImportLog {
 
   protected void endJob() {
     try {
-      outputStream.write( writeAppender.getLayout().getFooter().getBytes() );
+      outputStream.write( appender.getLayout().getFooter() );
     } catch ( Exception e ) {
       System.out.println( e );
       // Don't try logging a log error.
     }
-    logger.removeAppender( writeAppender );
+    LogUtil.removeAppender( appender, logger );
   }
 
   private String getThreadName() {
     return Thread.currentThread().getName();
   }
-
 }

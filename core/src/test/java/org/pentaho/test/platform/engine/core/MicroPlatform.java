@@ -22,7 +22,9 @@ package org.pentaho.test.platform.engine.core;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.BasicConfigurator;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.DefaultConfiguration;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
@@ -109,8 +111,6 @@ public class MicroPlatform extends PentahoSystemBoot {
   @Override
   public boolean start() throws PlatformInitializationException {
     PentahoSystem.setSystemSettingsService( new PathBasedSystemSettings() );
-    // initialize log4j to write to the console
-    BasicConfigurator.configure();
     boolean ret = super.start();
     // set log levels
     // FIXME: find a better way to set log levels programmatically than this.. this can cause NPEs
