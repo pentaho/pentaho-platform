@@ -64,7 +64,7 @@ public class SystemPackageExtrapolatorTest {
         .contains( "org.apache.xerces.impl.dv; version=\"2.11.0\"" ) );
 
     assertTrue( "Log4J package should have been added", processedPackages
-        .contains( "org.apache.log4j" ) );
+        .contains( "org.apache.logging.log4j" ) );
 
     assertTrue( "org.apache package should have been added", processedPackages
         .contains( "org.apache" ) );
@@ -86,7 +86,7 @@ public class SystemPackageExtrapolatorTest {
     ModuleIdentifier moduleIdentifier = ModuleIdentifier.create( "org.pentaho.test.module" );
     ModuleSpec.Builder builder = ModuleSpec.build( moduleIdentifier );
     builder.addDependency( DependencySpec.createSystemDependencySpec(
-            new HashSet<String>( Arrays.asList( "org.apache", "org.apache.log4j" ) ) )
+            new HashSet<String>( Arrays.asList( "org.apache", "org.apache.logging.log4j" ) ) )
     );
 
     final ModuleSpec moduleSpec = builder.create();
@@ -106,7 +106,7 @@ public class SystemPackageExtrapolatorTest {
 
 
     packages = jBossModulePackageProvider.getPackages();
-    assertThat( packages, contains( "org.apache.log4j", "org.apache" ) );
+    assertThat( packages, contains( "org.apache.logging.log4j", "org.apache" ) );
     assertThat( packages, not( contains( "org.not.there" ) ) );
   }
 

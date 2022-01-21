@@ -32,8 +32,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
@@ -54,7 +55,7 @@ import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 @Path ( "/repo/files/import" )
 public class RepositoryImportResource {
 
-  private static final Logger LOGGER = Logger.getLogger( RepositoryImportResource.class );
+  private static final Logger LOGGER = LogManager.getLogger( RepositoryImportResource.class );
 
   private static final String DEFAULT_CHAR_SET = "UTF-8";
 

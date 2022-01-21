@@ -21,7 +21,7 @@
 package org.pentaho.platform.plugin.services.importexport;
 
 import junit.framework.TestCase;
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 
 import java.io.ByteArrayOutputStream;
 
