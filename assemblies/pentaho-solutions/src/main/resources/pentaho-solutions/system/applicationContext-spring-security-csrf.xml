@@ -51,12 +51,9 @@
 
         <!-- GWT-RPC ws/gwt/* -->
 
-        <!-- POST /ws/gwt/unifiedRepository (and body contains `createBinaryFile`, ... method call) -->
+        <!-- POST /ws/gwt/unifiedRepository (and body contains `copyFile`, ... method call) -->
         <pen-gpc:system-gwt-rpc-request-matcher pattern="^/ws/gwt/unifiedRepository\b.*"
-                                                methods="createBinaryFile
-                                                         createBinaryFileWithAcl
-                                                         updateBinaryFile
-                                                         copyFile
+                                                methods="copyFile
                                                          moveFile
                                                          lockFile
                                                          unlockFile
