@@ -20,7 +20,7 @@
 
 package org.pentaho.platform.engine.core;
 
-import org.apache.log4j.MDC;
+import org.slf4j.MDC;
 import org.pentaho.platform.engine.core.audit.MDCUtil;
 
 import junit.framework.TestCase;
