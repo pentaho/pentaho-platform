@@ -88,27 +88,6 @@
         </RollingFile>
          -->
          
-        <!-- ========================================================== -->
-        <!-- Special log file specifically for sensitive data access    -->
-        <!-- on a per user/session/IP level                             -->
-        <!-- Available MDC properties:                                  -->
-        <!-- sessionId, sessionName, instanceId, remoteAddr, remoteHost,-->
-        <!-- remotePort, serverName, serverPort,                        -->
-        <!-- localAddr, localName, localPort                            -->
-        <!-- ========================================================== -->
-        <!--
-        <RollingFile name="SESSION_DATA_ACCESS_LOG" fileName="../logs/session_data_access.log" filePattern="../logs/session_data_access.log.%d{yyyy-MM-dd}" append="false" bufferedIO="true" immediateFlush="true">
-            <PatternLayout>
-                <Pattern>%d %-5p [%c] sessionId:%X{sessionId} sessionName:%X{sessionName} instanceId:%X{instanceId} remoteAddr:%X{remoteAddr} %m%n</Pattern>
-            </PatternLayout>
-            <Policies>
-                <OnStartupTriggeringPolicy />
-                <TimeBasedTriggeringPolicy />
-            </Policies>
-            <DefaultRolloverStrategy />
-        </RollingFile>
-         -->
-
     </Appenders>
 
     <!-- ================ -->
@@ -158,36 +137,6 @@
         </Logger>
         <Logger name="mondrian.sql" level="DEBUG" additivity="false">
             <appender-ref ref="SQLLOG"/>
-        </Logger>
-         -->
-
-        <!-- =========================== -->
-        <!-- Sensitive Data Access       -->
-        <!-- =========================== -->
-        <!--
-        <Logger name="mondrian.rolap.RolapUtil" level="DEBUG" additivity="false">
-            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
-        </Logger>
-        <Logger name="org.pentaho.metadata.query.impl.sql.SqlGenerator" level="TRACE" additivity="false">
-            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
-        </Logger>
-        <Logger name="org.pentaho.reporting.engine.classic.core.modules.misc.datafactory.sql" level="DEBUG" additivity="false">
-            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
-        </Logger>
-        <Logger name="org.pentaho.reporting.platform" level="INFO" additivity="false">
-            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
-        </Logger>
-        <Logger name="org.pentaho.reporting.engine.classic.core.parameters" level="DEBUG" additivity="false">
-            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
-        </Logger>
-        <Logger name="org.pentaho.reporting.platform.plugin.ExecuteReportContentHandler" level="DEBUG" additivity="false">
-            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
-        </Logger>
-        <Logger name="org.pentaho.platform.plugin.action.sql.SQLLookupRule" level="DEBUG" additivity="false">
-            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
-        </Logger>
-        <Logger name="pt.webdetails.cda.dataaccess.SimpleDataAccess" level="DEBUG" additivity="false">
-            <appender-ref ref="SESSION_DATA_ACCESS_LOG"/>
         </Logger>
          -->
 
