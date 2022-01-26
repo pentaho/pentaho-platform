@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+   <Appenders>
+      <RollingFile name="PENTAHOFILE" fileName="../logs/pentaho.log"
+                   filePattern="../logs/pentaho.%d{yyyy-MM-dd}.log">
+         <PatternLayout>
+            <Pattern>%d %-5p [%c] %m%n</Pattern>
+         </PatternLayout>
+         <Policies>
+            <TimeBasedTriggeringPolicy />
+         </Policies>
+         <DefaultRolloverStrategy />
+      </RollingFile>
+      <Console name="PENTAHOCONSOLE">
+         <PatternLayout>
+            <Pattern>%d{ABSOLUTE} %-5p [%c{1}] %m%n</Pattern>
+         </PatternLayout>
+         <ThresholdFilter level="WARN" />
+      </Console>
+   </Appenders>
+   <Loggers>
+      <Logger name="org.hibernate" level="ERROR"/>
+      <Logger name="net.sf.ehcache" level="ERROR"/>
+      <Logger name="org.quartz" level="ERROR"/>
+      <Logger name="org.springframework" level="ERROR"/>
+      <Logger name="org.springframework.security" level="ERROR"/>
+      <Logger name="org.pentaho" level="WARN"/>
+      <Logger name="com.pentaho" level="WARN"/>
+      <Logger name="org.jfree.JCommon" level="ERROR"/>
+      <Logger name="org.apache.jackrabbit.core.security.authentication.AbstractLoginModule" level="ERROR"/>
+      <Root level="WARN">
+         <AppenderRef ref="PENTAHOCONSOLE"/>
+         <AppenderRef ref="PENTAHOFILE"/>
+      </Root>
+   </Loggers>
+</Configuration>

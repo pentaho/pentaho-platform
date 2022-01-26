@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+   <Appenders>
+      <RollingFile name="PENTAHOFILE" fileName="../logs/osgi_pentaho.log"
+                   filePattern="../logs/osgi_pentaho.%d{yyyy-MM-dd}.log">
+         <PatternLayout>
+            <Pattern>%d %-5p [%c] %m%n</Pattern>
+         </PatternLayout>
+         <Policies>
+            <TimeBasedTriggeringPolicy />
+         </Policies>
+         <DefaultRolloverStrategy />
+      </RollingFile>
+      <Console name="PENTAHOCONSOLE">
+         <PatternLayout>
+            <Pattern>%d{ABSOLUTE} %-5p [%c{1}] %m%n</Pattern>
+         </PatternLayout>
+         <ThresholdFilter level="ERROR" />
+      </Console>
+   </Appenders>
+   <Loggers>
+      <Logger name="org.hibernate" level="ERROR"/>
+      <Logger name="net.sf.ehcache" level="ERROR"/>
+      <Logger name="org.quartz" level="ERROR"/>
+      <Logger name="org.springframework" level="ERROR"/>
+      <Logger name="org.springframework.security" level="ERROR"/>
+      <Logger name="org.pentaho" level="ERROR"/>
+      <Logger name="com.pentaho" level="ERROR"/>
+      <Logger name="org.jfree.JCommon" level="ERROR"/>
+      <Logger name="org.apache.jackrabbit.core.security.authentication.AbstractLoginModule" level="ERROR"/>
+      <Logger name="org.pentaho.platform.osgi" level="INFO"/>
+      <Logger name="org.pentaho.platform.web.http.context" level="WARN"/>
+      <Logger name="org.pentaho.di.osgi" level="ERROR"/>
+      <Logger name="org.pentaho.di.monitor" level="ERROR"/>
+      <Logger name="RepositoryImportLog" level="INFO"/>
+      <Root level="ERROR">
+         <AppenderRef ref="PENTAHOCONSOLE"/>
+         <AppenderRef ref="PENTAHOFILE"/>
+      </Root>
+   </Loggers>
+</Configuration>
