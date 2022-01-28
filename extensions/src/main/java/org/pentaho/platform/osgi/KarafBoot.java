@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002 - 2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -374,9 +374,9 @@ public class KarafBoot implements IPentahoSystemListener {
     System.setProperty( "embedded.karaf.mode", "true" );
 
     // set the location of the log4j config file, since OSGI won't pick up the one in webapp
-    File file = new File( solutionRootPath + "/system/osgi/log4j.xml" );
+    File file = new File( solutionRootPath + "/system/osgi/log4j2.xml" );
     if ( file.exists() ) {
-      System.setProperty( "log4j.configuration", file.toURI().toString() );
+      System.setProperty( "log4j2.configurationFile", file.toURI().toString() );
     } else {
       logger.warn( file.toURI().toString() + " file not exist" );
     }
