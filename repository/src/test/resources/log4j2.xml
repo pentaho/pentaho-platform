@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+  <Appenders>
+    <Console name="PENTAHOCONSOLE">
+      <PatternLayout>
+        <Pattern>%d{ABSOLUTE} %-5p [%c{1}] %m%n</Pattern>
+      </PatternLayout>
+    </Console>
+  </Appenders>
+  <Loggers>
+    <Logger name="org" level="ERROR"/>
+    <Logger name="net" level="ERROR"/>
+    <Logger name="com" level="ERROR"/>
+    <Logger name="mondrian" level="ERROR"/>
+    <Logger name="org.pentaho.platform.repository" level="INFO"/>
+    <Logger name="org.pentaho.platform.repository2" level="INFO"/>
+    <Logger name="org.pentaho.platform.security.policy.rolebased" level="INFO"/>
+    <Root level="INFO">
+      <AppenderRef ref="PENTAHOCONSOLE"/>
+    </Root>
+  </Loggers>
+</Configuration>
