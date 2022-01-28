@@ -28,6 +28,7 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.mantle.client.csrf.CsrfRequestBuilder;
 import org.pentaho.mantle.client.messages.Messages;
 
 public class ExecuteGlobalActionsCommand extends AbstractCommand {
@@ -37,7 +38,7 @@ public class ExecuteGlobalActionsCommand extends AbstractCommand {
 
   protected void performOperation() {
     final String url = GWT.getHostPageBaseURL() + "api/system/refresh/globalActions"; //$NON-NLS-1$
-    RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );
+    RequestBuilder requestBuilder = new CsrfRequestBuilder( RequestBuilder.GET, url );
     requestBuilder.setHeader( "accept", "text/plain" );
     requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     try {

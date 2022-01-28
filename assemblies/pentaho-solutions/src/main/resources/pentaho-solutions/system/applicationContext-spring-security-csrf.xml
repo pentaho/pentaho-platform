@@ -40,15 +40,25 @@
         <swm:regex-request-matcher pattern="^/api/mantle/session-variable\b.*" methods="POST" />
 
         <!--
-          GET /api/system/refresh/mondrianSchemaCache
-        -->
-        <swm:regex-request-matcher pattern="^/api/system/refresh/mondrianSchemaCache\b.*" methods="GET" />
-
-        <!--
           POST /api/repo/files/import
         -->
         <swm:regex-request-matcher pattern="^/api/repo/files/import\b.*" methods="POST" />
-
+        <!--
+          POST api/theme/set
+         -->
+        <swm:regex-request-matcher pattern="^/api/theme/set\b.*" methods="POST" />
+        <!--
+          GET api/system/refresh/globalActions
+          GET api/system/refresh/metadata
+          GET api/system/refresh/systemSettings
+          GET api/system/refresh/reportingDataCache
+          GET api/system/refresh/mondrianSingleSchemaCache
+         -->
+        <swm:regex-request-matcher pattern="^/api/system/refresh/.*" methods="GET" />
+        <!--
+         POST api/licenseManager/addLicense
+        -->
+        <swm:regex-request-matcher pattern="^/api/licenseManager/addLicense\b.*" methods="POST" />
         <!-- GWT-RPC ws/gwt/* -->
 
         <!-- POST /ws/gwt/unifiedRepository (and body contains `copyFile`, ... method call) -->
