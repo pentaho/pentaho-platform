@@ -49,6 +49,11 @@
         -->
         <swm:regex-request-matcher pattern="^/api/repo/files/import\b.*" methods="POST" />
 
+        <!--
+          POST /api/theme/set
+         -->
+        <swm:regex-request-matcher pattern="^/api/theme/set\b.*" methods="POST" />
+
         <!-- GWT-RPC ws/gwt/* -->
 
         <!-- POST /ws/gwt/unifiedRepository (and body contains `copyFile`, ... method call) -->
