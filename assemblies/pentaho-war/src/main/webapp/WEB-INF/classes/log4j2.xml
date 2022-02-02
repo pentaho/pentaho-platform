@@ -100,15 +100,11 @@
         <Logger name="com.pentaho" level="ERROR"/>
         <Logger name="org.jfree.JCommon" level="ERROR"/>
         <Logger name="org.apache.jackrabbit.core.security.authentication.AbstractLoginModule" level="ERROR"/>
-        <Logger name="org.pentaho.hadoop.shim" level="INFO"/>
         <Logger name="org.pentaho.platform.osgi" level="INFO"/>
         <Logger name="org.pentaho.platform.web.http.context" level="WARN"/>
         <Logger name="org.pentaho.di.osgi" level="ERROR"/>
         <Logger name="org.pentaho.di.monitor" level="ERROR"/>
         <Logger name="org.pentaho.platform.engine.core.system.status" level="INFO"/>
-        <Logger name="com.pentaho.yarn" level="INFO"/>
-        <Logger name="com.pentaho.big.data.bundles" level="INFO"/>
-        <Logger name="com.pentaho.big.data.ee" level="INFO"/>
 
         <!-- =========================== -->
         <!-- Repository Import Log Level -->
