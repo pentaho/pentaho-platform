@@ -40,11 +40,6 @@
         <swm:regex-request-matcher pattern="^/api/mantle/session-variable\b.*" methods="POST" />
 
         <!--
-          GET /api/system/refresh/mondrianSchemaCache
-        -->
-        <swm:regex-request-matcher pattern="^/api/system/refresh/mondrianSchemaCache\b.*" methods="GET" />
-
-        <!--
           POST /api/repo/files/import
         -->
         <swm:regex-request-matcher pattern="^/api/repo/files/import\b.*" methods="POST" />
@@ -63,6 +58,11 @@
           GET /api/system/refresh/mondrianSchemaCache
          -->
         <swm:regex-request-matcher pattern="^api/system/refresh/(globalActions|metadata|systemSettings|reportingDataCache|mondrianSingleSchemaCache|mondrianSchemaCache)\b.*" methods="GET" />
+
+        <!--
+         POST /api/licenseManager/addLicense
+        -->
+        <swm:regex-request-matcher pattern="^/api/licenseManager/addLicense\b.*" methods="POST" />
 
         <!-- GWT-RPC ws/gwt/* -->
 
