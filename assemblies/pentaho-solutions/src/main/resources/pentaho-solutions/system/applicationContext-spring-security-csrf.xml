@@ -54,6 +54,16 @@
          -->
         <swm:regex-request-matcher pattern="^/api/theme/set\b.*" methods="POST" />
 
+        <!--
+          GET /api/system/refresh/globalActions
+          GET /api/system/refresh/metadata
+          GET /api/system/refresh/systemSettings
+          GET /api/system/refresh/reportingDataCache
+          GET /api/system/refresh/mondrianSingleSchemaCache
+          GET /api/system/refresh/mondrianSchemaCache
+         -->
+        <swm:regex-request-matcher pattern="^api/system/refresh/(globalActions|metadata|systemSettings|reportingDataCache|mondrianSingleSchemaCache|mondrianSchemaCache)\b.*" methods="GET" />
+
         <!-- GWT-RPC ws/gwt/* -->
 
         <!-- POST /ws/gwt/unifiedRepository (and body contains `copyFile`, ... method call) -->
