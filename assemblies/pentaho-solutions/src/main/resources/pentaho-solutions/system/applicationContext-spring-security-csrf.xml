@@ -57,7 +57,7 @@
           GET /api/system/refresh/mondrianSingleSchemaCache
           GET /api/system/refresh/mondrianSchemaCache
          -->
-        <swm:regex-request-matcher pattern="^api/system/refresh/(globalActions|metadata|systemSettings|reportingDataCache|mondrianSingleSchemaCache|mondrianSchemaCache)\b.*" methods="GET" />
+        <swm:regex-request-matcher pattern="^/api/system/refresh/(globalActions|metadata|systemSettings|reportingDataCache|mondrianSingleSchemaCache|mondrianSchemaCache)\b.*" methods="GET" />
 
         <!--
          POST /api/licenseManager/addLicense
