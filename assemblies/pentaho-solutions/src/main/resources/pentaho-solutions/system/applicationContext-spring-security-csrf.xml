@@ -64,6 +64,11 @@
         -->
         <swm:regex-request-matcher pattern="^/api/licenseManager/addLicense\b.*" methods="POST" />
 
+        <!--
+         GET /api/session/setredirect
+        -->
+        <swm:regex-request-matcher pattern="^/api/session/setredirect\b.*" methods="GET" />
+
         <!-- GWT-RPC ws/gwt/* -->
 
         <!-- POST /ws/gwt/unifiedRepository (and body contains `copyFile`, ... method call) -->
