@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -24,6 +24,8 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.pentaho.di.cluster.SlaveServer;
 import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.exception.KettleException;
@@ -38,7 +40,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -48,7 +49,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 
@@ -120,12 +120,13 @@ public class KettleSystemListener implements IPentahoSystemListener {
     // We listen to the log records from Kettle and pass logging along
     //
 
-    org.apache.logging.log4j.Logger log4jLogger = LogManager.getLogger();
-    Map<String, Appender> appenderMap =   ((org.apache.logging.log4j.core.Logger) logger).getAppenders();
-    for( Appender appender: appenderMap.values()) {
-      if ( appender instanceof org.apache.logging.log4j.core.appender.FileAppender ) {
-        Log4jForwardingKettleLoggingEventListener listener = new Log4jForwardingKettleLoggingEventListener(appender);
-        KettleLogStore.getAppender().addLoggingEventListener(listener);
+    LoggerContext ctx = (LoggerContext) LogManager.getContext( false );
+    Configuration config = ctx.getConfiguration();
+    Map<String, Appender> appenderMap = config.getLoggerConfig( LogManager.getRootLogger().getName() ).getAppenders();
+    for ( Appender appender : appenderMap.values() ) {
+      if ( appender instanceof org.apache.logging.log4j.core.appender.RollingFileAppender ) {
+        Log4jForwardingKettleLoggingEventListener listener = new Log4jForwardingKettleLoggingEventListener();
+        KettleLogStore.getAppender().addLoggingEventListener( listener );
       }
     }
   }
