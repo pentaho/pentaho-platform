@@ -22,7 +22,7 @@
     <hibernate-ehcache.version>3.6.9.Final</hibernate-ehcache.version>
     <commons-io.version>2.2</commons-io.version>
     <maven-resources-plugin.version>3.0.1</maven-resources-plugin.version>
-    <xmlgraphics-commons.version>2.2</xmlgraphics-commons.version>
+    <xmlgraphics-commons.version>2.6</xmlgraphics-commons.version>
     <c3p0.version>0.9.1.2</c3p0.version>
     <jcommon-xml.version>1.0.12</jcommon-xml.version>
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
