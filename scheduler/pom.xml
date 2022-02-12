@@ -173,6 +173,12 @@
       <version>${javax.servlet-api.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-core</artifactId>
+      <version>${hamcrest-core.version}</version>
+      <scope>test</scope>
+    </dependency>
     <!-- endregion -->
   </dependencies>
   <build>
