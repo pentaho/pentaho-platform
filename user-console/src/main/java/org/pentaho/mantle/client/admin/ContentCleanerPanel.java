@@ -294,7 +294,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
         public void onResponseReceived( Request request, Response response ) {
           String jobId = response.getText();
           final RequestBuilder requestBuilder =
-            new CsrfRequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL()
+            new RequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL()
               + "api/scheduler/jobinfo?jobId=" + URL.encodeQueryString( jobId ) );
           requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
           requestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
