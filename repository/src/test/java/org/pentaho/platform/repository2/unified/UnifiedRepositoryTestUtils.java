@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -292,6 +292,8 @@ public class UnifiedRepositoryTestUtils {
       String[] pathSegments = pair.getPath().substring( prefix.length() + 1 ).split( "/" );
       addChild( rootNode, pair.getProperty(), pathSegments, 0 );
     }
+    doReturn( new NodeRepositoryFileData( rootNode ) ).when( repo ).getDataForRead( makeIdObject( path ),
+      NodeRepositoryFileData.class );
   }
 
   private static void addChild( final DataNode rootNode, final DataProperty property, final String[] pathSegments,
