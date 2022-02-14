@@ -51,6 +51,7 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
+import org.pentaho.mantle.client.csrf.CsrfRequestBuilder;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleRecurrenceDialog;
 import org.pentaho.mantle.client.messages.Messages;
@@ -282,7 +283,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           + "\"repeatInterval\": \"0\", \"startTime\": \"" + date + "\", \"uiPassParam\": \"RUN_ONCE\"} }";
 
     RequestBuilder scheduleFileRequestBuilder =
-        new RequestBuilder( RequestBuilder.POST, GWT.getHostPageBaseURL() + "api/scheduler/job" );
+        new CsrfRequestBuilder( RequestBuilder.POST, GWT.getHostPageBaseURL() + "api/scheduler/job" );
     scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     scheduleFileRequestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
     try {
@@ -293,7 +294,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
         public void onResponseReceived( Request request, Response response ) {
           String jobId = response.getText();
           final RequestBuilder requestBuilder =
-            new RequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL()
+            new CsrfRequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL()
               + "api/scheduler/jobinfo?jobId=" + URL.encodeQueryString( jobId ) );
           requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
           requestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
