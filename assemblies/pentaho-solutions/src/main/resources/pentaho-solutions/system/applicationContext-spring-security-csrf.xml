@@ -70,9 +70,9 @@
         <swm:regex-request-matcher pattern="^/api/session/setredirect\b.*" methods="GET" />
 
         <!--
-        POST /api/repo/publish/fileWithOptions
+         POST /api/repo/publish/fileWithOptions
         -->
-        <swm:regex-request-matcher pattern="^/api/repo/publish/fileWithOptions\b.*" methods="GET" />
+        <swm:regex-request-matcher pattern="^/api/repo/publish/fileWithOptions\b.*" methods="POST" />
 
         <!-- GWT-RPC ws/gwt/* -->
 
