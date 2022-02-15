@@ -192,7 +192,6 @@
     <commons-pool.version>1.5.7</commons-pool.version>
     <jsch.version>0.1.54</jsch.version>
     <jcommon-logging-log4jlog.version>1.0.2</jcommon-logging-log4jlog.version>
-    <h2.version>1.2.131</h2.version>
     <commons-cli.version>1.2</commons-cli.version>
     <license-maven-plugin.version>3.0</license-maven-plugin.version>
     <commons-discovery.version>0.4</commons-discovery.version>
