@@ -23,7 +23,6 @@ package org.pentaho.platform.plugin.action.kettle;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.appender.FileAppender;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +31,6 @@ import org.pentaho.platform.api.util.LogUtil;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.XmlTestConstants;
 import org.xml.sax.SAXException;
-import sun.rmi.runtime.Log;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;

@@ -40,14 +40,29 @@
         <swm:regex-request-matcher pattern="^/api/mantle/session-variable\b.*" methods="POST" />
 
         <!--
-          GET /api/system/refresh/mondrianSchemaCache
-        -->
-        <swm:regex-request-matcher pattern="^/api/system/refresh/mondrianSchemaCache\b.*" methods="GET" />
-
-        <!--
           POST /api/repo/files/import
         -->
         <swm:regex-request-matcher pattern="^/api/repo/files/import\b.*" methods="POST" />
+
+        <!--
+          POST /api/theme/set
+         -->
+        <swm:regex-request-matcher pattern="^/api/theme/set\b.*" methods="POST" />
+
+        <!--
+          GET /api/system/refresh/globalActions
+          GET /api/system/refresh/metadata
+          GET /api/system/refresh/systemSettings
+          GET /api/system/refresh/reportingDataCache
+          GET /api/system/refresh/mondrianSingleSchemaCache
+          GET /api/system/refresh/mondrianSchemaCache
+         -->
+        <swm:regex-request-matcher pattern="^/api/system/refresh/(globalActions|metadata|systemSettings|reportingDataCache|mondrianSingleSchemaCache|mondrianSchemaCache)\b.*" methods="GET" />
+
+        <!--
+         POST /api/licenseManager/addLicense
+        -->
+        <swm:regex-request-matcher pattern="^/api/licenseManager/addLicense\b.*" methods="POST" />
 
         <!--
           POST /api/scheduler/job

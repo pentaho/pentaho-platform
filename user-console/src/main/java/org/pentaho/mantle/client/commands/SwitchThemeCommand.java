@@ -22,6 +22,7 @@ package org.pentaho.mantle.client.commands;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.mantle.client.csrf.CsrfRequestBuilder;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
@@ -68,7 +69,7 @@ public class SwitchThemeCommand extends AbstractCommand {
 
       public void okPressed() {
         final String url = GWT.getHostPageBaseURL() + "api/theme/set"; //$NON-NLS-1$
-        RequestBuilder setThemeRequestBuilder = new RequestBuilder( RequestBuilder.POST, url );
+        RequestBuilder setThemeRequestBuilder = new CsrfRequestBuilder( RequestBuilder.POST, url );
         setThemeRequestBuilder.setHeader( "accept", "text/plain" );
         setThemeRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
         try {
