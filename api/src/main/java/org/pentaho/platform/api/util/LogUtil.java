@@ -58,12 +58,12 @@ public class LogUtil {
   }
 
   public static void removeAppender( Appender appender, Logger logger ) {
-    appender.stop();
     LoggerContext ctx = (LoggerContext) LogManager.getContext( false );
     Configuration config = ctx.getConfiguration();
     LoggerConfig loggerConfig = config.getLoggerConfig( logger.getName() );
     loggerConfig.removeAppender( appender.getName() );
     ctx.updateLoggers();
+    appender.stop();
   }
 
   public static Appender makeAppender( String name, StringWriter sw, String layout ) {
