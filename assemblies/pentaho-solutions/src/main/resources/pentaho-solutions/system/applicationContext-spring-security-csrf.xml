@@ -81,7 +81,7 @@
           POST /api/scheduler/resumeJob
           POST /api/scheduler/triggerNow
         -->
-        <swm:regex-request-matcher pattern="^/api/scheduler/(start| pause| pauseJob| resumeJob| triggerNow)\b.*" methods="POST" />
+        <swm:regex-request-matcher pattern="^/api/scheduler/(start|pause|pauseJob|resumeJob|triggerNow)\b.*" methods="POST" />
 
         <!-- GWT-RPC ws/gwt/* -->
 
