@@ -66,13 +66,9 @@
 
         <!--
           POST /api/scheduler/job
-        -->
-        <swm:regex-request-matcher pattern="^/api/scheduler/job\b.*" methods="POST" />
-
-        <!--
           POST /api/scheduler/job/update
         -->
-        <swm:regex-request-matcher pattern="^/api/scheduler/job/update\b.*" methods="POST" />
+        <swm:regex-request-matcher pattern="^/api/scheduler/job\b.*" methods="POST" />
 
         <!--
           POST /api/scheduler/start

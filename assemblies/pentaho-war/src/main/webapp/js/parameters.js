@@ -292,7 +292,7 @@ function doPost( url, query, func) {
   http_request.setRequestHeader("Content-length", query.length);
   http_request.setRequestHeader("Connection", "close");
   if(csrfToken !== null) {
-             xhr.setRequestHeader(csrfToken.header, csrfToken.token);
+    xhr.setRequestHeader(csrfToken.header, csrfToken.token);
   }
   http_request.send(query);
 }
