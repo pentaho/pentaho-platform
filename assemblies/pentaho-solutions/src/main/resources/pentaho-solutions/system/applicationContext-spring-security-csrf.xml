@@ -65,6 +65,10 @@
         <swm:regex-request-matcher pattern="^/api/licenseManager/addLicense\b.*" methods="POST" />
 
         <!--
+         GET /api/emailconfig/resetEmailConfig
+        -->
+        <swm:regex-request-matcher pattern="^/api/emailconfig/resetEmailConfig\b.*" methods="GET" />
+
          GET /api/session/setredirect
         -->
         <swm:regex-request-matcher pattern="^/api/session/setredirect\b.*" methods="GET" />
