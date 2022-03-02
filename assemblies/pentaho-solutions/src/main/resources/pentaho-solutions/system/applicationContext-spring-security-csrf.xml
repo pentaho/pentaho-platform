@@ -65,19 +65,24 @@
         <swm:regex-request-matcher pattern="^/api/licenseManager/addLicense\b.*" methods="POST" />
 
         <!--
-          POST /api/scheduler/job
-          POST /api/scheduler/job/update
+         POST /api/scheduler/job
+         POST /api/scheduler/job/update
         -->
         <swm:regex-request-matcher pattern="^/api/scheduler/job\b.*" methods="POST" />
 
         <!--
-          POST /api/scheduler/start
-          POST /api/scheduler/pause
-          POST /api/scheduler/pauseJob
-          POST /api/scheduler/resumeJob
-          POST /api/scheduler/triggerNow
+         POST /api/scheduler/start
+         POST /api/scheduler/pause
+         POST /api/scheduler/pauseJob
+         POST /api/scheduler/resumeJob
+         POST /api/scheduler/triggerNow
         -->
         <swm:regex-request-matcher pattern="^/api/scheduler/(start|pause|pauseJob|resumeJob|triggerNow)\b.*" methods="POST" />
+
+        <!--
+         GET /api/emailconfig/resetEmailConfig
+        -->
+        <swm:regex-request-matcher pattern="^/api/emailconfig/resetEmailConfig\b.*" methods="GET" />
 
         <!--
          GET /api/session/setredirect
