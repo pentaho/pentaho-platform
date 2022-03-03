@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  */
 package org.pentaho.mantle.client.workspace;
 
@@ -1053,7 +1053,7 @@ public class SchedulesPanel extends SimplePanel {
 
   private void controlJobs( final Set<JsJob> jobs, String function, final Method method, final boolean refreshData ) {
     for ( final JsJob job : jobs ) {
-      RequestBuilder builder = createRequestBuilder( method, "api/scheduler/" + function );
+      RequestBuilder builder = createCsrfRequestBuilder( method, "api/scheduler/" + function );
 
       builder.setHeader( HTTP.CONTENT_TYPE, JSON_CONTENT_TYPE );
 
@@ -1088,7 +1088,7 @@ public class SchedulesPanel extends SimplePanel {
 
   private void controlScheduler( final ToolbarButton controlSchedulerButton, final String function,
                                  final boolean isScheduler ) {
-    final RequestBuilder builder = createRequestBuilder( RequestBuilder.POST, "api/scheduler/" + function );
+    final RequestBuilder builder = createCsrfRequestBuilder( RequestBuilder.POST, "api/scheduler/" + function );
 
     try {
       builder.sendRequest( null, new RequestCallback() {
@@ -1184,6 +1184,19 @@ public class SchedulesPanel extends SimplePanel {
     final String url = context + apiEndpoint;
 
     RequestBuilder builder = new RequestBuilder( method, url );
+    builder.setHeader( "If-Modified-Since", IF_MODIFIED_SINCE );
+
+    return builder;
+  }
+
+  private RequestBuilder createCsrfRequestBuilder( Method method, String apiEndpoint ) {
+    return createCsrfRequestBuilder( method, apiEndpoint, GWT.getHostPageBaseURL() );
+  }
+
+  private RequestBuilder createCsrfRequestBuilder( Method method, String apiEndpoint, String context ) {
+    final String url = context + apiEndpoint;
+
+    RequestBuilder builder = new CsrfRequestBuilder( method, url );
     builder.setHeader( "If-Modified-Since", IF_MODIFIED_SINCE );
 
     return builder;
