@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -40,6 +40,7 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.csrf.CsrfRequestBuilder;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEmailDialog;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleOutputLocationDialog;
 import org.pentaho.mantle.client.dialogs.scheduling.ScheduleParamsDialog;
@@ -394,7 +395,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
 
                       // just run it
                       RequestBuilder scheduleFileRequestBuilder =
-                          new RequestBuilder( RequestBuilder.POST, contextURL + "api/scheduler/job" ); //$NON-NLS-1$
+                          new CsrfRequestBuilder( RequestBuilder.POST, contextURL + "api/scheduler/job" ); //$NON-NLS-1$
                       scheduleFileRequestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
                       scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
 
