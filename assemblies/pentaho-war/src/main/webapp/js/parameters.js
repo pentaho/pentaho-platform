@@ -253,6 +253,10 @@ function getParamEntries(params) {
     return paramEntries;
 }
 
+function getPentahoBaseUrl() {
+  return FULL_QUALIFIED_URL;
+}
+
 /**
  * this method submits a application/json post to the server
  * it utilizes api calls in pentaho-ajax.js.
@@ -281,11 +285,17 @@ function doPost( url, query, func) {
   // set the callback function
   http_request.onreadystatechange = function() { pentahoResponse(http_request, func); };
 
+  var protectedUrl = getPentahoBaseUrl() + url;
+  var csrfToken = pho.csrfUtil.getToken(protectedUrl);
+
   // submit the request
   http_request.open('POST', url, true);
   http_request.setRequestHeader("Content-type", "application/json");
   http_request.setRequestHeader("Content-length", query.length);
   http_request.setRequestHeader("Connection", "close");
+  if(csrfToken !== null) {
+    xhr.setRequestHeader(csrfToken.header, csrfToken.token);
+  }
   http_request.send(query);
 }
 

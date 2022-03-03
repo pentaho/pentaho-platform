@@ -79,6 +79,21 @@
         -->
         <swm:regex-request-matcher pattern="^/api/repo/publish/fileWithOptions\b.*" methods="POST" />
 
+        <!--
+         POST /api/scheduler/job
+         POST /api/scheduler/job/update
+        -->
+        <swm:regex-request-matcher pattern="^/api/scheduler/job\b.*" methods="POST" />
+
+        <!--
+         POST /api/scheduler/start
+         POST /api/scheduler/pause
+         POST /api/scheduler/pauseJob
+         POST /api/scheduler/resumeJob
+         POST /api/scheduler/triggerNow
+        -->
+        <swm:regex-request-matcher pattern="^/api/scheduler/(start|pause|pauseJob|resumeJob|triggerNow)\b.*" methods="POST" />
+
         <!-- GWT-RPC ws/gwt/* -->
 
         <!-- POST /ws/gwt/unifiedRepository (and body contains `copyFile`, ... method call) -->
