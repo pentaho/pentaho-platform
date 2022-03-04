@@ -94,6 +94,11 @@
         -->
         <swm:regex-request-matcher pattern="^/api/scheduler/(start|pause|pauseJob|resumeJob|triggerNow)\b.*" methods="POST" />
 
+        <!--
+         POST /osgi/cxf/marketplace/services/plugin/{pluginId}/{versionBranch}
+        -->
+        <swm:regex-request-matcher pattern="^/osgi/cxf/marketplace/services/plugin/[^/]*/[^/]*\b.*" methods="POST" />
+
         <!-- GWT-RPC ws/gwt/* -->
 
         <!-- POST /ws/gwt/unifiedRepository (and body contains `copyFile`, ... method call) -->
