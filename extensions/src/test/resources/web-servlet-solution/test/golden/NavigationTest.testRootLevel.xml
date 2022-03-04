@@ -73,8 +73,9 @@
         default, the "Sample" Solution is installed and contains working examples demonstrating the functionality of the
         platform. Once a Solution is chosen, use the file browser to locate and launch a document. To learn more about
         how to modify the examples or build a Solution, read the &lt;a
-        href="http://wiki.pentaho.org/display/PentahoDoc/Creating+Pentaho+Solutions" target="sf"&gt;'Creating Pentaho
-        Solutions'&lt;/a&gt; document available at wiki.pentaho.org.
+        href="https://pentaho-community.atlassian.net/wiki/spaces/ServerDoc2x/pages/1497891152/Creating+Pentaho+Solutions"
+        target="sf"&gt;'Creating Pentaho
+        Solutions'&lt;/a&gt; document available at https://pentaho-community.atlassian.net/wiki/.
     </description>
     <icon>getImage?image=icons/folder.png</icon>
     <rollovericon>getImage?image=icons/solutions.png</rollovericon>
