@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -443,7 +443,8 @@ public class ComplexTriggerTest {
 
     Assert.assertTrue( trigger.getYearlyRecurrences().get( 2 ) instanceof IncrementalRecurrence );
     Assert.assertEquals( ( (IncrementalRecurrence) trigger.getYearlyRecurrences().get( 2 ) ).getStartingValue(),
-        new Integer( 2025 ) );
+
+        "2025" );
     Assert.assertEquals( ( (IncrementalRecurrence) trigger.getYearlyRecurrences().get( 2 ) ).getIncrement(),
         new Integer( 5 ) );
 
@@ -463,7 +464,7 @@ public class ComplexTriggerTest {
 
     Assert.assertTrue( trigger.getMonthlyRecurrences().get( 2 ) instanceof IncrementalRecurrence );
     Assert.assertEquals( ( (IncrementalRecurrence) trigger.getMonthlyRecurrences().get( 2 ) ).getStartingValue(),
-        new Integer( ComplexJobTrigger.JANUARY ) );
+            String.valueOf(ComplexJobTrigger.JANUARY) );
     Assert.assertEquals( ( (IncrementalRecurrence) trigger.getMonthlyRecurrences().get( 2 ) ).getIncrement(),
         new Integer( 3 ) );
 
@@ -483,7 +484,7 @@ public class ComplexTriggerTest {
 
     Assert.assertTrue( trigger.getDayOfMonthRecurrences().get( 2 ) instanceof IncrementalRecurrence );
     Assert.assertEquals( ( (IncrementalRecurrence) trigger.getDayOfMonthRecurrences().get( 2 ) ).getStartingValue(),
-        new Integer( 21 ) );
+        "21" );
     Assert.assertEquals( ( (IncrementalRecurrence) trigger.getDayOfMonthRecurrences().get( 2 ) ).getIncrement(),
         new Integer( 3 ) );
     Assert.assertEquals( trigger.getDayOfMonthRecurrences().size(), 3 );
@@ -506,7 +507,7 @@ public class ComplexTriggerTest {
 
     Assert.assertTrue( trigger.getHourlyRecurrences().get( 2 ) instanceof IncrementalRecurrence );
     Assert.assertEquals( ( (IncrementalRecurrence) trigger.getHourlyRecurrences().get( 2 ) ).getStartingValue(),
-        new Integer( 10 ) );
+        "10" );
     Assert.assertEquals( ( (IncrementalRecurrence) trigger.getHourlyRecurrences().get( 2 ) ).getIncrement(),
         new Integer( 5 ) );
 

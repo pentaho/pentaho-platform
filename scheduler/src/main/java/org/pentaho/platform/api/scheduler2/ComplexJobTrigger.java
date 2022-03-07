@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,11 +22,17 @@ package org.pentaho.platform.api.scheduler2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.TreeSet;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.cronutils.descriptor.CronDescriptor;
+import com.cronutils.model.CronType;
+import com.cronutils.model.definition.CronDefinition;
+import com.cronutils.model.definition.CronDefinitionBuilder;
+import com.cronutils.parser.CronParser;
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
 import org.pentaho.platform.api.scheduler2.wrappers.DayOfMonthWrapper;
 import org.pentaho.platform.api.scheduler2.wrappers.DayOfWeekWrapper;
@@ -78,6 +84,15 @@ public class ComplexJobTrigger extends JobTrigger {
   private HourlyWrapper hourlyRecurrences = new HourlyWrapper();
   private MinuteWrapper minuteRecurrences = new MinuteWrapper();
   private SecondWrapper secondRecurrences = new SecondWrapper();
+  private long repeatInterval = 0;
+  private String cronDescription;
+
+  public long getRepeatInterval() {
+    return repeatInterval;
+  }
+  public void setRepeatInterval( long repeatIntervalSeconds ) {
+    this.repeatInterval = repeatIntervalSeconds;
+  }
 
   /**
    * Creates a recurrence for the specified date/time. Specifying both a day of month and day of week is not supported.
@@ -595,4 +610,22 @@ public class ComplexJobTrigger extends JobTrigger {
     }
     return nonNullArgs;
   }
+
+  @Override
+  public void setCronString(String cronString) {
+    super.setCronString(cronString);
+    getCronDescription();
+  }
+
+  @Override
+  public String getCronDescription() {
+    if(getCronString() != null && !getCronString().isEmpty() && (cronDescription == null || cronDescription.isEmpty())) {
+      CronDefinition cronDefinition = CronDefinitionBuilder.instanceDefinitionFor(CronType.QUARTZ);
+      CronDescriptor descriptor = CronDescriptor.instance(Locale.US);
+      CronParser parser = new CronParser(cronDefinition);
+      cronDescription = descriptor.describe(parser.parse(getCronString()));
+    }
+    return cronDescription;
+  }
+
 }

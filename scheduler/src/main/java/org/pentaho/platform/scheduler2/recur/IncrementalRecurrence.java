@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -33,7 +33,7 @@ import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
  */
 @XmlRootElement
 public class IncrementalRecurrence implements ITimeRecurrence {
-  Integer startingValue;
+  String startingValue;
   Integer increment;
 
   /**
@@ -41,6 +41,18 @@ public class IncrementalRecurrence implements ITimeRecurrence {
    */
   public IncrementalRecurrence() {
 
+  }
+  /**
+   * Creates a new incremental recurrence.
+   *
+   * @param startingValue
+   *          the starting value
+   * @param increment
+   *          the increment
+   */
+  public IncrementalRecurrence( Integer startingValue, Integer increment ) {
+    this.startingValue = startingValue.toString();
+    this.increment = increment;
   }
 
   /**
@@ -51,7 +63,15 @@ public class IncrementalRecurrence implements ITimeRecurrence {
    * @param increment
    *          the increment
    */
-  public IncrementalRecurrence( Integer startingValue, Integer increment ) {
+  public IncrementalRecurrence( String startingValue, Integer increment ) {
+    // Starting value can either be a number of *
+    try {
+      Integer.parseInt(startingValue);
+    } catch ( NumberFormatException nfe) {
+      if(startingValue == null  || startingValue.isEmpty() || !startingValue.equals("*")) {
+        throw new IllegalArgumentException("StartingValue can only be a integer or * ");
+      }
+    }
     this.startingValue = startingValue;
     this.increment = increment;
   }
@@ -61,7 +81,7 @@ public class IncrementalRecurrence implements ITimeRecurrence {
    * 
    * @return the starting value
    */
-  public Integer getStartingValue() {
+  public String getStartingValue() {
     return startingValue;
   }
 
@@ -71,7 +91,7 @@ public class IncrementalRecurrence implements ITimeRecurrence {
    * @param startingValue
    *          the starting value
    */
-  public void setStartingValue( Integer startingValue ) {
+  public void setStartingValue( String startingValue ) {
     this.startingValue = startingValue;
   }
 
