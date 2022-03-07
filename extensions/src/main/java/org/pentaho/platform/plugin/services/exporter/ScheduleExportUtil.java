@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -144,11 +144,9 @@ public class ScheduleExportUtil {
       cron.setDuration( jobTrigger.getDuration() );
       cron.setUiPassParam( jobTrigger.getUiPassParam() );
       schedule.setCronJobTrigger( cron );
-
     } else if ( job.getJobTrigger() instanceof CronJobTrigger ) {
       CronJobTrigger jobTrigger = (CronJobTrigger) job.getJobTrigger();
       schedule.setCronJobTrigger( jobTrigger );
-
     } else {
       // don't know what this is, can't export it
       throw new IllegalArgumentException( Messages.getInstance().getString(

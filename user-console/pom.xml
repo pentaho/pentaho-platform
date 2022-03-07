@@ -365,8 +365,8 @@
               <webappDirectory>${gwt.outputDirectory}</webappDirectory>
               <extraJvmArgs>-Xms512m -Xmx1024m</extraJvmArgs>
               <!-- Uncomment for debugging GWT code.
-              <style>PRETTY</style>
-              -->
+               <style>PRETTY</style>
+               -->
             </configuration>
           </execution>
         </executions>

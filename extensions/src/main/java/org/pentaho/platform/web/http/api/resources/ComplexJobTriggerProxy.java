@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -36,6 +36,15 @@ public class ComplexJobTriggerProxy {
   Date endTime;
   String uiPassParam;
   String cronString;
+  String cronDescription;
+  private long repeatInterval = 0;
+
+  public long getRepeatInterval() {
+    return repeatInterval;
+  }
+  public void setRepeatInterval( long repeatIntervalSeconds ) {
+    this.repeatInterval = repeatIntervalSeconds;
+  }
 
   public Date getStartTime() {
     return startTime;
@@ -113,6 +122,14 @@ public class ComplexJobTriggerProxy {
 
   public void setCronString( String cronString ) {
     this.cronString = cronString;
+  }
+
+  public String getCronDescription() {
+    return cronDescription;
+  }
+
+  public void setCronDescription( String cronDescription ) {
+    this.cronDescription = cronDescription;
   }
 
 }

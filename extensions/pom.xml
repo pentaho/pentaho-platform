@@ -2789,6 +2789,11 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>com.cronutils</groupId>
+      <artifactId>cron-utils</artifactId>
+      <version>9.1.6</version>
+    </dependency>
+    <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk15on</artifactId>
       <scope>test</scope>

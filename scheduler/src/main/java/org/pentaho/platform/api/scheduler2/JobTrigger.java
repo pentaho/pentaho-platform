@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -49,6 +49,8 @@ public abstract class JobTrigger implements Serializable, IJobTrigger {
   private String uiPassParam;
 
   private String cronString;
+
+  private String cronDescription;
 
   private long duration = -1;
 
@@ -109,4 +111,16 @@ public abstract class JobTrigger implements Serializable, IJobTrigger {
   public void setDuration( long duration ) {
     this.duration = duration;
   }
+
+
+  @Override
+  public String getCronDescription() {
+    return cronDescription;
+  }
+
+  @Override
+  public void setCronDescription(String cronDescription) {
+    this.cronDescription = cronDescription;
+  }
+
 }
