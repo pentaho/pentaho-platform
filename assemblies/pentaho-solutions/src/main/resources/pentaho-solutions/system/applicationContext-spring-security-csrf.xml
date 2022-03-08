@@ -75,9 +75,11 @@
         <swm:regex-request-matcher pattern="^/api/session/setredirect\b.*" methods="GET" />
 
         <!--
+         POST /api/repo/publish/publishfile
+         POST /api/repo/publish/file
          POST /api/repo/publish/fileWithOptions
         -->
-        <swm:regex-request-matcher pattern="^/api/repo/publish/fileWithOptions\b.*" methods="POST" />
+        <swm:regex-request-matcher pattern="^/api/repo/publish/(fileWithOptions|publishfile|file)\b.*" methods="POST" />
 
         <!--
          POST /api/scheduler/job
