@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -141,16 +141,21 @@ public class SystemResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   @Facet ( name = "Unsupported" )
   public TimeZoneWrapper getTimeZones() {
-    Map<String, String> timeZones = new HashMap<String, String>();
+    Map<String, String> timeZones = new HashMap<>();
     for ( String tzId : TimeZone.getAvailableIDs() ) {
       if ( !tzId.toLowerCase().contains( "gmt" ) ) {
-        int offset = TimeZone.getTimeZone( tzId ).getOffset( System.currentTimeMillis() );
-        String text = String.format( "%s%02d%02d", offset >= 0 ? "+" : "", offset / 3600000, ( offset / 60000 ) % 60 );
-        timeZones.put( tzId, TimeZone.getTimeZone( tzId ).getDisplayName( true, TimeZone.LONG )
-          + " (UTC" + text + ")" );
+        timeZones.put( tzId, formatTimezoneIdToDisplayName( tzId ) );
       }
     }
     return new TimeZoneWrapper( timeZones, TimeZone.getDefault().getID() );
+  }
+
+  private String formatTimezoneIdToDisplayName( String tzId ) {
+    int offset = TimeZone.getTimeZone( tzId ).getOffset( System.currentTimeMillis() );
+    String sign = offset >= 0 ? "+" : "-";
+    offset = Math.abs( offset );
+    String text = String.format( "%s%02d%02d", sign, offset / 3600000, ( offset / 60000 ) % 60 );
+    return tzId + " - " + TimeZone.getTimeZone( tzId ).getDisplayName( true, TimeZone.LONG ) + " (UTC" + text + ")";
   }
 
   /**
