@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -104,7 +104,7 @@ public class DeletePermanentFileCommand extends AbstractCommand {
     String deleteMessage;
     final PromptDialogBox deleteConfirmDialog;
 
-    if ( mode.equals( "purge" ) ) {
+    if ( mode != null && mode.equals( "purge" ) ) {
       deleteMessage = Messages.getString( "deleteAllQuestion" );
       deleteConfirmDialog =
           new PromptDialogBox(
