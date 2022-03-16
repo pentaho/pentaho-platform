@@ -555,8 +555,6 @@
     <web-resource-collection>
       <web-resource-name>Portlet Directory</web-resource-name>
       <url-pattern>/jsp/*</url-pattern>
-      <http-method>GET</http-method>
-      <http-method>POST</http-method>
     </web-resource-collection>
     <auth-constraint>
       <role-name>PENTAHO_ADMIN</role-name>
