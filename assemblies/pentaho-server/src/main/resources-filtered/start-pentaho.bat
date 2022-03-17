@@ -35,6 +35,12 @@ SET DI_HOME="%~dp0pentaho-solutions\system\kettle"
 
 set CATALINA_OPTS=-Xms2048m -Xmx6144m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dfile.encoding=utf8 -Djava.locale.providers=COMPAT,SPI -DDI_HOME=%DI_HOME%
 
+rem Sets options that only get read by Java 11 to remove illegal reflective access warnings
+set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens=java.base/sun.net.www.protocol.jar=ALL-UNNAMED"
+set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens=java.base/java.lang=ALL-UNNAMED"
+set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens=java.base/java.net=ALL-UNNAMED"
+set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens=java.base/java.security=ALL-UNNAMED"
+
 rem Make sure we set the appropriate variable so Tomcat can start (e.g. JAVA_HOME iff. _PENTAHO_JAVA_HOME points to a JDK)
 if not exist "%_PENTAHO_JAVA_HOME%\bin\jdb.exe" goto noJdk
 if not exist "%_PENTAHO_JAVA_HOME%\bin\javac.exe" goto noJdk
