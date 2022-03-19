@@ -145,10 +145,10 @@
         <Logger name="mondrian" level="DEBUG" additivity="false">
             <appender-ref ref="MONDRIAN"/>
         </Logger>
-        <Logger name="mondrian.mdx" level="DEBUG">
+        <Logger name="mondrian.mdx" level="DEBUG" additivity="false">
             <appender-ref ref="MDXLOG"/>
         </Logger>
-        <Logger name="mondrian.sql" level="DEBUG">
+        <Logger name="mondrian.sql" level="DEBUG" additivity="false">
             <appender-ref ref="SQLLOG"/>
         </Logger>
          -->
