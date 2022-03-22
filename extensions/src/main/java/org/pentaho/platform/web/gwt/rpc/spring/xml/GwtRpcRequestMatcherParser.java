@@ -42,11 +42,16 @@ class GwtRpcRequestMatcherParser extends AbstractBeanDefinitionParser {
 
     String pattern = element.getAttribute( "pattern" );
     String rpcMethods = element.getAttribute( "methods" );
+    String insensitive = element.getAttribute( "insensitive" );
 
-    // Defaults to false, if not present.
-    boolean isCaseInsensitive = Boolean.parseBoolean( element.getAttribute( "insensitive" ) );
+    // Defaults to true, if not present.
+    boolean isCaseInsensitive = true;
 
-    if ( pattern.equals( "" ) ) {
+    if ( !insensitive.isEmpty() ) {
+      isCaseInsensitive = Boolean.parseBoolean( insensitive );
+    }
+
+    if ( pattern.isEmpty() ) {
       // throws
       parserContext.getReaderContext().fatal(
         "'pattern' attribute is empty or unspecified.",
