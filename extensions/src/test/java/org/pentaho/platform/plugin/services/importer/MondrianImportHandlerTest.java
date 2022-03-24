@@ -172,7 +172,7 @@ public class MondrianImportHandlerTest {
   @Test
   public void testImportFileInvalidXML() throws IOException {
     InputStream invalidXmlInputStream = new ByteArrayInputStream( "<invalid-xml>".getBytes() );
-    when( bundle.getProperty( eq( MondrianImportHandler.DOMAIN_ID ) ) ).thenReturn( MondrianImportHandler.DOMAIN_ID );
+    when( bundle.getProperty( MondrianImportHandler.DOMAIN_ID ) ).thenReturn( MondrianImportHandler.DOMAIN_ID );
     when( bundle.getInputStream() ).thenReturn( invalidXmlInputStream );
     try {
       testImportFileBase();
@@ -186,7 +186,7 @@ public class MondrianImportHandlerTest {
   @Test
   public void testImportFileEmpty() throws IOException {
     InputStream invalidXmlInputStream = new ByteArrayInputStream( "".getBytes() );
-    when( bundle.getProperty( eq( MondrianImportHandler.DOMAIN_ID ) ) ).thenReturn( MondrianImportHandler.DOMAIN_ID );
+    when( bundle.getProperty( MondrianImportHandler.DOMAIN_ID ) ).thenReturn( MondrianImportHandler.DOMAIN_ID );
     when( bundle.getInputStream() ).thenReturn( invalidXmlInputStream );
     try {
       testImportFileBase();
