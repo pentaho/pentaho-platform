@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -39,7 +39,11 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import mondrian.util.Pair;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.eigenbase.xom.XOMException;
+import org.eigenbase.xom.XOMUtil;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
@@ -108,6 +112,11 @@ public class MondrianImportHandler implements IPlatformImportHandler {
       MondrianCatalog catalog = this.createCatalogObject( domainId, xmla, bundle );
       IPentahoSession session = PentahoSessionHolder.getSession();
 
+      // Validate if xml file is well-formed ( BISERVER-14716 and BISERVER-14717 )
+      if ( !validateFileData( is ) ) {
+        throw new Exception( "Bundle data is not valid" );
+      }
+
       if ( mondrianRepositoryImporter instanceof IAclAwareMondrianCatalogService ) {
         RepositoryFileAcl acl = bundle.isApplyAclSettings() ? bundle.getAcl() : null;
         IAclAwareMondrianCatalogService aware = (IAclAwareMondrianCatalogService) mondrianRepositoryImporter;
@@ -121,6 +130,27 @@ public class MondrianImportHandler implements IPlatformImportHandler {
     } catch ( Exception e ) {
       throw new PlatformImportException( e.getMessage(), PlatformImportException.PUBLISH_GENERAL_ERROR );
     }
+  }
+
+  /**
+   *  Fix for: BISERVER-14716 and BISERVER-14717
+   *  Helper method to try to parse file, if throw an exception, so file is not valid
+   *
+   * @param inputStream
+   * @return
+   * @throws XOMException
+   *
+   * @throws IOException
+   */
+  private boolean validateFileData( InputStream inputStream ) throws XOMException, IOException {
+    String data = new String( IOUtils.toCharArray( inputStream ) );
+    if ( !StringUtils.isEmpty( data ) ) {
+      XOMUtil.createDefaultParser().parse( data );
+      inputStream.reset();
+      return true;
+    }
+
+    return false;
   }
 
   /**
