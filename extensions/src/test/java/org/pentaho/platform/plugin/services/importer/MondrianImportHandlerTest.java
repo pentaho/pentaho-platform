@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -36,6 +36,7 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -66,15 +67,19 @@ public class MondrianImportHandlerTest {
 
   private List<IMimeType> mimeTypes;
 
+  private InputStream inputStream;
+
   @Before
-  public void setUp() {
+  public void setUp() throws IOException {
     mondrianImporter = mock( IMondrianCatalogService.class );
     bundle = mock( IPlatformImportBundle.class );
     parameters = MondrianImportHandler.PROVIDER + "=provider;" + MondrianImportHandler.DATA_SOURCE + "=dataSource;" + OTHER_PARAMETR;
     mimeTypes = Arrays.asList( mock( IMimeType.class ) );
+    inputStream = new ByteArrayInputStream( "<text>hello world</text>".getBytes() );
 
     when( bundle.getProperty( eq( MondrianImportHandler.ENABLE_XMLA ) ) ).thenReturn( "true" );
     when( bundle.getProperty( eq( MondrianImportHandler.PARAMETERS ) ) ).thenReturn( parameters );
+    when( bundle.getInputStream() ).thenReturn( inputStream );
   }
 
   @Test( expected = IllegalArgumentException.class )
@@ -155,6 +160,34 @@ public class MondrianImportHandlerTest {
     IOException exception = new IOException();
     when( bundle.getProperty( eq( MondrianImportHandler.DOMAIN_ID ) ) ).thenReturn( MondrianImportHandler.DOMAIN_ID );
     doThrow( exception ).when( bundle ).getInputStream();
+    try {
+      testImportFileBase();
+    } catch ( PlatformImportException e ) {
+      assertEquals( PlatformImportException.PUBLISH_GENERAL_ERROR, e.getErrorStatus() );
+    } catch ( Exception e ) {
+      fail( "According current implementation, should not happen." );
+    }
+  }
+
+  @Test
+  public void testImportFileInvalidXML() throws IOException {
+    InputStream invalidXmlInputStream = new ByteArrayInputStream( "<invalid-xml>".getBytes() );
+    when( bundle.getProperty( eq( MondrianImportHandler.DOMAIN_ID ) ) ).thenReturn( MondrianImportHandler.DOMAIN_ID );
+    when( bundle.getInputStream() ).thenReturn( invalidXmlInputStream );
+    try {
+      testImportFileBase();
+    } catch ( PlatformImportException e ) {
+      assertEquals( PlatformImportException.PUBLISH_GENERAL_ERROR, e.getErrorStatus() );
+    } catch ( Exception e ) {
+      fail( "According current implementation, should not happen." );
+    }
+  }
+
+  @Test
+  public void testImportFileEmpty() throws IOException {
+    InputStream invalidXmlInputStream = new ByteArrayInputStream( "".getBytes() );
+    when( bundle.getProperty( eq( MondrianImportHandler.DOMAIN_ID ) ) ).thenReturn( MondrianImportHandler.DOMAIN_ID );
+    when( bundle.getInputStream() ).thenReturn( invalidXmlInputStream );
     try {
       testImportFileBase();
     } catch ( PlatformImportException e ) {
