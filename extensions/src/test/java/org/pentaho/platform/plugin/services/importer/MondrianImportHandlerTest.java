@@ -115,8 +115,8 @@ public class MondrianImportHandlerTest {
     MondrianImportHandler handler = new MondrianImportHandler( mimeTypes, aclImporter );
     handler.importFile( bundle );
     ArgumentCaptor<RepositoryFileAcl> captor = ArgumentCaptor.forClass( RepositoryFileAcl.class );
-    verify( aclImporter ).addCatalog( or( any( InputStream.class ), eq( null) ), any( MondrianCatalog.class ), anyBoolean(), captor.capture(),
-        or( any( IPentahoSession.class ), eq( null) ) );
+    verify( aclImporter ).addCatalog( or( any( InputStream.class ), eq( null ) ), any( MondrianCatalog.class ), anyBoolean(), captor.capture(),
+        or( any( IPentahoSession.class ), eq( null ) ) );
     assertNull( captor.getValue() );
   }
 
@@ -130,8 +130,8 @@ public class MondrianImportHandlerTest {
     MondrianImportHandler handler = new MondrianImportHandler( mimeTypes, aclImporter );
     handler.importFile( bundle );
     ArgumentCaptor<RepositoryFileAcl> captor = ArgumentCaptor.forClass( RepositoryFileAcl.class );
-    verify( aclImporter ).addCatalog( or( any( InputStream.class ), eq( null) ), any( MondrianCatalog.class ), anyBoolean(), captor.capture(),
-      or( any( IPentahoSession.class ), eq( null) ) );
+    verify( aclImporter ).addCatalog( or( any( InputStream.class ), eq( null ) ), any( MondrianCatalog.class ), anyBoolean(), captor.capture(),
+      or( any( IPentahoSession.class ), eq( null ) ) );
     assertEquals( acl, captor.getValue() );
   }
 
@@ -216,7 +216,7 @@ public class MondrianImportHandlerTest {
     MondrianImportHandler handler = new MondrianImportHandler( mimeTypes, mondrianImporter );
     handler.importFile( bundle );
     ArgumentCaptor<MondrianCatalog> mondrianCatalog = ArgumentCaptor.forClass( MondrianCatalog.class );
-    verify( mondrianImporter ).addCatalog( or( any( InputStream.class ), eq( null) ), mondrianCatalog.capture(), anyBoolean(), or( any( IPentahoSession.class ), eq( null) ) );
+    verify( mondrianImporter ).addCatalog( or( any( InputStream.class ), eq( null ) ), mondrianCatalog.capture(), anyBoolean(), or( any( IPentahoSession.class ), eq( null ) ) );
     assertTrue( mondrianCatalog.getValue().getDataSourceInfo().contains( OTHER_PARAMETR ) );
   }
 
