@@ -1143,6 +1143,7 @@ define([
 
       if($target.hasClass("trash")){
         //ignore expand events for trash
+        event.stopPropagation();
         return;
       }
 
