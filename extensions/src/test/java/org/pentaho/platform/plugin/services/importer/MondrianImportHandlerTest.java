@@ -20,6 +20,7 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -80,6 +81,13 @@ public class MondrianImportHandlerTest {
     when( bundle.getProperty( eq( MondrianImportHandler.ENABLE_XMLA ) ) ).thenReturn( "true" );
     when( bundle.getProperty( eq( MondrianImportHandler.PARAMETERS ) ) ).thenReturn( parameters );
     when( bundle.getInputStream() ).thenReturn( inputStream );
+  }
+
+  @After
+  public void cleanUp() throws IOException {
+    if ( inputStream != null ) {
+      inputStream.close();
+    }
   }
 
   @Test( expected = IllegalArgumentException.class )
