@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.mockito.Mockito;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -54,6 +55,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 import static org.mockito.Mockito.doReturn;
 
@@ -292,7 +294,7 @@ public class UnifiedRepositoryTestUtils {
       String[] pathSegments = pair.getPath().substring( prefix.length() + 1 ).split( "/" );
       addChild( rootNode, pair.getProperty(), pathSegments, 0 );
     }
-    doReturn( new NodeRepositoryFileData( rootNode ) ).when( repo ).getDataForRead( makeIdObject( path ),
+    lenient().doReturn( new NodeRepositoryFileData( rootNode ) ).when( repo ).getDataForRead( makeIdObject( path ),
       NodeRepositoryFileData.class );
   }
 
