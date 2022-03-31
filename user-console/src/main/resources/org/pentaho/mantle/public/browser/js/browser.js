@@ -1066,6 +1066,9 @@ define([
         $(this).addClass("first");
       });
 
+      //hide expand button from trash
+      $(".trash").addClass("empty");
+
       // Checks if any folder is visible
       var $firstVisibleFolder = myself.getFirstVisibleFolder();
 
@@ -1137,6 +1140,13 @@ define([
 
     expandFolder: function (event) {
       var $target = $(event.currentTarget).parent().parent();
+
+      if($target.hasClass("trash")){
+        //ignore expand events for trash
+        event.stopPropagation();
+        return;
+      }
+
       // If target has class open, it is already opened and showing children...close it and hide children
       if ($target.hasClass("open")) {
         $target.removeClass("open").find("> .folders").hide();
