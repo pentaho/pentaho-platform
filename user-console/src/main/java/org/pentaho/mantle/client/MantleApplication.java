@@ -23,6 +23,7 @@ package org.pentaho.mantle.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.http.client.Request;
@@ -31,6 +32,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -63,7 +65,9 @@ import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.mantle.client.usersettings.MantleSettingsManager;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -97,7 +101,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     // registered our native JSNI hooks
     setupNativeHooks( this, new LoginCommand() );
     FileChooserDialog.setupNativeHooks();
-
+    loadWhitelistedHosts();
     UserSettingsManager.getInstance().getUserSettings( new AsyncCallback<JsArray<JsSetting>>() {
       public void onSuccess( JsArray<JsSetting> settings ) {
         onUserSettingsLoaded( new UserSettingsLoadedEvent( settings ) );
@@ -432,7 +436,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
                 // startup-url on the URL for the app, wins over settings
                 String startupURL = Window.Location.getParameter( "startup-url" ); //$NON-NLS-1$
-                if ( startupURL != null && !"".equals( startupURL ) ) { //$NON-NLS-1$
+                if ( startupURL != null && !"".equals( startupURL ) && isURLInWhitelistedDomain( startupURL ) ) { //$NON-NLS-1$
                   // Spaces were double encoded so that they wouldn't be replaced with '+' when creating a deep
                   // link so when following a deep link we need to replace '%20' with a space even after decoding
                   String title = Window.Location.getParameter( "name" ).replaceAll( "%20", " " ); //$NON-NLS-1$
@@ -470,6 +474,82 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   public DeckPanel getContentDeck() {
     return contentDeck;
+  }
+
+  private void loadWhitelistedHosts() {
+
+    if ( getWhitelistedHosts() != null ) {
+      return;
+    }
+    String restUrl = GWT.getHostPageBaseURL() + "api/deeplinkAllowedHosts/getDeeplinkAllowedHosts"; //$NON-NLS-1$
+    RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, restUrl );
+    try {
+      requestBuilder.sendRequest( null, new RequestCallback() {
+        @Override public void onResponseReceived( Request request, Response response ) {
+          List<String> whitelistedHosts = new ArrayList<>();
+          JSONArray data = new JSONArray( JsonUtils.safeEval( response.getText() ) );
+          for ( int i = 0; i < data.size(); i++ ) {
+            whitelistedHosts.add( cleanString( data.get( i ).toString() ) );
+          }
+          setWhitelistedHosts( whitelistedHosts );
+        }
+
+        @Override public void onError( Request request, Throwable throwable ) {
+          MessageDialogBox dialogBox =
+            new MessageDialogBox( Messages.getString( "error" ), throwable.getLocalizedMessage(), false, false,
+              true ); //$NON-NLS-1$
+          dialogBox.center();
+        }
+      } );
+
+    } catch ( RequestException e ) {
+      MessageDialogBox dialogBox =
+        new MessageDialogBox( Messages.getString( "error" ), e.getLocalizedMessage(), false, false,
+          true ); //$NON-NLS-1$
+      dialogBox.center();
+    }
+  }
+
+  public static native void setWhitelistedHosts( List<String> hosts )
+  /*-{
+      window.parent.mantle_whitelistedHosts = hosts;
+  }-*/;
+
+  public static native List<String> getWhitelistedHosts()
+  /*-{
+      return window.parent.mantle_whitelistedHosts;
+  }-*/;
+
+
+  private boolean isURLInWhitelistedDomain( String startUpURL ) {
+
+    if ( startUpURL == null || startUpURL.isEmpty() ) {
+      //if there is nothing on the url, it goes back to the home page
+      return true;
+    }
+    if ( cleanString( startUpURL ).startsWith( "/" ) || cleanString( startUpURL ).startsWith( "%2F" ) ) {
+      //if it is deeplink or an internal path
+      return true;
+    }
+
+    if ( getWhitelistedHosts() == null || getWhitelistedHosts().isEmpty() ) {
+      return false;
+    }
+
+    for ( String host : getWhitelistedHosts() ) {
+      if ( validateHost( startUpURL, host ) ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean validateHost( String url, String configuredHost ) {
+    return cleanString( url ).startsWith( configuredHost );
+  }
+
+  private String cleanString( String str ) {
+    return  str.replace( "\"", "" ).replace( "]", "" ).replace( "[", "" );
   }
 
   public void setContentDeck( DeckPanel contentDeck ) {
