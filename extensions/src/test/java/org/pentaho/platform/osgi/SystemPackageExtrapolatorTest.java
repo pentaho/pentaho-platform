@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -27,7 +27,6 @@ import org.jboss.modules.ModuleIdentifier;
 import org.jboss.modules.ModuleLoadException;
 import org.jboss.modules.ModuleLoader;
 import org.jboss.modules.ModuleSpec;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -37,7 +36,10 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -46,9 +48,6 @@ public class SystemPackageExtrapolatorTest {
   public static final String ORG_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA = "org.osgi.framework.system.packages.extra";
 
   @Test
-  @Ignore
-  //TODO This test has been failing in Ant but never caused build to cease. In the maven a failing test will halt the build process.
-  //TODO Hence, we are marking it as ignore so build process may continue. This still needs addressing at some point
   public void testExpandProperties() throws Exception {
     SystemPackageExtrapolator systemPackageExtrapolator = new SystemPackageExtrapolator();
     Properties properties = new Properties();
