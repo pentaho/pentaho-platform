@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -79,10 +79,10 @@ public class SystemPackageExtrapolator {
         exportedPaths = module.getExportedPaths();
       }
 
-      Set<String> packages = new HashSet<String>();
+      Set<String> packages = new HashSet<>();
       if ( exportedPaths != null ) {
         for ( String exportedPath : exportedPaths ) {
-          packages.add( exportedPath.replaceAll( "/", "." ) );
+          packages.add( exportedPath.replace( "/", "." ) );
         }
       }
       return packages;
@@ -95,7 +95,7 @@ public class SystemPackageExtrapolator {
 
   class UrlClassLoaderPackageProvider implements PackageProvider {
     @Override public Set<String> getPackages() {
-      Set<String> packages = new HashSet<String>();
+      Set<String> packages = new HashSet<>();
       ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
       do {
         if ( !URLClassLoader.class.isAssignableFrom( classLoader.getClass() ) ) {
@@ -103,24 +103,37 @@ public class SystemPackageExtrapolator {
         }
         URL[] urLs = ( (URLClassLoader) classLoader ).getURLs();
         for ( URL url : urLs ) {
-          try {
-            String fileName = URLDecoder.decode( url.getFile() );
-            File file = new File( fileName );
-            if ( !file.exists() || file.isDirectory() ) {
-              continue;
-            }
-            JarFile jarFile = new JarFile( file );
-            Enumeration<JarEntry> entries = jarFile.entries();
-            while ( entries.hasMoreElements() ) {
-              packages.add( getPackageName( entries.nextElement() ) );
-            }
-          } catch ( IOException e ) {
-            logger.debug( "Error procesing jar for packages", e );
-          }
+          String fileName = URLDecoder.decode( url.getFile() );
+          extractPackagesFromPath( packages, fileName );
         }
       } while ( ( classLoader = classLoader.getParent() ) != null );
 
+      // needed if kettle is being loaded in the application classloader (e.g. PMR on JDK9+) instead of a URLClassLoader
+      if ( packages.isEmpty() ) {
+        String[] classPath = System.getProperty( "java.class.path" ).split( File.pathSeparator );
+        for ( int i = 0; i < classPath.length; i++ ) {
+          extractPackagesFromPath( packages, classPath[ i ] );
+        }
+      }
+
       return packages;
+    }
+
+    private void extractPackagesFromPath( Set<String> packages, String pathname ) {
+      try {
+        File file = new File( pathname );
+        if ( !file.exists() || file.isDirectory() ) {
+          return;
+        }
+        try ( JarFile jarFile = new JarFile( file ) ) {
+          Enumeration<JarEntry> entries = jarFile.entries();
+          while ( entries.hasMoreElements() ) {
+            packages.add( getPackageName( entries.nextElement() ) );
+          }
+        }
+      } catch ( IOException e ) {
+        logger.debug( "Error procesing jar for packages", e );
+      }
     }
   }
 
@@ -129,15 +142,14 @@ public class SystemPackageExtrapolator {
 
     int lastSlash = name.lastIndexOf( '/' );
     if ( lastSlash >= 0 ) {
-      return name.substring( 0, lastSlash ).replaceAll( "\\/", "." );
+      return name.substring( 0, lastSlash ).replace( "/", "." );
     }
     return "";
   }
 
-
   public Properties expandProperties( Properties properties ) {
 
-    Set<String> packages = new HashSet<String>();
+    Set<String> packages = new HashSet<>();
     for ( PackageProvider provider : providers ) {
       packages.addAll( provider.getPackages() );
     }
@@ -152,9 +164,9 @@ public class SystemPackageExtrapolator {
   }
 
   private String[] expandPackages( String[] packages, String[] availablePackages ) {
-    Set<String> qualifiedPackages = new HashSet<String>();
-    Set<String> qualifiedPackagesWhole = new HashSet<String>();
-    Set<String> imports = new HashSet<String>();
+    Set<String> qualifiedPackages = new HashSet<>();
+    Set<String> qualifiedPackagesWhole = new HashSet<>();
+    Set<String> imports = new HashSet<>();
 
     for ( String pack : packages ) {
       pack = pack.trim();
