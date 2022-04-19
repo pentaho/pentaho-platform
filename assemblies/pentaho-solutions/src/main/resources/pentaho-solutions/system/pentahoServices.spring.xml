@@ -172,5 +172,6 @@
       <pen:bean class="com.hitachivantara.security.web.model.csrf.CsrfConfiguration"/>
     </constructor-arg>
   </bean>
+  <bean class="org.pentaho.platform.web.http.api.resources.MantleResource" scope="request"/>
 
 </beans>
