@@ -71,7 +71,7 @@ public class MantleResource {
         PropertiesFileConfiguration config = new PropertiesFileConfiguration( "mantle", propFile );
 
         for ( Map.Entry<Object, Object> prop : config.getProperties().entrySet() ) {
-          if ( ( (String) prop.getKey() ).startsWith( "mantle.allowedHost." ) ) {
+          if ( ( (String) prop.getKey() ).startsWith( "allowedHost." ) ) {
             whiteListedHosts.add( (String) prop.getValue() );
           }
         }
