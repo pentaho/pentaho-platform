@@ -14,29 +14,34 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.action.kettle;
 
+import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.di.core.database.DataSourceNamingException;
 import org.pentaho.di.core.database.DataSourceProviderFactory;
 import org.pentaho.di.core.database.DataSourceProviderInterface;
+import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.data.IJndiDatasourceService;
 import org.pentaho.platform.api.data.IPooledDatasourceService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.DatabaseHelper;
 
 import javax.sql.DataSource;
 
 public class PlatformKettleDataSourceProvider implements DataSourceProviderInterface {
 
   protected static final PlatformKettleDataSourceProvider instance = new PlatformKettleDataSourceProvider();
+  private static DatabaseHelper dbHelper;
 
   private PlatformKettleDataSourceProvider() {
-    // Private constructor
+    dbHelper = new DatabaseHelper( PentahoSystem.get( IDatabaseDialectService.class ) );
   }
 
   public DataSourceProviderInterface getInstance() {
@@ -90,6 +95,26 @@ public class PlatformKettleDataSourceProvider implements DataSourceProviderInter
     }
     throw new DataSourceNamingException(
       String.format( "Unknown data source type [%s] for named data source [%s]", type, dataSourceName ) );
+  }
+
+  //@Override
+  public DataSource getPooledDataSourceFromMeta( DatabaseMeta dbMeta, DatasourceType type )
+    throws DataSourceNamingException {
+    if ( type != DatasourceType.POOLED ) {
+      throw new DataSourceNamingException( String.format( "Attempted to get non-pooled DB connection via meta [%s]", dbMeta.getName() ) );
+    }
+    IDatabaseConnection connection = dbHelper.databaseMetaToDatabaseConnection( dbMeta );
+    IDBDatasourceService service = getService( IPooledDatasourceService.class );
+    if ( null == service ) {
+      return null;
+    }
+    DataSource dataSource = null;
+    try {
+      dataSource = service.resolveDatabaseConnection( connection );
+    } catch ( DBDatasourceServiceException e ) {
+      throw new DataSourceNamingException( e );
+    }
+    return dataSource;
   }
 
   @Override public DataSource invalidateNamedDataSource( String datasourceName, DatasourceType type )

@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -28,12 +28,18 @@ import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.DatabaseType;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.DatabaseDialectService;
+import org.pentaho.di.core.KettleClientEnvironment;
 import org.pentaho.di.core.database.BaseDatabaseMeta;
+import org.pentaho.di.core.database.DatabaseMeta;
+import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.variables.Variables;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -87,6 +93,24 @@ public class DatabaseHelperTest {
 
   public static final String ATTRIBUTE_PORT_NUMBER = "PORT_NUMBER";
 
+  final String DB_CONN_NAME = "DB_CONN_NAME";
+  final String DB_NAME = "DB_NAME";
+  final String DB_HOST = "DB_HOST";
+  final String DB_PORT = "DB_PORT";
+  final String DB_USERNAME = "DB_USERNAME";
+  final String DB_PASSWORD = "DB_PASSWORD";
+  final String DB_SERVER = "DB_SERVER";
+  final String DB_TABLESPACE = "DB_TABLESPACE";
+  final String DB_IDX_TABLESPACE = "DB_IDX_TABLESPACE";
+  final String DB_CONN_SQL = "DB_CONN_SQL";
+  final int DB_INIT_POOL_SIZE = 42;
+  final int DB_MAX_POOL_SIZE = 43;
+  final boolean DB_USING_POOL = true;
+  final boolean DB_FORCING_LOWERCASE = true;
+  final boolean DB_FORCING_UPPERCASE = false;
+  final boolean DB_QUOTE_ALL = true;
+  final boolean DB_DOUBLE_DECIMAL_SEPARATOR = true;
+
   private DatabaseHelper databaseHelper = new DatabaseHelper( new DatabaseDialectService() ) {
 
     @Override
@@ -138,6 +162,153 @@ public class DatabaseHelperTest {
     Map<String, String> extraOptionsOrder = name.getExtraOptionsOrder();
     assertNotNull( extraOptionsOrder );
     assertTrue( extraOptionsOrder.size() > 0 );
+  }
+
+  @Test
+  public void testDatabaseMetaToDatabaseConnectionWithVars() throws KettleException {
+    final String DB_CONN_NAME_VAR = "DB_CONN_NAME_VAR";
+    final String DB_NAME_VAR = "DB_NAME_VAR";
+    final String DB_HOST_VAR = "DB_HOST_VAR";
+    final String DB_PORT_VAR = "DB_PORT_VAR";
+    final String DB_USERNAME_VAR = "DB_USERNAME_VAR";
+    final String DB_PASSWORD_VAR = "DB_PASSWORD_VAR";
+    final String DB_SERVER_VAR = "DB_SERVER_VAR";
+    final String DB_TABLESPACE_VAR = "DB_TABLESPACE_VAR";
+    final String DB_IDX_TABLESPACE_VAR = "DB_IDX_TABLESPACE_VAR";
+    final String DB_CONN_SQL_VAR = "DB_CONN_SQL_VAR";
+    final String CONN_VAL1_VAR = "CONN_VAL1_VAR";
+    final String POOL_VAL1_VAR = "POOL_VAL1_VAR";
+    final String EXTRA_VAL1_VAR = "EXTRA_VAL1_VAR";
+
+    Properties dbAttributes = new Properties();
+
+    dbAttributes.setProperty( "CONN_PROP1", wrapVar( CONN_VAL1_VAR ) );
+
+    Properties dbPoolProps = new Properties();
+    dbPoolProps.setProperty( "POOL_PROP1", wrapVar( POOL_VAL1_VAR ) );
+
+    KettleClientEnvironment.init();
+
+    DatabaseMeta dbMeta = new DatabaseMeta( DB_CONN_NAME, "GENERIC", "Native", DB_HOST, DB_NAME, DB_PORT, DB_USERNAME, DB_PASSWORD );
+    Variables vars = new Variables();
+    vars.setVariable( DB_CONN_NAME_VAR, DB_CONN_NAME );
+    vars.setVariable( DB_NAME_VAR, DB_NAME );
+    vars.setVariable( DB_HOST_VAR, DB_HOST );
+    vars.setVariable( DB_PORT_VAR, DB_PORT );
+    vars.setVariable( DB_USERNAME_VAR, DB_USERNAME );
+    vars.setVariable( DB_PASSWORD_VAR, DB_PASSWORD );
+    vars.setVariable( DB_SERVER_VAR, DB_SERVER );
+    vars.setVariable( DB_TABLESPACE_VAR, DB_TABLESPACE );
+    vars.setVariable( DB_IDX_TABLESPACE_VAR, DB_IDX_TABLESPACE );
+    vars.setVariable( DB_CONN_SQL_VAR, DB_CONN_SQL );
+    vars.setVariable( CONN_VAL1_VAR, "CONN_VAL1" );
+    vars.setVariable( POOL_VAL1_VAR, "POOL_VAL1" );
+    vars.setVariable( EXTRA_VAL1_VAR, "EXTRA_VAL1" );
+
+    dbMeta.shareVariablesWith( vars );
+
+    dbMeta.setName( wrapVar( DB_CONN_NAME_VAR ) );
+    dbMeta.setHostname( wrapVar( DB_HOST_VAR ) );
+    dbMeta.setDBPort( wrapVar( DB_PORT_VAR ) );
+    dbMeta.setUsername( wrapVar( DB_USERNAME_VAR ) );
+    dbMeta.setPassword( wrapVar( DB_PASSWORD_VAR ) );
+    dbMeta.setServername( wrapVar( DB_SERVER_VAR ) );
+    dbMeta.setDataTablespace( wrapVar( DB_TABLESPACE_VAR ) );
+    dbMeta.setIndexTablespace( wrapVar( DB_IDX_TABLESPACE_VAR ) );
+    dbMeta.setConnectSQL( wrapVar( DB_CONN_SQL_VAR ) );
+    dbMeta.setInitialPoolSize( DB_INIT_POOL_SIZE );
+    dbMeta.setMaximumPoolSize( DB_MAX_POOL_SIZE );
+    dbMeta.setUsingConnectionPool( DB_USING_POOL );
+    dbMeta.setForcingIdentifiersToLowerCase( DB_FORCING_LOWERCASE );
+    dbMeta.setForcingIdentifiersToUpperCase( DB_FORCING_UPPERCASE );
+    dbMeta.setQuoteAllFields( DB_QUOTE_ALL );
+    dbMeta.setUsingDoubleDecimalAsSchemaTableSeparator( DB_DOUBLE_DECIMAL_SEPARATOR );
+    dbMeta.getAttributes().putAll( dbAttributes );
+    dbMeta.setConnectionPoolingProperties( dbPoolProps );
+    dbMeta.addExtraOption( "FOO", "EXTRA_PROP1", wrapVar( EXTRA_VAL1_VAR ) );
+
+    IDatabaseConnection testConnection = databaseHelper.databaseMetaToDatabaseConnection( dbMeta );
+    assertEquals( "Conn name incorrect", DB_CONN_NAME, testConnection.getName() );
+    assertEquals( "DB name incorrect", DB_NAME, testConnection.getDatabaseName() );
+    assertEquals( "Host name incorrect", DB_HOST, testConnection.getHostname() );
+    assertEquals( "Port incorrect", DB_PORT, testConnection.getDatabasePort() );
+    assertEquals( "User name incorrect", DB_USERNAME, testConnection.getUsername() );
+    assertEquals( "Password incorrect", DB_PASSWORD, testConnection.getPassword() );
+    assertEquals( "Server name incorrect", DB_SERVER, testConnection.getInformixServername() );
+    assertEquals( "DB tablespace incorrect", DB_TABLESPACE, testConnection.getDataTablespace() );
+    assertEquals( "DB index tablespace incorrect", DB_IDX_TABLESPACE, testConnection.getIndexTablespace() );
+    assertEquals( "Connect SQL incorrect", DB_CONN_SQL, testConnection.getConnectSql() );
+    assertEquals( "Init pool size incorrect", DB_INIT_POOL_SIZE, testConnection.getInitialPoolSize() );
+    assertEquals( "Max pool size incorrect", DB_MAX_POOL_SIZE, testConnection.getMaximumPoolSize() );
+    assertEquals( "Using pool incorrect", DB_USING_POOL, testConnection.isUsingConnectionPool() );
+    assertEquals( "Forcing lowercase incorrect", DB_FORCING_LOWERCASE, testConnection.isForcingIdentifiersToLowerCase() );
+    assertEquals( "Forcing uppercase incorrect", DB_FORCING_UPPERCASE, testConnection.isForcingIdentifiersToUpperCase() );
+    assertEquals( "Quote all fields incorrect", DB_QUOTE_ALL, testConnection.isQuoteAllFields() );
+    assertEquals( "Using double decimal as schema table separator", DB_DOUBLE_DECIMAL_SEPARATOR, testConnection.isUsingDoubleDecimalAsSchemaTableSeparator() );
+    assertEquals( "DB attributes incorrect", "CONN_VAL1", testConnection.getAttributes().get( "CONN_PROP1" ) );
+    assertEquals( "Pool properties incorrect", "POOL_VAL1", testConnection.getConnectionPoolingProperties().get( "POOL_PROP1" ) );
+    assertEquals( "Extra options incorrect", "EXTRA_VAL1", testConnection.getExtraOptions().get( "FOO.EXTRA_PROP1" ) );
+  }
+
+  private String wrapVar( String val ) {
+    return "${" + val + "}";
+  }
+
+  @Test
+  public void testDatabaseMetaToDatabaseConnection() throws KettleException {
+    Properties dbAttributes = new Properties();
+    dbAttributes.setProperty( "CONN_PROP1", "CONN_VAL1" );
+
+    Properties dbPoolProps = new Properties();
+    dbPoolProps.setProperty( "POOL_PROP1", "POOL_VAL1" );
+
+    Map<String, String> dbExtraMap = new HashMap<>();
+    dbExtraMap.put( "EXTRA_PROP1", "EXTRA_VAL1" );
+    KettleClientEnvironment.init();
+
+    DatabaseMeta dbMeta = new DatabaseMeta( DB_CONN_NAME, "GENERIC", "Native", DB_HOST, DB_NAME, DB_PORT, DB_USERNAME, DB_PASSWORD );
+
+    dbMeta.setName( DB_CONN_NAME );
+    dbMeta.setHostname( DB_HOST );
+    dbMeta.setDBPort( DB_PORT );
+    dbMeta.setUsername( DB_USERNAME );
+    dbMeta.setPassword( DB_PASSWORD );
+    dbMeta.setServername( DB_SERVER );
+    dbMeta.setDataTablespace( DB_TABLESPACE );
+    dbMeta.setIndexTablespace( DB_IDX_TABLESPACE );
+    dbMeta.setConnectSQL( DB_CONN_SQL );
+    dbMeta.setInitialPoolSize( DB_INIT_POOL_SIZE );
+    dbMeta.setMaximumPoolSize( DB_MAX_POOL_SIZE );
+    dbMeta.setUsingConnectionPool( DB_USING_POOL );
+    dbMeta.setForcingIdentifiersToLowerCase( DB_FORCING_LOWERCASE );
+    dbMeta.setForcingIdentifiersToUpperCase( DB_FORCING_UPPERCASE );
+    dbMeta.setQuoteAllFields( DB_QUOTE_ALL );
+    dbMeta.setUsingDoubleDecimalAsSchemaTableSeparator( DB_DOUBLE_DECIMAL_SEPARATOR );
+    dbMeta.getAttributes().putAll( dbAttributes );
+    dbMeta.setConnectionPoolingProperties( dbPoolProps );
+    dbMeta.addExtraOption( "FOO", "EXTRA_PROP1", "EXTRA_VAL1" );
+
+    IDatabaseConnection testConnection = databaseHelper.databaseMetaToDatabaseConnection( dbMeta );
+    assertEquals( "Conn name incorrect", DB_CONN_NAME, testConnection.getName() );
+    assertEquals( "DB name incorrect", DB_NAME, testConnection.getDatabaseName() );
+    assertEquals( "Host name incorrect", DB_HOST, testConnection.getHostname() );
+    assertEquals( "Port incorrect", DB_PORT, testConnection.getDatabasePort() );
+    assertEquals( "User name incorrect", DB_USERNAME, testConnection.getUsername() );
+    assertEquals( "Password incorrect", DB_PASSWORD, testConnection.getPassword() );
+    assertEquals( "Server name incorrect", DB_SERVER, testConnection.getInformixServername() );
+    assertEquals( "DB tablespace incorrect", DB_TABLESPACE, testConnection.getDataTablespace() );
+    assertEquals( "DB index tablespace incorrect", DB_IDX_TABLESPACE, testConnection.getIndexTablespace() );
+    assertEquals( "Connect SQL incorrect", DB_CONN_SQL, testConnection.getConnectSql() );
+    assertEquals( "Init pool size incorrect", DB_INIT_POOL_SIZE, testConnection.getInitialPoolSize() );
+    assertEquals( "Max pool size incorrect", DB_MAX_POOL_SIZE, testConnection.getMaximumPoolSize() );
+    assertEquals( "Using pool incorrect", DB_USING_POOL, testConnection.isUsingConnectionPool() );
+    assertEquals( "Forcing lowercase incorrect", DB_FORCING_LOWERCASE, testConnection.isForcingIdentifiersToLowerCase() );
+    assertEquals( "Forcing uppercase incorrect", DB_FORCING_UPPERCASE, testConnection.isForcingIdentifiersToUpperCase() );
+    assertEquals( "Quote all fields incorrect", DB_QUOTE_ALL, testConnection.isQuoteAllFields() );
+    assertEquals( "Using double decimal as schema table separator", DB_DOUBLE_DECIMAL_SEPARATOR, testConnection.isUsingDoubleDecimalAsSchemaTableSeparator() );
+    assertEquals( "DB attributes incorrect", "CONN_VAL1", testConnection.getAttributes().get( "CONN_PROP1" ) );
+    assertEquals( "Pool properties incorrect", "POOL_VAL1", testConnection.getConnectionPoolingProperties().get( "POOL_PROP1" ) );
+    assertEquals( "Extra options incorrect", "EXTRA_VAL1", testConnection.getExtraOptions().get( "FOO.EXTRA_PROP1" ) );
   }
 
   private DatabaseConnection createDatabaseConnection() {
