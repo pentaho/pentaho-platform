@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -26,6 +26,10 @@ import org.apache.logging.log4j.core.Appender;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.pentaho.database.service.DatabaseDialectService;
+import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.util.LogUtil;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -42,6 +46,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -66,24 +71,36 @@ public class KettleSystemListenerTest {
   @Test
   public void testStartup() {
     KettleSystemListener ksl = new KettleSystemListener();
-    assertTrue( ksl.startup( null ) );
+    DatabaseDialectService mockDatabaseDialectService = mock( DatabaseDialectService.class );
+    try ( MockedStatic<PentahoSystem> pentahoSystem = Mockito.mockStatic( PentahoSystem.class ) ) {
+      pentahoSystem.when( () -> PentahoSystem.get( eq( IDatabaseDialectService.class ) ) )
+        .thenReturn( mockDatabaseDialectService );
+      pentahoSystem.when( () -> PentahoSystem.getApplicationContext() ).thenReturn( mockApplicationContext );
+      when( mockApplicationContext.getSolutionPath( nullable( String.class ) ) ).thenReturn( "/kettle" );
+      assertTrue( ksl.startup( null ) );
+    }
   }
 
   @Test
   public void testDefaultDIHome() throws Exception {
     System.setProperty( "DI_HOME", "" );
     when( mockApplicationContext.getSolutionPath( nullable( String.class ) ) ).thenReturn( "/kettle" );
+    DatabaseDialectService mockDatabaseDialectService = mock( DatabaseDialectService.class );
 
-    KettleSystemListener ksl = new KettleSystemListener();
-    ksl.startup( null );
-    assertThat( "Empty DI_HOME should be defaulted", System.getProperty( "DI_HOME" ), equalTo( "/kettle" ) );
+    try ( MockedStatic<PentahoSystem> pentahoSystem = Mockito.mockStatic( PentahoSystem.class ) ) {
+      pentahoSystem.when( () -> PentahoSystem.get( eq( IDatabaseDialectService.class ) ) ).thenReturn( mockDatabaseDialectService );
+      pentahoSystem.when( () -> PentahoSystem.getApplicationContext() ).thenReturn( mockApplicationContext );
+      KettleSystemListener ksl = new KettleSystemListener();
+      ksl.startup( null );
+      assertThat( "Empty DI_HOME should be defaulted", System.getProperty( "DI_HOME" ), equalTo( "/kettle" ) );
 
 
-    System.setProperty( "DI_HOME", "custom" );
-    ksl = new KettleSystemListener();
-    ksl.startup( null );
+      System.setProperty( "DI_HOME", "custom" );
+      ksl = new KettleSystemListener();
+      ksl.startup( null );
 
-    assertThat( "Validly set DI_HOME not preserved", System.getProperty( "DI_HOME" ), equalTo( "custom" ) );
+      assertThat( "Validly set DI_HOME not preserved", System.getProperty( "DI_HOME" ), equalTo( "custom" ) );
+    }
   }
 
   @Test( timeout = 2000, expected = SAXException.class )

@@ -14,11 +14,13 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.api.data;
+
+import org.pentaho.database.model.IDatabaseConnection;
 
 import javax.sql.DataSource;
 
@@ -104,4 +106,6 @@ public interface IDBDatasourceService {
    * @return Returns the unbound data source name (e.g. "SampleData").
    */
   public String getDSUnboundName( String dsName );
+
+  DataSource resolveDatabaseConnection( IDatabaseConnection databaseConnection ) throws DBDatasourceServiceException;
 }
