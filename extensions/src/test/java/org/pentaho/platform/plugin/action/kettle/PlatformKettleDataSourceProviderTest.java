@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2021 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2021-2022 Hitachi Vantara..  All rights reserved.
  */
 
 
@@ -23,6 +23,8 @@ import org.junit.runner.RunWith;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.pentaho.database.service.DatabaseDialectService;
+import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.di.core.database.DataSourceProviderInterface;
 import org.pentaho.platform.api.data.IPooledDatasourceService;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -46,9 +48,11 @@ public class PlatformKettleDataSourceProviderTest {
     DataSource dataSource = mock( DataSource.class );
     String namedDataSource = UUID.randomUUID().toString();
     when( service.getDataSource( namedDataSource ) ).thenReturn( dataSource );
+    DatabaseDialectService mockDatabaseDialectService = mock( DatabaseDialectService.class );
 
     try ( MockedStatic<PentahoSystem> pentahoSystem = Mockito.mockStatic( PentahoSystem.class ) ) {
       pentahoSystem.when( () -> PentahoSystem.get( eq( IPooledDatasourceService.class ), nullable( IPentahoSession.class) ) ).thenReturn( service );
+      pentahoSystem.when( () -> PentahoSystem.get( eq( IDatabaseDialectService.class ) ) ).thenReturn( mockDatabaseDialectService );
       DataSourceProviderInterface dsp = mock( PlatformKettleDataSourceProvider.class );
       when( dsp.invalidateNamedDataSource( namedDataSource, DataSourceProviderInterface.DatasourceType.POOLED ) )
         .thenCallRealMethod();
