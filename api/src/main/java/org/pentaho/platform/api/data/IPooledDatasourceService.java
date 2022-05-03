@@ -20,17 +20,10 @@
 
 package org.pentaho.platform.api.data;
 
-
-import org.pentaho.database.model.IDatabaseConnection;
-
-import javax.sql.DataSource;
-
 /**
  * This interface defines Pentaho's ExtendedDatasourceService API. You should implement it
  * if you want to create your own DB data sources management system.
  *
  */
 public interface IPooledDatasourceService extends IDBDatasourceService {
-
-  DataSource resolveDatabaseConnection( IDatabaseConnection databaseConnection ) throws DBDatasourceServiceException;
 }
