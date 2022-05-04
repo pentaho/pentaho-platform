@@ -36,12 +36,9 @@ public class NonPooledOrJndiDatasourceService extends BaseDatasourceService {
 
   private static final Log log = LogFactory.getLog( NonPooledOrJndiDatasourceService.class );
 
-  String requestedDatasourceName = null;
-
   @Override
   protected DataSource retrieve( String dsName ) throws DBDatasourceServiceException {
     DataSource ds = null;
-    requestedDatasourceName = dsName;
 
     try {
       IDatasourceMgmtService datasourceMgmtSvc = getDatasourceMgmtService();
