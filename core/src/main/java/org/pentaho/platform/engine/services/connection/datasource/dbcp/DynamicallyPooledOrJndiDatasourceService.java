@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -35,10 +35,10 @@ public class DynamicallyPooledOrJndiDatasourceService extends NonPooledOrJndiDat
   }
 
   @Override
-  protected DataSource resolveDatabaseConnection( IDatabaseConnection databaseConnection )
+  public DataSource resolveDatabaseConnection( IDatabaseConnection databaseConnection )
     throws DBDatasourceServiceException {
     return databaseConnection.isUsingConnectionPool()
-          ? getPooledDatasourceService().getDataSource( databaseConnection.getName() )
+          ? getPooledDatasourceService().resolveDatabaseConnection( databaseConnection )
           : getNonPooledDatasourceService().getDataSource( databaseConnection.getName() );
   }
 
