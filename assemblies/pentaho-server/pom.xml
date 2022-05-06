@@ -137,6 +137,11 @@
       <type>zip</type>
     </dependency>
     <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-tomcat-logs</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
@@ -273,6 +278,10 @@
               <file>${tomcat.directory}/conf/server.xml</file>
               <token>&lt;Connector</token>
               <value>&lt;Connector URIEncoding="UTF-8" relaxedPathChars="[]|" relaxedQueryChars="^{}[]|<![CDATA[&amp;]]>" maxHttpHeaderSize="65536"</value>
+
+              <!-- Replace the classname with the custom class name -->
+              <token>&lt;Valve className="org.apache.catalina.valves.AccessLogValve"</token>
+              <value>&lt;Valve className="org.pentaho.tomcat.logs.FilteredAccessLogValve"</value>
             </configuration>
           </execution>
         </executions>
