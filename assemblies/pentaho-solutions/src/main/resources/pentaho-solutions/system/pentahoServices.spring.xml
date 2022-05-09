@@ -167,11 +167,16 @@
   <bean class="org.pentaho.platform.web.http.api.resources.PasswordResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.ServiceResource" scope="request"/>
 
+  <!-- See also, corresponding CORS configuration in applicationContext-spring-security-csrf.xml -->
   <bean class="com.hitachivantara.security.web.impl.service.csrf.jaxrs.CsrfTokenService" scope="request">
     <constructor-arg>
       <pen:bean class="com.hitachivantara.security.web.model.csrf.CsrfConfiguration"/>
     </constructor-arg>
+    <constructor-arg>
+      <pen:bean class="org.springframework.security.web.csrf.CsrfTokenRepository"/>
+    </constructor-arg>
   </bean>
+
   <bean class="org.pentaho.platform.web.http.api.resources.MantleResource" scope="request"/>
 
 </beans>
