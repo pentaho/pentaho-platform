@@ -23,12 +23,11 @@
     <constructor-arg>
       <util:list>
         <sec:filter-chain pattern="/api/csrf/token"
-                          filters="csrfGateFilter,
-                                   corsFilter" />
+                          filters="corsFilter" />
 
         <sec:filter-chain pattern="/webservices/**"
-                          filters="csrfGateFilter,
-                                   corsFilter,
+                          filters="corsFilter,
+                                   csrfGateFilter,
                                    securityContextHolderAwareRequestFilterForWS,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
@@ -40,8 +39,8 @@
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/api/repos/**"
-                          filters="csrfGateFilter,
-                                   corsFilter,
+                          filters="corsFilter,
+                                   csrfGateFilter,
                                    securityContextHolderAwareRequestFilterForWS,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
@@ -55,8 +54,8 @@
                                    preFlightFilter" />
 
         <sec:filter-chain pattern="/api/**"
-                          filters="csrfGateFilter,
-                                   corsFilter,
+                          filters="corsFilter,
+                                   csrfGateFilter,
                                    securityContextHolderAwareRequestFilterForWS,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
@@ -69,8 +68,8 @@
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/plugin/reporting/api/jobs/**"
-                          filters="csrfGateFilter,
-                                   corsFilter,
+                          filters="corsFilter,
+                                   csrfGateFilter,
                                    securityContextHolderAwareRequestFilterForWS,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
@@ -84,8 +83,8 @@
                                    preFlightFilter" />
 
         <sec:filter-chain pattern="/plugin/**"
-                          filters="csrfGateFilter,
-                                   corsFilter,
+                          filters="corsFilter,
+                                   csrfGateFilter,
                                    securityContextHolderAwareRequestFilterForWS,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
@@ -98,8 +97,8 @@
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/**"
-                          filters="csrfGateFilter,
-                                   corsFilter,
+                          filters="corsFilter,
+                                   csrfGateFilter,
                                    securityContextHolderAwareRequestFilter,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
