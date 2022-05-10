@@ -348,7 +348,9 @@
       url: "j_spring_security_check",
       dataType: "text",
       data: $("#login").serialize(),
-
+      // Force the request to be complex, so that it is safe against CSRF attacks.
+      // jQuery does not send this header automatically when cross-origin.
+      headers: {"X-Requested-With": "XMLHttpRequest"},
       error:function (xhr, ajaxOptions, thrownError){
         if (xhr.status == 404) {
           // if we get a 404 it means login was successful but intended resource does not exist
