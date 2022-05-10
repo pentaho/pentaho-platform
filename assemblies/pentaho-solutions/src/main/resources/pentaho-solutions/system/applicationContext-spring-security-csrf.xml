@@ -21,8 +21,12 @@
   <!-- CSRF protected system endpoints -->
   <bean class="com.hitachivantara.security.web.impl.model.csrf.PartialCsrfConfigurationPojo">
     <pen:publish as-type="INTERFACES" />
-
     <constructor-arg>
+      <!--
+        The Request Matchers for endpoints for which Upfront CSRF Validation is **ENABLED** (done by CsrfGateFilter).
+
+        **Comment** individual request matchers to disable CSRF validation for the corresponding endpoints.
+      -->
       <swm:or-request-matcher>
         <!-- REST /api/* -->
 
@@ -139,6 +143,21 @@
         -->
         <swm:regex-request-matcher pattern="^/upload/.*" methods="POST" />
       </swm:or-request-matcher>
+    </constructor-arg>
+    <constructor-arg>
+      <!--
+        The Service Operation Identifiers for which CSRF Validation is **DISABLED**.
+
+        These correspond to operations which are accessible by more than one URL, or for which what determines
+        whether to protect or not against CSRF is in the request body, or is otherwise determined dynamically.
+
+        **Uncomment** individual operation identifiers to disable CSRF validation for the operations.
+      -->
+      <util:set>
+        <!-- Login operation, accessed via /j_spring_security_check.
+        <value>org.pentaho.platform.web.http.security.CsrfProtectedUsernamePasswordAuthenticationFilter.authenticate</value>
+        -->
+      </util:set>
     </constructor-arg>
   </bean>
 
