@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2020-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,12 +22,12 @@ package org.pentaho.platform.web.http.security;
 
 import org.pentaho.platform.api.security.ILoginAttemptService;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class PreventBruteForceUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class PreventBruteForceUsernamePasswordAuthenticationFilter
+  extends CsrfProtectedUsernamePasswordAuthenticationFilter {
 
   private ILoginAttemptService loginAttemptService;
 
@@ -49,6 +49,6 @@ public class PreventBruteForceUsernamePasswordAuthenticationFilter extends Usern
     if ( xfHeader == null ) {
       return request.getRemoteAddr();
     }
-    return xfHeader.split( "," )[0];
+    return xfHeader.split( "," )[ 0 ];
   }
 }

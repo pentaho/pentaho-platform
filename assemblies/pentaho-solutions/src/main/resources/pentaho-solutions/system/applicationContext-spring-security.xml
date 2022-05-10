@@ -276,7 +276,8 @@
     <property name="filterProcessesUrl" value="/j_spring_security_check" />
     <property name="usernameParameter" value="j_username" />
     <property name="passwordParameter" value="j_password" />
-	<property name="sessionAuthenticationStrategy" ref="sas" />
+    <property name="sessionAuthenticationStrategy" ref="sas" />
+    <property name="csrfProcessor" ref="csrfProcessor" />
   </bean>
 
   <bean id="authenticationProcessingFilterEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
