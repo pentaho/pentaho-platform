@@ -281,7 +281,7 @@
 
               <!-- Replace the classname with the custom class name -->
               <token>&lt;Valve className="org.apache.catalina.valves.AccessLogValve"</token>
-              <value>&lt;Valve className="org.pentaho.tomcat.logs.FilteredAccessLogValve"</value>
+              <value>&lt;Valve className="org.pentaho.tomcat.logvalve.FilteredAccessLogValve"</value>
             </configuration>
           </execution>
         </executions>
