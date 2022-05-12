@@ -137,11 +137,6 @@
       <type>zip</type>
     </dependency>
     <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-tomcat-logs</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
