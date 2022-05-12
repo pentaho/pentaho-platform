@@ -291,17 +291,6 @@
       </modules>
     </profile>
     <profile>
-      <id>tomcat-logs</id>
-      <activation>
-        <property>
-          <name>!skipDefault</name>
-        </property>
-      </activation>
-      <modules>
-        <module>tomcat-logs</module>
-      </modules>
-    </profile>
-    <profile>
       <id>platform-base</id>
       <activation>
         <property>
