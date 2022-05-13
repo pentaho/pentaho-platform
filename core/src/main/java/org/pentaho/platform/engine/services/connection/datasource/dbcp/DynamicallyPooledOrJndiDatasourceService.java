@@ -39,7 +39,7 @@ public class DynamicallyPooledOrJndiDatasourceService extends NonPooledOrJndiDat
     throws DBDatasourceServiceException {
     return databaseConnection.isUsingConnectionPool()
           ? getPooledDatasourceService().resolveDatabaseConnection( databaseConnection )
-          : getNonPooledDatasourceService().getDataSource( requestedDatasourceName );
+          : getNonPooledDatasourceService().getDataSource( databaseConnection.getName() );
   }
 
 
