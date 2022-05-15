@@ -25,7 +25,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -37,23 +36,16 @@ public class PentahoBasicAuthenticationEntryPoint extends BasicAuthenticationEnt
   }
 
   @Override
-  public void commence( HttpServletRequest request, HttpServletResponse response, AuthenticationException authException ) throws
-    IOException {
+  public void commence( HttpServletRequest request,
+                        HttpServletResponse response,
+                        AuthenticationException authException ) throws IOException {
 
     // The BasicAuthenticationEntryPoint will send a WWW-Authenticate header and a 401 status code back to the browser,
-    // forcing the user to authenticate. If there is a session end cookie present, this will trigger a second authentication.
-    // In order to prevent a second authentication, we must clear the session end cookie before sending the 401 status code.
-    Cookie[] cookies = request.getCookies();
-    if ( cookies != null ) {
-      for ( Cookie c : cookies ) {
-        if ( c.getName().endsWith( "session-flushed" ) ) {
-          c.setMaxAge( 0 );
-          c.setPath( request.getContextPath() != null ? request.getContextPath() : "/" );
-
-          response.addCookie( c );
-        }
-      }
-    }
+    // forcing the user to authenticate. If there is a session end cookie present, this will trigger a second
+    // authentication.
+    // In order to prevent a second authentication, we must clear the session end cookie before sending the 401
+    // status code.
+    PentahoBasicProcessingFilter.clearSessionFlushedCookie( request, response );
 
     super.commence( request, response, authException );
   }
