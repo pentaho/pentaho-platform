@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class provides axis with it's configuration information from the file axis/axis2_config.xml in the pentaho
+ * This class provides axis with its configuration information from the file axis/axis2_config.xml in the pentaho
  * system solutions folder. In particular, it: 1) Provides an input stream for the axis configuration XML which is
  * located in the root of the plugin folder (getConfigXml) 2) Defines the web services that are available
  * (getWebServiceDefinitions) 3) Provides persistence for enabled/disabled status of each web service
