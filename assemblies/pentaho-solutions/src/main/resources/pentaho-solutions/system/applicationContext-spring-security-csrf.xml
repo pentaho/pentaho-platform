@@ -6,9 +6,11 @@
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
        xmlns:swm="http://www.hitachivantara.com/schema/security/web/model/spring"
        xmlns:pen-gpc="http://www.pentaho.com/schema/pentaho-gwt-rpc-spring"
+       xmlns:util="http://www.springframework.org/schema/util"
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="
           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+          http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd
           http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd
           http://www.pentaho.com/schema/pentaho-gwt-rpc-spring http://www.pentaho.com/schema/pentaho-gwt-rpc-spring.xsd
           http://www.hitachivantara.com/schema/security/web/model/spring http://www.hitachivantara.com/schema/security/web/model/spring/hv-swm-spring.xsd"
@@ -17,7 +19,7 @@
   <!-- region CSRF Configurations -->
 
   <!-- CSRF protected system endpoints -->
-  <bean class="com.hitachivantara.security.web.impl.model.csrf.CsrfRequestSetConfigurationPojo">
+  <bean class="com.hitachivantara.security.web.impl.model.csrf.PartialCsrfConfigurationPojo">
     <pen:publish as-type="INTERFACES" />
 
     <constructor-arg>
@@ -140,9 +142,13 @@
     </constructor-arg>
   </bean>
 
-  <!-- Aggregates all registered CSRF request set configurations, from the system and plugins -->
-  <bean id="aggregatedCsrfConfiguration"
-        class="com.hitachivantara.security.web.impl.model.csrf.AggregatedRequestSetCsrfConfiguration">
+  <!-- endregion configurations -->
+
+  <!-- region CSRF Services -->
+
+  <!-- Aggregates all registered partial CSRF configurations, from the system and plugins -->
+  <bean id="csrfConfiguration"
+        class="com.hitachivantara.security.web.impl.model.csrf.AggregatedCsrfConfiguration">
 
     <!-- Needed by CsrfTokenService in another app context -->
     <pen:publish as-type="INTERFACES" />
@@ -150,20 +156,45 @@
     <!-- Read `csrf-protection-enabled` configuration from `system.properties` or `pentaho.xml` -->
     <property name="enabled" value="${system.csrf-protection-enabled:false}" />
 
-    <property name="requestSetConfigurations">
-      <pen:list class="com.hitachivantara.security.web.model.csrf.CsrfRequestSetConfiguration" />
+    <property name="partialConfigurations">
+      <pen:list class="com.hitachivantara.security.web.model.csrf.PartialCsrfConfiguration" />
     </property>
   </bean>
 
-  <!-- endregion configurations -->
+  <bean id="csrfTokenRepository" class="org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository">
+    <!-- Needed by CsrfTokenService in another app context -->
+    <pen:publish as-type="INTERFACES" />
+  </bean>
 
-  <!-- region CSRF Services -->
+  <bean id="csrfHelper" class="com.hitachivantara.security.web.impl.service.csrf.servlet.DefaultCsrfHelper">
+    <!-- Possibly needed in other app contexts -->
+    <pen:publish as-type="INTERFACES" />
+
+    <constructor-arg>
+      <util:set>
+        <value>X-Requested-With</value>
+        <!-- Temporary. To be removed once all uses of sending the CSRF token as a header are converted. -->
+        <value>X-CSRF-TOKEN</value>
+      </util:set>
+    </constructor-arg>
+  </bean>
+
+  <!-- CSRF Processor -->
+  <bean id="csrfProcessor" class="com.hitachivantara.security.web.impl.service.csrf.servlet.DefaultCsrfProcessor">
+    <!-- Possibly needed in other app contexts -->
+    <pen:publish as-type="INTERFACES" />
+
+    <constructor-arg ref="csrfConfiguration" />
+    <constructor-arg ref="csrfTokenRepository" />
+
+    <property name="helper" ref="csrfHelper" />
+  </bean>
 
   <!-- Servlet Filter that checks that requests to protected endpoints specify a CSRF token.
        Should be the first filter. See `filterChainProxy` in `applicationContext-spring-security.xml`.
     -->
   <bean id="csrfGateFilter" class="com.hitachivantara.security.web.impl.service.csrf.servlet.CsrfGateFilter">
-    <constructor-arg ref="aggregatedCsrfConfiguration" />
+    <constructor-arg ref="csrfProcessor" />
   </bean>
 
   <!-- JAX-RS Resource for obtaining a CSRF token.
