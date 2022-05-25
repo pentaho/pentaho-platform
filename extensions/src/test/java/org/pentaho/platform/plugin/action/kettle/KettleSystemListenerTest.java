@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -27,12 +27,16 @@ import org.apache.logging.log4j.core.appender.FileAppender;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.pentaho.database.service.DatabaseDialectService;
+import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.util.LogUtil;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.XmlTestConstants;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.xml.sax.SAXException;
-import sun.rmi.runtime.Log;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -45,9 +49,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
+@RunWith( PowerMockRunner.class )
+@PrepareForTest( { PentahoSystem.class } )
 public class KettleSystemListenerTest {
   private IApplicationContext mockApplicationContext;
   private Appender appender;
@@ -68,6 +76,11 @@ public class KettleSystemListenerTest {
   @Test
   public void testStartup() {
     KettleSystemListener ksl = new KettleSystemListener();
+    DatabaseDialectService mockDatabaseDialectService = mock( DatabaseDialectService.class );
+    mockStatic( PentahoSystem.class );
+    when( PentahoSystem.get( eq( IDatabaseDialectService.class ) ) ).thenReturn( mockDatabaseDialectService );
+    when( PentahoSystem.getApplicationContext() ).thenReturn( mockApplicationContext );
+    when( mockApplicationContext.getSolutionPath( anyString() ) ).thenReturn( "/kettle" );
     assertTrue( ksl.startup( null ) );
   }
 
@@ -75,7 +88,12 @@ public class KettleSystemListenerTest {
   public void testDefaultDIHome() throws Exception {
     System.setProperty( "DI_HOME", "" );
     when( mockApplicationContext.getSolutionPath( anyString() ) ).thenReturn( "/kettle" );
+    when( mockApplicationContext.getSolutionPath( anyString() ) ).thenReturn( "/kettle" );
+    DatabaseDialectService mockDatabaseDialectService = mock( DatabaseDialectService.class );
 
+    mockStatic( PentahoSystem.class );
+    when( PentahoSystem.get( IDatabaseDialectService.class ) ).thenReturn( mockDatabaseDialectService );
+    when( PentahoSystem.getApplicationContext() ).thenReturn( mockApplicationContext );
     KettleSystemListener ksl = new KettleSystemListener();
     ksl.startup( null );
     assertThat( "Empty DI_HOME should be defaulted", System.getProperty( "DI_HOME" ), equalTo( "/kettle" ) );
