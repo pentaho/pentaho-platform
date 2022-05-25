@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -28,7 +28,7 @@ import javax.sql.DataSource;
 public class PooledOrJndiDatasourceService extends NonPooledOrJndiDatasourceService {
 
   @Override
-  protected DataSource resolveDatabaseConnection( IDatabaseConnection databaseConnection )
+  public DataSource resolveDatabaseConnection( IDatabaseConnection databaseConnection )
     throws DBDatasourceServiceException {
     return PooledDatasourceHelper.setupPooledDataSource( databaseConnection );
   }
