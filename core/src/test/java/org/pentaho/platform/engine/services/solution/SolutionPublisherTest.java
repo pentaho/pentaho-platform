@@ -51,7 +51,8 @@ public class SolutionPublisherTest extends BaseTest {
   public void testSolutionPublishI18N() {
     startTest();
 
-    Locale tmpLocale = LocaleHelper.getLocale();
+    Locale tmpLocale = LocaleHelper.getThreadLocaleBase();
+
     // Try a different locale from the default
     String localeLanguage = "fr"; //$NON-NLS-1$
     String localeCountry = "FR"; //$NON-NLS-1$
@@ -59,7 +60,7 @@ public class SolutionPublisherTest extends BaseTest {
     if ( locales != null ) {
       for ( int i = 0; i < locales.length; i++ ) {
         if ( locales[i].getLanguage().equals( localeLanguage ) && locales[i].getCountry().equals( localeCountry ) ) {
-          LocaleHelper.setLocale( locales[i] );
+          LocaleHelper.setThreadLocaleBase( locales[i] );
           break;
         }
       }
@@ -68,11 +69,12 @@ public class SolutionPublisherTest extends BaseTest {
     SolutionPublisher publisher = new SolutionPublisher();
     publisher.setLoggingLevel( getLoggingLevel() );
     StandaloneSession session =
-        new StandaloneSession( Messages.getInstance().getString( "BaseTest.DEBUG_JUNIT_SESSION" ) );
+      new StandaloneSession( Messages.getInstance().getString( "BaseTest.DEBUG_JUNIT_SESSION" ) );
     String result = publisher.publish( session, getLoggingLevel() );
     assertEquals( Messages.getInstance().getString( "SolutionPublisher.USER_SOLUTION_REPOSITORY_UPDATED" ), result );
+
     // now set the locale back again
-    LocaleHelper.setLocale( tmpLocale );
+    LocaleHelper.setThreadLocaleBase( tmpLocale );
     finishTest();
   }
 }

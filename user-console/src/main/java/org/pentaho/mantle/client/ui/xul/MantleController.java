@@ -41,7 +41,9 @@ import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
+import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
@@ -207,16 +209,22 @@ public class MantleController extends AbstractXulEventHandler {
     }
 
     // install language sub-menus
-    Map<String, String> supportedLanguages = Messages.getResourceBundle().getSupportedLanguages();
-    if ( supportedLanguages != null && supportedLanguages.keySet() != null && !supportedLanguages.isEmpty() ) {
+    ResourceBundle resourceBundle = Messages.getResourceBundle();
+    Map<String, String> supportedLanguages = resourceBundle.getSupportedLanguages();
+    if ( supportedLanguages != null && !supportedLanguages.isEmpty() ) {
+
+      String currentLanguage = resourceBundle.getLanguage();
+
       MenuBar langMenu = (MenuBar) languageMenu.getManagedObject();
       langMenu.insertSeparator( 0 );
       for ( String lang : supportedLanguages.keySet() ) {
-        MenuItem langMenuItem = new MenuItem( supportedLanguages.get( lang ), new SwitchLocaleCommand( lang ) );
-        langMenuItem.getElement().setId( supportedLanguages.get( lang ) + "_menu_item" ); //$NON-NLS-1$
+        CheckBoxMenuItem langMenuItem = new CheckBoxMenuItem( supportedLanguages.get( lang ), new SwitchLocaleCommand( lang ) );
+        langMenuItem.getElement().setId( supportedLanguages.get( lang ) + "_menu_item" );
+        langMenuItem.setChecked( lang.equalsIgnoreCase( currentLanguage ) );
         langMenu.insertItem( langMenuItem, 0 );
       }
     }
+
     buildFavoritesAndRecent( false );
 
     UserSettingsManager.getInstance().getUserSettings( new AsyncCallback<JsArray<JsSetting>>() {

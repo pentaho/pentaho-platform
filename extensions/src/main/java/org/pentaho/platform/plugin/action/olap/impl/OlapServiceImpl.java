@@ -910,11 +910,6 @@ public class OlapServiceImpl implements IOlapService {
   }
 
   private static Locale getLocale() {
-    final Locale locale = LocaleHelper.getLocale();
-    if ( locale != null ) {
-      return locale;
-    } else {
-      return Locale.getDefault();
-    }
+    return LocaleHelper.getLocale();
   }
 }
