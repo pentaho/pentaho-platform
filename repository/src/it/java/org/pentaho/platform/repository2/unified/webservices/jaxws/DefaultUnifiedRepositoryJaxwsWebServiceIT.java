@@ -23,6 +23,7 @@ package org.pentaho.platform.repository2.unified.webservices.jaxws;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
@@ -81,7 +82,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
   // ~ Static fields/initializers
   // ======================================================================================
 
-  private final Logger logger = Logger.getLogger( DefaultUnifiedRepositoryJaxwsWebServiceIT.class );
+  private final Logger logger = LogManager.getLogger( DefaultUnifiedRepositoryJaxwsWebServiceIT.class );
 
   // ~ Instance fields
   // =================================================================================================
