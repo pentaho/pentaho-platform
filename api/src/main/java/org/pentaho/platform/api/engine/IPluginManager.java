@@ -35,7 +35,7 @@ import java.util.Set;
  *
  * @author jamesdixon
  * @author aphillips
- * @see <a href="http://wiki.pentaho.com/display/ServerDoc2x/BI+Platform+Plugins+in+V2">BI Platform Plugins</a>
+ * @see <a href="https://pentaho-community.atlassian.net/wiki/display/ServerDoc2x/BI+Platform+Plugins+in+V2">BI Platform Plugins</a>
  */
 public interface IPluginManager {
 
