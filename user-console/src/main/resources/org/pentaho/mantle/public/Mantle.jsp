@@ -12,20 +12,18 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
 --%>
 
 <!DOCTYPE html>
 <%@page pageEncoding="UTF-8" %>
 <%@
     page language="java"
-    import="org.apache.commons.lang.StringUtils,
-            org.owasp.encoder.Encode,
+    import="org.owasp.encoder.Encode,
             org.pentaho.platform.util.messages.LocaleHelper,
             java.util.Locale,
             java.net.URL,
             java.net.URLClassLoader,
-            java.util.ArrayList,
             java.util.Iterator,
             java.util.LinkedHashMap,
             java.util.List,
@@ -37,18 +35,15 @@
 <%
   boolean hasDataAccessPlugin = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ).getRegisteredPlugins().contains( "data-access" );
 
-  Locale effectiveLocale = request.getLocale();
-  if ( !StringUtils.isEmpty( request.getParameter( "locale" ) ) ) {
-    request.getSession().setAttribute( "locale_override", request.getParameter( "locale" ) );
-    LocaleHelper.parseAndSetLocaleOverride( request.getParameter( "locale" ) );
-  } else {
-    request.getSession().setAttribute( "locale_override", null );
-    LocaleHelper.setLocaleOverride( null );
-  }
+  // Handle the `locale` request parameter.
+  Locale effectiveLocale = LocaleHelper.parseLocale( request.getParameter( "locale" ) );
+  LocaleHelper.setSessionLocaleOverride( effectiveLocale );
+  LocaleHelper.setThreadLocaleOverride( effectiveLocale );
+
+  effectiveLocale = LocaleHelper.getLocale();
 
   URLClassLoader loader = new URLClassLoader( new URL[] { application.getResource( "/mantle/messages/" ) } );
-  ResourceBundle properties = ResourceBundle.getBundle( "mantleMessages", request.getLocale(), loader );
-
+  ResourceBundle properties = ResourceBundle.getBundle( "mantleMessages", effectiveLocale, loader );
 %>
 
 <html>
@@ -109,7 +104,7 @@
       }
     if (!haveMobileRedirect) {
   %>
-  <meta name="gwt:property" content="locale=<%=Encode.forHtmlAttribute(effectiveLocale.toString())%>">
+  <meta name="gwt:property" content="locale=<%= Encode.forHtmlAttribute(effectiveLocale.toString()) %>">
   <link rel="icon" href="/pentaho-style/favicon.ico"/>
   <link rel="apple-touch-icon" sizes="180x180" href="/pentaho-style/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/pentaho-style/favicon-32x32.png">
