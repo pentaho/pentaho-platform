@@ -27,8 +27,8 @@ package org.pentaho.platform.api.engine;
  * <p>
  * For information on providing services via platform plugins, see the wiki link below.
  * 
- * @see {@link http 
- *      ://wiki.pentaho.com/display/ServerDoc2x/Developing+Plugins#DevelopingPlugins-Definingawebservice
+ * @see {@link https
+ *      ://pentaho-community.atlassian.net/wiki/display/ServerDoc2x/Developing+Plugins#DevelopingPlugins-Definingawebservice
  *      (newinCitrus)}
  * 
  * @author aphillips
