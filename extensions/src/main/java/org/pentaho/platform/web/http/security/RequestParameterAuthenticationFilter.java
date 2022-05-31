@@ -14,12 +14,13 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.security;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.di.core.encryption.Encr;
@@ -28,6 +29,7 @@ import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,7 +38,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.util.Assert;
-
+import com.hitachivantara.security.web.service.csrf.servlet.CsrfProcessor;
 import com.hitachivantara.security.web.impl.service.util.MultiReadHttpServletRequestWrapper;
 
 import javax.servlet.Filter;
@@ -98,7 +100,32 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
   private boolean isRequestParameterAuthenticationEnabled;
   private boolean isRequestAuthenticationParameterLoaded = false;
 
+  public static final String CSRF_OPERATION_ID =
+          RequestParameterAuthenticationFilter.class.getName() + "." + "authenticate";
+
+  @Nullable
+  private CsrfProcessor csrfProcessor;
+
   // ~ Methods ================================================================
+
+  /**
+   * Sets the CSRF processor used to validate requests w.r.t CSRF attacks.
+   * When set to <code>null</code>, CSRF validation is disabled. Although, note, it is preferable to use
+   * this operation's identifier, {@link #CSRF_OPERATION_ID} to disable it via configuration.
+   *
+   * @param csrfProcessor The CSRF processor.
+   */
+  public void setCsrfProcessor( @Nullable CsrfProcessor csrfProcessor ) {
+    this.csrfProcessor = csrfProcessor;
+  }
+
+  /**
+   * Gets the CSRF processor used to validate requests w.r.t CSRF attacks, if any.
+   */
+  @Nullable
+  public CsrfProcessor getCsrfProcessor() {
+    return csrfProcessor;
+  }
 
   public void afterPropertiesSet() throws Exception {
     Assert.notNull( this.authenticationManager, Messages.getInstance().getErrorString(
@@ -161,7 +188,10 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
           Authentication authResult;
 
           try {
+            doCsrfValidation(wrapper);
+
             authResult = authenticationManager.authenticate( authRequest );
+
           } catch ( AuthenticationException failed ) {
             // Authentication failed
             if ( RequestParameterAuthenticationFilter.logger.isDebugEnabled() ) {
@@ -194,6 +224,16 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
       chain.doFilter( request, response );
     }
 
+  }
+
+  private void doCsrfValidation( HttpServletRequest request ) throws AuthenticationException, ServletException, IOException {
+    if ( csrfProcessor != null ) {
+      try {
+        csrfProcessor.validateRequestOfVulnerableOperation(request, CSRF_OPERATION_ID);
+      }catch ( AccessDeniedException  ex ) {
+         throw new CsrfValidationAuthenticationException( ex );
+       }
+    }
   }
 
   public AuthenticationEntryPoint getAuthenticationEntryPoint() {
