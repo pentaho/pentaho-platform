@@ -43,7 +43,7 @@
 
     <menu id="about-menu" label="{about}">
       <menupopup id="about-submenu-classic">
-		<menuitem id="pentaho-doc" label="Documentation" command="javascript:popPage('http://wiki.pentaho.com/dashboard.action')"/>
+		<menuitem id="pentaho-doc" label="Documentation" command="javascript:popPage('https://pentaho-community.atlassian.net/wiki/dashboard.action')"/>
 	  
 		<menuitem id="pentaho-menuitem" label="{pentaho.org}" command="javascript:popPage('http://www.pentaho.org')"/>
 		<menuitem id="demos-menuitem" label="{demos}" command="javascript:popPage('http://www.pentaho.com/products/demos/')"/>
