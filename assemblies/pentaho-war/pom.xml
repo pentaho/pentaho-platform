@@ -547,6 +547,18 @@
       <version>${felix.http.proxy.version}</version>
       <scope>compile</scope>
     </dependency>
+    <!-- Kettle plugin APIs -->
+    <dependency>
+      <groupId>org.pentaho.di.plugins</groupId>
+      <artifactId>pentaho-metastore-locator-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.pentaho.di.plugins</groupId>
+      <artifactId>pentaho-kettle-repository-locator-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- OSGi Dependencies -->
     <!-- Because of: -->
     <!-- pentaho-platform-core (PentahoSystem) and pdi-osgi-bridge-core (KarafLifecycleListener and OSGIPluginRegistryExtension) -->
