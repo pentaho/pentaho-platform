@@ -49,8 +49,14 @@ import java.io.IOException;
 import java.util.Properties;
 
 import static org.junit.Assert.assertSame;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.pentaho.platform.web.http.security.RequestParameterAuthenticationFilter.CSRF_OPERATION_ID;
 
 public class RequestParameterAuthenticationFilterTest {
@@ -68,10 +74,10 @@ public class RequestParameterAuthenticationFilterTest {
     KettleClientEnvironment.init();
     filter = new RequestParameterAuthenticationFilter();
     authManagerMock = mock( AuthenticationManager.class );
-    authenticationEntryPointMock = mock(AuthenticationEntryPoint.class);
+    authenticationEntryPointMock = mock( AuthenticationEntryPoint.class );
     mockChain = mock( FilterChain.class );
     filter.setAuthenticationManager( authManagerMock );
-    filter.setAuthenticationEntryPoint(authenticationEntryPointMock);
+    filter.setAuthenticationEntryPoint( authenticationEntryPointMock );
 
     final Properties properties = new Properties();
     properties.setProperty( "requestParameterAuthenticationEnabled", "true" );
@@ -132,7 +138,7 @@ public class RequestParameterAuthenticationFilterTest {
     assertSame( csrfProcessorMock, filter.getCsrfProcessor() );
   }
 
-  private void testWhenCsrfValidationFailsWithGivenExceptionThenRethrows(@NonNull Throwable validateError )
+  private void testWhenCsrfValidationFailsWithGivenExceptionThenRethrows( @NonNull Throwable validateError )
           throws ServletException, IOException {
 
     CsrfProcessor csrfProcessorMock = mock( CsrfProcessor.class );
@@ -147,7 +153,7 @@ public class RequestParameterAuthenticationFilterTest {
     filter.setAuthenticationManager( authManagerMock );
     filter.setCsrfProcessor( csrfProcessorMock );
 
-    when( csrfProcessorMock.validateRequestOfVulnerableOperation( any(HttpServletRequest.class ), anyString() ) )
+    when( csrfProcessorMock.validateRequestOfVulnerableOperation( any( HttpServletRequest.class ), anyString() ) )
             .thenThrow( validateError );
 
     // ---
@@ -171,7 +177,7 @@ public class RequestParameterAuthenticationFilterTest {
 
     AccessDeniedException error = mock( AccessDeniedException.class );
 
-    when( csrfProcessorMock.validateRequestOfVulnerableOperation( any(HttpServletRequest.class ), anyString() ) )
+    when( csrfProcessorMock.validateRequestOfVulnerableOperation( any( HttpServletRequest.class ), anyString() ) )
             .thenThrow( error );
 
     filter.setAuthenticationManager( authManagerMock );
@@ -184,19 +190,19 @@ public class RequestParameterAuthenticationFilterTest {
     // ---
 
     ArgumentCaptor<AuthenticationException> authErrorCaptor
-            = ArgumentCaptor.forClass(AuthenticationException.class);
-    verify(authenticationEntryPointMock,times(1))
+            = ArgumentCaptor.forClass( AuthenticationException.class );
+    verify( authenticationEntryPointMock, times( 1 ) )
             .commence(
-              any(HttpServletRequest.class),
-              any(HttpServletResponse.class),
+              any( HttpServletRequest.class ),
+              any( HttpServletResponse.class ),
                     authErrorCaptor.capture() );
 
-    assertSame(error,authErrorCaptor.getValue().getCause());
+    assertSame( error, authErrorCaptor.getValue().getCause() );
 
 
   }
 
-  @Test(expected = IOException.class)
+  @Test( expected = IOException.class )
   public void testWhenCsrfValidationFailsWithIOExceptionThenRethrows() throws ServletException, IOException {
 
     IOException error = mock( IOException.class );
@@ -204,7 +210,7 @@ public class RequestParameterAuthenticationFilterTest {
     testWhenCsrfValidationFailsWithGivenExceptionThenRethrows( error );
   }
 
-  @Test(expected = ServletException.class)
+  @Test( expected = ServletException.class )
   public void testWhenCsrfValidationFailsWithServletExceptionThenRethrows() throws ServletException, IOException {
 
     ServletException error = mock( ServletException.class );
@@ -250,11 +256,11 @@ public class RequestParameterAuthenticationFilterTest {
 
     filter.setAuthenticationManager( authManagerMock );
     filter.setCsrfProcessor( csrfProcessorMock );
-    filter.setIgnoreFailure(true);
+    filter.setIgnoreFailure( true );
 
     AccessDeniedException error = mock( AccessDeniedException.class );
 
-    when( csrfProcessorMock.validateRequestOfVulnerableOperation( any(HttpServletRequest.class ), anyString() ) )
+    when( csrfProcessorMock.validateRequestOfVulnerableOperation( any( HttpServletRequest.class ), anyString() ) )
             .thenThrow( error );
 
     // ---
@@ -263,8 +269,8 @@ public class RequestParameterAuthenticationFilterTest {
 
     // ---
 
-    verify( mockChain, times( 1 ) ).doFilter( any(HttpServletRequest.class),
-            any(HttpServletResponse.class) );
+    verify( mockChain, times( 1 ) ).doFilter( any( HttpServletRequest.class ),
+            any( HttpServletResponse.class ) );
 
   }
 

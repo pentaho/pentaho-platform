@@ -188,7 +188,7 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
           Authentication authResult;
 
           try {
-            doCsrfValidation(wrapper);
+            doCsrfValidation( wrapper );
 
             authResult = authenticationManager.authenticate( authRequest );
 
@@ -229,10 +229,10 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
   private void doCsrfValidation( HttpServletRequest request ) throws AuthenticationException, ServletException, IOException {
     if ( csrfProcessor != null ) {
       try {
-        csrfProcessor.validateRequestOfVulnerableOperation(request, CSRF_OPERATION_ID);
-      }catch ( AccessDeniedException  ex ) {
-         throw new CsrfValidationAuthenticationException( ex );
-       }
+        csrfProcessor.validateRequestOfVulnerableOperation( request, CSRF_OPERATION_ID );
+      } catch ( AccessDeniedException  ex ) {
+        throw new CsrfValidationAuthenticationException( ex );
+      }
     }
   }
 
