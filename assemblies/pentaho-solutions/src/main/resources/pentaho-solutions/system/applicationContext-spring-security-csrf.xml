@@ -156,9 +156,11 @@
       <util:set>
         <!-- Login operation, accessed via /j_spring_security_check.
         <value>org.pentaho.platform.web.http.security.CsrfProtectedUsernamePasswordAuthenticationFilter.authenticate</value>
+        <value>org.pentaho.platform.web.http.security.RequestParameterAuthenticationFilter.authenticate</value>
         -->
       </util:set>
     </constructor-arg>
+
   </bean>
 
   <!-- endregion configurations -->
