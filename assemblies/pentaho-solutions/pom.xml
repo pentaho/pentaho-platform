@@ -274,6 +274,20 @@
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
+                  <groupId>org.pentaho.di.plugins</groupId>
+                  <artifactId>pentaho-metastore-locator-plugin</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.pentaho.di.plugins</groupId>
+                  <artifactId>kettle-repository-locator-platform-plugin</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>pentaho-big-data-plugin-samples</artifactId>
                   <version>${project.version}</version>
