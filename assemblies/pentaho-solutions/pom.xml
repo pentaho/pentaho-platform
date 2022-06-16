@@ -282,6 +282,13 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.pentaho.di.plugins</groupId>
+                  <artifactId>kettle-repository-locator-plugin</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>kettle-repository-locator-platform-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
