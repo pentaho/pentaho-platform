@@ -176,6 +176,9 @@
     <property name="authenticationEntryPoint">
       <ref bean="requestParameterProcessingFilterEntryPoint" />
     </property>
+    <property name="csrfProcessor">
+      <ref bean="csrfProcessor" />
+    </property>
   </bean>
   <bean id="requestParameterProcessingFilterEntryPoint"
         class="org.pentaho.platform.web.http.security.RequestParameterFilterEntryPoint" />
