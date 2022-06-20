@@ -20,6 +20,9 @@
 
 package org.pentaho.platform.web.http.security;
 
+import com.hitachivantara.security.web.impl.service.util.MultiReadHttpServletRequestWrapper;
+import com.hitachivantara.security.web.model.servop.annotation.ServiceId;
+import com.hitachivantara.security.web.service.csrf.servlet.CsrfValidator;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,8 +41,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.util.Assert;
-import com.hitachivantara.security.web.service.csrf.servlet.CsrfProcessor;
-import com.hitachivantara.security.web.impl.service.util.MultiReadHttpServletRequestWrapper;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -74,6 +75,7 @@ import java.io.IOException;
  * {@link org.springframework.security.util.FilterToBeanProxy}.
  * </p>
  */
+@ServiceId
 public class RequestParameterAuthenticationFilter implements Filter, InitializingBean {
   // ~ Static fields/initializers =============================================
 
@@ -100,43 +102,42 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
   private boolean isRequestParameterAuthenticationEnabled;
   private boolean isRequestAuthenticationParameterLoaded = false;
 
-  public static final String CSRF_OPERATION_ID =
-          RequestParameterAuthenticationFilter.class.getName() + "." + "authenticate";
+  public static final String CSRF_OPERATION_NAME = "authenticate";
 
   @Nullable
-  private CsrfProcessor csrfProcessor;
+  private CsrfValidator csrfValidator;
 
   // ~ Methods ================================================================
 
   /**
    * Sets the CSRF processor used to validate requests w.r.t CSRF attacks.
    * When set to <code>null</code>, CSRF validation is disabled. Although, note, it is preferable to use
-   * this operation's identifier, {@link #CSRF_OPERATION_ID} to disable it via configuration.
+   * this operation's identifier to disable it via configuration.
    *
-   * @param csrfProcessor The CSRF processor.
+   * @param csrfValidator The CSRF processor.
    */
-  public void setCsrfProcessor( @Nullable CsrfProcessor csrfProcessor ) {
-    this.csrfProcessor = csrfProcessor;
+  public void setCsrfValidator( @Nullable CsrfValidator csrfValidator ) {
+    this.csrfValidator = csrfValidator;
   }
 
   /**
-   * Gets the CSRF processor used to validate requests w.r.t CSRF attacks, if any.
+   * Gets the CSRF validator used to validate requests w.r.t CSRF attacks, if any.
    */
   @Nullable
-  public CsrfProcessor getCsrfProcessor() {
-    return csrfProcessor;
+  public CsrfValidator getCsrfValidator() {
+    return csrfValidator;
   }
 
   public void afterPropertiesSet() throws Exception {
     Assert.notNull( this.authenticationManager, Messages.getInstance().getErrorString(
-        "RequestParameterAuthenticationFilter.ERROR_0001_AUTHMGR_REQUIRED" ) ); //$NON-NLS-1$
+      "RequestParameterAuthenticationFilter.ERROR_0001_AUTHMGR_REQUIRED" ) ); //$NON-NLS-1$
     Assert.notNull( this.authenticationEntryPoint, Messages.getInstance().getErrorString(
-        "RequestParameterAuthenticationFilter.ERROR_0002_AUTHM_ENTRYPT_REQUIRED" ) ); //$NON-NLS-1$
+      "RequestParameterAuthenticationFilter.ERROR_0002_AUTHM_ENTRYPT_REQUIRED" ) ); //$NON-NLS-1$
 
     Assert.hasText( this.userNameParameter, Messages.getInstance().getString(
-        "RequestParameterAuthenticationFilter.ERROR_0003_USER_NAME_PARAMETER_MISSING" ) ); //$NON-NLS-1$
+      "RequestParameterAuthenticationFilter.ERROR_0003_USER_NAME_PARAMETER_MISSING" ) ); //$NON-NLS-1$
     Assert.hasText( this.passwordParameter, Messages.getInstance().getString(
-        "RequestParameterAuthenticationFilter.ERROR_0004_PASSWORD_PARAMETER_MISSING" ) ); //$NON-NLS-1$
+      "RequestParameterAuthenticationFilter.ERROR_0004_PASSWORD_PARAMETER_MISSING" ) ); //$NON-NLS-1$
   }
 
   public void destroy() {
@@ -148,19 +149,19 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
 
     if ( !isRequestAuthenticationParameterLoaded ) {
       String strParameter = config.getProperties().getProperty( "requestParameterAuthenticationEnabled" );
-      isRequestParameterAuthenticationEnabled = Boolean.valueOf( strParameter );
+      isRequestParameterAuthenticationEnabled = Boolean.parseBoolean( strParameter );
       isRequestAuthenticationParameterLoaded = true;
     }
 
     if ( isRequestParameterAuthenticationEnabled ) {
       if ( !( request instanceof HttpServletRequest ) ) {
         throw new ServletException( Messages.getInstance().getErrorString(
-            "RequestParameterAuthenticationFilter.ERROR_0005_HTTP_SERVLET_REQUEST_REQUIRED" ) ); //$NON-NLS-1$
+          "RequestParameterAuthenticationFilter.ERROR_0005_HTTP_SERVLET_REQUEST_REQUIRED" ) ); //$NON-NLS-1$
       }
 
       if ( !( response instanceof HttpServletResponse ) ) {
         throw new ServletException( Messages.getInstance().getErrorString(
-            "RequestParameterAuthenticationFilter.ERROR_0006_HTTP_SERVLET_RESPONSE_REQUIRED" ) ); //$NON-NLS-1$
+          "RequestParameterAuthenticationFilter.ERROR_0006_HTTP_SERVLET_RESPONSE_REQUIRED" ) ); //$NON-NLS-1$
       }
 
       HttpServletRequest wrapper = MultiReadHttpServletRequestWrapper.wrap( (HttpServletRequest) request );
@@ -170,7 +171,7 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
 
       if ( RequestParameterAuthenticationFilter.logger.isDebugEnabled() ) {
         RequestParameterAuthenticationFilter.logger.debug( Messages.getInstance().getString(
-            "RequestParameterAuthenticationFilter.DEBUG_AUTH_USERID", username ) ); //$NON-NLS-1$
+          "RequestParameterAuthenticationFilter.DEBUG_AUTH_USERID", username ) ); //$NON-NLS-1$
       }
 
       if ( ( username != null ) && ( password != null ) ) {
@@ -196,7 +197,8 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
             // Authentication failed
             if ( RequestParameterAuthenticationFilter.logger.isDebugEnabled() ) {
               RequestParameterAuthenticationFilter.logger.debug( Messages.getInstance().getString(
-                  "RequestParameterAuthenticationFilter.DEBUG_AUTHENTICATION_REQUEST", username, failed.toString() ) ); //$NON-NLS-1$
+                "RequestParameterAuthenticationFilter.DEBUG_AUTHENTICATION_REQUEST", username,
+                failed.toString() ) ); //$NON-NLS-1$
             }
 
             SecurityContextHolder.getContext().setAuthentication( null );
@@ -213,7 +215,7 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
           // Authentication success
           if ( RequestParameterAuthenticationFilter.logger.isDebugEnabled() ) {
             RequestParameterAuthenticationFilter.logger.debug( Messages.getInstance().getString(
-                "RequestParameterAuthenticationFilter.DEBUG_AUTH_SUCCESS", authResult.toString() ) ); //$NON-NLS-1$
+              "RequestParameterAuthenticationFilter.DEBUG_AUTH_SUCCESS", authResult.toString() ) ); //$NON-NLS-1$
           }
 
           SecurityContextHolder.getContext().setAuthentication( authResult );
@@ -226,11 +228,12 @@ public class RequestParameterAuthenticationFilter implements Filter, Initializin
 
   }
 
-  private void doCsrfValidation( HttpServletRequest request ) throws AuthenticationException, ServletException, IOException {
-    if ( csrfProcessor != null ) {
+  private void doCsrfValidation( HttpServletRequest request )
+    throws AuthenticationException, ServletException, IOException {
+    if ( csrfValidator != null ) {
       try {
-        csrfProcessor.validateRequestOfVulnerableOperation( request, CSRF_OPERATION_ID );
-      } catch ( AccessDeniedException  ex ) {
+        csrfValidator.validateRequestOfMutationOperation( request, this.getClass(), CSRF_OPERATION_NAME );
+      } catch ( AccessDeniedException ex ) {
         throw new CsrfValidationAuthenticationException( ex );
       }
     }

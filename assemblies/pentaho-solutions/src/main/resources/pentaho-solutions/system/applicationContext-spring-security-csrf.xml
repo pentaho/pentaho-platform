@@ -21,12 +21,14 @@
   <!-- CSRF protected system endpoints -->
   <bean class="com.hitachivantara.security.web.impl.model.csrf.PartialCsrfConfigurationPojo">
     <pen:publish as-type="INTERFACES" />
-    <constructor-arg>
-      <!--
+
+    <!--
+        ENABLED ENDPOINTS
         The Request Matchers for endpoints for which Upfront CSRF Validation is **ENABLED** (done by CsrfGateFilter).
 
         **Comment** individual request matchers to disable CSRF validation for the corresponding endpoints.
       -->
+    <property name="upfrontValidationRequestMatcher">
       <swm:or-request-matcher>
         <!-- REST /api/* -->
 
@@ -143,24 +145,34 @@
         -->
         <swm:regex-request-matcher pattern="^/upload/.*" methods="POST" />
       </swm:or-request-matcher>
-    </constructor-arg>
-    <constructor-arg>
-      <!--
-        The Service Operation Identifiers for which CSRF Validation is **DISABLED**.
+    </property>
+
+    <!--
+        DISABLED SERVICE OPERATIONS
+        The Service Operation identifiers for which CSRF Validation is **DISABLED**.
 
         These correspond to operations which are accessible by more than one URL, or for which what determines
         whether to protect or not against CSRF is in the request body, or is otherwise determined dynamically.
 
-        **Uncomment** individual operation identifiers to disable CSRF validation for the operations.
-      -->
-      <util:set>
-        <!-- Login operation, accessed via /j_spring_security_check.
-        <value>org.pentaho.platform.web.http.security.CsrfProtectedUsernamePasswordAuthenticationFilter.authenticate</value>
-        <value>org.pentaho.platform.web.http.security.RequestParameterAuthenticationFilter.authenticate</value>
-        -->
-      </util:set>
-    </constructor-arg>
+        To disable CSRF protection for all or some service operations,
+        uncomment the following property and include only the identifiers of the unprotected operations.
 
+        * Login operation
+          - example URL: /j_spring_security_check
+          - operation id: org.pentaho.platform.web.http.security.CsrfProtectedUsernamePasswordAuthenticationFilter#authenticate
+
+        * Request Parameter authentication operation
+          - example URL: /some-api?userid=admin&password=password
+          - operation id: org.pentaho.platform.web.http.security.RequestParameterAuthenticationFilter#authenticate
+      -->
+    <!--
+    <property name="disabledValidationOperationIds">
+      <util:set>
+        <value>org.pentaho.platform.web.http.security.CsrfProtectedUsernamePasswordAuthenticationFilter#authenticate</value>
+        <value>org.pentaho.platform.web.http.security.RequestParameterAuthenticationFilter#authenticate</value>
+      </util:set>
+    </property>
+    -->
   </bean>
 
   <!-- endregion configurations -->
@@ -200,14 +212,18 @@
     </constructor-arg>
   </bean>
 
-  <!-- CSRF Processor -->
-  <bean id="csrfProcessor" class="com.hitachivantara.security.web.impl.service.csrf.servlet.DefaultCsrfProcessor">
+  <!-- ServiceClassMetadataAnalyzer. Checks classes for @ServiceId and @MutationOperation annotations. -->
+  <bean id="serviceClassMetadataAnalyzer"
+        class="com.hitachivantara.security.web.impl.service.servop.DefaultServiceClassMetadataAnalyzer" />
+
+  <!-- CSRF Validator -->
+  <bean id="csrfValidator" class="com.hitachivantara.security.web.impl.service.csrf.servlet.DefaultCsrfValidator">
     <!-- Possibly needed in other app contexts -->
     <pen:publish as-type="INTERFACES" />
 
     <constructor-arg ref="csrfConfiguration" />
     <constructor-arg ref="csrfTokenRepository" />
-
+    <property name="serviceClassMetadataAnalyzer" ref="serviceClassMetadataAnalyzer" />
     <property name="helper" ref="csrfHelper" />
   </bean>
 
@@ -215,7 +231,7 @@
        Should be the first filter. See `filterChainProxy` in `applicationContext-spring-security.xml`.
     -->
   <bean id="csrfGateFilter" class="com.hitachivantara.security.web.impl.service.csrf.servlet.CsrfGateFilter">
-    <constructor-arg ref="csrfProcessor" />
+    <constructor-arg ref="csrfValidator" />
   </bean>
 
   <!-- JAX-RS Resource for obtaining a CSRF token.
