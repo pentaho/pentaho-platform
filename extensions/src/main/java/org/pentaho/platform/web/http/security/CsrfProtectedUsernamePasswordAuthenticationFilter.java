@@ -20,9 +20,11 @@
 
 package org.pentaho.platform.web.http.security;
 
-import com.hitachivantara.security.web.service.csrf.servlet.CsrfProcessor;
+import com.hitachivantara.security.web.model.servop.annotation.ServiceId;
+import com.hitachivantara.security.web.service.csrf.servlet.CsrfValidator;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -34,16 +36,15 @@ import java.io.IOException;
 /**
  * Processes an authentication form submission in a CSRF safe way.
  */
+@ServiceId
 public class CsrfProtectedUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
   /**
-   * The operation identifier which can be used to disable CSRF validation via configuration.
+   * The operation name, which can be used to disable CSRF validation via configuration.
    */
-  public static final String CSRF_OPERATION_ID =
-    CsrfProtectedUsernamePasswordAuthenticationFilter.class.getName() + "." + "authenticate";
+  public static final String CSRF_OPERATION_NAME = "authenticate";
 
   @Nullable
-  private CsrfProcessor csrfProcessor;
+  private CsrfValidator csrfValidator;
 
   /**
    * Creates an instance of the filter which has no CSRF processor set.
@@ -55,41 +56,43 @@ public class CsrfProtectedUsernamePasswordAuthenticationFilter extends UsernameP
   /**
    * Creates an instance of the filter with a given CSRF processor.
    *
-   * @param csrfProcessor The CSRF processor used to validate requests or <code>null</code>.
+   * @param csrfValidator The CSRF validator used to validate requests or <code>null</code>.
    */
-  public CsrfProtectedUsernamePasswordAuthenticationFilter( @Nullable CsrfProcessor csrfProcessor ) {
+  public CsrfProtectedUsernamePasswordAuthenticationFilter( @Nullable CsrfValidator csrfValidator ) {
     super();
-    this.csrfProcessor = csrfProcessor;
+    this.csrfValidator = csrfValidator;
   }
 
   /**
-   * Sets the CSRF processor used to validate requests w.r.t CSRF attacks.
+   * Sets the CSRF validator used to validate requests w.r.t CSRF attacks.
    * When set to <code>null</code>, CSRF validation is disabled. Although, note, it is preferable to use
-   * this operation's identifier, {@link #CSRF_OPERATION_ID} to disable it via configuration.
+   * this operation's identifier to disable it via configuration.
    *
-   * @param csrfProcessor The CSRF processor.
+   * @param csrfValidator The CSRF validator.
    */
-  public void setCsrfProcessor( @Nullable CsrfProcessor csrfProcessor ) {
-    this.csrfProcessor = csrfProcessor;
+  public void setCsrfValidator( @Nullable CsrfValidator csrfValidator ) {
+    this.csrfValidator = csrfValidator;
   }
 
   /**
-   * Gets the CSRF processor used to validate requests w.r.t CSRF attacks, if any.
+   * Gets the CSRF validator used to validate requests w.r.t CSRF attacks, if any.
    */
   @Nullable
-  public CsrfProcessor getCsrfProcessor() {
-    return csrfProcessor;
+  public CsrfValidator getCsrfValidator() {
+    return csrfValidator;
   }
 
   @Override
   public Authentication attemptAuthentication( HttpServletRequest request, HttpServletResponse response )
-    throws CsrfValidationAuthenticationException {
+    throws CsrfValidationAuthenticationException, InternalAuthenticationServiceException {
 
-    if ( csrfProcessor != null ) {
+    if ( csrfValidator != null ) {
       try {
-        csrfProcessor.validateRequestOfVulnerableOperation( request, CSRF_OPERATION_ID );
-      } catch ( AccessDeniedException | ServletException | IOException ex ) {
+        csrfValidator.validateRequestOfMutationOperation( request, this.getClass(), CSRF_OPERATION_NAME );
+      } catch ( AccessDeniedException ex ) {
         throw new CsrfValidationAuthenticationException( ex );
+      } catch ( ServletException | IOException ex ) {
+        throw new InternalAuthenticationServiceException( "CSRF validation failed", ex );
       }
     }
 

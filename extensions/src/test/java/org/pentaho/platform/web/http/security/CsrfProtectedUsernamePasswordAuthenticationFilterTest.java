@@ -16,12 +16,13 @@
  */
 package org.pentaho.platform.web.http.security;
 
-import com.hitachivantara.security.web.service.csrf.servlet.CsrfProcessor;
+import com.hitachivantara.security.web.service.csrf.servlet.CsrfValidator;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.pentaho.platform.web.http.security.CsrfProtectedUsernamePasswordAuthenticationFilter.CSRF_OPERATION_ID;
+import static org.pentaho.platform.web.http.security.CsrfProtectedUsernamePasswordAuthenticationFilter.CSRF_OPERATION_NAME;
 
 public class CsrfProtectedUsernamePasswordAuthenticationFilterTest {
 
@@ -53,47 +54,47 @@ public class CsrfProtectedUsernamePasswordAuthenticationFilterTest {
   }
 
   @Test
-  public void testConstructorWithNoArgumentsHasNoCsrfProcessor() {
+  public void testConstructorWithNoArgumentsHasNoCsrfValidator() {
 
     CsrfProtectedUsernamePasswordAuthenticationFilter filter = new CsrfProtectedUsernamePasswordAuthenticationFilter();
 
     // ---
 
-    assertNull( filter.getCsrfProcessor() );
+    assertNull( filter.getCsrfValidator() );
   }
 
   @Test
-  public void testConstructorWithGivenCsrfProcessorRespectsIt() {
+  public void testConstructorWithGivenCsrfValidatorRespectsIt() {
 
-    CsrfProcessor csrfProcessorMock = mock( CsrfProcessor.class );
+    CsrfValidator csrfValidatorMock = mock( CsrfValidator.class );
 
     // ---
 
     CsrfProtectedUsernamePasswordAuthenticationFilter filter
-      = new CsrfProtectedUsernamePasswordAuthenticationFilter( csrfProcessorMock );
+      = new CsrfProtectedUsernamePasswordAuthenticationFilter( csrfValidatorMock );
 
     // ---
 
-    assertSame( csrfProcessorMock, filter.getCsrfProcessor() );
+    assertSame( csrfValidatorMock, filter.getCsrfValidator() );
   }
 
   @Test
-  public void testSetCsrfProcessorRespectsIt() {
+  public void testSetCsrfValidatorRespectsIt() {
 
-    CsrfProcessor csrfProcessorMock = mock( CsrfProcessor.class );
+    CsrfValidator csrfValidatorMock = mock( CsrfValidator.class );
     CsrfProtectedUsernamePasswordAuthenticationFilter filter = new CsrfProtectedUsernamePasswordAuthenticationFilter();
 
     // ---
 
-    filter.setCsrfProcessor( csrfProcessorMock );
+    filter.setCsrfValidator( csrfValidatorMock );
 
     // ---
 
-    assertSame( csrfProcessorMock, filter.getCsrfProcessor() );
+    assertSame( csrfValidatorMock, filter.getCsrfValidator() );
   }
 
   @Test
-  public void testAttemptAuthenticationWithNoCsrfProcessorDelegatesToBaseClass() {
+  public void testAttemptAuthenticationWithNoCsrfValidatorDelegatesToBaseClass() {
 
     requestMock = mock( HttpServletRequest.class );
     when( requestMock.getMethod() ).thenReturn( HttpMethod.POST );
@@ -115,7 +116,7 @@ public class CsrfProtectedUsernamePasswordAuthenticationFilterTest {
   private void testAttemptAuthenticationFailsThenThrowsCsrfValidationAuthException( @NonNull Throwable validateError )
     throws ServletException, IOException {
 
-    CsrfProcessor csrfProcessorMock = mock( CsrfProcessor.class );
+    CsrfValidator csrfValidatorMock = mock( CsrfValidator.class );
 
     requestMock = mock( HttpServletRequest.class );
     when( requestMock.getMethod() ).thenReturn( HttpMethod.POST );
@@ -124,19 +125,15 @@ public class CsrfProtectedUsernamePasswordAuthenticationFilterTest {
 
     CsrfProtectedUsernamePasswordAuthenticationFilter filter = new CsrfProtectedUsernamePasswordAuthenticationFilter();
     filter.setAuthenticationManager( authenticationManagerMock );
-    filter.setCsrfProcessor( csrfProcessorMock );
+    filter.setCsrfValidator( csrfValidatorMock );
 
-    when( csrfProcessorMock.validateRequestOfVulnerableOperation( eq( requestMock ), anyString() ) )
+    when(
+      csrfValidatorMock.validateRequestOfMutationOperation( eq( requestMock ), eq( filter.getClass() ), anyString() ) )
       .thenThrow( validateError );
 
     // ---
 
-    try {
-      filter.attemptAuthentication( requestMock, responseMock );
-      fail( "Should have thrown exception" );
-    } catch ( CsrfValidationAuthenticationException ex ) {
-      assertSame( validateError, ex.getCause() );
-    }
+    filter.attemptAuthentication( requestMock, responseMock );
   }
 
   @Test
@@ -145,31 +142,46 @@ public class CsrfProtectedUsernamePasswordAuthenticationFilterTest {
 
     AccessDeniedException error = mock( AccessDeniedException.class );
 
-    testAttemptAuthenticationFailsThenThrowsCsrfValidationAuthException( error );
+    try {
+      testAttemptAuthenticationFailsThenThrowsCsrfValidationAuthException( error );
+      fail( "Should have thrown exception" );
+    } catch ( CsrfValidationAuthenticationException ex ) {
+      assertSame( error, ex.getCause() );
+    }
   }
 
   @Test
-  public void testAttemptAuthenticationWhichThrowsIOExceptionThenRethrowsAsCsrfValidationAuthException()
+  public void testAttemptAuthenticationWhichThrowsIOExceptionThenRethrowsAsInternalAuthenticationServiceException()
     throws ServletException, IOException {
 
     IOException error = mock( IOException.class );
 
-    testAttemptAuthenticationFailsThenThrowsCsrfValidationAuthException( error );
+    try {
+      testAttemptAuthenticationFailsThenThrowsCsrfValidationAuthException( error );
+      fail( "Should have thrown exception" );
+    } catch ( InternalAuthenticationServiceException ex ) {
+      assertSame( error, ex.getCause() );
+    }
   }
 
   @Test
-  public void testAttemptAuthenticationWhichThrowsServletExceptionThenRethrowsAsCsrfValidationAuthException()
+  public void testAttemptAuthenticationWhichThrowsServletExceptionThenRethrowsAsInternalAuthenticationServiceException()
     throws ServletException, IOException {
 
     ServletException error = mock( ServletException.class );
 
-    testAttemptAuthenticationFailsThenThrowsCsrfValidationAuthException( error );
+    try {
+      testAttemptAuthenticationFailsThenThrowsCsrfValidationAuthException( error );
+      fail( "Should have thrown exception" );
+    } catch ( InternalAuthenticationServiceException ex ) {
+      assertSame( error, ex.getCause() );
+    }
   }
 
   @Test
-  public void testAttemptAuthenticationIsCalledWithCorrectOperationId() throws ServletException, IOException {
+  public void testAttemptAuthenticationIsCalledWithCorrectOperationName() throws ServletException, IOException {
 
-    CsrfProcessor csrfProcessorMock = mock( CsrfProcessor.class );
+    CsrfValidator csrfValidatorMock = mock( CsrfValidator.class );
 
     requestMock = mock( HttpServletRequest.class );
     when( requestMock.getMethod() ).thenReturn( HttpMethod.POST );
@@ -178,7 +190,7 @@ public class CsrfProtectedUsernamePasswordAuthenticationFilterTest {
 
     CsrfProtectedUsernamePasswordAuthenticationFilter filter = new CsrfProtectedUsernamePasswordAuthenticationFilter();
     filter.setAuthenticationManager( authenticationManagerMock );
-    filter.setCsrfProcessor( csrfProcessorMock );
+    filter.setCsrfValidator( csrfValidatorMock );
 
     // ---
 
@@ -186,14 +198,14 @@ public class CsrfProtectedUsernamePasswordAuthenticationFilterTest {
 
     // ---
 
-    verify( csrfProcessorMock, times( 1 ) )
-      .validateRequestOfVulnerableOperation( requestMock, CSRF_OPERATION_ID );
+    verify( csrfValidatorMock, times( 1 ) )
+      .validateRequestOfMutationOperation( requestMock, filter.getClass(), CSRF_OPERATION_NAME );
   }
 
   @Test
   public void testAttemptAuthenticationWhichPassesCsrfValidationDelegatesToBaseClass() {
 
-    CsrfProcessor csrfProcessorMock = mock( CsrfProcessor.class );
+    CsrfValidator csrfValidatorMock = mock( CsrfValidator.class );
 
     requestMock = mock( HttpServletRequest.class );
     when( requestMock.getMethod() ).thenReturn( HttpMethod.POST );
@@ -202,7 +214,7 @@ public class CsrfProtectedUsernamePasswordAuthenticationFilterTest {
 
     CsrfProtectedUsernamePasswordAuthenticationFilter filter = new CsrfProtectedUsernamePasswordAuthenticationFilter();
     filter.setAuthenticationManager( authenticationManagerMock );
-    filter.setCsrfProcessor( csrfProcessorMock );
+    filter.setCsrfValidator( csrfValidatorMock );
 
     // ---
 
