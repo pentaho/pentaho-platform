@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.SystemUtils;
 import org.junit.Test;
 
 import junit.framework.TestCase;
@@ -397,7 +398,9 @@ public class RepositoryFilenameUtilsTest extends TestCase {
 
     assertEquals( 0, RepositoryFilenameUtils.getPrefixLength( "" ) );
     assertEquals( 1, RepositoryFilenameUtils.getPrefixLength( "\\" ) );
-    assertEquals( 2, RepositoryFilenameUtils.getPrefixLength( "C:" ) );
+    if (SystemUtils.IS_OS_WINDOWS) {
+      assertEquals( 2, RepositoryFilenameUtils.getPrefixLength( "C:" ) );
+    }
     assertEquals( 3, RepositoryFilenameUtils.getPrefixLength( "C:\\" ) );
     assertEquals( 9, RepositoryFilenameUtils.getPrefixLength( "//server/" ) );
     assertEquals( 2, RepositoryFilenameUtils.getPrefixLength( "~" ) );
@@ -454,7 +457,9 @@ public class RepositoryFilenameUtilsTest extends TestCase {
 
     assertEquals( "", RepositoryFilenameUtils.getPrefix( "" ) );
     assertEquals( "\\", RepositoryFilenameUtils.getPrefix( "\\" ) );
-    assertEquals( "C:", RepositoryFilenameUtils.getPrefix( "C:" ) );
+    if (SystemUtils.IS_OS_WINDOWS) {
+      assertEquals( "C:", RepositoryFilenameUtils.getPrefix( "C:" ) );
+    }
     assertEquals( "C:\\", RepositoryFilenameUtils.getPrefix( "C:\\" ) );
     assertEquals( "//server/", RepositoryFilenameUtils.getPrefix( "//server/" ) );
     assertEquals( "~/", RepositoryFilenameUtils.getPrefix( "~" ) );
@@ -579,7 +584,9 @@ public class RepositoryFilenameUtilsTest extends TestCase {
     assertEquals( null, RepositoryFilenameUtils.getFullPath( "//a" ) );
 
     assertEquals( "", RepositoryFilenameUtils.getFullPath( "" ) );
-    assertEquals( "C:", RepositoryFilenameUtils.getFullPath( "C:" ) );
+    if ( SystemUtils.IS_OS_WINDOWS) {
+      assertEquals( "C:", RepositoryFilenameUtils.getFullPath( "C:" ) );
+    }
     assertEquals( "C:/", RepositoryFilenameUtils.getFullPath( "C:/" ) );
     assertEquals( "//server/", RepositoryFilenameUtils.getFullPath( "//server/" ) );
     assertEquals( "~/", RepositoryFilenameUtils.getFullPath( "~" ) );
@@ -618,7 +625,9 @@ public class RepositoryFilenameUtilsTest extends TestCase {
     assertEquals( null, RepositoryFilenameUtils.getFullPathNoEndSeparator( "//a" ) );
 
     assertEquals( "", RepositoryFilenameUtils.getFullPathNoEndSeparator( "" ) );
-    assertEquals( "C:", RepositoryFilenameUtils.getFullPathNoEndSeparator( "C:" ) );
+    if (SystemUtils.IS_OS_WINDOWS) {
+      assertEquals( "C:", RepositoryFilenameUtils.getFullPathNoEndSeparator( "C:" ) );
+    }
     assertEquals( "C:/", RepositoryFilenameUtils.getFullPathNoEndSeparator( "C:/" ) );
     assertEquals( "//server/", RepositoryFilenameUtils.getFullPathNoEndSeparator( "//server/" ) );
     assertEquals( "~", RepositoryFilenameUtils.getFullPathNoEndSeparator( "~" ) );
