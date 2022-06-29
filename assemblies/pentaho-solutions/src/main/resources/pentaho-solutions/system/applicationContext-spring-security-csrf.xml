@@ -157,6 +157,7 @@
         <!-- Login operation, accessed via /j_spring_security_check.
         <value>org.pentaho.platform.web.http.security.CsrfProtectedUsernamePasswordAuthenticationFilter.authenticate</value>
         <value>org.pentaho.platform.web.http.security.RequestParameterAuthenticationFilter.authenticate</value>
+        <value>org.pentaho.platform.web.http.filters.ProxyTrustingFilter.authenticate</value>
         -->
       </util:set>
     </constructor-arg>
@@ -196,6 +197,7 @@
         <value>X-Requested-With</value>
         <!-- Temporary. To be removed once all uses of sending the CSRF token as a header are converted. -->
         <value>X-CSRF-TOKEN</value>
+        <value>_TRUST_USER_</value>
       </util:set>
     </constructor-arg>
   </bean>

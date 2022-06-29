@@ -186,6 +186,13 @@
   <bean id="httpSessionPentahoSessionContextIntegrationFilter"
         class="org.pentaho.platform.web.http.filters.HttpSessionPentahoSessionIntegrationFilter" />
 
+  <bean id="proxyTrustingFilter"
+        class="org.pentaho.platform.web.http.filters.ProxyTrustingFilter">
+    <property name="csrfValidator">
+      <ref bean="csrfValidator" />
+    </property>
+  </bean>
+
   <!-- custom Pentaho end -->
   <bean id="anonymousProcessingFilter" class="org.springframework.security.web.authentication.AnonymousAuthenticationFilter">
     <constructor-arg value="foobar" />

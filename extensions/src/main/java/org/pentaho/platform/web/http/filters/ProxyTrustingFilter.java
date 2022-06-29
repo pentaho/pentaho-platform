@@ -20,6 +20,8 @@
 
 package org.pentaho.platform.web.http.filters;
 
+import com.hitachivantara.security.web.service.csrf.servlet.CsrfValidator;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -30,7 +32,10 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.UserSession;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.web.http.security.CsrfValidationAuthenticationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -144,8 +149,32 @@ public class ProxyTrustingFilter implements Filter {
 
   private static final Log logger = LogFactory.getLog( ProxyTrustingFilter.class );
 
+  public static final String CSRF_OPERATION_NAME = "authenticate";
+
+  @Nullable
+  private CsrfValidator csrfValidator;
+
   public Log getLogger() {
     return ProxyTrustingFilter.logger;
+  }
+
+  /**
+   * Sets the CSRF processor used to validate requests w.r.t CSRF attacks.
+   * When set to <code>null</code>, CSRF validation is disabled. Although, note, it is preferable to use
+   * this operation's identifier, {@link #CSRF_OPERATION_NAME} to disable it via configuration.
+   *
+   * @param csrfValidator The CSRF processor.
+   */
+  public void setCsrfValidator(@Nullable CsrfValidator csrfValidator ) {
+    this.csrfValidator = csrfValidator;
+  }
+
+  /**
+   * Gets the CSRF processor used to validate requests w.r.t CSRF attacks, if any.
+   */
+  @Nullable
+  public CsrfValidator getCsrfValidator() {
+    return csrfValidator;
   }
 
   // region init( config )
@@ -251,6 +280,8 @@ public class ProxyTrustingFilter implements Filter {
     if ( ( trustedIpAddrs != null ) && ( request instanceof HttpServletRequest ) ) {
       final HttpServletRequest req = (HttpServletRequest) request;
       String remoteHost = req.getRemoteAddr();
+
+      doCsrfValidation(req);
 
       if ( isTrusted( remoteHost ) ) {
         String name = getTrustUser( req );
@@ -433,4 +464,15 @@ public class ProxyTrustingFilter implements Filter {
   protected void setSystemLocaleOverrideCode( String localeOverrideCode ) {
     LocaleHelper.setThreadLocaleOverride( LocaleHelper.parseLocale( localeOverrideCode ) );
   }
+
+  private void doCsrfValidation( HttpServletRequest request ) throws AuthenticationException, ServletException, IOException {
+    if ( csrfValidator != null ) {
+      try {
+        csrfValidator.validateRequestOfMutationOperation( request,this.getClass(), CSRF_OPERATION_NAME );
+      } catch ( AccessDeniedException ex ) {
+        throw new CsrfValidationAuthenticationException( ex );
+      }
+    }
+  }
+
 }
