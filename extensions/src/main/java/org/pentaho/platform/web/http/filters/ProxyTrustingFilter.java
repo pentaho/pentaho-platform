@@ -152,21 +152,26 @@ public class ProxyTrustingFilter implements Filter {
   public static final String CSRF_OPERATION_NAME = "authenticate";
 
   @Nullable
-  private CsrfValidator csrfValidator;
+  private final CsrfValidator csrfValidator;
 
-  public Log getLogger() {
-    return ProxyTrustingFilter.logger;
+  /**
+   * Creates an instance of the filter which has no CSRF validator set.
+   */
+  public ProxyTrustingFilter() {
+    this( null );
   }
 
   /**
-   * Sets the CSRF processor used to validate requests w.r.t CSRF attacks.
-   * When set to <code>null</code>, CSRF validation is disabled. Although, note, it is preferable to use
-   * this operation's identifier, {@link #CSRF_OPERATION_NAME} to disable it via configuration.
+   * Creates an instance of the filter with a given CSRF validator.
    *
-   * @param csrfValidator The CSRF processor.
+   * @param csrfValidator The CSRF validator used to validate requests or <code>null</code>.
    */
-  public void setCsrfValidator(@Nullable CsrfValidator csrfValidator ) {
-    this.csrfValidator = csrfValidator;
+  public ProxyTrustingFilter( @Nullable CsrfValidator csrfValidator ) {
+    this.csrfValidator = csrfValidator != null ? csrfValidator : PentahoSystem.get( CsrfValidator.class );
+  }
+
+  public Log getLogger() {
+    return ProxyTrustingFilter.logger;
   }
 
   /**

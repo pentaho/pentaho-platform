@@ -40,9 +40,20 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.concurrent.Callable;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.times;
 import static org.pentaho.platform.web.http.filters.ProxyTrustingFilter.CSRF_OPERATION_NAME;
 
 public class ProxyTrustingFilterTest {
@@ -249,11 +260,7 @@ public class ProxyTrustingFilterTest {
   public void testSetCsrfValidationRespectsIt() {
 
     CsrfValidator csrfValidatorMock = mock( CsrfValidator.class );
-    ProxyTrustingFilter filter = new ProxyTrustingFilter();
-
-    // ---
-
-    filter.setCsrfValidator( csrfValidatorMock );
+    ProxyTrustingFilter filter = new ProxyTrustingFilter(csrfValidatorMock);
 
     // ---
 
@@ -268,13 +275,11 @@ public class ProxyTrustingFilterTest {
     MockFilterConfig cfg = new MockFilterConfig();
     cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
 
-    filter = new ProxyTrustingFilter();
+    filter = new ProxyTrustingFilter(csrfValidatorMock);
     filter.init( cfg );
 
     request.setRemoteHost( TRUSTED_IP );
     request.addParameter( filter.getParameterName(), "user" );
-
-    filter.setCsrfValidator( csrfValidatorMock );
 
     when( csrfValidatorMock.validateRequestOfMutationOperation( any( HttpServletRequest.class ),
             eq( filter.getClass() ), anyString() ) )
@@ -309,13 +314,11 @@ public class ProxyTrustingFilterTest {
     MockFilterConfig cfg = new MockFilterConfig();
     cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
 
-    filter = new ProxyTrustingFilter();
+    filter = new ProxyTrustingFilter(csrfValidatorMock);
     filter.init( cfg );
 
     request.setRemoteHost( TRUSTED_IP );
     request.addParameter( filter.getParameterName(), "user" );
-
-    filter.setCsrfValidator( csrfValidatorMock );
 
     // ---
 
