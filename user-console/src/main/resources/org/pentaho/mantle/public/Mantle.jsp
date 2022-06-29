@@ -31,12 +31,34 @@
             java.util.ResourceBundle,
             org.pentaho.platform.engine.core.system.PentahoSystem,
             org.pentaho.platform.api.engine.IPluginManager,
-            org.pentaho.platform.engine.core.system.PentahoSessionHolder"%>
+            org.pentaho.platform.engine.core.system.PentahoSessionHolder,
+            org.pentaho.platform.api.usersettings.IUserSettingService,
+            org.pentaho.platform.api.usersettings.pojo.IUserSetting" %>
 <%
   boolean hasDataAccessPlugin = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ).getRegisteredPlugins().contains( "data-access" );
 
   // Handle the `locale` request parameter.
   Locale effectiveLocale = LocaleHelper.parseLocale( request.getParameter( "locale" ) );
+
+  IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, PentahoSessionHolder.getSession() );
+
+  if(  effectiveLocale == null ){
+
+    List<IUserSetting> settings =  settingsService.getUserSettings();
+    if ( settings != null && !settings.isEmpty() ) {
+      for ( int i = 0; i < settings.size(); i++ ) {
+        IUserSetting setting = settings.get( i );
+        if ( setting.getSettingName().equals( LocaleHelper.USER_LOCALE_SETTING ) ) {
+          effectiveLocale = LocaleHelper.parseLocale( setting.getSettingValue() );
+          break;
+        }
+      }
+    }
+
+  }else{
+    settingsService.setUserSetting( LocaleHelper.USER_LOCALE_SETTING, effectiveLocale.getLanguage() );
+  }
+
   LocaleHelper.setSessionLocaleOverride( effectiveLocale );
   LocaleHelper.setThreadLocaleOverride( effectiveLocale );
 
