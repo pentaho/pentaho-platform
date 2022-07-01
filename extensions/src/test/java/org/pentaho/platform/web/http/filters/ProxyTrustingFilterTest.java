@@ -35,8 +35,13 @@ import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+
+import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -44,6 +49,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
@@ -91,8 +97,7 @@ public class ProxyTrustingFilterTest {
 
     filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
 
-    IPentahoSession session =
-      (IPentahoSession) request.getSession().getAttribute( PentahoSystem.PENTAHO_SESSION_KEY );
+    IPentahoSession session = (IPentahoSession) request.getSession().getAttribute( PentahoSystem.PENTAHO_SESSION_KEY );
     assertNotNull( session );
     assertEquals( "user", session.getName() );
   }
@@ -292,29 +297,81 @@ public class ProxyTrustingFilterTest {
   }
 
   @Test( expected = IOException.class )
-  public void testWhenCsrfValidationFailsWithIOExceptionThenRethrows() throws ServletException, IOException {
+  public void testWhenCsrfValidationFailsWithIOExceptionThenRethrowsAsInternalAuthenticationServiceException() throws ServletException, IOException {
 
     IOException error = mock( IOException.class );
 
-    testWhenCsrfValidationFailsWithGivenExceptionThenRethrows( error );
+    try {
+
+      testWhenCsrfValidationFailsWithGivenExceptionThenRethrows(error);
+
+      fail( "Should have thrown exception" );
+    } catch ( InternalAuthenticationServiceException ex ) {
+        assertSame( error, ex.getCause() );
+      }
   }
 
   @Test( expected = ServletException.class )
-  public void testWhenCsrfValidationFailsWithServletExceptionThenRethrows() throws ServletException, IOException {
+  public void testWhenCsrfValidationFailsWithServletExceptionThenRethrowsAsInternalAuthenticationServiceException() throws ServletException, IOException {
 
     ServletException error = mock( ServletException.class );
 
-    testWhenCsrfValidationFailsWithGivenExceptionThenRethrows( error );
+    try {
+
+      testWhenCsrfValidationFailsWithGivenExceptionThenRethrows(error);
+
+      fail( "Should have thrown exception" );
+    } catch ( InternalAuthenticationServiceException ex ) {
+        assertSame( error, ex.getCause() );
+    }
+  }
+
+  @Test
+  public void testAttemptAuthenticationWhichThrowsAccessDeniedException()
+          throws ServletException, IOException {
+
+    AccessDeniedException error = mock( AccessDeniedException.class );
+
+    HttpServletResponse responseMock = mock( HttpServletResponse.class );
+
+    FilterChain chainMock = mock( FilterChain.class );
+
+    CsrfValidator csrfValidatorMock = mock( CsrfValidator.class );
+
+    MockFilterConfig cfg = new MockFilterConfig();
+    cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
+
+    filter = new ProxyTrustingFilter( csrfValidatorMock );
+    filter.init( cfg );
+
+    request.setRemoteHost( TRUSTED_IP );
+    request.addParameter( filter.getParameterName(), "user" );
+
+    when( csrfValidatorMock.validateRequestOfMutationOperation( any( HttpServletRequest.class ),
+            eq( filter.getClass() ), anyString() ) )
+            .thenThrow( error );
+
+    // ---
+
+    filter.doFilter( request, responseMock, chainMock );
+
+    // ---
+
+    verify( responseMock, times( 1 ) ).sendError( 403 );
+
+    verify( chainMock, times( 0 ) ).doFilter( any( HttpServletRequest.class ),
+            any( HttpServletResponse.class ));
   }
 
   @Test
   public void testCsrfValidationIsCalledWithCorrectOperationId() throws ServletException, IOException {
 
     CsrfValidator csrfValidatorMock = mock( CsrfValidator.class );
+
     MockFilterConfig cfg = new MockFilterConfig();
     cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
 
-    filter = new ProxyTrustingFilter(csrfValidatorMock);
+    filter = new ProxyTrustingFilter( csrfValidatorMock );
     filter.init( cfg );
 
     request.setRemoteHost( TRUSTED_IP );
@@ -330,6 +387,54 @@ public class ProxyTrustingFilterTest {
             .validateRequestOfMutationOperation( any( HttpServletRequest.class ),
                     eq( filter.getClass() ),
                     eq( CSRF_OPERATION_NAME ) );
+  }
+
+  @Test
+  public void doFilterForTrustedWithCSrfValidation() throws Exception {
+    MockFilterConfig cfg = new MockFilterConfig();
+    cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
+
+    CsrfValidator csrfValidatorMock = mock( CsrfValidator.class );
+
+    FilterChain  chainMock = mock( FilterChain.class );
+
+    filter = new ProxyTrustingFilter( csrfValidatorMock );
+    filter.init( cfg );
+
+    request.setRemoteHost( TRUSTED_IP );
+    request.addParameter( filter.getParameterName(), "user" );
+
+    filter.doFilter( request, new MockHttpServletResponse(), chainMock );
+
+    IPentahoSession session =
+            (IPentahoSession) request.getSession().getAttribute( PentahoSystem.PENTAHO_SESSION_KEY );
+    assertNotNull( session );
+    assertEquals( "user", session.getName() );
+
+    verify( chainMock,times( 1 ) ).doFilter( any( HttpServletRequest.class ), any( HttpServletResponse.class ) );
+  }
+
+  @Test
+  public void doFilterForUntrustedWithCSrfValidation() throws Exception {
+    MockFilterConfig cfg = new MockFilterConfig();
+    cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
+
+    CsrfValidator csrfValidatorMock = mock( CsrfValidator.class );
+
+    FilterChain chainMock = mock( FilterChain.class );
+
+    filter = new ProxyTrustingFilter( csrfValidatorMock );
+    filter.init( cfg );
+
+    request.setRemoteHost( UNTRUSTED_IP );
+
+    filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
+
+    //---
+
+    verify( securityHelper, never() ).runAsUser( nullable( String.class ), any( Callable.class ) );
+
+    verify( chainMock, times( 0 ) ).doFilter( any( HttpServletRequest.class ), any( HttpServletResponse.class ) );
   }
 
   // endregion
