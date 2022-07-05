@@ -63,6 +63,8 @@ public class LocaleHelper {
 
   public static final String USER_LOCALE_PARAM = "user_locale";
 
+  public static final String USER_LOCALE_SETTING = "user_selected_language";
+
   static {
     setDefaultLocale( null );
   }

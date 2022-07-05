@@ -33,6 +33,8 @@ import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.IPluginOperation;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.usersettings.IUserSettingService;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
@@ -192,6 +194,10 @@ public class SystemResource extends AbstractJaxRSResource {
         return Response.serverError().entity( ex.getMessage() ).build();
       }
     }
+
+    IUserSettingService settingsService =  PentahoSystem.get( IUserSettingService.class, PentahoSessionHolder.getSession() );
+    settingsService.setUserSetting( LocaleHelper.USER_LOCALE_SETTING, locale );
+    logger.debug( "Defining language to : " + locale  );
 
     LocaleHelper.setSessionLocaleOverride( sessionLocale );
     LocaleHelper.setThreadLocaleOverride( sessionLocale );
