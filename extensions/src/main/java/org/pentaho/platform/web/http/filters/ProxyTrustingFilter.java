@@ -291,7 +291,7 @@ public class ProxyTrustingFilter implements Filter {
       if ( isTrusted( remoteHost ) ) {
         String name = getTrustUser( req );
         if ( !isEmpty( name ) ) {
-          if( csrfValidator != null && !doCsrfValidation( req, res ) ){
+          if( !doCsrfValidation( req, res ) ){
             return;
           }
 

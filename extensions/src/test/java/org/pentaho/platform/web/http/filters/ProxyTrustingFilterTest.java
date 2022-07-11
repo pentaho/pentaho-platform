@@ -297,33 +297,21 @@ public class ProxyTrustingFilterTest {
   }
 
   @Test( expected = IOException.class )
-  public void testWhenCsrfValidationFailsWithIOExceptionThenRethrowsAsInternalAuthenticationServiceException() throws ServletException, IOException {
+  public void testWhenCsrfValidationFailsWithIOException() throws ServletException, IOException {
 
     IOException error = mock( IOException.class );
 
-    try {
+    testWhenCsrfValidationFailsWithGivenExceptionThenRethrows(error);
 
-      testWhenCsrfValidationFailsWithGivenExceptionThenRethrows(error);
-
-      fail( "Should have thrown exception" );
-    } catch ( InternalAuthenticationServiceException ex ) {
-        assertSame( error, ex.getCause() );
-      }
   }
 
   @Test( expected = ServletException.class )
-  public void testWhenCsrfValidationFailsWithServletExceptionThenRethrowsAsInternalAuthenticationServiceException() throws ServletException, IOException {
+  public void testWhenCsrfValidationFailsWithServletException() throws ServletException, IOException {
 
     ServletException error = mock( ServletException.class );
 
-    try {
+    testWhenCsrfValidationFailsWithGivenExceptionThenRethrows(error);
 
-      testWhenCsrfValidationFailsWithGivenExceptionThenRethrows(error);
-
-      fail( "Should have thrown exception" );
-    } catch ( InternalAuthenticationServiceException ex ) {
-        assertSame( error, ex.getCause() );
-    }
   }
 
   @Test
@@ -359,7 +347,7 @@ public class ProxyTrustingFilterTest {
 
     verify( responseMock, times( 1 ) ).sendError( 403 );
 
-    verify( chainMock, times( 0 ) ).doFilter( any( HttpServletRequest.class ),
+    verify( chainMock, never() ).doFilter( any( HttpServletRequest.class ),
             any( HttpServletResponse.class ));
   }
 
@@ -390,7 +378,7 @@ public class ProxyTrustingFilterTest {
   }
 
   @Test
-  public void doFilterForTrustedWithCSrfValidation() throws Exception {
+  public void doFilterForTrustedWithCsrfValidation() throws Exception {
     MockFilterConfig cfg = new MockFilterConfig();
     cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
 
@@ -415,7 +403,7 @@ public class ProxyTrustingFilterTest {
   }
 
   @Test
-  public void doFilterForUntrustedWithCSrfValidation() throws Exception {
+  public void doFilterForUntrustedWithCsrfValidation() throws Exception {
     MockFilterConfig cfg = new MockFilterConfig();
     cfg.addInitParameter( "TrustedIpAddrs", "1.1.1.1," + TRUSTED_IP );
 
