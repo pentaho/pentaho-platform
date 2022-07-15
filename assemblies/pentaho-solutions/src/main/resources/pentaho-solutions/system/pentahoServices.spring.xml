@@ -137,6 +137,9 @@
   <bean class="org.pentaho.platform.web.http.api.resources.SchedulerResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.BlockoutResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryResource" scope="request">
+    <property name="csrfValidator">
+      <pen:bean class="com.hitachivantara.security.web.service.csrf.servlet.CsrfValidator"/>
+    </property>
     <property name="whitelist" ref="RepositoryDownloadWhitelist"/>
   </bean>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryImportResource" scope="request"/>

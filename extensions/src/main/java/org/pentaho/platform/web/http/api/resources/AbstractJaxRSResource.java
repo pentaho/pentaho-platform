@@ -14,13 +14,14 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
 import com.sun.jersey.core.header.QualitySourceMediaType;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -32,6 +33,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_XML_TYPE;
 import static javax.ws.rs.core.MediaType.TEXT_HTML_TYPE;
@@ -57,6 +59,16 @@ public abstract class AbstractJaxRSResource {
 
   // @Context
   // protected Request jaxRsRequest;
+
+  public void setHttpServletRequest( @NonNull HttpServletRequest httpServletRequest ) {
+    Objects.requireNonNull( httpServletRequest );
+    this.httpServletRequest = httpServletRequest;
+  }
+
+  public void setHttpServletResponse( @NonNull HttpServletResponse httpServletResponse ) {
+    Objects.requireNonNull( httpServletResponse );
+    this.httpServletResponse = httpServletResponse;
+  }
 
   @Context
   public void setHttpHeaders( HttpHeaders httpHeaders ) {
