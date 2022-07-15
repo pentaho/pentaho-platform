@@ -20,8 +20,11 @@
 
 package org.pentaho.platform.web.http.filters;
 
+import com.hitachivantara.security.web.service.csrf.servlet.CsrfValidator;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpStatus;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
@@ -30,7 +33,9 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.UserSession;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -42,6 +47,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -144,8 +150,37 @@ public class ProxyTrustingFilter implements Filter {
 
   private static final Log logger = LogFactory.getLog( ProxyTrustingFilter.class );
 
+  public static final String CSRF_OPERATION_NAME = "authenticate";
+
+  @Nullable
+  private final CsrfValidator csrfValidator;
+
+  /**
+   * Creates an instance of the filter which has no CSRF validator set.
+   */
+  public ProxyTrustingFilter() {
+    this( null );
+  }
+
+  /**
+   * Creates an instance of the filter with a given CSRF validator.
+   *
+   * @param csrfValidator The CSRF validator used to validate requests or <code>null</code>.
+   */
+  public ProxyTrustingFilter( @Nullable CsrfValidator csrfValidator ) {
+    this.csrfValidator = csrfValidator != null ? csrfValidator : PentahoSystem.get( CsrfValidator.class );
+  }
+
   public Log getLogger() {
     return ProxyTrustingFilter.logger;
+  }
+
+  /**
+   * Gets the CSRF processor used to validate requests w.r.t CSRF attacks, if any.
+   */
+  @Nullable
+  public CsrfValidator getCsrfValidator() {
+    return csrfValidator;
   }
 
   // region init( config )
@@ -250,16 +285,21 @@ public class ProxyTrustingFilter implements Filter {
 
     if ( ( trustedIpAddrs != null ) && ( request instanceof HttpServletRequest ) ) {
       final HttpServletRequest req = (HttpServletRequest) request;
+      HttpServletResponse res = ( HttpServletResponse ) response;
       String remoteHost = req.getRemoteAddr();
 
       if ( isTrusted( remoteHost ) ) {
         String name = getTrustUser( req );
         if ( !isEmpty( name ) ) {
+          if( !doCsrfValidation( req, res ) ){
+            return;
+          }
+
           doFilterCore( req, name );
         }
+
       }
     }
-
     chain.doFilter( request, response );
   }
 
@@ -433,4 +473,18 @@ public class ProxyTrustingFilter implements Filter {
   protected void setSystemLocaleOverrideCode( String localeOverrideCode ) {
     LocaleHelper.setThreadLocaleOverride( LocaleHelper.parseLocale( localeOverrideCode ) );
   }
+
+  private boolean doCsrfValidation(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, ServletException, IOException {
+    if ( csrfValidator != null ) {
+      try {
+        csrfValidator.validateRequestOfMutationOperation( request,this.getClass(), CSRF_OPERATION_NAME );
+      } catch ( AccessDeniedException ex ) {
+          response.sendError( HttpStatus.SC_FORBIDDEN );
+          return false;
+        }
+    }
+
+    return true;
+  }
+
 }
