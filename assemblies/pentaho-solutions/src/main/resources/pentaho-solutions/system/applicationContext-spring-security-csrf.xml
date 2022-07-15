@@ -172,8 +172,8 @@
         <value>org.pentaho.platform.web.http.security.CsrfProtectedUsernamePasswordAuthenticationFilter.authenticate</value>
         <value>org.pentaho.platform.web.http.security.RequestParameterAuthenticationFilter.authenticate</value>
         <value>org.pentaho.platform.web.http.filters.ProxyTrustingFilter.authenticate</value>
-        --> 
-      </util:set>
+
+     </util:set>
     </property>
  -->
   </bean>
