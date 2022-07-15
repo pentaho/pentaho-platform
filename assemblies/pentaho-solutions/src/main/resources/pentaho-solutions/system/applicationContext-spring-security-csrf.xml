@@ -169,9 +169,9 @@
     <property name="disabledValidationOperationIds">
       <util:set>
 
-        <value>org.pentaho.platform.web.http.security.CsrfProtectedUsernamePasswordAuthenticationFilter.authenticate</value>
-        <value>org.pentaho.platform.web.http.security.RequestParameterAuthenticationFilter.authenticate</value>
-        <value>org.pentaho.platform.web.http.filters.ProxyTrustingFilter.authenticate</value>
+        <value>org.pentaho.platform.web.http.security.CsrfProtectedUsernamePasswordAuthenticationFilter#authenticate</value>
+        <value>org.pentaho.platform.web.http.security.RequestParameterAuthenticationFilter#authenticate</value>
+        <value>org.pentaho.platform.web.http.filters.ProxyTrustingFilter#authenticate</value>
 
      </util:set>
     </property>
