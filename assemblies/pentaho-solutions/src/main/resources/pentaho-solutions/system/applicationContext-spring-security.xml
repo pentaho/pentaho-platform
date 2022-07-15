@@ -167,7 +167,6 @@
     <property name="sessionReuseDetectedUrl" value="/Login?login_error=2" />
   </bean>
 
-
   <bean id="requestParameterProcessingFilter"
         class="org.pentaho.platform.web.http.security.RequestParameterAuthenticationFilter">
     <property name="authenticationManager">
@@ -176,8 +175,8 @@
     <property name="authenticationEntryPoint">
       <ref bean="requestParameterProcessingFilterEntryPoint" />
     </property>
-    <property name="csrfProcessor">
-      <ref bean="csrfProcessor" />
+    <property name="csrfValidator">
+      <ref bean="csrfValidator" />
     </property>
   </bean>
   <bean id="requestParameterProcessingFilterEntryPoint"
@@ -280,7 +279,7 @@
     <property name="usernameParameter" value="j_username" />
     <property name="passwordParameter" value="j_password" />
     <property name="sessionAuthenticationStrategy" ref="sas" />
-    <property name="csrfProcessor" ref="csrfProcessor" />
+    <property name="csrfValidator" ref="csrfValidator" />
   </bean>
 
   <bean id="authenticationProcessingFilterEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
