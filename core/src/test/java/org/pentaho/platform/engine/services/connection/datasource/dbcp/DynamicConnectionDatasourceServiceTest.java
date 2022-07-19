@@ -65,6 +65,7 @@ public class DynamicConnectionDatasourceServiceTest {
     mockConnection = mock( IDatabaseConnection.class );
 
     // Set it up - this is a NATIVE connection
+    dsName = mockConnection.getName();
     when( mockConnection.getAccessType() ).thenReturn( DatabaseAccessType.NATIVE );
     when( mockConnection.getDatabaseName() ).thenReturn( dsName );
 
