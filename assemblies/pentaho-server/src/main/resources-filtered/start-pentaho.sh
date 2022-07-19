@@ -56,6 +56,10 @@ if [ "$errCode" = 0 ]; then
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.base/java.lang=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.base/java.net=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.base/java.security=ALL-UNNAMED"
+  JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.base/sun.net.www.protocol.file=ALL-UNNAMED"
+  JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.base/sun.net.www.protocol.ftp=ALL-UNNAMED"
+  JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.base/sun.net.www.protocol.http=ALL-UNNAMED"
+  JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.base/sun.net.www.protocol.https=ALL-UNNAMED"  
   export JDK_JAVA_OPTIONS
 
   JAVA_HOME=$_PENTAHO_JAVA_HOME

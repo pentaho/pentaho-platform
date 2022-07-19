@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,8 +25,6 @@ import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 
 import javax.sql.DataSource;
@@ -67,7 +65,7 @@ public class NonPooledDatasourceService extends BaseDatasourceService {
   }
 
   @Override
-  protected DataSource resolveDatabaseConnection( IDatabaseConnection databaseConnection )
+  public DataSource resolveDatabaseConnection( IDatabaseConnection databaseConnection )
     throws DBDatasourceServiceException {
     return PooledDatasourceHelper.convert( databaseConnection );
   }
