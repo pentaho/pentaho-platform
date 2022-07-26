@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -1433,6 +1433,14 @@ public class FileService {
       logger.error( e.getCause() );
     }
 
+    //translating /home and /public folders titles
+    for ( RepositoryFileTreeDto dto : tree.getChildren( ) ) {
+      if ( dto.getFile().getName().equals( ClientRepositoryPaths.getHomeFolderName() ) && dto.getFile().getPath().equals( ClientRepositoryPaths.getHomeFolderPath() ) ) {
+        dto.getFile().setTitle( Messages.getInstance().getString( "FileResource.HOME_FOLDER_DISPLAY_TITLE" ) );
+      } else if ( dto.getFile().getName().equals( ClientRepositoryPaths.getPublicFolderName() ) && dto.getFile().getPath().equals( ClientRepositoryPaths.getPublicFolderPath() ) ) {
+        dto.getFile().setTitle( Messages.getInstance().getString( "FileResource.PUBLIC_FOLDER_DISPLAY_TITLE" ) );
+      }
+    }
     // BISERVER-9599 - Use special sort order
     if ( tree != null && isShowingTitle( repositoryRequest ) ) {
       Collator collator = getCollatorInstance();
