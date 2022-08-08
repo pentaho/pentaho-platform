@@ -159,6 +159,15 @@
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>
+    <dependencySet>
+      <includes>
+        <include>pentaho:pentaho-tomcat-logs:jar</include>
+      </includes>
+      <outputDirectory>tomcat/lib</outputDirectory>
+      <outputFileNameMapping>pentaho-tomcat-logs.${artifact.extension}</outputFileNameMapping>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
 
     <!-- copy third party tools to third-party-tools/wkhtmltoimage -->
     <dependencySet>
