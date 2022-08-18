@@ -303,6 +303,13 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>pentaho</groupId>
+                  <artifactId>metaverse-plugin</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>pentaho</groupId>
                   <artifactId>pentaho-plugin-samples</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
