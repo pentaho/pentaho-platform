@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.platform.web.http.filters;
@@ -441,16 +441,23 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
 
       SessionCookieConfig sessionCookieConfig = httpSession.getServletContext().getSessionCookieConfig();
       final long serverTime = System.currentTimeMillis();
-      final long expiryTime = serverTime + httpSession.getMaxInactiveInterval() * 1000;
+      final long expiryTime = serverTime + httpSession.getMaxInactiveInterval() * 1000L;
+      final String contextPath =
+        httpSession.getServletContext().getContextPath() != null ? httpSession.getServletContext().getContextPath() :
+          "/";
 
       final Cookie sessionExpirationCookie = new Cookie( "session-expiry", String.valueOf( expiryTime ) );
-      sessionExpirationCookie.setPath( "/" );
-      sessionExpirationCookie.setHttpOnly( sessionCookieConfig.isHttpOnly() );
+      sessionExpirationCookie.setPath( contextPath );
+      // "httpOnly" attribute must be 'false' as there is Javascript (client side) that interacts with the cookie.
+      // Check org.pentaho.mantle.client.commands.SessionExpiredCommand and issues PPP-4635 and BISERVER-14869
+      sessionExpirationCookie.setHttpOnly( false );
       sessionExpirationCookie.setSecure( sessionCookieConfig.isSecure() );
 
       final Cookie serverTimeCookie = new Cookie( "server-time", String.valueOf( serverTime ) );
-      serverTimeCookie.setPath( "/" );
-      serverTimeCookie.setHttpOnly( sessionCookieConfig.isHttpOnly() );
+      serverTimeCookie.setPath( contextPath );
+      // "httpOnly" attribute must be 'false' as there is Javascript (client side) that interacts with the cookie.
+      // Check org.pentaho.mantle.client.commands.SessionExpiredCommand and issues PPP-4635 and BISERVER-14869
+      serverTimeCookie.setHttpOnly( false );
       serverTimeCookie.setSecure( sessionCookieConfig.isSecure() );
 
       httpServletResponse.addCookie( sessionExpirationCookie );
