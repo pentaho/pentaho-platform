@@ -41,7 +41,7 @@
     <bean id="superuser" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="properties">
             <props>
-                <prop key="SystemAdmin">5f4dcc3b5aa765d61d8327deb882cf99,Super,Administrator,Authenticated</prop>
+                <prop key="SystemAdmin">$2a$12$TAOa4Ik0SglgOEPLphZ0D.eQvM164j9AxNbhoJmjz40/bC/rlGtQG,Super,Administrator,Authenticated</prop>
             </props>
         </property>
     </bean>
