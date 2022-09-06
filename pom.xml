@@ -219,6 +219,9 @@
     <encryption-support.version>9.4.0.0-SNAPSHOT</encryption-support.version>
     <!-- @Null @Nullable annotations -->
     <com.github.spotbugs.annotations.version>4.2.3</com.github.spotbugs.annotations.version>
+
+    <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version><!-- test -->
+
   </properties>
 
   <dependencyManagement>
