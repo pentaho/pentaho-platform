@@ -14,12 +14,14 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.services.metadata;
 
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.model.Domain;
@@ -40,9 +42,21 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import static java.util.Optional.ofNullable;
 
 /**
  * This is the platform implementation which provides session-based caching for an existing {@link
@@ -51,9 +65,9 @@ import java.util.Set;
  * @author Jordan Ganoff (jganoff@pentaho.com)
  */
 public class SessionCachingMetadataDomainRepository implements IMetadataDomainRepository,
-    org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter, ILogoutListener,
-    IAclAwarePentahoMetadataDomainRepositoryImporter,
-    IModelAnnotationsAwareMetadataDomainRepositoryImporter {
+    IPentahoMetadataDomainRepositoryExporter, ILogoutListener,
+    IAclAwarePentahoMetadataDomainRepositoryImporter, IModelAnnotationsAwareMetadataDomainRepositoryImporter,
+    IDataSourceAwareMetadataDomainRepository {
 
   private static final Log logger = LogFactory.getLog( SessionCachingMetadataDomainRepository.class );
 
@@ -62,8 +76,14 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
    */
   public static String CACHE_REGION = "metadata-domain-repository"; //$NON-NLS-1$
 
+  // default number for threads
+  static final int DEFAULT_NUMBER_OF_THREADS = 3;
+
   ICacheManager cacheManager;
   boolean domainIdsCacheEnabled = true;
+
+  int numberOfThreads = DEFAULT_NUMBER_OF_THREADS;
+
   private final IMetadataDomainRepository delegate;
   private static final String DOMAIN_CACHE_KEY_PREDICATE = "domain-id-cache-for-session:";
 
@@ -144,7 +164,29 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     if ( systemConfig != null ) {
       String enableDomainIdCache = systemConfig.getProperty( "system.enableDomainIdCache" );
       domainIdsCacheEnabled = ( enableDomainIdCache == null ) || Boolean.valueOf( enableDomainIdCache );
+      numberOfThreads = getNumberOfThreads( systemConfig );
     }
+  }
+
+  public SessionCachingMetadataDomainRepository( final IMetadataDomainRepository delegate,
+                                                 ICacheManager cacheManager, boolean domainIdsCacheEnabled,
+                                                 int numberOfThreads  ) {
+    this.delegate = delegate;
+    this.cacheManager = cacheManager;
+    this.domainIdsCacheEnabled = domainIdsCacheEnabled;
+    this.numberOfThreads = numberOfThreads;
+  }
+
+  /**
+   * Retrieve positive number of threads from system configuration. If parsing error occurs or non-positive number is
+   * supplied then {@link #DEFAULT_NUMBER_OF_THREADS} will be returned.
+   * @param systemConfig
+   * @return positive number else {@link #DEFAULT_NUMBER_OF_THREADS}
+   */
+  int getNumberOfThreads( ISystemConfig systemConfig ) {
+    int convertedNumber = NumberUtils.toInt( systemConfig.getProperty( "system.number-threads" ) );
+    // 0 if conversion fails, only accept positive numbers
+    return ( convertedNumber < 1 ) ? DEFAULT_NUMBER_OF_THREADS : convertedNumber;
   }
 
   /**
@@ -338,6 +380,25 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
   }
 
   /**
+   * Determine if a domain Id is non-accessible. Then Remove all non-accessible domain ids from <code>domainIds</code>
+   * and from all session domain ID caches.
+   * @param domainIds
+   * @return true if <code>domainIds</code> has change of membership, false otherwise
+   */
+  private boolean removeDomainFromIDCache( Set<String> domainIds ) {
+    boolean dirtyCache = false;
+    for ( String domainId : domainIds ) {
+      if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter
+              && !( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).hasAccessFor( domainId ) ) {
+        domainIds.remove( domainId );
+        removeDomainFromIDCache( domainId );
+        dirtyCache = true;
+      }
+    }
+    return dirtyCache;
+  }
+
+  /**
    * Remove a single domain ID from all session domain ID caches
    *
    * @param domainId
@@ -368,8 +429,26 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     }
   }
 
+  /**
+   * Create caching key String using <code>session</code>.
+   * {@link #DOMAIN_CACHE_KEY_PREDICATE} and {@link IPentahoSession#getId()} are used in key creation.
+   * @param session
+   * @return
+   */
   protected String generateDomainIdCacheKeyForSession( IPentahoSession session ) {
     return DOMAIN_CACHE_KEY_PREDICATE + session.getId();
+  }
+
+  /**
+   * Create caching key String using <code>session</code> and <code>type</code>.
+   * {@link #DOMAIN_CACHE_KEY_PREDICATE}, {@link IPentahoSession#getId()} and <code>type</code>
+   * are used in key creation.
+   * @param session
+   * @param type
+   * @return
+   */
+  protected String generateDomainIdCacheKeyForSession( IPentahoSession session, String type ) {
+    return DOMAIN_CACHE_KEY_PREDICATE + type + ":" + session.getId();
   }
 
   @Override
@@ -396,24 +475,78 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
 
   @Override
   public Set<String> getDomainIds() {
-    final IPentahoSession session = PentahoSessionHolder.getSession();
+    return getDomainIds( PentahoSessionHolder.getSession() );
+  }
 
-    final String domainKey = generateDomainIdCacheKeyForSession( session );
+  Set<String> getDomainIds( IPentahoSession pentahoSession ) {
+    final String domainKey = generateDomainIdCacheKeyForSession( pentahoSession );
+    return getDomainIdsHelper( pentahoSession, domainKey, delegate::getDomainIds );
+  }
+
+  @Override
+  public Set<String> getMetadataDomainIds() {
+    return getMetadataDomainIds( PentahoSessionHolder.getSession() );
+  }
+
+  Set<String> getMetadataDomainIds( IPentahoSession pentahoSession ) {
+    if ( delegate instanceof IDataSourceAwareMetadataDomainRepository ) {
+      final String domainKey = generateDomainIdCacheKeyForSession( pentahoSession,
+              PentahoDataSourceType.METADATA.toString() );
+      return getDomainIdsHelper( pentahoSession,
+              domainKey,
+              ( (IDataSourceAwareMetadataDomainRepository) delegate )::getMetadataDomainIds );
+    } else {
+      throw new UnsupportedOperationException( "not supported" );
+    }
+  }
+
+  @Override
+  public Set<String> getDataSourceWizardDomainIds() {
+    return getDataSourceWizardDomainIds( PentahoSessionHolder.getSession() );
+  }
+
+  Set<String> getDataSourceWizardDomainIds( IPentahoSession pentahoSession ) {
+    if ( delegate instanceof IDataSourceAwareMetadataDomainRepository ) {
+      final String domainKey = generateDomainIdCacheKeyForSession( pentahoSession,
+              PentahoDataSourceType.DATA_SOURCE_WIZARD.toString() );
+      return getDomainIdsHelper( pentahoSession,
+              domainKey,
+              ( (IDataSourceAwareMetadataDomainRepository) delegate )::getDataSourceWizardDomainIds );
+    } else {
+      throw new UnsupportedOperationException( "not supported" );
+    }
+  }
+
+  /**
+   * Wrapper to retrieve domains domain identifiers checking ACL. Will return results from cache, else it will
+   * query delegate. Before return, will synchronously populate the cache for the specified domain identifiers.
+   * @param session pentaho session
+   * @param domainKey key used for caching
+   * @param delegateGetDomainIds logic to retrieve domains from delegate if not in cache
+   * @return domain identifiers
+   */
+  Set<String> getDomainIdsHelper( final IPentahoSession session, String domainKey,
+                                  Supplier<Set<String>> delegateGetDomainIds ) {
+    Set<String> domainIds = getDomainIdsFromCache( domainKey, delegateGetDomainIds );
+    asyncPopulateCacheDomain( domainIds, session );
+    return domainIds;
+  }
+
+  /**
+   * Wrapper to retrieve domain identifiers while checking ACL. Will return results from cache, else it will
+   * query delegate.
+   * @param domainKey key used for caching
+   * @param delegateGetDomainIds logic to retrieve domains from delegate if not in cache
+   * @return domain identifiers
+   */
+  Set<String> getDomainIdsFromCache( String domainKey, Supplier<Set<String>> delegateGetDomainIds ) {
     Set<String> domainIds;
     if ( domainIdsCacheEnabled ) {
       domainIds = (Set<String>) cacheManager.getFromRegionCache( CACHE_REGION, domainKey );
       if ( domainIds != null ) {
-        boolean dirtyCache = false;
-        for ( String domain : domainIds ) {
-          if ( delegate instanceof IAclAwarePentahoMetadataDomainRepositoryImporter && !( (IAclAwarePentahoMetadataDomainRepositoryImporter) delegate ).hasAccessFor( domain ) ) {
-            domainIds.remove( domain );
-            removeDomainFromIDCache( domain );
-            dirtyCache = true;
-          }
-        }
-
+        boolean dirtyCache = removeDomainFromIDCache( domainIds );
         if ( dirtyCache ) {
-          cacheManager.putInRegionCache( CACHE_REGION, domainKey, new HashSet<String>( domainIds ) );
+          cacheManager.putInRegionCache( CACHE_REGION, domainKey, new HashSet<>( domainIds ) );
         }
         // We've previously cached domainIds available for this session
         return domainIds;
@@ -423,9 +556,9 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     }
     // Domains are accessible by anyone. What they contain may be different so rely on the lookup to be
     // session-specific.
-    domainIds = delegate.getDomainIds();
+    domainIds = delegateGetDomainIds.get();
     if ( domainIdsCacheEnabled ) {
-      cacheManager.putInRegionCache( CACHE_REGION, domainKey, new HashSet<String>( domainIds ) );
+      cacheManager.putInRegionCache( CACHE_REGION, domainKey, new HashSet<>( domainIds ) );
     }
     return domainIds;
   }
@@ -515,4 +648,258 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
           .storeAnnotationsXml( domainId, annotationsXml );
     }
   }
+
+  /**
+   * Asynchronously populate the cache for the specified domain identifiers.
+   * @param domainIds collection of domain identifiers.
+   * @param pentahoSession session used to set in spawned threads
+   * @return asynchronously running thread
+   */
+  Thread asyncPopulateCacheDomain( Collection<String> domainIds, IPentahoSession pentahoSession ) {
+    PentahoAsyncThreadRunner patr = new PentahoAsyncThreadRunner( numberOfThreads, pentahoSession );
+    //create threads to individually populate the cache for each domain id
+    return asyncPopulateCacheDomain( patr,
+            createCallablesGetDomain( this, domainIds, pentahoSession.getId() ) );
+  }
+
+  /**
+   * Asynchronously populate the cache for the specified domain identifiers.
+   * @param pentahoAsyncThreadRunner
+   * @param callables
+   * @return asynchronously running thread
+   */
+  Thread asyncPopulateCacheDomain( PentahoAsyncThreadRunner pentahoAsyncThreadRunner,
+                                  Collection<GetDomainCallable> callables ) {
+    return pentahoAsyncThreadRunner.asyncRun( callables );
+  }
+
+  /**
+   * Instantiate tasks (ie threads) to call {@link IMetadataDomainRepository#getDomain(String)}.
+   * @param repository
+   * @param domainIds
+   * @param sessionId
+   * @return
+   */
+  Collection<GetDomainCallable> createCallablesGetDomain( final IMetadataDomainRepository repository,
+                                                         final Collection<String> domainIds,
+                                                         String sessionId ) {
+    return ofNullable( domainIds ).orElseGet( Collections::emptyList )
+            .stream().map( id -> new GetDomainCallable( repository, id, sessionId, logger ) )
+            .collect( Collectors.toList() );
+  }
+
+  /**
+   * Callable to call {@link IMetadataDomainRepository#getDomain(String)} with some logging statement to help in
+   * debug.
+   */
+  public static class GetDomainCallable implements Callable<String> {
+
+    IMetadataDomainRepository repository;
+    String domainId;
+    String sessionId;
+    Log log;
+
+    public GetDomainCallable( IMetadataDomainRepository repository, String domainId, String sessionId, Log log ) {
+      this.repository = repository;
+      this.domainId = domainId;
+      this.sessionId = sessionId;
+      this.log = log;
+    }
+
+    @Override
+    public String call() throws Exception {
+      log.debug( String.format( "start thread #getDomain(domainId=%s) with sessionId=%s", domainId, sessionId ) );
+      Domain domain = repository.getDomain( domainId );
+      if ( domain == null ) {
+        log.error( String.format( "Error #getDomain(domainId=%s) with sessionId=%s"
+                + " -> null in GetDomainCallable#call", domainId, sessionId ) );
+      }
+      log.debug( String.format( "finished thread #getDomain(domainId=%s) with sessionId=%s", domainId, sessionId ) );
+      return ( domain != null ) ? domain.getId() : null;
+    }
+
+    public String getDomainId() {
+      return domainId;
+    }
+  }
+
+  /**
+   * Asynchronously executes a collection of tasks (ie {@link Callable} ). Contains logic that correctly
+   * sets the {@link IPentahoSession} for each spawned thread. Wrapper around {@link ExecutorService}.
+   */
+  public static class PentahoAsyncThreadRunner {
+
+    private static final Log logger = LogFactory.getLog( PentahoAsyncThreadRunner.class );
+
+    // maximum number of threads in the thread pool.
+    int numberOfThreads;
+
+    // Pentaho session to be set in threads
+    IPentahoSession pentahoSession;
+
+    /** naming pattern used to creating executor threads that run the tasks/callables */
+    private final String threadExecutorNamingPattern;
+
+    /** name of thread that creates the executor service and calls {@link #executeTasks(ExecutorService, Collection)} */
+    private final String threadMasterName;
+
+    private static final String DEFAULT_THREAD_NAMING_PATTERN = "pentaho-runner-exec-%d";
+
+    private static final String DEFAULT_THREAD_MASTER_NAME = "pentaho-runner-master";
+
+    /**
+     * Constructor to set necessary information for underlying {@link ExecutorService} instance.
+     * @param numberOfThreads
+     * @param pentahoSession
+     * @param threadMasterName
+     * @param threadExecutorNamingPattern
+     */
+    public PentahoAsyncThreadRunner( int numberOfThreads, IPentahoSession pentahoSession, String threadMasterName,
+                                     String threadExecutorNamingPattern ) {
+      this.numberOfThreads = numberOfThreads;
+      this.pentahoSession = pentahoSession;
+      this.threadMasterName = threadMasterName;
+      this.threadExecutorNamingPattern = threadExecutorNamingPattern;
+    }
+
+    /**
+     * Constructor to set necessary information for underlying {@link ExecutorService} instance.
+     * @param numberOfThreads
+     * @param pentahoSession
+     */
+    public PentahoAsyncThreadRunner( int numberOfThreads, IPentahoSession pentahoSession ) {
+      this( numberOfThreads, pentahoSession, DEFAULT_THREAD_MASTER_NAME, DEFAULT_THREAD_NAMING_PATTERN );
+    }
+
+    ExecutorService createExecutorService() {
+
+      BasicThreadFactory threadFactory = new BasicThreadFactory.Builder()
+              .namingPattern( threadExecutorNamingPattern )
+              .wrappedFactory( r -> new PentahoSessionThread( r, pentahoSession ) )
+              .build();
+
+      /** new threads have to use the same PentahoSession from parent thread that is servicing the REST request.
+       * Otherwise, a new PentahoSession instance will be created without the correct credentials
+       * and the calls to code that rely on the original PentahoSession instance will fail.
+       * */
+      ExecutorService executorService = Executors.newFixedThreadPool( numberOfThreads, threadFactory );
+
+
+      logger.debug( String.format( "creating executorService with number of threads: %d and Pentaho sessionId: %s",
+              numberOfThreads, pentahoSession.getId() ) );
+      return executorService;
+    }
+
+    /**
+     * Asynchronously execute all <code>tasks</code>. Setup overhead for initialization
+     * of threading infrastructure will have minimal or no effect on runtime execution of calling class.
+     * Wrapper around {@link ExecutorService}.
+     *
+     * @param tasks Collection of tasks that will be executed. For each callable,
+     *                  Return non-empty string for success, null otherwise.
+     * @return thread used to execute the running of the <code>tasks</code>. The function {@link Thread#start()}
+     * will have already been called.
+     */
+    public <T> Thread asyncRun( Collection<? extends Callable<T>> tasks ) {
+
+      return asyncRun( this::createExecutorService, tasks );
+    }
+
+    /**
+     * Asynchronously execute all <code>tasks</code>. Setup overhead for initialization
+     * of threading infrastructure will have minimal or no effect on runtime execution of calling class.
+     * Wrapper around {@link ExecutorService}.
+     *
+     * @param fnCreateExecutorService lambda expression to create executor Service.
+     *                                Goal is to create ExecutorService inside newly thread that will be returned.
+     * @param tasks Collection of tasks that will be executed. For each callable,
+     *                  Return non-empty string for success, null otherwise.
+     * @return thread used to execute the running of the <code>tasks</code>. The function {@link Thread#start()}
+     * will have already been called.
+     */
+    <T> Thread asyncRun( Supplier<? extends ExecutorService> fnCreateExecutorService, Collection<? extends Callable<T>> tasks ) {
+
+      if ( tasks == null ) {
+        return null;
+      }
+      /**
+       *  Creating a thread here to initialize all the threading related objects and classes.
+       *
+       *  This approach minimizes the execution time from a calling class.
+       *  The execution time of {@link #executeTasks(ExecutorService, Collection)} will not count towards the
+       *  execution time of the calling class.
+       */
+      Thread thread = new Thread( () -> {
+        ExecutorService executorService = fnCreateExecutorService.get();
+        executeTasks( executorService, tasks );
+        // shutdown properly, or else orphan process won't allow normal exit of program
+        executorService.shutdown();
+      }, threadMasterName );
+      thread.start();
+      return thread;
+    }
+
+    /**
+     * Execute the tasks via {@link ExecutorService#invokeAll(Collection)}.
+     * @param executorService
+     * @param tasks
+     * @return list of non-null results
+     */
+    <T> Collection<T> executeTasks( ExecutorService executorService, Collection<? extends Callable<T>> tasks ) {
+      Set<T> successfulTaskReturns = new HashSet<>(); // keeping return values for debugging purposes
+      try {
+        logger.debug( String.format( "start executeTasks(executorService: %s, size(tasks): %d)",
+                executorService.hashCode(), tasks.size() ) );
+        List<Future<T>> futures = executorService.invokeAll( tasks );
+
+        for ( Future<T> future : futures ) {
+          T returnValue = futureGet( future );
+          if ( returnValue != null ) {
+            successfulTaskReturns.add( returnValue );
+            logger.debug( String.format( "successful callable executeTasks(executorService: %s, size(tasks): %d)"
+                            + " return value: %s", executorService.hashCode(), tasks.size(), returnValue ) );
+          }
+        }
+        logger.debug( String.format( "end executeTasks(executorService: %s, size(tasks): %d) "
+                        + " with size(successfulTaskReturns): %d ",
+                executorService.hashCode(), tasks.size(), successfulTaskReturns.size() ) );
+      } catch ( InterruptedException ie ) {
+        logger.error( "Error in invokeAll tasks", ie );
+        Thread.currentThread().interrupt();
+      }
+      return successfulTaskReturns;
+    }
+
+    /**
+     * Wrapper around {@link Future#get()}. Handles the thrown exceptions.
+     * @param future
+     * @param <T>
+     * @return future value or null otherwise
+     */
+    <T> T futureGet( Future<T> future ) {
+      T returnValue = null;
+      try {
+        returnValue = future.get(); //blocking in submitted order
+      } catch ( InterruptedException ie ) {
+        logger.error( "Error - InterruptedException in executing task", ie );
+        Thread.currentThread().interrupt();
+      } catch ( ExecutionException ee ) {
+        logger.error( "Error - ExecutionException in executing task", ee );
+      }
+      return returnValue;
+    }
+  }
+
+  /**
+   * Thread that sets the {@link IPentahoSession } for the thread see {@link PentahoSessionHolder}.
+   */
+  public static class PentahoSessionThread extends Thread {
+
+    public PentahoSessionThread( Runnable target, IPentahoSession pentahoSession ) {
+      super( target );
+      PentahoSessionHolder.setSession( pentahoSession );
+    }
+
+  }
+
 }
