@@ -20,6 +20,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -31,8 +32,9 @@ import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginOperation;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.PluginBeanException;
+import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
@@ -41,7 +43,9 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDto;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.util.RepositoryPathEncoder;
+import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import javax.ws.rs.Consumes;
@@ -889,11 +893,15 @@ public class RepositoryResource extends AbstractJaxRSResource {
       rsc( "Nope, [{0}] is not a content generator ID.", fac.getContentGeneratorId() ); //$NON-NLS-1$
       return null;
     }
-    rsc(
-        "Yep, [{0}] is a content generator ID. Executing (where command path is {1})..", fac.getContentGeneratorId(),
-        fac.getCommand() ); //$NON-NLS-1$
-    GeneratorStreamingOutput gso = fac.getStreamingOutput( contentGenerator );
-    return Response.ok( gso ).build();
+    Response response = checkPermissionIfUserIsEditingContent(fac.getContentGeneratorId());
+    if( response == null ) {
+      rsc(
+              "Yep, [{0}] is a content generator ID. Executing (where command path is {1})..", fac.getContentGeneratorId(),
+              fac.getCommand()); //$NON-NLS-1$
+      GeneratorStreamingOutput gso = fac.getStreamingOutput(contentGenerator);
+      response = Response.ok(gso).build();
+    }
+    return response;
   }
 
   protected Response getPluginFileResponse( String pluginId, String filePath ) throws IOException {
@@ -980,5 +988,39 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   public void setWhitelist( RepositoryDownloadWhitelist whitelist ) {
     this.whitelist = whitelist;
+  }
+
+  private Response checkPermissionIfUserIsEditingContent(String resourceId) {
+    // Check if we are editing a content
+    String perspectiveId = resourceId;
+    if ( perspectiveId != null && perspectiveId.indexOf( "." ) >= 0 ) {
+      String[] parts = perspectiveId.split( "\\." );
+      if( parts != null && parts.length > 0) {
+        perspectiveId = parts[1];
+      }
+    }
+
+    if( perspectiveId != null && ( perspectiveId.equals( "editor" ) || perspectiveId.equals( "edit" ) ) ) {
+      // Check if user has permission to edit the content. If they do not have access, throw and error
+      if( !canEdit() ) {
+        logger.error( Messages.getInstance().getString( "RepositoryResource.USER_NOT_AUTHORIZED_TO_EDIT" ) );
+        return buildSafeHtmlServerErrorResponse( Messages.getInstance().getString( "RepositoryResource.USER_NOT_AUTHORIZED_TO_EDIT" ) );
+      }
+    }
+    return null;
+  }
+
+  protected Response buildSafeHtmlServerErrorResponse( String msg ) {
+    return Response.status(Status.FORBIDDEN).entity( new SafeHtmlBuilder()
+            .appendEscapedLines( msg ).toSafeHtml().asString() ).build();
+  }
+
+  boolean canEdit() {
+    String editPermission = PentahoSystem.getSystemSetting( "edit-permission", "" );
+    if ( editPermission != null && editPermission.length() > 0 ) {
+      IAuthorizationPolicy authorizationPolicy = PentahoSystem.get( IAuthorizationPolicy.class );
+      return authorizationPolicy.isAllowed( editPermission );
+    }
+    return true;
   }
 }

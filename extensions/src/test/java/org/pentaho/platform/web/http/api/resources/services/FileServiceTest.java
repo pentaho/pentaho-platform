@@ -30,12 +30,13 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
-
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -46,8 +47,9 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -328,6 +330,7 @@ public class FileServiceTest {
     assertEquals( ClientRepositoryPaths.getRootFolderPath(), fileService.doGetDefaultLocation( ":home:joe" ) );
   }
 
+
   @Test
   public void testGetDefaultLocation_Scenario_ProvidedFolderIsVisible() throws Exception {
     RepositoryFileDto visibleDto = new RepositoryFileDto();
@@ -498,6 +501,32 @@ public class FileServiceTest {
     doReturn( publicFolderDto ).when( repository ).getFile( "/public" );
 
     assertEquals( ClientRepositoryPaths.getPublicFolderPath(), fileService.doGetDefaultLocation( ":home:suzy" ) );
+  }
+
+  @Test
+  public void testDoCanEdit() throws Exception {
+    ISystemSettings settingsService = mock( ISystemSettings.class );
+    when( settingsService.getSystemSetting(  "edit-permission", "" ) ).thenReturn( RepositoryCreateAction.NAME );
+    PentahoSystem.setSystemSettingsService( settingsService );
+
+    // Test for user having a proper permission to edit
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    when( policy.isAllowed( RepositoryCreateAction.NAME ) ).thenReturn( true );
+    PentahoSystem.registerObject( policy );
+    assertEquals(fileService.doGetCanEdit(), "true" );
+
+    // Test for user not having a proper permission to edit
+    when( settingsService.getSystemSetting(  "edit-permission", "" ) ).thenReturn( RepositoryCreateAction.NAME );
+    when( policy.isAllowed( any() ) ).thenReturn( false );
+    assertEquals(fileService.doGetCanEdit(), "false" );
+
+    // Test for configuration in the pentaho.xml is an empty string
+    when( settingsService.getSystemSetting(  "edit-permission", "" ) ).thenReturn( "" );
+    assertEquals(fileService.doGetCanEdit(), "true" );
+
+    // Test for configuration in the pentaho.xml does not exist
+    when( settingsService.getSystemSetting(  "edit-permission", "" ) ).thenReturn( null );
+    assertEquals(fileService.doGetCanEdit(), "true" );
   }
 
   private static String encode( String pathControlCharacter ) throws UnsupportedEncodingException {

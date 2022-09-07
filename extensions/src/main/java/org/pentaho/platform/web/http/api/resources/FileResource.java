@@ -1255,6 +1255,30 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
+   * Checks the users permission to determine if that user can edit an existing content in the repository.
+   *
+   * <p><b>Example Request:</b><br />
+   *    GET pentaho/api/repo/files/canEdit
+   * </p>
+   *
+   * @return String "true" if the user can edit existing content, or "false" otherwise.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *      true
+   *    </pre>
+   */
+  @GET
+  @Path ( "/canEdit" )
+  @Produces ( MediaType.TEXT_PLAIN )
+  @StatusCodes ( {
+          @ResponseCode ( code = 200, condition = "Successfully returns true or false depending on the users permissions" ) } )
+  public String doGetCanEdit() {
+    return fileService.doGetCanEdit();
+  }
+
+
+  /**
    * Retrieves the ACL settings of the requested repository file in either xml or json format.
    *
    * <p><b>Example Request:</b><br />
