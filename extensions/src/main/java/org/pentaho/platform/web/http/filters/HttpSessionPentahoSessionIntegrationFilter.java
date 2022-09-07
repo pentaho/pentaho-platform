@@ -157,13 +157,17 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
    * @throws ServletException
    *           ignored
    */
+  @Override
   public void init( FilterConfig filterConfig ) throws ServletException {
+    // Does nothing. We use IoC container lifecycle services instead.
   }
 
   /**
    * Does nothing. We use IoC container lifecycle services instead.
    */
+  @Override
   public void destroy() {
+    // Does nothing. We use IoC container lifecycle services instead.
   }
 
   public void afterPropertiesSet() throws Exception {
@@ -553,6 +557,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     /**
      * Makes sure the session is updated before calling the superclass <code>sendError()</code>
      */
+    @Override
     public void sendError( int sc ) throws IOException {
       doSessionUpdate();
       super.sendError( sc );
@@ -561,6 +566,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     /**
      * Makes sure the session is updated before calling the superclass <code>sendError()</code>
      */
+    @Override
     public void sendError( int sc, String msg ) throws IOException {
       doSessionUpdate();
       super.sendError( sc, msg );
@@ -569,6 +575,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     /**
      * Makes sure the session is updated before calling the superclass <code>sendRedirect()</code>
      */
+    @Override
     public void sendRedirect( String location ) throws IOException {
       doSessionUpdate();
       super.sendRedirect( location );
@@ -619,7 +626,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     private static final long serialVersionUID = -2402127216157794843L;
 
     public NoDestroyStandaloneSession( String name ) {
-      super( name ); // TODO Auto-generated constructor stub
+      super( name );
     }
 
     @Override
