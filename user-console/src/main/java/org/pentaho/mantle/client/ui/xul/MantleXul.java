@@ -78,6 +78,8 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
 
   private GwtXulDomContainer container;
 
+  private boolean editable = false;
+
   private static MantleXul instance;
 
   private SimplePanel toolbar = new SimplePanel();
@@ -105,6 +107,14 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
       instance = new MantleXul();
     }
     return instance;
+  }
+
+  public boolean isEditable() {
+    return editable;
+  }
+
+  public void setEditable( boolean editable ) {
+    this.editable = editable;
   }
 
   /**
@@ -164,11 +174,34 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
             controller.setMenuBarEnabled( "newmenu", visible );
             controller.setToolBarButtonEnabled( "newButton", visible );
           }
+          final String editUrl = contextURL + "api/repo/files/canEdit";
+          RequestBuilder canEditRequestBuilder = new RequestBuilder( RequestBuilder.GET, editUrl );
+          canEditRequestBuilder.setHeader( "accept", "text/plain" );
+          canEditRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
+
+          try {
+            canEditRequestBuilder.sendRequest( null, new RequestCallback() {
+
+              public void onError( Request request, Throwable exception ) {
+                // showError(exception);
+              }
+
+              public void onResponseReceived( Request request, Response response ) {
+                if ( response.getStatusCode() == Response.SC_OK ) {
+                  Boolean visible = new Boolean( response.getText() );
+                  setEditable(visible);
+                }
+              }
+            } );
+          } catch ( RequestException e ) {
+            // showError(e);
+          }
         }
       } );
     } catch ( RequestException e ) {
       // showError(e);
     }
+
 
     // get the admin perspective from the XUL doc
     Widget admin = (Widget) container.getDocumentRoot().getElementById( "adminPerspective" ).getManagedObject(); //$NON-NLS-1$

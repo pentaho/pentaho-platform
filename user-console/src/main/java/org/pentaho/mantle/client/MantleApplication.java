@@ -111,10 +111,14 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
       }
     }, false );
   }
-
+  
+  private boolean canEdit() {
+    return MantleXul.getInstance().isEditable();
+  }
   public native void setupNativeHooks( MantleApplication mantle, LoginCommand loginCmd )
   /*-{
       $wnd.mantle_initialized = true;
+      $wnd.canEdit = mantle.@org.pentaho.mantle.client.MantleApplication::canEdit();
       $wnd.mantle_showMessage = function (title, message) {
           //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
           mantle.@org.pentaho.mantle.client.MantleApplication::showMessage(Ljava/lang/String;Ljava/lang/String;)(title, message);

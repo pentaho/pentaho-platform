@@ -1127,6 +1127,16 @@ public class FileResourceTest {
   }
 
   @Test
+  public void testDoCanEdit() {
+
+    doReturn( "true" ).when( fileResource.fileService ).doGetCanEdit();
+
+    String returnValue = fileResource.doGetCanEdit();
+    assertEquals( "true", returnValue );
+
+    verify( fileResource.fileService, times( 1 ) ).doGetCanEdit( );
+  }
+  @Test
   public void testDoGetCanAdminister() throws Exception {
     // Test 1
     doReturn( true ).when( fileResource.fileService ).doCanAdminister();

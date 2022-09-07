@@ -994,6 +994,20 @@ public class FileService {
     }
     return file;
   }
+  /**
+   * Gets the permission for whether or not a user can edit files
+   *
+   * @return Boolean representing whether or not user can edit files
+   */
+  public String doGetCanEdit() {
+    String editPermission = PentahoSystem.getSystemSetting( "edit-permission", "" );
+    if( editPermission != null && editPermission.length() > 0 ) {
+      return getPolicy().isAllowed( editPermission ) ? "true" : "false";
+    } else {
+      return "true";
+    }
+  }
+
 
   /**
    * Gets the permission for whether or not a user can create files
