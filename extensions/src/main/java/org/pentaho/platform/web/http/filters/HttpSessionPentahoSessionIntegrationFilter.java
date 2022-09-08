@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.platform.web.http.filters;
@@ -157,13 +157,17 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
    * @throws ServletException
    *           ignored
    */
+  @Override
   public void init( FilterConfig filterConfig ) throws ServletException {
+    // Does nothing. We use IoC container lifecycle services instead.
   }
 
   /**
    * Does nothing. We use IoC container lifecycle services instead.
    */
+  @Override
   public void destroy() {
+    // Does nothing. We use IoC container lifecycle services instead.
   }
 
   public void afterPropertiesSet() throws Exception {
@@ -441,16 +445,23 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
 
       SessionCookieConfig sessionCookieConfig = httpSession.getServletContext().getSessionCookieConfig();
       final long serverTime = System.currentTimeMillis();
-      final long expiryTime = serverTime + httpSession.getMaxInactiveInterval() * 1000;
+      final long expiryTime = serverTime + httpSession.getMaxInactiveInterval() * 1000L;
+      final String contextPath =
+        httpSession.getServletContext().getContextPath() != null ? httpSession.getServletContext().getContextPath() :
+          "/";
 
       final Cookie sessionExpirationCookie = new Cookie( "session-expiry", String.valueOf( expiryTime ) );
-      sessionExpirationCookie.setPath( "/" );
-      sessionExpirationCookie.setHttpOnly( sessionCookieConfig.isHttpOnly() );
+      sessionExpirationCookie.setPath( contextPath );
+      // "httpOnly" attribute must be 'false' as there is Javascript (client side) that interacts with the cookie.
+      // Check org.pentaho.mantle.client.commands.SessionExpiredCommand and issues PPP-4635 and BISERVER-14869
+      sessionExpirationCookie.setHttpOnly( false );
       sessionExpirationCookie.setSecure( sessionCookieConfig.isSecure() );
 
       final Cookie serverTimeCookie = new Cookie( "server-time", String.valueOf( serverTime ) );
-      serverTimeCookie.setPath( "/" );
-      serverTimeCookie.setHttpOnly( sessionCookieConfig.isHttpOnly() );
+      serverTimeCookie.setPath( contextPath );
+      // "httpOnly" attribute must be 'false' as there is Javascript (client side) that interacts with the cookie.
+      // Check org.pentaho.mantle.client.commands.SessionExpiredCommand and issues PPP-4635 and BISERVER-14869
+      serverTimeCookie.setHttpOnly( false );
       serverTimeCookie.setSecure( sessionCookieConfig.isSecure() );
 
       httpServletResponse.addCookie( sessionExpirationCookie );
@@ -546,6 +557,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     /**
      * Makes sure the session is updated before calling the superclass <code>sendError()</code>
      */
+    @Override
     public void sendError( int sc ) throws IOException {
       doSessionUpdate();
       super.sendError( sc );
@@ -554,6 +566,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     /**
      * Makes sure the session is updated before calling the superclass <code>sendError()</code>
      */
+    @Override
     public void sendError( int sc, String msg ) throws IOException {
       doSessionUpdate();
       super.sendError( sc, msg );
@@ -562,6 +575,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     /**
      * Makes sure the session is updated before calling the superclass <code>sendRedirect()</code>
      */
+    @Override
     public void sendRedirect( String location ) throws IOException {
       doSessionUpdate();
       super.sendRedirect( location );
@@ -612,7 +626,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     private static final long serialVersionUID = -2402127216157794843L;
 
     public NoDestroyStandaloneSession( String name ) {
-      super( name ); // TODO Auto-generated constructor stub
+      super( name );
     }
 
     @Override
