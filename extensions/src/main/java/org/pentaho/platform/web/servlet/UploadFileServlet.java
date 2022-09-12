@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 // Activate request multi-part processing; enable use of Request#getPart API.
@@ -86,6 +87,8 @@ public class UploadFileServlet extends HttpServlet implements Servlet {
       // Do nothing with success value - the output should already have been written to the servlet response.
       utils.process();
 
+    } catch ( FileNotFoundException e ) {
+      response.getWriter().write( Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0013_NO_SUCH_FILE_OR_DIRECTORY" ) );
     } catch ( Exception e ) {
       String error = Messages.getInstance().getErrorString(
         "UploadFileServlet.ERROR_0005_UNKNOWN_ERROR",
