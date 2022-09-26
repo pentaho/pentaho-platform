@@ -23,7 +23,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -50,20 +49,7 @@ public class CustomSessionTimeoutFilter implements Filter, InitializingBean {
    */
   public static final int CUSTOM_SESSION_TIMEOUT_DEFAULT_VALUE = 2 * 60 * 60 * 1000;
 
-  private int maxInactiveInterval = CUSTOM_SESSION_TIMEOUT_DEFAULT_VALUE;
-
-  @Override
-  public void init( FilterConfig filterConfig ) throws ServletException {
-    String customSessionTimeout = filterConfig.getInitParameter( CUSTOM_SESSION_TIMEOUT_PROPERTY_NAME );
-
-    try {
-      maxInactiveInterval = Integer.parseInt( customSessionTimeout );
-    } catch ( NumberFormatException e ) {
-      logger.error( "Invalid value for [" + CUSTOM_SESSION_TIMEOUT_PROPERTY_NAME + "]: ["
-        + customSessionTimeout + "], using default value [" + CUSTOM_SESSION_TIMEOUT_DEFAULT_VALUE + "].", e );
-      maxInactiveInterval = CUSTOM_SESSION_TIMEOUT_DEFAULT_VALUE;
-    }
-  }
+  private int customSessionTimeout = CUSTOM_SESSION_TIMEOUT_DEFAULT_VALUE;
 
   @Override
   public void doFilter( ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain )
@@ -71,9 +57,9 @@ public class CustomSessionTimeoutFilter implements Filter, InitializingBean {
     HttpSession httpSession = ( (HttpServletRequest) servletRequest ).getSession( true );
 
     logger.debug( "Changing Maximum Inactive Interval from [" + httpSession.getMaxInactiveInterval() + "] to ["
-      + maxInactiveInterval + "]" );
+      + customSessionTimeout + "]" );
 
-    httpSession.setMaxInactiveInterval( maxInactiveInterval );
+    httpSession.setMaxInactiveInterval( customSessionTimeout );
 
     // Continue the filter chain
     filterChain.doFilter( servletRequest, servletResponse );
@@ -81,6 +67,22 @@ public class CustomSessionTimeoutFilter implements Filter, InitializingBean {
 
   @Override
   public void afterPropertiesSet() throws Exception {
-    // Nothing to do
+    if( customSessionTimeout <= 0 ) {
+      logger.error( "Invalid value for [" + CUSTOM_SESSION_TIMEOUT_PROPERTY_NAME + "]: ["
+        + customSessionTimeout + "], using default value [" + CUSTOM_SESSION_TIMEOUT_DEFAULT_VALUE + "]." );
+      customSessionTimeout = CUSTOM_SESSION_TIMEOUT_DEFAULT_VALUE;
+    } else if ( customSessionTimeout < 1000 ) {
+      logger.info( "Please pay attention to value of " + CUSTOM_SESSION_TIMEOUT_PROPERTY_NAME + "because should be defined in milliseconds." );
+    }
   }
+
+  public int getCustomSessionTimeout() {
+    return customSessionTimeout;
+  }
+
+  public void setCustomSessionTimeout( int customSessionTimeout ) {
+    this.customSessionTimeout = customSessionTimeout;
+  }
+
+
 }
