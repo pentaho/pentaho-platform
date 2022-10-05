@@ -14,29 +14,39 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.util.Assert;
 
 import javax.ws.rs.core.Response;
 
-import org.mockito.Mockito;
+import static org.mockito.Mockito.mock;
 
 public class SystemResourceTest {
   SystemResource systemResource;
+  private static MicroPlatform platform;
+
+  @BeforeClass
+  public static void initPlatform() throws Exception {
+    platform = new MicroPlatform();
+    platform.defineInstance( IUserSettingService.class, mock( IUserSettingService.class ) );
+    platform.start();
+  }
 
   @Before
   public void setup() {
-    PentahoSystem.init();
     PentahoSessionHolder.setSession( null );
     systemResource = new SystemResource();
   }
@@ -44,7 +54,11 @@ public class SystemResourceTest {
   @After
   public void teardown() {
     systemResource = null;
-    PentahoSystem.shutdown();
+  }
+
+  @AfterClass
+  public static void shutdownPlatform() {
+    platform.stop();
   }
 
   @Test
