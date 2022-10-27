@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -54,6 +54,7 @@ import java.util.StringTokenizer;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 
 /**
@@ -373,6 +374,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @POST
   @Path ( "/session-variable" )
   @Facet ( name = "Unsupported" )
+  @Produces( TEXT_PLAIN )
   public Response setSessionVariable( @QueryParam ( "key" ) String key, @QueryParam ( "value" ) String value ) {
     if ( setSessionVarWhiteList.contains( key ) ) {
       IPentahoSession session = UserConsoleService.getPentahoSession();
@@ -391,6 +393,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @GET
   @Path ( "/session-variable" )
   @Facet ( name = "Unsupported" )
+  @Produces( TEXT_PLAIN )
   public Response getSessionVariable( @QueryParam ( "key" ) String key ) {
     if ( getSessionVarWhiteList.contains( key ) ) {
       Object value = UserConsoleService.getPentahoSession().getAttribute( key );
