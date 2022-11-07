@@ -310,7 +310,12 @@
         <sec:intercept-url pattern="\A/osgi/cxf/hadoop-cluster/runTests.*\Z" access="Authenticated" />
         <sec:intercept-url pattern="\A/osgi/cxf/hadoop-cluster/.*\Z" access="Administrator" />
         <sec:intercept-url pattern="\A/content/common-ui/resources/web/(.+/)*.+\.js.*\Z" access="Anonymous,Authenticated" />
-        <sec:intercept-url pattern="\A/[^\?]*(require)(-js)?(-cfg)?.js(\?.*)?\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/js/require(-js)?(-cfg)?.js(\?.*)?\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/common-ui/resources/web/require(-js)?(-cfg)?.js(\?.*)?\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/common-ui/resources/web/dojo/require(-js)?(-cfg)?.js(\?.*)?\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/config/deploy/client-config-enabler-require-js-cfg.js\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/config/admin-plugin/client-config-enabler-require-js-cfg.js\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/admin-plugin/resources/admin-plugin-require-js-cfg.js\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/content/data-access/resources/gwt/.*css\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/webcontext.js.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/content/common-ui/resources/web/cache/cache-service.js.*\Z" access="Anonymous,Authenticated" />
@@ -394,7 +399,6 @@
         <sec:intercept-url pattern="\A/plugin/reporting/api/jobs/.*\Z" access="Anonymous,Authenticated" method="HEAD" />
         <sec:intercept-url pattern="\A/api/repos/.*\Z" access="Anonymous,Authenticated" method="OPTIONS" />
         <sec:intercept-url pattern="\A/api/repos/.*\Z" access="Anonymous,Authenticated" method="HEAD" />
-        <sec:intercept-url pattern="\A/api/[^\?]*(require)(-js)?(-cfg)?.js(\?.*)?\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/api/.*\Z" access="Authenticated" />
         <sec:intercept-url pattern="\A/plugin/.*\Z" access="Authenticated" />
       </sec:filter-security-metadata-source>
