@@ -27,7 +27,9 @@ import java.util.List;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.di.repository.RepositoryObjectType;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.security.userroledao.AccessDeniedException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.DuplicateDatasourceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
@@ -54,6 +56,8 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
 
   private DatabaseHelper databaseHelper;
 
+  private IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
+
   public JcrBackedDatasourceMgmtService() {
   }
 
@@ -75,19 +79,23 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
       // IPasswordService passwordService = PentahoSystem.get(IPasswordService.class,
       // PentahoSessionHolder.getSession());
       // databaseMeta.setPassword(passwordService.encrypt(databaseMeta.getPassword()));
-
-      RepositoryFile file =
+      if ( hasDataAccessPermission() ) {
+        RepositoryFile file =
           new RepositoryFile.Builder( RepositoryFilenameUtils.escape( databaseConnection.getName()
-              + RepositoryObjectType.DATABASE.getExtension(), cachedReservedChars ) ).title(
-              RepositoryFile.DEFAULT_LOCALE, databaseConnection.getName() ).versioned( true ).build();
-      file =
+            + RepositoryObjectType.DATABASE.getExtension(), cachedReservedChars ) ).title(
+            RepositoryFile.DEFAULT_LOCALE, databaseConnection.getName() ).versioned( true ).build();
+        file =
           repository.createFile( getDatabaseParentFolderId(), file, new NodeRepositoryFileData( databaseHelper
-              .databaseConnectionToDataNode( databaseConnection ) ), null );
-      if ( file != null && file.getId() != null ) {
-        return file.getId().toString();
+            .databaseConnectionToDataNode( databaseConnection ) ), null );
+        if ( file != null && file.getId() != null ) {
+          return file.getId().toString();
+        } else {
+          return null;
+        }
       } else {
-        return null;
+        throw new AccessDeniedException( "Access Denied" );
       }
+
       // } catch(PasswordServiceException pse) {
       // throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
       //      "DatasourceMgmtService.ERROR_0007_UNABLE_TO_ENCRYPT_PASSWORD"), pse ); //$NON-NLS-1$
@@ -382,5 +390,12 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
     } else {
       throw new IllegalArgumentException();
     }
+  }
+
+  private boolean hasDataAccessPermission() {
+    if ( policy != null && policy.isAllowed( "org.pentaho.platform.dataaccess.datasource.security.manage" ) ) {
+      return true;
+    }
+    return false;
   }
 }
