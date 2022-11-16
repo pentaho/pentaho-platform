@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.di.repository.RepositoryObjectType;
@@ -406,6 +407,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
     }
   }
 
+  @VisibleForTesting
   public boolean hasDataAccessPermission() {
     if ( policy != null && policy.isAllowed( "org.pentaho.platform.dataaccess.datasource.security.manage" ) ) {
       return true;
