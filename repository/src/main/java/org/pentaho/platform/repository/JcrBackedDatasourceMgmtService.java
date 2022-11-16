@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -29,7 +29,6 @@ import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.di.repository.RepositoryObjectType;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.security.userroledao.AccessDeniedException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.DuplicateDatasourceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
@@ -79,7 +78,9 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
       // IPasswordService passwordService = PentahoSystem.get(IPasswordService.class,
       // PentahoSessionHolder.getSession());
       // databaseMeta.setPassword(passwordService.encrypt(databaseMeta.getPassword()));
-      if ( hasDataAccessPermission() ) {
+      if ( !hasDataAccessPermission() ) {
+        throw new DatasourceMgmtServiceException( "Access Denied" );
+      }
         RepositoryFile file =
           new RepositoryFile.Builder( RepositoryFilenameUtils.escape( databaseConnection.getName()
             + RepositoryObjectType.DATABASE.getExtension(), cachedReservedChars ) ).title(
@@ -92,9 +93,6 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
         } else {
           return null;
         }
-      } else {
-        throw new AccessDeniedException( "Access Denied" );
-      }
 
       // } catch(PasswordServiceException pse) {
       // throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
@@ -117,6 +115,9 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
     DatasourceMgmtServiceException {
     RepositoryFile fileToDelete = null;
     try {
+      if ( !hasDataAccessPermission() ) {
+        throw new DatasourceMgmtServiceException( "Access Denied" );
+      }
       fileToDelete = repository.getFile( getPath( name ) );
     } catch ( UnifiedRepositoryException ure ) {
       throw new DatasourceMgmtServiceException(
@@ -131,6 +132,9 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
   public void deleteDatasourceById( String id ) throws NonExistingDatasourceException, DatasourceMgmtServiceException {
     RepositoryFile fileToDelete = null;
     try {
+      if ( !hasDataAccessPermission() ) {
+        throw new DatasourceMgmtServiceException( "Access Denied" );
+      }
       fileToDelete = repository.getFileById( id );
     } catch ( UnifiedRepositoryException ure ) {
       throw new DatasourceMgmtServiceException(
@@ -259,6 +263,9 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
     throws NonExistingDatasourceException, DatasourceMgmtServiceException {
     RepositoryFile file = null;
     try {
+      if ( !hasDataAccessPermission() ) {
+        throw new DatasourceMgmtServiceException( "Access Denied" );
+      }
       file = repository.getFileById( id );
     } catch ( UnifiedRepositoryException ure ) {
       throw new DatasourceMgmtServiceException(
@@ -274,6 +281,9 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
     throws NonExistingDatasourceException, DatasourceMgmtServiceException {
     RepositoryFile file = null;
     try {
+      if ( !hasDataAccessPermission() ) {
+        throw new DatasourceMgmtServiceException( "Access Denied" );
+      }
       if ( databaseConnection.getId() != null ) {
         file = repository.getFileById( databaseConnection.getId() );
       } else {
@@ -296,6 +306,10 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
       // PentahoSessionHolder.getSession());
       // Store the new encrypted password in the datasource object
       // databaseMeta.setPassword(passwordService.encrypt(databaseMeta.getPassword()));
+
+      if ( !hasDataAccessPermission() ) {
+        throw new DatasourceMgmtServiceException( "Access Denied" );
+      }
 
       if ( file != null ) {
         file =
@@ -392,7 +406,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService {
     }
   }
 
-  private boolean hasDataAccessPermission() {
+  public boolean hasDataAccessPermission() {
     if ( policy != null && policy.isAllowed( "org.pentaho.platform.dataaccess.datasource.security.manage" ) ) {
       return true;
     }
