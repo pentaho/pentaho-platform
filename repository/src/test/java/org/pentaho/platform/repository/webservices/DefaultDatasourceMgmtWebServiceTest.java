@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,12 +22,12 @@ package org.pentaho.platform.repository.webservices;
 
 import junit.framework.TestCase;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseType;
 import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.di.core.KettleClientEnvironment;
-import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
@@ -42,6 +42,7 @@ import java.util.List;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ;
 import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
 
@@ -64,27 +65,25 @@ public class DefaultDatasourceMgmtWebServiceTest extends TestCase {
   private static final String FOLDER_PDI = "pdi";
 
   private static final String FOLDER_DATABASES = "databases"; //$NON-NLS-1$
-  private IDatasourceMgmtService datasourceMgmtService;
+  private JcrBackedDatasourceMgmtService datasourceMgmtService;
+  private IUnifiedRepository repository;
   private IDatasourceMgmtWebService datasourceMgmtWebService;
   private DatabaseConnectionAdapter dbConnectionAdapter;
 
   public void setUp() throws Exception {
-    IUnifiedRepository repository =
-        new MockUnifiedRepository( new MockUnifiedRepository.SpringSecurityCurrentUserProvider() );
-    datasourceMgmtService = new JcrBackedDatasourceMgmtService( repository, new DatabaseDialectService() );
-    datasourceMgmtWebService = new DefaultDatasourceMgmtWebService( datasourceMgmtService );
-    dbConnectionAdapter = new DatabaseConnectionAdapter();
+    repository =
+      new MockUnifiedRepository( new MockUnifiedRepository.SpringSecurityCurrentUserProvider() );
     SecurityContextHolder.getContext()
-        .setAuthentication(
-            new UsernamePasswordAuthenticationToken( MockUnifiedRepository.root().getName(), null,
-                new ArrayList<GrantedAuthority>() ) );
+      .setAuthentication(
+        new UsernamePasswordAuthenticationToken( MockUnifiedRepository.root().getName(), null,
+          new ArrayList<GrantedAuthority>() ) );
     repository.createFolder( repository.getFile( "/etc" ).getId(), new RepositoryFile.Builder( FOLDER_PDI ).folder(
-        true ).build(), new RepositoryFileAcl.Builder( MockUnifiedRepository.root() ).ace(
-          MockUnifiedRepository.everyone(), READ, WRITE ).build(), null );
+      true ).build(), new RepositoryFileAcl.Builder( MockUnifiedRepository.root() ).ace(
+      MockUnifiedRepository.everyone(), READ, WRITE ).build(), null );
     repository.createFolder( repository.getFile( "/etc/pdi" ).getId(), new RepositoryFile.Builder( FOLDER_DATABASES )
-        .folder( true ).build(), null );
+      .folder( true ).build(), null );
     SecurityContextHolder.getContext().setAuthentication(
-        new UsernamePasswordAuthenticationToken( EXP_LOGIN, null, new ArrayList<GrantedAuthority>() ) );
+      new UsernamePasswordAuthenticationToken( EXP_LOGIN, null, new ArrayList<GrantedAuthority>() ) );
 
     KettleClientEnvironment.init();
 
@@ -92,6 +91,10 @@ public class DefaultDatasourceMgmtWebServiceTest extends TestCase {
 
   @Test
   public void testEverything() throws Exception {
+    datasourceMgmtService = Mockito.spy( new JcrBackedDatasourceMgmtService( repository, new DatabaseDialectService() ) );
+    when( datasourceMgmtService.hasDataAccessPermission() ).thenReturn( true );
+    datasourceMgmtWebService = new DefaultDatasourceMgmtWebService( datasourceMgmtService );
+    dbConnectionAdapter = new DatabaseConnectionAdapter();
     DatabaseConnection databaseConnection = createDatabaseConnection( "testDatabase" );
     String id = datasourceMgmtWebService.createDatasource( dbConnectionAdapter.marshal( databaseConnection ) );
     assertNotNull( id );
@@ -117,8 +120,8 @@ public class DefaultDatasourceMgmtWebServiceTest extends TestCase {
     databaseConnection = dbConnectionAdapter.unmarshal( databaseConnectionDto );
     updateDatabaseConnection( databaseConnection );
     String id2 =
-        datasourceMgmtWebService.updateDatasourceByName( "testDatabase", dbConnectionAdapter
-            .marshal( databaseConnection ) );
+      datasourceMgmtWebService.updateDatasourceByName( "testDatabase", dbConnectionAdapter
+        .marshal( databaseConnection ) );
     assertNotNull( id2 );
     DatabaseConnectionDto updatedDatabaseConnectionDto = datasourceMgmtWebService.getDatasourceByName( "testDatabase" );
     assertNotNull( updatedDatabaseConnectionDto );
@@ -126,7 +129,7 @@ public class DefaultDatasourceMgmtWebServiceTest extends TestCase {
     databaseConnection1 = dbConnectionAdapter.unmarshal( databaseConnectionDto2 );
     updateDatabaseConnection( databaseConnection1 );
     String id3 =
-        datasourceMgmtWebService.updateDatasourceById( id1, dbConnectionAdapter.marshal( databaseConnection1 ) );
+      datasourceMgmtWebService.updateDatasourceById( id1, dbConnectionAdapter.marshal( databaseConnection1 ) );
     assertNotNull( id3 );
     DatabaseConnectionDto updatedDatabaseConnectionDto1 = datasourceMgmtWebService.getDatasourceById( id3 );
     assertNotNull( updatedDatabaseConnectionDto1 );
