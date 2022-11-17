@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,13 +22,13 @@ package org.pentaho.platform.repository.webservices;
 
 import junit.framework.TestCase;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.model.IDatabaseType;
 import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.di.core.KettleClientEnvironment;
-import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
@@ -43,6 +43,7 @@ import java.util.List;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ;
 import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
 
@@ -68,15 +69,12 @@ public class DatasourceMgmtToWebServiceAdapterTest extends TestCase {
   private static final String FOLDER_DATABASES = "databases"; //$NON-NLS-1$
   private DatasourceMgmtToWebServiceAdapter adapter;
   private IDatasourceMgmtWebService datasourceMgmtWS;
-  private IDatasourceMgmtService datasourceMgmtService;
+  private JcrBackedDatasourceMgmtService datasourceMgmtService;
+  private IUnifiedRepository repository;
 
   @Override
   protected void setUp() throws Exception {
-    IUnifiedRepository repository =
-        new MockUnifiedRepository( new MockUnifiedRepository.SpringSecurityCurrentUserProvider() );
-    datasourceMgmtService = new JcrBackedDatasourceMgmtService( repository, new DatabaseDialectService() );
-    datasourceMgmtWS = new DefaultDatasourceMgmtWebService( datasourceMgmtService );
-    adapter = new DatasourceMgmtToWebServiceAdapter( datasourceMgmtWS );
+    repository = new MockUnifiedRepository( new MockUnifiedRepository.SpringSecurityCurrentUserProvider() );
     SecurityContextHolder.getContext()
         .setAuthentication(
             new UsernamePasswordAuthenticationToken( MockUnifiedRepository.root().getName(), null,
@@ -95,6 +93,10 @@ public class DatasourceMgmtToWebServiceAdapterTest extends TestCase {
 
   @Test
   public void testEverything() throws Exception {
+    datasourceMgmtService = Mockito.spy( new JcrBackedDatasourceMgmtService( repository, new DatabaseDialectService() ) );
+    when( datasourceMgmtService.hasDataAccessPermission() ).thenReturn( true );
+    datasourceMgmtWS = new DefaultDatasourceMgmtWebService( datasourceMgmtService );
+    adapter = new DatasourceMgmtToWebServiceAdapter( datasourceMgmtWS );
     String id = adapter.createDatasource( createDatabaseConnection( "testDatabase" ) );
     assertNotNull( id );
     IDatabaseConnection databaseConnection = adapter.getDatasourceByName( "testDatabase" );

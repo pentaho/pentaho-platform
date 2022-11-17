@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -54,6 +54,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
@@ -118,15 +119,36 @@ public class JcrBackedDatasourceMgmtServiceTest {
         "/etc/pdi/databases" );
     doReturn( reservedChars ).when( repo ).getReservedChars();
 
+    JcrBackedDatasourceMgmtService spy = spy( new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() ) );
+    when( spy.hasDataAccessPermission() ).thenReturn( true );
+
+    IDatabaseConnection databaseConnection = createDatabaseConnection( EXP_DBMETA_NAME );
+    spy.createDatasource( databaseConnection );
+
+    verify( repo ).createFile( eq( parentFolderId ),
+        argThat( isLikeFile( new RepositoryFile.Builder( EXP_DBMETA_NAME + ".kdb" ).build() ) ),
+        argThat( hasData( pathPropertyPair( "/databaseMeta/HOST_NAME", EXP_DBMETA_HOSTNAME ) ) ), nullable( String.class ) );
+  }
+
+  @Test( expected = DatasourceMgmtServiceException.class )
+  public void testCreateDatasourceNoAccess() throws Exception {
+    final String parentFolderId = "123";
+    IUnifiedRepository repo = mock( IUnifiedRepository.class );
+    // stub out get parent folder
+    doReturn( new RepositoryFile.Builder( parentFolderId, "databases" ).folder( true ).build() ).when( repo ).getFile(
+      "/etc/pdi/databases" );
+    doReturn( reservedChars ).when( repo ).getReservedChars();
+
     IDatasourceMgmtService datasourceMgmtService =
-        new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() );
+      new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() );
 
     IDatabaseConnection databaseConnection = createDatabaseConnection( EXP_DBMETA_NAME );
     datasourceMgmtService.createDatasource( databaseConnection );
 
     verify( repo ).createFile( eq( parentFolderId ),
-        argThat( isLikeFile( new RepositoryFile.Builder( EXP_DBMETA_NAME + ".kdb" ).build() ) ),
-        argThat( hasData( pathPropertyPair( "/databaseMeta/HOST_NAME", EXP_DBMETA_HOSTNAME ) ) ), nullable( String.class ) );
+      argThat( isLikeFile( new RepositoryFile.Builder( EXP_DBMETA_NAME + ".kdb" ).build() ) ),
+      argThat( hasData( pathPropertyPair( "/databaseMeta/HOST_NAME", EXP_DBMETA_HOSTNAME ) ) ),
+      nullable( String.class ) );
   }
 
   @Rule
@@ -142,7 +164,12 @@ public class JcrBackedDatasourceMgmtServiceTest {
     testDeleteDatasourceWithName(true );
   }
 
-  private void testDeleteDatasourceWithName( boolean throwException) throws Exception {
+  @Test( expected = DatasourceMgmtServiceException.class )
+  public void testDeleteDatasourceWithNameNoAccess() throws Exception {
+    testDeleteDatasourceWithNameNoAccess( false );
+  }
+
+  private void testDeleteDatasourceWithName( boolean throwException ) throws Exception {
     final String fileId = "456";
     final String databasesFolderPath = "/etc/pdi/databases";
     final String dotKdb = ".kdb";
@@ -154,9 +181,30 @@ public class JcrBackedDatasourceMgmtServiceTest {
     // stub out get file to delete
     doReturn( new RepositoryFile.Builder( fileId, EXP_DBMETA_NAME + dotKdb ).build() ).when( repo ).getFile(
             databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb );
+    JcrBackedDatasourceMgmtService spy = spy( new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() ) );
+    when( spy.hasDataAccessPermission() ).thenReturn( true );
+    if ( throwException ) {
+      deleteDatasourceWithNameThrowException( repo );
+    }
+    spy.deleteDatasourceByName( EXP_DBMETA_NAME );
+    verify( repo ).deleteFile( eq( fileId ), eq( true ), nullable( String.class ) );
+  }
+
+  private void testDeleteDatasourceWithNameNoAccess( boolean throwException ) throws Exception {
+    final String fileId = "456";
+    final String databasesFolderPath = "/etc/pdi/databases";
+    final String dotKdb = ".kdb";
+    IUnifiedRepository repo = mock( IUnifiedRepository.class );
+    // stub out get parent folder
+    doReturn( new RepositoryFile.Builder( "123", "databases" ).folder( true ).build() ).when( repo ).getFile(
+      databasesFolderPath );
+    doReturn( reservedChars ).when( repo ).getReservedChars();
+    // stub out get file to delete
+    doReturn( new RepositoryFile.Builder( fileId, EXP_DBMETA_NAME + dotKdb ).build() ).when( repo ).getFile(
+      databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb );
     IDatasourceMgmtService datasourceMgmtService =
-            new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() );
-    if( throwException ) {
+      new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() );
+    if ( throwException ) {
       deleteDatasourceWithNameThrowException( repo );
     }
     datasourceMgmtService.deleteDatasourceByName( EXP_DBMETA_NAME );
@@ -173,6 +221,11 @@ public class JcrBackedDatasourceMgmtServiceTest {
     testDeleteDatasourceWithId( true );
   }
 
+  @Test( expected = DatasourceMgmtServiceException.class )
+  public void testDeleteDatasourceWithIdNoAccess() throws Exception {
+    testDeleteDatasourceWithIdNoAccess( false );
+  }
+
   private void testDeleteDatasourceWithId( boolean throwException ) throws Exception {
     final String dotKdb = ".kdb";
     IUnifiedRepository repo = mock( IUnifiedRepository.class );
@@ -183,9 +236,28 @@ public class JcrBackedDatasourceMgmtServiceTest {
     // stub out get file to delete
     doReturn( new RepositoryFile.Builder( EXP_FILE_ID, EXP_DBMETA_NAME + dotKdb ).build() ).when( repo ).getFileById(
             EXP_FILE_ID);
+    JcrBackedDatasourceMgmtService spy = spy( new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() ) );
+    when( spy.hasDataAccessPermission() ).thenReturn( true );
+    if ( throwException ) {
+      deleteDatasourceWithIdThrowException( repo );
+    }
+    spy.deleteDatasourceById( EXP_FILE_ID );
+    verify( repo ).deleteFile( eq( EXP_FILE_ID ), eq( true ), nullable( String.class ) );
+  }
+
+  private void testDeleteDatasourceWithIdNoAccess( boolean throwException ) throws Exception {
+    final String dotKdb = ".kdb";
+    IUnifiedRepository repo = mock( IUnifiedRepository.class );
+    // stub out get parent folder
+    doReturn( new RepositoryFile.Builder( "123", "databases" ).folder( true ).build() ).when( repo ).getFileById(
+      EXP_FILE_ID );
+    doReturn( reservedChars ).when( repo ).getReservedChars();
+    // stub out get file to delete
+    doReturn( new RepositoryFile.Builder( EXP_FILE_ID, EXP_DBMETA_NAME + dotKdb ).build() ).when( repo ).getFileById(
+      EXP_FILE_ID );
     IDatasourceMgmtService datasourceMgmtService =
-            new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() );
-    if( throwException ) {
+      new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() );
+    if ( throwException ) {
       deleteDatasourceWithIdThrowException( repo );
     }
     datasourceMgmtService.deleteDatasourceById( EXP_FILE_ID );
@@ -261,15 +333,44 @@ public class JcrBackedDatasourceMgmtServiceTest {
     // stub out update file which requires a file to be returned
     doReturn( f ).when( repo )
         .updateFile( nullable( RepositoryFile.class ), nullable( NodeRepositoryFileData.class ), nullable( String.class ) );
+    JcrBackedDatasourceMgmtService spy = spy( new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() ) );
+
+    IDatabaseConnection databaseConnection = createDatabaseConnection( EXP_DBMETA_NAME );
+    when( spy.hasDataAccessPermission() ).thenReturn( true );
+    updateDatabaseConnection( databaseConnection );
+    spy.updateDatasourceByName( EXP_DBMETA_NAME, databaseConnection );
+
+    verify( repo ).updateFile( argThat( isLikeFile( new RepositoryFile.Builder( EXP_DBMETA_NAME + ".kdb" ).build() ) ),
+        argThat( hasData( pathPropertyPair( "/databaseMeta/HOST_NAME", EXP_UPDATED_DBMETA_HOSTNAME ) ) ), nullable( String.class ) );
+  }
+
+  @Test( expected = DatasourceMgmtServiceException.class )
+  public void testUpdateDatasourceWithNameNoAccess() throws Exception {
+    final String fileId = "456";
+    final String databasesFolderPath = "/etc/pdi/databases";
+    final String dotKdb = ".kdb";
+    IUnifiedRepository repo = mock( IUnifiedRepository.class );
+    // stub out get parent folder
+    doReturn( new RepositoryFile.Builder( "123", "databases" ).folder( true ).build() ).when( repo ).getFile(
+      databasesFolderPath );
+    doReturn( reservedChars ).when( repo ).getReservedChars();
+    // stub out get file to update
+    RepositoryFile f =
+      new RepositoryFile.Builder( fileId, EXP_DBMETA_NAME + dotKdb ).path(
+        databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb ).build();
+    doReturn( f ).when( repo ).getFile( databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb );
+    // stub out update file which requires a file to be returned
+    doReturn( f ).when( repo )
+      .updateFile( nullable( RepositoryFile.class ), nullable( NodeRepositoryFileData.class ), nullable( String.class ) );
     IDatasourceMgmtService datasourceMgmtService =
-        new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() );
+      new JcrBackedDatasourceMgmtService( repo, new DatabaseDialectService() );
 
     IDatabaseConnection databaseConnection = createDatabaseConnection( EXP_DBMETA_NAME );
     updateDatabaseConnection( databaseConnection );
     datasourceMgmtService.updateDatasourceByName( EXP_DBMETA_NAME, databaseConnection );
 
     verify( repo ).updateFile( argThat( isLikeFile( new RepositoryFile.Builder( EXP_DBMETA_NAME + ".kdb" ).build() ) ),
-        argThat( hasData( pathPropertyPair( "/databaseMeta/HOST_NAME", EXP_UPDATED_DBMETA_HOSTNAME ) ) ), nullable( String.class ) );
+      argThat( hasData( pathPropertyPair( "/databaseMeta/HOST_NAME", EXP_UPDATED_DBMETA_HOSTNAME ) ) ), nullable( String.class ) );
   }
 
   @Test
