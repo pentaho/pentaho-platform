@@ -20,6 +20,7 @@
 
 package org.pentaho.platform.plugin.action.builtin;
 
+import com.sun.mail.smtp.SMTPTransport;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -30,6 +31,7 @@ import org.pentaho.actionsequence.dom.actions.EmailAction;
 import org.pentaho.actionsequence.dom.actions.EmailAttachment;
 import org.pentaho.commons.connection.ActivationHelper;
 import org.pentaho.commons.connection.IPentahoStreamSource;
+import org.pentaho.platform.api.email.IEmailAuthenticationResponse;
 import org.pentaho.platform.api.email.IEmailService;
 import org.pentaho.platform.api.engine.IMessageFormatter;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -54,7 +56,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Properties;
 
@@ -246,7 +250,7 @@ public class EmailComponent extends ComponentBase {
       props.put( "mail.smtp.port", ObjectUtils.toString( service.getEmailConfig().getSmtpPort() ) );
       props.put( "mail.transport.protocol", service.getEmailConfig().getSmtpProtocol() );
       props.put( "mail.smtp.starttls.enable", ObjectUtils.toString( service.getEmailConfig().isUseStartTls() ) );
-      props.put( "mail.smtp.auth", ObjectUtils.toString( service.getEmailConfig().isAuthenticate() ) );
+      //props.put( "mail.smtp.auth", ObjectUtils.toString( service.getEmailConfig().isAuthenticate() ) );
       props.put( "mail.smtp.ssl", ObjectUtils.toString( service.getEmailConfig().isUseSsl() ) );
       props.put( "mail.smtp.quitwait", ObjectUtils.toString( service.getEmailConfig().isSmtpQuitWait() ) );
       props.put( "mail.from.default", service.getEmailConfig().getDefaultFrom() );
@@ -256,9 +260,17 @@ public class EmailComponent extends ComponentBase {
       }
       props.put( "mail.from.name", fromName );
       props.put( "mail.debug", ObjectUtils.toString( service.getEmailConfig().isDebug() ) );
-
+      IEmailAuthenticationResponse token = null;
       Session session;
-      if ( service.getEmailConfig().isAuthenticate() ) {
+      if ( service.getEmailConfig().getAuthMechanism().equals( "XOAUTH2" ) ) {
+        try {
+          token = service.getOAuthToken( service.getEmailConfig() );
+          session = Session.getInstance( props );
+        } catch ( Exception e ) {
+          throw e;
+        }
+      } else if ( service.getEmailConfig().isAuthenticate() ) {
+        props.put( "mail.smtp.auth", ObjectUtils.toString( service.getEmailConfig().isAuthenticate() ) );
         props.put( "mail.userid", service.getEmailConfig().getUserId() );
         props.put( "mail.password", decrypt( service.getEmailConfig().getPassword() ) );
         Authenticator authenticator = new EmailAuthenticator();
@@ -354,7 +366,21 @@ public class EmailComponent extends ComponentBase {
       msg.setHeader( "X-Mailer", EmailComponent.MAILER ); //$NON-NLS-1$
       msg.setSentDate( new Date() );
 
-      Transport.send( msg );
+      if ( service.getEmailConfig().getAuthMechanism().equals( "XOAUTH2" ) ) {
+        if ( service.getEmailConfig().getSmtpProtocol().equalsIgnoreCase( "graph_api" ) ) {
+          ByteArrayOutputStream os = new ByteArrayOutputStream();
+          msg.writeTo( os );
+          String s = Base64.getEncoder().encodeToString( os.toByteArray() );
+          service.sendMailGraphApi( service.getEmailConfig(), token.getAccess_token(), s );
+        } else {
+          SMTPTransport transport = new SMTPTransport( session, null );
+          transport.connect( service.getEmailConfig().getSmtpHost(), service.getEmailConfig().getUserId(), null );
+          transport.issueCommand( "AUTH XOAUTH2 " + Base64.getEncoder().encode( String.format( "user=%s\1auth=Bearer %s\1\1", service.getEmailConfig().getUserId(), token.getAccess_token() ).getBytes() ), 235 );
+          transport.sendMessage( msg, msg.getAllRecipients() );
+        }
+      } else {
+        Transport.send( msg );
+      }
 
       if ( ComponentBase.debug ) {
         debug( Messages.getInstance().getString( "Email.DEBUG_EMAIL_SUCCESS" ) ); //$NON-NLS-1$

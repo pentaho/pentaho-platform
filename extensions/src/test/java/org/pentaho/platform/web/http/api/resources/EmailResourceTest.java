@@ -82,7 +82,7 @@ public class EmailResourceTest extends TestCase {
 
     final EmailConfiguration emailConfigOriginal =
         new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", null, 36,
-            "", true, "user", null, false, true );
+            "", true, "user", null, false, true, null, null, null, null, null, null, null, null, null );
     response = emailResource.setEmailConfig( emailConfigOriginal );
     assertEquals( OK_STATUS, response.getStatus() );
 
@@ -93,7 +93,10 @@ public class EmailResourceTest extends TestCase {
   }
 
   public void testSendEmailTest() throws Exception {
-
+    final EmailConfiguration emailConfigOriginal =
+            new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", "smtp.outlook.com", 25,
+                    "SMTP", true, "user", "", true, true, "XOAUTH2", "cid1", "cid1111", "https://login.microsoftonline.com/common/oauth2/v2.0/token", "offline_access mail.send", "token", null, "refresh_token", null );
+    emailResource.sendEmailTest( emailConfigOriginal );
   }
 
   class TestAuthorizationPolicy implements IAuthorizationPolicy {

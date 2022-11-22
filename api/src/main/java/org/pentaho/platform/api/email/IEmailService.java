@@ -46,4 +46,9 @@ public interface IEmailService {
   public String sendEmailTest( final IEmailConfiguration emailConfig );
 
   public boolean isValid();
+
+  public IEmailAuthenticationResponse getOAuthToken( final IEmailConfiguration emailConfig ) throws Exception;
+
+  public void sendMailGraphApi( final IEmailConfiguration emailConfig, String accessToken, String message ) throws Exception;
+
 }
