@@ -393,6 +393,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @GET
   @Path ( "/session-variable" )
   @Facet ( name = "Unsupported" )
+  @Produces( {TEXT_PLAIN, APPLICATION_JSON, APPLICATION_XML} )
   public Response getSessionVariable( @QueryParam ( "key" ) String key ) {
     if ( getSessionVarWhiteList.contains( key ) ) {
       Object value = UserConsoleService.getPentahoSession().getAttribute( key );
