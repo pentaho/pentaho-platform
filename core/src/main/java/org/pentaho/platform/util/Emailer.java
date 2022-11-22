@@ -20,10 +20,13 @@
 
 package org.pentaho.platform.util;
 
+import com.sun.mail.smtp.SMTPTransport;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.email.IEmailAuthenticationResponse;
+import org.pentaho.platform.api.email.IEmailConfiguration;
 import org.pentaho.platform.api.email.IEmailService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -45,7 +48,9 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Properties;
 
@@ -173,7 +178,7 @@ public class Emailer {
       props.put( "mail.smtp.port", ObjectUtils.toString( service.getEmailConfig().getSmtpPort() ) );
       props.put( "mail.transport.protocol", service.getEmailConfig().getSmtpProtocol() );
       props.put( "mail.smtp.starttls.enable", ObjectUtils.toString( service.getEmailConfig().isUseStartTls() ) );
-      props.put( "mail.smtp.auth", ObjectUtils.toString( service.getEmailConfig().isAuthenticate() ) );
+      //props.put( "mail.smtp.auth", ObjectUtils.toString( service.getEmailConfig().isAuthenticate() ) );
       props.put( "mail.smtp.ssl", ObjectUtils.toString( service.getEmailConfig().isUseSsl() ) );
       props.put( "mail.smtp.quitwait", ObjectUtils.toString( service.getEmailConfig().isSmtpQuitWait() ) );
       props.put( "mail.from.default", service.getEmailConfig().getDefaultFrom() );
@@ -230,7 +235,7 @@ public class Emailer {
     String to = props.getProperty( "to" );
     String cc = props.getProperty( "cc" );
     String bcc = props.getProperty( "bcc" );
-    boolean authenticate = "true".equalsIgnoreCase( props.getProperty( "mail.smtp.auth" ) );
+    //boolean authenticate = "true".equalsIgnoreCase( props.getProperty( "mail.smtp.auth" ) );
     String subject = props.getProperty( "subject" );
     String body = props.getProperty( "body" );
 
@@ -240,8 +245,19 @@ public class Emailer {
     try {
       // Get a Session object
       Session session;
-
-      if ( authenticate ) {
+      IEmailAuthenticationResponse token = null;
+      final IEmailService service =
+              PentahoSystem.get( IEmailService.class, "IEmailService", PentahoSessionHolder.getSession() );
+      final IEmailConfiguration emailConfig = service.getEmailConfig();
+      if ( emailConfig.getAuthMechanism().equals( "XOAUTH2" ) ) {
+        try {
+          token = service.getOAuthToken( emailConfig );
+          session = Session.getInstance( props );
+        } catch ( Exception e ) {
+          throw e;
+        }
+      } else if ( emailConfig.isAuthenticate() ) {
+        props.put( "mail.smtp.auth", ObjectUtils.toString( emailConfig.isAuthenticate() ) );
         session = Session.getInstance( props, authenticator );
       } else {
         session = Session.getInstance( props );
@@ -308,7 +324,6 @@ public class Emailer {
         // add the Multipart to the message
         msg.setContent( multipart );
       }
-
       if ( from != null ) {
         msg.setFrom( new InternetAddress( from, fromName ) );
       } else {
@@ -334,7 +349,21 @@ public class Emailer {
       msg.setHeader( "X-Mailer", Emailer.MAILER ); //$NON-NLS-1$
       msg.setSentDate( new Date() );
 
-      Transport.send( msg );
+      if ( emailConfig.getAuthMechanism().equals( "XOAUTH2" ) ) {
+        if ( emailConfig.getSmtpProtocol().equalsIgnoreCase( "graph_api" ) ) {
+          ByteArrayOutputStream os = new ByteArrayOutputStream();
+          msg.writeTo( os );
+          String s = Base64.getEncoder().encodeToString( os.toByteArray() );
+          service.sendMailGraphApi( emailConfig, token.getAccess_token(), s );
+        } else {
+          SMTPTransport transport = new SMTPTransport( session, null );
+          transport.connect( emailConfig.getSmtpHost(), emailConfig.getUserId(), null );
+          transport.issueCommand( "AUTH XOAUTH2 " + Base64.getEncoder().encode( String.format( "user=%s\1auth=Bearer %s\1\1", emailConfig.getUserId(), token.getAccess_token() ).getBytes() ), 235 );
+          transport.sendMessage( msg, msg.getAllRecipients() );
+        }
+      } else {
+        Transport.send( msg );
+      }
 
       return true;
     } catch ( SendFailedException e ) {
