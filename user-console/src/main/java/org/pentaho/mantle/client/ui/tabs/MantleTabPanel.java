@@ -222,7 +222,17 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }
 
   public void showNewURLTab( String tabName, String tabTooltip, final String url, boolean setFileInfoInFrame ) {
-    showNewURLTab( tabName, tabTooltip, url, setFileInfoInFrame, null );
+    Timer t = new Timer() {
+      @Override
+      public void run() {
+        if ( PerspectiveManager.getInstance().getActivePerspective() != null ) {
+          showNewURLTab( tabName, tabTooltip, url, setFileInfoInFrame, null );
+          cancel();
+        }
+      }
+    };
+
+    t.scheduleRepeating( 100 );
   }
 
   private String getUniqueFrameName() {
