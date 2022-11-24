@@ -181,7 +181,8 @@ public class PooledDatasourceHelper {
             defaultAutoCommit // boolean (default to auto-commit statements?)
     );
 
-    if ( !IDBDatasourceService.TRANSACTION_ISOLATION_NONE_VALUE.equalsIgnoreCase( attributes
+    if ( attributes.containsKey( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION )
+            && !IDBDatasourceService.TRANSACTION_ISOLATION_NONE_VALUE.equalsIgnoreCase( attributes
             .get( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION ) ) ) {
       Isolation isolationLevel =
           Isolation.valueOf( attributes.get( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION ) );
