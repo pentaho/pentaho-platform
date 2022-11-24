@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -222,17 +222,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }
 
   public void showNewURLTab( String tabName, String tabTooltip, final String url, boolean setFileInfoInFrame ) {
-    Timer t = new Timer() {
-      @Override
-      public void run() {
-        if ( PerspectiveManager.getInstance().getActivePerspective() != null ) {
-          showNewURLTab( tabName, tabTooltip, url, setFileInfoInFrame, null );
-          cancel();
-        }
-      }
-    };
-
-    t.scheduleRepeating( 100 );
+    showNewURLTab( tabName, tabTooltip, url, setFileInfoInFrame, null );
   }
 
   private String getUniqueFrameName() {
