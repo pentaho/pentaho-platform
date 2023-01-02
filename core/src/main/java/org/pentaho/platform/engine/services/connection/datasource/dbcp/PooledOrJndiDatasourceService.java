@@ -36,18 +36,21 @@ public class PooledOrJndiDatasourceService extends NonPooledOrJndiDatasourceServ
             throws DBDatasourceServiceException {
         synchronized (this) {
             ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
-            PoolingManagedDataSource cachedDataSource = (PoolingManagedDataSource) cacheManager.getFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, databaseConnection.getName() );;
-            if ( cachedDataSource != null && !cachedDataSource.isExpired() ) {
-                // Check expired
-                if ( cachedDataSource.hasSameConfig( databaseConnection.toString() ) ) {
-                    return cachedDataSource;
-                }
-
-                if ( cachedDataSource.isInUse() ) {
-                    cachedDataSource.expire();
-                }
-
+            Object fromCache = cacheManager.getFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, databaseConnection.getName() );
+            if ( !( fromCache instanceof PoolingManagedDataSource ) ) {
                 cacheManager.removeFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, databaseConnection.getName() );
+            } else {
+                PoolingManagedDataSource cachedDataSource = (PoolingManagedDataSource) fromCache;
+                if ( cachedDataSource != null && !cachedDataSource.isExpired() ) {
+                    // Check expired
+                    if ( cachedDataSource.hasSameConfig( databaseConnection.toString() ) ) {
+                        return cachedDataSource;
+                    }
+                    if ( cachedDataSource.isInUse() ) {
+                        cachedDataSource.expire();
+                    }
+                    cacheManager.removeFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, databaseConnection.getName() );
+                }
             }
             return PooledDatasourceHelper.setupPooledDataSource( databaseConnection );
         }

@@ -23,7 +23,12 @@ package org.pentaho.platform.plugin.action.kettle;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.dbcp.PoolingDataSource;
+import org.apache.commons.pool.impl.GenericObjectPool;
+import org.pentaho.database.IDatabaseDialect;
+import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.di.core.database.CachedManagedDataSourceInterface;
+import org.pentaho.platform.api.data.IDBDatasourceService;
+import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceHelper;
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
@@ -38,8 +43,23 @@ public class PoolingManagedDataSource extends PoolingDataSource implements Cache
     private String poolConfigHash;
     private List<String> usedBy;
 
-    public PoolingManagedDataSource(){
+    public PoolingManagedDataSource( IDatabaseConnection databaseConnection, IDatabaseDialect dialect ) throws Exception {
+        isExpired = false;
+        poolConfigHash = "";
         usedBy = new ArrayList<>();
+
+        Map<String, String> attributes = databaseConnection.getConnectionPoolingProperties();
+        GenericObjectPool pool = PooledDatasourceHelper.createGenericPool( databaseConnection, dialect, attributes );
+        /*
+         * All of this is wrapped in a DataSource, which client code should already know how to handle (since it's the
+         * same class of object they'd fetch via the container's JNDI tree
+         */
+        setPool( pool );
+        setHash( databaseConnection.toString() );
+        if ( attributes.containsKey( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) {
+            setAccessToUnderlyingConnectionAllowed( Boolean.parseBoolean( attributes
+                    .get( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) );
+        }
     }
 
     @Override
@@ -47,7 +67,6 @@ public class PoolingManagedDataSource extends PoolingDataSource implements Cache
         return isExpired;
     }
 
-    @Override
     public String calculateDSHash( Object dataSource ) {
         return DigestUtils.md5Hex( dataSource.toString() );
     }
@@ -58,22 +77,24 @@ public class PoolingManagedDataSource extends PoolingDataSource implements Cache
     }
 
     @Override
-    public void setInUseBy( String ownerName ) {
+    public void addInUseBy( String ownerName ) {
         if ( !usedBy.contains( ownerName ) ){
             usedBy.add( ownerName );
         }
     }
 
     @Override
-    public void tryInvalidateDataSource( String invalidatedBy ) {
+    public void removeInUseBy( String invalidatedBy ) {
         usedBy.remove( invalidatedBy );
     }
 
-    public void setConfigHash( String poolConfig ) {
+    @Override
+    public void setHash( String poolConfig ) {
         poolConfigHash = calculateDSHash( poolConfig );
     }
 
-    public String getPoolConfigHash() {
+    @Override
+    public String getHash() {
         return poolConfigHash;
     }
 

@@ -43,7 +43,6 @@ import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
-import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
@@ -74,7 +73,7 @@ public class PooledDatasourceHelper {
       String driverClass = getDriverClass( databaseConnection, dialect );
       loadDriverClass( databaseConnection, dialect, driverClass );
 
-      PoolingManagedDataSource poolingDataSource = createPoolingDataSource( databaseConnection, dialect );
+      PoolingManagedDataSource poolingDataSource = new PoolingManagedDataSource( databaseConnection, dialect );
 
       ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
       cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, databaseConnection.getName(), poolingDataSource );
@@ -82,25 +81,6 @@ public class PooledDatasourceHelper {
     } catch ( Exception e ) {
       throw new DBDatasourceServiceException( e );
     }
-  }
-
-  private static PoolingManagedDataSource createPoolingDataSource( IDatabaseConnection databaseConnection, IDatabaseDialect dialect ) throws Exception {
-    Map<String, String> attributes = databaseConnection.getConnectionPoolingProperties();
-    PoolingManagedDataSource poolingDataSource = new PoolingManagedDataSource();
-    GenericObjectPool pool = createGenericPool( databaseConnection, dialect, attributes );
-
-    /*
-     * All of this is wrapped in a DataSource, which client code should already know how to handle (since it's the
-     * same class of object they'd fetch via the container's JNDI tree
-     */
-    poolingDataSource.setPool( pool );
-    poolingDataSource.setConfigHash( databaseConnection.toString() );
-
-    if ( attributes.containsKey( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) {
-      poolingDataSource.setAccessToUnderlyingConnectionAllowed( Boolean.parseBoolean( attributes
-          .get( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) );
-    }
-    return poolingDataSource;
   }
 
   private static void loadDriverClass( IDatabaseConnection databaseConnection, IDatabaseDialect dialect, String driverClass ) throws ClassNotFoundException {
@@ -115,23 +95,23 @@ public class PooledDatasourceHelper {
     }
   }
 
-  private static GenericObjectPool createGenericPool( IDatabaseConnection databaseConnection, IDatabaseDialect dialect, Map<String, String> attributes ) throws Exception {
+  public static GenericObjectPool createGenericPool( IDatabaseConnection databaseConnection, IDatabaseDialect dialect, Map<String, String> attributes ) throws Exception {
     // As the name says, this is a generic pool; it returns basic Object-class objects.
     GenericObjectPool pool = new GenericObjectPool( null );
-    // if removedAbandoned = true, then an AbandonedObjectPool object will take GenericObjectPool's place
-    if ( attributes.containsKey( IDBDatasourceService.REMOVE_ABANDONED )
-        && Boolean.parseBoolean( attributes.get( IDBDatasourceService.REMOVE_ABANDONED ) ) ) {
+    initializeAbandonedObjectPool( pool, attributes );
+    configurePool( databaseConnection, dialect, attributes, pool );
 
-      pool = initializeAbandonedObjectPool( attributes );
-    }
+    return pool;
+  }
 
-    int maxIdleConnection = (int) getPropertyValue( attributes, "dbcp-defaults/max-idle-conn", IDBDatasourceService.MAX_IDLE_KEY );
-    int minIdleConnection = (int) getPropertyValue( attributes, "dbcp-defaults/min-idle-conn", IDBDatasourceService.MIN_IDLE_KEY );
-    int maxActiveConnection = (int) getPropertyValue( attributes, "dbcp-defaults/max-act-conn", IDBDatasourceService.MAX_ACTIVE_KEY );
-    long waitTime = getPropertyValue( attributes, "dbcp-defaults/wait", IDBDatasourceService.MAX_WAIT_KEY );
-    boolean testWhileIdle = getBooleanPropertyValue( attributes, "dbcp-defaults/test-while-idle", IDBDatasourceService.TEST_WHILE_IDLE );
-    boolean testOnBorrow = getBooleanPropertyValue( attributes, "dbcp-defaults/test-on-borrow", IDBDatasourceService.TEST_ON_BORROW );
-    boolean testOnReturn = getBooleanPropertyValue( attributes, "dbcp-defaults/test-on-return", IDBDatasourceService.TEST_ON_RETURN );
+  private static void configurePool( IDatabaseConnection databaseConnection, IDatabaseDialect dialect, Map<String, String> attributes, GenericObjectPool pool ) throws Exception {
+    int maxIdleConnection = getIntegerPropertyValue( attributes, IDBDatasourceService.MAX_IDLE_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/max-idle-conn", null) );
+    int minIdleConnection = getIntegerPropertyValue( attributes, IDBDatasourceService.MIN_IDLE_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/min-idle-conn", null) );
+    int maxActiveConnection = getIntegerPropertyValue( attributes, IDBDatasourceService.MAX_ACTIVE_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/max-act-conn", null) );
+    long waitTime = getLongPropertyValue( attributes, IDBDatasourceService.MAX_WAIT_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/wait", null) );
+    boolean testWhileIdle = getBooleanPropertyValue( attributes, IDBDatasourceService.TEST_WHILE_IDLE, PentahoSystem.getSystemSetting( "dbcp-defaults/test-while-idle", null) );
+    boolean testOnBorrow = getBooleanPropertyValue( attributes, IDBDatasourceService.TEST_ON_BORROW, PentahoSystem.getSystemSetting( "dbcp-defaults/test-on-borrow", null) );
+    boolean testOnReturn = getBooleanPropertyValue( attributes, IDBDatasourceService.TEST_ON_RETURN, PentahoSystem.getSystemSetting( "dbcp-defaults/test-on-return", null) );
     byte whenExhaustedActionType = getWhenExhaustedActionType();
 
     pool.setWhenExhaustedAction( whenExhaustedActionType );
@@ -161,8 +141,6 @@ public class PooledDatasourceHelper {
 
     Logger.debug( PooledDatasourceHelper.class, "Pool now has " + pool.getNumActive() + " active/"
         + pool.getNumIdle() + " idle connections." ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
-    return pool;
   }
 
   private static void prePopulatePool( GenericObjectPool pool, int maxIdleConnection ) throws Exception {
@@ -171,10 +149,8 @@ public class PooledDatasourceHelper {
       for (int i = 0; i < maxIdleConnection; ++i ) {
         pool.addObject();
       }
-      if ( Logger.getLogLevel() <= ILogger.DEBUG ) {
-        Logger.debug( PooledDatasourceHelper.class,
-          "Pool has been pre-populated with " + maxIdleConnection + " connections" );
-      }
+      Logger.debug( PooledDatasourceHelper.class,
+              "Pool has been pre-populated with " + maxIdleConnection + " connections" );
     }
   }
 
@@ -189,7 +165,7 @@ public class PooledDatasourceHelper {
 
     boolean defaultReadOnly =
             attributes.containsKey( IDBDatasourceService.DEFAULT_READ_ONLY )
-                    && Boolean.parseBoolean( attributes.get( IDBDatasourceService.TEST_WHILE_IDLE ) ); // default to false
+                    && Boolean.parseBoolean( attributes.get( IDBDatasourceService.DEFAULT_READ_ONLY ) ); // default to false
 
     boolean defaultAutoCommit =
             !attributes.containsKey( IDBDatasourceService.DEFAULT_AUTO_COMMIT )
@@ -206,8 +182,7 @@ public class PooledDatasourceHelper {
             defaultAutoCommit // boolean (default to auto-commit statements?)
     );
 
-    if ( attributes.containsKey( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION )
-        && !IDBDatasourceService.TRANSACTION_ISOLATION_NONE_VALUE.equalsIgnoreCase( attributes
+    if ( !IDBDatasourceService.TRANSACTION_ISOLATION_NONE_VALUE.equalsIgnoreCase( attributes
             .get( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION ) ) ) {
       Isolation isolationLevel =
           Isolation.valueOf( attributes.get( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION ) );
@@ -227,10 +202,7 @@ public class PooledDatasourceHelper {
   }
 
   private static String getValidQuery( Map<String, String> attributes ) {
-    if ( attributes.containsKey( IDBDatasourceService.QUERY_KEY ) ) {
-      return attributes.get( IDBDatasourceService.QUERY_KEY );
-    }
-    return null;
+    return attributes.get( IDBDatasourceService.QUERY_KEY );
   }
 
   private static String getUrl( IDatabaseConnection databaseConnection, IDatabaseDialect dialect ) {
@@ -257,13 +229,11 @@ public class PooledDatasourceHelper {
   }
 
   private static KeyedObjectPoolFactory getKeyedObjectPoolFactory( Map<String, String> attributes, GenericObjectPool pool) {
-    if ( attributes.containsKey( IDBDatasourceService.POOL_PREPARED_STATEMENTS )
-        && Boolean.parseBoolean( attributes.get( IDBDatasourceService.POOL_PREPARED_STATEMENTS ) ) ) {
+    if ( Boolean.parseBoolean( attributes.get( IDBDatasourceService.POOL_PREPARED_STATEMENTS ) ) ) {
 
       int maxOpenPreparedStatements = -1; // unlimited
 
-      if ( attributes.containsKey( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS )
-          && NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS ) ) ) {
+      if ( NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS ) ) ) {
 
         maxOpenPreparedStatements =
             Integer.parseInt( attributes.get( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS ) );
@@ -276,14 +246,17 @@ public class PooledDatasourceHelper {
   }
 
   private static void setTimeBetweenEvictionRunsMillis( Map<String, String> attributes, GenericObjectPool pool ) {
-    if ( attributes.containsKey( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS )
-        && NumberUtils.isNumber( attributes.get( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS ) ) ) {
+    if ( NumberUtils.isNumber( attributes.get( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS ) ) ) {
       pool.setTimeBetweenEvictionRunsMillis( Long.parseLong( attributes
           .get( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS ) ) );
     }
   }
 
-  private static GenericObjectPool initializeAbandonedObjectPool( Map<String, String> attributes ) {
+  private static void initializeAbandonedObjectPool( GenericObjectPool pool, Map<String, String> attributes ) {
+    // if removedAbandoned = true, then an AbandonedObjectPool object will take GenericObjectPool's place
+    if ( Boolean.parseBoolean( attributes.get( IDBDatasourceService.REMOVE_ABANDONED ) ) ) {
+      return;
+    }
     AbandonedConfig config = new AbandonedConfig();
     config.setRemoveAbandoned( Boolean.parseBoolean( attributes.get( IDBDatasourceService.REMOVE_ABANDONED ) ) );
 
@@ -291,38 +264,31 @@ public class PooledDatasourceHelper {
       config.setLogAbandoned( Boolean.parseBoolean( attributes.get( IDBDatasourceService.LOG_ABANDONED ) ) );
     }
 
-    if ( attributes.containsKey( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT )
-        && NumberUtils.isNumber( attributes.get( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT ) ) ) {
+    if ( NumberUtils.isNumber( attributes.get( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT ) ) ) {
       config.setRemoveAbandonedTimeout( Integer.parseInt( attributes
           .get( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT ) ) );
     }
 
-    return new AbandonedObjectPool( null, config );
+    pool = new AbandonedObjectPool( null, config );
   }
 
-  private static boolean getBooleanPropertyValue( Map<String, String> attributes, String s, String testWhileIdle2 ) {
-    // Read default connection pooling parameter
-    String testWhileIdleValue = PentahoSystem.getSystemSetting( s, null ); //$NON-NLS-1$
-    // property initialization
-    boolean testWhileIdle = !StringUtil.isEmpty( testWhileIdleValue ) && Boolean.parseBoolean( testWhileIdleValue );
-    // setting properties according to user specifications
-    if ( attributes.containsKey( testWhileIdle2 ) ) {
-      testWhileIdle = Boolean.parseBoolean( attributes.get( testWhileIdle2 ) );
+  private static String getPropertyValue( Map<String, String> attributes, String key, String defaultValue ) {
+    if ( attributes.containsKey( key ) ){
+      return attributes.get( key );
     }
-    return testWhileIdle;
+    return defaultValue;
   }
 
-  private static long getPropertyValue( Map<String, String> attributes, String s, String maxIdleKey ) {
-    // Read default connection pooling parameter
-    String defaultPropValue = PentahoSystem.getSystemSetting( s, null ); //$NON-NLS-1$
-    // property initialization
-    long finalPropValue = !StringUtil.isEmpty( defaultPropValue ) ? Integer.parseInt( defaultPropValue ) : -1;
-    // setting properties according to user specifications
-    if ( attributes.containsKey( maxIdleKey )
-            && NumberUtils.isNumber( attributes.get( maxIdleKey ) ) ) {
-      finalPropValue = Integer.parseInt( attributes.get( maxIdleKey ) );
-    }
-    return finalPropValue;
+  private static int getIntegerPropertyValue( Map<String, String> attributes, String key, String defaultValue ) {
+    return Integer.parseInt( getPropertyValue( attributes, key, defaultValue ) );
+  }
+
+  private static long getLongPropertyValue( Map<String, String> attributes, String key, String defaultValue ) {
+    return Long.parseLong( getPropertyValue( attributes, key, defaultValue ) );
+  }
+
+  private static boolean getBooleanPropertyValue( Map<String, String> attributes, String key, String defaultValue ) {
+    return Boolean.parseBoolean( getPropertyValue( attributes, key, defaultValue ) );
   }
 
   private static IDatabaseDialect getDatabaseDialect( IDatabaseConnection databaseConnection ) throws DBDatasourceServiceException {
