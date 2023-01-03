@@ -55,7 +55,7 @@ public class PoolingManagedDataSource extends PoolingDataSource implements Cache
          * same class of object they'd fetch via the container's JNDI tree
          */
         setPool( pool );
-        setHash( databaseConnection.toString() );
+        setHash( databaseConnection );
         if ( attributes.containsKey( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) {
             setAccessToUnderlyingConnectionAllowed( Boolean.parseBoolean( attributes
                     .get( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) );
@@ -69,6 +69,11 @@ public class PoolingManagedDataSource extends PoolingDataSource implements Cache
 
     public String calculateDSHash( Object dataSource ) {
         return DigestUtils.md5Hex( dataSource.toString() );
+    }
+
+    @Override
+    public void tryInvalidateDataSource( String invalidatedBy ) {
+        expire();
     }
 
     @Override
@@ -89,7 +94,7 @@ public class PoolingManagedDataSource extends PoolingDataSource implements Cache
     }
 
     @Override
-    public void setHash( String poolConfig ) {
+    public void setHash( Object poolConfig ) {
         poolConfigHash = calculateDSHash( poolConfig );
     }
 
@@ -105,6 +110,11 @@ public class PoolingManagedDataSource extends PoolingDataSource implements Cache
     @Override
     public boolean isInUse() {
         return !usedBy.isEmpty();
+    }
+
+    @Override
+    public void setInUseBy( List<String> ownerList ) {
+        usedBy.addAll( ownerList );
     }
 
     @Override
