@@ -20,10 +20,7 @@
 
 package org.pentaho.mantle.client;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.core.client.*;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.http.client.Request;
@@ -495,11 +492,14 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
       requestBuilder.sendRequest( null, new RequestCallback() {
         @Override public void onResponseReceived( Request request, Response response ) {
           List<String> whitelistedHosts = new ArrayList<>();
-          JSONArray data = new JSONArray( JsonUtils.safeEval( response.getText() ) );
-          for ( int i = 0; i < data.size(); i++ ) {
+
+          JsArrayString data = parseHostsJson( JsonUtils.escapeJsonForEval( response.getText() ) );
+          log("data:" + data);
+          for ( int i = 0; i < data.length(); i++ ) {
             whitelistedHosts.add( cleanString( data.get( i ).toString() ) );
           }
           setWhitelistedHosts( whitelistedHosts );
+
         }
 
         @Override public void onError( Request request, Throwable throwable ) {
@@ -528,6 +528,11 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
       return window.parent.mantle_whitelistedHosts;
   }-*/;
 
+  private final native JsArrayString parseHostsJson(String json )
+  /*-{
+    var obj = JSON.parse(json);
+    return obj.host;
+  }-*/;
 
   private boolean isURLInWhitelistedDomain( String startUpURL ) {
 
