@@ -20,6 +20,8 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.codehaus.enunciate.Facet;
+import org.json.JSONArray;
 import org.pentaho.platform.config.PropertiesFileConfiguration;
 
 import org.codehaus.enunciate.jaxrs.ResponseCode;
@@ -28,6 +30,9 @@ import org.codehaus.enunciate.jaxrs.StatusCodes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,10 +59,10 @@ public class MantleResource {
   @GET
   @Path( "/getDeeplinkAllowedHosts" )
   @Produces( { APPLICATION_JSON } )
-  @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully sent result." ),
+  @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully obtained allowed host list." ),
     @ResponseCode( code = 500, condition = "Failed to get data." ) } )
-  public List<String> getDeeplinkAllowedHosts() {
-    return getListHosts();
+  public Response getDeeplinkAllowedHosts() {
+    return Response.ok(  new HostsWrapper( getListHosts() ), MediaType.APPLICATION_JSON ).build();
   }
 
   private List<String> getListHosts() {
