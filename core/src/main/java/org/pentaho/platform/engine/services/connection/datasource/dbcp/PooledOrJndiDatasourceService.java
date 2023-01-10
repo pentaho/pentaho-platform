@@ -43,7 +43,7 @@ public class PooledOrJndiDatasourceService extends NonPooledOrJndiDatasourceServ
                 PoolingManagedDataSource cachedDataSource = (PoolingManagedDataSource) fromCache;
                 if ( cachedDataSource != null && !cachedDataSource.isExpired() ) {
                     // Check expired
-                    if ( cachedDataSource.hasSameConfig( databaseConnection.toString() ) ) {
+                    if ( cachedDataSource.hasSameConfig( databaseConnection.calculateHash() ) ) {
                         return cachedDataSource;
                     }
                     if ( cachedDataSource.isInUse() ) {

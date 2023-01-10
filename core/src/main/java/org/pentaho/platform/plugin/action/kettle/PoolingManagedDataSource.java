@@ -21,7 +21,6 @@
 package org.pentaho.platform.plugin.action.kettle;
 
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.dbcp.PoolingDataSource;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.pentaho.database.IDatabaseDialect;
@@ -55,7 +54,7 @@ public class PoolingManagedDataSource extends PoolingDataSource implements Cache
          * same class of object they'd fetch via the container's JNDI tree
          */
         setPool( pool );
-        setHash( databaseConnection );
+        setHash( databaseConnection.calculateHash() );
         if ( attributes.containsKey( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) {
             setAccessToUnderlyingConnectionAllowed( Boolean.parseBoolean( attributes
                     .get( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) );
@@ -65,10 +64,6 @@ public class PoolingManagedDataSource extends PoolingDataSource implements Cache
     @Override
     public boolean isExpired() {
         return isExpired;
-    }
-
-    public String calculateDSHash( Object dataSource ) {
-        return DigestUtils.md5Hex( dataSource.toString() );
     }
 
     @Override
@@ -94,8 +89,8 @@ public class PoolingManagedDataSource extends PoolingDataSource implements Cache
     }
 
     @Override
-    public void setHash( Object poolConfig ) {
-        poolConfigHash = calculateDSHash( poolConfig );
+    public void setHash( String poolConfig ) {
+        poolConfigHash = poolConfig;
     }
 
     @Override
@@ -103,8 +98,8 @@ public class PoolingManagedDataSource extends PoolingDataSource implements Cache
         return poolConfigHash;
     }
 
-    public boolean hasSameConfig( String config ) {
-        return poolConfigHash.equals( calculateDSHash( config ) );
+    public boolean hasSameConfig( String poolConfigHash ) {
+        return this.poolConfigHash.equals( poolConfigHash );
     }
 
     @Override
@@ -114,7 +109,7 @@ public class PoolingManagedDataSource extends PoolingDataSource implements Cache
 
     @Override
     public void setInUseBy( List<String> ownerList ) {
-        usedBy.addAll( ownerList );
+        usedBy = ownerList;
     }
 
     @Override

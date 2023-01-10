@@ -97,8 +97,7 @@ public class PooledDatasourceHelper {
 
   public static GenericObjectPool createGenericPool( IDatabaseConnection databaseConnection, IDatabaseDialect dialect, Map<String, String> attributes ) throws Exception {
     // As the name says, this is a generic pool; it returns basic Object-class objects.
-    GenericObjectPool pool = new GenericObjectPool( null );
-    initializeAbandonedObjectPool( pool, attributes );
+    GenericObjectPool pool = initializeObjectPool( attributes );
     configurePool( databaseConnection, dialect, attributes, pool );
 
     return pool;
@@ -252,10 +251,10 @@ public class PooledDatasourceHelper {
     }
   }
 
-  private static void initializeAbandonedObjectPool( GenericObjectPool pool, Map<String, String> attributes ) {
+  private static GenericObjectPool initializeObjectPool( Map<String, String> attributes ) {
     // if removedAbandoned = true, then an AbandonedObjectPool object will take GenericObjectPool's place
     if ( Boolean.parseBoolean( attributes.get( IDBDatasourceService.REMOVE_ABANDONED ) ) ) {
-      return;
+      return new GenericObjectPool( null );
     }
     AbandonedConfig config = new AbandonedConfig();
     config.setRemoveAbandoned( Boolean.parseBoolean( attributes.get( IDBDatasourceService.REMOVE_ABANDONED ) ) );
@@ -269,7 +268,7 @@ public class PooledDatasourceHelper {
           .get( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT ) ) );
     }
 
-    pool = new AbandonedObjectPool( null, config );
+    return new AbandonedObjectPool( null, config );
   }
 
   private static String getPropertyValue( Map<String, String> attributes, String key, String defaultValue ) {
