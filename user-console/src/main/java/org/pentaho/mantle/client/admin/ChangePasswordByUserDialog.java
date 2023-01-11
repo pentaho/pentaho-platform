@@ -20,6 +20,7 @@
 
 package org.pentaho.mantle.client.admin;
 
+import com.google.gwt.aria.client.Roles;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -92,15 +93,18 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
     VerticalPanel vp = new VerticalPanel();
 
     Label oldPasswordLabel = new Label( Messages.getString( "oldPassword" ) + ":" );
+    Roles.getTextboxRole().setAriaLabelProperty( oldPasswordTextBox.getElement(), Messages.getString( "oldPassword" ) );
     vp.add( oldPasswordLabel );
     vp.add( oldPasswordTextBox );
     addSpacer( vp, false );
     addSpacer( vp, true );
     Label newPasswordLabel = new Label( Messages.getString( "newPassword" ) + ":" );
+    Roles.getTextboxRole().setAriaLabelProperty( newPasswordTextBox.getElement(), Messages.getString( "newPassword" ) );
     vp.add( newPasswordLabel );
     vp.add( newPasswordTextBox );
     addSpacer( vp, false );
     Label reTypePasswordLabel = new Label( Messages.getString( "retypePassword" ) + ":" );
+    Roles.getTextboxRole().setAriaLabelProperty( reTypePasswordTextBox.getElement(), Messages.getString( "retypePassword" ) );
     vp.add( reTypePasswordLabel );
     vp.add( reTypePasswordTextBox );
 
@@ -119,6 +123,7 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
   @Override
   public void show() {
     super.show();
+    oldPasswordTextBox.setFocus( true );
     this.dialog.setStyleDependentName( "change-password", true );
   }
 

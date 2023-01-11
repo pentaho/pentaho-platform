@@ -27,6 +27,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -82,8 +83,10 @@ public class AboutCommand extends AbstractCommand {
     VerticalPanel aboutContent = new VerticalPanel();
     aboutContent.add( new Label( releaseLabel + " " + version ) );
     aboutContent.add( new HTML( licenseInfo ) );
+    FocusPanel focusPanel = new FocusPanel( aboutContent );
+    focusPanel.setStyleName( "dialogsFocusPanel" );
 
-    dialogBox.setContent( aboutContent );
+    dialogBox.setContent( focusPanel );
     dialogBox.center();
   }
 }

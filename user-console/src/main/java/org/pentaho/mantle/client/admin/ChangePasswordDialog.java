@@ -20,6 +20,7 @@
 
 package org.pentaho.mantle.client.admin;
 
+import com.google.gwt.aria.client.Roles;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -85,6 +86,7 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     VerticalPanel vp = new VerticalPanel();
 
     Label nameLabel = new Label( Messages.getString( "newPassword" ) + ":" );
+    Roles.getTextboxRole().setAriaLabelProperty( newPasswordTextBox.getElement(), Messages.getString( "newPassword" ) );
     vp.add( nameLabel );
     vp.add( newPasswordTextBox );
 
@@ -93,6 +95,7 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     vp.add( separatorSpacer );
 
     Label passwordLabel = new Label( Messages.getString( "retypePassword" ) + ":" );
+    Roles.getTextboxRole().setAriaLabelProperty( reTypePasswordTextBox.getElement(), Messages.getString( "retypePassword" ) );
     vp.add( passwordLabel );
     vp.add( reTypePasswordTextBox );
 
@@ -106,6 +109,7 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     vp.add( separatorSpacer );
 
     Label administratorLabel = new Label( Messages.getString( "administratorPassword" ) + ":" );
+    Roles.getTextboxRole().setAriaLabelProperty( administratorPasswordTextBox.getElement(), Messages.getString( "administratorPassword" ) );
     vp.add( administratorLabel );
     vp.add( administratorPasswordTextBox );
 
@@ -115,6 +119,7 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
   @Override
   public void show() {
     super.show();
+    newPasswordTextBox.setFocus( true );
 
     this.dialog.setStyleDependentName( "change-password", true );
   }

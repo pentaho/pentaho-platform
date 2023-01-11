@@ -20,6 +20,8 @@
 
 package org.pentaho.mantle.client.ui;
 
+import com.google.gwt.aria.client.Roles;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -122,6 +124,9 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
   }
 
   public CustomDropDown( String labelText, MenuBar menuBar, MODE mode ) {
+    Roles.getButtonRole().set( this.getElement() );
+    Roles.getButtonRole().setTabindexExtraAttribute( this.getElement(), 0 );
+    Roles.getButtonRole().setAriaHaspopupProperty( this.getElement(), true );
     this.menuBar = menuBar;
 
     sinkEvents( Event.ONCLICK | Event.MOUSEEVENTS | Event.KEYEVENTS );
@@ -163,12 +168,18 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
 
   public void onBrowserEvent( Event event ) {
     super.onBrowserEvent( event );
-    if ( ( event.getTypeInt() & Event.ONCLICK ) == Event.ONCLICK ) {
+    if ( ( ( event.getTypeInt() & Event.ONCLICK ) == Event.ONCLICK )
+            || event.getKeyCode() == KeyCodes.KEY_ENTER ) {
       if ( enabled && !pressed ) {
         pressed = true;
         addStyleDependentName( "pressed" );
         removeStyleDependentName( "hover" );
         popup.setWidget( menuBar );
+        Scheduler.get().scheduleDeferred( new Scheduler.ScheduledCommand() {
+          public void execute() {
+            menuBar.focus();
+          }
+        } );
         popup.setPopupPositionAndShow( new PositionCallback() {
           public void setPosition( int offsetWidth, int offsetHeight ) {
             popup.setPopupPosition( getAbsoluteLeft(), getAbsoluteTop() + getOffsetHeight() - 1 );
