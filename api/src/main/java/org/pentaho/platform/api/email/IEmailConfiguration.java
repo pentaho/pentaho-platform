@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -68,4 +68,40 @@ public interface IEmailConfiguration {
   public boolean isSmtpQuitWait();
 
   public void setSmtpQuitWait( final boolean smtpQuitWait );
+
+  public String getAuthMechanism();
+
+  public void setAuthMechanism( final String authMechanism );
+
+  public String getClientId();
+
+  public void setClientId( final String clientId );
+
+  public String getClientSecret();
+
+  public void setClientSecret( final String clientSecret );
+
+  public String getTokenUrl();
+
+  public void setTokenUrl( final String tokenUrl );
+
+  public String getScope();
+
+  public void setScope( final String scope );
+
+  public String getGrantType();
+
+  public void setGrantType( final String grantType );
+
+  public String getRefreshToken();
+
+  public void setRefreshToken( final String refreshToken );
+
+  public String getAuthorizationCode();
+
+  public void setAuthorizationCode( final String authorizationCode );
+
+  public String getRedirectUri();
+
+  public void setRedirectUri( final String redirectUri );
 }

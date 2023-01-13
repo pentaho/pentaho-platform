@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -58,6 +58,15 @@ public class EmailConfigurationXml extends EmailConfiguration {
   private static final String USER_ID_XPATH = ROOT_ELEMENT + "/mail.userid"; //$NON-NLS-1$
   private static final String USE_SSL_XPATH = ROOT_ELEMENT + "/properties/mail.smtp.ssl"; //$NON-NLS-1$
   private static final String USE_START_TLS_XPATH = ROOT_ELEMENT + "/properties/mail.smtp.starttls.enable"; //$NON-NLS-1$
+  private static final String AUTH_MECHANISM_XPATH = ROOT_ELEMENT + "/properties/mail.smtp.auth.mechanisms"; //$NON-NLS-1$
+  private static final String CLIENT_ID_XPATH = ROOT_ELEMENT + "/mail.client.id";  //$NON-NLS-1$
+  private static final String CLIENT_SECRET_XPATH = ROOT_ELEMENT + "/mail.client.secret";  //$NON-NLS-1$
+  private static final String TOKEN_URL_XPATH = ROOT_ELEMENT + "/mail.token.url";  //$NON-NLS-1$
+  private static final String SCOPE_XPATH = ROOT_ELEMENT + "/mail.scope";  //$NON-NLS-1$
+  private static final String GRANT_TYPE_XPATH = ROOT_ELEMENT + "/mail.grant.type";  //$NON-NLS-1$
+  private static final String REFRESH_TOKEN_XPATH = ROOT_ELEMENT + "/mail.refresh.token";  //$NON-NLS-1$
+  private static final String AUTHORIZATION_CODE_XPATH = ROOT_ELEMENT + "/mail.authorization.code";  //$NON-NLS-1$
+  private static final String REDIRECT_URI_XPATH = ROOT_ELEMENT + "/mail.redirect.uri";  //$NON-NLS-1$
   private static final Integer MIN_PORT_NUMBER = 0;
   private static final Integer MAX_PORT_NUMBER = 65535;
 
@@ -113,7 +122,19 @@ public class EmailConfigurationXml extends EmailConfiguration {
     setDefaultFrom( getStringValue( doc, DEFAULT_FROM_XPATH ) );
     setFromName( getStringValue( doc, FROM_NAME_XPATH ) );
     setUserId( getStringValue( doc, USER_ID_XPATH ) );
-    setPassword( Encr.decryptPasswordOptionallyEncrypted( getStringValue( doc, PASSWORD_XPATH ) ) );
+    String encryptedPass = getStringValue( doc, PASSWORD_XPATH );
+    if ( !StringUtils.isEmpty( encryptedPass ) ) {
+      setPassword( Encr.decryptPasswordOptionallyEncrypted( encryptedPass ) );
+    }
+    setAuthMechanism( getStringValue( doc, AUTH_MECHANISM_XPATH ) );
+    setTokenUrl( getStringValue( doc, TOKEN_URL_XPATH ) );
+    setClientId( getStringValue( doc, CLIENT_ID_XPATH ) );
+    setClientSecret( getStringValue( doc, CLIENT_SECRET_XPATH ) );
+    setScope( getStringValue( doc, SCOPE_XPATH ) );
+    setGrantType( getStringValue( doc, GRANT_TYPE_XPATH ) );
+    setRefreshToken( getStringValue( doc, REFRESH_TOKEN_XPATH ) );
+    setAuthorizationCode( getStringValue( doc, AUTHORIZATION_CODE_XPATH ) );
+    setRedirectUri( getStringValue( doc, REDIRECT_URI_XPATH ) );
   }
 
   private static String getStringValue( final Document doc, final String xpath ) {
@@ -189,6 +210,15 @@ public class EmailConfigurationXml extends EmailConfiguration {
     String rawPassword = ObjectUtils.toString( emailConfiguration.getPassword() );
     setValue( document, PASSWORD_XPATH,
       StringUtils.isEmpty( rawPassword ) ? "" : Encr.encryptPasswordIfNotUsingVariables( rawPassword ) );
+    setValue( document, AUTH_MECHANISM_XPATH, ObjectUtils.toString( emailConfiguration.getAuthMechanism() ) );
+    setValue( document, CLIENT_ID_XPATH, ObjectUtils.toString( emailConfiguration.getClientId() ) );
+    setValue( document, CLIENT_SECRET_XPATH, ObjectUtils.toString( emailConfiguration.getClientSecret() ) );
+    setValue( document, SCOPE_XPATH, ObjectUtils.toString( emailConfiguration.getScope() ) );
+    setValue( document, GRANT_TYPE_XPATH, ObjectUtils.toString( emailConfiguration.getGrantType() ) );
+    setValue( document, REFRESH_TOKEN_XPATH, ObjectUtils.toString( emailConfiguration.getRefreshToken() ) );
+    setValue( document, AUTHORIZATION_CODE_XPATH, ObjectUtils.toString( emailConfiguration.getAuthorizationCode() ) );
+    setValue( document, TOKEN_URL_XPATH, ObjectUtils.toString( emailConfiguration.getTokenUrl() ) );
+    setValue( document, REDIRECT_URI_XPATH, ObjectUtils.toString( emailConfiguration.getRedirectUri() ) );
     return document;
   }
 }
