@@ -41,7 +41,7 @@ public class PooledOrJndiDatasourceService extends NonPooledOrJndiDatasourceServ
                 cacheManager.removeFromRegionCache( IDBDatasourceService.JDBC_DATASOURCE, databaseConnection.getName() );
             } else {
                 PoolingManagedDataSource cachedDataSource = (PoolingManagedDataSource) fromCache;
-                if ( cachedDataSource != null && !cachedDataSource.isExpired() ) {
+                if ( !cachedDataSource.isExpired() ) {
                     // Check expired
                     if ( cachedDataSource.hasSameConfig( databaseConnection.calculateHash() ) ) {
                         return cachedDataSource;
