@@ -20,8 +20,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.codehaus.enunciate.Facet;
-import org.json.JSONArray;
+import com.google.common.annotations.VisibleForTesting;
 import org.pentaho.platform.config.PropertiesFileConfiguration;
 
 import org.codehaus.enunciate.jaxrs.ResponseCode;
@@ -30,7 +29,6 @@ import org.codehaus.enunciate.jaxrs.StatusCodes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
@@ -54,32 +52,34 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 public class MantleResource {
 
   private final Log log = LogFactory.getLog( MantleResource.class );
-  private static final List<String> whiteListedHosts = new ArrayList<>();
+  private static List<String> whiteListedHosts = new ArrayList<>();
 
+  protected File propFile;
   @GET
   @Path( "/getDeeplinkAllowedHosts" )
   @Produces( { APPLICATION_JSON } )
   @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully obtained allowed host list." ),
     @ResponseCode( code = 500, condition = "Failed to get data." ) } )
   public Response getDeeplinkAllowedHosts() {
-    return Response.ok(  new HostsWrapper( getListHosts() ), MediaType.APPLICATION_JSON ).build();
+    try {
+      return Response.ok(getWrappedResponse(), MediaType.APPLICATION_JSON).build();
+    }catch (Exception e){
+      return Response.serverError().build();
+    }
+  }
+
+  HostsWrapper getWrappedResponse() {
+    return new HostsWrapper(getListHosts());
   }
 
   private List<String> getListHosts() {
     if ( whiteListedHosts.isEmpty() ) {
 
-      File propFile = new File(
-        PentahoSystem.getApplicationContext().getSolutionRootPath() + "/system/deeplink_allowed_urls.properties" );
+      getPropFile();
 
       try {
-
-        PropertiesFileConfiguration config = new PropertiesFileConfiguration( "mantle", propFile );
-
-        for ( Map.Entry<Object, Object> prop : config.getProperties().entrySet() ) {
-          if ( ( (String) prop.getKey() ).startsWith( "allowedHost." ) ) {
-            whiteListedHosts.add( (String) prop.getValue() );
-          }
-        }
+        List<String> listHosts = getListHostsFromPropFile();
+        whiteListedHosts = listHosts;
       } catch ( IOException e ) {
         log.warn( propFile.getAbsolutePath()
           + " not found. Failed during loading of properties. Resetting to default config.", e );
@@ -91,5 +91,21 @@ public class MantleResource {
       }
     }
     return whiteListedHosts;
+  }
+  List<String> getListHostsFromPropFile() throws IOException {
+    List<String> listHosts = new ArrayList<>();
+    PropertiesFileConfiguration config = new PropertiesFileConfiguration( "mantle", propFile );
+
+    for ( Map.Entry<Object, Object> prop : config.getProperties().entrySet() ) {
+      if ( ( (String) prop.getKey() ).startsWith( "allowedHost." ) ) {
+        listHosts.add( (String) prop.getValue() );
+      }
+    }
+    return listHosts;
+  }
+
+  void getPropFile() {
+    propFile = new File(
+      PentahoSystem.getApplicationContext().getSolutionRootPath() + "/system/deeplink_allowed_urls.properties" );
   }
 }
