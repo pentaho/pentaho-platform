@@ -21,7 +21,6 @@
 package org.pentaho.mantle.client.ui;
 
 import com.google.gwt.aria.client.Roles;
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -79,6 +78,7 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
         RootPanel.get().add( pageBackground, 0, 0 );
       }
       super.center();
+      menuBar.focus();
       pageBackground.setSize( "100%", Window.getClientHeight() + Window.getScrollTop() + "px" ); //$NON-NLS-1$ //$NON-NLS-2$
       pageBackground.setVisible( true );
       pageBackground.getElement().getStyle().setDisplay( Display.BLOCK );
@@ -175,11 +175,6 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
         addStyleDependentName( "pressed" );
         removeStyleDependentName( "hover" );
         popup.setWidget( menuBar );
-        Scheduler.get().scheduleDeferred( new Scheduler.ScheduledCommand() {
-          public void execute() {
-            menuBar.focus();
-          }
-        } );
         popup.setPopupPositionAndShow( new PositionCallback() {
           public void setPosition( int offsetWidth, int offsetHeight ) {
             popup.setPopupPosition( getAbsoluteLeft(), getAbsoluteTop() + getOffsetHeight() - 1 );
