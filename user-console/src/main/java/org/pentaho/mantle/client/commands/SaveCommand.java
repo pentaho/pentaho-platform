@@ -20,7 +20,6 @@
 package org.pentaho.mantle.client.commands;
 
 import com.google.gwt.core.client.JavaScriptException;
-import com.google.gwt.user.client.ui.FocusPanel;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooser.FileChooserMode;
@@ -126,9 +125,7 @@ public class SaveCommand extends AbstractCommand {
               false, true
             );
 
-            FocusPanel focusPanel = new FocusPanel(  new Label( Messages.getString( "fileExistsOverwrite" ), false ) );
-            focusPanel.setStyleName( "dialogsFocusPanel" );
-            overWriteDialog.setContent( focusPanel );
+            overWriteDialog.setContent( new Label( Messages.getString( "fileExistsOverwrite" ), false ) );
             overWriteDialog.setCallback( new IDialogCallback() {
               public void okPressed() {
                 // Save as, overwriting existing file.
@@ -286,7 +283,7 @@ public class SaveCommand extends AbstractCommand {
       public void run() {
         performOperationCallback = null;
       }
-    } );
+    });
 
     String unableToSaveMessage = Messages.getString( "unableToSaveMessage" );
     String save = Messages.getString( "save" );
@@ -491,7 +488,7 @@ public class SaveCommand extends AbstractCommand {
    * Used via JSNI.
    * @param error - The error.
    */
-  private void performOperationCallbackError( JavaScriptException error ) {
+  private void performOperationCallbackError( JavaScriptException error) {
     if ( performOperationCallback != null ) {
       performOperationCallback.onError( error );
     }
@@ -521,7 +518,7 @@ public class SaveCommand extends AbstractCommand {
       }
 
       @Override
-      public void onError( Throwable error ) {
+      public void onError(Throwable error) {
         finallyCleanup.run();
 
         if ( callback != null ) {
