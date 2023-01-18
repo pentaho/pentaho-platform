@@ -1323,7 +1323,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 }
 
 .pentaho-table .cellTableSortableHeader:hover {
-  color: #212121;
+  color: #fff54d;
 }
 
 .pentaho-table .cellTableSortedHeaderAscending {
