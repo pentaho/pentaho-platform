@@ -14,12 +14,13 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.mantle.client.admin;
 
+import com.google.gwt.aria.client.Roles;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -98,6 +99,7 @@ public class UserRolesAdminPanel extends SimplePanel {
   private Widget createUsersPanel() {
     HorizontalPanel mainUsersPanel = new HorizontalPanel();
     mainUsersPanel.getElement().setId( "admin-users-panel" );
+    Roles.getTabpanelRole().set( mainUsersPanel.getElement() );
 
     // mainUsersPanel.setWidth("376px");
     SimplePanel hSpacer = new SimplePanel();
@@ -234,6 +236,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 
   private Widget createSystemRolesPanel() {
     HorizontalPanel mainSystemRolesPanel = new HorizontalPanel();
+    Roles.getTabpanelRole().set( mainSystemRolesPanel.getElement() );
     mainSystemRolesPanel.getElement().setId( "admin-system-roles-panel" );
     SimplePanel hSpacer = new SimplePanel();
     hSpacer.setWidth( "15px" );
@@ -282,6 +285,7 @@ public class UserRolesAdminPanel extends SimplePanel {
   private Widget createRolesPanel() {
 
     HorizontalPanel mainRolesPanel = new HorizontalPanel();
+    Roles.getTabpanelRole().set( mainRolesPanel.getElement() );
     mainRolesPanel.getElement().setId( "admin-roles-panel" );
     SimplePanel hSpacer = new SimplePanel();
     hSpacer.setWidth( "15px" );
