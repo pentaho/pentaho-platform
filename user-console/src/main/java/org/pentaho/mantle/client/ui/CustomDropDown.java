@@ -14,12 +14,13 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.mantle.client.ui;
 
+import com.google.gwt.aria.client.Roles;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -77,6 +78,7 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
         RootPanel.get().add( pageBackground, 0, 0 );
       }
       super.center();
+      menuBar.focus();
       pageBackground.setSize( "100%", Window.getClientHeight() + Window.getScrollTop() + "px" ); //$NON-NLS-1$ //$NON-NLS-2$
       pageBackground.setVisible( true );
       pageBackground.getElement().getStyle().setDisplay( Display.BLOCK );
@@ -122,6 +124,9 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
   }
 
   public CustomDropDown( String labelText, MenuBar menuBar, MODE mode ) {
+    Roles.getButtonRole().set( this.getElement() );
+    Roles.getButtonRole().setTabindexExtraAttribute( this.getElement(), 0 );
+    Roles.getButtonRole().setAriaHaspopupProperty( this.getElement(), true );
     this.menuBar = menuBar;
 
     sinkEvents( Event.ONCLICK | Event.MOUSEEVENTS | Event.KEYEVENTS );
@@ -163,7 +168,8 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
 
   public void onBrowserEvent( Event event ) {
     super.onBrowserEvent( event );
-    if ( ( event.getTypeInt() & Event.ONCLICK ) == Event.ONCLICK ) {
+    if ( ( ( event.getTypeInt() & Event.ONCLICK ) == Event.ONCLICK )
+            || event.getKeyCode() == KeyCodes.KEY_ENTER ) {
       if ( enabled && !pressed ) {
         pressed = true;
         addStyleDependentName( "pressed" );

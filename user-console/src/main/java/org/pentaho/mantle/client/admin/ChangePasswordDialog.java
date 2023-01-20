@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -85,6 +85,7 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     VerticalPanel vp = new VerticalPanel();
 
     Label nameLabel = new Label( Messages.getString( "newPassword" ) + ":" );
+    newPasswordTextBox.setTitle( nameLabel.getText() );
     vp.add( nameLabel );
     vp.add( newPasswordTextBox );
 
@@ -93,6 +94,7 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     vp.add( separatorSpacer );
 
     Label passwordLabel = new Label( Messages.getString( "retypePassword" ) + ":" );
+    reTypePasswordTextBox.setTitle( passwordLabel.getText() );
     vp.add( passwordLabel );
     vp.add( reTypePasswordTextBox );
 
@@ -106,6 +108,7 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     vp.add( separatorSpacer );
 
     Label administratorLabel = new Label( Messages.getString( "administratorPassword" ) + ":" );
+    administratorPasswordTextBox.setTitle( administratorLabel.getText() );
     vp.add( administratorLabel );
     vp.add( administratorPasswordTextBox );
 
