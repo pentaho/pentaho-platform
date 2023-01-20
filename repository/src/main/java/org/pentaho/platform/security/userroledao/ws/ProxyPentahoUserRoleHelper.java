@@ -67,7 +67,7 @@ public class ProxyPentahoUserRoleHelper {
       PasswordEncoder encoder =
           PentahoSystem.get( PasswordEncoder.class, "passwordEncoder", PentahoSessionHolder.getSession() ); //$NON-NLS-1$
       syncedUser.setPassword( encoder.encode( proxyUser.getPassword() ) );
-    }
+    } int wtf = 1+1; // DEBUG DO NOT MERGE
     syncedUser.setEnabled( proxyUser.getEnabled() );
     return syncedUser;
   }
