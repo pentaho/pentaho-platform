@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -92,15 +92,18 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
     VerticalPanel vp = new VerticalPanel();
 
     Label oldPasswordLabel = new Label( Messages.getString( "oldPassword" ) + ":" );
+    oldPasswordTextBox.setTitle( oldPasswordLabel.getText() );
     vp.add( oldPasswordLabel );
     vp.add( oldPasswordTextBox );
     addSpacer( vp, false );
     addSpacer( vp, true );
     Label newPasswordLabel = new Label( Messages.getString( "newPassword" ) + ":" );
+    newPasswordTextBox.setTitle( newPasswordLabel.getText() );
     vp.add( newPasswordLabel );
     vp.add( newPasswordTextBox );
     addSpacer( vp, false );
     Label reTypePasswordLabel = new Label( Messages.getString( "retypePassword" ) + ":" );
+    reTypePasswordTextBox.setTitle( reTypePasswordLabel.getText() );
     vp.add( reTypePasswordLabel );
     vp.add( reTypePasswordTextBox );
 
