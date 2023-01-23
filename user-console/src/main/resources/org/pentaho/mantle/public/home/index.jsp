@@ -145,8 +145,8 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
             <!-- Only show create button if user is allowed -->
 
             {{#if canCreateContent}}
-            <button id="btnCreateNew" class="btn btn-large btn-block popover-source" data-toggle="dropdown"
-                data-toggle="popover" data-placement="right" data-html="true" data-id="my_hid" data-container="body" onclick="preCreatePopover();">
+            <button id="btnCreateNew" class="btn btn-large btn-block popover-source" aria-haspopup="true"
+                    data-toggle="popover" data-placement="right" data-html="true" data-id="my_hid" data-container="body" onclick="preCreatePopover();">
               {{i18n.create_new}}
             </button>
             {{/if}}

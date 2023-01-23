@@ -85,6 +85,33 @@ define([
       }
     });
 
+    $('#btnCreateNew').on('shown.bs.modal', function () {
+      $('.popover').find("button").first().focus();
+      $('.popover .btn').keydown(function (event) {
+        var keyCode = event.which || event.keyCode;
+        if (event.shiftKey && keyCode === 9) { // SHIFT + TAB
+          var firstButtonId = $('.popover .btn').first().attr("id");
+          if (firstButtonId === this.id) {
+            $('#btnCreateNew').popover('hide');
+            $('#btnCreateNew').focus();
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        } else if (keyCode === 27) { //ESC
+          $('#btnCreateNew').popover('hide');
+          $('#btnCreateNew').focus();
+        } else if (keyCode === 9) { // TAB
+          var lastButtonId = $('.popover .btn').last().attr("id");
+          if (lastButtonId === this.id) {
+            $('#btnCreateNew').popover('hide');
+            $('#btnCreateNew').next().focus();
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        }
+      });
+    });
+
     // setup a listener to hide popovers when a click happens outside of them
     $('body').on('click', function (e) {
       $('.popover-source').each(function () {
