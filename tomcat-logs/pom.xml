@@ -6,11 +6,11 @@
     <parent>
         <artifactId>pentaho-platform-ce-parent</artifactId>
         <groupId>pentaho</groupId>
-        <version>9.5.0.0-SNAPSHOT</version>
+        <version>9.5.0.0-21</version>
     </parent>
 
     <artifactId>pentaho-tomcat-logs</artifactId>
-    <version>9.5.0.0-SNAPSHOT</version>
+    <version>9.5.0.0-21</version>
     <packaging>jar</packaging>
 
     <dependencies>
