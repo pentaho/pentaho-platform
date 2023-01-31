@@ -40,6 +40,9 @@ public class EmailTester {
 
   private AsyncCallback<String> callback = null;
 
+  private static final String TEST_EMAIL_FAIL = "EmailTester.FAIL";
+  private static final String TEST_EMAIL_SUCCESS = "EmailTester.SUCESS";
+
   public EmailTester( AsyncCallback<String> callback ) {
     this.callback = callback;
   }
@@ -70,10 +73,10 @@ public class EmailTester {
     @Override
     public void onResponseReceived( Request request, Response response ) {
 
-      if ( response.getText().equals( "EmailTester.SUCESS" ) ) {
+      if ( response.getText().equals( TEST_EMAIL_SUCCESS ) ) {
         callback.onSuccess( EMAIL_TEST_SUCCESS );
 
-      } else if ( response.getText().equals( "EmailTester.FAIL" ) ) {
+      } else if ( response.getText().equals( TEST_EMAIL_FAIL ) ) {
         callback.onFailure( new Exception( EMAIL_TEST_FAIL ) );
       }
 

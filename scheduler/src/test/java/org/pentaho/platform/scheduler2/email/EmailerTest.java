@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -73,7 +73,8 @@ public class EmailerTest {
     Assert.assertEquals( "TestCC: test@test.com", emailer.getSubject() );
   }
 
-  @Test
+  //Moved these test cases to core->EmailerTest
+  /*@Test
   public void testEmbeddedHtmlNoBody() throws IOException, MessagingException {
     emailer.setTo( "tets@test.email.com" );
     emailer.setFrom( "tets@test.email.com" );
@@ -144,6 +145,6 @@ public class EmailerTest {
     assertEquals( bodyPart.getContentType(), "text/plain; charset=UTF-8" );
     final String bodyPartContent = (String) bodyPart.getContent();
     assertEquals( body, bodyPartContent );
-  }
+  }*/
 
 }

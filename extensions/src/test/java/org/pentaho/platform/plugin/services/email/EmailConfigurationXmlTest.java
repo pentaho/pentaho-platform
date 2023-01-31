@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -57,7 +57,9 @@ public class EmailConfigurationXmlTest extends TestCase {
     } catch ( Exception success ) {
       // ignore
     }
+  }
 
+  public void testEmailConfigFileAsString() throws Exception {
     // Construction from String
     KettleEnvironment.init();
     final String emailConfig = getSampleEmailConfigFileAsString( "testdata/email_config_1.xml" );
@@ -73,11 +75,22 @@ public class EmailConfigurationXmlTest extends TestCase {
     assertEquals( "sampleuser@sampleserver.com", emailConfiguration.getDefaultFrom() );
     assertEquals( "sampleuser", emailConfiguration.getUserId() );
     assertEquals( "samplepassword", emailConfiguration.getPassword() );
+    assertEquals( "basic", emailConfiguration.getAuthMechanism() );
+    assertEquals( "samplecid", emailConfiguration.getClientId() );
+    assertEquals( "samplesecret", emailConfiguration.getClientSecret() );
+    assertEquals( "sampleurl", emailConfiguration.getTokenUrl() );
+    assertEquals( "samplescope", emailConfiguration.getScope() );
+    assertEquals( "samplegranttype", emailConfiguration.getGrantType() );
+    assertEquals( "samplerefreshtoken", emailConfiguration.getRefreshToken() );
+    assertEquals( "samplecode", emailConfiguration.getAuthorizationCode() );
+    assertEquals( "sampleredirect", emailConfiguration.getRedirectUri() );
+  }
 
+  public void testEmailConfigFile() throws Exception {
     // Construction from file
-
+    KettleEnvironment.init();
     final File emailConfigFile = getSampleEmailConfigFile( "testdata/email_config_1.xml" );
-    emailConfiguration = new EmailConfigurationXml( emailConfigFile );
+    EmailConfigurationXml emailConfiguration = new EmailConfigurationXml( emailConfigFile );
     assertEquals( "mailserver.sampleserver.com", emailConfiguration.getSmtpHost() );
     assertEquals( 25, emailConfiguration.getSmtpPort().intValue() );
     assertEquals( "smtp", emailConfiguration.getSmtpProtocol() );
@@ -89,10 +102,19 @@ public class EmailConfigurationXmlTest extends TestCase {
     assertEquals( "sampleuser@sampleserver.com", emailConfiguration.getDefaultFrom() );
     assertEquals( "sampleuser", emailConfiguration.getUserId() );
     assertEquals( "samplepassword", emailConfiguration.getPassword() );
+    assertEquals( "basic", emailConfiguration.getAuthMechanism() );
+    assertEquals( "samplecid", emailConfiguration.getClientId() );
+    assertEquals( "samplesecret", emailConfiguration.getClientSecret() );
+    assertEquals( "sampleurl", emailConfiguration.getTokenUrl() );
+    assertEquals( "samplescope", emailConfiguration.getScope() );
+    assertEquals( "samplegranttype", emailConfiguration.getGrantType() );
+    assertEquals( "samplerefreshtoken", emailConfiguration.getRefreshToken() );
+    assertEquals( "samplecode", emailConfiguration.getAuthorizationCode() );
+    assertEquals( "sampleredirect", emailConfiguration.getRedirectUri() );
 
   }
 
-  public void testGetDocument() throws Exception {
+  public void testGetBlankDocument() throws Exception {
 
     KettleEnvironment.init();
     // Empty configuration
@@ -110,12 +132,23 @@ public class EmailConfigurationXmlTest extends TestCase {
     assertEquals( "", emailConfiguration.getDefaultFrom() );
     assertEquals( "", emailConfiguration.getUserId() );
     assertEquals( "", emailConfiguration.getPassword() );
+    assertEquals( "", emailConfiguration.getAuthMechanism() );
+    assertEquals( "", emailConfiguration.getClientId() );
+    assertEquals( "", emailConfiguration.getClientSecret() );
+    assertEquals( "", emailConfiguration.getTokenUrl() );
+    assertEquals( "", emailConfiguration.getScope() );
+    assertEquals( "", emailConfiguration.getGrantType() );
+    assertEquals( "", emailConfiguration.getRefreshToken() );
+    assertEquals( "", emailConfiguration.getAuthorizationCode() );
+    assertEquals( "", emailConfiguration.getRedirectUri() );
+  }
 
+  public void testGetDocument() throws Exception {
     // Load from a file
     final File emailConfigFile = getSampleEmailConfigFile( "testdata/email_config_2.xml" );
     final EmailConfigurationXml tempEmailConfiguration = new EmailConfigurationXml( emailConfigFile );
     final Document document = tempEmailConfiguration.getDocument();
-    emailConfiguration = new EmailConfigurationXml( document );
+    EmailConfigurationXml emailConfiguration = new EmailConfigurationXml( document );
     assertEquals( "mailserver.sampleserver.com", emailConfiguration.getSmtpHost() );
     assertEquals( 99, emailConfiguration.getSmtpPort().intValue() );
     assertEquals( "smtp", emailConfiguration.getSmtpProtocol() );
@@ -127,7 +160,15 @@ public class EmailConfigurationXmlTest extends TestCase {
     assertEquals( "", emailConfiguration.getDefaultFrom() );
     assertEquals( "sampleuser", emailConfiguration.getUserId() );
     assertEquals( "", emailConfiguration.getPassword() );
-
+    assertEquals( "", emailConfiguration.getAuthMechanism() );
+    assertEquals( "", emailConfiguration.getClientId() );
+    assertEquals( "", emailConfiguration.getClientSecret() );
+    assertEquals( "", emailConfiguration.getTokenUrl() );
+    assertEquals( "", emailConfiguration.getScope() );
+    assertEquals( "", emailConfiguration.getGrantType() );
+    assertEquals( "", emailConfiguration.getRefreshToken() );
+    assertEquals( "", emailConfiguration.getAuthorizationCode() );
+    assertEquals( "", emailConfiguration.getRedirectUri() );
   }
 
   public void testPasswordEncryption() throws Exception {
