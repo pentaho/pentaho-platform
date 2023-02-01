@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.platform.api.email.EmailServiceException;
 import org.pentaho.platform.api.email.IEmailAuthenticationResponse;
 import org.pentaho.platform.api.email.IEmailConfiguration;
@@ -469,6 +470,7 @@ public class EmailServiceTest extends TestCase {
 
   @Test
   public void testSendEmailTestBasicAuth() throws Exception {
+    KettleEnvironment.init();
     EmailConfiguration emailConfigOriginal =
             new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", "smtp.com", 25,
                     EmailConstants.PROTOCOL_SMTP, true, "user", "password", true, true );

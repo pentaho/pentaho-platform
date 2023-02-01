@@ -183,6 +183,7 @@ public class EmailService implements IEmailService {
    *           indicates an error running the test (as in an invalid configuration)
    */
   public String sendEmailTest( final IEmailConfiguration emailConfig ) {
+    setEmailConfig( emailConfig );
     final Properties emailProperties = new Properties();
     emailProperties.setProperty( "mail.smtp.host", emailConfig.getSmtpHost() );
     emailProperties.setProperty( "mail.smtp.port", ObjectUtils.toString( emailConfig.getSmtpPort() ) );
