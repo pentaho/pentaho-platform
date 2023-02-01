@@ -338,17 +338,18 @@ public class EmailAdminPanel extends SimplePanel {
   }
 
   protected boolean isSmtpProtocolFamily( String protocol ) {
-    return ( protocol.equals( EmailConstants.PROTOCOL_SMTP ) ) || ( protocol.equals( EmailConstants.PROTOCOL_SMTPS ) );
+    return ( protocol.equalsIgnoreCase( EmailConstants.PROTOCOL_SMTP ) ) || ( protocol.equalsIgnoreCase( EmailConstants.PROTOCOL_SMTPS ) );
   }
 
   protected void selectListBoxHelper( ListBox listbox, String selectedValue ) {
-
-    if ( !StringUtils.isEmpty( selectedValue ) && listbox != null ) {
+    if ( listbox != null ) {
       listbox.setSelectedIndex( -1 );
-      for ( int i = 0; i < listbox.getItemCount(); ++i ) {
-        if ( selectedValue.equalsIgnoreCase( listbox.getValue( i ) ) ) {
-          listbox.setSelectedIndex( i );
-          break;
+      if ( !StringUtils.isEmpty( selectedValue ) ) {
+        for ( int i = 0; i < listbox.getItemCount(); ++i ) {
+          if ( selectedValue.equalsIgnoreCase( listbox.getValue( i ) ) ) {
+            listbox.setSelectedIndex( i );
+            break;
+          }
         }
       }
     }
