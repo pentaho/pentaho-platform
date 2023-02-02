@@ -14,13 +14,12 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.mantle.client.dialogs;
 
-import org.pentaho.gwt.widgets.client.dialogs.GlassPane;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooser.FileChooserMode;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserListener;
@@ -65,13 +64,7 @@ public class FileDialog {
 
     final FileChooserDialog dialog =
         new FileChooserDialog( FileChooserMode.OPEN, pathToShow, repositoryFileTree, false, true, title, okText,
-            solutionBrowserPerspective.getSolutionTree().isShowHiddenFiles() ) {
-      @Override
-      public void hide() {
-        super.hide();
-        GlassPane.getInstance().hide();
-      }
-    };
+            solutionBrowserPerspective.getSolutionTree().isShowHiddenFiles() );
     dialog.setSubmitOnEnter( MantleApplication.submitOnEnter );
     dialog.addFileChooserListener( new FileChooserListener() {
 
@@ -110,7 +103,6 @@ public class FileDialog {
 
     } );
 
-    GlassPane.getInstance().show();
     dialog.center();
   }
 
