@@ -236,6 +236,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
               editSchedule.setShowSuccessDialog( false );
               editSchedule.addCustomPanel( scheduleLabelPanel, DockPanel.NORTH );
               editSchedule.center();
+              scheduleTextBox.setFocus( true );
             }
           } );
           HorizontalPanel scheduleButtonPanel = new HorizontalPanel();
