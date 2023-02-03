@@ -873,6 +873,12 @@ a:active, a:hover {
   border-bottom: 0px solid transparent;
 }
 
+.custom-dropdown:focus-visible,
+.custom-dropdown:hover {
+  background-color: #CC0000;
+  color: #FFFFFF;
+}
+
 .custom-dropdown-pressed {
   border-top: 1px solid #CCC;
   border-right: 1px solid #CCC;
@@ -891,6 +897,11 @@ a:active, a:hover {
   padding-left: 10px;
   font-family: OpenSansLight;
   line-height: 39px;
+}
+
+.custom-dropdown:hover .custom-dropdown-label,
+.custom-dropdown:focus-visible .custom-dropdown-label {
+  color: #FFFFFF;
 }
 
 #pucUserDropDown {
@@ -1025,8 +1036,8 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 }
 
 .custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-selected {
-  color: #414141;
-  background-color: transparent;
+  color: #000000;
+  background-color: #e0e0e0;
 }
 
 .custom-dropdown-popup  .gwt-MenuBar-vertical {
