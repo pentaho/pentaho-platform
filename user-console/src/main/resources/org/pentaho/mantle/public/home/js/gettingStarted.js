@@ -70,6 +70,25 @@ define([
 
         // Remove embedded youtube since it shows through the other tabs
         $("a[href=\\#tab2], a[href=\\#tab3]").bind("click", disableWelcomeVideo);
+        $(".tab-list").keydown(function (event) {
+          let nextItem;
+          var keyCode = event.which || event.keyCode;
+          if (keyCode === 39) { // RIGHT Arrow
+            nextItem = $(this).parent().next();
+          } else if (keyCode === 37) { // LEFT Arrow
+            nextItem = $(this).parent().prev();
+          }
+
+          if ( nextItem != null && nextItem.length !== 0) {
+            nextItem.children().click();
+            nextItem.children().focus();
+          }
+        });
+
+        $(".tab-list").click(function (){
+          $("#tab-group a[tabindex=0]").attr("tabindex",-1).attr("aria-selected",false);
+          $(this).attr("tabindex", 0).attr("aria-selected",true);
+        });
       },
       postLoad: function ($html, tabSelector) {
         var tabId = $(tabSelector).attr("id");
@@ -80,16 +99,18 @@ define([
             checkInternet($html,
                 function () {
                   // Swap the welcome image for the embedded youtube link
-                  $(".welcome-img").bind("click", function () {
+                  $(".welcome-img").bind("click keydown", function (event) {
+                    if (event.type === "click" ||
+                        (event.type === "keydown" && event.keyCode === 13)) { // ENTER
+                      var video = HandlebarsCompiler.compile(brightCoveVideoTemplate, {
+                        width: "551",
+                        height: "310",
+                        videoId: context.config.bc_welcome_link_id
+                      });
 
-                    var video = HandlebarsCompiler.compile(brightCoveVideoTemplate, {
-                      width: "551",
-                      height: "310",
-                      videoId: context.config.bc_welcome_link_id
-                    });
-
-                    $(this).hide();
-                    $("#welcome-video").append(video);
+                      $(this).hide();
+                      $("#welcome-video").append(video);
+                    }
                   });
                 });
           });
@@ -115,14 +136,16 @@ define([
    */
   function bindCardInteractions(jParent, cardSelector, detailsContentSelector, detailsImgBaseId, bindNavParams, postClick) {
     var cards = jParent.find(cardSelector);
-    cards.bind("click",function () {
+    cards.bind("click",function (event) {
       var card = $(this);
       if (card.hasClass("selected")) {
         return;
       }
 
+      $(cardSelector + ".selected").removeAttr("tabindex");
       $(cardSelector + ".selected").removeClass("selected");
       card.addClass("selected");
+      card.attr("tabindex",0);
 
       var index = cards.index(card);
 
@@ -150,7 +173,26 @@ define([
       if (postClick) {
         postClick(card);
       }
+      event.preventDefault();
+      event.stopPropagation();
     }).first().click();
+
+    cards.keydown(function (event) {
+      let nexItem;
+      var keyCode = event.which || event.keyCode;
+      if (keyCode === 38){ // UP Arrow
+        nexItem = $(this).prev();
+      }else if (keyCode === 40){ // DOWN Arrow
+        nexItem = $(this).next();
+      }else if(keyCode === 13){ // ENTER
+        jParent.find(".launch-link").first().click();
+      }
+
+      if ( nexItem != null && nexItem.length !== 0 ){
+        nexItem.click();
+        nexItem.focus();
+      }
+    });
   }
 
   /**

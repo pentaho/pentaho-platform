@@ -112,7 +112,7 @@ define([
     show: function () {
 
       // Hide all other dialogs before showing the next
-      for (index in dialogs) {
+      for (var index in dialogs) {
         dialogs[index].hide();
       }
 
@@ -156,7 +156,7 @@ define([
     this.i18n = i18n;
   }
 
-  Dialog.buildCfg = function (id, header, body, footer, close_btn) {
+  Dialog.buildCfg = function (id, header, body, footer, close_btn, ariaConfig) {
     var cfg = {};
 
     cfg.dialog = {};
@@ -167,6 +167,15 @@ define([
     cfg.dialog.content.header = header;
     cfg.dialog.content.body = body;
     cfg.dialog.content.footer = footer;
+
+    if (ariaConfig == null) {
+      ariaConfig = {};
+    }
+
+    cfg.dialog.aria = {
+      role: ariaConfig.role || "dialog",
+      describedBy: (ariaConfig.role === "alertdialog") ? (ariaConfig.describedBy || (id + "-body")) : undefined
+    };
 
     return cfg;
   };

@@ -242,10 +242,10 @@
                 <%
                   if (showUsers) {
                 %>
-                <div id="eval-users-toggle" onClick="toggleEvalPanel()">
-                  <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.EVAL_LOGIN")%></div>
-                  <div id="eval-arrow" class="closed"></div>
-                </div>
+                  <div id="eval-users-toggle" onClick="toggleEvalPanel()" onFocus="toggleEvalPanel()" tabindex="0">
+                    <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.EVAL_LOGIN")%></div>
+                    <div id="eval-arrow" class="closed"></div>
+                  </div>
 
                 <%
                 } else {
@@ -270,22 +270,22 @@
                   <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></div>
                   <div class="span6 login-value">password</div>
                 </div>
-                <button class="btn" onClick="loginAs('Admin', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
+                <button type="submit" class="btn" aria-label="Login As Administrator" onClick="loginAs('Admin', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
+            </div>
+            <div id="role-business-user-panel" class="span6 well">
+              <div class="login-role"><%=Messages.getInstance().getString("UI.PUC.LOGIN.BUSINESS_USER")%></div>
+              <div class="row-fluid">
+                <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%></div>
+                <div class="span6 login-value">Suzy</div>
               </div>
-              <div id="role-business-user-panel" class="span6 well">
-                <div class="login-role"><%=Messages.getInstance().getString("UI.PUC.LOGIN.BUSINESS_USER")%></div>
-                <div class="row-fluid">
-                  <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%></div>
-                  <div class="span6 login-value">Suzy</div>
-                </div>
-                <div class="row-fluid">
-                  <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></div>
-                  <div class="span6 login-value">password</div>
-                </div>
-                <button class="btn" onClick="loginAs('Suzy', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
+              <div class="row-fluid">
+                <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></div>
+                <div class="span6 login-value">password</div>
               </div>
+              <button type="submit" class="btn" aria-label="Login As Business User" onClick="loginAs('Suzy', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
             </div>
           </div>
+        </div>
 
           <div class="space-30"></div>
 

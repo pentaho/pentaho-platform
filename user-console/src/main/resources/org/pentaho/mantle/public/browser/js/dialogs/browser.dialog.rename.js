@@ -212,7 +212,11 @@ define([
         ok: i18n.prop("close")
       });
 
-      var cfg = Dialog.buildCfg("rename-home-dialog", header, body, footer, false);
+      var ariaConfig = {
+        role: "alertdialog"
+      };
+
+      var cfg = Dialog.buildCfg("rename-home-dialog", header, body, footer, false, ariaConfig);
 
       this.RenameHomeDialog = new Dialog(cfg);
       this.RenameHomeDialog.$dialog.find(".ok").bind("click", function () {
@@ -237,7 +241,11 @@ define([
         ok: i18n.prop("close")
       });
 
-      var cfg = Dialog.buildCfg("rename-error-dialog", header, body, footer, false);
+      var ariaConfig = {
+        role: "alertdialog"
+      };
+
+      var cfg = Dialog.buildCfg("rename-error-dialog", header, body, footer, false, ariaConfig);
 
       var CannotRenameDialog = new Dialog(cfg);
 
@@ -263,7 +271,12 @@ define([
         cancel: i18n.prop("overrideNoButton")
       });
 
-      return Dialog.buildCfg(id, header, body, footer, false);
+      var ariaConfig = {
+        role: "alertdialog",
+        describedBy: "override-description"
+      };
+
+      return Dialog.buildCfg(id, header, body, footer, false, ariaConfig);
     },
 
     initFolderOverrideDialog: function (cfg, onOk, onShow) {
