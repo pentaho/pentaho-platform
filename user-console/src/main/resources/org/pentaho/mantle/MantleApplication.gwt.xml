@@ -26,6 +26,8 @@
   <inherits name='org.pentaho.mantle.login.MantleLogin'/>
   <inherits name="org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService"/>
   <inherits name='org.pentaho.gwt.widgets.client.filechooser.FileChooser'/>
+  <inherits name="org.pentaho.platform.EmailSupport" />
+
   <generate-with class="org.pentaho.mantle.rebind.CommandExecGenerator">
     <when-type-assignable class="org.pentaho.mantle.client.commands.CommandExec"/>
   </generate-with>
