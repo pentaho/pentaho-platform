@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -26,7 +26,7 @@ import com.google.gwt.json.client.JSONObject;
 
 /**
  * Class Description
- * 
+ *
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class JsEmailConfiguration extends JavaScriptObject {
@@ -81,6 +81,42 @@ public class JsEmailConfiguration extends JavaScriptObject {
 
   public final native void setUseStartTls( final boolean useStartTls ) /*-{ this.useStartTls = useStartTls; }-*/; //
 
+  public final native String getAuthMechanism() /*-{ return this.authMechanism; }-*/; //
+
+  public final native void setAuthMechanism( final String authMechanism ) /*-{ this.authMechanism = authMechanism; }-*/; //
+
+  public final native String getClientId() /*-{ return this.clientId; }-*/; //
+
+  public final native void setClientId( final String clientId ) /*-{ this.clientId = clientId; }-*/; //
+
+  public final native String getClientSecret() /*-{ return this.clientSecret; }-*/; //
+
+  public final native void setClientSecret( final String clientSecret ) /*-{ this.clientSecret = clientSecret; }-*/; //
+
+  public final native String getTokenUrl() /*-{ return this.tokenUrl; }-*/; //
+
+  public final native void setTokenUrl( final String tokenUrl ) /*-{ this.tokenUrl = tokenUrl; }-*/; //
+
+  public final native String getScope() /*-{ return this.scope; }-*/; //
+
+  public final native void setScope( final String scope ) /*-{ this.scope = scope; }-*/; //
+
+  public final native String getGrantType() /*-{ return this.grantType; }-*/; //
+
+  public final native void setGrantType( final String grantType ) /*-{ this.grantType = grantType; }-*/; //
+
+  public final native String getRefreshToken() /*-{ return this.refreshToken; }-*/; //
+
+  public final native void setRefreshToken( final String refreshToken ) /*-{ this.refreshToken = refreshToken; }-*/; //
+
+  public final native String getAuthorizationCode() /*-{ return this.authorizationCode; }-*/; //
+
+  public final native void setAuthorizationCode( final String authorizationCode ) /*-{ this.authorizationCode = authorizationCode; }-*/; //
+
+  public final native String getRedirectUri() /*-{ return this.redirectUri; }-*/; //
+
+  public final native void setRedirectUri( final String redirectUri ) /*-{ this.redirectUri = redirectUri; }-*/; //
+
   public final String getJSONString() {
     return new JSONObject( this ).toString();
   }
@@ -90,8 +126,8 @@ public class JsEmailConfiguration extends JavaScriptObject {
   }
 
   private static final native JavaScriptObject parseEmailConfig( String json )
-  /*-{
-    var obj = JSON.parse(json);
-    return obj;
-  }-*/;
+    /*-{
+      var obj = JSON.parse(json);
+      return obj;
+    }-*/;
 }

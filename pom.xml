@@ -149,7 +149,6 @@
     <mockrunner.version>0.3.1</mockrunner.version>
     <jempbox.version>0.2.0</jempbox.version>
     <json-unit.version>1.5.5</json-unit.version>
-    <ini4j.version>0.5.1</ini4j.version>
     <scannotation.version>1.0.2</scannotation.version>
     <javadbf.version>20081125</javadbf.version>
     <gdata-client-meta.version>1.0</gdata-client-meta.version>

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -26,6 +26,7 @@ import org.pentaho.platform.api.email.IEmailConfiguration;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -50,6 +51,17 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
   private String password;
   private boolean useSsl;
   private boolean useStartTls;
+  private String authMechanism;
+  private String clientId;
+  private String clientSecret;
+  private String tokenUrl;
+  private String scope;
+
+  private String grantType;
+  private String refreshToken;
+
+  private String authorizationCode;
+  private String redirectUri;
 
   public EmailConfiguration() {
   }
@@ -168,6 +180,78 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
     this.smtpQuitWait = smtpQuitWait;
   }
 
+  public String getAuthMechanism() {
+    return authMechanism == null ? "" : authMechanism;
+  }
+
+  public void setAuthMechanism( final String authMechanism ) {
+    this.authMechanism = authMechanism;
+  }
+
+  public String getClientId() {
+    return clientId == null ? "" : clientId;
+  }
+
+  public void setClientId( final String clientId ) {
+    this.clientId = clientId;
+  }
+
+  public String getClientSecret() {
+    return clientSecret == null ? "" : clientSecret;
+  }
+
+  public void setClientSecret( final String clientSecret ) {
+    this.clientSecret = clientSecret;
+  }
+
+  public String getTokenUrl() {
+    return tokenUrl == null ? "" : tokenUrl;
+  }
+
+  public void setTokenUrl( final String tokenUrl ) {
+    this.tokenUrl = tokenUrl;
+  }
+
+  public String getScope() {
+    return scope == null ? "" : scope;
+  }
+
+  public void setScope( final String scope ) {
+    this.scope = scope;
+  }
+
+  public String getGrantType() {
+    return grantType == null ? "" : grantType;
+  }
+
+  public void setGrantType( final String grantType ) {
+    this.grantType = grantType;
+  }
+
+  public String getRefreshToken() {
+    return refreshToken == null ? "" : refreshToken;
+  }
+
+  public void setRefreshToken( final String refreshToken ) {
+    this.refreshToken = refreshToken;
+  }
+
+  public String getAuthorizationCode() {
+    return authorizationCode == null ? "" : authorizationCode;
+  }
+
+  public void setAuthorizationCode( final String authorizationCode ) {
+    this.authorizationCode = authorizationCode;
+  }
+
+  public String getRedirectUri() {
+    return redirectUri == null ? "" : redirectUri;
+  }
+
+  public void setRedirectUri( final String redirectUri ) {
+    this.redirectUri = redirectUri;
+  }
+
   public Properties asProperties() {
     final Properties properties = new Properties();
     properties.setProperty( "mail.transport.protocol", getSmtpProtocol() );
@@ -185,7 +269,10 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
     return "authenticate='" + authenticate + '\'' + ", debug='" + debug + '\'' + ", defaultFrom='" + defaultFrom + '\''
         + ", fromName='" + fromName + '\'' + ", smtpHost='" + smtpHost + '\'' + ", smtpPort=" + smtpPort
         + ", smtpProtocol='" + smtpProtocol + '\'' + ", smtpQuitWait=" + smtpQuitWait + ", userId='" + userId + '\''
-        + ", password='" + password + '\'' + ", useSsl=" + useSsl + ", useStartTls=" + useStartTls;
+        + ", password='" + password + '\'' + ", useSsl=" + useSsl + ", useStartTls=" + useStartTls
+        + ", authMechanism='" + authMechanism + '\'' + ", clientID=" + clientId + '\'' + ", clientSecret='" + clientSecret + '\''
+        + ", tokenUrl='" + tokenUrl + '\'' + ", scope=" + scope + '\'' + ", grantType=" + grantType + '\'' + ", refreshToken=" + refreshToken + '\''
+        + ", authorizationCode=" + authorizationCode + '\'' + ", redirectUri=" + redirectUri;
   }
 
   @Override
@@ -202,7 +289,19 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
         && ObjectUtils.equals( this.getSmtpPort(), that.getSmtpPort() )
         && isEquals( this.defaultFrom, that.defaultFrom ) && isEquals( this.fromName, that.fromName )
         && isEquals( this.smtpHost, that.smtpHost ) && isEquals( this.smtpProtocol, that.smtpProtocol )
-        && isEquals( this.userId, that.userId ) && isEquals( this.password, that.password ) );
+        && isEquals( this.userId, that.userId ) && isEquals( this.password, that.password )
+        && isEquals( this.authMechanism, that.authMechanism ) && isEquals( this.clientId, that.clientId )
+        && isEquals( this.clientSecret, that.clientSecret ) && isEquals( this.tokenUrl, that.tokenUrl )
+        && isEquals( this.scope, that.scope ) && isEquals( this.grantType, that.grantType )
+        && isEquals( this.refreshToken, that.refreshToken ) && isEquals( this.authorizationCode, that.authorizationCode )
+        && isEquals( this.redirectUri, that.redirectUri ) );
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash( authenticate, debug, defaultFrom, fromName, smtpHost, smtpPort, smtpProtocol, smtpQuitWait,
+            userId, password, useSsl, useStartTls, authMechanism, clientId, clientSecret, tokenUrl, scope, grantType,
+            refreshToken, authorizationCode, redirectUri );
   }
 
   private boolean isEquals( final String a, final String b ) {

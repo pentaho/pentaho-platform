@@ -19,6 +19,9 @@
 		<!-- Set to true if the email server requires the sender to authenticate -->
 		<mail.smtp.auth>true</mail.smtp.auth>
 
+		<!-- This value would be set to XOauth2 only for OAuth based Authetication -->
+		<mail.smtp.auth.mechanisms>basic</mail.smtp.auth.mechanisms>
+
 		<!--  This is true if the email server requires an SSL connection. Usually 'false'. For GMail this is 'true' -->
 		<mail.smtp.ssl>true</mail.smtp.ssl>
 
@@ -34,13 +37,44 @@
 	<mail.from.default>sampleuser@sampleserver.com</mail.from.default>
 
 	<!-- This is the user id used to connect to the email server for sending email
-       It is only required if email-authenticate is set to true
+       It is only required if OAuth 2.0/Basic is selected in the Authentication Type
        This is never sent or shown to anyone -->
 	<mail.userid>sampleuser</mail.userid>
 
 	<!-- This is the password used to connect to the email server for sending email
-       It is only required if email-authenticate is set to true
+        It is only required if Basic is selected in the Authentication Type
        This is never sent or shown to anyone -->
 	<mail.password>samplepassword</mail.password>
 
+	<!-- This is the client id used to get to the OAuth 2.0 token
+       This is never sent or shown to anyone -->
+	<mail.client.id>samplecid</mail.client.id>
+
+	<!-- This is the token url used to get to the OAuth 2.0 token
+       This is never sent or shown to anyone -->
+	<mail.token.url>sampleurl</mail.token.url>
+
+	<!-- This is the exchange server scope used to get to the OAuth 2.0 token
+       This is never sent or shown to anyone -->
+	<mail.scope>samplescope</mail.scope>
+
+	<!-- This is the exchange server grant type used to get to the OAuth 2.0 token
+       This is never sent or shown to anyone -->
+	<mail.grant.type>samplegranttype</mail.grant.type>
+
+	<!-- This is the client secret used to get to the OAuth 2.0 token in case grant_type = client_credentials/refresh_token/authorization_code
+       This is never sent or shown to anyone -->
+	<mail.client.secret>samplesecret</mail.client.secret>
+
+	<!-- This is the refresh token used to get to the OAuth 2.0 token in case grant_type = refresh_token
+       This is never sent or shown to anyone -->
+	<mail.refresh.token>samplerefreshtoken</mail.refresh.token>
+
+	<!-- This is the authorization code used to get to the OAuth 2.0 token in case grant_type =authorization_code
+       This is never sent or shown to anyone -->
+	<mail.authorization.code>samplecode</mail.authorization.code>
+
+	<!-- This is the redirect uri used to generate Authorization Code
+       This is never sent or shown to anyone -->
+	<mail.redirect.uri>sampleredirect</mail.redirect.uri>
 </email-smtp>

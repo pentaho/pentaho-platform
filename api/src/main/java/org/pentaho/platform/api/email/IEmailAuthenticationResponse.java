@@ -14,23 +14,17 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2023 Hitachi Vantara. All rights reserved.
  *
  */
 
-package org.pentaho.platform.scheduler2.email;
+package org.pentaho.platform.api.email;
 
-import org.pentaho.platform.scheduler2.messsages.Messages;
+public interface IEmailAuthenticationResponse {
 
-/**
- * @deprecated as of 8.0, use {@link org.pentaho.platform.util.Emailer} instead
- */
-@Deprecated
-public class Emailer extends org.pentaho.platform.util.Emailer {
+  public String getAccessToken();
 
-  @Override
-  public String getEmailFromName() {
-    return Messages.getInstance().getString( "schedulerEmailFromName" ); //$NON-NLS-1$
-  }
+  public String getRefreshToken();
+
 
 }
