@@ -14,17 +14,19 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.mantle.client.commands;
 
+import org.pentaho.gwt.widgets.client.dialogs.DialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.panel.VerticalFlexPanel;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
@@ -103,12 +105,14 @@ public class NewFolderCommand extends AbstractCommand {
     folderNameTextBox.setTabIndex( 1 );
     folderNameTextBox.setVisibleLength( 40 );
 
-    VerticalPanel vp = new VerticalPanel();
+    VerticalPanel vp = new VerticalFlexPanel();
     vp.add( new Label( Messages.getString( "newFolderName" ) ) ); //$NON-NLS-1$
     vp.add( folderNameTextBox );
     final PromptDialogBox newFolderDialog =
         new PromptDialogBox(
             Messages.getString( "newFolder" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    newFolderDialog.setResponsive( true );
+    newFolderDialog.setMinimumHeightCategory( DialogBox.DialogMinimumHeightCategory.CONTENT );
     newFolderDialog.setFocusWidget( folderNameTextBox );
     folderNameTextBox.setFocus( true );
 
