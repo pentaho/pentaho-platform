@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,6 +25,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.http.client.UrlBuilder;
@@ -45,6 +46,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
@@ -228,14 +230,39 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
     return left;
   }
 
+  public void hidePopUpMenu() {
+    popupMenu.hide();
+  }
+
   public void onRightClick( Event event ) {
     FrameUtils.setEmbedVisibility( ( (IFrameTabPanel) getTabPanel().getSelectedTab().getContent() ).getFrame(), false );
-
-    int left = Window.getScrollLeft() + DOM.eventGetClientX( event );
-    int top = Window.getScrollTop() + DOM.eventGetClientY( event );
+    int left;
+    int top;
+    if ( event.getTypeInt() == Event.ONKEYDOWN ) {
+      PentahoTab tab = getTabPanel().getTab( getTabPanel().getSelectedTabIndex() );
+      left = tab.getAbsoluteLeft() + ( tab.getOffsetWidth() / 2 );
+      top = tab.getAbsoluteTop() + tab.getOffsetHeight();
+    } else {
+      left = Window.getScrollLeft() + DOM.eventGetClientX( event );
+      top = Window.getScrollTop() + DOM.eventGetClientY( event );
+    }
     popupMenu.setPopupPosition( adjustLeftIfNecessary( left ), top );
-    MenuBar menuBar = new MenuBar( true );
+    MenuBar menuBar = new MenuBar( true ) {
+      public void onBrowserEvent( Event event ) {
+        int type = event.getTypeInt();
+        switch ( type ) {
+          case Event.ONKEYDOWN: {
+            if ( (char) event.getKeyCode() == KeyCodes.KEY_ESCAPE ) {
+              hidePopUpMenu();
+            }
+            break;
+          }
+        }
+        super.onBrowserEvent( event );
+      }
+    };
     menuBar.setAutoOpen( true );
+    menuBar.setFocusOnHoverEnabled( true );
     if ( getContent() instanceof IFrameTabPanel ) {
       MenuItem backMenuItem =
           new MenuItem( Messages.getString( "back" ), new TabCommand( TABCOMMANDTYPE.BACK, popupMenu ) ); //$NON-NLS-1$
@@ -313,6 +340,7 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
 
     popupMenu.hide();
     popupMenu.show();
+    menuBar.focus();
   }
 
   @Override
