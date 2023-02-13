@@ -216,6 +216,7 @@
     <hsqldb.version>2.3.2</hsqldb.version>
     <websocket-api.version>1.0</websocket-api.version>
     <encryption-support.version>9.5.0.0-SNAPSHOT</encryption-support.version>
+    <org.json.version>3.1.1</org.json.version>
     <!-- @Null @Nullable annotations -->
     <com.github.spotbugs.annotations.version>4.2.3</com.github.spotbugs.annotations.version>
   </properties>
