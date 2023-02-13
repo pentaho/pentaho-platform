@@ -129,7 +129,11 @@ public class EmailConfigurationXml extends EmailConfiguration {
     setAuthMechanism( getStringValue( doc, AUTH_MECHANISM_XPATH ) );
     setTokenUrl( getStringValue( doc, TOKEN_URL_XPATH ) );
     setClientId( getStringValue( doc, CLIENT_ID_XPATH ) );
-    setClientSecret( getStringValue( doc, CLIENT_SECRET_XPATH ) );
+    String encryptedSecret = getStringValue( doc, CLIENT_SECRET_XPATH );
+    if ( !StringUtils.isEmpty( encryptedSecret ) ) {
+      setClientSecret( Encr.decryptPasswordOptionallyEncrypted( encryptedSecret ) );
+    }
+
     setScope( getStringValue( doc, SCOPE_XPATH ) );
     setGrantType( getStringValue( doc, GRANT_TYPE_XPATH ) );
     setRefreshToken( getStringValue( doc, REFRESH_TOKEN_XPATH ) );
@@ -212,7 +216,9 @@ public class EmailConfigurationXml extends EmailConfiguration {
       StringUtils.isEmpty( rawPassword ) ? "" : Encr.encryptPasswordIfNotUsingVariables( rawPassword ) );
     setValue( document, AUTH_MECHANISM_XPATH, ObjectUtils.toString( emailConfiguration.getAuthMechanism() ) );
     setValue( document, CLIENT_ID_XPATH, ObjectUtils.toString( emailConfiguration.getClientId() ) );
-    setValue( document, CLIENT_SECRET_XPATH, ObjectUtils.toString( emailConfiguration.getClientSecret() ) );
+    String rawSecret = ObjectUtils.toString( emailConfiguration.getClientSecret() );
+    setValue( document, CLIENT_SECRET_XPATH,
+      StringUtils.isEmpty( rawSecret ) ? "" : Encr.encryptPasswordIfNotUsingVariables( rawSecret ) );
     setValue( document, SCOPE_XPATH, ObjectUtils.toString( emailConfiguration.getScope() ) );
     setValue( document, GRANT_TYPE_XPATH, ObjectUtils.toString( emailConfiguration.getGrantType() ) );
     setValue( document, REFRESH_TOKEN_XPATH, ObjectUtils.toString( emailConfiguration.getRefreshToken() ) );
