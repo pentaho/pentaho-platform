@@ -102,7 +102,6 @@ public class NewFolderCommand extends AbstractCommand {
     event.setAction( this.getClass().getName() );
 
     final TextBox folderNameTextBox = new TextBox();
-    folderNameTextBox.setTabIndex( 1 );
     folderNameTextBox.setVisibleLength( 40 );
 
     VerticalPanel vp = new VerticalFlexPanel();
@@ -113,8 +112,6 @@ public class NewFolderCommand extends AbstractCommand {
             Messages.getString( "newFolder" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     newFolderDialog.setResponsive( true );
     newFolderDialog.setMinimumHeightCategory( DialogBox.DialogMinimumHeightCategory.CONTENT );
-    newFolderDialog.setFocusWidget( folderNameTextBox );
-    folderNameTextBox.setFocus( true );
 
     final IDialogCallback callback = new IDialogCallback() {
 
