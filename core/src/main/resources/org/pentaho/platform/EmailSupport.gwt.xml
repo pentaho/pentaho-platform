@@ -1,0 +1,5 @@
+<module>
+  <source path="util">
+    <include name="EmailConstants.java" />
+  </source>
+</module>
