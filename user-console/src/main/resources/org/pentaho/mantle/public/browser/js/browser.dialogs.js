@@ -145,8 +145,8 @@ define([
       var backdrop = $container.find(".modal-backdrop");
 
       this.$dialog.css({
-        "left": backdrop.width() / 2 - this.$dialog.width() / 2,
-        "top": backdrop.height() / 2 - this.$dialog.height() / 2
+        "left": backdrop.width() / 2 - this.$dialog.outerWidth() / 2,
+        "top": backdrop.height() / 2 - this.$dialog.outerHeight() / 2
       });
     }
   };

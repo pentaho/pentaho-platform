@@ -20,9 +20,10 @@ define(["common-ui/handlebars"],
       var templates = {};
 
       templates.dialog = Handlebars.compile(
-          "<div id='{{dialog.id}}' class='pentaho-dialog modal' tabindex='-1' role='{{dialog.aria.role}}' " +
+          "<div id='{{dialog.id}}' class='pentaho-dialog modal dw-text dmh-content responsive' tabindex='-1' role='{{dialog.aria.role}}' " +
               "aria-labelledby='{{dialog.id}}-header' aria-describedby='{{dialog.aria.describedBy}}' aria-hidden='true' " +
               "aria-modal='true' data-keyboard='true'>" +
+              "<div>" +
               "<div class='header Caption'>" +
               "<div id='{{dialog.id}}-header' class='header-content'>" +
               "{{{dialog.content.header}}}" +
@@ -34,6 +35,7 @@ define(["common-ui/handlebars"],
               "</div>" +
               "<div class='footer'>" +
               "{{{dialog.content.footer}}}" +
+              "</div>" +
               "</div>" +
               "</div>");
 
