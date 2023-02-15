@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2019 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara..  All rights reserved.
  */
 
 define([
@@ -28,7 +28,7 @@ define([
   //main component structure
   templates.structure = Handlebars.compile(
       "<div id='fileBrowserFolders' class='span4 well fileBrowserColumn'>" +
-          "<div class='body'></div>" +
+          "<div class='body' role='tree' aria-labelledby='foldersHeader'></div>" +
           "</div>" +
           "<div id='fileBrowserFiles' class='span4 well fileBrowserColumn'>" +
           "<div class='body'></div>" +
@@ -93,7 +93,7 @@ define([
           "{{else}}" +
           "<div id='{{file.id}}' class='folder' path='{{file.path}}' desc='{{file.description}}' ext='{{file.name}}'>" +
           "{{/ifCond}}" +
-          "<div class='element'>" +
+          "<div class='element' role='treeitem' aria-selected='false' aria-expanded='false' tabindex='-1'>" +
           "<div class='expandCollapse'> </div>" +
           "<div class='icon'> </div>" +
           "{{#if file.title}}" +
@@ -102,7 +102,7 @@ define([
           "<div class='title'>{{file.name}}</div>" +
           "{{/if}}" +
           "</div>" +
-          "<div class='folders'>" +
+          "<div class='folders' role='group'>" +
           "{{#each children}} {{> folder}} {{/each}}" +
           "</div>" +
           "</div>" +
