@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -392,7 +392,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
         @Override
         public void onResponseReceived( Request arg0, Response response ) {
-          Boolean isAdministrator = Boolean.parseBoolean( response.getText() );
+          boolean isAdministrator = Boolean.parseBoolean( response.getText() );
           SolutionBrowserPanel.getInstance().setAdministrator( isAdministrator );
 
           try {
@@ -409,35 +409,13 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
               }
 
               public void onResponseReceived( Request arg0, Response response ) {
-                Boolean isScheduler = Boolean.parseBoolean( response.getText() );
+                boolean isScheduler = Boolean.parseBoolean( response.getText() );
                 SolutionBrowserPanel.getInstance().setScheduler( isScheduler );
 
-                String numStartupURLsSetting = settings.get( "num-startup-urls" );
-                if ( numStartupURLsSetting != null ) {
-                  int numStartupURLs = Integer.parseInt( numStartupURLsSetting ); //$NON-NLS-1$
-                  for ( int i = 0; i < numStartupURLs; i++ ) {
-                    String url = settings.get( "startup-url-" + ( i + 1 ) ); //$NON-NLS-1$
-                    String name = settings.get( "startup-name-" + ( i + 1 ) ); //$NON-NLS-1$
-                    if ( StringUtils.isEmpty( url ) == false ) { //$NON-NLS-1$
-                      url = URL.decodeQueryString( url );
-                      name = URL.decodeQueryString( name );
-                      SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab( name != null ? name : url,
-                          url, url, false );
-                    }
-                  }
-                }
-                if ( SolutionBrowserPanel.getInstance().getContentTabPanel().getWidgetCount() > 0 ) {
-                  SolutionBrowserPanel.getInstance().getContentTabPanel().selectTab( 0 );
-                }
-
-                // startup-url on the URL for the app, wins over settings
-                String startupURL = Window.Location.getParameter( "startup-url" ); //$NON-NLS-1$
-                if ( startupURL != null && !"".equals( startupURL ) ) { //$NON-NLS-1$
-                  // Spaces were double encoded so that they wouldn't be replaced with '+' when creating a deep
-                  // link so when following a deep link we need to replace '%20' with a space even after decoding
-                  String title = Window.Location.getParameter( "name" ).replaceAll( "%20", " " ); //$NON-NLS-1$
-                  SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab( title, title, startupURL,
-                      false );
+                if ( PerspectiveManager.getInstance().isLoaded() ) {
+                  showStartupURL( settings );
+                } else {
+                  EventBusUtil.EVENT_BUS.addHandler( PerspectivesLoadedEvent.TYPE, event -> showStartupURL( settings ) );
                 }
               }
             } );
@@ -458,14 +436,40 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
       if ( PerspectiveManager.getInstance().isLoaded() ) {
         PerspectiveManager.getInstance().setPerspective( startupPerspective );
       } else {
-        EventBusUtil.EVENT_BUS.addHandler( PerspectivesLoadedEvent.TYPE, new PerspectivesLoadedEventHandler() {
-          public void onPerspectivesLoaded( PerspectivesLoadedEvent event ) {
-            PerspectiveManager.getInstance().setPerspective( startupPerspective );
-          }
-        } );
+        EventBusUtil.EVENT_BUS.addHandler( PerspectivesLoadedEvent.TYPE, event1 -> PerspectiveManager.getInstance().setPerspective( startupPerspective ) );
       }
     }
 
+  }
+
+  private void showStartupURL( HashMap<String, String> settings ) {
+    String numStartupURLsSetting = settings.get( "num-startup-urls" );
+    if ( numStartupURLsSetting != null ) {
+      int numStartupURLs = Integer.parseInt( numStartupURLsSetting ); //$NON-NLS-1$
+      for ( int i = 0; i < numStartupURLs; i++ ) {
+        String url = settings.get( "startup-url-" + ( i + 1 ) ); //$NON-NLS-1$
+        String name = settings.get( "startup-name-" + ( i + 1 ) ); //$NON-NLS-1$
+        if ( StringUtils.isEmpty( url ) == false ) { //$NON-NLS-1$
+          url = URL.decodeQueryString( url );
+          name = URL.decodeQueryString( name );
+          SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab( name != null ? name : url,
+              url, url, false );
+        }
+      }
+    }
+    if ( SolutionBrowserPanel.getInstance().getContentTabPanel().getWidgetCount() > 0 ) {
+      SolutionBrowserPanel.getInstance().getContentTabPanel().selectTab( 0 );
+    }
+
+    // startup-url on the URL for the app, wins over settings
+    String startupURL = Window.Location.getParameter( "startup-url" ); //$NON-NLS-1$
+    if ( startupURL != null && !"".equals( startupURL ) ) { //$NON-NLS-1$
+      // Spaces were double encoded so that they wouldn't be replaced with '+' when creating a deep
+      // link so when following a deep link we need to replace '%20' with a space even after decoding
+      String title = Window.Location.getParameter( "name" ).replaceAll( "%20", " " ); //$NON-NLS-1$
+      SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab( title, title, startupURL,
+          false );
+    }
   }
 
   public DeckPanel getContentDeck() {
