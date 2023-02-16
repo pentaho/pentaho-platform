@@ -196,7 +196,7 @@ public class ImportDialog extends PromptDialogBox {
     upload.setVisible( false );
 
     HorizontalPanel fileUploadPanel = new HorizontalFlexPanel();
-    fileUploadPanel.addStyleName("fileUploadPanel-responsive");
+    fileUploadPanel.addStyleName( "file-upload-panel" );
     fileUploadPanel.add( fileTextBox );
     fileUploadPanel.add( new HTML( "&nbsp;" ) );
 
