@@ -215,9 +215,10 @@ public class NewDropdownCommand extends AbstractCommand {
             popup.setPopupPosition( anchorWidget.getAbsoluteLeft(), anchorWidget.getAbsoluteTop()
                 + anchorWidget.getOffsetHeight() );
             popup.show();
-            Focusable firstButton = ElementUtils.findFirstKeyboardFocusableDescendant( popup );
-            if ( firstButton != null ) {
-              firstButton.setFocus( true );
+
+            Element firstButtonElement = ElementUtils.findFirstKeyboardFocusableDescendant( popup.getElement() );
+            if ( firstButtonElement != null ) {
+              firstButtonElement.focus();
             }
           } else {
             MessageDialogBox dialogBox =

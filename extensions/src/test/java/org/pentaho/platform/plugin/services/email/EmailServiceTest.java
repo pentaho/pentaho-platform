@@ -289,6 +289,7 @@ public class EmailServiceTest extends TestCase {
 
   @Test
   public void testSendEmailSmtp() throws Exception {
+    KettleEnvironment.init();
     MockWebServer server = new MockWebServer();
     String filename = "EmailService/EmailAuthenticationResponse1.json";
     String content = readTestFile( filename );

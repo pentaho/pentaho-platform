@@ -25,7 +25,8 @@ define([
 
   var dialogs = new Array();
 
-  var $body = $(window.parent.document).find("html body"),
+  var refWindow = window.parent,
+      $body = $(refWindow.document).find("html body"),
       $container = $body.find(".bootstrap.dialogs");
 
   // Add container to body once
@@ -116,9 +117,17 @@ define([
         dialogs[index].hide();
       }
 
+      // Must be captured before .modal('show'), because it "steals" the focus to it.
+      var restoreFocus = document.activeElement;
+
       this.$dialog.modal('show');
       this.$dialog.appendTo($container);
-      this.$dialog.focus();
+
+      refWindow.pho.util._dialog
+          .create(this.$dialog[0])
+          .setRestoreFocus(restoreFocus)
+          .open();
+
       $(".modal-backdrop").detach().appendTo($container);
 
       // Center modal within container
@@ -132,6 +141,11 @@ define([
     },
 
     hide: function () {
+      var openDialogContext = refWindow.pho.util._dialog.getOpen(this.$dialog[0]);
+      if (openDialogContext != null) {
+        openDialogContext.close();
+      }
+
       this.$dialog.modal('hide');
 
       this.isDragging = false;

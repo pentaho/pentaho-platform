@@ -47,6 +47,8 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.listbox.CustomListBox;
 import org.pentaho.gwt.widgets.client.listbox.DefaultListItem;
+import org.pentaho.gwt.widgets.client.panel.HorizontalFlexPanel;
+import org.pentaho.gwt.widgets.client.panel.VerticalFlexPanel;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.csrf.CsrfUtil;
 import org.pentaho.mantle.client.csrf.JsCsrfToken;
@@ -97,6 +99,11 @@ public class ImportDialog extends PromptDialogBox {
    */
   public ImportDialog( RepositoryFile repositoryFile, boolean allowAdvancedDialog ) {
     super( Messages.getString( "import" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+    setResponsive( true );
+    setSizingMode( DialogSizingMode.SIZE_TO_CONTENT );
+    setWidthCategory( DialogWidthCategory.EXTRA_SMALL );
+    setMinimumHeightCategory( DialogMinimumHeightCategory.CONTENT );
 
     form = new FormPanel();
     form.addSubmitHandler( new SubmitHandler() {
@@ -149,7 +156,7 @@ public class ImportDialog extends PromptDialogBox {
       }
     } );
 
-    VerticalPanel rootPanel = new VerticalPanel();
+    VerticalPanel rootPanel = new VerticalFlexPanel();
 
     VerticalPanel spacer = new VerticalPanel();
     spacer.setHeight( "10px" );
@@ -188,7 +195,8 @@ public class ImportDialog extends PromptDialogBox {
     upload.addChangeHandler( fileUploadHandler );
     upload.setVisible( false );
 
-    HorizontalPanel fileUploadPanel = new HorizontalPanel();
+    HorizontalPanel fileUploadPanel = new HorizontalFlexPanel();
+    fileUploadPanel.addStyleName( "file-upload-panel" );
     fileUploadPanel.add( fileTextBox );
     fileUploadPanel.add( new HTML( "&nbsp;" ) );
 
@@ -245,9 +253,9 @@ public class ImportDialog extends PromptDialogBox {
     DisclosurePanel disclosurePanel = new DisclosurePanel( Messages.getString( "advancedOptions" ) );
     disclosurePanel.getHeader().setStyleName( "gwt-Label" );
     disclosurePanel.setVisible( allowAdvancedDialog );
-    HorizontalPanel mainPanel = new HorizontalPanel();
+    HorizontalPanel mainPanel = new HorizontalFlexPanel();
     mainPanel.add( new HTML( "&nbsp;" ) );
-    VerticalPanel disclosureContent = new VerticalPanel();
+    VerticalPanel disclosureContent = new VerticalFlexPanel();
 
     HTML replaceLabel = new HTML( Messages.getString( "fileExists" ) );
     replaceLabel.setStyleName( "gwt-Label" );
