@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.mantle.client.dialogs;
@@ -101,7 +101,7 @@ public class ImportDialog extends PromptDialogBox {
     super( Messages.getString( "import" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     setResponsive( true );
-    setSizingMode( DialogSizingMode.SIZE_TO_CONTENT );
+    setSizingMode( DialogSizingMode.FILL_VIEWPORT_WIDTH );
     setWidthCategory( DialogWidthCategory.EXTRA_SMALL );
     setMinimumHeightCategory( DialogMinimumHeightCategory.CONTENT );
 
@@ -252,6 +252,8 @@ public class ImportDialog extends PromptDialogBox {
 
     DisclosurePanel disclosurePanel = new DisclosurePanel( Messages.getString( "advancedOptions" ) );
     disclosurePanel.getHeader().setStyleName( "gwt-Label" );
+    disclosurePanel.addStyleName( "import-dialog-disclosure-panel" );
+    disclosurePanel.addStyleName( "gwt-v-panel" );
     disclosurePanel.setVisible( allowAdvancedDialog );
     HorizontalPanel mainPanel = new HorizontalFlexPanel();
     mainPanel.add( new HTML( "&nbsp;" ) );
