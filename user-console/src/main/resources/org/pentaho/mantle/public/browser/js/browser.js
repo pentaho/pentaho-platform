@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2020 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara..  All rights reserved.
  */
 define([
   "./browser.fileButtons",
@@ -26,11 +26,12 @@ define([
   "common-ui/util/PentahoSpinner",
   "./browser.templates",
   "common-ui/util/URLEncoder",
+  "common-ui/util/_a11y",
   "common-ui/bootstrap",
   "common-ui/handlebars",
   "common-ui/jquery-pentaho-i18n",
   "common-ui/jquery"
-], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder) {
+], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder, a11yUtil) {
 
   if (window.parent.mantle_isBrowseRepoDirty == undefined) {
     window.parent.mantle_isBrowseRepoDirty = false;
@@ -847,6 +848,7 @@ define([
       }
       //require folders header template
       $folderBrowserContainer.prepend($(templates.folderBrowserHeader(obj)));
+      a11yUtil.makeAccessibleActionButton($folderBrowserContainer.find("#refreshBrowserIcon")[0]);
     },
 
     updateFileBrowserHeader: function () {
@@ -1007,7 +1009,9 @@ define([
       "dblclick .folder .icon": "expandFolder",
 
       "click .folder .title": "clickFolder",
-      "dblclick .folder .title": "expandFolder"
+      "dblclick .folder .title": "expandFolder",
+
+      "keydown .folder .element": "keyDownFolder",
     },
 
     initialize: function () {
@@ -1111,7 +1115,9 @@ define([
           $clickedFile.addClass("selected");
         } else {
           $folder.addClass("open");
+          $folder.children(".element").attr("aria-expanded", true);
           $folder.addClass("selected");
+          $folder.children(".element").attr("tabindex", 0).attr("aria-selected", true);
           $folder.find("> .folders").show();
         }
         FileBrowser.fileBrowserModel.updateFolderButtons($folder.attr("path"));
@@ -1126,8 +1132,8 @@ define([
 
       for ( var i = 0; i < foldersList.length; i++ ) {
         var elem = foldersList[i];
-        if ( elem && elem.file && elem.file.folder && elem.file.path &&
-            $("div[path=\"" + elem.file.path + "\"]").length != 0 ) {
+        if (elem && elem.file && elem.file.folder && elem.file.path &&
+          $("div[path=\"" + elem.file.path + "\"]").length != 0) {
           firstVisibleFolder = elem;
           break;
         }
@@ -1139,7 +1145,12 @@ define([
     },
 
     expandFolder: function (event) {
-      var $target = $(event.currentTarget).parent().parent();
+      let $target;
+      if ($(event.currentTarget).hasClass("element")) {
+        $target = $(event.currentTarget).parent();
+      } else {
+        $target = $(event.currentTarget).parent().parent();
+      }
 
       if($target.hasClass("trash")){
         //ignore expand events for trash
@@ -1149,10 +1160,12 @@ define([
 
       // If target has class open, it is already opened and showing children...close it and hide children
       if ($target.hasClass("open")) {
+        $target.children(".element").attr("aria-expanded", false);
         $target.removeClass("open").find("> .folders").hide();
       // Else if the children are already part of the DOM, there is no need to make a rest call to get them
       // Simply add .open class to target, and show children (we've already made a call to get them)
       } else if ($target.find("> .folders").children().length > 0) {
+        $target.children(".element").attr("aria-expanded", true);
         $target.addClass("open").find("> .folders").show();
       // else, we must make a call to get the children of the target folder (if they exist) and add them to DOM
       } else {
@@ -1174,7 +1187,7 @@ define([
                 var child = response.children[i].file;
                 toAppend += "<div id=\"" + child.id + "\" class=\"folder\" path=\"" + child.path +
                     "\" ext=\"" + child.name + "\" desc=\"" + child.name + "\">" +
-                    "<div class=\"element\">" +
+                    "<div class=\"element\" role='treeitem' aria-selected='false' aria-expanded='false' tabindex='-1'>" +
                     "<div class=\"expandCollapse\"></div>" +
                     "<div class=\"icon\"></div>" +
                     "<div class=\"title\">" + ( child.title ? child.title : child.name ) + "</div>" +
@@ -1194,6 +1207,7 @@ define([
                 tries++;
               }
             });
+            $target.children(".element").attr("aria-expanded", true);
             $target.addClass("open").find("> .folders").show();
           },
           error: function () {
@@ -1206,7 +1220,12 @@ define([
     },
 
     clickFolder: function (event) {
-      var $target = $(event.currentTarget).parent().parent();
+      let $target;
+      if ($(event.currentTarget).hasClass("element")) {
+        $target = $(event.currentTarget).parent();
+      } else {
+        $target = $(event.currentTarget).parent().parent();
+      }
       //BISERVER-9259 - added time parameter to force change event
       this.model.set("clicked", {
         obj: $target.attr("id"),
@@ -1216,13 +1235,91 @@ define([
         obj: $target,
         time: (new Date()).getTime()
       });
+      $(".folder.selected").children(".element").attr("tabindex", -1).attr("aria-selected", false);
       $(".folder.selected").removeClass("selected");
       $(".folder.secondarySelected").removeClass("secondarySelected");
       $target.addClass("selected");
+      $target.children(".element").attr("tabindex", 0).attr("aria-selected", true);
       //deselect any files
       $(".file.selected").removeClass("selected");
       depth = $target.attr("path").split("/").length;
       event.stopPropagation();
+    },
+
+    keyDownFolder: function (event) {
+      let keyCode = event.which || event.keyCode;
+      if (keyCode === a11yUtil.keyCodes.enter || keyCode === a11yUtil.keyCodes.space) {
+        // ENTER , SPACE
+        this.clickFolder(event);
+      } else if (keyCode === a11yUtil.keyCodes.arrowDown) {
+        // DOWN Arrow
+        let nextElement = this.getNextElementToFocus($(event.currentTarget));
+        if (nextElement !== null) {
+          nextElement.focus();
+        }
+      } else if (keyCode === a11yUtil.keyCodes.arrowUp) {
+        // UP Arrow
+        let prevElement = this.getPreviousElementToFocus($(event.currentTarget));
+        if (prevElement !== null) {
+          prevElement.focus();
+        }
+      } else if (keyCode === a11yUtil.keyCodes.arrowRight) {
+        // RIGHT Arrow
+        if (!$(event.currentTarget).parent().hasClass("open")) {
+          this.expandFolder(event);
+        }
+      } else if (keyCode === a11yUtil.keyCodes.arrowLeft) {
+        // LEFT Arrow
+        if ($(event.currentTarget).parent().hasClass("open")) {
+          this.expandFolder(event);
+        }
+      }
+      event.stopPropagation();
+    },
+
+    getNextElementToFocus: function (currentElement) {
+      let lastFolder = $("#fileBrowserFolders").find(".folder").last();
+      let firstChildFolder = currentElement.next().children().first();
+
+      if (currentElement.parent().hasClass("open") && firstChildFolder.length > 0) {
+        return firstChildFolder.children(".element");
+      }
+      return this.getNextAvailableElement(currentElement.parent(), lastFolder);
+    },
+
+    getNextAvailableElement: function (currentFolder, lastFolder) {
+      if (currentFolder.attr("title") === lastFolder.attr("title")) {
+        return null;
+      }
+
+      if (currentFolder.next().length > 0) {
+        return currentFolder.next().children(".element");
+      } else {
+        return this.getNextAvailableElement(currentFolder.parent().parent(), lastFolder);
+      }
+    },
+
+    getPreviousElementToFocus: function (currentElement) {
+      let previousFolder = currentElement.parent().prev();
+
+      if (previousFolder.length === 0) {
+        let rootFolder = $("#fileBrowserFolders").find(".folder").first();
+        if (rootFolder.attr("id") === currentElement.parent().attr("id")) {
+          return null;
+        }
+        return currentElement.parent().parent().parent().children(".element");
+      } else {
+        return this.getPreviousAvailableElement(previousFolder);
+      }
+    },
+
+    getPreviousAvailableElement: function (currentFolder) {
+      let currentFolderChildren = currentFolder.children(".folders").children();
+
+      if (currentFolder.hasClass("open") && currentFolderChildren.length > 0) {
+        return this.getPreviousAvailableElement(currentFolderChildren.last())
+      }
+      return currentFolder.children(".element");
     },
 
     manageSpinner: function () {
