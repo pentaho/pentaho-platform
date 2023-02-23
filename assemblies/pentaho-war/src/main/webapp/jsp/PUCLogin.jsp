@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2020 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2023 Hitachi Vantara..  All rights reserved.
 --%>
 
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core'%>
@@ -242,7 +242,7 @@
                 <%
                   if (showUsers) {
                 %>
-                  <div id="eval-users-toggle" onClick="toggleEvalPanel()" onFocus="toggleEvalPanel()" tabindex="0">
+                <div id="eval-users-toggle" onClick="toggleEvalPanel()" tabindex="0" role="button">
                     <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.EVAL_LOGIN")%></div>
                     <div id="eval-arrow" class="closed"></div>
                   </div>
@@ -310,6 +310,13 @@
     evaluationPanel.toggleClass("afterSlide");
     $("#eval-arrow").toggleClass("closed");
   }
+
+  $('#eval-users-toggle').on('keydown', function(e) {
+    var keyCode = e.keyCode || e.which;
+    if (keyCode === 13 || keyCode === 32) {
+      toggleEvalPanel();
+    }
+  });
   <%
   }
   %>
