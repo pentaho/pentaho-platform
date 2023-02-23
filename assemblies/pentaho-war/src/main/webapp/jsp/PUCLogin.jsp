@@ -313,8 +313,8 @@
 
   $('#eval-users-toggle').on('keydown', function(e) {
     var keyCode = e.keyCode || e.which;
-    if (keyCode === 13 || keyCode === 32) {
-      toggleEvalPanel();
+    if (keyCode === 13 || keyCode === 32) { // Toggle using 'Enter' or 'Space'
+      e.target.click();
     }
   });
   <%

@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  */
 
 define([
@@ -117,16 +117,20 @@ define([
         dialogs[index].hide();
       }
 
-      // Must be captured before .modal('show'), because it "steals" the focus to it.
-      var restoreFocus = document.activeElement;
+      // Opening the JS dialog must be done here:
+      // - after above dialogs[i].hide(), so as to capture restored focus from previous dialog.
+      // - before below .modal('show'), because it "steals" the focus to the dialog,
+      //   thus "hiding" the previous active element.
+      //
+      // However, autofocus will fail and needs to be repeated later,
+      // as the dialog is still hidden at this time.
+      var jsDialog = refWindow.pho.util._dialog.create(this.$dialog[0]).open();
 
       this.$dialog.modal('show');
       this.$dialog.appendTo($container);
 
-      refWindow.pho.util._dialog
-          .create(this.$dialog[0])
-          .setRestoreFocus(restoreFocus)
-          .open();
+      // Repeat, now that dialog is visible.
+      jsDialog.autoFocus();
 
       $(".modal-backdrop").detach().appendTo($container);
 
@@ -141,14 +145,16 @@ define([
     },
 
     hide: function () {
+      this.$dialog.modal('hide');
+
+      this.isDragging = false;
+
+      // Must be done after the above modal('hide').
+      // When done before, modal('hide') was somehow changing the focus restored by pho.util._dialog.
       var openDialogContext = refWindow.pho.util._dialog.getOpen(this.$dialog[0]);
       if (openDialogContext != null) {
         openDialogContext.close();
       }
-
-      this.$dialog.modal('hide');
-
-      this.isDragging = false;
 
       if (this.postHide) {
         this.postHide();
