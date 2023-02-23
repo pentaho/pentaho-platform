@@ -236,9 +236,9 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.beanshell</groupId>
+      <groupId>org.apache-extras.beanshell</groupId>
       <artifactId>bsh</artifactId>
-      <version>${bsh.version}</version>
+      <version>${beanshell.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
