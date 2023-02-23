@@ -1,24 +1,29 @@
-<%--
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
-* Foundation.
-*
-* You should have received a copy of the GNU Lesser General Public License along with this
-* program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-* or from the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* Copyright (c) 2002-2020 Hitachi Vantara..  All rights reserved.
---%>
+<%-- /*!
+ * HITACHI VANTARA PROPRIETARY AND CONFIDENTIAL
+ *
+ * Copyright 2002 - 2020 Hitachi Vantara. All rights reserved.
+ *
+ * NOTICE: All information including source code contained herein is, and
+ * remains the sole property of Hitachi Vantara and its licensors. The intellectual
+ * and technical concepts contained herein are proprietary and confidential
+ * to, and are trade secrets of Hitachi Vantara and may be covered by U.S. and foreign
+ * patents, or patents in process, and are protected by trade secret and
+ * copyright laws. The receipt or possession of this source code and/or related
+ * information does not convey or imply any rights to reproduce, disclose or
+ * distribute its contents, or to manufacture, use, or sell anything that it
+ * may describe, in whole or in part. Any reproduction, modification, distribution,
+ * or public display of this information without the express written authorization
+ * from Hitachi Vantara is strictly prohibited and in violation of applicable laws and
+ * international treaties. Access to the source code contained herein is strictly
+ * prohibited to anyone except those individuals and entities who have executed
+ * confidentiality and non-disclosure agreements or other agreements with Hitachi Vantara,
+ * explicitly covering such access.
+ */ --%>
 
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core'%>
 <%@
-    page language="java"
-    import="org.springframework.security.web.savedrequest.SavedRequest,
+        page language="java"
+             import="org.springframework.security.web.savedrequest.SavedRequest,
             org.pentaho.platform.web.http.security.PreventBruteForceException,
             org.pentaho.platform.engine.core.system.PentahoSystem,
             org.pentaho.platform.util.messages.LocaleHelper,
@@ -81,6 +86,7 @@
     }
   }
 
+
   boolean loggedIn = request.getRemoteUser() != null && request.getRemoteUser() != "";
   int year = (new java.util.Date()).getYear() + 1900;
 
@@ -99,17 +105,10 @@
   <title><%=Messages.getInstance().getString("UI.PUC.TITLE")%></title>
 
   <%
-    String ua = request.getHeader( "User-Agent" );
-    if ( ua != null ) {
-      ua = ua.toLowerCase();
-    } else {
-      ua = "none";
-    }
+    String ua = request.getHeader( "User-Agent" ).toLowerCase();
     if ( !"desktop".equalsIgnoreCase( request.getParameter( "mode") ) ) {
-      if ( ua.contains( "ipad" )   || ua.contains( "ipod" )    ||
-           ua.contains( "iphone" ) || ua.contains( "android" ) ||
-           "mobile".equalsIgnoreCase( request.getParameter( "mode" ) ) ) {
-
+      if ( ua.contains( "ipad" ) || ua.contains( "ipod" ) || ua.contains( "iphone" )
+              || ua.contains( "android" ) || "mobile".equalsIgnoreCase( request.getParameter( "mode" ) ) ) {
         IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
         List<String> pluginIds = pluginManager.getRegisteredPlugins();
         for ( String id : pluginIds ) {
@@ -132,9 +131,9 @@
                   Map.Entry entry = (Map.Entry) it.next();
                   mobileRedirect += entry.getKey() + "=" + entry.getValue();
                   it.remove();
-                    if ( it.hasNext() ){
-                      mobileRedirect += "&";
-                    }
+                  if ( it.hasNext() ){
+                    mobileRedirect += "&";
+                  }
                 }
               }
             }
@@ -164,12 +163,7 @@
 %>
 
 <meta name="gwt:property" content="locale=<%=Encode.forHtmlAttribute(request.getLocale().toString())%>">
-<link rel="icon" href="/pentaho-style/favicon.ico"/>
-<link rel="apple-touch-icon" sizes="180x180" href="/pentaho-style/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/pentaho-style/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/pentaho-style/favicon-16x16.png">
-<link rel="mask-icon" href="/pentaho-style/safari-pinned-tab.svg" color="#cc0000">
-
+<link rel="shortcut icon" href="/pentaho-style/favicon.ico" />
 <script language="javascript" type="text/javascript" src="webcontext.js"></script>
 <script type="text/javascript">
   var targetUrl = window.location.pathname.replace(new RegExp("(/){2,}"), "/");
@@ -203,6 +197,10 @@
           <div id="loginBlocked" class="login-error-message">
             <div class="login-error-icon"></div>
             <div class="login-error-text"><%=Messages.getInstance().getString("UI.PUC.LOGIN.BLOCKED")%></div>
+          </div>
+          <div id="systemDown" class="login-error-message">
+            <div class="login-error-icon"></div>
+            <div class="login-error-text"><%=Messages.getInstance().getString("UI.PUC.SYSTEM.DOWN")%></div>
           </div>
         </div>
 
@@ -242,10 +240,10 @@
                 <%
                   if (showUsers) {
                 %>
-                  <div id="eval-users-toggle" onClick="toggleEvalPanel()" onFocus="toggleEvalPanel()" tabindex="0">
-                    <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.EVAL_LOGIN")%></div>
-                    <div id="eval-arrow" class="closed"></div>
-                  </div>
+                <div id="eval-users-toggle" onClick="toggleEvalPanel()" tabindex="0" role="button">
+                  <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.EVAL_LOGIN")%></div>
+                  <div id="eval-arrow" class="closed"></div>
+                </div>
 
                 <%
                 } else {
@@ -271,21 +269,21 @@
                   <div class="span6 login-value">password</div>
                 </div>
                 <button type="submit" class="btn" aria-label="Login As Administrator" onClick="loginAs('Admin', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
-            </div>
-            <div id="role-business-user-panel" class="span6 well">
-              <div class="login-role"><%=Messages.getInstance().getString("UI.PUC.LOGIN.BUSINESS_USER")%></div>
-              <div class="row-fluid">
-                <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%></div>
-                <div class="span6 login-value">Suzy</div>
               </div>
-              <div class="row-fluid">
-                <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></div>
-                <div class="span6 login-value">password</div>
+              <div id="role-business-user-panel" class="span6 well">
+                <div class="login-role"><%=Messages.getInstance().getString("UI.PUC.LOGIN.BUSINESS_USER")%></div>
+                <div class="row-fluid">
+                  <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%></div>
+                  <div class="span6 login-value">Suzy</div>
+                </div>
+                <div class="row-fluid">
+                  <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></div>
+                  <div class="span6 login-value">password</div>
+                </div>
+                <button type="submit" class="btn" aria-label="Login As Business User" onClick="loginAs('Suzy', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
               </div>
-              <button type="submit" class="btn" aria-label="Login As Business User" onClick="loginAs('Suzy', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
             </div>
           </div>
-        </div>
 
           <div class="space-30"></div>
 
@@ -310,9 +308,21 @@
     evaluationPanel.toggleClass("afterSlide");
     $("#eval-arrow").toggleClass("closed");
   }
+
+
+  $('#eval-users-toggle').on('keydown', function(e) {
+    var keyCode = e.keyCode || e.which;
+    if (keyCode === 13 || keyCode === 32) {
+      toggleEvalPanel();
+    }
+  });
   <%
   }
   %>
+
+  function bounceToLicenseLocation() {
+    window.location.href = window.location.href.replace("Login", "api/repos/admin-plugin/resources/licenseManagerModule/licenseManagerAdmin.html");
+  }
 
   function bounceToReturnLocation() {
     var returnLocation = '<%=Encode.forJavaScript(requestedURL)%>';
@@ -363,9 +373,12 @@
           document.getElementById("j_password").value = "";
           bounceToReturnLocation();
           return;
+        } else if(xhr.status == 307) {
+          showOneErrorMessage('systemDown');
+        } else {
+          // fail
+          showOneErrorMessage('loginError');
         }
-        // fail
-        showOneErrorMessage('loginError');
       },
 
       success:function(data, textStatus, jqXHR){
@@ -378,6 +391,8 @@
             showOneErrorMessage('loginError');
           }
           return false;
+        } else if(!IS_VALID_PLATFORM_LICENSE) {
+          bounceToLicenseLocation()
         } else {
           document.getElementById("j_password").value = "";
           bounceToReturnLocation();
@@ -421,12 +436,10 @@
       bounceToReturnLocation();
     }
 
-
     $("#login-background").fadeIn(1000, function() {
       $("#animate-wrapper").addClass("afterSlide");
       $("#j_username").focus();
     });
-
 
   });
 </script>
