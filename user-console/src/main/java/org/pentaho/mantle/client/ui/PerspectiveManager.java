@@ -478,6 +478,7 @@ public class PerspectiveManager extends SimplePanel {
     if ( frame == null ) {
       frame = new Frame( perspective.getContentUrl() );
       Element frameElement = frame.getElement();
+      frameElement.setTabIndex( 0 );
       frameElement.setAttribute( ALLOW_TRANSPARENCY_ATTRIBUTE, "true" );
       // BISERVER-7661 Mantle sections have a border on IE9 (not on chrome, firefox)
       frameElement.setAttribute( REMOVE_IFRAME_BORDERS, "0" );
