@@ -23,7 +23,7 @@ VersionCheckSystemListener.
 							<prop key="hsqldb.cache_file_scale">1</prop>
 							<prop key="runtime.gc_interval">0</prop>
 							<prop key="hsqldb.first_identity">0</prop>
-							<prop key="version">1.8.0</prop>
+							<prop key="version">2.7.1</prop>
 							<prop key="modified">no</prop>
 							<prop key="hsqldb.script_format">0</prop>
 							<prop key="sql.enforce_size">false</prop>
@@ -32,11 +32,11 @@ VersionCheckSystemListener.
 							<prop key="hsqldb.log_size">200</prop>
 							<prop key="sql.enforce_strict_size">false</prop>
 							<prop key="readonly">false</prop>
-							<prop key="hsqldb.compatible_version">1.7.2</prop>
-							<prop key="hsqldb.original_version">1.8.0</prop>
+							<prop key="hsqldb.compatible_version">2.7.1</prop>
+							<prop key="hsqldb.original_version">2.7.1</prop>
 							<prop key="sql.compare_in_locale">false</prop>
 							<prop key="hsqldb.nio_data_file">true</prop>
-							<prop key="hsqldb.cache_version">1.7.0</prop>
+							<prop key="hsqldb.cache_version">2.7.1</prop>
 							<prop key="hsqldb.default_table_type">memory</prop>
 						</props>
 					</property>
