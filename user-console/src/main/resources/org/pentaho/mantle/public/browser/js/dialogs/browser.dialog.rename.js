@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2020 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara..  All rights reserved.
  */
 
 define([
@@ -191,6 +191,7 @@ define([
 
       var onOverrideShow = function () {
         this.$dialog.find("#do-not-show").prop("checked", false);
+        this.$dialog.find("#do-not-show").focus();
       };
 
       this.initFolderOverrideDialog(this.makeOverrideDialogCfg("dialogOverrideFolder", RenameTemplates.dialogFolderOverride), onOverrideOk, onOverrideShow);
@@ -329,6 +330,7 @@ define([
               var val = renameField.val().replace(/^\s+|\s+$/gm,''); // get val and trim it;
               okButton.prop("disabled", val == me.model.get("name") || val.length == 0);
             });
+        this.$dialog.find("#rename-field").focus();
       };
 
       this.RenameDialog = new Dialog(cfg, onShow);
@@ -365,6 +367,7 @@ define([
 
     showError: function () {
       this.setElement(this.CannotRenameDialog.show());
+      this.CannotRenameDialog.$dialog.find(".ok.pentaho-button").focus();
     },
 
     cancelRename: function () {
