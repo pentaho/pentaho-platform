@@ -126,6 +126,7 @@ define([
       // as the dialog is still hidden at this time.
       var jsDialog = refWindow.pho.util._dialog.create(this.$dialog[0]).open();
 
+      this.$dialog.bind("hidden.pen-browser-dialogs", $.proxy(this._onHidden, this));
       this.$dialog.modal('show');
       this.$dialog.appendTo($container);
 
@@ -146,6 +147,10 @@ define([
 
     hide: function () {
       this.$dialog.modal('hide');
+    },
+
+    _onHidden: function() {
+      this.$dialog.unbind("hidden.pen-browser-dialogs");
 
       this.isDragging = false;
 
