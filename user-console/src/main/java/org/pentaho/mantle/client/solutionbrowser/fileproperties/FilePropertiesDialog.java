@@ -120,6 +120,10 @@ public class FilePropertiesDialog extends PromptDialogBox {
     getWidget().setHeight( "100%" ); //$NON-NLS-1$
     getWidget().setWidth( "100%" ); //$NON-NLS-1$
     setPixelSize( 490, 420 );
+    setResponsive( true );
+    setWidthCategory( DialogWidthCategory.SMALL );
+    setSizingMode( DialogSizingMode.FILL_VIEWPORT_WIDTH );
+    addStyleName( "file-properties-dialog" );
     showTab( defaultTab );
   }
 
