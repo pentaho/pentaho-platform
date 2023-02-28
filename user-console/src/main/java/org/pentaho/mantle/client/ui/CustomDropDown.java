@@ -106,9 +106,18 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
           if ( (char) nativeEvent.getKeyCode() == KeyCodes.KEY_ESCAPE ) {
             event.cancel();
             hide();
+            CustomDropDown.this.getElement().focus();
+          } else if ( nativeEvent.getKeyCode() == KeyCodes.KEY_TAB ) {
+            hide();
+            if ( nativeEvent.getShiftKey() ) {
+              ElementUtils.tabPrevious( CustomDropDown.this.getElement() );
+            } else {
+              ElementUtils.tabNext( CustomDropDown.this.getElement() );
+            }
+            nativeEvent.preventDefault();
           }
-          return;
         }
+        break;
       }
     };
   };
