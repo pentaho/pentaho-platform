@@ -328,6 +328,14 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
 			}
 		}
   
+        $('.welcome-frame').on('load', function() {
+          $(this.contentDocument.body).on('click', function() {
+            if ($(".popover-content").length > 0){
+              $('.popover-source').popover('hide');
+            }
+          });
+        });
+
   </script>
 </body>
 </html>

@@ -122,6 +122,12 @@ define([
     });
   }
 
+  $(window.parent.document.body).on('click', function () {
+    if ($(".popover-content").length > 0){
+      $('#btnCreateNew').popover('hide');
+    }
+  });
+
   function openFile(title, tooltip, fullPath) {
     if (parent.mantle_setPerspective && window.parent.openURL) {
       // show the opened perspective
