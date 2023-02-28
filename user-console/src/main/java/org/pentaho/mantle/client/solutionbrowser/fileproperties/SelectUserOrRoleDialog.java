@@ -106,6 +106,10 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
     fetchAllUsers( existing, fileInfo );
     fetchAllRoles( existing, fileInfo );
     setWidth( "200px" ); //$NON-NLS-1$
+    setResponsive( true );
+    addStyleName( "select-user-or-role-dialog" );
+    setWidthCategory( DialogWidthCategory.EXTRA_SMALL );
+    setSizingMode( DialogSizingMode.FILL_VIEWPORT_WIDTH );
   }
 
   public void fetchAllRoles( final ArrayList<String> existing, final Document fileInfo ) {
