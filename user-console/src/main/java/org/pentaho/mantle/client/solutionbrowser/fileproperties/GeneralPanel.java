@@ -157,6 +157,7 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
     }
 
     setWidget( 14, 0, metadataPermsPanel );
+    getFlexCellFormatter().setColSpan( 14, 0, 2 );
 
     setCellPadding( 2 );
     setCellSpacing( 2 );
