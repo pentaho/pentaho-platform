@@ -157,6 +157,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
           usersAndRolesList.setSelectedIndex( 0 );
         }
         buildPermissionsTable( fileInfo );
+        updateVisibleItemsUserAndRolesList();
       }
     } );
 
@@ -173,6 +174,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
                 existingUsersAndRoles.add( role );
                 usersAndRolesList.setSelectedIndex( usersAndRolesList.getItemCount() - 1 );
                 addRecipient( role, ROLE_TYPE, fileInfo );
+                updateVisibleItemsUserAndRolesList();
                 buildPermissionsTable( fileInfo );
               }
 
@@ -181,6 +183,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
                 existingUsersAndRoles.add( user );
                 usersAndRolesList.setSelectedIndex( usersAndRolesList.getItemCount() - 1 );
                 addRecipient( user, USER_TYPE, fileInfo );
+                updateVisibleItemsUserAndRolesList();
                 buildPermissionsTable( fileInfo );
               }
             } );
@@ -192,7 +195,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     FlowPanel buttonPanel = new FlowPanel();
     buttonPanel.add( addButton );
     buttonPanel.add( removeButton );
-    usersAndRolesList.setVisibleItemCount( 7 );
+    updateVisibleItemsUserAndRolesList();
     usersAndRolesList.addClickHandler( new ClickHandler() {
 
       public void onClick( ClickEvent clickEvent ) {
@@ -852,5 +855,9 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     } catch ( RequestException e ) {
       isAdmin = false;
     }
+  }
+
+  private void updateVisibleItemsUserAndRolesList() {
+    usersAndRolesList.setVisibleItemCount( Math.max( 4, Math.min( usersAndRolesList.getItemCount(), 6 ) ) );
   }
 }
