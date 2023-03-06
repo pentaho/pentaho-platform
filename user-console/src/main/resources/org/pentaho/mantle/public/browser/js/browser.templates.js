@@ -31,7 +31,7 @@ define([
           "<div class='body' role='tree' aria-labelledby='foldersHeader'></div>" +
           "</div>" +
           "<div id='fileBrowserFiles' class='span4 well fileBrowserColumn'>" +
-          "<div class='body'></div>" +
+          "<select class='body' aria-labelledby='filesHeader' multiple size='0'></select>" +
           "</div>" +
           "<div id='fileBrowserButtons' class='span4 well fileBrowserColumn'>" +
           "<div class='body'></div>" +
@@ -115,20 +115,18 @@ define([
   templates.file = Handlebars.compile(
       "{{#ifCond folder 'false' }}" +
           "{{#if trash}}" +
-          "<div id='{{id}}' class='file' origPath='{{origPath}}' path='{{path}}' type='file' ext='{{trashPath}}' title='{{trashPath}}'>" +
+          "<option id='{{id}}' class='file icon {{classes}}' origPath='{{origPath}}' path='{{path}}' type='file' ext='{{trashPath}}' title='{{trashPath}}'>" +
           "{{else}}" +
-          "<div id='{{id}}' class='file' path='{{path}}' type='file' desc='{{description}}' ext='{{fileWithExtension}}'>" +
+          "<option id='{{id}}' class='file icon {{classes}}' path='{{path}}' type='file' desc='{{description}}' ext='{{fileWithExtension}}'>" +
           "{{/if}}" +
-          "<div class='icon {{classes}}'> </div>" +
           "<div class='title'>{{title}}</div>" +
-          "</div>" +
+          "</option>" +
           "{{/ifCond}}" +
           "{{#ifCond trash 'true'}}" +
           "{{#ifCond folder 'true'}}" +
-          "<div id='{{id}}' class='file' origPath='{{trashPath}}' path='{{path}}' type='folder' ext='{{trashPath}}' title='{{trashPath}}'>" +
-          "<div class='icon trashFolder'> </div>" +
+          "<option id='{{id}}' class='file icon trashFolder' origPath='{{trashPath}}' path='{{path}}' type='folder' ext='{{trashPath}}' title='{{trashPath}}'>" +
           "<div class='title'>{{title}}</div>" +
-          "</div>" +
+          "</option>" +
           "{{/ifCond}}" +
           "{{/ifCond}}");
 
@@ -140,7 +138,7 @@ define([
   templates.folder = Handlebars.compile(templates.folderText);
 
   //template for empty folder
-  templates.emptyFolder = Handlebars.compile("<div class='emptyFolder'><span>{{i18n 'emptyFolder'}}</span></div>");
+  templates.emptyFolder = Handlebars.compile("<option class='emptyFolder' disabled>{{i18n 'emptyFolder'}}</option>");
 
   //helper registration for button template
   Handlebars.registerHelper('button', function () {

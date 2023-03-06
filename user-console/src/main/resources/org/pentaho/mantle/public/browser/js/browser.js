@@ -848,7 +848,9 @@ define([
       }
       //require folders header template
       $folderBrowserContainer.prepend($(templates.folderBrowserHeader(obj)));
-      a11yUtil.makeAccessibleActionButton($folderBrowserContainer.find("#refreshBrowserIcon")[0]);
+      if ($folderBrowserContainer.find("#refreshBrowserIcon").length > 0){
+        a11yUtil.makeAccessibleActionButton($folderBrowserContainer.find("#refreshBrowserIcon")[0]);
+      }
     },
 
     updateFileBrowserHeader: function () {
@@ -1354,9 +1356,10 @@ define([
 
   var FileBrowserFileListView = Backbone.View.extend({
     events: {
-      "click div.file": "clickFile",
-      "dblclick div.file": "doubleClickFile",
-      "click": "clickBody"
+      "click option.file": "clickFile",
+      "dblclick option.file": "doubleClickFile",
+      "click": "clickBody",
+      "keydown": "keyDownFile"
     },
 
     initialize: function () {
@@ -1416,6 +1419,12 @@ define([
       }, 100);
     },
 
+    keyDownFile: function (event) {
+      let keyCode = event.which || event.keyCode;
+      if ( keyCode === a11yUtil.keyCodes.enter || keyCode === a11yUtil.keyCodes.space ){
+        this.clickFile(event);
+      }
+    },
     clickFile: function (event) {
       var prevClicked = this.model.get("clickedFile");
       if (this.model.get("anchorPoint")) {
@@ -1425,7 +1434,13 @@ define([
       //don't want to stop propagation of the event, but need to notify clickBody listener
       //that the event was handled and we don't need to deselect a file
       this.model.set("desel", 1);
-      var $target = $(event.currentTarget).eq(0);
+      let $target;
+      if ($(event.currentTarget).is("select")){
+        $target = $(event.currentTarget).find(":selected");
+      }else {
+        $target = $(event.currentTarget).eq(0);
+      }
+
       //BISERVER-9259 - added time parameter to force change event
       this.model.set("clicked", {
         obj: $target,
@@ -1498,7 +1513,7 @@ define([
               }
               if (inRange == true) {
                 var item = {
-                  obj: $("div[id=\"" + files[i].file.id + "\"]")
+                  obj: $("option[id=\"" + files[i].file.id + "\"]")
                 }
                 item.obj.addClass("selected");
                 FileBrowser.pushUnique(this.model.get("shiftLasso"), item);
