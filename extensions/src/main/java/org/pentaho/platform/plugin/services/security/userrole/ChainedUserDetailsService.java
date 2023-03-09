@@ -21,7 +21,10 @@
 package org.pentaho.platform.plugin.services.security.userrole;
 
 import org.pentaho.platform.security.userroledao.messages.Messages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.ldap.CommunicationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -39,6 +42,8 @@ public class ChainedUserDetailsService implements UserDetailsService {
 
   private List<UserDetailsService> delegates = new ArrayList<UserDetailsService>();
 
+  private static final Logger LOG = LoggerFactory.getLogger( ChainedUserDetailsService.class );
+
   public ChainedUserDetailsService( List<UserDetailsService> delegates ) {
     this.delegates.addAll( delegates );
   }
@@ -51,8 +56,9 @@ public class ChainedUserDetailsService implements UserDetailsService {
         if ( details != null ) {
           return details;
         }
-      } catch ( UsernameNotFoundException ignored ) {
+      } catch ( UsernameNotFoundException | CommunicationException exception ) {
         // ignore and continue;
+        LOG.debug( "Exception in fetching username" + exception.getMessage() );
       }
     }
     throw new UsernameNotFoundException( Messages.getInstance().getString(
