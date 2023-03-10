@@ -1404,6 +1404,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
  * The keyboard selected cell is visible over selection.
  */
 .pentaho-table .cellTableKeyboardSelectedCell {
+  border: var(--focus-ring);
 }
 
 .pentaho-table .cellTableLoading {
