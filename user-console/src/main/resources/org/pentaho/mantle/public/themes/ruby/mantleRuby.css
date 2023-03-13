@@ -976,13 +976,8 @@ a:active, a:hover {
 #pucToolBar {
   display: block;
   float: left;
-  width: 380px;
+  max-width: 380px;
   margin-top: 4px;
-}
-
-#pucHeader {
-  /* moved to global crystal */
-  min-width: 820px;
 }
 
 #pucHeader .gwt-MenuBar-horizontal .gwt-MenuItem {
