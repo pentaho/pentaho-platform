@@ -78,7 +78,6 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
         RootPanel.get().add( pageBackground, 0, 0 );
       }
       super.center();
-      menuBar.focus();
       pageBackground.setSize( "100%", Window.getClientHeight() + Window.getScrollTop() + "px" ); //$NON-NLS-1$ //$NON-NLS-2$
       pageBackground.setVisible( true );
       pageBackground.getElement().getStyle().setDisplay( Display.BLOCK );
@@ -189,6 +188,7 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
             popup.setPopupPosition( getAbsoluteLeft(), getAbsoluteTop() + getOffsetHeight() - 1 );
           }
         } );
+        menuBar.focus();
         popup.setWidth( ( getOffsetWidth() - 2 ) + "px" );
       }
     } else if ( ( event.getTypeInt() & Event.ONMOUSEOVER ) == Event.ONMOUSEOVER ) {
