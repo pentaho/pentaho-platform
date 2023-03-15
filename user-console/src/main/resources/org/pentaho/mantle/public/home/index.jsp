@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2021 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2023 Hitachi Vantara..  All rights reserved.
 --%>
 
 <!DOCTYPE html>
@@ -189,7 +189,7 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
                 <ul class="nav nav-tabs nav-stacked">
                   {{#eachRecent recent}}
                   <li>
-                    <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}'>
+                    <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}' tabindex="-1">
                       <div class="row-fluid">
                         <div class="span10 ellipsis">
                           {{#if xanalyzer}} <i class="pull-left content-icon file-xanalyzer"></i> {{/if}}
@@ -253,7 +253,7 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
                 <ul class="nav nav-tabs nav-stacked">
                   {{#eachFavorite favorites}}
                   <li>
-                    <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}'>
+                    <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}' tabindex="-1">
                       <div class="row-fluid">
                         <div class="span10 ellipsis">
                           {{#if xanalyzer}} <i class="pull-left content-icon file-xanalyzer"></i> {{/if}}
