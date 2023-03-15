@@ -119,6 +119,14 @@ button.btn-large.btn-block {
   background-repeat: no-repeat;
 }
 
+div#sample-button.button-container {
+  position: unset;
+}
+
+div#tutorial-button.button-container {
+  position: unset;
+}
+
 .sample-card-img {
   width: 49px;
   height: 49px;
@@ -127,6 +135,9 @@ button.btn-large.btn-block {
 .sample-details-img {
   width: 200px;
   height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .tutorial-card-img {
@@ -138,6 +149,9 @@ button.btn-large.btn-block {
   width: 245px;
   height: 163px;
   background-size: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .welcome-img {
