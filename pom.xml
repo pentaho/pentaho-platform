@@ -156,7 +156,6 @@
     <jcommon.version>1.0.16</jcommon.version>
     <drools.version>6.4.0.Final</drools.version>
     <snmp4j.version>1.9.3d</snmp4j.version>
-    <batik.version>1.9.1</batik.version>
     <itext.version>2.1.7</itext.version>
     <mondrian.version>9.5.0.0-SNAPSHOT</mondrian.version>
     <wsdl4j-qname.version>1.6.1</wsdl4j-qname.version>
