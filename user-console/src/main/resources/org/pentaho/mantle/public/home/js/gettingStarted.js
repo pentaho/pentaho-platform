@@ -236,7 +236,12 @@ define([
         }
 
         var infoArr = str.split("|");
-        array.push({ title: infoArr[0], description: infoArr[1], id: idBase + (i - 1) });
+        array.push({
+          title: infoArr[0],
+          description: infoArr[1],
+          id: idBase + (i - 1),
+          tooltip: $("<div>" + infoArr[0] + "</div>").text()
+        });
       }
       ContextProvider.addProperty(contextProperty, array);
     });
