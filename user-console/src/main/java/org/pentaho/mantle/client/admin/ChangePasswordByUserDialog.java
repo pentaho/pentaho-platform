@@ -48,6 +48,7 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
   private Button cancelBtn = new Button( Messages.getString( "cancel" ) );
   private static final String TEXT_BOX_WIDTH = "260px";
   private static final String SPACER_STYLE_NAME = "spacer";
+  private boolean acceptBtnEnabled = false;
 
   public ChangePasswordByUserDialog( MantleController controller ) {
     setWidth( 260 );
@@ -55,7 +56,7 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
     getButtonPanel();
     setTitle( Messages.getString( "changePassword" ) );
 
-    acceptBtn.setEnabled( false );
+    disableAcceptBtn();
     newPasswordTextBox = new PasswordTextBox();
     newPasswordTextBox.setWidth( TEXT_BOX_WIDTH );
     reTypePasswordTextBox = new PasswordTextBox();
@@ -137,12 +138,24 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
     }
   }
 
+  private void enableAcceptBtn() {
+    acceptBtn.removeStyleName( "disabled" );
+    acceptBtnEnabled = true;
+  }
+
+  private void disableAcceptBtn() {
+    acceptBtn.addStyleName( "disabled" );
+    acceptBtnEnabled = false;
+  }
+
   class AcceptListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
-      acceptBtn.setEnabled( false );
-      String newPassword = newPasswordTextBox.getText();
-      String oldPassword = oldPasswordTextBox.getText();
-      controller.updatePassword( getUsername(), newPassword, oldPassword, ChangePasswordByUserDialog.this );
+      if ( acceptBtnEnabled ) {
+        disableAcceptBtn();
+        String newPassword = newPasswordTextBox.getText();
+        String oldPassword = oldPasswordTextBox.getText();
+        controller.updatePassword( getUsername(), newPassword, oldPassword, ChangePasswordByUserDialog.this );
+      }
     }
 
     private native String getUsername()
@@ -163,7 +176,11 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
       String reTypePassword = reTypePasswordTextBox.getText();
       String administratorPassword = oldPasswordTextBox.getText();
       boolean isEnabled = !StringUtils.isEmpty( administratorPassword ) && !StringUtils.isEmpty( password ) && password.equals( reTypePassword );
-      acceptBtn.setEnabled( isEnabled );
+      if ( isEnabled ) {
+        enableAcceptBtn();
+      } else {
+        disableAcceptBtn();
+      }
     }
   }
 }

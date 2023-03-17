@@ -43,6 +43,7 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
   private PasswordTextBox administratorPasswordTextBox;
   private Button acceptBtn = new Button( Messages.getString( "ok" ) );
   private Button cancelBtn = new Button( Messages.getString( "cancel" ) );
+  private boolean acceptBtnEnabled = false;
 
   public ChangePasswordDialog( UpdatePasswordController controller ) {
     setWidth( 260 );
@@ -50,7 +51,7 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     getButtonPanel();
     setTitle( Messages.getString( "changePassword" ) );
 
-    acceptBtn.setEnabled( false );
+    disableAcceptBtn();
     newPasswordTextBox = new PasswordTextBox();
     newPasswordTextBox.setWidth( "260px" );
     reTypePasswordTextBox = new PasswordTextBox();
@@ -135,15 +136,25 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     }
   }
 
+  private void enableAcceptBtn() {
+    acceptBtn.removeStyleName( "disabled" );
+    acceptBtnEnabled = true;
+  }
+
+  private void disableAcceptBtn() {
+    acceptBtn.addStyleName( "disabled" );
+    acceptBtnEnabled = false;
+  }
+
   class AcceptListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
-      acceptBtn.setEnabled( false );
-      cancelBtn.setEnabled( false );
-
-      String newPassword = newPasswordTextBox.getText();
-      String administratorPassword = administratorPasswordTextBox.getText();
-
-      controller.updatePassword( newPassword, administratorPassword, ChangePasswordDialog.this );
+      if ( acceptBtnEnabled ) {
+        disableAcceptBtn();
+        cancelBtn.setEnabled( false );
+        String newPassword = newPasswordTextBox.getText();
+        String administratorPassword = administratorPasswordTextBox.getText();
+        controller.updatePassword( newPassword, administratorPassword, ChangePasswordDialog.this );
+      }
     }
   }
 
@@ -159,7 +170,11 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
       String reTypePassword = reTypePasswordTextBox.getText();
       String administratorPassword = administratorPasswordTextBox.getText();
       boolean isEnabled = !StringUtils.isEmpty( administratorPassword ) && !StringUtils.isEmpty( password ) && password.equals( reTypePassword );
-      acceptBtn.setEnabled( isEnabled );
+      if ( isEnabled ) {
+        enableAcceptBtn();
+      } else {
+        disableAcceptBtn();
+      }
     }
   }
 }
