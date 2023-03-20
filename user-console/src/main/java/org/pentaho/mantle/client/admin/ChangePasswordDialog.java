@@ -31,6 +31,9 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import org.pentaho.gwt.widgets.client.dialogs.DialogBox;
+import org.pentaho.gwt.widgets.client.panel.HorizontalFlexPanel;
+import org.pentaho.gwt.widgets.client.panel.VerticalFlexPanel;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.ui.xul.gwt.tags.GwtDialog;
@@ -72,8 +75,18 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     this.controller = controller;
   }
 
+  @Override
+  protected DialogBox createManagedDialog() {
+    DialogBox dialog = super.createManagedDialog();
+    dialog.setStyleDependentName( "change-password", true );
+    dialog.setResponsive( true );
+    dialog.setWidthCategory( DialogBox.DialogWidthCategory.EXTRA_SMALL );
+
+    return dialog;
+  }
+
   public Panel getButtonPanel() {
-    HorizontalPanel hp = new HorizontalPanel();
+    HorizontalPanel hp = new HorizontalFlexPanel();
     hp.add( acceptBtn );
     hp.setCellWidth( acceptBtn, "100%" );
     hp.setCellHorizontalAlignment( acceptBtn, HorizontalPanel.ALIGN_RIGHT );
@@ -83,7 +96,7 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
 
   public Panel getDialogContents() {
 
-    VerticalPanel vp = new VerticalPanel();
+    VerticalPanel vp = new VerticalFlexPanel();
 
     Label nameLabel = new Label( Messages.getString( "newPassword" ) + ":" );
     newPasswordTextBox.setTitle( nameLabel.getText() );
@@ -115,14 +128,6 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
 
     return vp;
   }
-
-  @Override
-  public void show() {
-    super.show();
-
-    this.dialog.setStyleDependentName( "change-password", true );
-  }
-
   @Override
   public void serviceResult( boolean ok ) {
     if ( ok ) {
