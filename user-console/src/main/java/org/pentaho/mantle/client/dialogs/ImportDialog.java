@@ -100,10 +100,10 @@ public class ImportDialog extends PromptDialogBox {
   public ImportDialog( RepositoryFile repositoryFile, boolean allowAdvancedDialog ) {
     super( Messages.getString( "import" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
+    addStyleName( "import-dialog" );
     setResponsive( true );
     setSizingMode( DialogSizingMode.FILL_VIEWPORT_WIDTH );
     setWidthCategory( DialogWidthCategory.EXTRA_SMALL );
-    setMinimumHeightCategory( DialogMinimumHeightCategory.CONTENT );
 
     form = new FormPanel();
     form.addSubmitHandler( new SubmitHandler() {
@@ -157,6 +157,7 @@ public class ImportDialog extends PromptDialogBox {
     } );
 
     VerticalPanel rootPanel = new VerticalFlexPanel();
+    rootPanel.addStyleName( "import-dialog-root-panel" );
 
     VerticalPanel spacer = new VerticalPanel();
     spacer.setHeight( "10px" );
@@ -253,11 +254,12 @@ public class ImportDialog extends PromptDialogBox {
     DisclosurePanel disclosurePanel = new DisclosurePanel( Messages.getString( "advancedOptions" ) );
     disclosurePanel.getHeader().setStyleName( "gwt-Label" );
     disclosurePanel.addStyleName( "import-dialog-disclosure-panel" );
-    disclosurePanel.addStyleName( "gwt-v-panel" );
+    disclosurePanel.addStyleName( VerticalFlexPanel.STYLE_NAME );
     disclosurePanel.setVisible( allowAdvancedDialog );
     HorizontalPanel mainPanel = new HorizontalFlexPanel();
     mainPanel.add( new HTML( "&nbsp;" ) );
     VerticalPanel disclosureContent = new VerticalFlexPanel();
+    disclosureContent.addStyleName( "import-dialog-disclosure-content-panel" );
 
     HTML replaceLabel = new HTML( Messages.getString( "fileExists" ) );
     replaceLabel.setStyleName( "gwt-Label" );

@@ -14,17 +14,11 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.mantle.client.admin;
-
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.ui.xul.gwt.tags.GwtDialog;
-import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -44,6 +38,14 @@ import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import org.pentaho.gwt.widgets.client.dialogs.DialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.panel.HorizontalFlexPanel;
+import org.pentaho.gwt.widgets.client.panel.VerticalFlexPanel;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.ui.xul.gwt.tags.GwtDialog;
+import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 
 public class UserDialog extends GwtDialog {
 
@@ -81,8 +83,18 @@ public class UserDialog extends GwtDialog {
     this.controller = controller;
   }
 
+  @Override
+  protected DialogBox createManagedDialog() {
+    DialogBox dialog = super.createManagedDialog();
+    dialog.setStyleDependentName( "new-user", true );
+    dialog.setResponsive( true );
+    dialog.setWidthCategory( DialogBox.DialogWidthCategory.EXTRA_SMALL );
+
+    return dialog;
+  }
+
   public Panel getButtonPanel() {
-    HorizontalPanel hp = new HorizontalPanel();
+    HorizontalPanel hp = new HorizontalFlexPanel();
     hp.add( acceptBtn );
     hp.setCellWidth( acceptBtn, "100%" );
     hp.setCellHorizontalAlignment( acceptBtn, HorizontalPanel.ALIGN_RIGHT );
@@ -92,12 +104,12 @@ public class UserDialog extends GwtDialog {
 
   public Panel getDialogContents() {
 
-    HorizontalPanel hp = new HorizontalPanel();
+    HorizontalPanel hp = new HorizontalFlexPanel();
     SimplePanel hspacer = new SimplePanel();
     hspacer.setWidth( "10px" );
     hp.add( hspacer );
 
-    VerticalPanel vp = new VerticalPanel();
+    VerticalPanel vp = new VerticalFlexPanel();
     hp.add( vp );
 
     SimplePanel vspacer = new SimplePanel();
