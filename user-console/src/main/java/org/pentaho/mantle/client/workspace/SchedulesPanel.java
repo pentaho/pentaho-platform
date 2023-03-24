@@ -738,6 +738,9 @@ public class SchedulesPanel extends SimplePanel {
             int index = event.getIndex();
             JsJob job = table.getVisibleItem( event.getIndex() );
             outputPathColumn.getFieldUpdater().update( index, job, outputPathColumn.getValue( job ) );
+          } else if ( !event.getNativeEvent().getCtrlKey() && event.getNativeEvent().getKeyCode() == KeyCodes.KEY_SPACE ) {
+            ( (MultiSelectionModel<JsJob>) table.getSelectionModel() ).clear();
+            super.onCellPreview( event );
           } else {
             super.onCellPreview( event );
           }
