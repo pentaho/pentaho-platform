@@ -1113,6 +1113,7 @@ define([
           });
           FileBrowser.fileBrowserModel.updateFileClicked();
           $folder.addClass("secondarySelected");
+          $folder.children(".element").attr("tabindex", 0).attr("aria-selected", true);
           $folder.removeClass("selected");
           $clickedFile.addClass("selected");
         } else {
@@ -1164,6 +1165,10 @@ define([
       if ($target.hasClass("open")) {
         $target.children(".element").attr("aria-expanded", false);
         $target.removeClass("open").find("> .folders").hide();
+        if ($target.find("[tabindex=0]").length > 0) {
+          $target.find("[tabindex=0]").attr("tabindex", -1);
+          $target.children(".element").attr("tabindex", 0);
+        }
       // Else if the children are already part of the DOM, there is no need to make a rest call to get them
       // Simply add .open class to target, and show children (we've already made a call to get them)
       } else if ($target.find("> .folders").children().length > 0) {
@@ -1240,6 +1245,7 @@ define([
       $(".folder.selected").children(".element").attr("tabindex", -1).attr("aria-selected", false);
       $(".folder.selected").removeClass("selected");
       $(".folder.secondarySelected").removeClass("secondarySelected");
+      $(".folder").find("[tabindex=0]").attr("tabindex", -1);
       $target.addClass("selected");
       $target.children(".element").attr("tabindex", 0).attr("aria-selected", true);
       //deselect any files
@@ -1421,7 +1427,8 @@ define([
 
     keyDownFile: function (event) {
       let keyCode = event.which || event.keyCode;
-      if ( keyCode === a11yUtil.keyCodes.enter || keyCode === a11yUtil.keyCodes.space ){
+      if ( ( keyCode === a11yUtil.keyCodes.enter || keyCode === a11yUtil.keyCodes.space ) &&
+        $(event.currentTarget).find(":selected").length > 0 ){
         this.clickFile(event);
       }
     },
