@@ -140,12 +140,9 @@
   margin-right: 4px;
 }
 
-#fileBrowserFiles.fileBrowserColumn .body {
+.fileBrowserFiles .body {
   width: 100%;
-  margin: auto;
-}
-
-.fileBrowserColumn .body .file.selected > .title {
+  margin: unset;
 }
 
 .fileBrowserColumn .body .file .icon,

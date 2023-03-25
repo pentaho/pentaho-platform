@@ -38,7 +38,7 @@
       PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ).getRegisteredPlugins();
   Locale locale = LocaleHelper.getLocale();
 %>
-<html lang="en" class="bootstrap">
+<html lang="en" class="bootstrap home-perspective">
 <head>
   <meta charset="utf-8">
   <title>Home Page</title>

@@ -24,7 +24,7 @@
   String userName = PentahoSessionHolder.getSession().getName();
   Locale locale = LocaleHelper.getLocale();
 %>
-<html lang="en" class="bootstrap">
+<html lang="en" class="bootstrap browse-files-perspective">
 <head>
 <meta charset="utf-8" class="bootstrap">
 <title>Browse Files</title>

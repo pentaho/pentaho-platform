@@ -27,13 +27,13 @@ define([
 
   //main component structure
   templates.structure = Handlebars.compile(
-      "<div id='fileBrowserFolders' class='span4 well fileBrowserColumn'>" +
+      "<div id='fileBrowserFolders' class='span4 well fileBrowserColumn fileBrowserFolders'>" +
           "<div class='body' role='tree' aria-labelledby='foldersHeader'></div>" +
           "</div>" +
-          "<div id='fileBrowserFiles' class='span4 well fileBrowserColumn'>" +
+          "<div id='fileBrowserFiles' class='span4 well fileBrowserColumn fileBrowserFiles'>" +
           "<select class='body' aria-labelledby='filesHeader' multiple size='0'></select>" +
           "</div>" +
-          "<div id='fileBrowserButtons' class='span4 well fileBrowserColumn'>" +
+          "<div id='fileBrowserButtons' class='span4 well fileBrowserColumn fileBrowserButtons'>" +
           "<div class='body'></div>" +
           "</div>");
 
