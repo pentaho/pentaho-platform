@@ -160,8 +160,9 @@
   background-image: url("../../images/fileIcon.gif");
   content: "";
   display: inline-block;
-  height: calc(1em * 20/ 14);
-  width: calc(1em * 20/ 14);
+  height: calc(1em * 20/14);
+  width: calc(1em * 20/14);
+  background-size: 100%;
   vertical-align: top;
   background-repeat: no-repeat;
   margin-right: 5px;
