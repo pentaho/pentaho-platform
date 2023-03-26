@@ -937,30 +937,35 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 
 /* region #pucWrapper et al. */
 #pucWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 #pucHeader {
-  display: block;
-  height: 50px;
-  /*background: #005DA6; value from sapphire theme */
+  flex: none;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
   background: #f8f8f6;
   filter: none;
   -webkit-box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
   box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
-  padding: 30px 0 0;
+  padding: 0;
   position: relative;
   border-top: 4px solid #cc0000;
 }
 
 #pucMenuBar {
-  display: block;
+  flex: none;
+  width: 100%;
 }
 
 #pucPerspectives {
-  padding: 3px;
-  display: block;
-  float: left;
+  flex: none;
+  padding: 3px var(--focus-ring-padding);
 }
 
 #pucPerspectives .mantle-perspective-switcher {
@@ -968,31 +973,24 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 }
 
 #pucToolBar {
-  display: block;
-  float: left;
-  max-width: 380px;
+  flex: auto;
   margin-top: 4px;
 }
 
 #pucUserDropDown {
-  float: right;
-  display: block;
-  padding: 3px;
+  flex: none;
+  padding: 3px var(--focus-ring-padding);
 }
 
 #pucContent {
-  /*  box-shadow: 0px 0px 1px 2px #a9a2ad; */
+  position: unset;
+  flex: auto;
 }
 /* endregion #pucWrapper et al. */
 
 /* region Main Menubar */
 #mainMenubar {
   padding: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  /*background: #0F2B5B; previous Sapphire theme color */
   background: #f8f8f6;
 }
 
