@@ -904,6 +904,33 @@ a:active, a:hover {
   color: #FFFFFF;
 }
 
+#pucHeader {
+  display: block;
+  height: 50px;
+  /*background: #005DA6; value from sapphire theme */
+  background: #f8f8f6;
+  filter: none;
+  -webkit-box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
+  padding: 30px 0 0;
+  position: relative;
+  border-top: 4px solid #cc0000;
+}
+
+#mainMenubar > table {
+  border: 0 none;
+  border-spacing: 0;
+}
+
+#pucHeader #pucPerspectives {
+  padding: 3px;
+}
+
+#pucHeader #pucPerspectives .mantle-perspective-switcher {
+  height: auto;
+}
+
 #pucUserDropDown {
   float: right;
   display: block;
