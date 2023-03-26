@@ -191,20 +191,6 @@
   color: white;
 }
 
-#mainMenubar {
-  padding: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  /*background: #0F2B5B; previous Sapphire theme color */
-  background: #f8f8f6;
-}
-
-.mantle-perspective-switcher {
-  height: 28px;
-}
-
 .puc-logo {
   background: url('images/logo.png') no-repeat center center;
 }
@@ -359,10 +345,6 @@
 
 .mantle-white-tab-background {
   background-color: white;
-}
-
-#mainToolbar {
-  padding: 0px 0px 0px 0px;
 }
 
 .puc-horizontal-split-panel {
@@ -849,20 +831,7 @@ a:active, a:hover {
   text-align: left;
 }
 
-.schedulesPanel .toolbar {
-  background: none;
-  border: 0;
-  margin-bottom: 5px;
-}
-
-.schedulesPanel .pentaho-table th {
-  font-size: 12px;
-  border-spacing: 0;
-  color: #FFF;
-  padding: 8px 10px 10px 10px;
-  font-weight: normal;
-}
-
+/* region custom-dropdown */
 .custom-dropdown {
   width: 254px;
   cursor: hand;
@@ -902,121 +871,6 @@ a:active, a:hover {
 .custom-dropdown:hover .custom-dropdown-label,
 .custom-dropdown:focus-visible .custom-dropdown-label {
   color: #FFFFFF;
-}
-
-#pucHeader {
-  display: block;
-  height: 50px;
-  /*background: #005DA6; value from sapphire theme */
-  background: #f8f8f6;
-  filter: none;
-  -webkit-box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
-  box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
-  padding: 30px 0 0;
-  position: relative;
-  border-top: 4px solid #cc0000;
-}
-
-#mainMenubar > table {
-  border: 0 none;
-  border-spacing: 0;
-}
-
-#pucHeader #pucPerspectives {
-  padding: 3px;
-}
-
-#pucHeader #pucPerspectives .mantle-perspective-switcher {
-  height: auto;
-}
-
-#pucUserDropDown {
-  float: right;
-  display: block;
-  padding: 3px;
-}
-
-#pucUserDropDown .custom-dropdown {
-  width: auto;
-  min-width: 105px;
-}
-
-#pucUserDropDown .custom-dropdown-arrow {
-  width: 30px;
-  background-image: url('images/pentaho_dropdown_arrow.png');
-  background-position: left center;
-}
-
-#pucUserDropDown .custom-dropdown-label {
-  text-align: right;
-  font-size: 18px;
-}
-
-#pucUserDropDown .custom-dropdown-pressed .custom-dropdown-arrow {
-  background-image: url('images/pentaho_dropdown_arrow.png');
-}
-
-#pucUserDropDown .custom-dropdown-arrow .gwt-Label {
-  width: 30px;
-}
-
-#pucPerspectives .custom-dropdown {
-  width: auto;
-  min-width: 115px;
-}
-
-#pucPerspectives .custom-dropdown-arrow {
-  width: 30px;
-  background-image: url('images/pentaho_dropdown_arrow.png');
-  background-position: left center;
-}
-
-#pucPerspectives .custom-dropdown-label {
-  text-align: left;
-  font-size: 24px;
-}
-
-#pucPerspectives .custom-dropdown-pressed .custom-dropdown-arrow {
-  background-image: url('images/pentaho_dropdown_arrow.png');
-}
-
-#pucPerspectives .custom-dropdown-arrow .gwt-Label {
-  width: 30px;
-}
-
-#pucHeader .custom-dropdown-pressed .custom-dropdown-label {
-    background: #FFF;
-    color: #333;
-}
-
-#pucPerspectives {
-  padding-left: 15px;
-  display: block;
-  float: left;
-}
-
-#pucMenuBar {
-  display: block;
-}
-
-#pucToolBar {
-  display: block;
-  float: left;
-  max-width: 380px;
-  margin-top: 4px;
-}
-
-#pucHeader .gwt-MenuBar-horizontal .gwt-MenuItem {
-  color: #414141;
-  font-size: 13px;
-  font-family: OpenSansLight;
-  line-height: 20px;
-  padding: 5px 15px;
-}
-
-#pucContent {
-  /*  box-shadow: 0px 0px 1px 2px #a9a2ad; */
 }
 
 .custom-dropdown-popup {
@@ -1062,7 +916,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   background-color: #e0e0e0;
 }
 
-.custom-dropdown-popup  .gwt-MenuBar-vertical {
+.custom-dropdown-popup .gwt-MenuBar-vertical {
   padding: 10px 0px 0px 0px;
   border-left: 1px solid #CCC;
   border-right: 1px solid #CCC;
@@ -1079,34 +933,149 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 .custom-dropdown-pressed .custom-dropdown-arrow {
   background-image: url('images/dropdown_arrow_blue.png');
 }
+/* endregion custom-dropdown */
 
-#generated-content-location {
-  width: 350px;
-  border-radius: 4px 0 0 4px;
+/* region #pucWrapper et al. */
+#pucWrapper {
 }
 
-.schedule-label {
-  margin-top: 15px;
-  margin-bottom: 5px;
-  color: #666666;
+#pucHeader {
+  display: block;
+  height: 50px;
+  /*background: #005DA6; value from sapphire theme */
+  background: #f8f8f6;
+  filter: none;
+  -webkit-box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
+  padding: 30px 0 0;
+  position: relative;
+  border-top: 4px solid #cc0000;
 }
 
-#schedule-name-input {
-  width: 250px;
+#pucMenuBar {
+  display: block;
 }
 
-.schedule-dialog-button-panel {
-  padding-right: 3px;
-  padding-bottom: 2px;
+#pucPerspectives {
+  padding: 3px;
+  display: block;
+  float: left;
+}
+
+#pucPerspectives .mantle-perspective-switcher {
+  height: auto;
+}
+
+#pucToolBar {
+  display: block;
+  float: left;
+  max-width: 380px;
+  margin-top: 4px;
+}
+
+#pucUserDropDown {
+  float: right;
+  display: block;
+  padding: 3px;
+}
+
+#pucContent {
+  /*  box-shadow: 0px 0px 1px 2px #a9a2ad; */
+}
+/* endregion #pucWrapper et al. */
+
+/* region Main Menubar */
+#mainMenubar {
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
+  /*background: #0F2B5B; previous Sapphire theme color */
+  background: #f8f8f6;
 }
 
-#pucHeader .gwt-MenuBar-horizontal .gwt-MenuItem-selected {
+#mainMenubar > table {
+  border: 0 none;
+  border-spacing: 0;
+}
+
+#mainMenubar .gwt-MenuItem {
+  color: #414141;
+  font-size: 13px;
+  font-family: OpenSansLight;
+  line-height: 20px;
+  padding: 5px 15px;
+}
+
+#mainMenubar .gwt-MenuItem-selected {
   background: #cc0000;
   border: 0 none;
   color: #FFF;
 }
+/* endregion Main Menubar */
 
+/* region Perspectives Dropdown */
+#pucPerspectives .custom-dropdown {
+  width: auto;
+  min-width: 115px;
+}
+
+#pucPerspectives .custom-dropdown-arrow {
+  width: 30px;
+  background-image: url('images/pentaho_dropdown_arrow.png');
+  background-position: left center;
+}
+
+#pucPerspectives .custom-dropdown-label {
+  text-align: left;
+  font-size: 24px;
+}
+
+#pucPerspectives .custom-dropdown-pressed .custom-dropdown-arrow {
+  background-image: url('images/pentaho_dropdown_arrow.png');
+}
+
+#pucPerspectives .custom-dropdown-arrow .gwt-Label {
+  width: 30px;
+}
+/* endregion Perspectives Dropdown */
+
+/* region User Dropdown */
+#pucUserDropDown .custom-dropdown {
+  width: auto;
+  min-width: 105px;
+}
+
+#pucUserDropDown .custom-dropdown-arrow {
+  width: 30px;
+  background-image: url('images/pentaho_dropdown_arrow.png');
+  background-position: left center;
+}
+
+#pucUserDropDown .custom-dropdown-label {
+  text-align: right;
+  font-size: 18px;
+}
+
+#pucUserDropDown .custom-dropdown-pressed .custom-dropdown-arrow {
+  background-image: url('images/pentaho_dropdown_arrow.png');
+}
+
+#pucUserDropDown .custom-dropdown-arrow .gwt-Label {
+  width: 30px;
+}
+/* endregion User Dropdown */
+
+/* region PUC Header custom-dropdown shared */
+#pucHeader .custom-dropdown-pressed .custom-dropdown-label {
+    background: #FFF;
+    color: #333;
+}
+/* endregion */
+
+/* region gwt-MenuBar-vertical */
 .gwt-MenuBar-vertical {
   background-color: #FFF;
   margin-top: 0px;
@@ -1206,8 +1175,13 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   background-size: 9px 7px;
   background-repeat: no-repeat;
 }
+/* endregion gwt-MenuBar-vertical */
 
-/* == == == */
+/* region Main Toolbar */
+#mainToolbar {
+  padding: 0;
+}
+
 #mainToolbar #openButton .toolbar-button img {
   background: url('images/open_32.png');
   height: 32px;
@@ -1292,6 +1266,42 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 
 .toolbar-button-disabled img {
   cursor: default !important;
+}
+/* endregion Main Toolbar */
+
+.schedulesPanel .toolbar {
+  background: none;
+  border: 0;
+  margin-bottom: 5px;
+}
+
+.schedulesPanel .pentaho-table th {
+  font-size: 12px;
+  border-spacing: 0;
+  color: #FFF;
+  padding: 8px 10px 10px 10px;
+  font-weight: normal;
+}
+
+#generated-content-location {
+  width: 350px;
+  border-radius: 4px 0 0 4px;
+}
+
+.schedule-label {
+  margin-top: 15px;
+  margin-bottom: 5px;
+  color: #666666;
+}
+
+#schedule-name-input {
+  width: 250px;
+}
+
+.schedule-dialog-button-panel {
+  padding-right: 3px;
+  padding-bottom: 2px;
+  width: 100%;
 }
 
 /*****************************************/
