@@ -947,6 +947,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  align-items: center;
 
   background: #f8f8f6;
   filter: none;
@@ -973,12 +974,14 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 }
 
 #pucToolBar {
-  flex: auto;
-  margin-top: 4px;
+  /* Toolbar buttons and spacers are integrated into the overall PUC header flex layout. */
+  display: contents;
 }
 
 #pucUserDropDown {
   flex: none;
+  /* Align flex item at right. */
+  margin-left: auto;
   padding: 3px var(--focus-ring-padding);
 }
 
@@ -1176,68 +1179,73 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 /* endregion gwt-MenuBar-vertical */
 
 /* region Main Toolbar */
-#mainToolbar {
-  padding: 0;
+.mainToolbar-Wrapper,
+#mainToolbarWrapper,
+#mainToolbarWrapper > tbody,
+#mainToolbarWrapper > tbody > tr,
+#mainToolbarWrapper > tbody > tr > td,
+#mainToolbarWrapper > tbody > tr > td > div,
+#mainToolbar,
+#mainToolbar > tbody > tr > td > table {
+  display: contents;
+}
+
+#mainToolbar .spacer {
+  /* This flex scheme allows the space to shrink before wrapping kicks in. */
+  flex: 1 1 0;
+  min-width: 0;
+
+  /* Passed by GWT via inline-style */
+  --flex-max-width: initial;
+  max-width: var(--flex-max-width, 10px);
+}
+
+#mainToolbar :is(
+  .toolbar-button, .toolbar-button-disabled,
+  .toolbar-toggle-button, .toolbar-toggle-button-disabled) img {
+  height: calc(1em * 32/14);
+  width: calc(1em * 32/14);
+  background-size: contain;
 }
 
 #mainToolbar #openButton .toolbar-button img {
-  background: url('images/open_32.png');
-  height: 32px;
-  width: 32px;
+  background-image: url('images/open_32.png');
 }
 
 #mainToolbar #newButton .toolbar-button img {
-  background: url('images/new_32.png');
-  height: 32px;
-  width: 32px;
+  background-image: url('images/new_32.png');
 }
 
 #mainToolbar #editContentButton .toolbar-toggle-button img {
-  background: url('images/editContent_32.png');
-  height: 32px;
-  width: 32px;
+  background-image: url('images/editContent_32.png');
 }
 
 #mainToolbar #editContentButton .toolbar-toggle-button-disabled img {
-  background: url('images/editContent_32_disabled.png');
-  height: 32px;
-  width: 32px;
+  background-image: url('images/editContent_32_disabled.png');
 }
 
 #mainToolbar #saveButton .toolbar-button img {
-  background: url('images/save_32.png');
-  height: 32px;
-  width: 32px;
+  background-image: url('images/save_32.png');
 }
 
 #mainToolbar #saveButton .toolbar-button-disabled img {
-  background: url('images/save_32_disabled.png');
-  height: 32px;
-  width: 32px;
+  background-image: url('images/save_32_disabled.png');
 }
 
 #mainToolbar #saveAsButton .toolbar-button img {
-  background: url('images/saveAs_32.png');
-  height: 32px;
-  width: 32px;
+  background-image: url('images/saveAs_32.png');
 }
 
 #mainToolbar #saveAsButton .toolbar-button-disabled img {
-  background: url('images/saveAs_32_disabled.png');
-  height: 32px;
-  width: 32px;
+  background-image: url('images/saveAs_32_disabled.png');
 }
 
 #mainToolbar #showBrowserButton .toolbar-toggle-button img {
-  background: url('../../images/browser_hide_32.png');
-  height: 32px;
-  width: 32px;
+  background-image: url('../../images/browser_hide_32.png');
 }
 
 #mainToolbar #showBrowserButton .toolbar-toggle-button-down img {
-  background: url('../../images/browser_show_32.png');
-  height: 32px;
-  width: 32px;
+  background-image: url('../../images/browser_show_32.png');
 }
 
 #mainToolbar #newAnalysisButton_img .gwt-Image {
@@ -1247,15 +1255,11 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 }
 
 #mainToolbar #printButton .toolbar-button img {
-  background: url('images/print_32.png');
-  height: 32px;
-  width: 32px;
+  background-image: url('images/print_32.png');
 }
 
 #mainToolbar #printButton .toolbar-button-disabled img {
-  background: url('images/print_32_disabled.png');
-  height: 32px;
-  width: 32px;
+  background-image: url('images/print_32_disabled.png');
 }
 
 .toolbar-button-disabled {
