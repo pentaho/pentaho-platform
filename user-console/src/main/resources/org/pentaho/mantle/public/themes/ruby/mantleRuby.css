@@ -38,9 +38,6 @@
   padding: 0px 0px 10px 0px;
 }
 
-.schedule-dialog-content {
-}
-
 .schedulerPerspective-wrapper {
   margin: 0 auto;
 }
@@ -1072,8 +1069,8 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 
 /* region PUC Header custom-dropdown shared */
 #pucHeader .custom-dropdown-pressed .custom-dropdown-label {
-    background: #FFF;
-    color: #333;
+  background: #FFF;
+  color: #333;
 }
 /* endregion */
 
@@ -1124,17 +1121,17 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 }
 
 .gwt-MenuBar-vertical tr:hover .gwt-MenuItem-selected, .gwt-MenuBar-vertical tr:hover .subMenuIcon-selected {
-    background-color: #cc0000;
-    color: #FFF;
+  background-color: #cc0000;
+  color: #FFF;
 }
 
 .gwt-MenuBar-vertical .gwt-MenuItem-selected:hover {
   background-color: #cc0000;
-    color: #FFF;
+  color: #FFF;
 }
 
 .gwt-MenuBar-vertical .subMenuIcon-selected {
-    background-color: #cc0000;
+  background-color: #cc0000;
 }
 
 .gwt-MenuBar-vertical .gwt-MenuItem-selected {
@@ -1270,7 +1267,6 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 .toolbar-button-disabled img {
   cursor: default !important;
 }
-/* endregion Main Toolbar */
 
 .schedulesPanel .toolbar {
   background: none;
@@ -1284,27 +1280,6 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   color: #FFF;
   padding: 8px 10px 10px 10px;
   font-weight: normal;
-}
-
-#generated-content-location {
-  width: 350px;
-  border-radius: 4px 0 0 4px;
-}
-
-.schedule-label {
-  margin-top: 15px;
-  margin-bottom: 5px;
-  color: #666666;
-}
-
-#schedule-name-input {
-  width: 250px;
-}
-
-.schedule-dialog-button-panel {
-  padding-right: 3px;
-  padding-bottom: 2px;
-  width: 100%;
 }
 
 /*****************************************/
