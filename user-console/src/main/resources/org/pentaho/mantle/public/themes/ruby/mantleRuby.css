@@ -988,6 +988,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 #pucContent {
   position: unset;
   flex: auto;
+  min-height: 0;
 }
 /* endregion #pucWrapper et al. */
 
