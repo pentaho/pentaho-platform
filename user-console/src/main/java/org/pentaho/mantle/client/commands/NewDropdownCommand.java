@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -23,6 +23,7 @@ package org.pentaho.mantle.client.commands;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -32,11 +33,13 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.RequestException;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -44,6 +47,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.GlassPane;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.JsCreateNewConfig;
@@ -57,6 +61,8 @@ public class NewDropdownCommand extends AbstractCommand {
 
   private static FocusPanel pageBackground = null;
   private Widget anchorWidget;
+
+  private VerticalPanel buttonPanel = new VerticalPanel();
 
   public NewDropdownCommand() {
   }
@@ -115,6 +121,9 @@ public class NewDropdownCommand extends AbstractCommand {
         super.hide( autoClosed );
         pageBackground.setVisible( false );
         GlassPane.getInstance().hide();
+        if ( anchorWidget != null ) {
+          anchorWidget.getElement().focus();
+        }
       }
 
       protected void onPreviewNativeEvent( final NativePreviewEvent event ) {
@@ -126,8 +135,20 @@ public class NewDropdownCommand extends AbstractCommand {
             if ( (char) nativeEvent.getKeyCode() == KeyCodes.KEY_ESCAPE ) {
               event.cancel();
               hide();
+            } else if ( (char) nativeEvent.getKeyCode() == KeyCodes.KEY_TAB ) {
+              // When tabbing out of the panel, close it and set the focus back to the parent
+              Element buttonElement = DOM.eventGetTarget( nativeEvent );
+              Widget button = ElementUtils.getWidgetOfRootElement( buttonElement );
+              if ( button != null ) {
+                int buttonIndex = buttonPanel.getWidgetIndex( button );
+                int goToButtonIndex = buttonIndex + ( nativeEvent.getShiftKey() ? -1 : 1 );
+                if ( goToButtonIndex == -1 || goToButtonIndex == buttonPanel.getWidgetCount() ) {
+                  event.cancel();
+                  hide();
+                }
+              }
             }
-            return;
+            break;
           }
         }
       };
@@ -163,7 +184,6 @@ public class NewDropdownCommand extends AbstractCommand {
             }
             Collections.sort( sorted, new JsCreateNewConfigComparator() );
             popup.setStyleName( "newToolbarDropdown" );
-            VerticalPanel buttonPanel = new VerticalPanel();
             popup.add( buttonPanel );
             for ( int i = 0; i < sorted.size(); i++ ) {
               final int finali = i;
@@ -195,6 +215,11 @@ public class NewDropdownCommand extends AbstractCommand {
             popup.setPopupPosition( anchorWidget.getAbsoluteLeft(), anchorWidget.getAbsoluteTop()
                 + anchorWidget.getOffsetHeight() );
             popup.show();
+
+            Element firstButtonElement = ElementUtils.findFirstKeyboardFocusableDescendant( popup.getElement() );
+            if ( firstButtonElement != null ) {
+              firstButtonElement.focus();
+            }
           } else {
             MessageDialogBox dialogBox =
                 new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "error" ), //$NON-NLS-1$ //$NON-NLS-2$

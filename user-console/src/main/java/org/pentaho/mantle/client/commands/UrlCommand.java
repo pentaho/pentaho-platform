@@ -65,7 +65,6 @@ public class UrlCommand extends AbstractCommand {
       final Frame frame = new Frame( url );
 
       final PromptDialogBox dialogBox = new PromptDialogBox( title, Messages.getString( "ok" ), null, false, false );
-      dialogBox.setStylePrimaryName( "pentaho-dialog" );
       dialogBox.setText( title );
       dialogBox.setContent( frame );
 

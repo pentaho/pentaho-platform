@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2021 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2023 Hitachi Vantara..  All rights reserved.
 --%>
 
 <!DOCTYPE html>
@@ -38,7 +38,7 @@
       PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ).getRegisteredPlugins();
   Locale locale = LocaleHelper.getLocale();
 %>
-<html lang="en" class="bootstrap">
+<html lang="en" class="bootstrap home-perspective">
 <head>
   <meta charset="utf-8">
   <title>Home Page</title>
@@ -145,8 +145,8 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
             <!-- Only show create button if user is allowed -->
 
             {{#if canCreateContent}}
-            <button id="btnCreateNew" class="btn btn-large btn-block popover-source" data-toggle="dropdown"
-                data-toggle="popover" data-placement="right" data-html="true" data-id="my_hid" data-container="body" onclick="preCreatePopover();">
+            <button id="btnCreateNew" class="btn btn-large btn-block popover-source" aria-haspopup="true"
+                    data-toggle="popover" data-placement="right" data-html="true" data-id="my_hid" data-container="body" onclick="preCreatePopover();">
               {{i18n.create_new}}
             </button>
             {{/if}}
@@ -189,7 +189,7 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
                 <ul class="nav nav-tabs nav-stacked">
                   {{#eachRecent recent}}
                   <li>
-                    <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}'>
+                    <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}' tabindex="-1">
                       <div class="row-fluid">
                         <div class="span10 ellipsis">
                           {{#if xanalyzer}} <i class="pull-left content-icon file-xanalyzer"></i> {{/if}}
@@ -253,7 +253,7 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
                 <ul class="nav nav-tabs nav-stacked">
                   {{#eachFavorite favorites}}
                   <li>
-                    <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}'>
+                    <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}' tabindex="-1">
                       <div class="row-fluid">
                         <div class="span10 ellipsis">
                           {{#if xanalyzer}} <i class="pull-left content-icon file-xanalyzer"></i> {{/if}}
@@ -328,6 +328,14 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
 			}
 		}
   
+        $('.welcome-frame').on('load', function() {
+          $(this.contentDocument.body).on('click', function() {
+            if ($(".popover-content").length > 0){
+              $('.popover-source').popover('hide');
+            }
+          });
+        });
+
   </script>
 </body>
 </html>

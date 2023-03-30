@@ -12,15 +12,16 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2019 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  */
 
 define([
   "common-ui/util/PentahoSpinner",
   "common-ui/util/spin",
   "pentaho/csrf/service",
+  "common-ui/util/_a11y",
   "pentaho/shim/css.escape"
-], function(spinner, Spinner, csrfService) {
+], function(spinner, Spinner, csrfService, a11yUtil) {
 
   var local = {
     name: "favorites",
@@ -242,6 +243,25 @@ define([
       setTimeout(function () {
         that.spinner.stop();
         $("#" + that.displayContainerId).html(html);
+        $("#"+that.contentPanelId).find("a").first().attr("tabindex",0);
+
+        $("#"+that.contentPanelId).find("a").keydown(function(event) {
+          var nextItem;
+          var keyCode = event.which || event.keyCode;
+          if (keyCode == a11yUtil.keyCodes.arrowUp) {
+            nextItem = $(this).parent().prev();
+          } else if(keyCode == a11yUtil.keyCodes.arrowDown) {
+            nextItem = $(this).parent().next();
+          } else if (keyCode == a11yUtil.keyCodes.space) {
+            $(this).find(".pull-right").click();
+          }
+
+          if ( nextItem != null && nextItem.length !== 0) {
+            $("#"+that.contentPanelId+" a[tabindex=0]").attr("tabindex",-1);
+            $(nextItem).find("a").attr("tabindex", 0);
+            nextItem.children().focus();
+          }
+        });
       }, 100);
     },
 

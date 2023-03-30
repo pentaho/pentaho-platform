@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2020 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2023 Hitachi Vantara..  All rights reserved.
 --%>
 
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core'%>
@@ -242,10 +242,10 @@
                 <%
                   if (showUsers) {
                 %>
-                <div id="eval-users-toggle" onClick="toggleEvalPanel()">
-                  <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.EVAL_LOGIN")%></div>
-                  <div id="eval-arrow" class="closed"></div>
-                </div>
+                <div id="eval-users-toggle" onClick="toggleEvalPanel()" tabindex="0" role="button">
+                    <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.EVAL_LOGIN")%></div>
+                    <div id="eval-arrow" class="closed"></div>
+                  </div>
 
                 <%
                 } else {
@@ -270,22 +270,22 @@
                   <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></div>
                   <div class="span6 login-value">password</div>
                 </div>
-                <button class="btn" onClick="loginAs('Admin', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
+                <button type="submit" class="btn" aria-label="Login As Administrator" onClick="loginAs('Admin', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
+            </div>
+            <div id="role-business-user-panel" class="span6 well">
+              <div class="login-role"><%=Messages.getInstance().getString("UI.PUC.LOGIN.BUSINESS_USER")%></div>
+              <div class="row-fluid">
+                <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%></div>
+                <div class="span6 login-value">Suzy</div>
               </div>
-              <div id="role-business-user-panel" class="span6 well">
-                <div class="login-role"><%=Messages.getInstance().getString("UI.PUC.LOGIN.BUSINESS_USER")%></div>
-                <div class="row-fluid">
-                  <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%></div>
-                  <div class="span6 login-value">Suzy</div>
-                </div>
-                <div class="row-fluid">
-                  <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></div>
-                  <div class="span6 login-value">password</div>
-                </div>
-                <button class="btn" onClick="loginAs('Suzy', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
+              <div class="row-fluid">
+                <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></div>
+                <div class="span6 login-value">password</div>
               </div>
+              <button type="submit" class="btn" aria-label="Login As Business User" onClick="loginAs('Suzy', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
             </div>
           </div>
+        </div>
 
           <div class="space-30"></div>
 
@@ -310,6 +310,13 @@
     evaluationPanel.toggleClass("afterSlide");
     $("#eval-arrow").toggleClass("closed");
   }
+
+  $('#eval-users-toggle').on('keydown', function(e) {
+    var keyCode = e.keyCode || e.which;
+    if (keyCode === 13 || keyCode === 32) { // Toggle using 'Enter' or 'Space'
+      e.target.click();
+    }
+  });
   <%
   }
   %>

@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.mantle.client.dialogs;
@@ -47,6 +47,8 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.listbox.CustomListBox;
 import org.pentaho.gwt.widgets.client.listbox.DefaultListItem;
+import org.pentaho.gwt.widgets.client.panel.HorizontalFlexPanel;
+import org.pentaho.gwt.widgets.client.panel.VerticalFlexPanel;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.csrf.CsrfUtil;
 import org.pentaho.mantle.client.csrf.JsCsrfToken;
@@ -97,6 +99,11 @@ public class ImportDialog extends PromptDialogBox {
    */
   public ImportDialog( RepositoryFile repositoryFile, boolean allowAdvancedDialog ) {
     super( Messages.getString( "import" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+    addStyleName( "import-dialog" );
+    setResponsive( true );
+    setSizingMode( DialogSizingMode.FILL_VIEWPORT_WIDTH );
+    setWidthCategory( DialogWidthCategory.EXTRA_SMALL );
 
     form = new FormPanel();
     form.addSubmitHandler( new SubmitHandler() {
@@ -149,7 +156,8 @@ public class ImportDialog extends PromptDialogBox {
       }
     } );
 
-    VerticalPanel rootPanel = new VerticalPanel();
+    VerticalPanel rootPanel = new VerticalFlexPanel();
+    rootPanel.addStyleName( "import-dialog-root-panel" );
 
     VerticalPanel spacer = new VerticalPanel();
     spacer.setHeight( "10px" );
@@ -188,7 +196,8 @@ public class ImportDialog extends PromptDialogBox {
     upload.addChangeHandler( fileUploadHandler );
     upload.setVisible( false );
 
-    HorizontalPanel fileUploadPanel = new HorizontalPanel();
+    HorizontalPanel fileUploadPanel = new HorizontalFlexPanel();
+    fileUploadPanel.addStyleName( "file-upload-panel" );
     fileUploadPanel.add( fileTextBox );
     fileUploadPanel.add( new HTML( "&nbsp;" ) );
 
@@ -244,10 +253,13 @@ public class ImportDialog extends PromptDialogBox {
 
     DisclosurePanel disclosurePanel = new DisclosurePanel( Messages.getString( "advancedOptions" ) );
     disclosurePanel.getHeader().setStyleName( "gwt-Label" );
+    disclosurePanel.addStyleName( "import-dialog-disclosure-panel" );
+    disclosurePanel.addStyleName( VerticalFlexPanel.STYLE_NAME );
     disclosurePanel.setVisible( allowAdvancedDialog );
-    HorizontalPanel mainPanel = new HorizontalPanel();
+    HorizontalPanel mainPanel = new HorizontalFlexPanel();
     mainPanel.add( new HTML( "&nbsp;" ) );
-    VerticalPanel disclosureContent = new VerticalPanel();
+    VerticalPanel disclosureContent = new VerticalFlexPanel();
+    disclosureContent.addStyleName( "import-dialog-disclosure-content-panel" );
 
     HTML replaceLabel = new HTML( Messages.getString( "fileExists" ) );
     replaceLabel.setStyleName( "gwt-Label" );

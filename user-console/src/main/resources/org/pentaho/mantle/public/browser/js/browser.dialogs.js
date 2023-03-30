@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  */
 
 define([
@@ -25,7 +25,8 @@ define([
 
   var dialogs = new Array();
 
-  var $body = $(window.parent.document).find("html body"),
+  var refWindow = window.parent,
+      $body = $(refWindow.document).find("html body"),
       $container = $body.find(".bootstrap.dialogs");
 
   // Add container to body once
@@ -112,13 +113,26 @@ define([
     show: function () {
 
       // Hide all other dialogs before showing the next
-      for (index in dialogs) {
+      for (var index in dialogs) {
         dialogs[index].hide();
       }
 
+      // Opening the JS dialog must be done here:
+      // - after above dialogs[i].hide(), so as to capture restored focus from previous dialog.
+      // - before below .modal('show'), because it "steals" the focus to the dialog,
+      //   thus "hiding" the previous active element.
+      //
+      // However, autofocus will fail and needs to be repeated later,
+      // as the dialog is still hidden at this time.
+      var jsDialog = refWindow.pho.util._dialog.create(this.$dialog[0]).open();
+
+      this.$dialog.bind("hidden.pen-browser-dialogs", $.proxy(this._onHidden, this));
       this.$dialog.modal('show');
       this.$dialog.appendTo($container);
-      this.$dialog.focus();
+
+      // Repeat, now that dialog is visible.
+      jsDialog.autoFocus();
+
       $(".modal-backdrop").detach().appendTo($container);
 
       // Center modal within container
@@ -133,8 +147,19 @@ define([
 
     hide: function () {
       this.$dialog.modal('hide');
+    },
+
+    _onHidden: function() {
+      this.$dialog.unbind("hidden.pen-browser-dialogs");
 
       this.isDragging = false;
+
+      // Must be done after the above modal('hide').
+      // When done before, modal('hide') was somehow changing the focus restored by pho.util._dialog.
+      var openDialogContext = refWindow.pho.util._dialog.getOpen(this.$dialog[0]);
+      if (openDialogContext != null) {
+        openDialogContext.close();
+      }
 
       if (this.postHide) {
         this.postHide();
@@ -145,8 +170,8 @@ define([
       var backdrop = $container.find(".modal-backdrop");
 
       this.$dialog.css({
-        "left": backdrop.width() / 2 - this.$dialog.width() / 2,
-        "top": backdrop.height() / 2 - this.$dialog.height() / 2
+        "left": backdrop.width() / 2 - this.$dialog.outerWidth() / 2,
+        "top": backdrop.height() / 2 - this.$dialog.outerHeight() / 2
       });
     }
   };
@@ -156,7 +181,7 @@ define([
     this.i18n = i18n;
   }
 
-  Dialog.buildCfg = function (id, header, body, footer, close_btn) {
+  Dialog.buildCfg = function (id, header, body, footer, close_btn, ariaConfig) {
     var cfg = {};
 
     cfg.dialog = {};
@@ -167,6 +192,15 @@ define([
     cfg.dialog.content.header = header;
     cfg.dialog.content.body = body;
     cfg.dialog.content.footer = footer;
+
+    if (ariaConfig == null) {
+      ariaConfig = {};
+    }
+
+    cfg.dialog.aria = {
+      role: ariaConfig.role || "dialog",
+      describedBy: (ariaConfig.role === "alertdialog") ? (ariaConfig.describedBy || (id + "-body")) : undefined
+    };
 
     return cfg;
   };

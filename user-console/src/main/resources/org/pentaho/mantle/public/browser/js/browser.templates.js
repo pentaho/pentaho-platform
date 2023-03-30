@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2019 Hitachi Vantara..  All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara..  All rights reserved.
  */
 
 define([
@@ -27,13 +27,13 @@ define([
 
   //main component structure
   templates.structure = Handlebars.compile(
-      "<div id='fileBrowserFolders' class='span4 well fileBrowserColumn'>" +
-          "<div class='body'></div>" +
+      "<div id='fileBrowserFolders' class='span4 well fileBrowserColumn fileBrowserFolders'>" +
+          "<div class='body' role='tree' aria-labelledby='foldersHeader'></div>" +
           "</div>" +
-          "<div id='fileBrowserFiles' class='span4 well fileBrowserColumn'>" +
-          "<div class='body'></div>" +
+          "<div id='fileBrowserFiles' class='span4 well fileBrowserColumn fileBrowserFiles'>" +
+          "<select class='body' aria-labelledby='filesHeader' multiple size='0'></select>" +
           "</div>" +
-          "<div id='fileBrowserButtons' class='span4 well fileBrowserColumn'>" +
+          "<div id='fileBrowserButtons' class='span4 well fileBrowserColumn fileBrowserButtons'>" +
           "<div class='body'></div>" +
           "</div>");
 
@@ -93,7 +93,7 @@ define([
           "{{else}}" +
           "<div id='{{file.id}}' class='folder' path='{{file.path}}' desc='{{file.description}}' ext='{{file.name}}'>" +
           "{{/ifCond}}" +
-          "<div class='element'>" +
+          "<div class='element' role='treeitem' aria-selected='false' aria-expanded='false' tabindex='-1'>" +
           "<div class='expandCollapse'> </div>" +
           "<div class='icon'> </div>" +
           "{{#if file.title}}" +
@@ -102,7 +102,7 @@ define([
           "<div class='title'>{{file.name}}</div>" +
           "{{/if}}" +
           "</div>" +
-          "<div class='folders'>" +
+          "<div class='folders' role='group'>" +
           "{{#each children}} {{> folder}} {{/each}}" +
           "</div>" +
           "</div>" +
@@ -115,20 +115,18 @@ define([
   templates.file = Handlebars.compile(
       "{{#ifCond folder 'false' }}" +
           "{{#if trash}}" +
-          "<div id='{{id}}' class='file' origPath='{{origPath}}' path='{{path}}' type='file' ext='{{trashPath}}' title='{{trashPath}}'>" +
+          "<option id='{{id}}' class='file icon {{classes}}' origPath='{{origPath}}' path='{{path}}' type='file' ext='{{trashPath}}' title='{{trashPath}}'>" +
           "{{else}}" +
-          "<div id='{{id}}' class='file' path='{{path}}' type='file' desc='{{description}}' ext='{{fileWithExtension}}'>" +
+          "<option id='{{id}}' class='file icon {{classes}}' path='{{path}}' type='file' desc='{{description}}' ext='{{fileWithExtension}}'>" +
           "{{/if}}" +
-          "<div class='icon {{classes}}'> </div>" +
           "<div class='title'>{{title}}</div>" +
-          "</div>" +
+          "</option>" +
           "{{/ifCond}}" +
           "{{#ifCond trash 'true'}}" +
           "{{#ifCond folder 'true'}}" +
-          "<div id='{{id}}' class='file' origPath='{{trashPath}}' path='{{path}}' type='folder' ext='{{trashPath}}' title='{{trashPath}}'>" +
-          "<div class='icon trashFolder'> </div>" +
+          "<option id='{{id}}' class='file icon trashFolder' origPath='{{trashPath}}' path='{{path}}' type='folder' ext='{{trashPath}}' title='{{trashPath}}'>" +
           "<div class='title'>{{title}}</div>" +
-          "</div>" +
+          "</option>" +
           "{{/ifCond}}" +
           "{{/ifCond}}");
 
@@ -140,7 +138,7 @@ define([
   templates.folder = Handlebars.compile(templates.folderText);
 
   //template for empty folder
-  templates.emptyFolder = Handlebars.compile("<div class='emptyFolder'><span>{{i18n 'emptyFolder'}}</span></div>");
+  templates.emptyFolder = Handlebars.compile("<option class='emptyFolder' disabled>{{i18n 'emptyFolder'}}</option>");
 
   //helper registration for button template
   Handlebars.registerHelper('button', function () {

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -31,6 +31,9 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import org.pentaho.gwt.widgets.client.dialogs.DialogBox;
+import org.pentaho.gwt.widgets.client.panel.HorizontalFlexPanel;
+import org.pentaho.gwt.widgets.client.panel.VerticalFlexPanel;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.ui.xul.gwt.tags.GwtDialog;
@@ -43,6 +46,7 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
   private PasswordTextBox administratorPasswordTextBox;
   private Button acceptBtn = new Button( Messages.getString( "ok" ) );
   private Button cancelBtn = new Button( Messages.getString( "cancel" ) );
+  private boolean acceptBtnEnabled = false;
 
   public ChangePasswordDialog( UpdatePasswordController controller ) {
     setWidth( 260 );
@@ -50,7 +54,7 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     getButtonPanel();
     setTitle( Messages.getString( "changePassword" ) );
 
-    acceptBtn.setEnabled( false );
+    disableAcceptBtn();
     newPasswordTextBox = new PasswordTextBox();
     newPasswordTextBox.setWidth( "260px" );
     reTypePasswordTextBox = new PasswordTextBox();
@@ -71,8 +75,18 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     this.controller = controller;
   }
 
+  @Override
+  protected DialogBox createManagedDialog() {
+    DialogBox dialog = super.createManagedDialog();
+    dialog.setStyleDependentName( "change-password", true );
+    dialog.setResponsive( true );
+    dialog.setWidthCategory( DialogBox.DialogWidthCategory.EXTRA_SMALL );
+
+    return dialog;
+  }
+
   public Panel getButtonPanel() {
-    HorizontalPanel hp = new HorizontalPanel();
+    HorizontalPanel hp = new HorizontalFlexPanel();
     hp.add( acceptBtn );
     hp.setCellWidth( acceptBtn, "100%" );
     hp.setCellHorizontalAlignment( acceptBtn, HorizontalPanel.ALIGN_RIGHT );
@@ -82,9 +96,10 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
 
   public Panel getDialogContents() {
 
-    VerticalPanel vp = new VerticalPanel();
+    VerticalPanel vp = new VerticalFlexPanel();
 
     Label nameLabel = new Label( Messages.getString( "newPassword" ) + ":" );
+    newPasswordTextBox.setTitle( nameLabel.getText() );
     vp.add( nameLabel );
     vp.add( newPasswordTextBox );
 
@@ -93,6 +108,7 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     vp.add( separatorSpacer );
 
     Label passwordLabel = new Label( Messages.getString( "retypePassword" ) + ":" );
+    reTypePasswordTextBox.setTitle( passwordLabel.getText() );
     vp.add( passwordLabel );
     vp.add( reTypePasswordTextBox );
 
@@ -106,19 +122,12 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     vp.add( separatorSpacer );
 
     Label administratorLabel = new Label( Messages.getString( "administratorPassword" ) + ":" );
+    administratorPasswordTextBox.setTitle( administratorLabel.getText() );
     vp.add( administratorLabel );
     vp.add( administratorPasswordTextBox );
 
     return vp;
   }
-
-  @Override
-  public void show() {
-    super.show();
-
-    this.dialog.setStyleDependentName( "change-password", true );
-  }
-
   @Override
   public void serviceResult( boolean ok ) {
     if ( ok ) {
@@ -132,15 +141,25 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     }
   }
 
+  private void enableAcceptBtn() {
+    acceptBtn.removeStyleName( "disabled" );
+    acceptBtnEnabled = true;
+  }
+
+  private void disableAcceptBtn() {
+    acceptBtn.addStyleName( "disabled" );
+    acceptBtnEnabled = false;
+  }
+
   class AcceptListener implements ClickHandler {
     public void onClick( ClickEvent event ) {
-      acceptBtn.setEnabled( false );
-      cancelBtn.setEnabled( false );
-
-      String newPassword = newPasswordTextBox.getText();
-      String administratorPassword = administratorPasswordTextBox.getText();
-
-      controller.updatePassword( newPassword, administratorPassword, ChangePasswordDialog.this );
+      if ( acceptBtnEnabled ) {
+        disableAcceptBtn();
+        cancelBtn.setEnabled( false );
+        String newPassword = newPasswordTextBox.getText();
+        String administratorPassword = administratorPasswordTextBox.getText();
+        controller.updatePassword( newPassword, administratorPassword, ChangePasswordDialog.this );
+      }
     }
   }
 
@@ -156,7 +175,11 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
       String reTypePassword = reTypePasswordTextBox.getText();
       String administratorPassword = administratorPasswordTextBox.getText();
       boolean isEnabled = !StringUtils.isEmpty( administratorPassword ) && !StringUtils.isEmpty( password ) && password.equals( reTypePassword );
-      acceptBtn.setEnabled( isEnabled );
+      if ( isEnabled ) {
+        enableAcceptBtn();
+      } else {
+        disableAcceptBtn();
+      }
     }
   }
 }

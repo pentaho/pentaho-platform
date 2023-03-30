@@ -4,14 +4,14 @@
     <div class="detail-title"></div>
     <div class="detail-description"></div>
 
-    <div id="tutorial-button" class="button-container">
-      <div class="launch-link">
-        <button class="pentaho-button">{{i18n.getting_started_tutorials_button_title}}</button>
-      </div>
-    </div>
-
     <div class="launch-link">
-      <div class="details-img tutorial-details-img"></div>
+      <div class="details-img tutorial-details-img">
+        <div id="tutorial-button" class="button-container">
+          <div class="launch-link">
+            <button class="pentaho-button" title="{{i18n.getting_started_tutorials_button_title}}">{{i18n.getting_started_tutorials_button_title}}</button>
+          </div>
+        </div>
+      </div>
       <div class="alert alert-error no-internet-error"></div>
     </div>
   </div>
@@ -21,7 +21,7 @@
   <div class="vertical-selector" id="tutorial-selector">
 
     {{#each getting_started_tutorials}}
-    <div class="card tutorial-card" id="{{id}}">
+    <div class="card tutorial-card" id="{{id}}" title="{{tooltip}}">
       <div class="card-img tutorial-card-img"></div>
       <div class="card-title tutorial-card-title">
         {{title}}

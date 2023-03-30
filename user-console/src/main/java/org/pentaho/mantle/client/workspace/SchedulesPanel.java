@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  */
 package org.pentaho.mantle.client.workspace;
 
@@ -20,8 +20,10 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.dom.client.TableCellElement;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
@@ -36,6 +38,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.cellview.client.AbstractCellTable;
 import com.google.gwt.user.cellview.client.AbstractHeaderOrFooterBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
@@ -104,6 +107,8 @@ public class SchedulesPanel extends SimplePanel {
   private static final String BLANK_VALUE = "-";
 
   private static final int READ_PERMISSION = 0;
+
+  private static final int OUTPUT_PATH_COLUMN = 3;
 
   private ToolbarButton controlScheduleButton = new ToolbarButton( ImageUtil.getThemeableImage(
     ICON_SMALL_STYLE, ICON_RUN_STYLE ) );
@@ -267,6 +272,10 @@ public class SchedulesPanel extends SimplePanel {
     scheduleRemoveButton.setEnabled( false );
     triggerNowButton.setEnabled( false );
     table.setPageStart( 0 );
+
+    table.setKeyboardSelectedRow( 0, false );
+    table.setKeyboardSelectedColumn( 0, false );
+
     table.redraw();
   }
 
@@ -705,6 +714,44 @@ public class SchedulesPanel extends SimplePanel {
           final TableCellElement cell = table.getRowElement( event.getIndex() ).getCells().getItem( event.getColumn() );
           cell.setTitle( cell.getInnerText() );
         }
+      }
+    } );
+
+    /*
+     * For Left & Right, the below code is there to override the base class implementation i.e.,
+     * navigates focus only amongst interactive cells, while our implementation navigates through all cells.
+     *
+     * For Enter, goes to the output path.
+     */
+    table.setKeyboardSelectionHandler( new AbstractCellTable.CellTableKeyboardSelectionHandler<JsJob>( table ) {
+      @Override
+      public void onCellPreview( CellPreviewEvent<JsJob> event ) {
+        int keyboardSelectedColumn = table.getKeyboardSelectedColumn();
+        if ( BrowserEvents.KEYDOWN.equals( event.getNativeEvent().getType() ) ) {
+          if ( event.getNativeEvent().getKeyCode() == KeyCodes.KEY_RIGHT ) {
+            table.setKeyboardSelectedColumn( Math.min( keyboardSelectedColumn + 1, table.getColumnCount() - 1 ) );
+            handledEvent( event );
+          } else if ( event.getNativeEvent().getKeyCode() == KeyCodes.KEY_LEFT ) {
+            table.setKeyboardSelectedColumn( Math.max( 0, keyboardSelectedColumn - 1 ) );
+            handledEvent( event );
+          } else if ( event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER && keyboardSelectedColumn == OUTPUT_PATH_COLUMN ) {
+            int index = event.getIndex();
+            JsJob job = table.getVisibleItem( event.getIndex() );
+            outputPathColumn.getFieldUpdater().update( index, job, outputPathColumn.getValue( job ) );
+          } else if ( !event.getNativeEvent().getCtrlKey() && event.getNativeEvent().getKeyCode() == KeyCodes.KEY_SPACE ) {
+            ( (MultiSelectionModel<JsJob>) table.getSelectionModel() ).clear();
+            super.onCellPreview( event );
+          } else {
+            super.onCellPreview( event );
+          }
+        } else {
+          super.onCellPreview( event );
+        }
+      }
+
+      private void handledEvent( CellPreviewEvent<?> event ) {
+        event.setCanceled( true );
+        event.getNativeEvent().preventDefault();
       }
     } );
 
