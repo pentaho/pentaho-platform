@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -27,12 +27,10 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.Window.ClosingHandler;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
@@ -559,12 +557,12 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       final String finalFrameId = frameId;
       if ( invokePreTabCloseHook && hasUnsavedChanges( frameElement ) ) {
         // prompt user
-        VerticalPanel vp = new VerticalPanel();
-        vp.add( new Label( Messages.getString( "confirmTabClose" ) ) ); //$NON-NLS-1$
-
-        final PromptDialogBox confirmDialog =
-            new PromptDialogBox(
-                Messages.getString( "confirm" ), Messages.getString( "yes" ), Messages.getString( "no" ), false, true, vp );
+        final MessageDialogBox confirmDialog = new MessageDialogBox(
+          Messages.getString( "confirm" ),
+          Messages.getString( "confirmTabClose" ),
+          false,
+          Messages.getString( "yes" ),
+          Messages.getString( "no" ) );
 
         confirmDialog.setCallback( new IDialogCallback() {
           public void cancelPressed() {

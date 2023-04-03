@@ -14,14 +14,14 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.mantle.client.commands;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.mantle.client.csrf.CsrfRequestBuilder;
 import org.pentaho.mantle.client.messages.Messages;
 
@@ -34,7 +34,6 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.HTML;
 
 /**
  * User: nbaker Date: 5/13/11
@@ -55,15 +54,14 @@ public class SwitchThemeCommand extends AbstractCommand {
   }
 
   protected void performOperation( boolean feedback ) {
-
-    final HTML messageTextBox = new HTML( Messages.getString( "confirmSwitchTheme.message" ) );
-    final PromptDialogBox fileMoveToTrashWarningDialogBox =
-        new PromptDialogBox( Messages.getString( "confirmSwitchTheme.title" ), Messages.getString( "confirmSwitchTheme.ok" ), Messages
-            .getString( "confirmSwitchTheme.cancel" ), true, true );
-    fileMoveToTrashWarningDialogBox.setContent( messageTextBox );
+    final MessageDialogBox fileMoveToTrashWarningDialogBox = new MessageDialogBox(
+      Messages.getString( "confirmSwitchTheme.title" ),
+      Messages.getString( "confirmSwitchTheme.message" ),
+      true,
+      Messages.getString( "confirmSwitchTheme.ok" ),
+      Messages.getString( "confirmSwitchTheme.cancel" ) );
 
     final IDialogCallback callback = new IDialogCallback() {
-
       public void cancelPressed() {
       }
 

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -58,6 +58,8 @@ public class DeletePermanentFileCommand extends AbstractCommand {
   private String type = "";
   private String mode = "";
 
+  private static final String COULDNOTDELETEFILE = "couldNotDeleteFile";
+
 
   public String getFileList() {
     return fileList;
@@ -100,29 +102,30 @@ public class DeletePermanentFileCommand extends AbstractCommand {
     final SolutionFileActionEvent event = new SolutionFileActionEvent();
 
     event.setAction( this.getClass().getName() );
-    VerticalPanel vp = new VerticalPanel();
-    String deleteMessage;
-    final PromptDialogBox deleteConfirmDialog;
+
+    final MessageDialogBox deleteConfirmDialog;
 
     if ( mode != null && mode.equals( "purge" ) ) {
-      deleteMessage = Messages.getString( "deleteAllQuestion" );
-      deleteConfirmDialog =
-          new PromptDialogBox(
-              Messages.getString( "emptyTrash" ), Messages.getString( "yesEmptyTrash" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      deleteConfirmDialog = new MessageDialogBox(
+          Messages.getString( "emptyTrash" ),
+          Messages.getString( "deleteAllQuestion" ),
+          true,
+          Messages.getString( "yesEmptyTrash" ),
+          Messages.getString( "no" ) );
     } else {
-      if ( MULTIPLE_DELETE_TYPE.equals( type ) ) {
-        deleteMessage = Messages.getString( "deleteMultiQuestion" );
-      } else {
-        deleteMessage = Messages.getString( "deleteQuestion", type );
-      }
-      deleteConfirmDialog =
-          new PromptDialogBox(
-              Messages.getString( "permDelete" ), Messages.getString( "yesPermDelete" ), Messages.getString( "no" ), false, true, vp ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      String deleteMessage = MULTIPLE_DELETE_TYPE.equals( type )
+        ? Messages.getString( "deleteMultiQuestion" )
+        : Messages.getString( "deleteQuestion", type );
+
+      deleteConfirmDialog = new MessageDialogBox(
+        Messages.getString( "permDelete" ),
+        deleteMessage,
+        true,
+        Messages.getString( "yesPermDelete" ),
+        Messages.getString( "no" ) );
     }
-    vp.add( new HTML( deleteMessage ) ); //$NON-NLS-1$
 
     final IDialogCallback callback = new IDialogCallback() {
-
       public void cancelPressed() {
         deleteConfirmDialog.hide();
       }
@@ -147,11 +150,12 @@ public class DeletePermanentFileCommand extends AbstractCommand {
 
             @Override
             public void onError( Request request, Throwable exception ) {
-              MessageDialogBox dialogBox =
-                  new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "couldNotDeleteFile" ), //$NON-NLS-1$ //$NON-NLS-2$
-                      false, false, true );
+              MessageDialogBox dialogBox = new MessageDialogBox(
+                Messages.getString( "error" ),
+                Messages.getString( COULDNOTDELETEFILE ),
+                false );
               dialogBox.center();
-              event.setMessage( Messages.getString( "couldNotDeleteFile" ) );
+              event.setMessage( Messages.getString( COULDNOTDELETEFILE ) );
               EventBusUtil.EVENT_BUS.fireEvent( event );
             }
 
@@ -165,18 +169,19 @@ public class DeletePermanentFileCommand extends AbstractCommand {
                 EventBusUtil.EVENT_BUS.fireEvent( event );
               } else {
 
-                event.setMessage( Messages.getString( "couldNotDeleteFile" ) );
+                event.setMessage( Messages.getString( COULDNOTDELETEFILE ) );
                 EventBusUtil.EVENT_BUS.fireEvent( event );
               }
             }
 
           } );
         } catch ( RequestException e ) {
-          MessageDialogBox dialogBox =
-              new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "couldNotDeleteFile" ), //$NON-NLS-1$ //$NON-NLS-2$
-                  false, false, true );
+          MessageDialogBox dialogBox = new MessageDialogBox(
+            Messages.getString( "error" ),
+            Messages.getString( COULDNOTDELETEFILE ),
+            false );
           dialogBox.center();
-          event.setMessage( Messages.getString( "couldNotDeleteFile" ) );
+          event.setMessage( Messages.getString( COULDNOTDELETEFILE ) );
           EventBusUtil.EVENT_BUS.fireEvent( event );
         }
       }

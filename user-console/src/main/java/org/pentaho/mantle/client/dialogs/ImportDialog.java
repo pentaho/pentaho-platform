@@ -126,22 +126,22 @@ public class ImportDialog extends PromptDialogBox {
         String result = sce.getResults();
         if ( result.length() > 5 ) {
           HTML messageTextBox = null;
-          if ( result.contains( "INVALID_MIME_TYPE" ) == true ) {
-            messageTextBox = new HTML( Messages.getString( "uploadInvalidFileTypeQuestion", result ) );
+          if ( result.contains( "INVALID_MIME_TYPE" )  ) {
+            MessageDialogBox dialogBox = new MessageDialogBox(
+                    Messages.getString( "uploadUnsuccessful" ),
+                    Messages.getString( "uploadInvalidFileTypeQuestion", result ),
+                    true,
+                    Messages.getString( "close" ) );
+            dialogBox.center();
           } else if ( result.contains( UPLOAD_ACCESS_DENIED_SNIPPET ) ) {
-            final MessageDialogBox messageDialogBox = new MessageDialogBox( Messages.getString( "uploadUnsuccessful" ),
-                Messages.getString( "uploadFolderAccessDenied" ), true, true, true, Messages.getString( "ok" ) );
+            MessageDialogBox messageDialogBox = new MessageDialogBox(
+                    Messages.getString( "uploadUnsuccessful" ),
+                    Messages.getString( "uploadFolderAccessDenied" ),
+                    true,
+                    Messages.getString( "ok" ) );
             messageDialogBox.center();
           } else {
             logWindow( result, Messages.getString( "importLogWindowTitle" ) );
-          }
-
-          if ( messageTextBox != null ) {
-            PromptDialogBox dialogBox =
-                new PromptDialogBox( Messages.getString( "uploadUnsuccessful" ), Messages.getString( "close" ), null,
-                    true, true );
-            dialogBox.setContent( messageTextBox );
-            dialogBox.center();
           }
         }
 

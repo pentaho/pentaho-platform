@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -23,10 +23,8 @@ package org.pentaho.mantle.client.commands;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.client.events.EventBusUtil;
@@ -56,6 +54,8 @@ public class DeleteFileCommand extends AbstractCommand {
   private String solutionPath = null;
   private String fileNames = null;
   private String fileIds = null;
+
+  private static final String COULDNOTDELETEFILE = "couldNotDeleteFile";
 
   private List<SolutionBrowserFile> filesToDelete = new ArrayList();
 
@@ -105,7 +105,7 @@ public class DeleteFileCommand extends AbstractCommand {
 
     String temp = "";
     String names = "";
-    //Convert to a comma delimted list for rest call
+    // Convert to a comma delimited list for rest call
     for ( SolutionBrowserFile file : filesToDelete ) {
       temp += file.getId() + ","; //$NON-NLS-1$
       names += file.getName() + ","; //$NON-NLS-1$
@@ -118,28 +118,27 @@ public class DeleteFileCommand extends AbstractCommand {
     final String filesList = temp;
 
     if ( feedback ) {
-      final HTML messageTextBox;
-      if ( filesToDelete.size() > 1 ) {
-        messageTextBox = new HTML( Messages.getString( "moveAllToTrashQuestionFile" ) );
-      } else {
-        messageTextBox = new HTML( SafeHtmlUtils.fromString( Messages.getString( "moveToTrashQuestionFile", names ) ) );
-      }
-      final PromptDialogBox fileMoveToTrashWarningDialogBox =
-          new PromptDialogBox( Messages.getString( "moveToTrash" ), Messages.getString( "yesMoveToTrash" ), Messages
-              .getString( "no" ), true, true );
-      fileMoveToTrashWarningDialogBox.setContent( messageTextBox );
+      final String messageText = filesToDelete.size() > 1
+        ? Messages.getString( "moveAllToTrashQuestionFile" )
+        : Messages.getString( "moveToTrashQuestionFile", names );
+
+      final MessageDialogBox fileMoveToTrashWarningDialogBox = new MessageDialogBox(
+            Messages.getString( "moveToTrash" ),
+            messageText,
+            false,
+            Messages.getString( "yesMoveToTrash" ),
+            Messages.getString( "no" ) );
 
       final IDialogCallback callback = new IDialogCallback() {
-
         public void cancelPressed() {
           fileMoveToTrashWarningDialogBox.hide();
         }
 
         public void okPressed() {
-
           doDelete( filesList, event );
         }
       };
+
       fileMoveToTrashWarningDialogBox.setCallback( callback );
       fileMoveToTrashWarningDialogBox.center();
     } else {
@@ -158,11 +157,11 @@ public class DeleteFileCommand extends AbstractCommand {
         @Override
         public void onError( Request request, Throwable exception ) {
           MessageDialogBox dialogBox =
-              new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "couldNotDeleteFile" ), //$NON-NLS-1$ //$NON-NLS-2$
+              new MessageDialogBox( Messages.getString( "error" ), Messages.getString( COULDNOTDELETEFILE ), //$NON-NLS-1$ //$NON-NLS-2$
                   false, false, true );
           dialogBox.center();
 
-          event.setMessage( Messages.getString( "couldNotDeleteFile" ) );
+          event.setMessage( Messages.getString( COULDNOTDELETEFILE ) );
           EventBusUtil.EVENT_BUS.fireEvent( event );
         }
 
@@ -181,7 +180,7 @@ public class DeleteFileCommand extends AbstractCommand {
               }
             }
           } else {
-            event.setMessage( Messages.getString( "couldNotDeleteFile" ) );
+            event.setMessage( Messages.getString( COULDNOTDELETEFILE ) );
             EventBusUtil.EVENT_BUS.fireEvent( event );
           }
         }
@@ -189,10 +188,10 @@ public class DeleteFileCommand extends AbstractCommand {
       } );
     } catch ( RequestException e ) {
       MessageDialogBox dialogBox =
-          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "couldNotDeleteFile" ), //$NON-NLS-1$ //$NON-NLS-2$
+          new MessageDialogBox( Messages.getString( "error" ), Messages.getString( COULDNOTDELETEFILE ), //$NON-NLS-1$ //$NON-NLS-2$
               false, false, true );
       dialogBox.center();
-      event.setMessage( Messages.getString( "couldNotDeleteFile" ) );
+      event.setMessage( Messages.getString( COULDNOTDELETEFILE ) );
       EventBusUtil.EVENT_BUS.fireEvent( event );
     }
 

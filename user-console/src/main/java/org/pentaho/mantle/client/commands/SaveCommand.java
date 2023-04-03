@@ -14,14 +14,14 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002 - 2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002 - 2023 Hitachi Vantara. All rights reserved.
  *
  */
 package org.pentaho.mantle.client.commands;
 
 import com.google.gwt.core.client.JavaScriptException;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooser.FileChooserMode;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserListener;
@@ -120,12 +120,12 @@ public class SaveCommand extends AbstractCommand {
           if ( dialog.doesSelectedFileExist( fileExtension ) ) {
             dialog.hide();
 
-            PromptDialogBox overWriteDialog = new PromptDialogBox(
-              Messages.getString( "question" ), Messages.getString( "yes" ), Messages.getString( "no" ),
-              false, true
-            );
+            MessageDialogBox overWriteDialog = new MessageDialogBox(
+              Messages.getString( "question" ),
+              new Label( Messages.getString( "fileExistsOverwrite" ), false ),
+              Messages.getString( "yes" ),
+              Messages.getString( "no" ) );
 
-            overWriteDialog.setContent( new Label( Messages.getString( "fileExistsOverwrite" ), false ) );
             overWriteDialog.setCallback( new IDialogCallback() {
               public void okPressed() {
                 // Save as, overwriting existing file.
