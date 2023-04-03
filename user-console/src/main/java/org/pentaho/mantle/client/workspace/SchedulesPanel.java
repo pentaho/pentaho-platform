@@ -914,11 +914,12 @@ public class SchedulesPanel extends SimplePanel {
 
         int selectionSize = selectedJobs.size();
         if ( selectionSize > 0 ) {
-          final PromptDialogBox prompt = new PromptDialogBox( Messages.getString( "warning" ),
-            Messages.getString( "yes" ), Messages.getString( "no" ), false, true );
-
-          final String promptContent = Messages.getString( "deleteConfirmSchedles", "" + selectionSize );
-          prompt.setContent( new Label( promptContent ) );
+          final MessageDialogBox prompt = new MessageDialogBox(
+            Messages.getString( "warning" ),
+            Messages.getString( "deleteConfirmSchedles", "" + selectionSize ),
+            false,
+            Messages.getString( "yes" ),
+            Messages.getString( "no" ) );
 
           prompt.setCallback( new IDialogCallback() {
             public void okPressed() {
@@ -1076,12 +1077,14 @@ public class SchedulesPanel extends SimplePanel {
   }
 
   private void promptForScheduleResourceError( final Set<JsJob> jobs ) {
-    final PromptDialogBox prompt = new PromptDialogBox( Messages.getString( "fileUnavailable" ),
-      Messages.getString( "yesDelete" ), Messages.getString( "no" ), false, true );
-
-    final String promptContent = Messages.getString( "editScheduleResourceDoesNotExist"
-      + ( jobs.size() > 1 ? "Multiple" : "" ) );
-    prompt.setContent( new HTML( promptContent ) );
+    final String promptContent = Messages.getString(
+      "editScheduleResourceDoesNotExist" + ( jobs.size() > 1 ? "Multiple" : "" ) );
+    final MessageDialogBox prompt = new MessageDialogBox(
+      Messages.getString( "fileUnavailable" ),
+      promptContent,
+      true,
+      Messages.getString( "yesDelete" ),
+      Messages.getString( "no" ) );
 
     prompt.setCallback( new IDialogCallback() {
       public void okPressed() {

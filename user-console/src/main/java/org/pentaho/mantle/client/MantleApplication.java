@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -284,7 +284,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
    * @param message
    */
   private void showMessage( String title, String message ) {
-    MessageDialogBox dialog = new MessageDialogBox( title, message, true, false, true );
+    MessageDialogBox dialog = new MessageDialogBox( title, message, true );
     dialog.center();
   }
 
