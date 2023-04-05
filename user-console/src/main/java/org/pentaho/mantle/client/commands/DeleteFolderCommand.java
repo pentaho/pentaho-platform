@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -57,6 +57,10 @@ public class DeleteFolderCommand extends AbstractCommand {
 
   private String solutionPath = null;
 
+  private static final String ERROR = "error";
+
+  private static final String COULDNOTDELETEFOLDER = "couldNotDeleteFolder";
+
   public String getSolutionPath() {
     return solutionPath;
   }
@@ -87,15 +91,18 @@ public class DeleteFolderCommand extends AbstractCommand {
 
     final String filesList = repositoryFile.getId();
     final String folderName = repositoryFile.getTitle() == null ? repositoryFile.getName() : repositoryFile.getTitle();
-    final HTML messageTextBox =
-        new HTML( Messages.getString( "moveToTrashQuestionFolder", escapeHtmlEntities( folderName ) ) );
-    final PromptDialogBox folderDeleteWarningDialogBox =
-        new PromptDialogBox( Messages.getString( "moveToTrash" ), Messages.getString( "yesMoveToTrash" ), Messages
-            .getString( "no" ), true, true );
-    folderDeleteWarningDialogBox.setContent( messageTextBox );
+    final String messageHtml = Messages.getString( "moveToTrashQuestionFolder", escapeHtmlEntities( folderName ) );
+
+    final MessageDialogBox folderDeleteWarningDialogBox =
+      // title, yes, cancel, autoHide, modal
+        new MessageDialogBox(
+          Messages.getString( "moveToTrash" ),
+          messageHtml,
+          true,
+          Messages.getString( "yesMoveToTrash" ),
+          Messages.getString( "no" ) );
 
     final IDialogCallback callback = new IDialogCallback() {
-
       public void cancelPressed() {
         folderDeleteWarningDialogBox.hide();
       }
@@ -110,11 +117,12 @@ public class DeleteFolderCommand extends AbstractCommand {
 
             @Override
             public void onError( Request request, Throwable exception ) {
-              MessageDialogBox dialogBox =
-                  new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "couldNotDeleteFolder" ), //$NON-NLS-1$ //$NON-NLS-2$
-                      false, false, true );
+              MessageDialogBox dialogBox = new MessageDialogBox(
+                Messages.getString( ERROR ),
+                Messages.getString( COULDNOTDELETEFOLDER ),
+                false );
               dialogBox.center();
-              event.setMessage( Messages.getString( "couldNotDeleteFolder" ) );
+              event.setMessage( Messages.getString( COULDNOTDELETEFOLDER ) );
               EventBusUtil.EVENT_BUS.fireEvent( event );
             }
 
@@ -127,22 +135,24 @@ public class DeleteFolderCommand extends AbstractCommand {
                 setBrowseRepoDirty( Boolean.TRUE );
                 EventBusUtil.EVENT_BUS.fireEvent( event );
               } else {
-                MessageDialogBox dialogBox =
-                    new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "couldNotDeleteFolder" ), //$NON-NLS-1$ //$NON-NLS-2$
-                        false, false, true );
+                MessageDialogBox dialogBox = new MessageDialogBox(
+                  Messages.getString( ERROR ),
+                  Messages.getString( COULDNOTDELETEFOLDER ),
+                  false );
                 dialogBox.center();
-                event.setMessage( Messages.getString( "couldNotDeleteFolder" ) );
+                event.setMessage( Messages.getString( COULDNOTDELETEFOLDER ) );
                 EventBusUtil.EVENT_BUS.fireEvent( event );
               }
             }
 
           } );
         } catch ( RequestException e ) {
-          MessageDialogBox dialogBox =
-              new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "couldNotDeleteFolder" ), //$NON-NLS-1$ //$NON-NLS-2$
-                  false, false, true );
+          MessageDialogBox dialogBox = new MessageDialogBox(
+            Messages.getString( ERROR ),
+            Messages.getString( COULDNOTDELETEFOLDER ),
+            false );
           dialogBox.center();
-          event.setMessage( Messages.getString( "couldNotDeleteFolder" ) );
+          event.setMessage( Messages.getString( COULDNOTDELETEFOLDER ) );
           EventBusUtil.EVENT_BUS.fireEvent( event );
         }
       }

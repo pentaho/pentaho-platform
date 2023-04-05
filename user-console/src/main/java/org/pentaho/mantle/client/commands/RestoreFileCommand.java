@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -27,10 +27,8 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.HTML;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.dialogs.OverwritePromptDialog;
@@ -55,6 +53,8 @@ public class RestoreFileCommand implements Command {
   String fileList;
 
   String type;
+
+  private static final String CANNOTRESTORE = "cannotRestore";
 
   public String getType() {
     return type;
@@ -116,12 +116,12 @@ public class RestoreFileCommand implements Command {
 
         @Override
         public void onError( Request request, Throwable exception ) {
-          MessageDialogBox dialogBox =
-              new MessageDialogBox(
-                  Messages.getString( "cannotRestore" ), Messages.getString( "couldNotRestoreItem", type ), //$NON-NLS-1$ //$NON-NLS-2$
-                  false, false, true );
+          MessageDialogBox dialogBox = new MessageDialogBox(
+            Messages.getString( CANNOTRESTORE ),
+            Messages.getString( "couldNotRestoreItem", type ),
+            false );
           dialogBox.center();
-          event.setMessage( "cannotRestore" );
+          event.setMessage( CANNOTRESTORE );
           EventBusUtil.EVENT_BUS.fireEvent( event );
         }
 
@@ -160,10 +160,11 @@ public class RestoreFileCommand implements Command {
               showErrorDialogBox( event );
             }
           } else {
-            MessageDialogBox dialogBox =
-              new MessageDialogBox(
-                Messages.getString( "cannotRestore" ), Messages.getString( "couldNotRestoreItem", type ), //$NON-NLS-1$ //$NON-NLS-2$
-                false, false, true, Messages.getString( "close" ) );
+            MessageDialogBox dialogBox = new MessageDialogBox(
+              Messages.getString( CANNOTRESTORE ),
+              Messages.getString( "couldNotRestoreItem", type ),
+              false,
+              Messages.getString( "close" ) );
             dialogBox.center();
             event.setMessage( "Success" );
             FileChooserDialog.setIsDirty( Boolean.TRUE );
@@ -187,14 +188,17 @@ public class RestoreFileCommand implements Command {
       fileListDescription = "file";
     }
 
-    HTML messageTextBox = new HTML();
-    String cannotRestoreToOrigFolder = Messages.getString( "cannotRestoreToOriginFolder", fileListDescription );
-    String restoreToHomeFolder = Messages.getString( "restoreToHomeFolder", userHomeFolderPath );
+    String messageHtml = Messages.getString( "cannotRestoreToOriginFolder", fileListDescription )
+      + "<br> <br>"
+      + Messages.getString( "restoreToHomeFolder", userHomeFolderPath )
+      + "<br>";
 
-    messageTextBox.setHTML( cannotRestoreToOrigFolder + "<br> <br>" + restoreToHomeFolder + "<br>" );
-    final PromptDialogBox restoreFileWarningDialogBox =
-      new PromptDialogBox( Messages.getString( "couldNotWriteToFolder" ), "Restore File", "Cancel", true, true );
-    restoreFileWarningDialogBox.setContent( messageTextBox );
+    final MessageDialogBox restoreFileWarningDialogBox = new MessageDialogBox(
+      Messages.getString( "couldNotWriteToFolder" ),
+      messageHtml,
+      true,
+      Messages.getString( "restoreFile" ),
+      Messages.getString( "cancel" ) );
 
     final IDialogCallback callback = new IDialogCallback() {
 
@@ -270,9 +274,10 @@ public class RestoreFileCommand implements Command {
   }
 
   public void showErrorDialogBox( SolutionFileActionEvent event ) {
-    MessageDialogBox dialogBox =
-      new MessageDialogBox( Messages.getString( "error" ), Messages.getString( "restoreError" ), //$NON-NLS-1$ //$NON-NLS-2$
-        false, false, true );
+    MessageDialogBox dialogBox = new MessageDialogBox(
+      Messages.getString( "error" ),
+      Messages.getString( "restoreError" ),
+      false );
     dialogBox.center();
     event.setMessage( Messages.getString( "restoreError" ) );
     EventBusUtil.EVENT_BUS.fireEvent( event );
