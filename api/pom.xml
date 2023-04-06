@@ -8,7 +8,7 @@
     <version>9.3.0.2-617</version>
   </parent>
   <artifactId>pentaho-platform-api</artifactId>
-  <version>9.3.0.2-617</version>
+  <version>9.3.0.2-CUST-273</version>
   <properties>
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <mockito-all.version>1.8.5</mockito-all.version>
@@ -18,7 +18,7 @@
     <pentaho-connections.version>9.3.0.2-617</pentaho-connections.version>
     <pentaho-actionsequence-dom.version>9.3.0.2-617</pentaho-actionsequence-dom.version>
     <commons-xul.version>9.3.0.2-617</commons-xul.version>
-    <commons-database.version>9.3.0.2-617</commons-database.version>
+    <commons-database.version>9.3.0.2-CUST-273</commons-database.version>
     <pentaho-osgi-bundles.version>9.3.0.2-617</pentaho-osgi-bundles.version>
   </properties>
   <dependencies>
