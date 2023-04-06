@@ -474,7 +474,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
-      <version>9.3.0.2-617</version>
+      <version>9.3.0.2-CUST-273</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
