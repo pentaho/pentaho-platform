@@ -1362,8 +1362,8 @@ define([
 
   var FileBrowserFileListView = Backbone.View.extend({
     events: {
-      "click option.file": "clickFile",
-      "dblclick option.file": "doubleClickFile",
+      "click div.file": "clickFile",
+      "dblclick div.file": "doubleClickFile",
       "click": "clickBody",
       "keydown": "keyDownFile"
     },
@@ -1405,7 +1405,9 @@ define([
         var filelist = myself.$el.children();
         for (index = 0; index < filelist.length; ++index) {
           if ( $(myself.$el.children().get(index)).attr("path") == myself.model.attributes.clickedFile.obj.attr("path") ) {
-            $(myself.$el.children().get(index)).addClass("selected");
+            $(myself.$el.children().get(index)).addClass("selected").attr("aria-selected", true);
+            myself.$el.attr('aria-activedescendant', myself.$el.children().get(index).id);
+            myself.model.attributes.anchorPoint = myself.model.attributes.clickedFile;
             fileSelected = true;
           }
         }
@@ -1425,13 +1427,141 @@ define([
       }, 100);
     },
 
-    keyDownFile: function (event) {
-      let keyCode = event.which || event.keyCode;
-      if ( ( keyCode === a11yUtil.keyCodes.enter || keyCode === a11yUtil.keyCodes.space ) &&
-        $(event.currentTarget).find(":selected").length > 0 ){
-        this.clickFile(event);
+    keyDownFile: function (evt) {
+      var key = evt.which || evt.keyCode;
+      var listboxNode = this.$el[0];
+      var activeDescendant = listboxNode.getAttribute('aria-activedescendant');
+      var lastActiveId = activeDescendant;
+      var allOptions = listboxNode.querySelectorAll('[role="option"]');
+      var currentItem = document.getElementById(activeDescendant) || allOptions[0];
+      var nextItem = currentItem;
+
+      if (!currentItem) {
+        return;
+      }
+
+      switch (key) {
+        case a11yUtil.keyCodes.arrowUp:
+        case a11yUtil.keyCodes.arrowDown:
+          evt.preventDefault();
+          if (!activeDescendant) {
+            // focus first option if no option was previously focused, and perform no other actions
+            activeDescendant = this.focusItem(currentItem, activeDescendant, listboxNode);
+            break;
+          }
+
+          if (key === a11yUtil.keyCodes.arrowUp) {
+            nextItem = this.findPreviousOption(currentItem, listboxNode);
+          } else {
+            nextItem = this.findNextOption(currentItem, listboxNode);
+          }
+
+          if (nextItem) {
+            activeDescendant = this.focusItem(nextItem, activeDescendant, listboxNode);
+
+            if (evt.shiftKey) {
+              this.clickFile(evt);
+            }
+          }
+          break;
+        case a11yUtil.keyCodes.home:
+          evt.preventDefault();
+          var firstItem = listboxNode.querySelector('[role="option"]');
+
+          if (firstItem) {
+            activeDescendant = this.focusItem(firstItem, activeDescendant, listboxNode);
+
+            if (evt.shiftKey && evt.ctrlKey) {
+              this.clickFile(evt);
+            }
+          }
+          break;
+        case a11yUtil.keyCodes.end:
+          evt.preventDefault();
+          var itemList = listboxNode.querySelectorAll('[role="option"]');
+
+          if (itemList.length > 0) {
+            activeDescendant = this.focusItem(itemList[itemList.length - 1], activeDescendant, listboxNode);
+
+            if (evt.shiftKey && evt.ctrlKey) {
+              this.clickFile(evt);
+            }
+          }
+          break;
+        case a11yUtil.keyCodes.space:
+          evt.preventDefault();
+          this.clickFile(evt);
+          break;
+      }
+
+      if (activeDescendant !== lastActiveId) {
+        this.updateScroll(activeDescendant, listboxNode);
       }
     },
+
+    /**
+     *  Focus on the specified item - element and return its ID
+     */
+    focusItem: function (element, activeDescendant, listboxNode) {
+      var previouslyFocusedElement = document.getElementById(activeDescendant);
+      if (previouslyFocusedElement) {
+        previouslyFocusedElement.classList.remove('navigatebykey');
+      }
+
+      element.classList.add('navigatebykey');
+      listboxNode.setAttribute('aria-activedescendant', element.id);
+      return element.id;
+    },
+
+    /**
+     * Return the previous listbox option, if it exists; otherwise, returns null
+     */
+    findPreviousOption: function (currentOption, listboxNode) {
+      var allOptions = Array.prototype.slice.call(listboxNode.querySelectorAll('[role="option"]')); // get options array
+      var currentOptionIndex = allOptions.indexOf(currentOption);
+      var previousOption = null;
+
+      if (currentOptionIndex > 0) {
+        previousOption = allOptions[currentOptionIndex - 1];
+      }
+
+      return previousOption;
+    },
+
+    /**
+     * Return the next listbox option, if it exists; otherwise, returns null
+     */
+    findNextOption: function (currentOption, listboxNode) {
+      var allOptions = Array.prototype.slice.call(listboxNode.querySelectorAll('[role="option"]')); // get options array
+      var currentOptionIndex = allOptions.indexOf(currentOption);
+      var nextOption = null;
+
+      if (currentOptionIndex > -1 && currentOptionIndex < allOptions.length - 1) {
+        nextOption = allOptions[currentOptionIndex + 1];
+      }
+
+      return nextOption;
+    },
+
+    /**
+     * Check if the selected option is in view, and scroll if not
+     */
+    updateScroll: function (activeDescendant, listboxNode) {
+      var selectedOption = document.getElementById(activeDescendant);
+
+      if (selectedOption && listboxNode.scrollHeight > listboxNode.clientHeight) {
+        var scrollBottom = listboxNode.clientHeight + listboxNode.scrollTop;
+        var elementBottom = selectedOption.offsetTop + selectedOption.offsetHeight;
+
+        if (elementBottom > scrollBottom) {
+          listboxNode.scrollTop = elementBottom - listboxNode.clientHeight;
+        } else if (selectedOption.offsetTop < listboxNode.scrollTop) {
+          listboxNode.scrollTop = selectedOption.offsetTop;
+        }
+
+      }
+    },
+
     clickFile: function (event) {
       var prevClicked = this.model.get("clickedFile");
       if (this.model.get("anchorPoint")) {
@@ -1442,8 +1572,8 @@ define([
       //that the event was handled and we don't need to deselect a file
       this.model.set("desel", 1);
       let $target;
-      if ($(event.currentTarget).is("select")){
-        $target = $(event.currentTarget).find(":selected");
+      if ($(event.currentTarget).attr('role') === 'listbox'){
+        $target = $(event.currentTarget).find('.navigatebykey');
       }else {
         $target = $(event.currentTarget).eq(0);
       }
@@ -1464,7 +1594,7 @@ define([
       }
 
       //Control Click
-      if (event.ctrlKey || event.metaKey) {
+      if ((event.ctrlKey || event.metaKey) && !(event.ctrlKey && event.shiftKey)) {
         //Control click will reset the shift lasso and merge its contents into main array
         this.model.set("multiSelect", FileBrowser.concatArray(this.model.get("multiSelect"), this.model.get("shiftLasso")));
         this.model.set("shiftLasso", []);
@@ -1485,23 +1615,23 @@ define([
         if (clickedFileIndex > -1) {
           this.model.get("multiSelect").splice(clickedFileIndex, 1);
           //Remove selected style from deselected item
-          $target.removeClass("selected");
+          $target.removeClass("selected").removeAttr("aria-selected");
         }
         //We are cntrl clicking a new selection
         else {
           FileBrowser.pushUnique(this.model.get("multiSelect"), this.model.get("clickedFile"));
-          $target.addClass("selected");
+          $target.addClass("selected").attr("aria-selected",true);
         }
         //Shift Click
       } else if (event.shiftKey) {
         //reset lasso file selected styles
         for (var i = 0; i < this.model.get("shiftLasso").length; i++) {
-          this.model.get("shiftLasso")[i].obj.removeClass("selected");
+          this.model.get("shiftLasso")[i].obj.removeClass("selected").removeAttr("aria-selected");
         }
         //Clear the Lasso array
         this.model.set("shiftLasso", []);
-        $target.addClass("selected");
-        prevClicked.obj.addClass("selected");
+        $target.addClass("selected").attr("aria-selected",true);
+        prevClicked.obj.addClass("selected").attr("aria-selected",true);
 
         if (prevClicked.obj.attr("id") != $target.attr("id")) {
           //Model title
@@ -1520,9 +1650,9 @@ define([
               }
               if (inRange == true) {
                 var item = {
-                  obj: $("option[id=\"" + files[i].file.id + "\"]")
+                  obj: $("div[id=\"" + files[i].file.id + "\"]")
                 }
-                item.obj.addClass("selected");
+                item.obj.addClass("selected").attr("aria-selected",true);
                 FileBrowser.pushUnique(this.model.get("shiftLasso"), item);
                 if (secondMatch) {
                   inRange = false;
@@ -1543,8 +1673,8 @@ define([
         FileBrowser.pushUnique(this.model.get("multiSelect"), this.model.get("clickedFile"));
 
         //reset all file selected styles
-        $(".file.selected").removeClass("selected");
-        $target.addClass("selected");
+        $(".file.selected").removeClass("selected").removeAttr("aria-selected");
+        $target.addClass("selected").attr("aria-selected",true);
       }
 
       var tempModel = [];

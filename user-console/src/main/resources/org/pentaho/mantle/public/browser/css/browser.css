@@ -153,55 +153,49 @@
   cursor: pointer;
 }
 
-.fileBrowserColumn .body .file.icon::before {
-  background-image: url("../../images/fileIcon.gif");
-  content: "";
-  display: inline-block;
+.fileBrowserColumn .body .file .icon {
+  background: no-repeat url("../../images/fileIcon.gif") 50% 50%;
   height: calc(1em * 20/14);
   width: calc(1em * 20/14);
-  background-size: 100%;
-  vertical-align: top;
-  background-repeat: no-repeat;
-  margin-right: 5px;
 }
 
-.fileBrowserColumn .body .file.icon.trashFolder::before {
-  background-image: url("../resources/images/folder.png");
+.fileBrowserColumn .body .file .icon.trashFolder {
+  background: url("../resources/images/folder.png") no-repeat -16px 3px;
 }
 
-.fileBrowserColumn .body .file.icon.xaction::before {
+.fileBrowserColumn .body .file .icon.xaction {
   background-image: url("../../../api/repos/xaction/resources/images/xaction_file_image.png");
 }
 
-.fileBrowserColumn .body .file.icon.xdash::before {
+.fileBrowserColumn .body .file .icon.xdash {
   background-image: url("../../../api/repos/dashboards/resources/images/dashboardFileType.png");
 }
 
-.fileBrowserColumn .body .file.icon.url::before {
+.fileBrowserColumn .body .file .icon.url {
   background-image: url("../../../api/repos/url/resources/images/file_url.png");
 }
 
-.fileBrowserColumn .body .file.icon.ktr::before {
+.fileBrowserColumn .body .file .icon.ktr {
   background-image: url("../../../content/pdi-platform-plugin/resources/images/transformation.png");
 }
 
-.fileBrowserColumn .body .file.icon.kjb::before {
+.fileBrowserColumn .body .file .icon.kjb {
   background-image: url("../../../content/pdi-platform-plugin/resources/images/job.png");
 }
 
-.fileBrowserColumn .body .file.icon.prpt::before {
+.fileBrowserColumn .body .file .icon.prpt {
   background-image: url("../../../api/repos/reporting/reportviewer/images/prptFileType.png");
 }
 
-.fileBrowserColumn .body .file.icon.prpti::before {
+.fileBrowserColumn .body .file .icon.prpti {
   background-image: url("../../../api/repos/pentaho-interactive-reporting/resources/images/prptiFileType.png");
 }
 
-.fileBrowserColumn .body .file.icon.xanalyser::before {
+.fileBrowserColumn .body .file .icon.xanalyser {
   background-image: url("../../../api/repos/xanalyzer/images/analysis_report_file_icon.png");
 }
 
-.fileBrowserColumn .body .file.icon.xcdf::before {
+.fileBrowserColumn .body .file .icon.xcdf {
   background-image: url("../../../content/pentaho-cdf/resources/cdfFileType.png");
 }
 
@@ -216,10 +210,5 @@
 .emptyFolder {
   text-align: center;
   padding: 20px;
-  color: #bbbbbb;
-}
-
-.emptyFolder:hover {
-  background-color: transparent;
   color: #bbbbbb;
 }
