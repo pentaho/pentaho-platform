@@ -58,6 +58,7 @@ import org.pentaho.mantle.client.events.UserSettingsLoadedEventHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.ui.BurgerBar;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.UserDropDown;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
@@ -324,6 +325,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
           }
         }
         onMantleSettingsLoaded( new MantleSettingsLoadedEvent( mantleSettings ) );
+        BurgerBar.injectBurgerScript();
       }
 
       public void onFailure( Throwable caught ) {
@@ -343,6 +345,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
     RootPanel.get( "pucMenuBar" ).add( MantleXul.getInstance().getMenubar() );
     RootPanel.get( "pucPerspectives" ).add( PerspectiveManager.getInstance() );
+    RootPanel.get( "pucToolBar" ).add( new BurgerBar() );
     RootPanel.get( "pucToolBar" ).add( MantleXul.getInstance().getToolbar() );
     RootPanel.get( "pucUserDropDown" ).add( new UserDropDown() );
 

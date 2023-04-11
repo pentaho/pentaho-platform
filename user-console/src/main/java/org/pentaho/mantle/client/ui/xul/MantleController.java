@@ -39,6 +39,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
@@ -84,6 +85,7 @@ import org.pentaho.ui.xul.containers.XulMenubar;
 import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
 import org.pentaho.ui.xul.gwt.binding.GwtBindingFactory;
 import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;
+import org.pentaho.ui.xul.gwt.tags.GwtMenubar;
 import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.ui.xul.stereotype.Bindable;
@@ -708,6 +710,11 @@ public class MantleController extends AbstractXulEventHandler {
   @Bindable
   public void newClicked() {
     model.launchNewDropdownCommand( newBtn );
+  }
+
+  @Bindable
+  public void burgerMenuBackClick( String subMenuId ){
+    MantleXul.getInstance().closeSubmenu( subMenuId );
   }
 
   @Bindable

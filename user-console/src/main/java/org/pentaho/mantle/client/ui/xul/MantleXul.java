@@ -23,15 +23,21 @@ package org.pentaho.mantle.client.ui.xul;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Tree;
@@ -54,6 +60,7 @@ import org.pentaho.mantle.client.events.SolutionBrowserSelectEventHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.MantleXulOverlay;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
+import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
@@ -65,6 +72,7 @@ import org.pentaho.ui.xul.gwt.util.IXulLoaderCallback;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -87,6 +95,9 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
   private SimplePanel adminPerspective = new SimplePanel();
   private DeckPanel adminContentDeck = new DeckPanel();
 
+  private HashMap<String,MenuBar> subMenus = new HashMap(); //TESTING
+  private String[] subMenuIds = {"filemenu", "newmenu", "recentmenu", "favoritesmenu", "viewmenu", "languagemenu", "themesmenu", "refreshmenu" };
+
   private MantleController controller;
 
   private ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
@@ -100,6 +111,11 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     EventBusUtil.EVENT_BUS.addHandler( SolutionBrowserCloseEvent.TYPE, this );
     EventBusUtil.EVENT_BUS.addHandler( SolutionBrowserSelectEvent.TYPE, this );
     EventBusUtil.EVENT_BUS.addHandler( SolutionBrowserDeselectEvent.TYPE, this );
+  }
+
+  public void closeSubmenu(String menuId){
+    MenuBar submenu = subMenus.get(menuId);
+    submenu.closeAllChildren( true );
   }
 
   public static MantleXul getInstance() {
@@ -150,6 +166,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
 
     // Get the menubar from the XUL doc
     Widget menu = (Widget) container.getDocumentRoot().getElementById( "mainMenubar" ).getManagedObject(); //$NON-NLS-1$
+    collectSubmenus( menu );
     menubar.setWidget( menu );
 
     // check based on user permissions
@@ -216,6 +233,20 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     adminContentDeck.setHeight( "100%" );
     adminContentDeck.getElement().getStyle().setProperty( "height", "100%" );
     fetchPluginOverlays();
+
+//    XulComponent cfmComponent = container.getDocumentRoot().getElementById("closeFilemenu");
+//    MenuBar closeFileMenuBar = ((MenuBar) cfmComponent );
+//    closeFileMenuBar.addDomHandler( event -> {
+//      closeSubmenu("fileMenu");
+//    }, ClickEvent.getType()  );
+  }
+
+  public void collectSubmenus( Widget menu){
+    /* TEST REGION */
+    for (int i=0; i<subMenuIds.length; i++){
+      subMenus.put(subMenuIds[i], (MenuBar) container.getDocumentRoot().getElementById( subMenuIds[i] ).getManagedObject()); //$NON-NLS-1$
+    }
+    /* TEST REGION */
   }
 
   public void customizeAdminStyle() {
