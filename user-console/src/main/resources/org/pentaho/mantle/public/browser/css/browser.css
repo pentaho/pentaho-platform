@@ -156,6 +156,7 @@
 .fileBrowserColumn .body .file .icon {
   background: no-repeat url("../../images/fileIcon.gif") 50% 50%;
   height: calc(1em * 20/14);
+  background-size: 100%;
   width: calc(1em * 20/14);
 }
 
