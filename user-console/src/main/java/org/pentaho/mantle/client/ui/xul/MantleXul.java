@@ -23,10 +23,8 @@ package org.pentaho.mantle.client.ui.xul;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -34,7 +32,6 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -48,6 +45,7 @@ import com.google.gwt.xml.client.XMLParser;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.mantle.client.commands.AbstractCommand;
+import org.pentaho.mantle.client.commands.RefreshMetaDataCommand;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionBrowserCloseEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserCloseEventHandler;
@@ -60,7 +58,7 @@ import org.pentaho.mantle.client.events.SolutionBrowserSelectEventHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.MantleXulOverlay;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
-import org.pentaho.ui.xul.XulComponent;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
@@ -70,6 +68,7 @@ import org.pentaho.ui.xul.gwt.util.AsyncXulLoader;
 import org.pentaho.ui.xul.gwt.util.IXulLoaderCallback;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -96,7 +95,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
   private DeckPanel adminContentDeck = new DeckPanel();
 
   private HashMap<String,MenuBar> subMenus = new HashMap(); //TESTING
-  private String[] subMenuIds = {"filemenu", "newmenu", "recentmenu", "favoritesmenu", "viewmenu", "languagemenu", "themesmenu", "refreshmenu" };
+  private String[] subMenuIds = {"filemenu", "newmenu", "recentmenu", "favoritesmenu", "viewmenu", "burgerBarPerspectiveMenu", "languagemenu", "themesmenu", "refreshmenu" };
 
   private MantleController controller;
 
@@ -167,6 +166,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     // Get the menubar from the XUL doc
     Widget menu = (Widget) container.getDocumentRoot().getElementById( "mainMenubar" ).getManagedObject(); //$NON-NLS-1$
     collectSubmenus( menu );
+    setupBurgerPerspectives();
     menubar.setWidget( menu );
 
     // check based on user permissions
@@ -233,20 +233,30 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     adminContentDeck.setHeight( "100%" );
     adminContentDeck.getElement().getStyle().setProperty( "height", "100%" );
     fetchPluginOverlays();
+  }
 
-//    XulComponent cfmComponent = container.getDocumentRoot().getElementById("closeFilemenu");
-//    MenuBar closeFileMenuBar = ((MenuBar) cfmComponent );
-//    closeFileMenuBar.addDomHandler( event -> {
-//      closeSubmenu("fileMenu");
-//    }, ClickEvent.getType()  );
+  private void setupBurgerPerspectives() {
+    MenuBar burgerBarPerspectiveMenu = (MenuBar) container.getDocumentRoot().getElementById( "burgerBarPerspectiveMenu" ).getManagedObject();
+    Collection<MenuItem> perspectiveMenuItems = PerspectiveManager.getInstance().getMenuItems();
+
+    MenuItem backMenuItem = new MenuItem( "back", new Scheduler.ScheduledCommand() {
+      @Override public void execute() {
+        MantleXul.getInstance().closeSubmenu( "burgerBarPerspectiveMenu" );
+      }
+    } );
+
+    burgerBarPerspectiveMenu.addItem( backMenuItem );
+
+    perspectiveMenuItems.forEach( (MenuItem m) ->
+    {
+      burgerBarPerspectiveMenu.addItem(m);
+    });
   }
 
   public void collectSubmenus( Widget menu){
-    /* TEST REGION */
     for (int i=0; i<subMenuIds.length; i++){
       subMenus.put(subMenuIds[i], (MenuBar) container.getDocumentRoot().getElementById( subMenuIds[i] ).getManagedObject()); //$NON-NLS-1$
     }
-    /* TEST REGION */
   }
 
   public void customizeAdminStyle() {

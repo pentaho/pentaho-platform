@@ -1548,7 +1548,7 @@ hr {
   }
 
   #pucHeader {
-    z-index: 1;
+    z-index: 10;
     min-width: 320px !important;
     padding: 0px;
     height: 34px;
