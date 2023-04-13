@@ -580,7 +580,8 @@ define([
       showDescriptions: false,
       deletedFiles: "",
 
-      sequenceNumber: 0
+      sequenceNumber: 0,
+      keysSoFar: ""
     },
 
     initialize: function () {
@@ -1374,6 +1375,7 @@ define([
       this.model.on("change:data", this.updateFileList, this);
       myself.model.on("change:runSpinner", myself.manageSpinner, myself);
       myself.model.on("change:showDescriptions", this.updateDescriptions, this);
+      this.keyClearTimeoutHandle = null;
     },
 
     render: function () {
@@ -1427,10 +1429,15 @@ define([
       }, 100);
     },
 
+    /*!
+    * This software or document includes material copied from or derived from https://www.w3.org/WAI/content-assets/wai-aria-practices/patterns/listbox/examples/js/listbox.js
+    * Copyright © 2023 World Wide Web Consortium. https://www.w3.org/Consortium/Legal/2023/doc-license
+    *
+    !*/
     keyDownFile: function (evt) {
       var key = evt.which || evt.keyCode;
       var listboxNode = this.$el[0];
-      var activeDescendant = listboxNode.getAttribute('aria-activedescendant');
+      var activeDescendant = listboxNode.getAttribute("aria-activedescendant");
       var lastActiveId = activeDescendant;
       var allOptions = listboxNode.querySelectorAll('[role="option"]');
       var currentItem = document.getElementById(activeDescendant) || allOptions[0];
@@ -1492,6 +1499,20 @@ define([
           evt.preventDefault();
           this.clickFile(evt);
           break;
+        case a11yUtil.keyCodes.A:
+          // control + A
+          if (evt.ctrlKey || evt.metaKey) {
+            evt.preventDefault();
+            this.clickFile(evt);
+            break;
+          }
+        // fall through
+        default:
+          var itemToFocus = this.findItemToFocus(key, activeDescendant, listboxNode);
+          if (itemToFocus) {
+            activeDescendant = this.focusItem(itemToFocus, activeDescendant, listboxNode);
+          }
+          break;
       }
 
       if (activeDescendant !== lastActiveId) {
@@ -1505,11 +1526,11 @@ define([
     focusItem: function (element, activeDescendant, listboxNode) {
       var previouslyFocusedElement = document.getElementById(activeDescendant);
       if (previouslyFocusedElement) {
-        previouslyFocusedElement.classList.remove('navigatebykey');
+        previouslyFocusedElement.classList.remove("active-descendant");
       }
 
-      element.classList.add('navigatebykey');
-      listboxNode.setAttribute('aria-activedescendant', element.id);
+      element.classList.add("active-descendant");
+      listboxNode.setAttribute("aria-activedescendant", element.id);
       return element.id;
     },
 
@@ -1555,11 +1576,61 @@ define([
 
         if (elementBottom > scrollBottom) {
           listboxNode.scrollTop = elementBottom - listboxNode.clientHeight;
-        } else if (selectedOption.offsetTop < listboxNode.scrollTop) {
-          listboxNode.scrollTop = selectedOption.offsetTop;
+        } else if ((selectedOption.offsetTop - 2*selectedOption.offsetHeight) < listboxNode.scrollTop) {
+          listboxNode.scrollTop = selectedOption.offsetTop - 2*selectedOption.offsetHeight;
         }
 
       }
+    },
+
+    findItemToFocus: function (key, activeDescendant, listboxNode) {
+      var itemList = listboxNode.querySelectorAll('[role="option"]');
+      var character = String.fromCharCode(key).toUpperCase();
+      var searchIndex = 0;
+      var keysSoFar = this.model.get("keysSoFar");
+
+      if (!keysSoFar) {
+        for (var i = 0; i < itemList.length; i++) {
+          if (itemList[i].getAttribute("id") === activeDescendant) {
+            searchIndex = i;
+          }
+        }
+      }
+      keysSoFar += character;
+      this.model.set("keysSoFar", keysSoFar);
+      this.clearKeysSoFarAfterDelay();
+
+      var nextMatch = this.findMatchInRange(itemList, searchIndex + 1, itemList.length);
+      if (!nextMatch) {
+        nextMatch = this.findMatchInRange(itemList, 0, searchIndex);
+      }
+      return nextMatch;
+    },
+
+    findMatchInRange: function (list, startIndex, endIndex) {
+      // Find the first item starting with the keysSoFar substring, searching in
+      // the specified range of items
+      for (var n = startIndex; n < endIndex; n++) {
+        var label = list[n].innerText;
+        if (label && label.toUpperCase().indexOf(this.model.get("keysSoFar")) === 0) {
+          return list[n];
+        }
+      }
+      return null;
+    },
+
+    clearKeysSoFarAfterDelay: function () {
+      if (this.keyClearTimeoutHandle) {
+        clearTimeout(this.keyClearTimeoutHandle);
+        this.keyClearTimeoutHandle = null;
+      }
+      this.keyClearTimeoutHandle = setTimeout(
+        function () {
+          this.model.set("keysSoFar", "");
+          this.keyClearTimeoutHandle = null;
+        }.bind(this),
+        500
+      );
     },
 
     clickFile: function (event) {
@@ -1572,9 +1643,13 @@ define([
       //that the event was handled and we don't need to deselect a file
       this.model.set("desel", 1);
       let $target;
-      if ($(event.currentTarget).attr('role') === 'listbox'){
-        $target = $(event.currentTarget).find('.navigatebykey');
-      }else {
+      if ($(event.currentTarget).attr("role") === "listbox") {
+        if (event.ctrlKey && event.keyCode === a11yUtil.keyCodes.A) {
+          $target = $(event.currentTarget).find(".file").first();
+        } else {
+          $target = $(event.currentTarget).find(".active-descendant");
+        }
+      } else {
         $target = $(event.currentTarget).eq(0);
       }
 
@@ -1593,8 +1668,10 @@ define([
         this.model.set("anchorPoint", this.model.get("clickedFile"));
       }
 
-      //Control Click
-      if ((event.ctrlKey || event.metaKey) && !(event.ctrlKey && event.shiftKey)) {
+      if (event.ctrlKey && event.keyCode === a11yUtil.keyCodes.A) {
+        this.multiSelectFile($target, $(event.currentTarget).find(".file").last());
+        //Control Click
+      } else if ((event.ctrlKey || event.metaKey) && !(event.ctrlKey && event.shiftKey)) {
         //Control click will reset the shift lasso and merge its contents into main array
         this.model.set("multiSelect", FileBrowser.concatArray(this.model.get("multiSelect"), this.model.get("shiftLasso")));
         this.model.set("shiftLasso", []);
@@ -1624,47 +1701,7 @@ define([
         }
         //Shift Click
       } else if (event.shiftKey) {
-        //reset lasso file selected styles
-        for (var i = 0; i < this.model.get("shiftLasso").length; i++) {
-          this.model.get("shiftLasso")[i].obj.removeClass("selected").removeAttr("aria-selected");
-        }
-        //Clear the Lasso array
-        this.model.set("shiftLasso", []);
-        $target.addClass("selected").attr("aria-selected",true);
-        prevClicked.obj.addClass("selected").attr("aria-selected",true);
-
-        if (prevClicked.obj.attr("id") != $target.attr("id")) {
-          //Model title
-          this.model.get("data").children[0].file.title;
-          var files = this.model.get("data").children;
-          var inRange = false;
-          var secondMatch = false;
-          for (var i = 0; i < files.length; i++) {
-            if (files[i].file.folder === "false") {
-              if ((files[i].file.id == prevClicked.obj.attr("id") || files[i].file.id == $target.attr("id"))) {
-                if (inRange == true) {
-                  secondMatch = true;
-                } else {
-                  inRange = true;
-                }
-              }
-              if (inRange == true) {
-                var item = {
-                  obj: $("div[id=\"" + files[i].file.id + "\"]")
-                }
-                item.obj.addClass("selected").attr("aria-selected",true);
-                FileBrowser.pushUnique(this.model.get("shiftLasso"), item);
-                if (secondMatch) {
-                  inRange = false;
-                }
-              }
-            }
-          }
-        }
-        //target title
-        $target.attr("title");
-        //prev Clicked title
-        prevClicked.obj.attr("title");
+        this.multiSelectFile(prevClicked.obj, $target);
         //Single Click
       } else {
         //Clear the multiselect array
@@ -1690,6 +1727,50 @@ define([
       //Add secondary selection to folder
       $(".folder.selected").addClass("secondarySelected");
       $(".folder.selected").removeClass("selected");
+    },
+
+    multiSelectFile: function (from, target) {
+      //reset lasso file selected styles
+      for (var i = 0; i < this.model.get("shiftLasso").length; i++) {
+        this.model.get("shiftLasso")[i].obj.removeClass("selected").removeAttr("aria-selected");
+      }
+      //Clear the Lasso array
+      this.model.set("shiftLasso", []);
+      target.addClass("selected").attr("aria-selected",true);
+      from.addClass("selected").attr("aria-selected",true);
+
+      if (from.attr("id") != target.attr("id")) {
+        //Model title
+        this.model.get("data").children[0].file.title;
+        var files = this.model.get("data").children;
+        var inRange = false;
+        var secondMatch = false;
+        for (var i = 0; i < files.length; i++) {
+          if (files[i].file.folder === "false") {
+            if ((files[i].file.id == from.attr("id") || files[i].file.id == target.attr("id"))) {
+              if (inRange == true) {
+                secondMatch = true;
+              } else {
+                inRange = true;
+              }
+            }
+            if (inRange == true) {
+              var item = {
+                obj: $("div[id=\"" + files[i].file.id + "\"]")
+              }
+              item.obj.addClass("selected").attr("aria-selected",true);
+              FileBrowser.pushUnique(this.model.get("shiftLasso"), item);
+              if (secondMatch) {
+                inRange = false;
+              }
+            }
+          }
+        }
+      }
+      //target title
+      target.attr("title");
+      //prev Clicked title
+      from.attr("title");
     },
 
     doubleClickFile: function (event) {
