@@ -239,7 +239,13 @@ public class PerspectiveManager extends SimplePanel {
         public void execute() {
           showPerspective( perspective );
           perspectiveDropDown.setText( menuItem.getText() );
-          perspectiveDropDown.hidePopup();
+
+          //Close the corresponding widget depending up whether or not we are in "burger" menu mode
+          if ( Window.getClientWidth() < 650 || Window.getClientHeight() < 500 ) {
+            MantleXul.getInstance().closeMenuBar();
+          } else {
+            perspectiveDropDown.hidePopup();
+          }
         }
       };
       menuItem.setScheduledCommand( cmd );

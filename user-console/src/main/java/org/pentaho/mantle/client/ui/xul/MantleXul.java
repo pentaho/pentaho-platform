@@ -30,6 +30,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DeckPanel;
@@ -257,6 +258,10 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     for (int i=0; i<subMenuIds.length; i++){
       subMenus.put(subMenuIds[i], (MenuBar) container.getDocumentRoot().getElementById( subMenuIds[i] ).getManagedObject()); //$NON-NLS-1$
     }
+  }
+
+  public void closeMenuBar(){
+    DOM.getElementById( "pucMenuBar" ).setAttribute( "style", "display: none;" );
   }
 
   public void customizeAdminStyle() {
