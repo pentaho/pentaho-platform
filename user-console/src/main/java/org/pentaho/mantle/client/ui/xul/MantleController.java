@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,6 +25,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -38,14 +39,13 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
+import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
@@ -85,7 +85,6 @@ import org.pentaho.ui.xul.containers.XulMenubar;
 import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
 import org.pentaho.ui.xul.gwt.binding.GwtBindingFactory;
 import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;
-import org.pentaho.ui.xul.gwt.tags.GwtMenubar;
 import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.ui.xul.stereotype.Bindable;
@@ -624,6 +623,15 @@ public class MantleController extends AbstractXulEventHandler {
     $wnd.mantle_openChangePasswordDialog = function() {
       controller.@org.pentaho.mantle.client.ui.xul.MantleController::openChangePasswordDialog()();
     }
+
+    // Burger Mode Media Query
+    function onMediaQueryChange(x) {
+      controller.@org.pentaho.mantle.client.ui.xul.MantleController::onBurgerModeStatusChange(Z)(x.matches);
+    }
+
+    var x = $wnd.matchMedia("(max-height: 500px), (max-width: 650px)");
+    x.addEventListener("change", onMediaQueryChange);
+    onMediaQueryChange(x);
   }-*/;
 
   public void enableUsersRolesTreeItem( boolean enabled ) {
@@ -706,16 +714,49 @@ public class MantleController extends AbstractXulEventHandler {
   public void openClicked() {
     model.executeOpenFileCommand();
   }
-
   @Bindable
   public void newClicked() {
     model.launchNewDropdownCommand( newBtn );
   }
 
+  // region Burger Mode
+  protected void onBurgerModeStatusChange( boolean enabled ) {
+    com.google.gwt.dom.client.Element elem = Document.get().getElementById( "pucWrapper" );
+    if ( enabled ) {
+      elem.addClassName( "burger-mode" );
+    } else {
+      elem.removeClassName( "burger-mode" );
+    }
+
+    MenuBar menuBar = MantleXul.getInstance().getMenubarWidget();
+    menuBar.setAutoOpen( !enabled );
+    // menuBar.setHo
+  }
+
   @Bindable
-  public void burgerMenuBackClick( String subMenuId ){
+  public void burgerClicked() {
+    toggleBurgerMenu();
+  }
+
+  public static native String toggleBurgerMenu() /*-{
+    var pucWrapper = $doc.getElementById("pucWrapper");
+    var burgerButton = $doc.getElementById( "burgerButton" );
+
+    var isExpanded = pucWrapper.getAttribute("data-burger-menu-expanded") === "true";
+    if(isExpanded) {
+      pucWrapper.removeAttribute("data-burger-menu-expanded");
+      burgerButton.removeAttribute("aria-expanded");
+    } else {
+      pucWrapper.setAttribute("data-burger-menu-expanded", "true");
+      burgerButton.setAttribute("aria-expanded", "true");
+    }
+  }-*/;
+
+  @Bindable
+  public void burgerMenuBackClick( String subMenuId ) {
     MantleXul.getInstance().closeSubmenu( subMenuId );
   }
+  // endregion
 
   @Bindable
   public void saveClicked() {

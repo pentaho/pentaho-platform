@@ -70,6 +70,11 @@
     </menubar>
   </menubar>
 
+  <toolbar id="burgerToolbar">
+    <toolbarbutton id="burgerButton" image="images/spacer.gif" onclick="mantleXulHandler.burgerClicked()"
+                   tooltiptext="${burgerMenu}"/>
+  </toolbar>
+
   <window id="mainToolbarWrapper">
     <toolbar id="mainToolbar" visible="false">
       <!-- use spacers as images, the real images are loaded via css background images to support themeing -->

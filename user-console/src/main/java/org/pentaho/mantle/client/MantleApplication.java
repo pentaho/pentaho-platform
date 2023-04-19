@@ -52,13 +52,11 @@ import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.MantleSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.MantleSettingsLoadedEventHandler;
 import org.pentaho.mantle.client.events.PerspectivesLoadedEvent;
-import org.pentaho.mantle.client.events.PerspectivesLoadedEventHandler;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEventHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.ui.BurgerBar;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.UserDropDown;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
@@ -69,6 +67,8 @@ import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static com.google.gwt.core.client.ScriptInjector.TOP_WINDOW;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -325,7 +325,6 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
           }
         }
         onMantleSettingsLoaded( new MantleSettingsLoadedEvent( mantleSettings ) );
-        BurgerBar.injectBurgerScript();
       }
 
       public void onFailure( Throwable caught ) {
@@ -344,8 +343,8 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     mantleRevisionOverride = settings.get( "user-console-revision" );
 
     RootPanel.get( "pucMenuBar" ).add( MantleXul.getInstance().getMenubar() );
+    RootPanel.get( "pucBurgerToolbar" ).add( MantleXul.getInstance().getBurgerToolbarWrapper() );
     RootPanel.get( "pucPerspectives" ).add( PerspectiveManager.getInstance() );
-    RootPanel.get( "pucToolBar" ).add( new BurgerBar() );
     RootPanel.get( "pucToolBar" ).add( MantleXul.getInstance().getToolbar() );
     RootPanel.get( "pucUserDropDown" ).add( new UserDropDown() );
 

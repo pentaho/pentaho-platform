@@ -43,10 +43,11 @@ import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.XMLParser;
+import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
+import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.mantle.client.commands.AbstractCommand;
-import org.pentaho.mantle.client.commands.RefreshMetaDataCommand;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.SolutionBrowserCloseEvent;
 import org.pentaho.mantle.client.events.SolutionBrowserCloseEventHandler;
@@ -92,6 +93,11 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
 
   private SimplePanel toolbar = new SimplePanel();
   private SimplePanel menubar = new SimplePanel();
+
+  private SimplePanel burgerToolbarWrapper = new SimplePanel();
+
+  private Toolbar burgerToolbar;
+
   private SimplePanel adminPerspective = new SimplePanel();
   private DeckPanel adminContentDeck = new DeckPanel();
 
@@ -163,6 +169,15 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     xultoolbar.getElement().removeClassName( "toolbar" );
     toolbar.setStylePrimaryName( "mainToolbar-Wrapper" );
     toolbar.setWidget( bar );
+
+    burgerToolbar = (Toolbar) container.getDocumentRoot().getElementById( "burgerToolbar" ).getManagedObject();
+    burgerToolbar.getElement().removeClassName( "toolbar" );
+    burgerToolbarWrapper.setStylePrimaryName( "burgerToolbar-Wrapper" );
+    burgerToolbarWrapper.setWidget( burgerToolbar );
+
+    // TODO: Add a XUL way?
+    ToolbarButton burgerButton = (ToolbarButton) container.getDocumentRoot().getElementById( "burgerButton" ).getManagedObject();
+    burgerButton.getPushButton().getElement().setAttribute( "aria-haspopup", "menu" );
 
     // Get the menubar from the XUL doc
     Widget menu = (Widget) container.getDocumentRoot().getElementById( "mainMenubar" ).getManagedObject(); //$NON-NLS-1$
@@ -360,10 +375,17 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     return toolbar;
   }
 
+  public Widget getBurgerToolbarWrapper() {
+    return burgerToolbarWrapper;
+  }
+
   public Widget getMenubar() {
     return menubar;
   }
 
+  public MenuBar getMenubarWidget() {
+    return (MenuBar) container.getDocumentRoot().getElementById( "mainMenubar" ).getManagedObject();
+  }
   public Widget getAdminPerspective() {
     return adminPerspective;
   }

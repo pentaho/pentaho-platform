@@ -945,6 +945,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
+  min-width: var(--a11y-min-width);
 
   background: #f8f8f6;
   filter: none;
@@ -970,7 +971,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   height: auto;
 }
 
-#pucToolBar {
+#pucToolBar, #pucBurgerToolbar {
   /* Toolbar buttons and spacers are integrated into the overall PUC header flex layout. */
   display: contents;
 }
@@ -1176,19 +1177,25 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 }
 /* endregion gwt-MenuBar-vertical */
 
-/* region Main Toolbar */
+/* region Main and Burger Toolbars */
 .mainToolbar-Wrapper,
+.burgerToolbar-Wrapper,
 #mainToolbarWrapper,
 #mainToolbarWrapper > tbody,
 #mainToolbarWrapper > tbody > tr,
 #mainToolbarWrapper > tbody > tr > td,
 #mainToolbarWrapper > tbody > tr > td > div,
 #mainToolbar,
-#mainToolbar > tbody > tr > td > table {
+#burgerToolbar,
+:is(#mainToolbar, #burgerToolbar) > tbody > tr > td > table {
   display: contents;
 }
 
-#mainToolbar .spacer {
+:where(#pucWrapper:not(.burger-mode)) #burgerToolbar {
+  display: none;
+}
+
+:is(#mainToolbar, #burgerToolbar) .spacer {
   /* This flex scheme allows the space to shrink before wrapping kicks in. */
   flex: 1 1 0;
   min-width: 0;
@@ -1198,12 +1205,20 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   max-width: var(--flex-max-width, 10px);
 }
 
-#mainToolbar :is(
+:is(#mainToolbar, #burgerToolbar) :is(
   .toolbar-button, .toolbar-button-disabled,
   .toolbar-toggle-button, .toolbar-toggle-button-disabled) img {
   height: calc(1em * 32/14);
   width: calc(1em * 32/14);
   background-size: contain;
+}
+
+#burgerToolbar #burgerButton {
+  margin-right: auto;
+}
+
+#burgerToolbar #burgerButton .toolbar-button img {
+  background-image: url('images/burgerButton.png');
 }
 
 #mainToolbar #openButton .toolbar-button img {
@@ -1281,6 +1296,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   padding: 8px 10px 10px 10px;
   font-weight: normal;
 }
+/* endregion Main and Burger Toolbars */
 
 /*****************************************/
 /*** Overrides for the schedules table ***/
@@ -1533,109 +1549,91 @@ hr {
   font-size: 14px;
 }
 
+/* region Burger Menu Mode */
 #burgerBarPerspectiveMenu {
   display: none;
 }
 
-@media screen and (max-height: 500px), (max-width: 650px) {
-  /* puc header */
-  * {
-    --pucHeaderHeight: 38px;
-  }
-
-  #pucContent {
-    top: var(--pucHeaderHeight);
-  }
-
-  #pucPerspectives, #pucUserDropDown {
-    display: none !important;
-  }
-
-  #burgerBarPerspectiveMenu {
-    display: block;
-  }
-
-  #pucHeader {
-    z-index: 10;
-    min-width: 320px !important;
-    padding: 0px;
-    height: 34px;
-  }
-
-  /* burger button and menu */
-  #pucMenuBar {
-    display: none;
-  }
-
-  #mainMenubar {
-    width: 100%;
-    height: 100%;
-    display: block;
-    top: var(--pucHeaderHeight);
-    position: absolute;
-    height: 0px; /*sub-menu height is based on the bottom of this height*/
-  }
-
-  #mainMenubar tr {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  #mainMenubar > table, .menuPopupBottom {
-    height: 100vh;
-    width: 100%;
-    background: white;
-  }
-
-  div.gwt-MenuItem {
-    position: absolute;
-    top: var(--pucHeaderHeight) !important;
-  }
-
-  .gwt-MenuBarPopup {
-    left: 0 !important;
-    right: 0 !important;
-  }
-
-  .gwt-MenuBarPopup table {
-    width: 100%;
-  }
-
-  /* buttons */
-  #pucToolBar { /* burger bar main menu */
-    margin: 0px;
-    width: 100%;
-    display: flex;
-    background: #f8f8f6;
-    justify-content: space-between;
-  }
-
-  #pucToolBar * {
-    height: var(--toolBarHeight);
-    top: 0px;
-    margin: 0px;
-    padding: 0px;
-  }
-
-  #burgerBar { /* contains the button */
-    flex: auto;
-  }
-
-  #mainToolbar div.spacer {
-    display: none;
-  }
-
-  .mainToolbar-Wrapper {
-    display: flex;
-  }
-
-  .gwt-MenuBarPopup {
-    top: var(--pucHeaderHeight) !important;
-  }
-
-  div.newToolbarDropdown {
-    top: var(--pucHeaderHeight) !important;
-    left: calc( 100vw - 210px) !important;
-  }
+/* puc header */
+* {
+  --pucHeaderHeight: 38px;
 }
+
+:where(.burger-mode) #pucContent {
+  /* top: var(--pucHeaderHeight); */
+}
+
+:where(.burger-mode) :is(#pucMenuBar, #pucPerspectives, #pucUserDropDown) {
+  display: none;
+}
+
+:where(.burger-mode) #burgerBarPerspectiveMenu {
+  display: block;
+}
+
+:where(.burger-mode[data-burger-menu-expanded]) #pucMenuBar {
+  display: block;
+}
+
+:where(.burger-mode) #pucHeader {
+  z-index: 10;
+  /*height: 34px;*/
+}
+
+/* burger button and menu */
+:where(.burger-mode) #mainMenubar {
+  width: 100%;
+  height: 100%;
+  display: block;
+  top: var(--pucHeaderHeight);
+  position: absolute;
+  height: 0; /*sub-menu height is based on the bottom of this height*/
+}
+
+:where(.burger-mode) #mainMenubar tr {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+:where(.burger-mode) #mainMenubar > table, .menuPopupBottom {
+  height: 100vh;
+  width: 100%;
+  background: white;
+}
+
+:where(.burger-mode) div.gwt-MenuItem {
+  position: absolute;
+  top: var(--pucHeaderHeight) !important;
+}
+
+:where(.burger-mode) .gwt-MenuBarPopup {
+  left: 0 !important;
+  right: 0 !important;
+}
+
+:where(.burger-mode) .gwt-MenuBarPopup table {
+  width: 100%;
+}
+
+/* buttons */
+
+/* burger bar main menu */
+:where(.burger-mode) #pucToolBar {
+  background: #f8f8f6;
+}
+
+:where(.burger-mode) #mainToolbar div.spacer {
+  display: none;
+}
+
+:where(.burger-mode) .gwt-MenuBarPopup {
+  top: var(--pucHeaderHeight) !important;
+}
+
+:where(.burger-mode) div.newToolbarDropdown {
+  top: var(--pucHeaderHeight) !important;
+  left: calc( 100vw - 210px) !important;
+}
+
+/* endregion Burger Menu Mode */
