@@ -45,7 +45,6 @@ import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
-import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
@@ -100,6 +99,8 @@ public class MantleController extends AbstractXulEventHandler {
   private static final String CHANGE_PASS_ERROR_MESSAGE = "changePasswordErrorMessage";
   private static final String HTTP_REQUEST_ACCEPT_HEADER = "accept";
   private static final String JSON_REQUEST_HEADER = "application/json";
+
+  private static final String BURGER_MODE_MEDIA_QUERY = "(max-height: 500px), (max-width: 650px)";
 
   private MantleModel model;
 
@@ -312,6 +313,8 @@ public class MantleController extends AbstractXulEventHandler {
                         }
                       } );
                 }
+
+                initializeBurgerMenu();
 
                 setupNativeHooks( MantleController.this );
               }
@@ -623,15 +626,6 @@ public class MantleController extends AbstractXulEventHandler {
     $wnd.mantle_openChangePasswordDialog = function() {
       controller.@org.pentaho.mantle.client.ui.xul.MantleController::openChangePasswordDialog()();
     }
-
-    // Burger Mode Media Query
-    function onMediaQueryChange(x) {
-      controller.@org.pentaho.mantle.client.ui.xul.MantleController::onBurgerModeStatusChange(Z)(x.matches);
-    }
-
-    var x = $wnd.matchMedia("(max-height: 500px), (max-width: 650px)");
-    x.addEventListener("change", onMediaQueryChange);
-    onMediaQueryChange(x);
   }-*/;
 
   public void enableUsersRolesTreeItem( boolean enabled ) {
@@ -719,38 +713,82 @@ public class MantleController extends AbstractXulEventHandler {
     model.launchNewDropdownCommand( newBtn );
   }
 
-  // region Burger Mode
-  protected void onBurgerModeStatusChange( boolean enabled ) {
-    com.google.gwt.dom.client.Element elem = Document.get().getElementById( "pucWrapper" );
-    if ( enabled ) {
-      elem.addClassName( "burger-mode" );
-    } else {
-      elem.removeClassName( "burger-mode" );
+  // region Burger Menu
+  private void initializeBurgerMenu() {
+    // Listen to Media Query that controls Burger Mode and set the mantle model's initial value.
+    boolean matchesMediaQuery = setupNativeBurgerModeMediaQueryListener( this, BURGER_MODE_MEDIA_QUERY );
+    model.setBurgerMode( matchesMediaQuery );
+
+    // Update DOM to match initial model values.
+    onBurgerModeChanged();
+    onBurgerMenuExpandedChanged();
+
+    // Start listening for model changes.
+    model.addPropertyChangeListener( "burgerMode", evt -> onBurgerModeChanged() );
+    model.addPropertyChangeListener( "burgerMenuExpanded", evt -> onBurgerMenuExpandedChanged() );
+  }
+
+  private native boolean setupNativeBurgerModeMediaQueryListener( MantleController controller, String mediaQuery ) /*-{
+    var x = $wnd.matchMedia(mediaQuery);
+
+    x.addEventListener("change", function(x) {
+      controller.@org.pentaho.mantle.client.ui.xul.MantleController::onBurgerModeMediaQueryChange(Z)(x.matches);
+    });
+
+    return x.matches;
+  }-*/;
+
+  private void onBurgerModeMediaQueryChange( boolean matches ) {
+    model.setBurgerMode( matches );
+  }
+
+  private Element getPUCWrapperElement() {
+    return (Element) Document.get().getElementById( "pucWrapper" );
+  }
+
+  private void onBurgerModeChanged() {
+    Element pucWrapperElem = getPUCWrapperElement();
+    if ( pucWrapperElem != null ) {
+      if ( model.isBurgerMode() ) {
+        pucWrapperElem.addClassName( "burger-mode" );
+      } else {
+        pucWrapperElem.removeClassName( "burger-mode" );
+      }
     }
 
     MenuBar menuBar = MantleXul.getInstance().getMenubarWidget();
-    menuBar.setAutoOpen( !enabled );
-    // menuBar.setHo
+    menuBar.setAutoOpen( !model.isBurgerMode() );
+
+    if ( !model.isBurgerMode() ) {
+      // J.I.C. menu was opened when leaving burger mode
+      // and so that the next time entering it starts off collapsed.
+      model.setBurgerMenuExpanded( false );
+    }
+  }
+
+  private void onBurgerMenuExpandedChanged() {
+    Element pucWrapperElem = getPUCWrapperElement();
+    if ( pucWrapperElem != null ) {
+      if ( model.isBurgerMenuExpanded() ) {
+        pucWrapperElem.setAttribute( "data-burger-menu-expanded",  "true" );
+      } else {
+        pucWrapperElem.removeAttribute( "data-burger-menu-expanded" );
+      }
+    }
+
+    // Burger Button
+    Element burgerButtonElem = MantleXul.getInstance().getBurgerButton().getElement();
+    if ( model.isBurgerMenuExpanded() ) {
+      burgerButtonElem.setAttribute( "aria-expanded",  "true" );
+    } else {
+      burgerButtonElem.removeAttribute( "aria-expanded" );
+    }
   }
 
   @Bindable
-  public void burgerClicked() {
-    toggleBurgerMenu();
+  public void burgerMenuButtonClicked() {
+    model.setBurgerMenuExpanded( !model.isBurgerMenuExpanded() );
   }
-
-  public static native String toggleBurgerMenu() /*-{
-    var pucWrapper = $doc.getElementById("pucWrapper");
-    var burgerButton = $doc.getElementById( "burgerButton" );
-
-    var isExpanded = pucWrapper.getAttribute("data-burger-menu-expanded") === "true";
-    if(isExpanded) {
-      pucWrapper.removeAttribute("data-burger-menu-expanded");
-      burgerButton.removeAttribute("aria-expanded");
-    } else {
-      pucWrapper.setAttribute("data-burger-menu-expanded", "true");
-      burgerButton.setAttribute("aria-expanded", "true");
-    }
-  }-*/;
 
   @Bindable
   public void burgerMenuBackClick( String subMenuId ) {

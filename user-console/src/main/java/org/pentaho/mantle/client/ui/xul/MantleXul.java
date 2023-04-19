@@ -98,6 +98,8 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
 
   private Toolbar burgerToolbar;
 
+  private Widget burgerButton;
+
   private SimplePanel adminPerspective = new SimplePanel();
   private DeckPanel adminContentDeck = new DeckPanel();
 
@@ -176,8 +178,9 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     burgerToolbarWrapper.setWidget( burgerToolbar );
 
     // TODO: Add a XUL way?
-    ToolbarButton burgerButton = (ToolbarButton) container.getDocumentRoot().getElementById( "burgerButton" ).getManagedObject();
-    burgerButton.getPushButton().getElement().setAttribute( "aria-haspopup", "menu" );
+    ToolbarButton burgerToolbarButton = (ToolbarButton) container.getDocumentRoot().getElementById( "burgerButton" ).getManagedObject();
+    burgerButton = burgerToolbarButton.getPushButton();
+    burgerButton.getElement().setAttribute( "aria-haspopup", "menu" );
 
     // Get the menubar from the XUL doc
     Widget menu = (Widget) container.getDocumentRoot().getElementById( "mainMenubar" ).getManagedObject(); //$NON-NLS-1$
@@ -377,6 +380,10 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
 
   public Widget getBurgerToolbarWrapper() {
     return burgerToolbarWrapper;
+  }
+
+  public Widget getBurgerButton() {
+    return burgerButton;
   }
 
   public Widget getMenubar() {

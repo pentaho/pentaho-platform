@@ -71,7 +71,7 @@
   </menubar>
 
   <toolbar id="burgerToolbar">
-    <toolbarbutton id="burgerButton" image="images/spacer.gif" onclick="mantleXulHandler.burgerClicked()"
+    <toolbarbutton id="burgerButton" image="images/spacer.gif" onclick="mantleXulHandler.burgerMenuButtonClicked()"
                    tooltiptext="${burgerMenu}"/>
   </toolbar>
 
