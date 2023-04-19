@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -59,18 +59,12 @@ public class UrlCommand extends AbstractCommand {
 
   protected void performOperation( boolean feedback ) {
     if ( showInDialog ) {
-      String height = dialogHeight + "px"; //$NON-NLS-1$
-      String width = dialogWidth + "px"; //$NON-NLS-1$
-
       final Frame frame = new Frame( url );
+      frame.setSize( dialogHeight + "px", dialogWidth + "px" );
 
-      final PromptDialogBox dialogBox = new PromptDialogBox( title, Messages.getString( "ok" ), null, false, false );
-      dialogBox.setText( title );
-      dialogBox.setContent( frame );
-
-      frame.setSize( width, height );
+      final PromptDialogBox dialogBox =
+              new PromptDialogBox( title, Messages.getString( "ok" ), null, false, false, frame );
       dialogBox.center();
-      frame.setSize( width, height );
     } else {
       SolutionBrowserPanel navigatorPerspective = SolutionBrowserPanel.getInstance();
       navigatorPerspective.getContentTabPanel().showNewURLTab( title, "", url, false ); //$NON-NLS-1$

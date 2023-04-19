@@ -254,6 +254,7 @@ define([
             nextItem = $(this).parent().next();
           } else if (keyCode == a11yUtil.keyCodes.space) {
             $(this).find(".pull-right").click();
+            event.preventDefault();
           }
 
           if ( nextItem != null && nextItem.length !== 0) {

@@ -14,23 +14,24 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.mantle.client.dialogs;
 
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.panel.VerticalFlexPanel;
 import org.pentaho.mantle.client.messages.Messages;
 
 /**
  * @author wseyler
  * 
  */
-public class OverwritePromptDialog extends PromptDialogBox {
+public class OverwritePromptDialog extends MessageDialogBox {
   /**
    * 
    */
@@ -41,14 +42,21 @@ public class OverwritePromptDialog extends PromptDialogBox {
 
   public OverwritePromptDialog() {
     super(
-        Messages.getString( "overwritePromptDialogTitle" ), Messages.getString( "ok" ), Messages.getString( "cancel" ), false, true ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      Messages.getString( "overwritePromptDialogTitle" ),
+      new VerticalFlexPanel(),
+      Messages.getString( "ok" ),
+      Messages.getString( "cancel" ) );
 
-    VerticalPanel rootPanel = new VerticalPanel();
-    Label overwriteInstructions = new Label( Messages.getString( "overwriteInstructions" ) ); //$NON-NLS-1$
-    Label selectOption = new Label( Messages.getString( "selectOption" ) ); //$NON-NLS-1$
-    renameRb = new RadioButton( RADIO_GROUP_NAME, Messages.getString( "renameRbTitle" ) ); //$NON-NLS-1$
-    overwriteRb = new RadioButton( RADIO_GROUP_NAME, Messages.getString( "overwriteRbTitle" ) ); //$NON-NLS-1$
-    noRenameOrOverwriteRb = new RadioButton( RADIO_GROUP_NAME, Messages.getString( "noOverwriteOrRenameRbTitle" ) ); //$NON-NLS-1$
+    VerticalFlexPanel rootPanel = (VerticalFlexPanel) getContent();
+
+    Label overwriteInstructions = new Label( Messages.getString( "overwriteInstructions" ) );
+    overwriteInstructions.getElement().setId( DOM.createUniqueId() );
+
+    Label selectOption = new Label( Messages.getString( "selectOption" ) );
+    renameRb = new RadioButton( RADIO_GROUP_NAME, Messages.getString( "renameRbTitle" ) );
+    overwriteRb = new RadioButton( RADIO_GROUP_NAME, Messages.getString( "overwriteRbTitle" ) );
+    noRenameOrOverwriteRb = new RadioButton( RADIO_GROUP_NAME, Messages.getString( "noOverwriteOrRenameRbTitle" ) );
+
     renameRb.setValue( true );
 
     rootPanel.add( overwriteInstructions );
@@ -57,7 +65,10 @@ public class OverwritePromptDialog extends PromptDialogBox {
     rootPanel.add( overwriteRb );
     rootPanel.add( noRenameOrOverwriteRb );
 
-    setContent( rootPanel );
+    setAriaDescribedBy( overwriteInstructions.getElement().getId() );
+
+    // Rename is a safe choice.
+    setFocusWidget( okButton );
   }
 
   public int getOverwriteMode() {

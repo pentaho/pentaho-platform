@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -59,7 +59,7 @@ public class OpenURLCommand extends AbstractCommand {
         if ( !isValid ) {
           MessageDialogBox dialogBox =
               new MessageDialogBox(
-                  Messages.getString( "error" ), Messages.getString( "urlNotSpecified" ), false, false, true ); //$NON-NLS-1$ //$NON-NLS-2$
+                  Messages.getString( "error" ), Messages.getString( "urlNotSpecified" ), false );
           dialogBox.center();
         }
         return isValid;
