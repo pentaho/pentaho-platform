@@ -158,9 +158,9 @@ public class BurgerMenuBar extends MenuBar {
   }-*/;
 
   // Access to private field super.popup
-  protected native DecoratedPopupPanel getPopup() /*-{
-    return this.@com.google.gwt.user.client.ui.MenuBar::popup;
-  }-*/;
+  protected DecoratedPopupPanel getPopup() {
+    return getPopup( this );
+  }
 
   // Access to private field super.parentMenu
   protected native BurgerMenuBar getParentMenu() /*-{
@@ -175,5 +175,10 @@ public class BurgerMenuBar extends MenuBar {
   // Access to private field super.items
   public static native List<MenuItem> getMenuBarItems( MenuBar menuBar ) /*-{
     return menuBar.@com.google.gwt.user.client.ui.MenuBar::items;
+  }-*/;
+
+  // Access to private field super.popup
+  public static native DecoratedPopupPanel getPopup( MenuBar menuBar ) /*-{
+    return menuBar.@com.google.gwt.user.client.ui.MenuBar::popup;
   }-*/;
 }

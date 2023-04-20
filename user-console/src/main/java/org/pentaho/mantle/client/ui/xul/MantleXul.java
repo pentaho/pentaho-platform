@@ -1,5 +1,4 @@
 /*!
- *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -13,9 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
- *
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.mantle.client.ui.xul;
@@ -44,7 +41,6 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.XMLParser;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
-import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.mantle.client.commands.AbstractCommand;
@@ -97,8 +93,6 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
   private SimplePanel burgerToolbarWrapper = new SimplePanel();
 
   private Toolbar burgerToolbar;
-
-  private Widget burgerButton;
 
   private SimplePanel adminPerspective = new SimplePanel();
   private DeckPanel adminContentDeck = new DeckPanel();
@@ -176,11 +170,6 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     burgerToolbar.getElement().removeClassName( "toolbar" );
     burgerToolbarWrapper.setStylePrimaryName( "burgerToolbar-Wrapper" );
     burgerToolbarWrapper.setWidget( burgerToolbar );
-
-    // TODO: Add a XUL way?
-    ToolbarButton burgerToolbarButton = (ToolbarButton) container.getDocumentRoot().getElementById( "burgerButton" ).getManagedObject();
-    burgerButton = burgerToolbarButton.getPushButton();
-    burgerButton.getElement().setAttribute( "aria-haspopup", "menu" );
 
     // Get the menubar from the XUL doc
     Widget menu = (Widget) container.getDocumentRoot().getElementById( "mainMenubar" ).getManagedObject(); //$NON-NLS-1$
@@ -382,17 +371,10 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     return burgerToolbarWrapper;
   }
 
-  public Widget getBurgerButton() {
-    return burgerButton;
-  }
-
   public Widget getMenubar() {
     return menubar;
   }
 
-  public MenuBar getMenubarWidget() {
-    return (MenuBar) container.getDocumentRoot().getElementById( "mainMenubar" ).getManagedObject();
-  }
   public Widget getAdminPerspective() {
     return adminPerspective;
   }

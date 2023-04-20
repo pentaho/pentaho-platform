@@ -39,12 +39,15 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
+import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
+import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
@@ -108,6 +111,10 @@ public class MantleController extends AbstractXulEventHandler {
 
   private MantleModel model;
 
+  private XulMenubar mainMenubar;
+
+  private XulToolbarbutton burgerBtn;
+
   private XulToolbarbutton openBtn;
 
   private XulToolbarbutton newBtn;
@@ -146,6 +153,8 @@ public class MantleController extends AbstractXulEventHandler {
 
   private String overrideContentUrl;
 
+  private BurgerMenuPopup burgerMenuPopup;
+
   HashMap<String, ISysAdminPanel> sysAdminPanelsMap = new HashMap<String, ISysAdminPanel>();
 
   RecentPickList recentPickList = RecentPickList.getInstance();
@@ -178,7 +187,9 @@ public class MantleController extends AbstractXulEventHandler {
    */
   @Bindable
   public void init() {
+    mainMenubar = (XulMenubar) document.getElementById( "mainMenubar" );
 
+    burgerBtn = (XulToolbarbutton) document.getElementById( "burgerButton" );
     openBtn = (XulToolbarbutton) document.getElementById( "openButton" ); //$NON-NLS-1$
     newBtn = (XulToolbarbutton) document.getElementById( "newButton" ); //$NON-NLS-1$
     saveBtn = (XulToolbarbutton) document.getElementById( "saveButton" ); //$NON-NLS-1$
@@ -718,6 +729,18 @@ public class MantleController extends AbstractXulEventHandler {
   }
 
   // region Burger Menu
+  private Widget getBurgerButtonWidget() {
+    return ( (ToolbarButton) burgerBtn.getManagedObject() ).getPushButton();
+  }
+
+  public MenuBar getMainMenubarWidget() {
+    return (MenuBar) mainMenubar.getManagedObject();
+  }
+
+  private Element getPUCWrapperElement() {
+    return (Element) Document.get().getElementById( "pucWrapper" );
+  }
+
   private void initializeBurgerMenu() {
     // Listen to Media Query that controls Burger Mode and set the mantle model's initial value.
     boolean matchesMediaQuery = setupNativeBurgerModeMediaQueryListener( this, BURGER_MODE_MEDIA_QUERY );
@@ -728,6 +751,8 @@ public class MantleController extends AbstractXulEventHandler {
 
     // Start listening for model changes.
     model.addPropertyChangeListener( "burgerMode", evt -> onBurgerModeChanged() );
+
+    getBurgerButtonWidget().getElement().setAttribute( "aria-haspopup", "menu" );
   }
 
   private native boolean setupNativeBurgerModeMediaQueryListener( MantleController controller, String mediaQuery ) /*-{
@@ -744,30 +769,60 @@ public class MantleController extends AbstractXulEventHandler {
     model.setBurgerMode( matches );
   }
 
-  private Element getPUCWrapperElement() {
-    return (Element) Document.get().getElementById( "pucWrapper" );
-  }
-
   private void onBurgerModeChanged() {
+    boolean isBurgerMode = model.isBurgerMode();
+
+    MenuBar mainMenubar = getMainMenubarWidget();
+
+    boolean hadFocus;
+
+    // Close menu popups, if open.
+    // Detect if focus should be set to the other "menu" after the (CSS) mode transition.
+    if ( isBurgerMode ) {
+      // Entering burger mode.
+      hadFocus = BurgerMenuBar.getPopup( mainMenubar ) != null
+        || ElementUtils.isActiveElement( mainMenubar.getElement() );
+      mainMenubar.closeAllChildren( false );
+    } else {
+      // Exiting burger mode.
+      hadFocus = closeBurgerMenuPopup();
+    }
+
     Element pucWrapperElem = getPUCWrapperElement();
     if ( pucWrapperElem != null ) {
-      if ( model.isBurgerMode() ) {
+      if ( isBurgerMode ) {
         pucWrapperElem.addClassName( "burger-mode" );
       } else {
         pucWrapperElem.removeClassName( "burger-mode" );
       }
     }
 
-    MenuBar menuBar = MantleXul.getInstance().getMenubarWidget();
-    menuBar.setAutoOpen( !model.isBurgerMode() );
+    if ( hadFocus ) {
+      if ( isBurgerMode ) {
+        ( (Focusable) getBurgerButtonWidget() ).setFocus( true );
+      } else {
+        mainMenubar.focus();
+      }
+    }
+  }
+
+  private boolean closeBurgerMenuPopup() {
+    if ( burgerMenuPopup != null ) {
+      burgerMenuPopup.hide();
+      burgerMenuPopup = null;
+      return true;
+    }
+
+    return false;
   }
 
   private void toggleBurgerMenuExpanded() {
-    Widget burgerButton = MantleXul.getInstance().getBurgerButton();
+    Widget burgerButton = getBurgerButtonWidget();
     if ( !burgerButton.getElement().hasAttribute( "aria-expanded" ) ) {
+      closeBurgerMenuPopup();
 
-      new BurgerMenuPopup( burgerButton, createBurgerMenuBar( MantleXul.getInstance().getMenubarWidget() ) )
-        .showMenu();
+      burgerMenuPopup = new BurgerMenuPopup( burgerButton, createBurgerMenuBar( getMainMenubarWidget() ) );
+      burgerMenuPopup.showMenu();
     }
   }
 
