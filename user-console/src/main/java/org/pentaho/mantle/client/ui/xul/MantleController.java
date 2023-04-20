@@ -215,6 +215,8 @@ public class MantleController extends AbstractXulEventHandler {
     recentMenu = (XulMenubar) document.getElementById( "recentmenu" ); //$NON-NLS-1$
     favoriteMenu = (XulMenubar) document.getElementById( "favoritesmenu" ); //$NON-NLS-1$
 
+    initializeBurgerMenu();
+
     if ( PerspectiveManager.getInstance().isLoaded() ) {
       PerspectiveManager.getInstance().enablePerspective( PerspectiveManager.OPENED_PERSPECTIVE, false );
     } else {
@@ -328,8 +330,6 @@ public class MantleController extends AbstractXulEventHandler {
                         }
                       } );
                 }
-
-                initializeBurgerMenu();
 
                 setupNativeHooks( MantleController.this );
               }
