@@ -766,12 +766,12 @@ public class MantleController extends AbstractXulEventHandler {
     Widget burgerButton = MantleXul.getInstance().getBurgerButton();
     if ( !burgerButton.getElement().hasAttribute( "aria-expanded" ) ) {
 
-      new BurgerMenuPopup( burgerButton, creareBurgerMenuBar( MantleXul.getInstance().getMenubarWidget() ) )
+      new BurgerMenuPopup( burgerButton, createBurgerMenuBar( MantleXul.getInstance().getMenubarWidget() ) )
         .showMenu();
     }
   }
 
-  private BurgerMenuBar creareBurgerMenuBar( MenuBar menuBar ) {
+  private BurgerMenuBar createBurgerMenuBar( MenuBar menuBar ) {
     BurgerMenuBar copyMenuBar = new BurgerMenuBar();
 
     Scheduler.ScheduledCommand command = () -> Window.alert( "Test!" );

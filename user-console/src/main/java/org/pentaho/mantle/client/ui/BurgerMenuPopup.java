@@ -39,9 +39,12 @@ public class BurgerMenuPopup extends DecoratedPopupPanel {
 
     setWidget( menuBar );
 
+    // Avoid inheriting CSS styling for .mainMenubar.
+    menuBar.getElement().setId( "burgerMenubar" );
+
     overrideLeafMenuItemCommands( menuBar );
 
-    menuButton.getElement().setAttribute( "aria-controls", ElementUtils.ensureId( menuBar ) );
+    menuButton.getElement().setAttribute( "aria-controls", menuBar.getElement().getId() );
     menuButton.getElement().setAttribute( "aria-expanded", "true" );
 
     addCloseHandler( ev -> {
