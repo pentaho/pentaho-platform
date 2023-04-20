@@ -73,8 +73,6 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
 
   private boolean isBurgerMode;
 
-  private boolean isBurgerMenuExpanded;
-
   private boolean saveEnabled;
 
   private boolean saveAsEnabled;
@@ -116,18 +114,6 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     boolean prevVal = this.isBurgerMode;
     this.isBurgerMode = isBurgerMode;
     this.firePropertyChange( "burgerMode", prevVal, isBurgerMode );
-  }
-
-  @Bindable
-  public boolean isBurgerMenuExpanded() {
-    return isBurgerMenuExpanded;
-  }
-
-  @Bindable
-  public void setBurgerMenuExpanded( boolean isBurgerMenuExpanded ) {
-    boolean prevVal = this.isBurgerMenuExpanded;
-    this.isBurgerMenuExpanded = isBurgerMenuExpanded;
-    this.firePropertyChange( "burgerMenuExpanded", prevVal, isBurgerMenuExpanded );
   }
 
   @Bindable

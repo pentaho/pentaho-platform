@@ -25,6 +25,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -39,6 +40,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
@@ -71,6 +73,8 @@ import org.pentaho.mantle.client.solutionbrowser.filepicklist.IFilePickItem;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.IFilePickListListener;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickItem;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickList;
+import org.pentaho.mantle.client.ui.BurgerMenuBar;
+import org.pentaho.mantle.client.ui.BurgerMenuPopup;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.JsSetting;
@@ -721,11 +725,9 @@ public class MantleController extends AbstractXulEventHandler {
 
     // Update DOM to match initial model values.
     onBurgerModeChanged();
-    onBurgerMenuExpandedChanged();
 
     // Start listening for model changes.
     model.addPropertyChangeListener( "burgerMode", evt -> onBurgerModeChanged() );
-    model.addPropertyChangeListener( "burgerMenuExpanded", evt -> onBurgerMenuExpandedChanged() );
   }
 
   private native boolean setupNativeBurgerModeMediaQueryListener( MantleController controller, String mediaQuery ) /*-{
@@ -758,36 +760,41 @@ public class MantleController extends AbstractXulEventHandler {
 
     MenuBar menuBar = MantleXul.getInstance().getMenubarWidget();
     menuBar.setAutoOpen( !model.isBurgerMode() );
+  }
 
-    if ( !model.isBurgerMode() ) {
-      // J.I.C. menu was opened when leaving burger mode
-      // and so that the next time entering it starts off collapsed.
-      model.setBurgerMenuExpanded( false );
+  private void toggleBurgerMenuExpanded() {
+    Widget burgerButton = MantleXul.getInstance().getBurgerButton();
+    if ( !burgerButton.getElement().hasAttribute( "aria-expanded" ) ) {
+
+      new BurgerMenuPopup( burgerButton, creareBurgerMenuBar( MantleXul.getInstance().getMenubarWidget() ) )
+        .showMenu();
     }
   }
 
-  private void onBurgerMenuExpandedChanged() {
-    Element pucWrapperElem = getPUCWrapperElement();
-    if ( pucWrapperElem != null ) {
-      if ( model.isBurgerMenuExpanded() ) {
-        pucWrapperElem.setAttribute( "data-burger-menu-expanded",  "true" );
-      } else {
-        pucWrapperElem.removeAttribute( "data-burger-menu-expanded" );
-      }
-    }
+  private BurgerMenuBar creareBurgerMenuBar( MenuBar menuBar ) {
+    BurgerMenuBar copyMenuBar = new BurgerMenuBar();
 
-    // Burger Button
-    Element burgerButtonElem = MantleXul.getInstance().getBurgerButton().getElement();
-    if ( model.isBurgerMenuExpanded() ) {
-      burgerButtonElem.setAttribute( "aria-expanded",  "true" );
-    } else {
-      burgerButtonElem.removeAttribute( "aria-expanded" );
-    }
+    Scheduler.ScheduledCommand command = () -> Window.alert( "Test!" );
+
+    BurgerMenuBar viewMenuBar = new BurgerMenuBar();
+    viewMenuBar.addItem( new MenuItem( "Test 1", command ) );
+    viewMenuBar.addItem( new MenuItem( "Test 2", command ) );
+
+    MenuItem viewMenuItem = new MenuItem( "View", viewMenuBar );
+
+    // ---
+
+    copyMenuBar.addItem( new MenuItem( "File", command ) );
+    copyMenuBar.addItem( viewMenuItem );
+    copyMenuBar.addItem( new MenuItem( "Tools", command ) );
+    copyMenuBar.addItem( new MenuItem( "Help", command ) );
+
+    return copyMenuBar;
   }
 
   @Bindable
   public void burgerMenuButtonClicked() {
-    model.setBurgerMenuExpanded( !model.isBurgerMenuExpanded() );
+    toggleBurgerMenuExpanded();
   }
 
   @Bindable
