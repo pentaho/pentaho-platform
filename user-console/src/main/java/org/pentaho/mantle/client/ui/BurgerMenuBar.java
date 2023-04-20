@@ -59,6 +59,7 @@ public class BurgerMenuBar extends MenuBar {
     // Still need to select and unselect items
     if ( item != null && item.isEnabled() ) {
       selectItem( isOver ? item : null );
+      focus();
     }
   }
 
