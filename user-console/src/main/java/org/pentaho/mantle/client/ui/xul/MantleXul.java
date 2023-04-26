@@ -37,6 +37,7 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.XMLParser;
@@ -56,11 +57,15 @@ import org.pentaho.mantle.client.events.SolutionBrowserSelectEventHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.MantleXulOverlay;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
+import org.pentaho.mantle.client.ui.BurgerMenuBar;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
+import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
 import org.pentaho.ui.xul.gwt.GwtXulRunner;
+import org.pentaho.ui.xul.gwt.tags.GwtMenubar;
+import org.pentaho.ui.xul.gwt.tags.GwtMenuitem;
 import org.pentaho.ui.xul.gwt.tags.GwtTree;
 import org.pentaho.ui.xul.gwt.util.AsyncXulLoader;
 import org.pentaho.ui.xul.gwt.util.IXulLoaderCallback;
@@ -97,14 +102,13 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
   private SimplePanel adminPerspective = new SimplePanel();
   private DeckPanel adminContentDeck = new DeckPanel();
 
-  private HashMap<String,MenuBar> subMenus = new HashMap(); //TESTING
-  private String[] subMenuIds = {"filemenu", "newmenu", "recentmenu", "favoritesmenu", "viewmenu", "burgerBarPerspectiveMenu", "languagemenu", "themesmenu", "refreshmenu" };
-
   private MantleController controller;
 
   private ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
 
   private HashSet<String> loadedOverlays = new HashSet<String>();
+
+  HashSet<String> classNames = new HashSet<>();
 
   private MantleXul() {
     AsyncXulLoader.loadXulFromUrl( GWT.getModuleBaseURL() + "xul/mantle.xul", GWT.getModuleBaseURL()
@@ -113,11 +117,6 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     EventBusUtil.EVENT_BUS.addHandler( SolutionBrowserCloseEvent.TYPE, this );
     EventBusUtil.EVENT_BUS.addHandler( SolutionBrowserSelectEvent.TYPE, this );
     EventBusUtil.EVENT_BUS.addHandler( SolutionBrowserDeselectEvent.TYPE, this );
-  }
-
-  public void closeSubmenu(String menuId){
-    MenuBar submenu = subMenus.get(menuId);
-    submenu.closeAllChildren( true );
   }
 
   public static MantleXul getInstance() {
@@ -173,8 +172,8 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
 
     // Get the menubar from the XUL doc
     Widget menu = (Widget) container.getDocumentRoot().getElementById( "mainMenubar" ).getManagedObject(); //$NON-NLS-1$
-    collectSubmenus( menu );
-    setupBurgerPerspectives();
+    //    setupBurgerPerspectives();
+    // setupBurgerBackButtons();
     menubar.setWidget( menu );
 
     // check based on user permissions
@@ -241,6 +240,77 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     adminContentDeck.setHeight( "100%" );
     adminContentDeck.getElement().getStyle().setProperty( "height", "100%" );
     fetchPluginOverlays();
+
+    cloneMenu( (MenuBar) container.getDocumentRoot().getElementById( "mainMenubar" ).getManagedObject() );
+  }
+
+  private void cloneMenu( MenuBar menu ) {
+    MenuCloner.cloneMenuBar( menu, true );
+//    GWT.log( "cloning menu..." );
+//    GWT.log( menu.toString() );
+//    GWT.log( "\n\n" );
+//
+//    GWT.log( menu.getElement().getId() + " | " + menu.hand );
+//    menuPrinting( menu, "\t" );
+//    BurgerMenuBar.getMenuBarAllItems( menu ).forEach( ( UIObject o ) -> {
+//      GWT.log( o.toString() );
+//    } );
+//    GWT.log( classNames.toString() );
+  }
+
+  private void menuPrinting( MenuBar menu, String indentation ) {
+    BurgerMenuBar.getMenuBarAllItems( menu ).forEach( ( UIObject uio ) -> {
+        String id = uio.getElement().getId();
+        if ( id.isEmpty() ) {
+          id = "-";
+        }
+        GWT.log( indentation + id + " | " + uio.getClass().getSimpleName() );
+        GWT.log( uio.getClass().getName() );
+        classNames.add(uio.getClass().getName());
+        if ( uio instanceof MenuItem ) {
+          MenuBar submenu = ( (MenuItem) uio ).getSubMenu();
+          if ( submenu != null ) {
+            menuPrinting( submenu, indentation + "\t" );
+          }
+        }
+      }
+    );
+
+    //    BurgerMenuBar.getMenuBarItems( menuBar ).forEach( ( MenuItem m ) -> {
+//      GWT.log( indentation + menuBar.toString() + "\n" );
+//      MenuBar submenu = m.getSubMenu();
+//      if ( submenu != null ) {
+//        GWT.log( "Submenu: " + submenu.getElement().getId());
+//        menuPrinting( submenu, indentation + "\t" );
+//      }
+//    } );
+
+
+//    if( uio instanceof MenuBar ){
+//      BurgerMenuBar.getMenuBarItems( (MenuBar) uio ).forEach( ( UIObject o) -> {
+//        menuPrinting( o, indentation + "\t" );
+//      } );
+//    }
+  }
+
+  private void setupBurgerBackButtons() {
+    GwtMenubar menubar = (GwtMenubar) container.getDocumentRoot().getElementById( "mainMenubar" );
+    GWT.log( "" + menubar.getElementsByTagName( "menubar" ).size() );
+    addBackButtons( menubar );
+  }
+
+  private void addBackButtons( XulComponent menu ) {
+    String menuLabel = menu.getAttributeValue( "label" );
+    String menuId = menu.getId();
+    if ( menuLabel != null ) {
+      GwtMenuitem back = new GwtMenuitem();
+      back.setLabel( "< " + menuLabel );
+      back.setCommand( "mantleXulHandler.burgerMenuBackClick('" + menuId + "')" );
+      menu.addChildAt( back, 0 );
+    }
+    menu.getElementsByTagName( "menubar" ).forEach( ( XulComponent subMenu ) -> {
+      addBackButtons( subMenu );
+    } );
   }
 
   private void setupBurgerPerspectives() {
@@ -261,10 +331,8 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     });
   }
 
-  public void collectSubmenus( Widget menu){
-    for (int i=0; i<subMenuIds.length; i++){
-      subMenus.put(subMenuIds[i], (MenuBar) container.getDocumentRoot().getElementById( subMenuIds[i] ).getManagedObject()); //$NON-NLS-1$
-    }
+  public void closeSubmenu(String menuId){
+    ((MenuBar) container.getDocumentRoot().getElementById(menuId).getManagedObject()).closeAllChildren( true );
   }
 
   public void closeMenuBar(){
