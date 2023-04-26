@@ -1601,6 +1601,11 @@ hr {
   top: var(--pucHeaderHeight) !important;
 }
 
+.pen-BurgerMenuBarPopup + .pen-BurgerMenuBarPopup {
+  margin-top: unset;
+}
+
+
 .pen-BurgerMenuBarPopup > div > table,
 .pen-BurgerMenuBar > table {
   width: 100%;
