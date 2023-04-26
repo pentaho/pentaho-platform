@@ -827,6 +827,9 @@ public class MantleController extends AbstractXulEventHandler {
   }
 
   private BurgerMenuBar createBurgerMenuBar( MenuBar menuBar ) {
+    return MenuCloner.cloneMenuBar( menuBar );
+
+    /*
     BurgerMenuBar copyMenuBar = new BurgerMenuBar();
 
     Scheduler.ScheduledCommand command = () -> Window.alert( "Test!" );
@@ -845,6 +848,7 @@ public class MantleController extends AbstractXulEventHandler {
     copyMenuBar.addItem( new MenuItem( "Help", command ) );
 
     return copyMenuBar;
+    */
   }
 
   @Bindable

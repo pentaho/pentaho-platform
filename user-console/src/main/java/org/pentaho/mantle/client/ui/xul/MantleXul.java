@@ -241,11 +241,11 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     adminContentDeck.getElement().getStyle().setProperty( "height", "100%" );
     fetchPluginOverlays();
 
-    cloneMenu( (MenuBar) container.getDocumentRoot().getElementById( "mainMenubar" ).getManagedObject() );
+    // cloneMenu( (MenuBar) container.getDocumentRoot().getElementById( "mainMenubar" ).getManagedObject() );
   }
 
   private void cloneMenu( MenuBar menu ) {
-    MenuCloner.cloneMenuBar( menu, true );
+    MenuCloner.cloneMenuBar( menu );
 //    GWT.log( "cloning menu..." );
 //    GWT.log( menu.toString() );
 //    GWT.log( "\n\n" );

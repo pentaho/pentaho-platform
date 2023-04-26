@@ -1,6 +1,7 @@
 package org.pentaho.mantle.client.ui.xul;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.ui.MenuBar;
@@ -10,6 +11,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import com.google.gwt.user.client.ui.MenuItemSeparator;
 import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
+import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuSeparator;
 import org.pentaho.mantle.client.ui.BurgerMenuBar;
 
 public class MenuCloner {
@@ -20,12 +22,17 @@ public class MenuCloner {
     return menuCloner;
   }
 
-  public static MenuBar cloneMenuBar( MenuBar menuBar, boolean vertical ) {
-    MenuBar menuBarClone = new MenuBar( vertical );
+  public static BurgerMenuBar cloneMenuBar( MenuBar menuBar ) {
+    // MenuBar menuBarClone = new MenuBar( vertical );
+    BurgerMenuBar menuBarClone = new BurgerMenuBar();
+
     menuBarClone.setAnimationEnabled( menuBar.isAnimationEnabled() );
     menuBarClone.setAutoOpen( menuBar.getAutoOpen() );
     menuBarClone.setFocusOnHoverEnabled( menuBar.isFocusOnHoverEnabled() );
-    setUIObjectElement( menuBarClone, (Element) menuBar.getElement().cloneNode( true ) );
+
+    menuBarClone.getElement().setId( menuBar.getElement().getId() );
+
+    // setUIObjectElement( menuBarClone, (Element) menuBar.getElement().cloneNode( true ) );
 
 //    GWT.log( menuBar.toString() );
 //    GWT.log("");
@@ -41,11 +48,13 @@ public class MenuCloner {
         } else if ( uio instanceof CheckBoxMenuItem ) {
           menuItemClone = cloneCheckBoxMenuItem( (CheckBoxMenuItem) uio );
         } else if ( uio instanceof MenuItem ) {
-          menuItemClone = cloneMenuItem( (MenuItem) uio, vertical );
+          menuItemClone = cloneMenuItem( (MenuItem) uio );
         } else {
           throw new RuntimeException("Logic not implemented to copy menu related object: " + uio.getClass());
         }
-        setUIObjectElement( menuItemClone, uio.getElement() );
+
+        // setUIObjectElement( menuItemClone, uio.getElement() );
+
         menuBarClone.addItem(menuItemClone);
       }
 
@@ -71,33 +80,61 @@ public class MenuCloner {
     uiObject.@com.google.gwt.user.client.ui.UIObject::replaceElement(*)(element);
   }-*/;
 
-  public static MenuItem cloneMenuItem( MenuItem menuItem, boolean vertical ) {
-    MenuItem menuItemClone = new MenuItem( menuItem.getText(), menuItem.getScheduledCommand() );
-    return cloneMenuItem( menuItem, menuItemClone, vertical );
+  public static MenuItem cloneMenuItem( MenuItem menuItem ) {
+    MenuItem menuItemClone = new MenuItem( menuItem.getText(), true, (Scheduler.ScheduledCommand) null );
+    return cloneMenuItem( menuItem, menuItemClone );
   }
 
-  public static MenuItem cloneMenuItem( MenuItem menuItem, MenuItem menuItemClone, boolean vertical ) {
+  public static MenuItem cloneMenuItem( MenuItem menuItem, MenuItem menuItemClone ) {
     menuItemClone.setEnabled( menuItem.isEnabled() );
     menuItemClone.setVisible( menuItem.isVisible() );
-//    menuItemClone.set
+
+    menuItemClone.getElement().setId( menuItem.getElement().getId() );
 
     MenuBar subMenuBar = menuItem.getSubMenu();
     if ( subMenuBar != null ) {
-      menuItemClone.setSubMenu( cloneMenuBar( subMenuBar, vertical ) );
+      menuItemClone.setSubMenu( cloneMenuBar( subMenuBar ) );
     }
+
+    // Strangely, it seems menu items with submenus can also have a command.
+    if ( menuItem.getScheduledCommand() != null ) {
+      menuItemClone.setScheduledCommand( menuItem.getScheduledCommand() );
+    }
+
     return menuItemClone;
   }
 
   public static MenuItemSeparator cloneMenuItemSeparator( MenuItemSeparator menuItemSeparator ) {
-    return null;
+    MenuItemSeparator menuItemSeparatorClone;
+    if ( menuItemSeparator instanceof PentahoMenuSeparator ) {
+      menuItemSeparatorClone = new PentahoMenuSeparator();
+    } else {
+      menuItemSeparatorClone = new MenuItemSeparator();
+    }
+
+    menuItemSeparatorClone.setVisible( menuItemSeparator.isVisible() );
+
+    return menuItemSeparatorClone;
+
   }
 
-  public static PentahoMenuItem clonePentahoMenuItem( PentahoMenuItem pentahoMenuItem ) {
-    return null;
+  public static PentahoMenuItem clonePentahoMenuItem( PentahoMenuItem menuItem ) {
+    PentahoMenuItem menuItemClone = new PentahoMenuItem( menuItem.getText(), null );
+    menuItemClone.setUseCheckUI( menuItem.isUseCheckUI() );
+    menuItemClone.setChecked( menuItem.isChecked() );
+
+    cloneMenuItem( menuItem, menuItemClone );
+
+    return menuItemClone;
   }
 
-  public static CheckBoxMenuItem cloneCheckBoxMenuItem( CheckBoxMenuItem checkBoxMenuItem ) {
-    return null;
+  public static CheckBoxMenuItem cloneCheckBoxMenuItem( CheckBoxMenuItem menuItem ) {
+    CheckBoxMenuItem menuItemClone = new CheckBoxMenuItem( menuItem.getText(), null );
+    menuItemClone.setChecked( menuItem.isChecked() );
+
+    cloneMenuItem( menuItem, menuItemClone );
+
+    return menuItemClone;
   }
 
   // ///////////////////////////////////////////////////////////////
