@@ -42,6 +42,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.XMLParser;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
+import org.pentaho.gwt.widgets.client.utils.MenuBarUtils;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.mantle.client.commands.AbstractCommand;
@@ -57,7 +58,6 @@ import org.pentaho.mantle.client.events.SolutionBrowserSelectEventHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.MantleXulOverlay;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
-import org.pentaho.mantle.client.ui.BurgerMenuBar;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.XulException;
@@ -245,7 +245,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
   }
 
   private void cloneMenu( MenuBar menu ) {
-    MenuCloner.cloneMenuBar( menu );
+//    MenuCloner.cloneMenuBar( menu );
 //    GWT.log( "cloning menu..." );
 //    GWT.log( menu.toString() );
 //    GWT.log( "\n\n" );
@@ -259,7 +259,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
   }
 
   private void menuPrinting( MenuBar menu, String indentation ) {
-    BurgerMenuBar.getMenuBarAllItems( menu ).forEach( ( UIObject uio ) -> {
+    MenuBarUtils.getAllItems( menu ).forEach( ( UIObject uio ) -> {
         String id = uio.getElement().getId();
         if ( id.isEmpty() ) {
           id = "-";

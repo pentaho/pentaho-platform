@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.UIObject;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuSeparator;
+import org.pentaho.gwt.widgets.client.utils.MenuBarUtils;
 
 import java.util.List;
 
@@ -117,7 +118,7 @@ public class BurgerMenuBar extends MenuBar {
   }
 
   public List<UIObject> getAllItems() {
-    return getMenuBarAllItems( this );
+    return MenuBarUtils.getAllItems( this );
   }
 
   @Override
@@ -136,11 +137,12 @@ public class BurgerMenuBar extends MenuBar {
    * @see BurgerBackMenuItem
    */
   public void addBackItemToDescendantMenus() {
-    addBackItemsCore( null );
+    addBackItems( null );
   }
 
-  private void addBackItemsCore( MenuItem parentMenuItem ) {
+  private void addBackItems( MenuItem parentMenuItem ) {
     if ( parentMenuItem != null && hasItemsButNoBackItem() ) {
+      // Add a back menu item, followed by a menu item separator.
       insertSeparator( new PentahoMenuSeparator(), 0 );
       insertItem( new BurgerBackMenuItem( parentMenuItem.getHTML(), true ), 0 );
     }
@@ -148,7 +150,7 @@ public class BurgerMenuBar extends MenuBar {
     for ( MenuItem menuItem : getItems() ) {
       BurgerMenuBar subMenu = (BurgerMenuBar) menuItem.getSubMenu();
       if ( subMenu != null ) {
-        subMenu.addBackItemsCore( menuItem );
+        subMenu.addBackItems( menuItem );
       }
     }
   }
@@ -216,26 +218,11 @@ public class BurgerMenuBar extends MenuBar {
 
   // Access to private field super.popup
   protected DecoratedPopupPanel getPopup() {
-    return getPopup( this );
+    return MenuBarUtils.getPopup( this );
   }
 
   // Access to private field super.parentMenu
-  protected native BurgerMenuBar getParentMenu() /*-{
-    return this.@com.google.gwt.user.client.ui.MenuBar::parentMenu;
-  }-*/;
-
-  // Access to private field super.allItems
-  public static native List<UIObject> getMenuBarAllItems( MenuBar menuBar ) /*-{
-    return menuBar.@com.google.gwt.user.client.ui.MenuBar::allItems;
-  }-*/;
-
-  // Access to private field super.items
-  public static native List<MenuItem> getMenuBarItems( MenuBar menuBar ) /*-{
-    return menuBar.@com.google.gwt.user.client.ui.MenuBar::items;
-  }-*/;
-
-  // Access to private field super.popup
-  public static native DecoratedPopupPanel getPopup( MenuBar menuBar ) /*-{
-    return menuBar.@com.google.gwt.user.client.ui.MenuBar::popup;
-  }-*/;
+  protected BurgerMenuBar getParentMenu() {
+    return (BurgerMenuBar) MenuBarUtils.getParentMenu( this );
+  }
 }

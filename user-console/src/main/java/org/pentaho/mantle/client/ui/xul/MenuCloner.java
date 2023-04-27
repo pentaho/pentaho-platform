@@ -1,17 +1,35 @@
+/*!
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * or from the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright (c) 2023 Hitachi Vantara. All rights reserved.
+ */
+
 package org.pentaho.mantle.client.ui.xul;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.MenuItemSeparator;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.Widget;
-import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
-import com.google.gwt.user.client.ui.MenuItemSeparator;
 import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
+import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuSeparator;
-import org.pentaho.mantle.client.ui.BurgerMenuBar;
+import org.pentaho.gwt.widgets.client.utils.MenuBarUtils;
+
+import java.util.function.Function;
 
 public class MenuCloner {
 
@@ -21,9 +39,8 @@ public class MenuCloner {
     return menuCloner;
   }
 
-  public static BurgerMenuBar cloneMenuBar( MenuBar menuBar ) {
-    // MenuBar menuBarClone = new MenuBar( vertical );
-    BurgerMenuBar menuBarClone = new BurgerMenuBar();
+  public static <T extends MenuBar> T cloneMenuBar( MenuBar menuBar, Function<MenuBar, T> menuBarCreator ) {
+    T menuBarClone = menuBarCreator.apply( menuBar );
 
     menuBarClone.setAnimationEnabled( menuBar.isAnimationEnabled() );
     menuBarClone.setAutoOpen( menuBar.getAutoOpen() );
@@ -31,62 +48,35 @@ public class MenuCloner {
 
     menuBarClone.getElement().setId( menuBar.getElement().getId() );
 
-    // setUIObjectElement( menuBarClone, (Element) menuBar.getElement().cloneNode( true ) );
-
-//    GWT.log( menuBar.toString() );
-//    GWT.log("");
-//    GWT.log( menuBarClone.toString());
-
-    BurgerMenuBar.getMenuBarAllItems( menuBar ).forEach( ( UIObject uio ) -> {
+    MenuBarUtils.getAllItems( menuBar ).forEach( ( UIObject uio ) -> {
       if ( uio instanceof MenuItemSeparator ) {
         menuBarClone.addSeparator( cloneMenuItemSeparator( (MenuItemSeparator) uio ) );
       } else {
         MenuItem menuItemClone;
         if ( uio instanceof PentahoMenuItem ) {
-          menuItemClone = clonePentahoMenuItem( (PentahoMenuItem) uio );
+          menuItemClone = clonePentahoMenuItem( (PentahoMenuItem) uio, menuBarCreator );
         } else if ( uio instanceof CheckBoxMenuItem ) {
-          menuItemClone = cloneCheckBoxMenuItem( (CheckBoxMenuItem) uio );
+          menuItemClone = cloneCheckBoxMenuItem( (CheckBoxMenuItem) uio, menuBarCreator );
         } else if ( uio instanceof MenuItem ) {
-          menuItemClone = cloneMenuItem( (MenuItem) uio );
+          menuItemClone = cloneMenuItem( (MenuItem) uio, menuBarCreator );
         } else {
-          throw new RuntimeException("Logic not implemented to copy menu related object: " + uio.getClass());
+          throw new RuntimeException( "Logic not implemented to copy menu related object: " + uio.getClass() );
         }
 
-        // setUIObjectElement( menuItemClone, uio.getElement() );
-
-        menuBarClone.addItem(menuItemClone);
+        menuBarClone.addItem( menuItemClone );
       }
-
-
-      //      String id = uio.getElement().getId();
-      //      if ( id.isEmpty() ) {
-      //        id = "-";
-      //      }
-      //      GWT.log( indentation + id + " | " + uio.getClass().getSimpleName() );
-      //      GWT.log( uio.getClass().getName() );
-      //      if ( uio instanceof MenuItem ) {
-      //        MenuBar submenu = ( (MenuItem) uio ).getSubMenu();
-      //        if ( submenu != null ) {
-      //          menuPrinting( submenu, indentation + "\t" );
-      //        }
-      //      }
     } );
-
-    menuBarClone.addBackItemToDescendantMenus();
 
     return menuBarClone;
   }
 
-  private static native void setUIObjectElement( UIObject uiObject, Element element) /*-{
-    uiObject.@com.google.gwt.user.client.ui.UIObject::replaceElement(*)(element);
-  }-*/;
-
-  public static MenuItem cloneMenuItem( MenuItem menuItem ) {
+  public static <T extends MenuBar> MenuItem cloneMenuItem( MenuItem menuItem, Function<MenuBar, T> menuBarCreator ) {
     MenuItem menuItemClone = new MenuItem( menuItem.getHTML(), true, (Scheduler.ScheduledCommand) null );
-    return cloneMenuItem( menuItem, menuItemClone );
+    return cloneMenuItem( menuItem, menuItemClone, menuBarCreator );
   }
 
-  public static MenuItem cloneMenuItem( MenuItem menuItem, MenuItem menuItemClone ) {
+  public static <T extends MenuBar> MenuItem cloneMenuItem( MenuItem menuItem, MenuItem menuItemClone,
+                                                            Function<MenuBar, T> menuBarCreator ) {
     menuItemClone.setEnabled( menuItem.isEnabled() );
     menuItemClone.setVisible( menuItem.isVisible() );
 
@@ -94,7 +84,7 @@ public class MenuCloner {
 
     MenuBar subMenuBar = menuItem.getSubMenu();
     if ( subMenuBar != null ) {
-      menuItemClone.setSubMenu( cloneMenuBar( subMenuBar ) );
+      menuItemClone.setSubMenu( cloneMenuBar( subMenuBar, menuBarCreator ) );
     }
 
     // Strangely, it seems menu items with submenus can also have a command.
@@ -119,27 +109,29 @@ public class MenuCloner {
 
   }
 
-  public static PentahoMenuItem clonePentahoMenuItem( PentahoMenuItem menuItem ) {
+  public static <T extends MenuBar> PentahoMenuItem clonePentahoMenuItem( PentahoMenuItem menuItem,
+                                                                          Function<MenuBar, T> menuBarCreator ) {
     PentahoMenuItem menuItemClone = new PentahoMenuItem( menuItem.getText(), null );
     menuItemClone.setUseCheckUI( menuItem.isUseCheckUI() );
     menuItemClone.setChecked( menuItem.isChecked() );
 
-    cloneMenuItem( menuItem, menuItemClone );
+    cloneMenuItem( menuItem, menuItemClone, menuBarCreator );
 
     return menuItemClone;
   }
 
-  public static CheckBoxMenuItem cloneCheckBoxMenuItem( CheckBoxMenuItem menuItem ) {
+  public static <T extends MenuBar> CheckBoxMenuItem cloneCheckBoxMenuItem( CheckBoxMenuItem menuItem,
+                                                                            Function<MenuBar, T> menuBarCreator ) {
     CheckBoxMenuItem menuItemClone = new CheckBoxMenuItem( menuItem.getText(), null );
     menuItemClone.setChecked( menuItem.isChecked() );
 
-    cloneMenuItem( menuItem, menuItemClone );
+    cloneMenuItem( menuItem, menuItemClone, menuBarCreator );
 
     return menuItemClone;
   }
 
   // ///////////////////////////////////////////////////////////////
-  private static void cloneHandlers(Widget w){
+  private static void cloneHandlers( Widget w ) {
     HandlerManager widgetHandlerManger = getHandlerManager( w );
 //    widgetHandlerManger.getHandlerCount(  )
   }
@@ -148,7 +140,7 @@ public class MenuCloner {
     return w.@com.google.gwt.user.client.ui.Widget::getHandlerManager()();
   }-*/;
 
-//  private static native HandlerManager getHandlers( HandlerManager h ) /*-{
+  //  private static native HandlerManager getHandlers( HandlerManager h ) /*-{
 //    h.@com.google.gwt.event.shared.HandlerManager::
 //  }-*/;
 }

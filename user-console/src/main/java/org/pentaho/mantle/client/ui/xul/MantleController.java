@@ -25,7 +25,6 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.RunAsyncCallback;
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -41,13 +40,13 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
+import org.pentaho.gwt.widgets.client.utils.MenuBarUtils;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
@@ -780,7 +779,7 @@ public class MantleController extends AbstractXulEventHandler {
     // Detect if focus should be set to the other "menu" after the (CSS) mode transition.
     if ( isBurgerMode ) {
       // Entering burger mode.
-      hadFocus = BurgerMenuBar.getPopup( mainMenubar ) != null
+      hadFocus = MenuBarUtils.getPopup( mainMenubar ) != null
         || ElementUtils.isActiveElement( mainMenubar.getElement() );
       mainMenubar.closeAllChildren( false );
     } else {
@@ -826,29 +825,15 @@ public class MantleController extends AbstractXulEventHandler {
     }
   }
 
-  private BurgerMenuBar createBurgerMenuBar( MenuBar menuBar ) {
-    return MenuCloner.cloneMenuBar( menuBar );
+  private BurgerMenuBar createBurgerMenuBar( MenuBar mainMenuBar ) {
+    BurgerMenuBar burgerMenuBar = MenuCloner.cloneMenuBar( mainMenuBar, m -> new BurgerMenuBar() );
 
-    /*
-    BurgerMenuBar copyMenuBar = new BurgerMenuBar();
+    // TODO: Add perspectives menu items
 
-    Scheduler.ScheduledCommand command = () -> Window.alert( "Test!" );
+    // Lastly, add back menu items.
+    burgerMenuBar.addBackItemToDescendantMenus();
 
-    BurgerMenuBar viewMenuBar = new BurgerMenuBar();
-    viewMenuBar.addItem( new MenuItem( "Test 1", command ) );
-    viewMenuBar.addItem( new MenuItem( "Test 2", command ) );
-
-    MenuItem viewMenuItem = new MenuItem( "View", viewMenuBar );
-
-    // ---
-
-    copyMenuBar.addItem( new MenuItem( "File", command ) );
-    copyMenuBar.addItem( viewMenuItem );
-    copyMenuBar.addItem( new MenuItem( "Tools", command ) );
-    copyMenuBar.addItem( new MenuItem( "Help", command ) );
-
-    return copyMenuBar;
-    */
+    return burgerMenuBar;
   }
 
   @Bindable

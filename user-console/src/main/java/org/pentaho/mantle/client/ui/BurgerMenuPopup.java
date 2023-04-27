@@ -27,7 +27,6 @@ import com.google.gwt.user.client.ui.DecoratedPopupPanel;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.Widget;
-import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 
 public class BurgerMenuPopup extends DecoratedPopupPanel {
   private Widget menuButton;
