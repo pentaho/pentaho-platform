@@ -1,6 +1,5 @@
 package org.pentaho.mantle.client.ui.xul;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.HandlerManager;
@@ -73,6 +72,8 @@ public class MenuCloner {
       //      }
     } );
 
+    menuBarClone.addBackItemToDescendantMenus();
+
     return menuBarClone;
   }
 
@@ -81,7 +82,7 @@ public class MenuCloner {
   }-*/;
 
   public static MenuItem cloneMenuItem( MenuItem menuItem ) {
-    MenuItem menuItemClone = new MenuItem( menuItem.getText(), true, (Scheduler.ScheduledCommand) null );
+    MenuItem menuItemClone = new MenuItem( menuItem.getHTML(), true, (Scheduler.ScheduledCommand) null );
     return cloneMenuItem( menuItem, menuItemClone );
   }
 

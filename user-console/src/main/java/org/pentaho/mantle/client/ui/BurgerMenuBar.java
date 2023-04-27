@@ -18,16 +18,34 @@
 package org.pentaho.mantle.client.ui;
 
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.safehtml.shared.annotations.IsSafeHtml;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.DecoratedPopupPanel;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.UIObject;
+import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
+import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuSeparator;
 
 import java.util.List;
 
 public class BurgerMenuBar extends MenuBar {
+
+  public static class BurgerBackMenuItem extends PentahoMenuItem {
+    public BurgerBackMenuItem( @IsSafeHtml String text, boolean asHTML ) {
+      super( text, asHTML, null );
+
+      addStyleName( "pen-BurgerBackMenuItem" );
+
+      setScheduledCommand( this::goBack );
+    }
+
+    private void goBack() {
+      ( (BurgerMenuBar) getParentMenu() ).closeLocal( true );
+    }
+  }
+
   public BurgerMenuBar() {
     super( true );
 
@@ -98,7 +116,6 @@ public class BurgerMenuBar extends MenuBar {
     }
   }
 
-
   public List<UIObject> getAllItems() {
     return getMenuBarAllItems( this );
   }
@@ -107,6 +124,43 @@ public class BurgerMenuBar extends MenuBar {
   public List<MenuItem> getItems() {
     return super.getItems();
   }
+
+  // region Back Menu Items
+  /**
+   * Adds a "back" menu item to each descendant menu bar.
+   * <p>
+   *   Should be called on the root of the subtree, once it's fully built,
+   *   or when there have been modifications to it.
+   * </p>
+   *
+   * @see BurgerBackMenuItem
+   */
+  public void addBackItemToDescendantMenus() {
+    addBackItemsCore( null );
+  }
+
+  private void addBackItemsCore( MenuItem parentMenuItem ) {
+    if ( parentMenuItem != null && hasItemsButNoBackItem() ) {
+      insertSeparator( new PentahoMenuSeparator(), 0 );
+      insertItem( new BurgerBackMenuItem( parentMenuItem.getHTML(), true ), 0 );
+    }
+
+    for ( MenuItem menuItem : getItems() ) {
+      BurgerMenuBar subMenu = (BurgerMenuBar) menuItem.getSubMenu();
+      if ( subMenu != null ) {
+        subMenu.addBackItemsCore( menuItem );
+      }
+    }
+  }
+
+  private boolean hasItemsButNoBackItem() {
+    for ( MenuItem menuItem : getItems() ) {
+      return !( menuItem instanceof BurgerBackMenuItem );
+    }
+
+    return false;
+  }
+  // endregion Back Menu Items
 
   // Local version of private super.findItem( Element ).
   protected MenuItem findItemLocal( com.google.gwt.dom.client.Element hItem ) {
@@ -129,7 +183,10 @@ public class BurgerMenuBar extends MenuBar {
   protected void closeLocal( boolean focus ) {
     BurgerMenuBar parentMenuBar = getParentMenu();
     if ( parentMenuBar != null ) {
-      parentMenuBar.getPopup().hide( !focus );
+      if ( parentMenuBar.getPopup() != null ) {
+        parentMenuBar.getPopup().hide( !focus );
+      }
+
       if ( focus ) {
         parentMenuBar.focus();
       }

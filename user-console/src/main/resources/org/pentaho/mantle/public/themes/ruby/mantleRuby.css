@@ -1595,6 +1595,21 @@ hr {
   flex: auto;
 }
 
+.pen-BurgerBackMenuItem::before {
+  content: "";
+  display: inline-block;
+  width: 1ch;
+  height: 1em;
+  background-image: url(images/dropdown_left_arrow_blue.png);
+  background-position: center center;
+  background-repeat: no-repeat;
+  margin-right: 1ch;
+}
+
+.pen-BurgerBackMenuItem.gwt-MenuItem-selected::before {
+  background-image: url(images/dropdown_left_arrow_white.png);
+}
+
 .pen-BurgerMenuBarPopup {
   left: 0 !important;
   right: 0 !important;

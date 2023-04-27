@@ -109,13 +109,12 @@ public class BurgerMenuPopup extends DecoratedPopupPanel {
 
   private void overrideLeafMenuItemCommands( BurgerMenuBar menuBar ) {
 
-    // TODO: Must not affect the special back buttons!
-
     for ( MenuItem menuItem : menuBar.getItems() ) {
       BurgerMenuBar subMenu = (BurgerMenuBar) menuItem.getSubMenu();
       if ( subMenu != null ) {
         overrideLeafMenuItemCommands( subMenu );
-      } else {
+      } else if ( !( menuItem instanceof BurgerMenuBar.BurgerBackMenuItem ) ) {
+        // The special menu back buttons should not close the whole menu!
         Scheduler.ScheduledCommand command = menuItem.getScheduledCommand();
         if ( command != null ) {
           menuItem.setScheduledCommand( () -> {
