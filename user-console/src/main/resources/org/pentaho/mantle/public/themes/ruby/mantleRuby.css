@@ -1151,7 +1151,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 }
 /* endregion gwt-MenuBar-vertical */
 
-/* region Main Menubar and Burger Menu */
+/* region Main Menubar */
 #mainMenubar {
   padding: 0;
   background: #f8f8f6;
@@ -1162,7 +1162,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   border-spacing: 0;
 }
 
-:is(#mainMenubar, .pen-BurgerMenuBar) .gwt-MenuItem {
+#mainMenubar .gwt-MenuItem {
   color: #414141;
   font-size: 13px;
   font-family: OpenSansLight;
@@ -1170,7 +1170,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   padding: 5px 15px;
 }
 
-:is(#mainMenubar, .pen-BurgerMenuBar) .gwt-MenuItem-selected {
+#mainMenubar .gwt-MenuItem-selected {
   background: #cc0000;
   border: 0 none;
   color: #FFF;
@@ -1556,7 +1556,7 @@ hr {
 
 /* puc header */
 * {
-  --pucHeaderHeight: 38px;
+  --pucHeaderHeight: 43px;
 }
 
 :where(.burger-mode) #pucContent {
@@ -1579,6 +1579,10 @@ hr {
 /* burger button and menu */
 .pen-BurgerMenuBar {
   border: 0;
+  /* Let the popup panel bg color shine-through, also covering content behind which would otherwise show through
+     the menubar popupContent margins, if bg color was not set there.
+   */
+  background-color: unset;
 }
 
 .pen-BurgerMenuBar tr {
@@ -1590,23 +1594,57 @@ hr {
   flex: none;
 }
 
-/* order is important for when there is a single child (colspan 2), for separators */
+/* Order of rule relative to last-child rule, above, is important,
+   for when there is a single child (colspan 2), for separators.
+ */
 .pen-BurgerMenuBar tr td:first-child {
   flex: auto;
 }
 
-.pen-BurgerBackMenuItem::before {
-  content: "";
-  display: inline-block;
-  width: 1ch;
-  height: 1em;
-  background-image: url(images/dropdown_left_arrow_blue.png);
-  background-position: center center;
-  background-repeat: no-repeat;
-  margin-right: 1ch;
+.pen-BurgerMenuBar :is(
+  .gwt-MenuItem,
+  .gwt-MenuItem-selected,
+  .gwt-MenuItem-checkbox-unchecked,
+  .gwt-MenuItem-checkbox-checked,
+  .disabledMenuItem) {
+  font-size: 13px;
+  font-family: OpenSansLight;
+  line-height: 20px;
+  margin-left: 15px;
+  padding: 10px 15px 10px 25px;
 }
 
-.pen-BurgerBackMenuItem.gwt-MenuItem-selected::before {
+.pen-BurgerMenuBar tr:first-child {
+  margin-top: 20px;
+}
+
+.pen-BurgerMenuBar tr:last-child {
+  margin-bottom: 20px;
+}
+
+.pen-BurgerMenuBar .subMenuIcon {
+  margin-right: 15px;
+  padding: 10px 15px 10px 1px;
+  background-origin: content-box;
+}
+
+.pen-BurgerMenuBar .gwt-MenuItemSeparator {
+  /* Make sure separator is vertically centered between menu items. */
+  box-sizing: border-box;
+  border-color: transparent;
+}
+
+.pen-BurgerMenuBar .gwt-MenuItemSeparator .menuSeparatorInner {
+  border-color: #ededed;
+}
+
+.pen-BurgerMenuBar .pen-BurgerBackMenuItem {
+  background-image: url(images/dropdown_left_arrow_blue.png);
+  background-position: center left 2px;
+  background-repeat: no-repeat;
+}
+
+.pen-BurgerMenuBar .pen-BurgerBackMenuItem.gwt-MenuItem-selected {
   background-image: url(images/dropdown_left_arrow_white.png);
 }
 
@@ -1614,12 +1652,12 @@ hr {
   left: 0 !important;
   right: 0 !important;
   top: var(--pucHeaderHeight) !important;
+  background-color: #fcfcfc;
 }
 
 .pen-BurgerMenuBarPopup + .pen-BurgerMenuBarPopup {
   margin-top: unset;
 }
-
 
 .pen-BurgerMenuBarPopup > div > table,
 .pen-BurgerMenuBar > table {
