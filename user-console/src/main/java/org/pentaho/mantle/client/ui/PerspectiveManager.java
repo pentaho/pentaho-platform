@@ -25,6 +25,7 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -54,6 +55,7 @@ import org.pentaho.mantle.client.ui.CustomDropDown.MODE;
 import org.pentaho.mantle.client.ui.xul.JsPerspective;
 import org.pentaho.mantle.client.ui.xul.JsXulOverlay;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
+import org.pentaho.mantle.client.ui.xul.MenuCloner;
 import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo.DefaultPluginPerspective;
@@ -573,5 +575,16 @@ public class PerspectiveManager extends SimplePanel {
 
   public void setLoaded( boolean loaded ) {
     this.loaded = loaded;
+  }
+
+  public MenuItem getBurgerBarPerspectiveMenuItem(){
+    MenuItem burgerBarPerspectiveMenuItem = new MenuItem( getActivePerspective().getTitle(), (Scheduler.ScheduledCommand) null );
+    BurgerMenuBar perspectivesMenuBar = new BurgerMenuBar();
+    Collection<MenuItem> perspectiveMenuItems = getMenuItems();
+    perspectiveMenuItems.forEach( (MenuItem m) -> {
+      perspectivesMenuBar.addItem( MenuCloner.cloneMenuItem(m, b -> new BurgerMenuBar()));
+    } );
+    burgerBarPerspectiveMenuItem.setSubMenu( perspectivesMenuBar );
+    return burgerBarPerspectiveMenuItem;
   }
 }

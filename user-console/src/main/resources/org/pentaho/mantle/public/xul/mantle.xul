@@ -55,9 +55,6 @@
 
     </menubar>
 
-    <menubar id="burgerBarPerspectiveMenu" label="Perspectives" layout="vertical">
-    </menubar>
-
     <menubar id="helpmenu" label="${help}" layout="vertical">
       <menuitem id="documentationMenuItem" label="${documentationEllipsis}" command="mantleXulHandler.documentationClicked()"/>
       <menubarseparator id="documentationSeparator"/>

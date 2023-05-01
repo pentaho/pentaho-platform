@@ -25,6 +25,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -40,6 +41,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
@@ -49,6 +51,7 @@ import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.gwt.widgets.client.utils.MenuBarUtils;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
+import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
@@ -78,6 +81,7 @@ import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickList;
 import org.pentaho.mantle.client.ui.BurgerMenuBar;
 import org.pentaho.mantle.client.ui.BurgerMenuPopup;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
+import org.pentaho.mantle.client.ui.UserDropDown;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
@@ -828,7 +832,14 @@ public class MantleController extends AbstractXulEventHandler {
   private BurgerMenuBar createBurgerMenuBar( MenuBar mainMenuBar ) {
     BurgerMenuBar burgerMenuBar = MenuCloner.cloneMenuBar( mainMenuBar, m -> new BurgerMenuBar() );
 
-    // TODO: Add perspectives menu items
+    // add perspectives menu
+    burgerMenuBar.addItem( PerspectiveManager.getInstance().getBurgerBarPerspectiveMenuItem() );
+
+    // add admin/UserDropDown menu
+    BurgerMenuBar userBurgerMenuBar = new BurgerMenuBar();
+    MenuItem burgerUserDropDown = new MenuItem( "Admin", (Scheduler.ScheduledCommand) null );
+    burgerUserDropDown.setSubMenu( MenuCloner.cloneMenuBar( MantleApplication.getInstance().getUserDropDown().getTheMenuBar(), m -> new BurgerMenuBar() ) );
+    burgerMenuBar.addItem( burgerUserDropDown );
 
     // Lastly, add back menu items.
     burgerMenuBar.addBackItemToDescendantMenus();

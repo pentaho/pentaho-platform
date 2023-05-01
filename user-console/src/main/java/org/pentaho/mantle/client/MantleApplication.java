@@ -88,6 +88,8 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   private static MantleApplication instance;
 
+  private static UserDropDown userDropDown;
+
   private MantleApplication() {
   }
 
@@ -341,12 +343,13 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
         StringUtils.isEmpty( Window.Location.getParameter( "startupPerspective" ) ) ? settings.get( "startupPerspective" ) : Window.Location.getParameter( "startupPerspective" );
 
     mantleRevisionOverride = settings.get( "user-console-revision" );
+    userDropDown = new UserDropDown();
 
     RootPanel.get( "pucMenuBar" ).add( MantleXul.getInstance().getMenubar() );
     RootPanel.get( "pucBurgerToolbar" ).add( MantleXul.getInstance().getBurgerToolbarWrapper() );
     RootPanel.get( "pucPerspectives" ).add( PerspectiveManager.getInstance() );
     RootPanel.get( "pucToolBar" ).add( MantleXul.getInstance().getToolbar() );
-    RootPanel.get( "pucUserDropDown" ).add( new UserDropDown() );
+    RootPanel.get( "pucUserDropDown" ).add( userDropDown );
 
     if ( showOnlyPerspective && !StringUtils.isEmpty( startupPerspective ) ) {
       RootPanel.get( "pucHeader" ).setVisible( false );
@@ -484,6 +487,10 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   public DeckPanel getContentDeck() {
     return contentDeck;
+  }
+
+  public UserDropDown getUserDropDown(){
+    return userDropDown;
   }
 
   private void loadWhitelistedHosts() {

@@ -18,12 +18,10 @@
 package org.pentaho.mantle.client.ui.xul;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.MenuItemSeparator;
 import com.google.gwt.user.client.ui.UIObject;
-import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuSeparator;
@@ -32,12 +30,6 @@ import org.pentaho.gwt.widgets.client.utils.MenuBarUtils;
 import java.util.function.Function;
 
 public class MenuCloner {
-
-  private static MenuCloner menuCloner = new MenuCloner();
-
-  public static MenuCloner getInstance() {
-    return menuCloner;
-  }
 
   public static <T extends MenuBar> T cloneMenuBar( MenuBar menuBar, Function<MenuBar, T> menuBarCreator ) {
     T menuBarClone = menuBarCreator.apply( menuBar );
@@ -129,18 +121,4 @@ public class MenuCloner {
 
     return menuItemClone;
   }
-
-  // ///////////////////////////////////////////////////////////////
-  private static void cloneHandlers( Widget w ) {
-    HandlerManager widgetHandlerManger = getHandlerManager( w );
-//    widgetHandlerManger.getHandlerCount(  )
-  }
-
-  private static native HandlerManager getHandlerManager( Widget w ) /*-{
-    return w.@com.google.gwt.user.client.ui.Widget::getHandlerManager()();
-  }-*/;
-
-  //  private static native HandlerManager getHandlers( HandlerManager h ) /*-{
-//    h.@com.google.gwt.event.shared.HandlerManager::
-//  }-*/;
 }
