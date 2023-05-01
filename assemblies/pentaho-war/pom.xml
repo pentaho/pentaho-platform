@@ -715,8 +715,8 @@
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcmail-jdk14</artifactId>
-      <version>${bcprov-jdk14.version}</version>
+      <artifactId>bcmail-jdk15to18</artifactId>
+      <version>${bcprov-jdk15to18.version}</version>
     </dependency>
     <dependency>
       <groupId>net.sourceforge.barbecue</groupId>
