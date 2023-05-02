@@ -17,6 +17,7 @@
 
 package org.pentaho.mantle.client.ui;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.safehtml.shared.annotations.IsSafeHtml;
 import com.google.gwt.user.client.DOM;
@@ -24,7 +25,10 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.DecoratedPopupPanel;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.UIObject;
+import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.impl.FocusImpl;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuSeparator;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
@@ -65,6 +69,11 @@ public class BurgerMenuBar extends MenuBar {
     MenuItem selectedItemBefore = null;
     int eventType = DOM.eventGetType( event );
     switch ( eventType ) {
+      case Event.ONCLICK: {
+        onItemClick( findItemLocal( DOM.eventGetTarget( event ) ) );
+        return;
+      }
+
       // Overriding mouse over and out, and prevent calling the base, private itemOver method,
       // is the only way to prevent hovering-over from automatically open a sub-menu on non-top-level menus...
       case Event.ONMOUSEOVER:
@@ -108,6 +117,14 @@ public class BurgerMenuBar extends MenuBar {
     }
   }
 
+  private void onItemClick( MenuItem item ) {
+    focus();
+
+    if ( item != null ) {
+      doItemActionLocal( item, true, true );
+    }
+  }
+
   private void onItemOver( MenuItem item, boolean isOver ) {
     // Still need to select and unselect items.
     if ( item != null && item.isEnabled() ) {
@@ -122,18 +139,12 @@ public class BurgerMenuBar extends MenuBar {
 
   protected void onEnter() {
     if ( !selectFirstItemIfNoneSelectedLocal() ) {
-      MenuItem selectedMenuItem = getSelectedItem();
-
-      doItemActionLocal( selectedMenuItem, true, true );
-
-      if ( selectedMenuItem.getScheduledCommand() == null && selectedMenuItem.getSubMenu() != null ) {
-        selectedMenuItem.getSubMenu().focus();
-      }
+      doItemActionLocal( getSelectedItem(), true, true );
     }
   }
 
   protected void ensureVisible( MenuItem menuItem ) {
-    ElementUtils.scrollIntoView( menuItem.getElement() );
+    ElementUtils.scrollVerticallyIntoView( menuItem.getElement() );
   }
 
   public List<UIObject> getAllItems() {
@@ -183,6 +194,35 @@ public class BurgerMenuBar extends MenuBar {
   }
   // endregion Back Menu Items
 
+  protected void closeRoot() {
+    PopupPanel menuPopup = getRootPopup();
+    if ( menuPopup != null ) {
+      menuPopup.hide();
+    }
+  }
+
+  protected BurgerMenuBar getRootMenu() {
+    BurgerMenuBar parentMenu = getParentMenu();
+    if ( parentMenu != null ) {
+      return parentMenu.getRootMenu();
+    }
+
+    return this;
+  }
+
+  protected PopupPanel getRootPopup() {
+    Widget parent = getRootMenu().getParent();
+    while ( parent != null ) {
+      if ( parent instanceof PopupPanel ) {
+        return (BurgerMenuPopup) parent;
+      }
+
+      parent = parent.getParent();
+    }
+
+    return null;
+  }
+
   // Local version of private super.findItem( Element ).
   protected MenuItem findItemLocal( com.google.gwt.dom.client.Element hItem ) {
     for ( MenuItem item : getItems() ) {
@@ -204,8 +244,9 @@ public class BurgerMenuBar extends MenuBar {
   protected void closeLocal( boolean focus ) {
     BurgerMenuBar parentMenuBar = getParentMenu();
     if ( parentMenuBar != null ) {
-      if ( parentMenuBar.getPopup() != null ) {
-        parentMenuBar.getPopup().hide( !focus );
+      PopupPanel popupPanel = parentMenuBar.getPopup();
+      if ( popupPanel != null ) {
+        popupPanel.hide( !focus );
       }
 
       if ( focus ) {
@@ -230,9 +271,36 @@ public class BurgerMenuBar extends MenuBar {
     return false;
   }
 
+  // Local, adapted version of private super.doItemAction(MenuItem, boolean, boolean).
+  // Overrides the command execution of a menu item closes the whole menu (unlike closeAllParents()).
+  // Additionally, the special back menu items do not cause the menu to close.
+  protected void doItemActionLocal( MenuItem item, boolean fireCommand, boolean focus ) {
+    if ( !item.isEnabled() ) {
+      return;
+    }
+
+    if ( fireCommand && item.getScheduledCommand() != null ) {
+      FocusImpl.getFocusImplForPanel().blur( getElement() );
+
+      if ( !( item instanceof BurgerBackMenuItem ) ) {
+        closeRoot();
+      }
+
+      Scheduler.ScheduledCommand cmd = item.getScheduledCommand();
+      Scheduler.get().scheduleFinally( () -> cmd.execute() );
+    } else {
+      doItemActionLocalSuper( item, fireCommand, focus );
+    }
+
+    if ( item.getScheduledCommand() == null && item.getSubMenu() != null ) {
+      item.getSubMenu().focus();
+    }
+  }
+
   // Local version of private super.doItemAction(MenuItem, boolean, boolean).
-  protected native void doItemActionLocal( MenuItem item, boolean fireCommand, boolean focus ) /*-{
-    return this.@com.google.gwt.user.client.ui.MenuBar::doItemAction(Lcom/google/gwt/user/client/ui/MenuItem;ZZ)(item, fireCommand, focus);
+  private native void doItemActionLocalSuper( MenuItem item, boolean fireCommand, boolean focus ) /*-{
+    this.@com.google.gwt.user.client.ui.MenuBar::doItemAction(Lcom/google/gwt/user/client/ui/MenuItem;ZZ)(item,
+        fireCommand, focus);
   }-*/;
 
   // Access to private field super.popup

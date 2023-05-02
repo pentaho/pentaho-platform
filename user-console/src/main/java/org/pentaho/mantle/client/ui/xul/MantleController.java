@@ -836,7 +836,6 @@ public class MantleController extends AbstractXulEventHandler {
     burgerMenuBar.addItem( PerspectiveManager.getInstance().getBurgerBarPerspectiveMenuItem() );
 
     // add admin/UserDropDown menu
-    BurgerMenuBar userBurgerMenuBar = new BurgerMenuBar();
     MenuItem burgerUserDropDown = new MenuItem( "Admin", (Scheduler.ScheduledCommand) null );
     burgerUserDropDown.setSubMenu( MenuCloner.cloneMenuBar( MantleApplication.getInstance().getUserDropDown().getTheMenuBar(), m -> new BurgerMenuBar() ) );
     burgerMenuBar.addItem( burgerUserDropDown );

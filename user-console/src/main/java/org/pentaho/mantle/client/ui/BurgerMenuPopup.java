@@ -17,7 +17,6 @@
 
 package org.pentaho.mantle.client.ui;
 
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.dom.client.NativeEvent;
@@ -25,7 +24,6 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.DecoratedPopupPanel;
 import com.google.gwt.user.client.ui.Focusable;
-import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.Widget;
 
 public class BurgerMenuPopup extends DecoratedPopupPanel {
@@ -44,8 +42,6 @@ public class BurgerMenuPopup extends DecoratedPopupPanel {
 
     // Avoid inheriting CSS styling for .mainMenubar.
     menuBar.getElement().setId( "burgerMenubar" );
-
-    overrideLeafMenuItemCommands( menuBar );
 
     menuButton.getElement().setAttribute( "aria-controls", menuBar.getElement().getId() );
     menuButton.getElement().setAttribute( "aria-expanded", "true" );
@@ -104,27 +100,6 @@ public class BurgerMenuPopup extends DecoratedPopupPanel {
     } );
 
     ( (BurgerMenuBar) this.getWidget() ).focus();
-  }
-
-  private void overrideLeafMenuItemCommands( BurgerMenuBar menuBar ) {
-
-    for ( MenuItem menuItem : menuBar.getItems() ) {
-      BurgerMenuBar subMenu = (BurgerMenuBar) menuItem.getSubMenu();
-      if ( subMenu != null ) {
-        overrideLeafMenuItemCommands( subMenu );
-      } else if ( !( menuItem instanceof BurgerMenuBar.BurgerBackMenuItem ) ) {
-        // The special menu back buttons should not close the whole menu!
-        Scheduler.ScheduledCommand command = menuItem.getScheduledCommand();
-        if ( command != null ) {
-          menuItem.setScheduledCommand( () -> {
-
-            BurgerMenuPopup.this.hide();
-
-            command.execute();
-          } );
-        }
-      }
-    }
   }
 
   // Local version of private super.eventTargetsPopup( NativeEvent ).
