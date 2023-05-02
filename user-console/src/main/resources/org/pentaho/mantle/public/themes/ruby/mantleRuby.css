@@ -1592,7 +1592,6 @@ hr {
 
 .pen-BurgerMenuBar tr td:last-child {
   flex: none;
-  margin-right: 15px;
 }
 
 /* Order of rule relative to last-child rule, above, is important,
@@ -1600,7 +1599,14 @@ hr {
  */
 .pen-BurgerMenuBar tr td:first-child {
   flex: auto;
+}
+
+.pen-BurgerMenuBar tr td:first-child:not(.gwt-MenuItemSeparator) {
   margin-left: 15px;
+}
+
+.pen-BurgerMenuBar tr td:last-child:not(.gwt-MenuItemSeparator) {
+  margin-right: 15px;
 }
 
 .pen-BurgerMenuBar :is(
