@@ -1583,9 +1583,17 @@ hr {
      the menubar popupContent margins, if bg color was not set there.
    */
   background-color: unset;
+  display: flex;
+  flex-direction: column;
+}
+
+.pen-BurgerMenuBar > table,
+.pen-BurgerMenuBar > table > tbody {
+  display: contents;
 }
 
 .pen-BurgerMenuBar tr {
+  flex: none;
   display: flex;
   flex-direction: row;
 }
@@ -1619,6 +1627,10 @@ hr {
   font-family: OpenSansLight;
   line-height: 20px;
   padding: 10px 15px 10px 25px;
+
+  /* Last resort: show ellipsis if it would break word in the middle. */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pen-BurgerMenuBar tr:first-child {
@@ -1656,23 +1668,45 @@ hr {
 
 .pen-BurgerMenuBarPopup {
   left: 0 !important;
-  right: 0 !important;
   top: var(--pucHeaderHeight) !important;
+  right: 0;
+  bottom: 0;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
   background-color: #fcfcfc;
+  display: flex;
+  flex-direction: column;
 }
 
 .pen-BurgerMenuBarPopup + .pen-BurgerMenuBarPopup {
   margin-top: unset;
 }
 
-.pen-BurgerMenuBarPopup > div > table,
-.pen-BurgerMenuBar > table {
-  width: 100%;
+
+.pen-BurgerMenuBarPopup :is(
+  .menuPopupTop,
+  .popupTop,
+  .menuPopupMiddleLeft,
+  .popupMiddleLeft,
+  .menuPopupMiddleRight,
+  .popupMiddleRight,
+  .menuPopupBottom,
+  .popupBottom) {
+  display: none;
 }
 
-.pen-BurgerMenuBarPopup :is(.menuPopupBottom, .popupBottom) {
-  height: 100vh;
-  background-color: white;
+.pen-BurgerMenuBarPopup > div,
+.pen-BurgerMenuBarPopup > div > table,
+.pen-BurgerMenuBarPopup > div > table > tbody,
+.pen-BurgerMenuBarPopup :is(
+  .menuPopupMiddle,
+  .popupMiddle,
+  .menuPopupContent,
+  .popupContent,
+  .menuPopupMiddleCenter,
+  .popupMiddleCenter
+  ) {
+  display: contents;
 }
 
 /* buttons */

@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.UIObject;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuSeparator;
+import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.gwt.widgets.client.utils.MenuBarUtils;
 
 import java.util.List;
@@ -61,7 +62,9 @@ public class BurgerMenuBar extends MenuBar {
 
   @Override
   public void onBrowserEvent( Event event ) {
-    switch ( DOM.eventGetType( event ) ) {
+    MenuItem selectedItemBefore = null;
+    int eventType = DOM.eventGetType( event );
+    switch ( eventType ) {
       // Overriding mouse over and out, and prevent calling the base, private itemOver method,
       // is the only way to prevent hovering-over from automatically open a sub-menu on non-top-level menus...
       case Event.ONMOUSEOVER:
@@ -86,11 +89,23 @@ public class BurgerMenuBar extends MenuBar {
             onEnter();
             eatEventLocal( event );
             return;
+
+          default:
+            selectedItemBefore = getSelectedItem();
+            break;
         }
         break;
     }
 
     super.onBrowserEvent( event );
+
+    if ( eventType == Event.ONKEYDOWN ) {
+      MenuItem selectedItemAfter = getSelectedItem();
+      if ( selectedItemAfter != null && selectedItemAfter != selectedItemBefore ) {
+        // Selected menu item changed when using the keyboard.
+        ensureVisible( selectedItemAfter );
+      }
+    }
   }
 
   private void onItemOver( MenuItem item, boolean isOver ) {
@@ -115,6 +130,10 @@ public class BurgerMenuBar extends MenuBar {
         selectedMenuItem.getSubMenu().focus();
       }
     }
+  }
+
+  protected void ensureVisible( MenuItem menuItem ) {
+    ElementUtils.scrollIntoView( menuItem.getElement() );
   }
 
   public List<UIObject> getAllItems() {
