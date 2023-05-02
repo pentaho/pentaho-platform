@@ -91,6 +91,10 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
     }
 
     public void hide( boolean autoClosed ) {
+      if ( !isShowing() ) {
+        return;
+      }
+
       super.hide( autoClosed );
       pageBackground.setVisible( false );
       GlassPane.getInstance().hide();
