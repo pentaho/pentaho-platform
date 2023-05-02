@@ -1592,6 +1592,7 @@ hr {
 
 .pen-BurgerMenuBar tr td:last-child {
   flex: none;
+  margin-right: 15px;
 }
 
 /* Order of rule relative to last-child rule, above, is important,
@@ -1599,6 +1600,7 @@ hr {
  */
 .pen-BurgerMenuBar tr td:first-child {
   flex: auto;
+  margin-left: 15px;
 }
 
 .pen-BurgerMenuBar :is(
@@ -1610,7 +1612,6 @@ hr {
   font-size: 13px;
   font-family: OpenSansLight;
   line-height: 20px;
-  margin-left: 15px;
   padding: 10px 15px 10px 25px;
 }
 
@@ -1623,7 +1624,6 @@ hr {
 }
 
 .pen-BurgerMenuBar .subMenuIcon {
-  margin-right: 15px;
   padding: 10px 15px 10px 1px;
   background-origin: content-box;
 }
