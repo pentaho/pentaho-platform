@@ -225,7 +225,6 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
       // showError(e);
     }
 
-
     // get the admin perspective from the XUL doc
     Widget admin = (Widget) container.getDocumentRoot().getElementById( "adminPerspective" ).getManagedObject(); //$NON-NLS-1$
     admin.setStyleName( "admin-perspective" );

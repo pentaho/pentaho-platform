@@ -85,6 +85,7 @@ import org.pentaho.mantle.client.ui.UserDropDown;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
+import org.pentaho.platform.web.http.api.resources.User;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.binding.BindingFactory;
@@ -785,7 +786,12 @@ public class MantleController extends AbstractXulEventHandler {
       // Entering burger mode.
       hadFocus = MenuBarUtils.getPopup( mainMenubar ) != null
         || ElementUtils.isActiveElement( mainMenubar.getElement() );
+
+      // Close any open menus.
       mainMenubar.closeAllChildren( false );
+      PerspectiveManager.getInstance().hidePopup();
+      MantleApplication.getInstance().getUserDropDown().hidePopup();
+
     } else {
       // Exiting burger mode.
       hadFocus = closeBurgerMenuPopup();
@@ -836,7 +842,8 @@ public class MantleController extends AbstractXulEventHandler {
     burgerMenuBar.addItem( PerspectiveManager.getInstance().getBurgerBarPerspectiveMenuItem() );
 
     // add admin/UserDropDown menu
-    MenuItem burgerUserDropDown = new MenuItem( "Admin", (Scheduler.ScheduledCommand) null );
+    BurgerMenuBar userBurgerMenuBar = new BurgerMenuBar();
+    MenuItem burgerUserDropDown = new MenuItem( UserDropDown.getUsername(), (Scheduler.ScheduledCommand) null );
     burgerUserDropDown.setSubMenu( MenuCloner.cloneMenuBar( MantleApplication.getInstance().getUserDropDown().getTheMenuBar(), m -> new BurgerMenuBar() ) );
     burgerMenuBar.addItem( burgerUserDropDown );
 

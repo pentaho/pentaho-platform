@@ -131,6 +131,8 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
   private boolean pressed = false;
   private Label label = new Label( "", false );
 
+  private CustomDropDown customDropDownInstance = this;
+
   public enum MODE {
     MAJOR, MINOR
   }
@@ -190,6 +192,9 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
         popup.setPopupPositionAndShow( new PositionCallback() {
           public void setPosition( int offsetWidth, int offsetHeight ) {
             popup.setPopupPosition( getAbsoluteLeft(), getAbsoluteTop() + getOffsetHeight() - 1 );
+            if ( customDropDownInstance instanceof UserDropDown ) {
+              popup.getElement().getStyle().setProperty( "left", "calc(100vw - 110px)" );
+            }
           }
         } );
         menuBar.focus();
@@ -235,7 +240,8 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
   }
 
   public void hidePopup() {
-    popup.hide();
+    if( popup.isShowing() )
+      popup.hide();
   }
 
   public boolean isEnabled() {

@@ -581,4 +581,8 @@ public class PerspectiveManager extends SimplePanel {
     burgerBarPerspectiveMenuItem.setSubMenu( perspectivesMenuBar );
     return burgerBarPerspectiveMenuItem;
   }
+
+  public void hidePopup() {
+    perspectiveDropDown.hidePopup();
+  }
 }

@@ -73,6 +73,7 @@ public class MenuCloner {
     menuItemClone.setVisible( menuItem.isVisible() );
 
     menuItemClone.getElement().setId( menuItem.getElement().getId() );
+    menuItemClone.addStyleName( menuItem.getStyleName() );
 
     MenuBar subMenuBar = menuItem.getSubMenu();
     if ( subMenuBar != null ) {

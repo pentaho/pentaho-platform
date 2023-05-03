@@ -902,12 +902,14 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   color: #000 !important;
 }
 
-.custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-disabled {
+.custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-disabled,
+.pen-BurgerMenuBarPopup .gwt-MenuBar-vertical .gwt-MenuItem-disabled {
   color: #cccccc;
   cursor: default;
 }
 
-.custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-disabled:hover {
+.custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-disabled:hover,
+.pen-BurgerMenuBarPopup .gwt-MenuBar-vertical .gwt-MenuItem-disabled:hover {
   background-color: white;
 }
 
