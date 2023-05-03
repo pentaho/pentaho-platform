@@ -1069,7 +1069,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   font-style: 13px;
 }
 
-.gwt-MenuBar-vertical .gwt-MenuItem:not(.gwt-MenuItem-disabled, .disabledMenuItem) {
+.gwt-MenuBar-vertical .gwt-MenuItem:where(:not(.gwt-MenuItem-disabled, .disabledMenuItem)) {
   color: #333;
 }
 
