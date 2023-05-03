@@ -902,14 +902,12 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   color: #000 !important;
 }
 
-.custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-disabled,
-.pen-BurgerMenuBarPopup .gwt-MenuBar-vertical .gwt-MenuItem-disabled {
+.custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-disabled {
   color: #cccccc;
   cursor: default;
 }
 
-.custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-disabled:hover,
-.pen-BurgerMenuBarPopup .gwt-MenuBar-vertical .gwt-MenuItem-disabled:hover {
+.custom-dropdown-popup .gwt-MenuBar-vertical .gwt-MenuItem-disabled:hover {
   background-color: white;
 }
 
@@ -1722,6 +1720,11 @@ hr {
 :where(.burger-mode) div.newToolbarDropdown {
   top: var(--pucHeaderHeight) !important;
   left: calc( 100vw - 210px) !important;
+}
+
+:where(.burger-mode)
+.toolbar-button-focus-panel:not(#burgerButton):not(#editContentButton):not(#saveButton):not(#saveAsButton) {
+  display: none;
 }
 
 /* endregion Burger Menu Mode */
