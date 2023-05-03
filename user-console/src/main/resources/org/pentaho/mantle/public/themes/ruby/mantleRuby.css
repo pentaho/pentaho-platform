@@ -774,7 +774,10 @@ a:active, a:hover {
   font-size: 13px;
 }
 
-.disabledMenuItem {
+.disabledMenuItem,
+.gwt-MenuItem-disabled,
+.gwt-MenuBar-vertical .gwt-MenuItem-disabled {
+  cursor: Default;
   color: #ccc;
 }
 
@@ -1062,9 +1065,12 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 }
 
 .gwt-MenuBar-vertical .gwt-MenuItem {
-  color: #333;
   padding: 8px 12px 8px 25px;
   font-style: 13px;
+}
+
+.gwt-MenuBar-vertical .gwt-MenuItem:not(.gwt-MenuItem-disabled, .disabledMenuItem) {
+  color: #333;
 }
 
 .gwt-MenuBar-vertical .gwt-MenuItem-checkbox-unchecked,

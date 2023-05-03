@@ -577,13 +577,13 @@ public class PerspectiveManager extends SimplePanel {
     this.loaded = loaded;
   }
 
-  public MenuItem getBurgerBarPerspectiveMenuItem(){
-    MenuItem burgerBarPerspectiveMenuItem = new MenuItem( getActivePerspective().getTitle(), (Scheduler.ScheduledCommand) null );
+  public MenuItem getBurgerBarPerspectiveMenuItem() {
     BurgerMenuBar perspectivesMenuBar = new BurgerMenuBar();
-    Collection<MenuItem> perspectiveMenuItems = getMenuItems();
-    perspectiveMenuItems.forEach( (MenuItem m) -> {
-      perspectivesMenuBar.addItem( MenuCloner.cloneMenuItem(m, b -> new BurgerMenuBar()));
+    getMenuItems().forEach( (MenuItem m) -> {
+      perspectivesMenuBar.addItem( MenuCloner.cloneMenuItem( m, b -> new BurgerMenuBar() ) );
     } );
+
+    MenuItem burgerBarPerspectiveMenuItem = new MenuItem( getActivePerspective().getTitle(), (Scheduler.ScheduledCommand) null );
     burgerBarPerspectiveMenuItem.setSubMenu( perspectivesMenuBar );
     return burgerBarPerspectiveMenuItem;
   }
