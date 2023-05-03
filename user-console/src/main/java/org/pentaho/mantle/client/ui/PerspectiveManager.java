@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -241,13 +241,7 @@ public class PerspectiveManager extends SimplePanel {
         public void execute() {
           showPerspective( perspective );
           perspectiveDropDown.setText( menuItem.getText() );
-
-          //Close the corresponding widget depending up whether or not we are in "burger" menu mode
-          if ( Window.getClientWidth() < 650 || Window.getClientHeight() < 500 ) {
-            MantleXul.getInstance().closeMenuBar();
-          } else {
-            perspectiveDropDown.hidePopup();
-          }
+          perspectiveDropDown.hidePopup();
         }
       };
       menuItem.setScheduledCommand( cmd );
