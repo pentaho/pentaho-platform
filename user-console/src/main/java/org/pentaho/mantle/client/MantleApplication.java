@@ -68,8 +68,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.google.gwt.core.client.ScriptInjector.TOP_WINDOW;
-
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */

@@ -1756,7 +1756,7 @@ hr {
 }
 
 :where(.burger-mode)
-.toolbar-button-focus-panel:not(#burgerButton):not(#editContentButton):not(#saveButton):not(#saveAsButton) {
+.toolbar-button-focus-panel:where(#openButton, #newButton, #dummyPluginContentButton, #printButton) {
   display: none;
 }
 

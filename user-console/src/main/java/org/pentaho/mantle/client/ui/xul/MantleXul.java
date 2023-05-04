@@ -20,7 +20,6 @@ package org.pentaho.mantle.client.ui.xul;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -31,17 +30,14 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
-import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.XMLParser;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
-import org.pentaho.gwt.widgets.client.utils.MenuBarUtils;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.mantle.client.commands.AbstractCommand;
@@ -57,14 +53,10 @@ import org.pentaho.mantle.client.events.SolutionBrowserSelectEventHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.MantleXulOverlay;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
-import org.pentaho.mantle.client.ui.PerspectiveManager;
-import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
 import org.pentaho.ui.xul.gwt.GwtXulRunner;
-import org.pentaho.ui.xul.gwt.tags.GwtMenubar;
-import org.pentaho.ui.xul.gwt.tags.GwtMenuitem;
 import org.pentaho.ui.xul.gwt.tags.GwtTree;
 import org.pentaho.ui.xul.gwt.util.AsyncXulLoader;
 import org.pentaho.ui.xul.gwt.util.IXulLoaderCallback;
@@ -171,8 +163,6 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
 
     // Get the menubar from the XUL doc
     Widget menu = (Widget) container.getDocumentRoot().getElementById( "mainMenubar" ).getManagedObject(); //$NON-NLS-1$
-    //    setupBurgerPerspectives();
-    // setupBurgerBackButtons();
     menubar.setWidget( menu );
 
     // check based on user permissions
@@ -238,95 +228,6 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     adminContentDeck.setHeight( "100%" );
     adminContentDeck.getElement().getStyle().setProperty( "height", "100%" );
     fetchPluginOverlays();
-
-    // cloneMenu( (MenuBar) container.getDocumentRoot().getElementById( "mainMenubar" ).getManagedObject() );
-  }
-
-  private void cloneMenu( MenuBar menu ) {
-//    MenuCloner.cloneMenuBar( menu );
-//    GWT.log( "cloning menu..." );
-//    GWT.log( menu.toString() );
-//    GWT.log( "\n\n" );
-//
-//    GWT.log( menu.getElement().getId() + " | " + menu.hand );
-//    menuPrinting( menu, "\t" );
-//    BurgerMenuBar.getMenuBarAllItems( menu ).forEach( ( UIObject o ) -> {
-//      GWT.log( o.toString() );
-//    } );
-//    GWT.log( classNames.toString() );
-  }
-
-  private void menuPrinting( MenuBar menu, String indentation ) {
-    MenuBarUtils.getAllItems( menu ).forEach( ( UIObject uio ) -> {
-        String id = uio.getElement().getId();
-        if ( id.isEmpty() ) {
-          id = "-";
-        }
-        GWT.log( indentation + id + " | " + uio.getClass().getSimpleName() );
-        GWT.log( uio.getClass().getName() );
-        classNames.add(uio.getClass().getName());
-        if ( uio instanceof MenuItem ) {
-          MenuBar submenu = ( (MenuItem) uio ).getSubMenu();
-          if ( submenu != null ) {
-            menuPrinting( submenu, indentation + "\t" );
-          }
-        }
-      }
-    );
-
-    //    BurgerMenuBar.getMenuBarItems( menuBar ).forEach( ( MenuItem m ) -> {
-//      GWT.log( indentation + menuBar.toString() + "\n" );
-//      MenuBar submenu = m.getSubMenu();
-//      if ( submenu != null ) {
-//        GWT.log( "Submenu: " + submenu.getElement().getId());
-//        menuPrinting( submenu, indentation + "\t" );
-//      }
-//    } );
-
-
-//    if( uio instanceof MenuBar ){
-//      BurgerMenuBar.getMenuBarItems( (MenuBar) uio ).forEach( ( UIObject o) -> {
-//        menuPrinting( o, indentation + "\t" );
-//      } );
-//    }
-  }
-
-  private void setupBurgerBackButtons() {
-    GwtMenubar menubar = (GwtMenubar) container.getDocumentRoot().getElementById( "mainMenubar" );
-    GWT.log( "" + menubar.getElementsByTagName( "menubar" ).size() );
-    addBackButtons( menubar );
-  }
-
-  private void addBackButtons( XulComponent menu ) {
-    String menuLabel = menu.getAttributeValue( "label" );
-    String menuId = menu.getId();
-    if ( menuLabel != null ) {
-      GwtMenuitem back = new GwtMenuitem();
-      back.setLabel( "< " + menuLabel );
-      back.setCommand( "mantleXulHandler.burgerMenuBackClick('" + menuId + "')" );
-      menu.addChildAt( back, 0 );
-    }
-    menu.getElementsByTagName( "menubar" ).forEach( ( XulComponent subMenu ) -> {
-      addBackButtons( subMenu );
-    } );
-  }
-
-  private void setupBurgerPerspectives() {
-    MenuBar burgerBarPerspectiveMenu = (MenuBar) container.getDocumentRoot().getElementById( "burgerBarPerspectiveMenu" ).getManagedObject();
-    Collection<MenuItem> perspectiveMenuItems = PerspectiveManager.getInstance().getMenuItems();
-
-    MenuItem backMenuItem = new MenuItem( "back", new Scheduler.ScheduledCommand() {
-      @Override public void execute() {
-        MantleXul.getInstance().closeSubmenu( "burgerBarPerspectiveMenu" );
-      }
-    } );
-
-    burgerBarPerspectiveMenu.addItem( backMenuItem );
-
-    perspectiveMenuItems.forEach( (MenuItem m) ->
-    {
-      burgerBarPerspectiveMenu.addItem(m);
-    });
   }
 
   public void closeSubmenu(String menuId){
