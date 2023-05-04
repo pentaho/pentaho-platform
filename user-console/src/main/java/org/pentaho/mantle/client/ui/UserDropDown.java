@@ -89,10 +89,4 @@ public class UserDropDown extends CustomDropDown implements RequestCallback {
   /*-{  
     return window.parent.SESSION_NAME;
   }-*/;
-
-  public MenuBar getTheMenuBar(){
-    return this.getMenuBar();
-  }
-
-
 }

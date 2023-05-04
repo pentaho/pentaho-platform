@@ -229,7 +229,7 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
     label.setText( text );
   }
 
-  protected MenuBar getMenuBar() {
+  public MenuBar getMenuBar() {
     return menuBar;
   }
 

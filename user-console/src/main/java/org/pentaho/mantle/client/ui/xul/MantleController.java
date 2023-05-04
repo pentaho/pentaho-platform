@@ -848,7 +848,7 @@ public class MantleController extends AbstractXulEventHandler {
     // add admin/UserDropDown menu
     BurgerMenuBar userBurgerMenuBar = new BurgerMenuBar();
     MenuItem burgerUserDropDown = new MenuItem( UserDropDown.getUsername(), (Scheduler.ScheduledCommand) null );
-    burgerUserDropDown.setSubMenu( MenuCloner.cloneMenuBar( MantleApplication.getInstance().getUserDropDown().getTheMenuBar(), m -> new BurgerMenuBar() ) );
+    burgerUserDropDown.setSubMenu( MenuCloner.cloneMenuBar( MantleApplication.getInstance().getUserDropDown().getMenuBar(), m -> new BurgerMenuBar() ) );
     burgerMenuBar.addItem( burgerUserDropDown );
 
     // Lastly, add back menu items.
@@ -862,10 +862,6 @@ public class MantleController extends AbstractXulEventHandler {
     toggleBurgerMenuExpanded();
   }
 
-  @Bindable
-  public void burgerMenuBackClick( String subMenuId ) {
-    MantleXul.getInstance().closeSubmenu( subMenuId );
-  }
   // endregion
 
   @Bindable

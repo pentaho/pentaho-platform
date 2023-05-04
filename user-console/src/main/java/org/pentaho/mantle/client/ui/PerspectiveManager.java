@@ -110,7 +110,7 @@ public class PerspectiveManager extends SimplePanel {
     init();
   }
 
-  public Collection<MenuItem> getMenuItems(){
+  private Collection<MenuItem> getMenuItems(){
     return perspectiveMenuItemMap.values();
   }
 

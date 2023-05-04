@@ -157,6 +157,7 @@ public class BurgerMenuBar extends MenuBar {
   }
 
   // region Back Menu Items
+
   /**
    * Adds a "back" menu item to each descendant menu bar.
    * <p>

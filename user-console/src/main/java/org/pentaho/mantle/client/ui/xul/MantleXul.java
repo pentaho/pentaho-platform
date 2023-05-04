@@ -96,7 +96,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
   private ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
 
   private HashSet<String> loadedOverlays = new HashSet<String>();
-  
+
   private MantleXul() {
     AsyncXulLoader.loadXulFromUrl( GWT.getModuleBaseURL() + "xul/mantle.xul", GWT.getModuleBaseURL()
         + "messages/mantleMessages", this );
@@ -224,10 +224,6 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
     adminContentDeck.setHeight( "100%" );
     adminContentDeck.getElement().getStyle().setProperty( "height", "100%" );
     fetchPluginOverlays();
-  }
-
-  public void closeSubmenu(String menuId){
-    ((MenuBar) container.getDocumentRoot().getElementById(menuId).getManagedObject()).closeAllChildren( true );
   }
 
   public void customizeAdminStyle() {
