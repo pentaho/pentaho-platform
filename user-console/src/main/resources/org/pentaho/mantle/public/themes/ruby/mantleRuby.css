@@ -936,6 +936,21 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 /* endregion custom-dropdown */
 
 /* region #pucWrapper et al. */
+:root {
+  /* Main and burger toolbar */
+  --puc-toolbar-button-inner-height: calc(1em * 32/14);
+  --puc-toolbar-button-inner-width: calc(1em * 32/14);
+  --puc-toolbar-button-border-width: 1px;
+  --puc-toolbar-button-height: calc(2 * var(--puc-toolbar-button-border-width) + var(--puc-toolbar-button-inner-height));
+
+  --puc-header-border-top-width: 4px;
+  --puc-header-box-shadow-blur-radius: 5px;
+  --puc-header-burger-mode-height: calc(
+      var(--puc-header-border-top-width) +
+      var(--puc-toolbar-button-height) +
+      var(--puc-header-box-shadow-blur-radius));
+}
+
 #pucWrapper {
   display: flex;
   flex-direction: column;
@@ -952,12 +967,12 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 
   background: #f8f8f6;
   filter: none;
-  -webkit-box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
-  box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0px 0 var(--puc-header-box-shadow-blur-radius) rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0px 0 var(--puc-header-box-shadow-blur-radius) rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 0 var(--puc-header-box-shadow-blur-radius) rgba(0, 0, 0, 0.5);
   padding: 0;
   position: relative;
-  border-top: 4px solid #cc0000;
+  border-top: var(--puc-header-border-top-width) solid #cc0000;
 }
 
 #pucMenuBar {
@@ -1211,11 +1226,21 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   max-width: var(--flex-max-width, 10px);
 }
 
+:is(#mainToolbar, #burgerToolbar) :is(.toolbar-button, .toolbar-toggle-button) {
+  border-width: var(--puc-toolbar-button-border-width);
+}
+
+:is(#mainToolbar, #burgerToolbar) .toolbar-button-focus-panel td {
+  /* Needed to prevent the td from taking up a bigger height than that of the contained img, 32px,
+     for unknown reasons. */
+  line-height: 0;
+}
+
 :is(#mainToolbar, #burgerToolbar) :is(
   .toolbar-button, .toolbar-button-disabled,
   .toolbar-toggle-button, .toolbar-toggle-button-disabled) img {
-  height: calc(1em * 32/14);
-  width: calc(1em * 32/14);
+  height: var(--puc-toolbar-button-inner-height);
+  width: var(--puc-toolbar-button-inner-width);
   background-size: contain;
 }
 
@@ -1561,12 +1586,8 @@ hr {
 }
 
 /* puc header */
-* {
-  --pucHeaderHeight: 43px;
-}
-
 :where(.burger-mode) #pucContent {
-  /* top: var(--pucHeaderHeight); */
+  /* top: var(--puc-header-burger-mode-height); */
 }
 
 :where(.burger-mode) :is(#pucMenuBar, #pucPerspectives, #pucUserDropDown) {
@@ -1616,11 +1637,11 @@ hr {
 }
 
 .pen-BurgerMenuBar tr td:first-child:not(.gwt-MenuItemSeparator) {
-  margin-left: 15px;
+  margin-left: 18px;
 }
 
 .pen-BurgerMenuBar tr td:last-child:not(.gwt-MenuItemSeparator) {
-  margin-right: 15px;
+  margin-right: 12px;
 }
 
 .pen-BurgerMenuBar :is(
@@ -1629,10 +1650,10 @@ hr {
   .gwt-MenuItem-checkbox-unchecked,
   .gwt-MenuItem-checkbox-checked,
   .disabledMenuItem) {
-  font-size: 13px;
+  font-size: 14px;
   font-family: OpenSansLight;
-  line-height: 20px;
-  padding: 10px 15px 10px 25px;
+  line-height: 32px;
+  padding: 8px 16px 8px calc(1em * 32/14);
 
   /* Last resort: show ellipsis if it would break word in the middle. */
   overflow: hidden;
@@ -1640,7 +1661,7 @@ hr {
 }
 
 .pen-BurgerMenuBar tr:first-child {
-  margin-top: 20px;
+  margin-top: 26px;
 }
 
 .pen-BurgerMenuBar tr:last-child {
@@ -1648,8 +1669,20 @@ hr {
 }
 
 .pen-BurgerMenuBar .subMenuIcon {
-  padding: 10px 15px 10px 1px;
+  box-sizing: content-box;
+  width: calc(1em * 32/14);
+  height: calc(1em * 32/14);
+  padding: 8px 16px 8px 0;
   background-origin: content-box;
+  background-repeat: no-repeat;
+  background-size: calc(1em * 18/14) calc(1em * 12/14);
+}
+
+.pen-BurgerMenuBar .gwt-MenuItem-checkbox-checked,
+.pen-BurgerMenuBar .gwt-MenuItem-checkbox-checked-selected,
+.pen-BurgerMenuBar .gwt-MenuItem-checkbox-checked-selected:hover {
+  background-position: center left calc(1em * 8/14);
+  background-size: calc(1em * 9/14) calc(1em * 7/14);
 }
 
 .pen-BurgerMenuBar .gwt-MenuItemSeparator {
@@ -1664,8 +1697,9 @@ hr {
 
 .pen-BurgerMenuBar .pen-BurgerBackMenuItem {
   background-image: url(images/dropdown_left_arrow_blue.png);
-  background-position: center left 2px;
+  background-position: center left calc(1em * 7/14);
   background-repeat: no-repeat;
+  background-size: calc(1em * 18/14) calc(1em * 12/14);
 }
 
 .pen-BurgerMenuBar .pen-BurgerBackMenuItem.gwt-MenuItem-selected {
@@ -1674,12 +1708,12 @@ hr {
 
 .pen-BurgerMenuBarPopup {
   left: 0 !important;
-  top: var(--pucHeaderHeight) !important;
+  top: var(--puc-header-burger-mode-height) !important;
   right: 0;
   bottom: 0;
   overflow-x: hidden !important;
   overflow-y: auto !important;
-  background-color: #fcfcfc;
+  background-color: #FBFCFC;
   display: flex;
   flex-direction: column;
 }
@@ -1716,10 +1750,9 @@ hr {
 }
 
 /* buttons */
-
 :where(.burger-mode) div.newToolbarDropdown {
-  top: var(--pucHeaderHeight) !important;
-  left: calc( 100vw - 210px) !important;
+  top: var(--puc-header-burger-mode-height) !important;
+  left: calc(100vw - 210px) !important;
 }
 
 :where(.burger-mode)
