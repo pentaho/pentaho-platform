@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,6 +25,8 @@ import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -64,6 +66,26 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
       public void onClick( ClickEvent event ) {
         usersListBox.setSelectedIndex( -1 );
         okButton.setEnabled( true );
+      }
+    } );
+
+    usersListBox.addKeyDownHandler( new KeyDownHandler() {
+      @Override
+      public void onKeyDown( KeyDownEvent event ) {
+        if ( event.isDownArrow() || event.isUpArrow() ) {
+          rolesListBox.setSelectedIndex( -1 );
+          okButton.setEnabled( true );
+        }
+      }
+    } );
+
+    rolesListBox.addKeyDownHandler( new KeyDownHandler() {
+      @Override
+      public void onKeyDown( KeyDownEvent event ) {
+        if ( event.isDownArrow() || event.isUpArrow() ) {
+          usersListBox.setSelectedIndex( -1 );
+          okButton.setEnabled( true );
+        }
       }
     } );
 
