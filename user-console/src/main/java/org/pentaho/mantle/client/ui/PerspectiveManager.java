@@ -583,6 +583,8 @@ public class PerspectiveManager extends SimplePanel {
   }
 
   public void hidePopup() {
-    perspectiveDropDown.hidePopup();
+    if ( perspectiveDropDown != null ) {
+      perspectiveDropDown.hidePopup();
+    }
   }
 }

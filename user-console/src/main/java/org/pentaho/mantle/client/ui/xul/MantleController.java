@@ -790,8 +790,12 @@ public class MantleController extends AbstractXulEventHandler {
       // Close any open menus.
       mainMenubar.closeAllChildren( false );
       PerspectiveManager.getInstance().hidePopup();
-      MantleApplication.getInstance().getUserDropDown().hidePopup();
 
+      // May be null during initialization.
+      UserDropDown userDropDown = MantleApplication.getInstance().getUserDropDown();
+      if ( userDropDown != null ) {
+        userDropDown.hidePopup();
+      }
     } else {
       // Exiting burger mode.
       hadFocus = closeBurgerMenuPopup();

@@ -189,6 +189,10 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
         addStyleDependentName( "pressed" );
         removeStyleDependentName( "hover" );
         popup.setWidget( menuBar );
+
+        int popupWidth = getOffsetWidth() - 2;
+        popup.setWidth( popupWidth + "px" );
+
         popup.setPopupPositionAndShow( new PositionCallback() {
           public void setPosition( int offsetWidth, int offsetHeight ) {
             popup.setPopupPosition( getAbsoluteLeft(), getAbsoluteTop() + getOffsetHeight() - 1 );
@@ -198,7 +202,6 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
           }
         } );
         menuBar.focus();
-        popup.setWidth( ( getOffsetWidth() - 2 ) + "px" );
       }
     } else if ( ( event.getTypeInt() & Event.ONMOUSEOVER ) == Event.ONMOUSEOVER ) {
       if ( enabled ) {
@@ -240,8 +243,9 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
   }
 
   public void hidePopup() {
-    if( popup.isShowing() )
+    if ( popup.isShowing() ) {
       popup.hide();
+    }
   }
 
   public boolean isEnabled() {
