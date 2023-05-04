@@ -20,12 +20,12 @@ package org.pentaho.mantle.client.ui.xul;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DeckPanel;
@@ -62,10 +62,8 @@ import org.pentaho.ui.xul.gwt.util.AsyncXulLoader;
 import org.pentaho.ui.xul.gwt.util.IXulLoaderCallback;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -98,9 +96,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
   private ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
 
   private HashSet<String> loadedOverlays = new HashSet<String>();
-
-  HashSet<String> classNames = new HashSet<>();
-
+  
   private MantleXul() {
     AsyncXulLoader.loadXulFromUrl( GWT.getModuleBaseURL() + "xul/mantle.xul", GWT.getModuleBaseURL()
         + "messages/mantleMessages", this );
