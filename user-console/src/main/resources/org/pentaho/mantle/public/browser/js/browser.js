@@ -1497,8 +1497,10 @@ define([
           }
           break;
         case a11yUtil.keyCodes.space:
-          evt.preventDefault();
-          this.clickFile(evt);
+          if ($(evt.currentTarget).children(".active-descendant").length > 0) {
+            evt.preventDefault();
+            this.clickFile(evt);
+          }
           break;
         case a11yUtil.keyCodes.A:
           // control + A
