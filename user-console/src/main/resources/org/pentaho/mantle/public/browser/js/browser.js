@@ -1250,6 +1250,7 @@ define([
       $target.addClass("selected");
       $target.children(".element").attr("tabindex", 0).attr("aria-selected", true);
       //deselect any files
+      $("#fileBrowserFiles").children("[role=listbox]").removeAttr("aria-activedescendant");
       $(".file.selected").removeClass("selected");
       depth = $target.attr("path").split("/").length;
       event.stopPropagation();
