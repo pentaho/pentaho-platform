@@ -774,7 +774,10 @@ a:active, a:hover {
   font-size: 13px;
 }
 
-.disabledMenuItem {
+.disabledMenuItem,
+.gwt-MenuItem-disabled,
+.gwt-MenuBar-vertical .gwt-MenuItem-disabled {
+  cursor: Default;
   color: #ccc;
 }
 
@@ -933,6 +936,21 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 /* endregion custom-dropdown */
 
 /* region #pucWrapper et al. */
+:root {
+  /* Main and burger toolbar */
+  --puc-toolbar-button-inner-height: calc(1em * 32/14);
+  --puc-toolbar-button-inner-width: calc(1em * 32/14);
+  --puc-toolbar-button-border-width: 1px;
+  --puc-toolbar-button-height: calc(2 * var(--puc-toolbar-button-border-width) + var(--puc-toolbar-button-inner-height));
+
+  --puc-header-border-top-width: 4px;
+  --puc-header-box-shadow-blur-radius: 5px;
+  --puc-header-burger-mode-height: calc(
+      var(--puc-header-border-top-width) +
+      var(--puc-toolbar-button-height) +
+      var(--puc-header-box-shadow-blur-radius));
+}
+
 #pucWrapper {
   display: flex;
   flex-direction: column;
@@ -945,15 +963,16 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
+  min-width: var(--a11y-min-width);
 
   background: #f8f8f6;
   filter: none;
-  -webkit-box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
-  box-shadow: 0px 0 5px rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0px 0 var(--puc-header-box-shadow-blur-radius) rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0px 0 var(--puc-header-box-shadow-blur-radius) rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 0 var(--puc-header-box-shadow-blur-radius) rgba(0, 0, 0, 0.5);
   padding: 0;
   position: relative;
-  border-top: 4px solid #cc0000;
+  border-top: var(--puc-header-border-top-width) solid #cc0000;
 }
 
 #pucMenuBar {
@@ -970,7 +989,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   height: auto;
 }
 
-#pucToolBar {
+#pucToolBar, #pucBurgerToolbar {
   /* Toolbar buttons and spacers are integrated into the overall PUC header flex layout. */
   display: contents;
 }
@@ -988,32 +1007,6 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   min-height: 0;
 }
 /* endregion #pucWrapper et al. */
-
-/* region Main Menubar */
-#mainMenubar {
-  padding: 0;
-  background: #f8f8f6;
-}
-
-#mainMenubar > table {
-  border: 0 none;
-  border-spacing: 0;
-}
-
-#mainMenubar .gwt-MenuItem {
-  color: #414141;
-  font-size: 13px;
-  font-family: OpenSansLight;
-  line-height: 20px;
-  padding: 5px 15px;
-}
-
-#mainMenubar .gwt-MenuItem-selected {
-  background: #cc0000;
-  border: 0 none;
-  color: #FFF;
-}
-/* endregion Main Menubar */
 
 /* region Perspectives Dropdown */
 #pucPerspectives .custom-dropdown {
@@ -1087,9 +1080,12 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 }
 
 .gwt-MenuBar-vertical .gwt-MenuItem {
-  color: #333;
   padding: 8px 12px 8px 25px;
   font-style: 13px;
+}
+
+.gwt-MenuBar-vertical .gwt-MenuItem:where(:not(.gwt-MenuItem-disabled, .disabledMenuItem)) {
+  color: #333;
 }
 
 .gwt-MenuBar-vertical .gwt-MenuItem-checkbox-unchecked,
@@ -1176,19 +1172,51 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 }
 /* endregion gwt-MenuBar-vertical */
 
-/* region Main Toolbar */
+/* region Main Menubar */
+#mainMenubar {
+  padding: 0;
+  background: #f8f8f6;
+}
+
+#mainMenubar > table {
+  border: 0 none;
+  border-spacing: 0;
+}
+
+#mainMenubar .gwt-MenuItem {
+  color: #414141;
+  font-size: 13px;
+  font-family: OpenSansLight;
+  line-height: 20px;
+  padding: 5px 15px;
+}
+
+#mainMenubar .gwt-MenuItem-selected {
+  background: #cc0000;
+  border: 0 none;
+  color: #FFF;
+}
+/* endregion Main Menubar */
+
+/* region Main and Burger Toolbars */
 .mainToolbar-Wrapper,
+.burgerToolbar-Wrapper,
 #mainToolbarWrapper,
 #mainToolbarWrapper > tbody,
 #mainToolbarWrapper > tbody > tr,
 #mainToolbarWrapper > tbody > tr > td,
 #mainToolbarWrapper > tbody > tr > td > div,
 #mainToolbar,
-#mainToolbar > tbody > tr > td > table {
+#burgerToolbar,
+:is(#mainToolbar, #burgerToolbar) > tbody > tr > td > table {
   display: contents;
 }
 
-#mainToolbar .spacer {
+:where(#pucWrapper:not(.burger-mode)) #burgerToolbar {
+  display: none;
+}
+
+:is(#mainToolbar, #burgerToolbar) .spacer {
   /* This flex scheme allows the space to shrink before wrapping kicks in. */
   flex: 1 1 0;
   min-width: 0;
@@ -1198,12 +1226,30 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   max-width: var(--flex-max-width, 10px);
 }
 
-#mainToolbar :is(
+:is(#mainToolbar, #burgerToolbar) :is(.toolbar-button, .toolbar-toggle-button) {
+  border-width: var(--puc-toolbar-button-border-width);
+}
+
+:is(#mainToolbar, #burgerToolbar) .toolbar-button-focus-panel td {
+  /* Needed to prevent the td from taking up a bigger height than that of the contained img, 32px,
+     for unknown reasons. */
+  line-height: 0;
+}
+
+:is(#mainToolbar, #burgerToolbar) :is(
   .toolbar-button, .toolbar-button-disabled,
   .toolbar-toggle-button, .toolbar-toggle-button-disabled) img {
-  height: calc(1em * 32/14);
-  width: calc(1em * 32/14);
+  height: var(--puc-toolbar-button-inner-height);
+  width: var(--puc-toolbar-button-inner-width);
   background-size: contain;
+}
+
+#burgerToolbar #burgerButton {
+  margin-right: auto;
+}
+
+#burgerToolbar #burgerButton .toolbar-button img {
+  background-image: url('images/burgerButton.png');
 }
 
 #mainToolbar #openButton .toolbar-button img {
@@ -1281,6 +1327,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   padding: 8px 10px 10px 10px;
   font-weight: normal;
 }
+/* endregion Main and Burger Toolbars */
 
 /*****************************************/
 /*** Overrides for the schedules table ***/
@@ -1532,3 +1579,185 @@ hr {
   font-weight: normal;
   font-size: 14px;
 }
+
+/* region Burger Menu Mode */
+#burgerBarPerspectiveMenu {
+  display: none;
+}
+
+/* puc header */
+:where(.burger-mode) #pucContent {
+  /* top: var(--puc-header-burger-mode-height); */
+}
+
+:where(.burger-mode) :is(#pucMenuBar, #pucPerspectives, #pucUserDropDown) {
+  display: none;
+}
+
+:where(.burger-mode) #burgerBarPerspectiveMenu {
+  display: block;
+}
+
+:where(.burger-mode) #pucHeader {
+  z-index: 10;
+  /*height: 34px;*/
+}
+
+/* burger button and menu */
+.pen-BurgerMenuBar {
+  border: 0;
+  /* Let the popup panel bg color shine-through, also covering content behind which would otherwise show through
+     the menubar popupContent margins, if bg color was not set there.
+   */
+  background-color: unset;
+  display: flex;
+  flex-direction: column;
+}
+
+.pen-BurgerMenuBar > table,
+.pen-BurgerMenuBar > table > tbody {
+  display: contents;
+}
+
+.pen-BurgerMenuBar tr {
+  flex: none;
+  display: flex;
+  flex-direction: row;
+}
+
+.pen-BurgerMenuBar tr td:last-child {
+  flex: none;
+}
+
+/* Order of rule relative to last-child rule, above, is important,
+   for when there is a single child (colspan 2), for separators.
+ */
+.pen-BurgerMenuBar tr td:first-child {
+  flex: auto;
+}
+
+.pen-BurgerMenuBar tr td:first-child:not(.gwt-MenuItemSeparator) {
+  margin-left: 18px;
+}
+
+.pen-BurgerMenuBar tr td:last-child:not(.gwt-MenuItemSeparator) {
+  margin-right: 12px;
+}
+
+.pen-BurgerMenuBar :is(
+  .gwt-MenuItem,
+  .gwt-MenuItem-selected,
+  .gwt-MenuItem-checkbox-unchecked,
+  .gwt-MenuItem-checkbox-checked,
+  .disabledMenuItem) {
+  font-size: 14px;
+  font-family: OpenSansLight;
+  line-height: 32px;
+  padding: 8px 16px 8px calc(1em * 32/14);
+
+  /* Last resort: show ellipsis if it would break word in the middle. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pen-BurgerMenuBar tr:first-child {
+  margin-top: 26px;
+}
+
+.pen-BurgerMenuBar tr:last-child {
+  margin-bottom: 20px;
+}
+
+.pen-BurgerMenuBar .subMenuIcon {
+  box-sizing: content-box;
+  width: calc(1em * 32/14);
+  height: calc(1em * 32/14);
+  padding: 8px 16px 8px 0;
+  background-origin: content-box;
+  background-repeat: no-repeat;
+  background-size: calc(1em * 18/14) calc(1em * 12/14);
+}
+
+.pen-BurgerMenuBar .gwt-MenuItem-checkbox-checked,
+.pen-BurgerMenuBar .gwt-MenuItem-checkbox-checked-selected,
+.pen-BurgerMenuBar .gwt-MenuItem-checkbox-checked-selected:hover {
+  background-position: center left calc(1em * 8/14);
+  background-size: calc(1em * 9/14) calc(1em * 7/14);
+}
+
+.pen-BurgerMenuBar .gwt-MenuItemSeparator {
+  /* Make sure separator is vertically centered between menu items. */
+  box-sizing: border-box;
+  border-color: transparent;
+}
+
+.pen-BurgerMenuBar .gwt-MenuItemSeparator .menuSeparatorInner {
+  border-color: #ededed;
+}
+
+.pen-BurgerMenuBar .pen-BurgerBackMenuItem {
+  background-image: url(images/dropdown_left_arrow_blue.png);
+  background-position: center left calc(1em * 7/14);
+  background-repeat: no-repeat;
+  background-size: calc(1em * 18/14) calc(1em * 12/14);
+}
+
+.pen-BurgerMenuBar .pen-BurgerBackMenuItem.gwt-MenuItem-selected {
+  background-image: url(images/dropdown_left_arrow_white.png);
+}
+
+.pen-BurgerMenuBarPopup {
+  left: 0 !important;
+  top: var(--puc-header-burger-mode-height) !important;
+  right: 0;
+  bottom: 0;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  background-color: #FBFCFC;
+  display: flex;
+  flex-direction: column;
+}
+
+.pen-BurgerMenuBarPopup + .pen-BurgerMenuBarPopup {
+  margin-top: unset;
+}
+
+
+.pen-BurgerMenuBarPopup :is(
+  .menuPopupTop,
+  .popupTop,
+  .menuPopupMiddleLeft,
+  .popupMiddleLeft,
+  .menuPopupMiddleRight,
+  .popupMiddleRight,
+  .menuPopupBottom,
+  .popupBottom) {
+  display: none;
+}
+
+.pen-BurgerMenuBarPopup > div,
+.pen-BurgerMenuBarPopup > div > table,
+.pen-BurgerMenuBarPopup > div > table > tbody,
+.pen-BurgerMenuBarPopup :is(
+  .menuPopupMiddle,
+  .popupMiddle,
+  .menuPopupContent,
+  .popupContent,
+  .menuPopupMiddleCenter,
+  .popupMiddleCenter
+  ) {
+  display: contents;
+}
+
+/* buttons */
+:where(.burger-mode) div.newToolbarDropdown {
+  top: var(--puc-header-burger-mode-height) !important;
+  left: calc(100vw - 210px) !important;
+}
+
+:where(.burger-mode)
+.toolbar-button-focus-panel:where(#openButton, #newButton, #dummyPluginContentButton, #printButton) {
+  display: none;
+}
+
+/* endregion Burger Menu Mode */
