@@ -52,7 +52,6 @@ import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.MantleSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.MantleSettingsLoadedEventHandler;
 import org.pentaho.mantle.client.events.PerspectivesLoadedEvent;
-import org.pentaho.mantle.client.events.PerspectivesLoadedEventHandler;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEvent;
 import org.pentaho.mantle.client.events.UserSettingsLoadedEventHandler;
 import org.pentaho.mantle.client.messages.Messages;
@@ -86,6 +85,8 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
   public static AbsolutePanel overlayPanel = new AbsolutePanel();
 
   private static MantleApplication instance;
+
+  private static UserDropDown userDropDown;
 
   private MantleApplication() {
   }
@@ -342,9 +343,10 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     mantleRevisionOverride = settings.get( "user-console-revision" );
 
     RootPanel.get( "pucMenuBar" ).add( MantleXul.getInstance().getMenubar() );
+    RootPanel.get( "pucBurgerToolbar" ).add( MantleXul.getInstance().getBurgerToolbarWrapper() );
     RootPanel.get( "pucPerspectives" ).add( PerspectiveManager.getInstance() );
     RootPanel.get( "pucToolBar" ).add( MantleXul.getInstance().getToolbar() );
-    RootPanel.get( "pucUserDropDown" ).add( new UserDropDown() );
+    RootPanel.get( "pucUserDropDown" ).add( getUserDropDown() );
 
     if ( showOnlyPerspective && !StringUtils.isEmpty( startupPerspective ) ) {
       RootPanel.get( "pucHeader" ).setVisible( false );
@@ -482,6 +484,17 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
   public DeckPanel getContentDeck() {
     return contentDeck;
+  }
+
+  /**
+   * Get the UserDropDown
+   * @return UserDropDown
+   */
+  public static UserDropDown getUserDropDown() {
+    if ( userDropDown == null ) {
+      userDropDown = new UserDropDown();
+    }
+    return userDropDown;
   }
 
   private void loadWhitelistedHosts() {

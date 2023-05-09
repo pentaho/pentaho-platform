@@ -71,6 +71,8 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
 
   private MantleXul main;
 
+  private boolean isBurgerMode;
+
   private boolean saveEnabled;
 
   private boolean saveAsEnabled;
@@ -100,6 +102,18 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     EventBusUtil.EVENT_BUS.addHandler( SolutionBrowserDeselectEvent.TYPE, this );
     EventBusUtil.EVENT_BUS.addHandler( SolutionBrowserUndefinedEvent.TYPE, this );
     this.main = main;
+  }
+
+  @Bindable
+  public boolean isBurgerMode() {
+    return isBurgerMode;
+  }
+
+  @Bindable
+  public void setBurgerMode( boolean isBurgerMode ) {
+    boolean prevVal = this.isBurgerMode;
+    this.isBurgerMode = isBurgerMode;
+    this.firePropertyChange( "burgerMode", prevVal, isBurgerMode );
   }
 
   @Bindable
