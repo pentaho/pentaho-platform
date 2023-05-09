@@ -85,11 +85,8 @@ public class UserDropDown extends CustomDropDown implements RequestCallback {
     }
   }-*/;
 
-  private static native String getUsername()
+  public static native String getUsername()
   /*-{  
     return window.parent.SESSION_NAME;
   }-*/;
-
-
-
 }
