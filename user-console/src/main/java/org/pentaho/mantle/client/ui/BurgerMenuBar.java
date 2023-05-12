@@ -306,7 +306,7 @@ public class BurgerMenuBar extends MenuBar {
       Scheduler.ScheduledCommand cmd = item.getScheduledCommand();
       Scheduler.get().scheduleFinally( cmd::execute );
     } else {
-      MenuBarUtils.doItemAction( item, fireCommand, focus );
+      MenuBarUtils.doItemAction( this, item, fireCommand, focus );
     }
 
     if ( item.getScheduledCommand() == null && item.getSubMenu() != null ) {
