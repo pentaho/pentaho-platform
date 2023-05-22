@@ -377,6 +377,10 @@ code {
   bottom: 0;
 }
 
+#burgerToolbar {
+  display: none;
+}
+
 .pucContentDeck {
   height: 100%;
   width: 100%;

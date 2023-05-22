@@ -317,6 +317,7 @@ public class MantleController extends AbstractXulEventHandler {
                   PentahoMenuItem themeMenuItem =
                       new PentahoMenuItem( theme.getName(), new SwitchThemeCommand( theme.getId() ) );
                   themeMenuItem.getElement().setId( theme.getId() + "_menu_item" ); //$NON-NLS-1$
+                  themeMenuItem.setUseCheckUI( true );
                   themeMenuItem.setChecked( theme.getId().equals( activeTheme ) );
                   ( (MenuBar) themesMenu.getManagedObject() ).addItem( themeMenuItem );
                 }
