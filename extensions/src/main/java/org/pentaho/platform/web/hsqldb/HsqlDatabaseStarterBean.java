@@ -35,6 +35,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * The purpose of this Java class is to startup a HSQLDB databases. This class should not installed in production
@@ -103,14 +104,26 @@ public class HsqlDatabaseStarterBean {
 
     try {
       stringProps = HsqlProperties.argArrayToProps( args, "server" );
+      HsqlProperties hsqlProperties = new HsqlProperties();
+      Properties noBackUpprops = new Properties();
+
+      //this property makes the server not dump into the DB .scipt file, when process is killed unexpectedly. See [PPP-4802]
+      noBackUpprops.put( "hsqldb.nio_data_file", "false" );
+      hsqlProperties.addProperties( noBackUpprops );
+
       props.addProperties( stringProps );
+      props.addProperties( hsqlProperties );
+
     } catch ( ArrayIndexOutOfBoundsException ex ) {
       logger.error( Messages.getErrorString( "HsqlDatabaseStarterBean.ERROR_0001_INVALID_PARAMETERS" ) ); //$NON-NLS-1$
       ex.printStackTrace();
       logger.warn( Messages.getString( "HsqlDatabaseStarterBean.WARN_NO_DATABASES" ) ); //$NON-NLS-1$
       return null;
     }
+
+
     return props;
+
   }
 
   // Facilitate test cases
@@ -141,6 +154,7 @@ public class HsqlDatabaseStarterBean {
     HsqlProperties props = getServerProperties( args );
     if ( props == null ) { // If props failed, return
       return false;
+
     }
 
     hsqlServer = getNewHSQLDBServer();
@@ -174,9 +188,9 @@ public class HsqlDatabaseStarterBean {
         int times = 0;
         logger.debug( "Waiting for embedded server to complete shut down tasks..." ); //$NON-NLS-1$
         // Give it about 15 or so seconds to quit...
-        while ( ( hsqlServer.getState() != ServerConstants.SERVER_STATE_SHUTDOWN ) && ( times < 100 ) ) {
+        while ( ( hsqlServer.getState() != ServerConstants.SERVER_STATE_SHUTDOWN ) && ( times < 150 ) ) {
           try {
-            Thread.sleep( times + 1 * 100 );
+            Thread.sleep( (times + 1) * 100 );
           } catch ( InterruptedException e ) {
             //ignore
           }
