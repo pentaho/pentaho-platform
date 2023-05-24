@@ -26,7 +26,7 @@ REM ---------------------------------------------
 SET tempclasspath=
 SET libdir=.\lib
 
-FOR /f "delims=" %%a IN ('dir %libdir%\SqlTool*.jar /b /a-d') DO call :addToClasspath %%a
+FOR /f "delims=" %%a IN ('dir %libdir%\hsqldb*.jar /b /a-d') DO call :addToClasspath %%a
 GOTO :startApp
 
 :addToClasspath
@@ -45,8 +45,7 @@ GOTO end
 
 call set-pentaho-env.bat "%~dp0..\jre"
 
-"%_PENTAHO_JAVA%" -cp %tempclasspath% org.hsqldb.cmdline.SqlTool --rcFile=hsqldb/sqltool.rc --inlineRc=url="jdbc:hsqldb:hsql://localhost/%1",username=SA,password= --sql="SHUTDOWN SCRIPT;"
-
+"%_PENTAHO_JAVA%" -cp %tempclasspath% org.hsqldb.util.ShutdownServer -url "jdbc:hsqldb:hsql://localhost/%1" -user "SA" -password ""
 echo %command%
 %command%
 GOTO :end
