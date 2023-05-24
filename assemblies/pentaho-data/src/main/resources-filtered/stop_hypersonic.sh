@@ -15,7 +15,7 @@
 # See the GNU General Public License for more details.
 #
 #
-# Copyright 2011 - 2022 Hitachi Vantara. All rights reserved.
+# Copyright 2011 - ${copyright.year} Hitachi Vantara. All rights reserved.
 # *******************************************************************************************
 
 ### ====================================================================== ###
@@ -42,6 +42,6 @@ do
 done
 echo "classpath is $THE_CLASSPATH"
 
-"$_PENTAHO_JAVA" -cp lib/sqltool*.jar org.hsqldb.cmdline.SqlTool --rcFile=hsqldb/sqltool.rc --inlineRc=url=jdbc:hsqldb:hsql://localhost/sampledata,username=SA,password= --sql="SHUTDOWN SCRIPT;"
-"$_PENTAHO_JAVA" -cp lib/sqltool*.jar org.hsqldb.cmdline.SqlTool --rcFile=hsqldb/sqltool.rc --inlineRc=url=jdbc:hsqldb:hsql://localhost/hibernate,username=SA,password= --sql="SHUTDOWN SCRIPT;"
-"$_PENTAHO_JAVA" -cp lib/sqltool*.jar org.hsqldb.cmdline.SqlTool --rcFile=hsqldb/sqltool.rc --inlineRc=url=jdbc:hsqldb:hsql://localhost/quartz,username=SA,password= --sql="SHUTDOWN SCRIPT;"
+"$_PENTAHO_JAVA" -cp $THE_CLASSPATH org.hsqldb.util.ShutdownServer -url "jdbc:hsqldb:hsql://localhost/sampledata" -user "SA" -password "" 
+"$_PENTAHO_JAVA" -cp $THE_CLASSPATH org.hsqldb.util.ShutdownServer -url "jdbc:hsqldb:hsql://localhost/hibernate" -user "SA" -password ""
+"$_PENTAHO_JAVA" -cp $THE_CLASSPATH org.hsqldb.util.ShutdownServer -url "jdbc:hsqldb:hsql://localhost/quartz" -user "sa" -password "" 
