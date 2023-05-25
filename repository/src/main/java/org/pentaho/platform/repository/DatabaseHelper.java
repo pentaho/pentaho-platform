@@ -29,12 +29,15 @@ import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.encryption.Encr;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
+import org.pentaho.platform.util.StringUtil;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class DatabaseHelper {
 
@@ -208,9 +211,13 @@ public class DatabaseHelper {
     databaseConnection.setQuoteAllFields( databaseMeta.isQuoteAllFields() );
     databaseConnection.setUsingDoubleDecimalAsSchemaTableSeparator( databaseMeta.isUsingDoubleDecimalAsSchemaTableSeparator() );
 
-    Map<String, String> attributeMap = new HashMap<>();
-    for ( Entry<Object, Object> entry: databaseMeta.getAttributes().entrySet() ) {
-      attributeMap.put( (String) entry.getKey(), databaseMeta.environmentSubstitute( (String) entry.getValue() ) );
+    Map<String, String> attributeMap = new TreeMap<>();
+    Properties databaseMetaAttributes = databaseMeta.getAttributes();
+    for ( String attributeName: databaseMetaAttributes.stringPropertyNames() ) {
+      String attributeValue = databaseMetaAttributes.getProperty( attributeName );
+      if ( !StringUtil.isEmpty( attributeValue ) ){
+        attributeMap.put( attributeName, databaseMeta.environmentSubstitute( attributeValue ) );
+      }
     }
     databaseConnection.setAttributes( attributeMap );
 
