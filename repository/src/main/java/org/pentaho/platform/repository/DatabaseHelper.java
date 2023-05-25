@@ -32,9 +32,12 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.util.StringUtil;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class DatabaseHelper {
 
