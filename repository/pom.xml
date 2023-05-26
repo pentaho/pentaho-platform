@@ -16,6 +16,7 @@
     <commons-lang.version>2.4</commons-lang.version>
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
+    <hsqldb.version>1.8.0.7</hsqldb.version>
     <hamcrest-library.version>2.2</hamcrest-library.version>
     <jettison.version>1.1</jettison.version>
     <hamcrest-core.version>2.2</hamcrest-core.version>
@@ -817,7 +818,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hsqldb</groupId>
+      <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>${hsqldb.version}</version>
       <scope>test</scope>
