@@ -128,8 +128,8 @@ public class DIServerConfigTest {
   @Test
   public void testGetMetaStoreWithDefault() throws Exception {
     DIServerConfig diConfig = new DIServerConfig( logChannel, getConfigNode(), pluginRegistry );
-    DelegatingMetaStore delegatingMetaStore = diConfig.getMetaStore();
-    assertEquals( purMetaStore, delegatingMetaStore.getActiveMetaStore() );
+    IMetaStore delegatingMetaStore = diConfig.getMetaStore();
+    assertEquals( purMetaStore, delegatingMetaStore );
 
     verifyConnection();
   }
@@ -141,7 +141,7 @@ public class DIServerConfigTest {
     DIServerConfig diConfig = new DIServerConfig( logChannel, getConfigNode(), pluginRegistry );
 
     diConfig.setRepository( repo );
-    diConfig.setMetaStore( delegatingMetaStore );
+    diConfig.setMetastoreSupplier( () -> delegatingMetaStore );
 
     assertEquals( delegatingMetaStore, diConfig.getMetaStore() );
 
