@@ -30,7 +30,6 @@ import org.pentaho.di.core.plugins.RepositoryPluginType;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.di.repository.RepositoryMeta;
 import org.pentaho.di.www.SlaveServerConfig;
-import org.pentaho.metastore.stores.delegate.DelegatingMetaStore;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -46,7 +45,7 @@ import java.util.Collections;
 
 /**
  * Slave Server Config for Carte Servlet running within the DI Server.
- * Overrides {@link #getRepository()} and {@link #getMetaStore()} to use an in-process PurRepository connection
+ * Overrides {@link #getRepository()} to use an in-process PurRepository connection
  * with active user credentials if not otherwise configured via slaveserverconfig.xml
  *
  * @author nhudak
@@ -80,27 +79,6 @@ public class DIServerConfig extends SlaveServerConfig {
       }
     }
     return repository;
-  }
-
-  @Override
-  public DelegatingMetaStore getMetaStore() {
-    DelegatingMetaStore metaStore = super.getMetaStore();
-
-    try {
-      Repository configuredRepository = super.getRepository();
-      if ( configuredRepository == null && repositoryInProcess() ) {
-        Repository inProcessRepository = connectInProcessRepository();
-        if ( inProcessRepository != null ) {
-          metaStore = new DelegatingMetaStore( inProcessRepository.getMetaStore() );
-          metaStore.setActiveMetaStoreName( inProcessRepository.getMetaStore().getName() );
-        }
-      }
-    } catch ( Exception e ) {
-      // Something failed, give up and use default
-      Logger.warn( this, e.getMessage(), e );
-      metaStore = super.getMetaStore();
-    }
-    return metaStore;
   }
 
   private boolean repositoryInProcess() {
