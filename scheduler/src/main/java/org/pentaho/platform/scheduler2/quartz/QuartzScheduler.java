@@ -20,6 +20,7 @@
 
 package org.pentaho.platform.scheduler2.quartz;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -65,6 +66,8 @@ import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.security.Principal;
 import java.text.MessageFormat;
@@ -125,6 +128,10 @@ public class QuartzScheduler implements IScheduler {
   private static final Pattern qualifiedDayPattern = Pattern.compile( "\\d+#\\d+" ); //$NON-NLS-1$
 
   private static final Pattern lastDayPattern = Pattern.compile( "\\d+L" ); //$NON-NLS-1$
+
+  protected static final String schedulerStatusPath = PentahoSystem.getApplicationContext().getSolutionPath( "system" + File.separator + "quartz" ) + File.separator + "scheduler.status";
+
+  private File statusFile = new File( schedulerStatusPath );
 
   public QuartzScheduler( SchedulerFactory schedulerFactory ) {
     this.quartzSchedulerFactory = schedulerFactory;
@@ -616,6 +623,7 @@ public class QuartzScheduler implements IScheduler {
   public void pause() throws SchedulerException {
     try {
       getQuartzScheduler().standby();
+      storeSchedulerStatus();
     } catch ( org.quartz.SchedulerException e ) {
       throw new SchedulerException( e );
     }
@@ -647,6 +655,7 @@ public class QuartzScheduler implements IScheduler {
   public void start() throws SchedulerException {
     try {
       getQuartzScheduler().start();
+      storeSchedulerStatus();
     } catch ( org.quartz.SchedulerException e ) {
       throw new SchedulerException( e );
     }
@@ -934,6 +943,14 @@ public class QuartzScheduler implements IScheduler {
           }
         }
       }
+    }
+  }
+
+  private void storeSchedulerStatus() {
+    try {
+      FileUtils.write( statusFile, getStatus().name(), "UTF-8", false );
+    } catch ( IOException | SchedulerException e ) {
+      throw new RuntimeException( e );
     }
   }
 }
