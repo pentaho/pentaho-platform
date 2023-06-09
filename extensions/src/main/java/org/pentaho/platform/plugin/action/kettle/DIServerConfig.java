@@ -91,7 +91,7 @@ public class DIServerConfig extends SlaveServerConfig {
       if ( configuredRepository == null && repositoryInProcess() ) {
         Repository inProcessRepository = connectInProcessRepository();
         if ( inProcessRepository != null ) {
-          metaStore = inProcessRepository.getMetaStore();
+          metaStore = inProcessRepository.getRepositoryMetaStore();
         }
       }
     } catch ( Exception e ) {
