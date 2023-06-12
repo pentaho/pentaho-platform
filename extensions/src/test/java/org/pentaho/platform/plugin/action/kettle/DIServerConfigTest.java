@@ -28,6 +28,7 @@ import org.pentaho.di.core.logging.LogChannel;
 import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.plugins.RepositoryPluginType;
 import org.pentaho.di.core.xml.XMLHandler;
+import org.pentaho.di.metastore.MetaStoreConst;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.di.repository.RepositoryMeta;
 import org.pentaho.di.www.SlaveServerConfig;
@@ -127,6 +128,7 @@ public class DIServerConfigTest {
 
   @Test
   public void testGetMetaStoreWithDefault() throws Exception {
+    MetaStoreConst.enableDefaultToLocalXml();
     DIServerConfig diConfig = new DIServerConfig( logChannel, getConfigNode(), pluginRegistry );
     IMetaStore delegatingMetaStore = diConfig.getMetaStore();
     assertEquals( purMetaStore, delegatingMetaStore );
