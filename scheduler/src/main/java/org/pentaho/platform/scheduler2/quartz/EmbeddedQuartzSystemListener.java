@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -34,6 +35,7 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
@@ -112,7 +114,18 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
         if ( logger.isDebugEnabled() ) {
           logger.debug( scheduler.getQuartzScheduler().getSchedulerName() );
         }
-        scheduler.start();
+
+        File schedulerStatusFile = new File(
+          PentahoSystem.getApplicationContext().getSolutionPath( "system" + File.separator + "quartz" ) + File.separator
+            + "scheduler.status" );
+
+        // If the scheduler status file exists and contains "RUNNING" status, start the scheduler
+        if ( schedulerStatusFile.exists() && FileUtils.readFileToString( schedulerStatusFile, StandardCharsets.UTF_8 )
+          .equals( IScheduler.SchedulerStatus.RUNNING.name() ) ) {
+          scheduler.start();
+        } else {
+          scheduler.pause();
+        }
       }
     } catch ( IOException ex ) {
       result = false;

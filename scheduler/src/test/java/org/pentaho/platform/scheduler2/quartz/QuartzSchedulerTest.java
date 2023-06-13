@@ -21,7 +21,9 @@
 
 package org.pentaho.platform.scheduler2.quartz;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -30,6 +32,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -37,6 +40,9 @@ import org.quartz.CronExpression;
 import org.quartz.CronTrigger;
 import org.quartz.Trigger;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
@@ -79,6 +85,7 @@ public class QuartzSchedulerTest {
       }
     } );
     PentahoSystem.registerObject( repo, IUnifiedRepository.class );
+    PentahoSystem.init();
   }
 
   @AfterClass
@@ -87,6 +94,7 @@ public class QuartzSchedulerTest {
     if ( oldRepo != null ) {
       PentahoSystem.registerObject( oldRepo, IUnifiedRepository.class );
     }
+    PentahoSystem.shutdown();
   }
 
   @Test
@@ -195,6 +203,24 @@ public class QuartzSchedulerTest {
     quartzScheduler.setJobNextRun( job, trigger );
 
     assertEquals( null,  job.getNextRun() );
+  }
+
+  @Test
+  public void testStoreSchedulerStatus() throws SchedulerException, IOException {
+    QuartzScheduler quartzScheduler = new QuartzScheduler();
+    File schedulerStatusFile = quartzScheduler.getStatusFile();
+
+    quartzScheduler.start();
+    assertEquals( true, schedulerStatusFile.exists() );
+    assertEquals( IScheduler.SchedulerStatus.RUNNING.name(),
+      FileUtils.readFileToString( schedulerStatusFile, StandardCharsets.UTF_8 ) );
+
+    quartzScheduler.pause();
+    assertEquals( true, schedulerStatusFile.exists() );
+    assertEquals( IScheduler.SchedulerStatus.PAUSED.name(),
+      FileUtils.readFileToString( schedulerStatusFile, StandardCharsets.UTF_8 ) );
+
+    schedulerStatusFile.delete();
   }
 
 }
