@@ -94,7 +94,7 @@ public class DIServerConfigTest {
       .loadClass( RepositoryPluginType.class, DIServerConfig.PUR_REPOSITORY_PLUGIN_ID, RepositoryMeta.class ) )
       .thenReturn( purRepositoryMeta );
 
-    when( purRepository.getMetaStore() ).thenReturn( purMetaStore );
+    when( purRepository.getRepositoryMetaStore() ).thenReturn( purMetaStore );
     when( purMetaStore.getName() ).thenReturn( "Mock MetaStore" );
 
     logChannel = mock( LogChannel.class );
