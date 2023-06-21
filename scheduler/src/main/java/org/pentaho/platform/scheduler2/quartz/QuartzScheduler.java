@@ -20,7 +20,6 @@
 
 package org.pentaho.platform.scheduler2.quartz;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -67,6 +66,7 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.Principal;
@@ -78,6 +78,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -129,7 +130,15 @@ public class QuartzScheduler implements IScheduler {
 
   private static final Pattern lastDayPattern = Pattern.compile( "\\d+L" ); //$NON-NLS-1$
 
-  private File statusFile;
+  private static final String SCHEDULER_STATUS_PROPERTIES_FILE = "quartz" + File.separator + "quartzSchedulerStatus.properties";
+
+  private static final String SCHEDULER_STATUS_PROPERTY = "schedulerStatus";
+
+  private Properties schedulerStatusProperties;
+
+  private File schedulerStatusPropertiesFile;
+
+  private static final IScheduler.SchedulerStatus defaultSchedulerStatus = SchedulerStatus.RUNNING;
 
   public QuartzScheduler( SchedulerFactory schedulerFactory ) {
     this.quartzSchedulerFactory = schedulerFactory;
@@ -944,21 +953,59 @@ public class QuartzScheduler implements IScheduler {
     }
   }
 
-  public void storeSchedulerStatus() {
-    try {
-      FileUtils.write( getStatusFile(), getStatus().name(), "UTF-8", false );
-    } catch ( IOException | SchedulerException e ) {
+  private void storeSchedulerStatus() {
+    try ( FileWriter statusFileWriter = new FileWriter( getSchedulerStatusPropertiesFile().getAbsolutePath() ) ) {
+      schedulerStatusProperties.setProperty( SCHEDULER_STATUS_PROPERTY, getStatus().name() );
+      schedulerStatusProperties.store( statusFileWriter, "SYSTEM MANAGED FILE. DO NOT MODIFY." );
+    } catch ( IOException e ) {
       logger.error( "Error while writing scheduler status to status file", e );
+    } catch ( SchedulerException e ) {
+      logger.error( "Error while getting scheduler status to write to status file", e );
     }
   }
 
-  public File getStatusFile() {
-    if ( statusFile == null ) {
-      String schedulerStatusPath =
-        PentahoSystem.getApplicationContext().getSolutionPath( "system" + File.separator + "quartz" ) + File.separator
-          + "scheduler.status";
-      statusFile = new File( schedulerStatusPath );
+  protected IScheduler.SchedulerStatus getStoredSchedulerStatus() {
+    IScheduler.SchedulerStatus status = defaultSchedulerStatus;
+
+    getSchedulerStatusPropertiesFile();
+
+    schedulerStatusProperties =
+      PentahoSystem.getSystemSettings().getSystemSettingsProperties( SCHEDULER_STATUS_PROPERTIES_FILE );
+
+    if ( schedulerStatusProperties == null ) {
+      schedulerStatusProperties = new Properties();
     }
-    return statusFile;
+
+    schedulerStatusProperties.putIfAbsent( SCHEDULER_STATUS_PROPERTY, status.name() );
+
+    String statusProperty = schedulerStatusProperties.getProperty( SCHEDULER_STATUS_PROPERTY );
+
+    try {
+      status = IScheduler.SchedulerStatus.valueOf( statusProperty );
+    } catch ( IllegalArgumentException e ) {
+      logger
+        .error( "Error while reading scheduler status from status file. Initializing scheduler in default state: "
+          + defaultSchedulerStatus.name(), e );
+    }
+    return status;
+  }
+
+  protected File getSchedulerStatusPropertiesFile() {
+    if ( schedulerStatusPropertiesFile == null ) {
+      String statusFilePath = PentahoSystem.getApplicationContext()
+        .getSolutionPath( "system" + File.separator + SCHEDULER_STATUS_PROPERTIES_FILE );
+      schedulerStatusPropertiesFile = new File( statusFilePath );
+
+      try {
+        if( schedulerStatusPropertiesFile.createNewFile() ){
+          logger.info( "Quartz scheduler status file not found. Creating file: " + schedulerStatusPropertiesFile
+            .getAbsolutePath() );
+        }
+      } catch ( IOException e ) {
+        logger.error( "Error creating schedulerStatus.properties file", e );
+      }
+    }
+
+    return schedulerStatusPropertiesFile;
   }
 }
