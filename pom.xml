@@ -177,7 +177,6 @@
     <jai_codec.version>1.1.2</jai_codec.version>
     <json-path.version>0.8.1</json-path.version>
     <saxon.version>9.1.0.8</saxon.version>
-    <guava.version>17.0</guava.version>
     <dumbster.version>1.6.0</dumbster.version>
     <commons-pool.version>1.5.7</commons-pool.version>
     <jsch.version>0.1.54</jsch.version>
