@@ -38,16 +38,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPentahoSystemListener;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.engine.*;
 import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.connection.datasource.dbcp.JndiDatasourceService;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.quartz.SchedulerException;
 
-public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
+public class EmbeddedQuartzSystemListener implements IPluginLifecycleListener {
 
   /*
    * This is re-use by Copy and Paste to avoid a dependency on the bi-platform-scheduler project (which will eventually
@@ -76,7 +75,19 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
     useNewDatasourceService = useNewService;
   }
 
-  public boolean startup( final IPentahoSession session ) {
+  public EmbeddedQuartzSystemListener() {
+    System.out.println("***************************************************************");
+    System.out.println("EmbeddedQuartzSystemListener initialized.");
+    System.out.println("***************************************************************");
+  }
+
+  @Override
+  public void init() throws PluginLifecycleException {
+  }
+
+  @Override
+  public void loaded() throws PluginLifecycleException {
+    IPentahoSession session = PentahoSessionHolder.getSession();
     boolean result = true;
     Properties quartzProps = null;
     if ( quartzPropertiesFile != null ) {
@@ -154,7 +165,9 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
                       "EmbeddedQuartzSystemListener.ERROR_0001_Scheduler_Not_Initialized", EmbeddedQuartzSystemListener.class.getName() ), e ); //$NON-NLS-1$
       result = false;
     }
-    return result;
+    if ( !result ) {
+      throw new PluginLifecycleException(" Failed to start EmbeddedQuartzSystemListener");
+    }
   }
 
   protected boolean verifyQuartzIsConfigured( DataSource ds ) throws SQLException {
@@ -253,7 +266,8 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
    * 
    * @see org.pentaho.core.system.IPentahoSystemListener#shutdown()
    */
-  public void shutdown() {
+  @Override
+  public void unLoaded() throws PluginLifecycleException {
     try {
       QuartzScheduler scheduler = (QuartzScheduler) PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
       scheduler.getQuartzScheduler().shutdown();

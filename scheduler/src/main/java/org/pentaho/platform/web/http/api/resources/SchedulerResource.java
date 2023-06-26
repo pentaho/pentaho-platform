@@ -62,8 +62,8 @@ import org.pentaho.platform.web.http.messages.Messages;
 /**
  * The SchedulerResource service provides the means to create, read, update, delete, and list schedules and blockout periods.  Also provides the ability to control the status of schedules and the scheduler.
  */
-@Path ( "/scheduler" )
-public class SchedulerResource extends AbstractJaxRSResource {
+@Path ( "/scheduler-plugin/api/scheduler" )
+public class SchedulerResource {
 
   protected SchedulerService schedulerService;
 
@@ -71,6 +71,9 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   public SchedulerResource() {
     schedulerService = new SchedulerService();
+    System.out.println("-----------------------------------------------------------------------");
+    System.out.println("SchedulerResource was initialized.");
+    System.out.println("-----------------------------------------------------------------------");
   }
 
 

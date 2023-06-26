@@ -128,10 +128,16 @@ public class QuartzScheduler implements IScheduler {
 
   public QuartzScheduler( SchedulerFactory schedulerFactory ) {
     this.quartzSchedulerFactory = schedulerFactory;
+    System.out.println("***************************************************************");
+    System.out.println("QuartzScheduler initialized.");
+    System.out.println("***************************************************************");
   }
 
   public QuartzScheduler() {
     this.quartzSchedulerFactory = new StdSchedulerFactory();
+    System.out.println("***************************************************************");
+    System.out.println("QuartzScheduler initialized.");
+    System.out.println("***************************************************************");
   }
 
   /**

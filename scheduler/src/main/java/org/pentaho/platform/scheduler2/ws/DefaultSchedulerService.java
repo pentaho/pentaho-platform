@@ -54,6 +54,12 @@ public class DefaultSchedulerService implements ISchedulerService {
 
   private String defaultActionId; // for testing only
 
+  public DefaultSchedulerService() {
+    System.out.println("***************************************************************");
+    System.out.println("DefaultSchedulerService initialized.");
+    System.out.println("***************************************************************");
+  }
+
   public void setDefaultActionId( String defaultActionId ) {
     this.defaultActionId = defaultActionId;
   }
