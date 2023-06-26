@@ -30,6 +30,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
+import org.pentaho.platform.api.engine.IPluginLifecycleListener;
+import org.pentaho.platform.api.engine.PluginLifecycleException;
 import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
@@ -39,7 +41,7 @@ import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.versionchecker.PentahoVersionCheckReflectHelper;
 
-public class EmbeddedVersionCheckSystemListener implements IPentahoSystemListener {
+public class EmbeddedVersionCheckSystemListener implements IPluginLifecycleListener {
 
   /**
    * This is a direct copy of VersionCheckSystemListener except that the mechanism for talking to quartz goes through
@@ -55,7 +57,18 @@ public class EmbeddedVersionCheckSystemListener implements IPentahoSystemListene
   private String requestedReleases = "minor, ga"; //$NON-NLS-1$
   private boolean disableVersionCheck = false;
 
-  public boolean startup( final IPentahoSession session ) {
+  public EmbeddedVersionCheckSystemListener() {
+    System.out.println("***************************************************************");
+    System.out.println("EmbeddedVersionCheckSystemListener initialized.");
+    System.out.println("***************************************************************");
+  }
+
+  @Override
+  public void init() throws PluginLifecycleException {
+  }
+
+  @Override
+  public void loaded() throws PluginLifecycleException {
     if ( isVersionCheckAvailable() ) {
       // register version check job
       try {
@@ -84,7 +97,7 @@ public class EmbeddedVersionCheckSystemListener implements IPentahoSystemListene
         }
       }
     }
-    return true;
+//    return true;
   }
 
   public int calculateRepeatSeconds() {
@@ -138,7 +151,8 @@ public class EmbeddedVersionCheckSystemListener implements IPentahoSystemListene
     return PentahoVersionCheckReflectHelper.isVersionCheckerAvailable();
   }
 
-  public void shutdown() {
+  @Override
+  public void unLoaded() throws PluginLifecycleException {
   }
 
   public int getRepeatIntervalSeconds() {
