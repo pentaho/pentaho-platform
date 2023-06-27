@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,6 +25,9 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -33,18 +36,23 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
+import org.pentaho.gwt.widgets.client.menuitem.MenuCloner;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
+import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
+import org.pentaho.gwt.widgets.client.utils.ElementUtils;
+import org.pentaho.gwt.widgets.client.utils.MenuBarUtils;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
+import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
@@ -71,7 +79,10 @@ import org.pentaho.mantle.client.solutionbrowser.filepicklist.IFilePickItem;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.IFilePickListListener;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickItem;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickList;
+import org.pentaho.mantle.client.ui.BurgerMenuBar;
+import org.pentaho.mantle.client.ui.BurgerMenuPopup;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
+import org.pentaho.mantle.client.ui.UserDropDown;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
@@ -100,7 +111,13 @@ public class MantleController extends AbstractXulEventHandler {
   private static final String HTTP_REQUEST_ACCEPT_HEADER = "accept";
   private static final String JSON_REQUEST_HEADER = "application/json";
 
+  private static final String BURGER_MODE_MEDIA_QUERY = "(max-height: 500px), (max-width: 650px)";
+
   private MantleModel model;
+
+  private XulMenubar mainMenubar;
+
+  private XulToolbarbutton burgerBtn;
 
   private XulToolbarbutton openBtn;
 
@@ -140,6 +157,8 @@ public class MantleController extends AbstractXulEventHandler {
 
   private String overrideContentUrl;
 
+  private BurgerMenuPopup burgerMenuPopup;
+
   HashMap<String, ISysAdminPanel> sysAdminPanelsMap = new HashMap<String, ISysAdminPanel>();
 
   RecentPickList recentPickList = RecentPickList.getInstance();
@@ -172,7 +191,9 @@ public class MantleController extends AbstractXulEventHandler {
    */
   @Bindable
   public void init() {
+    mainMenubar = (XulMenubar) document.getElementById( "mainMenubar" );
 
+    burgerBtn = (XulToolbarbutton) document.getElementById( "burgerButton" );
     openBtn = (XulToolbarbutton) document.getElementById( "openButton" ); //$NON-NLS-1$
     newBtn = (XulToolbarbutton) document.getElementById( "newButton" ); //$NON-NLS-1$
     saveBtn = (XulToolbarbutton) document.getElementById( "saveButton" ); //$NON-NLS-1$
@@ -197,6 +218,8 @@ public class MantleController extends AbstractXulEventHandler {
     toolsMenu = (XulMenubar) document.getElementById( "toolsmenu" ); //$NON-NLS-1$
     recentMenu = (XulMenubar) document.getElementById( "recentmenu" ); //$NON-NLS-1$
     favoriteMenu = (XulMenubar) document.getElementById( "favoritesmenu" ); //$NON-NLS-1$
+
+    initializeBurgerMenu();
 
     if ( PerspectiveManager.getInstance().isLoaded() ) {
       PerspectiveManager.getInstance().enablePerspective( PerspectiveManager.OPENED_PERSPECTIVE, false );
@@ -294,6 +317,7 @@ public class MantleController extends AbstractXulEventHandler {
                   PentahoMenuItem themeMenuItem =
                       new PentahoMenuItem( theme.getName(), new SwitchThemeCommand( theme.getId() ) );
                   themeMenuItem.getElement().setId( theme.getId() + "_menu_item" ); //$NON-NLS-1$
+                  themeMenuItem.setUseCheckUI( true );
                   themeMenuItem.setChecked( theme.getId().equals( activeTheme ) );
                   ( (MenuBar) themesMenu.getManagedObject() ).addItem( themeMenuItem );
                 }
@@ -704,11 +728,142 @@ public class MantleController extends AbstractXulEventHandler {
   public void openClicked() {
     model.executeOpenFileCommand();
   }
-
   @Bindable
   public void newClicked() {
     model.launchNewDropdownCommand( newBtn );
   }
+
+  // region Burger Menu
+  private Widget getBurgerButtonWidget() {
+    return ( (ToolbarButton) burgerBtn.getManagedObject() ).getPushButton();
+  }
+
+  public MenuBar getMainMenubarWidget() {
+    return (MenuBar) mainMenubar.getManagedObject();
+  }
+
+  private Element getPUCWrapperElement() {
+    return Document.get().getElementById( "pucWrapper" );
+  }
+
+  private void initializeBurgerMenu() {
+    // Listen to Media Query that controls Burger Mode and set the mantle model's initial value.
+    boolean matchesMediaQuery = setupNativeBurgerModeMediaQueryListener( this, BURGER_MODE_MEDIA_QUERY );
+    model.setBurgerMode( matchesMediaQuery );
+
+    // Update DOM to match initial model values.
+    onBurgerModeChanged();
+
+    // Start listening for model changes.
+    model.addPropertyChangeListener( "burgerMode", evt -> onBurgerModeChanged() );
+
+    getBurgerButtonWidget().getElement().setAttribute( "aria-haspopup", "menu" );
+  }
+
+  private native boolean setupNativeBurgerModeMediaQueryListener( MantleController controller, String mediaQuery ) /*-{
+    var x = $wnd.matchMedia(mediaQuery);
+
+    x.addEventListener("change", function(x) {
+      controller.@org.pentaho.mantle.client.ui.xul.MantleController::onBurgerModeMediaQueryChange(Z)(x.matches);
+    });
+
+    return x.matches;
+  }-*/;
+
+  private void onBurgerModeMediaQueryChange( boolean matches ) {
+    model.setBurgerMode( matches );
+  }
+
+  private void onBurgerModeChanged() {
+    boolean isBurgerMode = model.isBurgerMode();
+
+    MenuBar mainMenubarWidget = getMainMenubarWidget();
+
+    boolean hadFocus;
+
+    // Close menu popups, if open.
+    // Detect if focus should be set to the other "menu" after the (CSS) mode transition.
+    if ( isBurgerMode ) {
+      // Entering burger mode.
+      hadFocus = MenuBarUtils.getPopup( mainMenubarWidget ) != null
+        || ElementUtils.isActiveElement( mainMenubarWidget.getElement() );
+
+      // Close any open menus.
+      mainMenubarWidget.closeAllChildren( false );
+      PerspectiveManager.getInstance().hidePopup();
+
+      // May be null during initialization.
+      UserDropDown userDropDown = MantleApplication.getUserDropDown();
+      if ( userDropDown != null ) {
+        userDropDown.hidePopup();
+      }
+    } else {
+      // Exiting burger mode.
+      hadFocus = closeBurgerMenuPopup();
+    }
+
+    Element pucWrapperElem = getPUCWrapperElement();
+    if ( pucWrapperElem != null ) {
+      if ( isBurgerMode ) {
+        pucWrapperElem.addClassName( "burger-mode" );
+      } else {
+        pucWrapperElem.removeClassName( "burger-mode" );
+      }
+    }
+
+    if ( hadFocus ) {
+      if ( isBurgerMode ) {
+        ( (Focusable) getBurgerButtonWidget() ).setFocus( true );
+      } else {
+        mainMenubarWidget.focus();
+      }
+    }
+  }
+
+  private boolean closeBurgerMenuPopup() {
+    if ( burgerMenuPopup != null ) {
+      burgerMenuPopup.hide();
+      burgerMenuPopup = null;
+      return true;
+    }
+
+    return false;
+  }
+
+  private void toggleBurgerMenuExpanded() {
+    Widget burgerButton = getBurgerButtonWidget();
+    if ( !burgerButton.getElement().hasAttribute( "aria-expanded" ) ) {
+      closeBurgerMenuPopup();
+
+      burgerMenuPopup = new BurgerMenuPopup( burgerButton, createBurgerMenuBar( getMainMenubarWidget() ) );
+      burgerMenuPopup.showMenu();
+    }
+  }
+
+  private BurgerMenuBar createBurgerMenuBar( MenuBar mainMenuBar ) {
+    MenuCloner<BurgerMenuBar> menuCloner = new MenuCloner<>( m -> new BurgerMenuBar() );
+    BurgerMenuBar burgerMenuBar = menuCloner.clone( mainMenuBar );
+
+    // add perspectives menu
+    burgerMenuBar.addItem( PerspectiveManager.getInstance().getBurgerBarPerspectiveMenuItem() );
+
+    // add admin/UserDropDown menu
+    MenuItem burgerUserDropDown = new MenuItem( UserDropDown.getUsername(), (Scheduler.ScheduledCommand) null );
+    burgerUserDropDown.setSubMenu( menuCloner.clone( MantleApplication.getUserDropDown().getMenuBar() ) );
+    burgerMenuBar.addItem( burgerUserDropDown );
+
+    // Lastly, add back menu items.
+    burgerMenuBar.addBackItemToDescendantMenus();
+
+    return burgerMenuBar;
+  }
+
+  @Bindable
+  public void burgerMenuButtonClicked() {
+    toggleBurgerMenuExpanded();
+  }
+
+  // endregion
 
   @Bindable
   public void saveClicked() {

@@ -91,6 +91,10 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
     }
 
     public void hide( boolean autoClosed ) {
+      if ( !isShowing() ) {
+        return;
+      }
+
       super.hide( autoClosed );
       pageBackground.setVisible( false );
       GlassPane.getInstance().hide();
@@ -183,13 +187,16 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
         addStyleDependentName( "pressed" );
         removeStyleDependentName( "hover" );
         popup.setWidget( menuBar );
+
+        int popupWidth = getOffsetWidth() - 2;
+        popup.setWidth( popupWidth + "px" );
+
         popup.setPopupPositionAndShow( new PositionCallback() {
           public void setPosition( int offsetWidth, int offsetHeight ) {
             popup.setPopupPosition( getAbsoluteLeft(), getAbsoluteTop() + getOffsetHeight() - 1 );
           }
         } );
         menuBar.focus();
-        popup.setWidth( ( getOffsetWidth() - 2 ) + "px" );
       }
     } else if ( ( event.getTypeInt() & Event.ONMOUSEOVER ) == Event.ONMOUSEOVER ) {
       if ( enabled ) {
@@ -222,7 +229,7 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
     label.setText( text );
   }
 
-  protected MenuBar getMenuBar() {
+  public MenuBar getMenuBar() {
     return menuBar;
   }
 
@@ -231,7 +238,9 @@ public class CustomDropDown extends HorizontalPanel implements HasText {
   }
 
   public void hidePopup() {
-    popup.hide();
+    if ( popup.isShowing() ) {
+      popup.hide();
+    }
   }
 
   public boolean isEnabled() {
