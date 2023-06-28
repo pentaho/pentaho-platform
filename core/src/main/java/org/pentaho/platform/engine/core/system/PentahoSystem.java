@@ -200,6 +200,16 @@ public class PentahoSystem {
   private static final List UnmodifiableDownloadRolesList = UnmodifiableList
     .decorate( PentahoSystem.DownloadRolesList );
 
+  private static final List<String> SystemDatasourcesList = new ArrayList();
+
+  private static final List<String> UnmodifiableSystemDatasourcesList = UnmodifiableList
+    .decorate( PentahoSystem.SystemDatasourcesList );
+
+  private static final List<String> SystemDatasourcesRolesList = new ArrayList();
+
+  private static final List<String> UnmodifiableSystemDatasourcesRolesList = UnmodifiableList
+    .decorate( PentahoSystem.SystemDatasourcesRolesList );
+
   private static final List logoutListeners = Collections.synchronizedList( new ArrayList() );
 
   private static final IServerStatusProvider serverStatusProvider = IServerStatusProvider.LOCATOR.getProvider();
@@ -316,7 +326,17 @@ public class PentahoSystem {
       String downloadRoles = PentahoSystem.getSystemSetting( "download-roles", "Administrator" ); //$NON-NLS-1$ //$NON-NLS-2$
       st = new StringTokenizer( downloadRoles, "," ); //$NON-NLS-1$
       while ( st.hasMoreElements() ) {
-        PentahoSystem.DownloadRolesList.add( st.nextToken() );
+        PentahoSystem.DownloadRolesList.add( st.nextToken().trim() );
+      }
+
+      st = new StringTokenizer( PentahoSystem.getSystemSetting( "system-datasources-roles", "Administrator" ), "," );
+      while ( st.hasMoreElements() ) {
+        PentahoSystem.SystemDatasourcesRolesList.add( st.nextToken().trim() );
+      }
+
+      st = new StringTokenizer( PentahoSystem.getSystemSetting( "system-datasources", "Hibernate,Quartz,jackrabbit" ), "," );
+      while ( st.hasMoreElements() ) {
+        PentahoSystem.SystemDatasourcesList.add( st.nextToken().trim() );
       }
     }
 
@@ -1302,6 +1322,14 @@ public class PentahoSystem {
 
   public static List getDownloadRolesList() {
     return PentahoSystem.UnmodifiableDownloadRolesList;
+  }
+
+  public static List<String> getSystemDatasourcesList() {
+    return PentahoSystem.UnmodifiableSystemDatasourcesList;
+  }
+
+  public static List<String> getSystemDatasourcesRolesList() {
+    return PentahoSystem.UnmodifiableSystemDatasourcesRolesList;
   }
 
   // Stuff for the logout listener subsystem
