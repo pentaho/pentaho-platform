@@ -124,6 +124,12 @@ public class ActionInfo {
   public static String buildSolutionPath( final String solution, String path, String filename ) {
     StringBuffer buf = new StringBuffer();
 
+    // Assume the given path is complete with solution and filename,
+    // so there is no need add to it
+    if ( path.startsWith( solution ) && path.endsWith( filename ) ) {
+      return path;
+    }
+
     // if the solutionName is the same as the fileName and the path is empty, then we are
     // probably trying to load the solution root itself
     if ( solution != null && solution.equals( filename ) && "".equals( path ) ) { //$NON-NLS-1$
