@@ -26,6 +26,7 @@
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
     <replacer.version>1.5.2</replacer.version>
     <rxjava.version>2.2.3</rxjava.version>
+    <google-http-client.version>1.42.3</google-http-client.version>
     <big-data-plugin.version>9.6.0.0-SNAPSHOT</big-data-plugin.version>
   </properties>
   <dependencies>
@@ -967,6 +968,16 @@
       <groupId>io.reactivex.rxjava2</groupId>
       <artifactId>rxjava</artifactId>
       <version>${rxjava.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.http-client</groupId>
+      <artifactId>google-http-client</artifactId>
+      <version>${google-http-client.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.http-client</groupId>
+      <artifactId>google-http-client-gson</artifactId>
+      <version>${google-http-client.version}</version>
     </dependency>
   </dependencies>
   <build>

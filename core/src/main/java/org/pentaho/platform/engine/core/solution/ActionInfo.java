@@ -139,6 +139,11 @@ public class ActionInfo {
         return buf.append( solution ).append( RepositoryFile.SEPARATOR.charAt( 0 ) ).append( filename ).toString();
       }
     } else if ( path.charAt( 0 ) == RepositoryFile.SEPARATOR.charAt( 0 ) ) {
+      if ( path.startsWith( solution ) && path.endsWith( filename ) ) {
+        // Assume the given path is complete with solution and filename,
+        // so there is no need add to it
+        return buf.append( path ).toString();
+      }
       if ( !StringUtils.isEmpty( filename ) && filename.charAt( 0 ) == RepositoryFile.SEPARATOR.charAt( 0 ) ) {
         return buf.append( solution ).append( path ).append( filename ).toString();
       } else {
