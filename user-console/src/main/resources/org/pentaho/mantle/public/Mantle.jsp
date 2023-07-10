@@ -206,6 +206,7 @@
     
     <div id="pucHeader" class="responsive" cellspacing="0" cellpadding="0">
       <div id="pucMenuBar"></div>
+      <div id="pucBurgerToolbar"></div>
       <div id="pucPerspectives"></div>
       <div id="pucToolBar"></div>
       <div id="pucUserDropDown"></div>

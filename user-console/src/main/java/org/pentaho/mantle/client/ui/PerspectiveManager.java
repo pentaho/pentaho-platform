@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,6 +25,7 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -54,6 +55,7 @@ import org.pentaho.mantle.client.ui.CustomDropDown.MODE;
 import org.pentaho.mantle.client.ui.xul.JsPerspective;
 import org.pentaho.mantle.client.ui.xul.JsXulOverlay;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
+import org.pentaho.gwt.widgets.client.menuitem.MenuCloner;
 import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo.DefaultPluginPerspective;
@@ -61,6 +63,7 @@ import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.gwt.util.ResourceBundleTranslator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -105,6 +108,10 @@ public class PerspectiveManager extends SimplePanel {
     getElement().setId( "mantle-perspective-switcher" );
     setStyleName( "mantle-perspective-switcher" );
     init();
+  }
+
+  private Collection<MenuItem> getMenuItems(){
+    return perspectiveMenuItemMap.values();
   }
 
   private void init() {
@@ -562,5 +569,22 @@ public class PerspectiveManager extends SimplePanel {
 
   public void setLoaded( boolean loaded ) {
     this.loaded = loaded;
+  }
+
+  public MenuItem getBurgerBarPerspectiveMenuItem() {
+    BurgerMenuBar perspectivesMenuBar = new BurgerMenuBar();
+
+    MenuCloner<BurgerMenuBar> menuCloner = new MenuCloner<>( m -> new BurgerMenuBar() );
+    getMenuItems().forEach( m -> perspectivesMenuBar.addItem( menuCloner.clone( m ) ) );
+
+    MenuItem burgerBarPerspectiveMenuItem = new MenuItem( getActivePerspective().getTitle(), (Scheduler.ScheduledCommand) null );
+    burgerBarPerspectiveMenuItem.setSubMenu( perspectivesMenuBar );
+    return burgerBarPerspectiveMenuItem;
+  }
+
+  public void hidePopup() {
+    if ( perspectiveDropDown != null ) {
+      perspectiveDropDown.hidePopup();
+    }
   }
 }
