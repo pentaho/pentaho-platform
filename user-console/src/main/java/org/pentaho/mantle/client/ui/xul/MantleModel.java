@@ -33,7 +33,7 @@ import org.pentaho.mantle.client.commands.OpenFileCommand;
 import org.pentaho.mantle.client.commands.OpenKettleStatusCommand;
 import org.pentaho.mantle.client.commands.PrintCommand;
 import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
-import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
+//import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
 import org.pentaho.mantle.client.commands.SaveCommand;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.ISolutionBrowserEvent;
@@ -297,14 +297,15 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
 
   @Bindable
   public void refreshContent() {
-    if ( PerspectiveManager.SCHEDULES_PERSPECTIVE.equals( PerspectiveManager.getInstance().getActivePerspective()
-        .getId() ) ) {
-      Command cmd = new RefreshSchedulesCommand();
-      cmd.execute();
-    } else {
+    // TODO Need to delegate this refresh to plugins as well
+    //if ( PerspectiveManager.SCHEDULES_PERSPECTIVE.equals( PerspectiveManager.getInstance().getActivePerspective()
+    //    .getId() ) ) {
+      // Command cmd = new RefreshSchedulesCommand();
+      //cmd.execute();
+    //} else {
       Command cmd = new RefreshRepositoryCommand();
       cmd.execute();
-    }
+    //}
   }
 
   @Bindable

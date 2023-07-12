@@ -55,6 +55,7 @@
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>${hsqldb.version}</version>
+      <classifier>jdk8</classifier>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
