@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -144,7 +144,7 @@ public class SchedulerResource {
    * removing the current instance.
    *
    * <p><b>Example Request:</b><br />
-   *  POST pentaho/api/scheduler/job/edit
+   *    POST pentaho/api/scheduler/job/update
    * </p>
    * <br /><b>POST data:</b>
    *  <pre function="syntax.xml">

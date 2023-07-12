@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -43,6 +43,8 @@ import static org.mockito.Mockito.verify;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -56,8 +58,13 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository.RepositoryException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
@@ -68,6 +75,7 @@ import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
+import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.web.http.api.resources.JobRequest;
@@ -76,6 +84,7 @@ import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
 import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @RunWith( MockitoJUnitRunner.class )
 public class SchedulerServiceTest {
@@ -1023,6 +1032,582 @@ public class SchedulerServiceTest {
     verify( schedulerService, times( 5 ) ).canAdminister();
     verify( schedulerService, times( 4 ) ).removeJob( nullable( String.class ) );
     verify( schedulerService, times( 2 ) ).addBlockout( jobScheduleRequest );
+  }
+
+  @Test
+  public void testHasLogicalRole_nullUserName() {
+    assertFalse( schedulerService.hasLogicalRole( null, "logicalRole" ) );
+  }
+
+  @Test
+  public void testHasLogicalRole_nullLogicalRoleName() {
+    assertFalse( schedulerService.hasLogicalRole( "user", null ) );
+  }
+
+  @Test
+  public void testHasLogicalRole_nullRoleBindingDao() {
+    doReturn( null ).when( schedulerService ).getRoleBindingDao();
+
+    assertFalse( schedulerService.hasLogicalRole( "user", "logicalRole" ) );
+  }
+
+  @Test
+  public void testHasLogicalRole_getRolesForUserException() {
+    final String userName = "user";
+    final SystemService systemService = mock( SystemService.class );
+    final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
+
+    doReturn( systemService ).when( schedulerService ).getSystemService();
+    doReturn( roleBindingDao ).when( schedulerService ).getRoleBindingDao();
+    doThrow( new UsernameNotFoundException( "erro" ) ).when( systemService ).getRolesForUser( userName );
+
+    assertFalse( schedulerService.hasLogicalRole( userName, "logicalRole" ) );
+  }
+
+  @Test
+  public void testHasLogicalRole_noUserPermissions() {
+    final String userName = "user";
+    final String logicalRoleName1 = "logicalRole1";
+    final String logicalRoleName2 = "logicalRole2";
+    final SystemService systemService = mock( SystemService.class );
+    final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
+    final ArrayList<String> userRoles = new ArrayList<>( Collections.singletonList( "ROLE" ) );
+
+    doReturn( systemService ).when( schedulerService ).getSystemService();
+    doReturn( roleBindingDao ).when( schedulerService ).getRoleBindingDao();
+    doReturn( userRoles ).when( systemService ).getRolesForUser( userName );
+    doReturn( Collections.singletonList( logicalRoleName2 ) ).when( roleBindingDao ).getBoundLogicalRoleNames( userRoles );
+
+    assertFalse( schedulerService.hasLogicalRole( userName, logicalRoleName1 ) );
+  }
+
+  @Test
+  public void testHasLogicalRole() {
+    final String userName = "user";
+    final String logicalRoleName1 = "logicalRole";
+    final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
+    final SystemService systemService = mock( SystemService.class );
+    final ArrayList<String> userRoles = new ArrayList<>( Collections.singletonList( "ROLE" ) );
+
+    doReturn( systemService ).when( schedulerService ).getSystemService();
+    doReturn( roleBindingDao ).when( schedulerService ).getRoleBindingDao();
+    doReturn( userRoles ).when( systemService ).getRolesForUser( userName );
+    doReturn( Collections.singletonList( logicalRoleName1 ) ).when( roleBindingDao ).getBoundLogicalRoleNames( userRoles );
+
+    assertTrue( schedulerService.hasLogicalRole( userName, logicalRoleName1 ) );
+  }
+
+  @Test
+  public void testHasFileAccess_nullUserName() {
+    assertFalse( schedulerService.hasFileAccess( null, "/fake", RepositoryFilePermission.READ ) );
+  }
+
+  @Test
+  public void testHasFileAccess_nullPath() {
+    assertFalse( schedulerService.hasFileAccess( "user", null, RepositoryFilePermission.READ ) );
+  }
+
+  @Test
+  public void testHasFileAccess_nullPermission() {
+    assertFalse( schedulerService.hasFileAccess( "user", "/fake", null ) );
+  }
+
+  @Test
+  public void testHasFileAccess_nullRepository() {
+    doReturn( null ).when( schedulerService ).getRepository();
+
+    assertFalse( schedulerService.hasFileAccess( "user", "/fake", RepositoryFilePermission.READ ) );
+  }
+
+  @Test
+  public void testHasFileAccess_getFileException() {
+    final String path = "/fake/input";
+    final IUnifiedRepository repository = mock( IUnifiedRepository.class );
+
+    doReturn( repository ).when( schedulerService ).getRepository();
+    doThrow( new RepositoryException() ).when( repository ).getFile( path );
+
+    assertFalse( schedulerService.hasFileAccess( "user", path, RepositoryFilePermission.READ ) );
+  }
+
+  @Test
+  public void testHasFileAccess_invalidPath() {
+    final String path = "/fake";
+    final IUnifiedRepository repository = mock( IUnifiedRepository.class );
+
+    doReturn( repository ).when( schedulerService ).getRepository();
+    doReturn( null ).when( repository ).getFile( path );
+
+    assertFalse( schedulerService.hasFileAccess( "user", path, RepositoryFilePermission.READ ) );
+  }
+
+  @Test
+  public void testHasFileAccess_getRolesForUser_throwsUnifiedRepositoryException() {
+    final String userName = "user";
+    final String path = "/fake";
+    final IUnifiedRepository repository = mock( IUnifiedRepository.class );
+    final RepositoryFile file = mock( RepositoryFile.class );
+    final SystemService systemService = mock( SystemService.class );
+
+    doReturn( repository ).when( schedulerService ).getRepository();
+    doReturn( file ).when( repository ).getFile( path );
+    doReturn( systemService ).when( schedulerService ).getSystemService();
+    doThrow( new UnifiedRepositoryException() ).when( systemService ).getRolesForUser( userName );
+
+    assertFalse( schedulerService.hasFileAccess( userName, path, RepositoryFilePermission.READ ) );
+  }
+
+  @Test
+  public void testHasFileAccess_getRolesForUser_throwsUsernameNotFoundException() {
+    final String userName = "user";
+    final String path = "/fake";
+    final IUnifiedRepository repository = mock( IUnifiedRepository.class );
+    final RepositoryFile file = mock( RepositoryFile.class );
+    final SystemService systemService = mock( SystemService.class );
+
+    doReturn( repository ).when( schedulerService ).getRepository();
+    doReturn( file ).when( repository ).getFile( path );
+    doReturn( systemService ).when( schedulerService ).getSystemService();
+    doThrow( new UsernameNotFoundException( "error" ) ).when( systemService ).getRolesForUser( userName );
+
+    assertFalse( schedulerService.hasFileAccess( userName, path, RepositoryFilePermission.READ ) );
+  }
+
+  @Test
+  public void testHasFileAccess_noUserPermissions() {
+    final String userName = "user";
+    final String path = "/fake";
+    final IUnifiedRepository repository = mock( IUnifiedRepository.class );
+    final String fileId = "fileId";
+    final RepositoryFile file = mock( RepositoryFile.class );
+    final SystemService systemService = mock( SystemService.class );
+    final ArrayList<String> userRoles = new ArrayList<>( Collections.singletonList( "ROLE" ) );
+    final RepositoryFileSid sid = mock( RepositoryFileSid.class );
+    final RepositoryFileAce ace = mock( RepositoryFileAce.class );
+
+    doReturn( repository ).when( schedulerService ).getRepository();
+    doReturn( fileId ).when( file ).getId();
+    doReturn( file ).when( repository ).getFile( path );
+    doReturn( systemService ).when( schedulerService ).getSystemService();
+    doReturn( userRoles ).when( systemService ).getRolesForUser( userName );
+    doReturn( sid ).when( ace ).getSid();
+    doReturn( Collections.singletonList( ace ) ).when( repository ).getEffectiveAces( fileId );
+    doReturn( RepositoryFileSid.Type.USER ).when( sid ).getType();
+    doReturn( "user2" ).when( sid ).getName();
+
+    assertFalse( schedulerService.hasFileAccess( userName, path, RepositoryFilePermission.READ ) );
+  }
+
+  @Test
+  public void testHasFileAccess_noUserRolePermissions() {
+    final String userName = "user";
+    final String path = "/fake";
+    final IUnifiedRepository repository = mock( IUnifiedRepository.class );
+    final String fileId = "fileId";
+    final RepositoryFile file = mock( RepositoryFile.class );
+    final SystemService systemService = mock( SystemService.class );
+    final ArrayList<String> userRoles = new ArrayList<>( Collections.singletonList( "ROLE1" ) );
+    final RepositoryFileSid sid = mock( RepositoryFileSid.class );
+    final RepositoryFileAce ace = mock( RepositoryFileAce.class );
+
+    doReturn( repository ).when( schedulerService ).getRepository();
+    doReturn( fileId ).when( file ).getId();
+    doReturn( file ).when( repository ).getFile( path );
+    doReturn( systemService ).when( schedulerService ).getSystemService();
+    doReturn( userRoles ).when( systemService ).getRolesForUser( userName );
+    doReturn( sid ).when( ace ).getSid();
+    doReturn( Collections.singletonList( ace ) ).when( repository ).getEffectiveAces( fileId );
+    doReturn( RepositoryFileSid.Type.ROLE ).when( sid ).getType();
+    doReturn( "ROLE2" ).when( sid ).getName();
+
+    assertFalse( schedulerService.hasFileAccess( userName, path, RepositoryFilePermission.READ ) );
+  }
+
+  @Test
+  public void testHasFileAccess_userHasPermission() {
+    final String userName = "user";
+    final String path = "/fake";
+    final IUnifiedRepository repository = mock( IUnifiedRepository.class );
+    final String fileId = "fileId";
+    final RepositoryFile file = mock( RepositoryFile.class );
+    final SystemService systemService = mock( SystemService.class );
+    final ArrayList<String> userRoles = new ArrayList<>( Collections.singletonList( "ROLE" ) );
+    final RepositoryFileSid sid = mock( RepositoryFileSid.class );
+    final RepositoryFileAce ace = mock( RepositoryFileAce.class );
+
+    doReturn( repository ).when( schedulerService ).getRepository();
+    doReturn( fileId ).when( file ).getId();
+    doReturn( file ).when( repository ).getFile( path );
+    doReturn( systemService ).when( schedulerService ).getSystemService();
+    doReturn( userRoles ).when( systemService ).getRolesForUser( userName );
+    doReturn( sid ).when( ace ).getSid();
+    doReturn( Collections.singletonList( ace ) ).when( repository ).getEffectiveAces( fileId );
+    doReturn( RepositoryFileSid.Type.USER ).when( sid ).getType();
+    doReturn( userName ).when( sid ).getName();
+    doReturn( EnumSet.of( RepositoryFilePermission.READ ) ).when( ace ).getPermissions();
+
+    assertTrue( schedulerService.hasFileAccess( userName, path, RepositoryFilePermission.READ ) );
+  }
+
+  @Test
+  public void testHasFileAccess_userRoleHasPermission() {
+    final String userName = "user";
+    final String path = "/fake";
+    final IUnifiedRepository repository = mock( IUnifiedRepository.class );
+    final String fileId = "fileId";
+    final RepositoryFile file = mock( RepositoryFile.class );
+    final SystemService systemService = mock( SystemService.class );
+    final ArrayList<String> userRoles = new ArrayList<>( Collections.singletonList( "ROLE" ) );
+    final RepositoryFileSid sid = mock( RepositoryFileSid.class );
+    final RepositoryFileAce ace = mock( RepositoryFileAce.class );
+
+    doReturn( repository ).when( schedulerService ).getRepository();
+    doReturn( fileId ).when( file ).getId();
+    doReturn( file ).when( repository ).getFile( path );
+    doReturn( systemService ).when( schedulerService ).getSystemService();
+    doReturn( userRoles ).when( systemService ).getRolesForUser( userName );
+    doReturn( sid ).when( ace ).getSid();
+    doReturn( Collections.singletonList( ace ) ).when( repository ).getEffectiveAces( fileId );
+    doReturn( RepositoryFileSid.Type.ROLE ).when( sid ).getType();
+    doReturn( userRoles.get( 0 ) ).when( sid ).getName();
+    doReturn( EnumSet.of( RepositoryFilePermission.READ ) ).when( ace ).getPermissions();
+
+    assertTrue( schedulerService.hasFileAccess( userName, path, RepositoryFilePermission.READ ) );
+  }
+
+  @Test
+  public void testHasFileAccess_userHasALLPermission() {
+    final String userName = "user";
+    final String path = "/fake";
+    final IUnifiedRepository repository = mock( IUnifiedRepository.class );
+    final String fileId = "fileId";
+    final RepositoryFile file = mock( RepositoryFile.class );
+    final SystemService systemService = mock( SystemService.class );
+    final ArrayList<String> userRoles = new ArrayList<>( Collections.singletonList( "ROLE" ) );
+    final RepositoryFileSid sid = mock( RepositoryFileSid.class );
+    final RepositoryFileAce ace = mock( RepositoryFileAce.class );
+
+    doReturn( repository ).when( schedulerService ).getRepository();
+    doReturn( fileId ).when( file ).getId();
+    doReturn( file ).when( repository ).getFile( path );
+    doReturn( systemService ).when( schedulerService ).getSystemService();
+    doReturn( userRoles ).when( systemService ).getRolesForUser( userName );
+    doReturn( sid ).when( ace ).getSid();
+    doReturn( Collections.singletonList( ace ) ).when( repository ).getEffectiveAces( fileId );
+    doReturn( RepositoryFileSid.Type.USER ).when( sid ).getType();
+    doReturn( userName ).when( sid ).getName();
+    doReturn( EnumSet.of( RepositoryFilePermission.ALL ) ).when( ace ).getPermissions();
+
+    assertTrue( schedulerService.hasFileAccess( userName, path, RepositoryFilePermission.READ ) );
+  }
+  @Test
+  public void testHasFileAccess_userRoleHasALLPermission() {
+    final String userName = "user";
+    final String path = "/fake";
+    final IUnifiedRepository repository = mock( IUnifiedRepository.class );
+    final String fileId = "fileId";
+    final RepositoryFile file = mock( RepositoryFile.class );
+    final SystemService systemService = mock( SystemService.class );
+    final ArrayList<String> userRoles = new ArrayList<>( Collections.singletonList( "ROLE" ) );
+    final RepositoryFileSid sid = mock( RepositoryFileSid.class );
+    final RepositoryFileAce ace = mock( RepositoryFileAce.class );
+
+    doReturn( repository ).when( schedulerService ).getRepository();
+    doReturn( fileId ).when( file ).getId();
+    doReturn( file ).when( repository ).getFile( path );
+    doReturn( systemService ).when( schedulerService ).getSystemService();
+    doReturn( userRoles ).when( systemService ).getRolesForUser( userName );
+    doReturn( sid ).when( ace ).getSid();
+    doReturn( Collections.singletonList( ace ) ).when( repository ).getEffectiveAces( fileId );
+    doReturn( RepositoryFileSid.Type.ROLE ).when( sid ).getType();
+    doReturn( userRoles.get( 0 ) ).when( sid ).getName();
+    doReturn( EnumSet.of( RepositoryFilePermission.ALL ) ).when( ace ).getPermissions();
+
+    assertTrue( schedulerService.hasFileAccess( userName, path, RepositoryFilePermission.READ ) );
+  }
+
+  @Test
+  public void testUpdateJob_noJob() throws Exception {
+    final JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
+    final Job jobMock = mock( Job.class );
+    final IScheduler scheduler = mock( IScheduler.class );
+
+    doReturn( scheduler ).when( schedulerService ).getScheduler();
+    doReturn( jobMock ).when( schedulerService ).createJob( jobScheduleRequest );
+
+    assertEquals( schedulerService.updateJob( jobScheduleRequest ), jobMock );
+
+    verify( jobScheduleRequest, times( 1 ) ).getJobId();
+    verify( scheduler, times( 1 ) ).getJob( nullable( String.class ) );
+    verify( schedulerService, times( 1 ) ).getScheduler();
+    verify( schedulerService, times( 0 ) ).canAdminister();
+    verify( schedulerService, times( 1 ) ).createJob( jobScheduleRequest );
+    verify( schedulerService, times( 0 ) ).removeJob( nullable( String.class ) );
+  }
+
+  @Test
+  public void testUpdateJob() throws Exception {
+    final String jobId = "jobId";
+    final JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
+    final Job jobMock = mock( Job.class );
+    final IScheduler scheduler = mock( IScheduler.class );
+
+    doReturn( jobId ).when( jobScheduleRequest ).getJobId();
+    doReturn( jobMock ).when( scheduler ).getJob( jobId );
+    doReturn( scheduler ).when( schedulerService ).getScheduler();
+    doReturn( jobMock ).when( schedulerService ).createJob( jobScheduleRequest );
+    doReturn( true ).when( schedulerService ).removeJob( jobId );
+
+    assertEquals( schedulerService.updateJob( jobScheduleRequest ), jobMock );
+
+    verify( jobScheduleRequest, times( 2 ) ).getJobId();
+    verify( scheduler, times( 1 ) ).getJob( jobId );
+    verify( schedulerService, times( 1 ) ).getScheduler();
+    verify( schedulerService, times( 0 ) ).canAdminister();
+    verify( schedulerService, times( 1 ) ).createJob( jobScheduleRequest );
+    verify( schedulerService, times( 1 ) ).removeJob( jobId );
+  }
+
+  @Test
+  public void testUpdateJob_newOwnerSameAsCurrent() throws Exception {
+    final String userName = "user";
+    final String jobId = "jobId";
+    final JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
+    final Job jobMock = mock( Job.class );
+    final IScheduler scheduler = mock( IScheduler.class );
+
+    doReturn( scheduler ).when( schedulerService ).getScheduler();
+    doReturn( jobMock ).when( schedulerService ).createJob( jobScheduleRequest );
+    doReturn( true ).when( schedulerService ).removeJob( jobId );
+    doReturn( jobId ).when( jobScheduleRequest ).getJobId();
+    doReturn( jobMock ).when( scheduler ).getJob( jobId );
+    doReturn( userName ).when( jobMock ).getUserName();
+    doReturn( new ArrayList<>( Collections.singletonList(
+      new JobScheduleParam( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER, userName ) ) )
+    ).when( jobScheduleRequest ).getJobParameters();
+
+    assertEquals( schedulerService.updateJob( jobScheduleRequest ), jobMock );
+
+    verify( jobScheduleRequest, times( 2 ) ).getJobId();
+    verify( scheduler, times( 1 ) ).getJob( jobId );
+    verify( schedulerService, times( 1 ) ).getScheduler();
+    verify( schedulerService, times( 0 ) ).canAdminister();
+    verify( schedulerService, times( 1 ) ).createJob( jobScheduleRequest );
+    verify( schedulerService, times( 1 ) ).removeJob( jobId );
+  }
+
+  @Test
+  public void testUpdateJob_adminChangeOwner() throws Exception {
+    final String userName1 = "user1";
+    final String userName2 = "user2";
+    final String jobId = "jobId";
+    final JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
+    final Job jobMock = mock( Job.class );
+    final IScheduler scheduler = mock( IScheduler.class );
+    final ArrayList<JobScheduleParam> jobParameters = new ArrayList<>( Collections.singletonList(
+      new JobScheduleParam( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER, userName2 ) ) );
+
+    doReturn( scheduler ).when( schedulerService ).getScheduler();
+    doReturn( jobMock ).when( schedulerService ).createJob( jobScheduleRequest );
+    doReturn( true ).when( schedulerService ).removeJob( jobId );
+    doReturn( jobId ).when( jobScheduleRequest ).getJobId();
+    doReturn( jobMock ).when( scheduler ).getJob( jobId );
+    doReturn( userName1 ).when( jobMock ).getUserName();
+    doReturn( true ).when( schedulerService ).canAdminister();
+    doReturn( true ).when( schedulerService ).hasLogicalRole( eq( userName2 ), nullable( String.class ) );
+    doReturn( jobParameters ).when( jobScheduleRequest ).getJobParameters();
+
+    assertEquals( schedulerService.updateJob( jobScheduleRequest ), jobMock );
+
+    verify( jobScheduleRequest, times( 2 ) ).getJobId();
+    verify( scheduler, times( 1 ) ).getJob( jobId );
+    verify( schedulerService, times( 1 ) ).getScheduler();
+    verify( schedulerService, times( 1 ) ).canAdminister();
+    verify( schedulerService, times( 1 ) ).createJob( jobScheduleRequest );
+    verify( schedulerService, times( 1 ) ).removeJob( jobId );
+  }
+
+  @Test
+  public void testUpdateJobException_changeOwnerEmptyValue() throws Exception {
+    final String jobId = "jobId";
+    final JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
+    final Job jobMock = mock( Job.class );
+    final IScheduler scheduler = mock( IScheduler.class );
+
+    doReturn( jobId ).when( jobScheduleRequest ).getJobId();
+    doReturn( jobMock ).when( scheduler ).getJob( jobId );
+    doReturn( scheduler ).when( schedulerService ).getScheduler();
+
+    doReturn(
+      new ArrayList<>( Collections.singletonList(
+        new JobScheduleParam( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER, " " ) ) )
+    ).when( jobScheduleRequest ).getJobParameters();
+
+    try {
+      schedulerService.updateJob( jobScheduleRequest );
+      fail();
+    } catch ( SchedulerException e ) {
+      // Should catch the exception
+      assertEquals( "User not found", e.getMessage() );
+    }
+
+    verify( jobScheduleRequest, times( 1 ) ).getJobId();
+    verify( scheduler, times( 1 ) ).getJob( jobId );
+    verify( schedulerService, times( 1 ) ).getScheduler();
+    verify( schedulerService, times( 0 ) ).canAdminister();
+    verify( schedulerService, times( 0 ) ).createJob( nullable( JobScheduleRequest.class ) );
+    verify( schedulerService, times( 0 ) ).removeJob( nullable( String.class ) );
+  }
+
+  @Test
+  public void testUpdateJobException_nonAdminChangeOwner() throws Exception {
+    final String userName1 = "user1";
+    final String userName2 = "user2";
+    final String jobId = "jobId";
+    final JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
+    final Job jobMock = mock( Job.class );
+    final IScheduler scheduler = mock( IScheduler.class );
+    final ArrayList<JobScheduleParam> jobParameters = new ArrayList<>( Collections.singletonList(
+      new JobScheduleParam( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER, userName2 ) ) );
+
+    doReturn( jobId ).when( jobScheduleRequest ).getJobId();
+    doReturn( jobMock ).when( scheduler ).getJob( jobId );
+    doReturn( scheduler ).when( schedulerService ).getScheduler();
+    doReturn( userName1 ).when( jobMock ).getUserName();
+    doReturn( jobParameters ).when( jobScheduleRequest ).getJobParameters();
+    doReturn( false ).when( schedulerService ).canAdminister();
+
+    try {
+      schedulerService.updateJob( jobScheduleRequest );
+      fail();
+    } catch ( SchedulerException e ) {
+      // Should catch the exception
+      assertEquals( "Logged-in user is not authorized to change the schedule owner", e.getMessage() );
+    }
+
+    verify( jobScheduleRequest, times( 1 ) ).getJobId();
+    verify( scheduler, times( 1 ) ).getJob( jobId );
+    verify( schedulerService, times( 1 ) ).getScheduler();
+    verify( schedulerService, times( 1 ) ).canAdminister();
+    verify( schedulerService, times( 0 ) ).createJob( nullable( JobScheduleRequest.class ) );
+    verify( schedulerService, times( 0 ) ).removeJob( nullable( String.class ) );
+  }
+
+  @Test
+  public void testUpdateJobException_changeOwnerNoSchedulingPermissions() throws Exception {
+    final String userName1 = "user1";
+    final String userName2 = "user2";
+    final String jobId = "jobId";
+    final JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
+    final Job jobMock = mock( Job.class );
+    final IScheduler scheduler = mock( IScheduler.class );
+    final ArrayList<JobScheduleParam> jobParameters = new ArrayList<>( Collections.singletonList(
+      new JobScheduleParam( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER, userName2 ) ) );
+
+    doReturn( jobId ).when( jobScheduleRequest ).getJobId();
+    doReturn( jobMock ).when( scheduler ).getJob( jobId );
+    doReturn( scheduler ).when( schedulerService ).getScheduler();
+    doReturn( userName1 ).when( jobMock ).getUserName();
+    doReturn( jobParameters ).when( jobScheduleRequest ).getJobParameters();
+    doReturn( true ).when( schedulerService ).canAdminister();
+    doReturn( false ).when( schedulerService ).hasLogicalRole( userName2, SchedulerAction.NAME );
+
+    try {
+      schedulerService.updateJob( jobScheduleRequest );
+      fail();
+    } catch ( SchedulerException e ) {
+      // Should catch the exception
+      assertEquals( "User does not have scheduling permissions", e.getMessage() );
+    }
+
+    verify( jobScheduleRequest, times( 1 ) ).getJobId();
+    verify( scheduler, times( 1 ) ).getJob( jobId );
+    verify( schedulerService, times( 1 ) ).getScheduler();
+    verify( schedulerService, times( 1 ) ).canAdminister();
+    verify( schedulerService, times( 0 ) ).createJob( nullable( JobScheduleRequest.class ) );
+    verify( schedulerService, times( 0 ) ).removeJob( nullable( String.class ) );
+  }
+
+  @Test
+  public void testUpdateJobException_changeOwnerNoInputFilePermission() throws Exception {
+    final String userName1 = "user1";
+    final String userName2 = "user2";
+    final String jobId = "jobId";
+    final String inputFile = "/fake/input";
+    final JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
+    final Job jobMock = mock( Job.class );
+    final IScheduler scheduler = mock( IScheduler.class );
+    final ArrayList<JobScheduleParam> jobParameters = new ArrayList<>( Collections.singletonList(
+      new JobScheduleParam( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER, userName2 ) ) );
+
+    doReturn( jobId ).when( jobScheduleRequest ).getJobId();
+    doReturn( jobMock ).when( scheduler ).getJob( jobId );
+    doReturn( scheduler ).when( schedulerService ).getScheduler();
+    doReturn( userName1 ).when( jobMock ).getUserName();
+    doReturn( jobParameters ).when( jobScheduleRequest ).getJobParameters();
+    doReturn( true ).when( schedulerService ).canAdminister();
+    doReturn( true ).when( schedulerService ).hasLogicalRole( userName2, SchedulerAction.NAME );
+    doReturn( inputFile ).when( jobScheduleRequest ).getInputFile();
+    doReturn( false ).when( schedulerService )
+      .hasFileAccess( userName2, inputFile, RepositoryFilePermission.READ );
+
+    try {
+      schedulerService.updateJob( jobScheduleRequest );
+      fail();
+    } catch ( SchedulerException e ) {
+      // Should catch the exception
+      assertEquals( "User does not have access to the input file", e.getMessage() );
+    }
+
+    verify( jobScheduleRequest, times( 1 ) ).getJobId();
+    verify( scheduler, times( 1 ) ).getJob( jobId );
+    verify( schedulerService, times( 1 ) ).getScheduler();
+    verify( schedulerService, times( 1 ) ).canAdminister();
+    verify( schedulerService, times( 0 ) ).createJob( nullable( JobScheduleRequest.class ) );
+    verify( schedulerService, times( 0 ) ).removeJob( nullable( String.class ) );
+  }
+
+  @Test
+  public void testUpdateJobException_changeOwnerNoOutputPathPermission() throws Exception {
+    final String userName1 = "user1";
+    final String userName2 = "user2";
+    final String jobId = "jobId";
+    final String inputFile = "/fake/input";
+    final String outputFile = "/fake/output";
+    final JobScheduleRequest jobScheduleRequest = mock( JobScheduleRequest.class );
+    final Job jobMock = mock( Job.class );
+    final IScheduler scheduler = mock( IScheduler.class );
+    final ArrayList<JobScheduleParam> jobParameters = new ArrayList<>( Collections.singletonList(
+      new JobScheduleParam( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER, userName2 ) ) );
+
+    doReturn( jobId ).when( jobScheduleRequest ).getJobId();
+    doReturn( jobMock ).when( scheduler ).getJob( jobId );
+    doReturn( scheduler ).when( schedulerService ).getScheduler();
+    doReturn( userName1 ).when( jobMock ).getUserName();
+    doReturn( jobParameters ).when( jobScheduleRequest ).getJobParameters();
+    doReturn( true ).when( schedulerService ).canAdminister();
+    doReturn( true ).when( schedulerService ).hasLogicalRole( userName2, SchedulerAction.NAME );
+    doReturn( inputFile ).when( jobScheduleRequest ).getInputFile();
+    doReturn( true ).when( schedulerService )
+      .hasFileAccess( userName2, inputFile, RepositoryFilePermission.READ );
+    doReturn( outputFile ).when( jobScheduleRequest ).getOutputFile();
+    doReturn( false ).when( schedulerService )
+      .hasFileAccess( userName2, outputFile, RepositoryFilePermission.WRITE );
+
+    try {
+      schedulerService.updateJob( jobScheduleRequest );
+      fail();
+    } catch ( SchedulerException e ) {
+      // Should catch the exception
+      assertEquals( "User does not have access to the output path", e.getMessage() );
+    }
+
+    verify( jobScheduleRequest, times( 1 ) ).getJobId();
+    verify( scheduler, times( 1 ) ).getJob( jobId );
+    verify( schedulerService, times( 1 ) ).getScheduler();
+    verify( schedulerService, times( 1 ) ).canAdminister();
+    verify( schedulerService, times( 0 ) ).createJob( jobScheduleRequest );
+    verify( schedulerService, times( 0 ) ).removeJob( jobId );
   }
 
   @Test

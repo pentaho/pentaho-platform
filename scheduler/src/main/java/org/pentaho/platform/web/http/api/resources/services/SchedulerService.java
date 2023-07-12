@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -29,8 +29,11 @@ import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.engine.ServiceException;
+import org.pentaho.platform.api.repository.RepositoryException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJobFilter;
@@ -43,8 +46,10 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
+import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.util.ActionUtil;
@@ -58,6 +63,7 @@ import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
 import org.pentaho.platform.web.http.api.resources.SchedulerResourceUtil;
 import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -82,7 +88,15 @@ public class SchedulerService {
 
   protected IBlockoutManager blockoutManager;
 
-  private static final Log logger = LogFactory.getLog( FileService.class );
+  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
+
+  private static final Log logger = LogFactory.getLog( SchedulerService.class );
+
+  private static final String USER_NOT_FOUND = "SchedulerService.UserNotFound";
+  private static final String CAN_ADMINISTER = "SchedulerService.CanAdminister";
+  private static final String CAN_SCHEDULE = "SchedulerService.CanSchedule";
+  private static final String NO_INPUT_FILE_ACCESS = "SchedulerService.NoInputFileAccess";
+  private static final String NO_OUTPUT_PATH_ACCESS = "SchedulerService.NoOutputPathAccess";
 
   public Job createJob( JobScheduleRequest scheduleRequest )
     throws IOException, SchedulerException, IllegalAccessException {
@@ -179,15 +193,147 @@ public class SchedulerService {
     return job;
   }
 
+  /**
+   * Gets an instance of `{@link SystemService}`
+   *
+   * @return An instance of `{@link SystemService}`.
+   */
+  protected SystemService getSystemService() {
+    return SystemService.getSystemService();
+  }
+
+  /**
+   * Gets and stores locally an instance of `{@link IRoleAuthorizationPolicyRoleBindingDao}` for reuse.
+   *
+   * @return An instance of `{@link IRoleAuthorizationPolicyRoleBindingDao}`, `null` if none is found.
+   */
+  protected IRoleAuthorizationPolicyRoleBindingDao getRoleBindingDao() {
+    if ( roleBindingDao == null ) {
+      roleBindingDao = PentahoSystem.get( IRoleAuthorizationPolicyRoleBindingDao.class );
+    }
+
+    return roleBindingDao;
+  }
+
+  /**
+   * Checks if a user has a specific logical role (permission).
+   *
+   * @param userName The user name.
+   * @param logicalRoleName The logical role name.
+   * @return Returns `true` if the user has the logical role, otherwise returns `false`.
+   */
+  protected boolean hasLogicalRole( String userName, String logicalRoleName ) {
+    if ( StringUtils.isEmpty( userName ) || StringUtils.isEmpty( logicalRoleName ) || getRoleBindingDao() == null ) {
+      return false;
+    }
+
+    try {
+      final List<String> userRoles = getSystemService().getRolesForUser( userName );
+
+      // check if user has the logical role
+      return getRoleBindingDao().getBoundLogicalRoleNames( userRoles ).stream()
+        .anyMatch( name -> StringUtils.equals( name, logicalRoleName ) );
+    } catch ( UsernameNotFoundException e ) {
+      logger.warn( e.getMessage(), e );
+    }
+
+    return false;
+  }
+
+  /**
+   * Checks if a user has a specific permission for the provided repository path.
+   *
+   * @param userName The user name.
+   * @param path The path to the repository resource.
+   * @param permission The repository resource permission.
+   * @return Return `true` if the user has the specific permission for the path, otherwise returns `false`.
+   */
+  protected boolean hasFileAccess( String userName, String path, RepositoryFilePermission permission ) {
+    if ( StringUtils.isEmpty( userName ) || StringUtils.isEmpty( path ) || permission == null || getRepository() == null ) {
+      return false;
+    }
+
+    try {
+      final RepositoryFile file = getRepository().getFile( path );
+
+      if ( file == null ) {
+        return false;
+      }
+
+      final List<String> userRoles = getSystemService().getRolesForUser( userName );
+
+      // check if any Access Control Entry, of type USER or ROLE, contains ALL or the specific permission
+      return getRepository().getEffectiveAces( file.getId() ).stream()
+        .anyMatch( ace ->
+          ( ( ace.getSid().getType().equals( RepositoryFileSid.Type.USER ) && StringUtils.equals( ace.getSid().getName(), userName ) )
+            || ( ace.getSid().getType().equals( RepositoryFileSid.Type.ROLE ) && userRoles.contains( ace.getSid().getName() ) ) )
+          && ( ace.getPermissions().contains( RepositoryFilePermission.ALL ) || ace.getPermissions().contains( permission ) ) );
+    } catch ( RepositoryException | UnifiedRepositoryException | UsernameNotFoundException e ) {
+      logger.warn( e.getMessage(), e );
+    }
+
+    return false;
+  }
+
   public Job updateJob( JobScheduleRequest scheduleRequest )
     throws IllegalAccessException, IOException, SchedulerException {
-    Job job = getScheduler().getJob( scheduleRequest.getJobId() );
+
+    final Job job = getScheduler().getJob( scheduleRequest.getJobId() );
+
     if ( job != null ) {
-      scheduleRequest.getJobParameters()
-        .add( new JobScheduleParam( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER, job.getUserName() ) );
+      // check if the request defines the schedule owner
+      final JobScheduleParam actionUserParam = scheduleRequest.getJobParameters().stream()
+        .filter( jobParameter -> StringUtils.equals( jobParameter.getName(), QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER ) )
+        .findFirst()
+        .orElse( null );
+
+      if ( actionUserParam == null ) {
+        // keep the same schedule owner (job user name)
+        scheduleRequest.getJobParameters()
+          .add( new JobScheduleParam( QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER, job.getUserName() ) );
+      } else {
+        final String userName = StringUtils.trim( (String) actionUserParam.getValue() );
+
+        // empty owner not allowed, alternatively we could default to the same owner (job user name)
+        if ( StringUtils.isEmpty( userName ) ) {
+          throw new SchedulerException( Messages.getInstance().getString( USER_NOT_FOUND ) );
+        }
+
+        // check if schedule ownership is changing
+        if ( !StringUtils.equals( job.getUserName(), userName ) ) {
+
+          // changing owner requires administration permissions for current session
+          if ( Boolean.FALSE.equals( canAdminister() ) ) {
+            throw new SchedulerException( Messages.getInstance().getString( CAN_ADMINISTER ) );
+          }
+
+          // check if the new owner has administration permissions
+          if ( !hasLogicalRole( userName, AdministerSecurityAction.NAME ) ) {
+            // check if the new owner has scheduling permissions
+            if ( !hasLogicalRole( userName, SchedulerAction.NAME ) ) {
+              throw new SchedulerException( Messages.getInstance().getString( CAN_SCHEDULE )  );
+            }
+
+            // check if the new owner has access to the input file
+            if ( !hasFileAccess( userName, scheduleRequest.getInputFile(), RepositoryFilePermission.READ ) ) {
+              throw new SchedulerException( Messages.getInstance().getString( NO_INPUT_FILE_ACCESS )  );
+            }
+
+            // check if the new owner has access to the output file
+            if ( !hasFileAccess( userName, scheduleRequest.getOutputFile(), RepositoryFilePermission.WRITE ) ) {
+              throw new SchedulerException( Messages.getInstance().getString( NO_OUTPUT_PATH_ACCESS ) );
+            }
+          }
+        }
+      }
     }
-    Job newJob = createJob( scheduleRequest );
-    removeJob( scheduleRequest.getJobId() );
+
+    final Job newJob = createJob( scheduleRequest );
+
+    if ( job != null ) {
+      removeJob( scheduleRequest.getJobId() );
+    }
+
     return newJob;
   }
 
