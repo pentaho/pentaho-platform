@@ -194,7 +194,6 @@
     <antlr-complete.version>3.5.2</antlr-complete.version>
     <hibernate-core.version>3.6.9.Final</hibernate-core.version>
     <license.inception.year>2002</license.inception.year>
-    <commons-lang3.version>3.0</commons-lang3.version>
     <jsr181-api.version>1.0-MR1</jsr181-api.version>
     <ascsapjco3wrp.version>20100529</ascsapjco3wrp.version>
     <testng.version>6.5.2</testng.version>
