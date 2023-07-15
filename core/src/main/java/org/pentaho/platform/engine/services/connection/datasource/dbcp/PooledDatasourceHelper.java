@@ -104,6 +104,10 @@ public class PooledDatasourceHelper {
   }
 
   private static void configurePool( IDatabaseConnection databaseConnection, IDatabaseDialect dialect, Map<String, String> attributes, GenericObjectPool pool ) throws Exception {
+    // Configure Max Connections
+    pool.setMaxActive( databaseConnection.getMaximumPoolSize() );
+
+    // Configure connection pool properties
     int maxIdleConnection = getIntegerPropertyValue( attributes, IDBDatasourceService.MAX_IDLE_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/max-idle-conn", null) );
     int minIdleConnection = getIntegerPropertyValue( attributes, IDBDatasourceService.MIN_IDLE_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/min-idle-conn", null) );
     int maxActiveConnection = getIntegerPropertyValue( attributes, IDBDatasourceService.MAX_ACTIVE_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/max-act-conn", null) );
@@ -136,20 +140,21 @@ public class PooledDatasourceHelper {
         + " idle connections." ); //$NON-NLS-1$
 
     // initialize the pool to X connections
-    prePopulatePool( pool, maxIdleConnection );
+    prePopulatePool( pool, maxIdleConnection, databaseConnection.getInitialPoolSize() );
 
     Logger.debug( PooledDatasourceHelper.class, "Pool now has " + pool.getNumActive() + " active/"
         + pool.getNumIdle() + " idle connections." ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
   }
 
-  private static void prePopulatePool( GenericObjectPool pool, int maxIdleConnection ) throws Exception {
+  private static void prePopulatePool( GenericObjectPool pool, int maxIdleConnection, int initialPoolSize ) throws Exception {
     String prePopulatePoolStr = PentahoSystem.getSystemSetting( "dbcp-defaults/pre-populate-pool", null );
-    if ( Boolean.parseBoolean( prePopulatePoolStr ) ) {
-      for (int i = 0; i < maxIdleConnection; ++i ) {
+    if ( Boolean.parseBoolean( prePopulatePoolStr ) || initialPoolSize > 0 ) {
+      int initialConnections = Math.max( maxIdleConnection, initialPoolSize );
+      for ( int i = 0; i < initialConnections; ++i ) {
         pool.addObject();
       }
       Logger.debug( PooledDatasourceHelper.class,
-              "Pool has been pre-populated with " + maxIdleConnection + " connections" );
+              "Pool has been pre-populated with " + initialConnections + " connections" );
     }
   }
 
