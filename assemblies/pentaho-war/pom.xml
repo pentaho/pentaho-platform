@@ -870,9 +870,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>rhino</groupId>
-      <artifactId>js</artifactId>
-      <version>${js.version}</version>
+      <groupId>org.mozilla</groupId>
+      <artifactId>rhino</artifactId>
     </dependency>
     <!-- commons-httpclient - Needed for axis2 1.5 version -->
     <dependency>
