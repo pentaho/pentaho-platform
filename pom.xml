@@ -57,7 +57,6 @@
     <hamcrest-all.version>1.3</hamcrest-all.version>
     <javax.inject.version>1</javax.inject.version>
     <pentaho-vfs.version>1.0</pentaho-vfs.version>
-    <js.version>1.7R3</js.version>
     <wstx-asl.version>3.2.4</wstx-asl.version>
     <icu4j.version>54.1.1</icu4j.version>
     <commons-dbcp.version>1.4</commons-dbcp.version>
@@ -179,7 +178,6 @@
     <saxon.version>9.1.0.8</saxon.version>
     <dumbster.version>1.6.0</dumbster.version>
     <commons-pool.version>1.5.7</commons-pool.version>
-    <jsch.version>0.1.54</jsch.version>
     <jcommon-logging-log4jlog.version>1.0.2</jcommon-logging-log4jlog.version>
     <commons-cli.version>1.2</commons-cli.version>
     <license-maven-plugin.version>3.0</license-maven-plugin.version>

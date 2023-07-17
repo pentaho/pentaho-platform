@@ -329,9 +329,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>rhino</groupId>
-      <artifactId>js</artifactId>
-      <version>${js.version}</version>
+      <groupId>org.mozilla</groupId>
+      <artifactId>rhino</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -1483,30 +1482,6 @@
       <groupId>jcifs</groupId>
       <artifactId>jcifs</artifactId>
       <version>${jcifs.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.jcraft</groupId>
-      <artifactId>jsch</artifactId>
-      <version>${jsch.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.jcraft</groupId>
-      <artifactId>jzlib</artifactId>
-      <version>${jzlib.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
