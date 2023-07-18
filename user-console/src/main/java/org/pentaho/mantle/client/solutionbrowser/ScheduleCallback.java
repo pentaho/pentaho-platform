@@ -23,7 +23,8 @@ package org.pentaho.mantle.client.solutionbrowser;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
+//TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.messages.Messages;
 
 public class ScheduleCallback implements IDialogCallback {
@@ -54,7 +55,8 @@ public class ScheduleCallback implements IDialogCallback {
         }
       };
 
-      ScheduleHelper.showScheduleDialog( repositoryFile.getPath(), callback );
+      //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+      //ScheduleHelper.showScheduleDialog( repositoryFile.getPath(), callback );
     } else {
       final MessageDialogBox dialogBox =
           new MessageDialogBox(

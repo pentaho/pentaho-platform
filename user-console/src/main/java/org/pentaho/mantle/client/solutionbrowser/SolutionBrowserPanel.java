@@ -56,7 +56,8 @@ import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
 import org.pentaho.mantle.client.csrf.CsrfRequestBuilder;
-import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
+//TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.ShowDescriptionsEvent;
 import org.pentaho.mantle.client.events.ShowHiddenFilesEvent;
@@ -336,7 +337,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     }
     $wnd.mantle_confirmBackgroundExecutionDialog = function (url) {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      @org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);
+      //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+      //r@org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);
     }
     $wnd.mantle_openRepositoryFile = function (pathToFile, mode) {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
@@ -481,7 +483,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       PerspectiveManager.getInstance().setPerspective( PerspectiveManager.OPENED_PERSPECTIVE );
       editFile( repositoryFile );
     } else if ( mode == FileCommand.COMMAND.SCHEDULE_NEW ) {
-      ScheduleHelper.createSchedule( repositoryFile, new ScheduleCallback( repositoryFile ) );
+      //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+      //ScheduleHelper.createSchedule( repositoryFile, new ScheduleCallback( repositoryFile ) );
       return;
     } else if ( mode == FileCommand.COMMAND.SHARE ) {
       ShareFileCommand sfc = new ShareFileCommand();
