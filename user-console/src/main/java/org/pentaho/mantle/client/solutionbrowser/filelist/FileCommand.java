@@ -30,7 +30,8 @@ import org.pentaho.mantle.client.commands.ImportFileCommand;
 import org.pentaho.mantle.client.commands.NewFolderCommand;
 import org.pentaho.mantle.client.commands.RunInBackgroundCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
-import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
+//TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.ScheduleCallback;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -97,8 +98,9 @@ public class FileCommand implements Command {
     } else if ( mode == COMMAND.BACKGROUND ) {
       new RunInBackgroundCommand( selectedItem ).execute( true );
     } else if ( mode == COMMAND.SCHEDULE_NEW ) {
-      ScheduleHelper.createSchedule( selectedItem.getRepositoryFile(), new ScheduleCallback( selectedItem
-          .getRepositoryFile() ) );
+      //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+      //ScheduleHelper.createSchedule( selectedItem.getRepositoryFile(), new ScheduleCallback( selectedItem
+        //  .getRepositoryFile() ) );
     } else if ( mode == COMMAND.SHARE ) {
       new ShareFileCommand().execute();
     } else if ( mode == COMMAND.IMPORT ) {

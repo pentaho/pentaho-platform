@@ -34,7 +34,8 @@ import com.google.gwt.xml.client.XMLParser;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
-import org.pentaho.mantle.client.dialogs.scheduling.ScheduleOutputLocationDialog;
+//TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleOutputLocationDialog;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -94,7 +95,8 @@ public class AdhocRunInBackgroundCommand extends RunInBackgroundCommand {
 
   @Override
   protected void showDialog( final boolean feedback ) {
-    final ScheduleOutputLocationDialog outputLocationDialog = new ScheduleOutputLocationDialog( getSolutionPath() ) {
+    //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+    /*final ScheduleOutputLocationDialog outputLocationDialog = new ScheduleOutputLocationDialog( getSolutionPath() ) {
       @Override
       protected void onSelect( final String name, final String outputPath, final boolean overwriteFile, final String dateFormat ) {
         setOutputName( name );
@@ -122,7 +124,7 @@ public class AdhocRunInBackgroundCommand extends RunInBackgroundCommand {
 
     outputLocationDialog.setOkButtonText( Messages.getString( "ok" ) );
     outputLocationDialog.setScheduleNameText( Messages.getString( "scheduleNameColonReportviewer" ) );
-    outputLocationDialog.center();
+    outputLocationDialog.center();*/
   }
 
   public static native void onCancel()
