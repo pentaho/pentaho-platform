@@ -40,10 +40,11 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEmailDialog;
-import org.pentaho.mantle.client.dialogs.scheduling.ScheduleOutputLocationDialog;
-import org.pentaho.mantle.client.dialogs.scheduling.ScheduleParamsDialog;
-import org.pentaho.mantle.client.dialogs.scheduling.ScheduleParamsHelper;
+//TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEmailDialog;
+//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleOutputLocationDialog;
+//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleParamsDialog;
+//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleParamsHelper;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.ScheduleCreateStatusDialog;
@@ -196,7 +197,8 @@ public class RunInBackgroundCommand extends AbstractCommand {
   }
 
   protected void showDialog( final boolean feedback ) {
-    final ScheduleOutputLocationDialog outputLocationDialog = new ScheduleOutputLocationDialog( solutionPath ) {
+    //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+    /*final ScheduleOutputLocationDialog outputLocationDialog = new ScheduleOutputLocationDialog( solutionPath ) {
       @Override
       protected void onSelect( final String name, final String outputLocationPath, final boolean overwriteFile, final String dateFormat ) {
         setOutputName( name );
@@ -205,7 +207,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
         setDateFormat( dateFormat );
         performOperation( feedback );
       }
-    };
+    };*/
     final String filePath = solutionPath;
     String urlPath = NameUtils.URLEncode( NameUtils.encodeRepositoryPath( filePath ) );
 
@@ -225,9 +227,11 @@ public class RunInBackgroundCommand extends AbstractCommand {
             String responseMessage = response.getText();
             boolean hasParams = hasParameters( responseMessage, isXAction );
             if ( !hasParams ) {
-              outputLocationDialog.setOkButtonText( Messages.getString( "ok" ) );
+              //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+              //outputLocationDialog.setOkButtonText( Messages.getString( "ok" ) );
             }
-            outputLocationDialog.center();
+            //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+            //outputLocationDialog.center();
           } else {
             MessageDialogBox dialogBox =
                 new MessageDialogBox(
@@ -379,18 +383,21 @@ public class RunInBackgroundCommand extends AbstractCommand {
                     // on
                     final boolean isEmailConfValid = false;
                     if ( hasParams ) {
-                      ScheduleParamsDialog dialog =
-                          new ScheduleParamsDialog( filePath, scheduleRequest, isEmailConfValid );
-                      dialog.center();
-                      dialog.setAfterResponseCallback( scheduleParamsDialogCallback );
+                      //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+                      //ScheduleParamsDialog dialog =
+                        //  new ScheduleParamsDialog( filePath, scheduleRequest, isEmailConfValid );
+                      //dialog.center();
+                      //dialog.setAfterResponseCallback( scheduleParamsDialogCallback );
                     } else if ( isEmailConfValid ) {
-                      ScheduleEmailDialog scheduleEmailDialog =
-                          new ScheduleEmailDialog( null, filePath, scheduleRequest, null, null );
-                      scheduleEmailDialog.center();
+                      //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+                      //ScheduleEmailDialog scheduleEmailDialog =
+                        //  new ScheduleEmailDialog( null, filePath, scheduleRequest, null, null );
+                      //scheduleEmailDialog.center();
                     } else {
                       // Handle Schedule Parameters
-                      JSONArray scheduleParams = ScheduleParamsHelper.getScheduleParams( scheduleRequest );
-                      scheduleRequest.put( "jobParameters", scheduleParams );
+                      //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+                      //JSONArray scheduleParams = ScheduleParamsHelper.getScheduleParams( scheduleRequest );
+                      //scheduleRequest.put( "jobParameters", scheduleParams );
 
                       // just run it
                       RequestBuilder scheduleFileRequestBuilder =
@@ -459,7 +466,8 @@ public class RunInBackgroundCommand extends AbstractCommand {
     }
   }
 
-  ScheduleParamsDialog.IAfterResponse scheduleParamsDialogCallback = new ScheduleParamsDialog.IAfterResponse() {
+  //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+  /*ScheduleParamsDialog.IAfterResponse scheduleParamsDialogCallback = new ScheduleParamsDialog.IAfterResponse() {
     @Override
     public void onResponse( JSONValue rib ) {
       if ( rib != null && rib.isBoolean() != null && rib.isBoolean().booleanValue() ) {
@@ -480,5 +488,5 @@ public class RunInBackgroundCommand extends AbstractCommand {
         dialogBox.center();
       }
     }
-  };
+  };*/
 }

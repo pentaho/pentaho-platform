@@ -52,10 +52,12 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
-import org.pentaho.mantle.client.dialogs.scheduling.ScheduleRecurrenceDialog;
+//TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleRecurrenceDialog;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.workspace.JsJob;
-import org.pentaho.mantle.client.workspace.JsJobParam;
+//TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+//import org.pentaho.mantle.client.workspace.JsJob;
+//import org.pentaho.mantle.client.workspace.JsJobParam;
 
 import java.util.Date;
 
@@ -104,7 +106,8 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           nowTextBox.getElement().getStyle().setMarginRight( 5, Unit.PX );
           final TextBox scheduleTextBox = new TextBox();
           scheduleTextBox.setVisibleLength( 4 );
-
+          //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+          /*
           JsJob tmpJsJob = parseJsonJob( JsonUtils.escapeJsonForEval( response.getText() ) );
 
           boolean fakeJob = false;
@@ -131,7 +134,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
                 }
               }
             }
-          } );
+          } );*/
 
           Label settingsLabel = new Label( Messages.getString( "settings" ) );
           settingsLabel.setStyleName( "pentaho-fieldgroup-major" );
@@ -190,27 +193,30 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           scheduledPanel.add( deleteScheduleLabel );
 
           Label descLabel;
-          if ( !fakeJob ) {
+          //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+          /*if ( !fakeJob ) {
             String desc = jsJob.getJobTrigger().getDescription();
             descLabel = new Label( desc );
             scheduledPanel.add( descLabel );
-          } else {
+          } else {*/
             descLabel = new Label( Messages.getString( "generatedFilesAreNotScheduledToBeDeleted" ) );
             scheduledPanel.add( descLabel );
-          }
+          //}
           descLabel.getElement().getStyle().setPaddingTop( 10, Unit.PX );
           descLabel.getElement().getStyle().setPaddingBottom( 10, Unit.PX );
 
           Button editScheduleButton = new Button( Messages.getString( "edit" ) );
-          if ( fakeJob ) {
+          //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+          /*if ( fakeJob ) {
             editScheduleButton.setText( Messages.getString( "scheduleDeletion" ) );
-          }
+          }*/
           Button deleteScheduleButton = new Button( Messages.getString( "cancelSchedule" ) );
           deleteScheduleButton.setStylePrimaryName( "pentaho-button" );
           deleteScheduleButton.addStyleName( "last" );
           deleteScheduleButton.addClickHandler( new ClickHandler() {
             public void onClick( ClickEvent event ) {
-              deleteContentCleaner( jsJob );
+              //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+              //deleteContentCleaner( jsJob );
             }
           } );
           editScheduleButton.setStylePrimaryName( "pentaho-button" );
@@ -219,7 +225,8 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
             public void onClick( ClickEvent event ) {
               IDialogCallback callback = new IDialogCallback() {
                 public void okPressed() {
-                  deleteContentCleaner( jsJob );
+                  //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+                  //deleteContentCleaner( jsJob );
                 }
 
                 public void cancelPressed() {
@@ -230,19 +237,21 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
               scheduleLabelPanel.add( new Label( Messages.getString( "deleteGeneratedFilesOlderThan" ), false ) );
               scheduleLabelPanel.add( scheduleTextBox );
               scheduleLabelPanel.add( new Label( Messages.getString( "daysUsingTheFollowingRules" ), false ) );
-              ScheduleRecurrenceDialog editSchedule =
+              //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+              /*ScheduleRecurrenceDialog editSchedule =
                   new ScheduleRecurrenceDialog( null, jsJob, callback, false, false,
                       AbstractWizardDialog.ScheduleDialogType.SCHEDULER );
               editSchedule.setShowSuccessDialog( false );
               editSchedule.addCustomPanel( scheduleLabelPanel, DockPanel.NORTH );
-              editSchedule.center();
+              editSchedule.center();*/
             }
           } );
           HorizontalPanel scheduleButtonPanel = new HorizontalPanel();
           scheduleButtonPanel.add( editScheduleButton );
-          if ( !fakeJob ) {
+          //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+          //if ( !fakeJob ) {
             scheduleButtonPanel.add( deleteScheduleButton );
-          }
+          //}
           scheduledPanel.add( scheduleButtonPanel );
           add( scheduledPanel, DockPanel.NORTH );
 
@@ -335,7 +344,8 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
     }
   }
 
-  private final native JsJob parseJsonJob( String json )
+  //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+  //private final native JsJob parseJsonJob( String json )
   /*-{
     window.parent.jobjson = json;
     if (null == json || "" == json) {
@@ -345,7 +355,8 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
     return obj;
   }-*/;
 
-  private final native JsJob createJsJob()
+  //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+  //private final native JsJob createJsJob()
   /*-{
     var jsJob = new Object();
     jsJob.jobParams = new Object();
@@ -366,7 +377,8 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
     return jsJob;
   }-*/;
 
-  private void deleteContentCleaner( JsJob jsJob ) {
+  //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+  /*private void deleteContentCleaner( JsJob jsJob ) {
     if ( jsJob == null || StringUtils.isEmpty( jsJob.getJobId() ) ) {
       activate();
       return;
@@ -394,7 +406,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
     } catch ( RequestException re ) {
       Window.alert( re.getMessage() );
     }
-  }
+  }*/
 
   private static void showLoadingIndicator() {
     WaitPopup.getInstance().setVisible( true );

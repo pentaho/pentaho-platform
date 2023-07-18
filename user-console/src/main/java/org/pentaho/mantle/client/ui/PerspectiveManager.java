@@ -54,7 +54,8 @@ import org.pentaho.mantle.client.ui.CustomDropDown.MODE;
 import org.pentaho.mantle.client.ui.xul.JsPerspective;
 import org.pentaho.mantle.client.ui.xul.JsXulOverlay;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
-import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel;
+//TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+//import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo.DefaultPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
@@ -437,14 +438,15 @@ public class PerspectiveManager extends SimplePanel {
     GWT.runAsync( new RunAsyncCallback() {
 
       public void onSuccess() {
-        DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
+        //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+        /*DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
         if ( MantleApplication.getInstance().getContentDeck().getWidgetIndex(
           SchedulesPerspectivePanel.getInstance() ) == -1 ) {
           contentDeck.add( SchedulesPerspectivePanel.getInstance() );
         } else {
           SchedulesPerspectivePanel.getInstance().refresh();
         }
-        contentDeck.showWidget( contentDeck.getWidgetIndex( SchedulesPerspectivePanel.getInstance() ) );
+        contentDeck.showWidget( contentDeck.getWidgetIndex( SchedulesPerspectivePanel.getInstance() ) );*/
       }
 
       public void onFailure( Throwable reason ) {
