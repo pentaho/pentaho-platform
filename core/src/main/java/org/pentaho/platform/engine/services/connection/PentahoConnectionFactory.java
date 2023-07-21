@@ -26,8 +26,11 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.system.IPentahoLoggingConnection;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Properties;
 
@@ -119,6 +122,11 @@ public class PentahoConnectionFactory {
     String key = CONNECTION_PREFIX + datasourceType;
     IPentahoConnection connection = null;
     try {
+      //Validate if properties connection name is system DB and do not allow connection
+      if ( isSystemConnection( properties ) &&
+        !hasSystemDataSourcePermission( session ) ) {
+        throw new ObjectFactoryException( "Missing required permissions to make connection" );
+      }
       connection = PentahoSystem.getObjectFactory().get( IPentahoConnection.class, key, session );
       if ( connection instanceof IPentahoLoggingConnection ) {
         ( (IPentahoLoggingConnection) connection ).setLogger( logger );
@@ -130,5 +138,29 @@ public class PentahoConnectionFactory {
     }
 
     return connection;
+  }
+
+  public static boolean isSystemConnection( Properties properties ) {
+
+    if ( properties == null ) {
+      return false;
+    }
+    String jndiConnectionName = properties.getProperty( IPentahoConnection.JNDI_NAME_KEY );
+    String connectionName = properties.getProperty( IPentahoConnection.CONNECTION );
+
+    return PentahoSystem.getSystemDatasourcesList().contains( jndiConnectionName )
+      || PentahoSystem.getSystemDatasourcesList().contains( connectionName );
+  }
+
+  public static boolean hasSystemDataSourcePermission( IPentahoSession session ) {
+    Authentication auth = SecurityHelper.getInstance().getAuthentication( session, true );
+
+    for (GrantedAuthority userRole : auth.getAuthorities() ) {
+      if ( PentahoSystem.getSystemDatasourcesRolesList().contains( userRole.getAuthority() ) ) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
