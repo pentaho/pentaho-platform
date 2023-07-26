@@ -23,6 +23,7 @@ package org.pentaho.mantle.client.solutionbrowser.filelist;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.commands.ExportFileCommand;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
@@ -30,10 +31,7 @@ import org.pentaho.mantle.client.commands.ImportFileCommand;
 import org.pentaho.mantle.client.commands.NewFolderCommand;
 import org.pentaho.mantle.client.commands.RunInBackgroundCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
-//TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
-import org.pentaho.mantle.client.solutionbrowser.ScheduleCallback;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
 
@@ -98,9 +96,7 @@ public class FileCommand implements Command {
     } else if ( mode == COMMAND.BACKGROUND ) {
       new RunInBackgroundCommand( selectedItem ).execute( true );
     } else if ( mode == COMMAND.SCHEDULE_NEW ) {
-      //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-      //ScheduleHelper.createSchedule( selectedItem.getRepositoryFile(), new ScheduleCallback( selectedItem
-        //  .getRepositoryFile() ) );
+      createSchedule( selectedItem.getRepositoryFile() );
     } else if ( mode == COMMAND.SHARE ) {
       new ShareFileCommand().execute();
     } else if ( mode == COMMAND.IMPORT ) {
@@ -117,5 +113,9 @@ public class FileCommand implements Command {
       FavoritePickList.getInstance().save( "favorites" );
     }
   }
+
+  private native void createSchedule( final RepositoryFile repositoryFile )/*-{
+   $wnd.pho.createSchedule( repositoryFile );
+  }-*/;
 
 }

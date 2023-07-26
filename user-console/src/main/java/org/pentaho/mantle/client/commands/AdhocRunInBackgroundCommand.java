@@ -34,8 +34,6 @@ import com.google.gwt.xml.client.XMLParser;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
-//TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleOutputLocationDialog;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -95,36 +93,7 @@ public class AdhocRunInBackgroundCommand extends RunInBackgroundCommand {
 
   @Override
   protected void showDialog( final boolean feedback ) {
-    //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-    /*final ScheduleOutputLocationDialog outputLocationDialog = new ScheduleOutputLocationDialog( getSolutionPath() ) {
-      @Override
-      protected void onSelect( final String name, final String outputPath, final boolean overwriteFile, final String dateFormat ) {
-        setOutputName( name );
-        setOutputLocationPath( outputPath );
-        setOverwriteFile( String.valueOf( overwriteFile ) );
-        setDateFormat( dateFormat );
-        performOperation( feedback );
-      }
-
-      @Override protected void onCancel() {
-        super.onCancel();
-        AdhocRunInBackgroundCommand.onCancel();
-      }
-
-      @Override protected void onOk() {
-        super.onOk();
-        AdhocRunInBackgroundCommand.onOk( getOutputLocationPath() );
-      }
-
-      @Override protected void onAttach() {
-        super.onAttach();
-        AdhocRunInBackgroundCommand.onAttach();
-      }
-    };
-
-    outputLocationDialog.setOkButtonText( Messages.getString( "ok" ) );
-    outputLocationDialog.setScheduleNameText( Messages.getString( "scheduleNameColonReportviewer" ) );
-    outputLocationDialog.center();*/
+    createScheduleOutputLocationDialog( getSolutionPath(), getOutputLocationPath(), feedback );
   }
 
   public static native void onCancel()
@@ -243,4 +212,9 @@ git  }-*/;
         true );
     dialogBox.center();
   }
+
+  public native void createScheduleOutputLocationDialog(String solutionPath, String outputLocationPath, Boolean feedback) /*-{
+   $wnd.pho.createScheduleOutputLocationDialog(solutionPath, outputLocationPath, feedback);
+  }-*/;
+
 }

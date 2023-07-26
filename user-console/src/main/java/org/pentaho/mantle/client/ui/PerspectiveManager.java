@@ -54,8 +54,6 @@ import org.pentaho.mantle.client.ui.CustomDropDown.MODE;
 import org.pentaho.mantle.client.ui.xul.JsPerspective;
 import org.pentaho.mantle.client.ui.xul.JsXulOverlay;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
-//TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-//import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo.DefaultPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
@@ -438,15 +436,13 @@ public class PerspectiveManager extends SimplePanel {
     GWT.runAsync( new RunAsyncCallback() {
 
       public void onSuccess() {
-        //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-        /*DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
-        if ( MantleApplication.getInstance().getContentDeck().getWidgetIndex(
-          SchedulesPerspectivePanel.getInstance() ) == -1 ) {
-          contentDeck.add( SchedulesPerspectivePanel.getInstance() );
+        DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
+        if ( getSchedulerPerspectivePanelIndex( contentDeck ) == -1 ) {
+          addSchedulesPerspectivePanel( contentDeck );
         } else {
-          SchedulesPerspectivePanel.getInstance().refresh();
+          refreshSchedulesPerspectivePanel();
         }
-        contentDeck.showWidget( contentDeck.getWidgetIndex( SchedulesPerspectivePanel.getInstance() ) );*/
+        contentDeck.showWidget( getSchedulerPerspectivePanelIndex( contentDeck ) );
       }
 
       public void onFailure( Throwable reason ) {
@@ -494,6 +490,18 @@ public class PerspectiveManager extends SimplePanel {
     final Element frameElement = frame.getElement();
     perspectiveActivated( frameElement );
   }
+
+  public native int getSchedulerPerspectivePanelIndex( DeckPanel contentDeck ) /*-{
+    return $wnd.pho.getSchedulerPerspectivePanelIndex( contentDeck );
+  }-*/;
+
+  public native void addSchedulesPerspectivePanel(  DeckPanel contentDeck ) /*-{
+    $wnd.pho.addSchedulesPerspectivePanel( contentDeck );
+  }-*/;
+
+  public native void refreshSchedulesPerspectivePanel() /*-{
+    $wnd.pho.refreshSchedulesPerspectivePanel();
+  }-*/;
 
   private native void perspectiveActivated( Element frameElement )
   /*-{
