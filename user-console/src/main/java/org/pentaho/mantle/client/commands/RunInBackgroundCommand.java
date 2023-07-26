@@ -28,26 +28,18 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-//TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleEmailDialog;
-//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleOutputLocationDialog;
-//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleParamsDialog;
-//import org.pentaho.mantle.client.dialogs.scheduling.ScheduleParamsHelper;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.ScheduleCreateStatusDialog;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
@@ -197,17 +189,9 @@ public class RunInBackgroundCommand extends AbstractCommand {
   }
 
   protected void showDialog( final boolean feedback ) {
-    //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-    /*final ScheduleOutputLocationDialog outputLocationDialog = new ScheduleOutputLocationDialog( solutionPath ) {
-      @Override
-      protected void onSelect( final String name, final String outputLocationPath, final boolean overwriteFile, final String dateFormat ) {
-        setOutputName( name );
-        setOutputLocationPath( outputLocationPath );
-        setOverwriteFile( String.valueOf( overwriteFile ) );
-        setDateFormat( dateFormat );
-        performOperation( feedback );
-      }
-    };*/
+
+    createScheduleOutputLocationDialog( getSolutionPath(), feedback );
+
     final String filePath = solutionPath;
     String urlPath = NameUtils.URLEncode( NameUtils.encodeRepositoryPath( filePath ) );
 
@@ -227,11 +211,9 @@ public class RunInBackgroundCommand extends AbstractCommand {
             String responseMessage = response.getText();
             boolean hasParams = hasParameters( responseMessage, isXAction );
             if ( !hasParams ) {
-              //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-              //outputLocationDialog.setOkButtonText( Messages.getString( "ok" ) );
+              setOkButtonText();
             }
-            //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-            //outputLocationDialog.center();
+            centerScheduleOutputLocationDialog();
           } else {
             MessageDialogBox dialogBox =
                 new MessageDialogBox(
@@ -383,21 +365,13 @@ public class RunInBackgroundCommand extends AbstractCommand {
                     // on
                     final boolean isEmailConfValid = false;
                     if ( hasParams ) {
-                      //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-                      //ScheduleParamsDialog dialog =
-                        //  new ScheduleParamsDialog( filePath, scheduleRequest, isEmailConfValid );
-                      //dialog.center();
-                      //dialog.setAfterResponseCallback( scheduleParamsDialogCallback );
+                      boolean isSchedulesPerspectiveActive = !PerspectiveManager.getInstance().getActivePerspective().getId().equals(PerspectiveManager.SCHEDULES_PERSPECTIVE );
+                      createScheduleParamsDialog( filePath, scheduleRequest, isEmailConfValid, isSchedulesPerspectiveActive );
                     } else if ( isEmailConfValid ) {
-                      //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-                      //ScheduleEmailDialog scheduleEmailDialog =
-                        //  new ScheduleEmailDialog( null, filePath, scheduleRequest, null, null );
-                      //scheduleEmailDialog.center();
+                      crateScheduleEmailDialog( filePath, scheduleRequest );
                     } else {
                       // Handle Schedule Parameters
-                      //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-                      //JSONArray scheduleParams = ScheduleParamsHelper.getScheduleParams( scheduleRequest );
-                      //scheduleRequest.put( "jobParameters", scheduleParams );
+                      getScheduleParams( scheduleRequest );
 
                       // just run it
                       RequestBuilder scheduleFileRequestBuilder =
@@ -466,27 +440,55 @@ public class RunInBackgroundCommand extends AbstractCommand {
     }
   }
 
-  //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-  /*ScheduleParamsDialog.IAfterResponse scheduleParamsDialogCallback = new ScheduleParamsDialog.IAfterResponse() {
-    @Override
-    public void onResponse( JSONValue rib ) {
-      if ( rib != null && rib.isBoolean() != null && rib.isBoolean().booleanValue() ) {
-        MessageDialogBox dialogBox =
-            new MessageDialogBox(
-                Messages.getString( "runInBackground" ), Messages.getString( "backgroundExecutionStarted" ), //$NON-NLS-1$ //$NON-NLS-2$
-                false, false, true );
-        dialogBox.center();
-      } else if ( !PerspectiveManager.getInstance().getActivePerspective().getId().equals(
-          PerspectiveManager.SCHEDULES_PERSPECTIVE ) ) {
-        ScheduleCreateStatusDialog successDialog = new ScheduleCreateStatusDialog();
-        successDialog.center();
-      } else {
-        MessageDialogBox dialogBox =
-            new MessageDialogBox(
-                Messages.getString( "scheduleUpdatedTitle" ), Messages.getString( "scheduleUpdatedMessage" ), //$NON-NLS-1$ //$NON-NLS-2$ 
-                false, false, true );
-        dialogBox.center();
-      }
+  private native void setupNativeHooks( RunInBackgroundCommand cmd )
+  /*-{
+    $wnd.mantle_runInBackgroundCommand.setOutputName = function(name) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      cmd.@org.pentaho.mantle.client.commands.RunInBackgroundCommand::setOutputName(Ljava/lang/String;)(name);
     }
-  };*/
+
+    $wnd.mantle_runInBackgroundCommand.setOutputLocationPath = function(outputPath) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      cmd.@org.pentaho.mantle.client.commands.RunInBackgroundCommand::setOutputLocationPath(Ljava/lang/String;)(outputPath);
+    }
+
+    $wnd.mantle_runInBackgroundCommand.setOverwriteFile = function(overwriteFile) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      cmd.@org.pentaho.mantle.client.commands.RunInBackgroundCommand::setOverwriteFile(Ljava/lang/String;)(overwriteFile);
+    }
+
+    $wnd.mantle_runInBackgroundCommand.setDateFormat = function(dateFormat) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      cmd.@org.pentaho.mantle.client.commands.RunInBackgroundCommand::setDateFormat(Ljava/lang/String;)(dateFormat);
+    }
+
+    $wnd.mantle_runInBackgroundCommand.performOperation = function(feedback) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      cmd.@org.pentaho.mantle.client.commands.RunInBackgroundCommand::performOperation(Ljava/lang/Boolean;)(feedback);
+    }
+  }-*/;
+
+  public native void createScheduleOutputLocationDialog(String solutionPath, Boolean feedback) /*-{
+   $wnd.pho.createScheduleOutputLocationDialog(solutionPath, feedback);
+  }-*/;
+
+  public native void setOkButtonText() /*-{
+   $wnd.pho.setOkButtonText();
+  }-*/;
+
+  public native void centerScheduleOutputLocationDialog() /*-{
+   $wnd.pho.centerScheduleOutputLocationDialog();
+  }-*/;
+
+  public native void createScheduleParamsDialog( String filePath, JSONObject scheduleRequest, Boolean isEmailConfigValid, Boolean isSchedulesPerspectiveActive ) /*-{
+   $wnd.pho.createScheduleParamsDialog( filePath, scheduleRequest, isEmailConfigValid, isSchedulesPerspectiveActive );
+  }-*/;
+
+  public native void crateScheduleEmailDialog( String filePath, JSONObject scheduleRequest ) /*-{
+   $wnd.pho.crateScheduleEmailDialog( filePath, scheduleRequest );
+  }-*/;
+
+  public native void getScheduleParams( JSONObject scheduleRequest) /*-{
+   $wnd.pho.getScheduleParams( scheduleRequest );
+  }-*/;
 }
