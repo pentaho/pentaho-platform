@@ -61,6 +61,7 @@ import java.util.List;
  */
 public class SystemPathXmlPluginProvider implements IPluginProvider {
 
+  public static final String CLASS_ATTRIBUTE = "class";
   /**
    * Gets the list of plugins that this provider class has discovered.
    * 
@@ -211,10 +212,12 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
   }
 
   protected void processLifecycleListeners( PlatformPlugin plugin, Document doc ) {
-    Element node = (Element) doc.selectSingleNode( "//lifecycle-listener" ); //$NON-NLS-1$
-    if ( node != null ) {
-      String classname = node.attributeValue( "class" ); //$NON-NLS-1$
-      plugin.setLifecycleListenerClassname( classname );
+    List<Node> nodes = doc.selectNodes( "//lifecycle-listener" ); //$NON-NLS-1$
+    if ( nodes != null && !nodes.isEmpty() ) {
+      for(Node node: nodes) {
+        String classname = ((Element) node).attributeValue(CLASS_ATTRIBUTE); //$NON-NLS-1$
+        plugin.addLifecycleListenerClassname( classname );
+      }
     }
   }
 
@@ -223,7 +226,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     for ( Object obj : nodes ) {
       Element node = (Element) obj;
       if ( node != null ) {
-        plugin.addBean( new PluginBeanDefinition( node.attributeValue( "id" ), node.attributeValue( "class" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
+        plugin.addBean( new PluginBeanDefinition( node.attributeValue( "id" ), node.attributeValue(CLASS_ATTRIBUTE) ) ); //$NON-NLS-1$ //$NON-NLS-2$
       }
     }
   }
@@ -245,13 +248,13 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
 
       // TODO: add support for inline service class definition
       pws.setServiceBeanId( getProperty( node, "ref" ) ); //$NON-NLS-1$
-      pws.setServiceClass( getProperty( node, "class" ) ); //$NON-NLS-1$
+      pws.setServiceClass( getProperty( node, CLASS_ATTRIBUTE ) ); //$NON-NLS-1$
 
       Collection<String> extraClasses = new ArrayList<String>();
       List<?> extraNodes = node.selectNodes( "extra" ); //$NON-NLS-1$
       for ( Object extra : extraNodes ) {
         Element extraElement = (Element) extra;
-        String extraClass = getProperty( extraElement, "class" ); //$NON-NLS-1$
+        String extraClass = getProperty( extraElement, CLASS_ATTRIBUTE ); //$NON-NLS-1$
         if ( extraClasses != null ) {
           extraClasses.add( extraClass );
         }
@@ -400,7 +403,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     for ( Object obj : nodes ) {
       Element node = (Element) obj;
 
-      String className = getProperty( node, "class" ); //$NON-NLS-1$
+      String className = getProperty( node, CLASS_ATTRIBUTE ); //$NON-NLS-1$
       if ( className == null ) {
         className = XmlDom4JHelper.getNodeText( "classname", node, null ); //$NON-NLS-1$
       }
