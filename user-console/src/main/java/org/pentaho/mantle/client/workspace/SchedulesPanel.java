@@ -296,7 +296,7 @@ public class SchedulesPanel extends SimplePanel {
   private void updateControlSchedulerButtonStyle( ToolbarButton controlSchedulerButton, String state ) {
     boolean isRunning = SCHEDULER_STATE_RUNNING.equalsIgnoreCase( state );
 
-    final String tooltip = isRunning ? "stopScheduler" : "startScheduler";
+    final String tooltip = isRunning ? Messages.getString( "stopScheduler" ) : Messages.getString( "startScheduler" );
     controlSchedulerButton.setToolTip( tooltip );
 
     final String buttonIconCss = isRunning ? "icon-stop-scheduler" : "icon-start-scheduler";
