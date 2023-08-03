@@ -28,6 +28,7 @@ import org.pentaho.di.core.logging.LogChannel;
 import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.plugins.RepositoryPluginType;
 import org.pentaho.di.core.xml.XMLHandler;
+import org.pentaho.di.metastore.MetaStoreConst;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.di.repository.RepositoryMeta;
 import org.pentaho.di.www.SlaveServerConfig;
@@ -93,7 +94,7 @@ public class DIServerConfigTest {
       .loadClass( RepositoryPluginType.class, DIServerConfig.PUR_REPOSITORY_PLUGIN_ID, RepositoryMeta.class ) )
       .thenReturn( purRepositoryMeta );
 
-    when( purRepository.getMetaStore() ).thenReturn( purMetaStore );
+    when( purRepository.getRepositoryMetaStore() ).thenReturn( purMetaStore );
     when( purMetaStore.getName() ).thenReturn( "Mock MetaStore" );
 
     logChannel = mock( LogChannel.class );
@@ -127,9 +128,10 @@ public class DIServerConfigTest {
 
   @Test
   public void testGetMetaStoreWithDefault() throws Exception {
+    MetaStoreConst.enableDefaultToLocalXml();
     DIServerConfig diConfig = new DIServerConfig( logChannel, getConfigNode(), pluginRegistry );
-    DelegatingMetaStore delegatingMetaStore = diConfig.getMetaStore();
-    assertEquals( purMetaStore, delegatingMetaStore.getActiveMetaStore() );
+    IMetaStore delegatingMetaStore = diConfig.getMetaStore();
+    assertEquals( purMetaStore, delegatingMetaStore );
 
     verifyConnection();
   }
@@ -141,7 +143,7 @@ public class DIServerConfigTest {
     DIServerConfig diConfig = new DIServerConfig( logChannel, getConfigNode(), pluginRegistry );
 
     diConfig.setRepository( repo );
-    diConfig.setMetaStore( delegatingMetaStore );
+    diConfig.setMetastoreSupplier( () -> delegatingMetaStore );
 
     assertEquals( delegatingMetaStore, diConfig.getMetaStore() );
 

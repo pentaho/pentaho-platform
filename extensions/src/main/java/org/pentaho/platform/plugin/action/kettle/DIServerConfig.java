@@ -30,7 +30,7 @@ import org.pentaho.di.core.plugins.RepositoryPluginType;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.di.repository.RepositoryMeta;
 import org.pentaho.di.www.SlaveServerConfig;
-import org.pentaho.metastore.stores.delegate.DelegatingMetaStore;
+import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -83,16 +83,15 @@ public class DIServerConfig extends SlaveServerConfig {
   }
 
   @Override
-  public DelegatingMetaStore getMetaStore() {
-    DelegatingMetaStore metaStore = super.getMetaStore();
+  public IMetaStore getMetaStore() {
+    IMetaStore metaStore = super.getMetaStore();
 
     try {
       Repository configuredRepository = super.getRepository();
       if ( configuredRepository == null && repositoryInProcess() ) {
         Repository inProcessRepository = connectInProcessRepository();
         if ( inProcessRepository != null ) {
-          metaStore = new DelegatingMetaStore( inProcessRepository.getMetaStore() );
-          metaStore.setActiveMetaStoreName( inProcessRepository.getMetaStore().getName() );
+          metaStore = inProcessRepository.getRepositoryMetaStore();
         }
       }
     } catch ( Exception e ) {

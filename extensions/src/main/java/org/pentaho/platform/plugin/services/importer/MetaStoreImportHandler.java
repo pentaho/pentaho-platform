@@ -130,7 +130,7 @@ public class MetaStoreImportHandler implements IPlatformImportHandler {
   protected IMetaStore getRepoMetaStore() {
     if ( metastore == null ) {
       try {
-        metastore = MetaStoreExportUtil.connectToRepository( null ).getMetaStore();
+        metastore = MetaStoreExportUtil.connectToRepository( null ).getRepositoryMetaStore();
       } catch ( KettleException e ) {
         // can't get the metastore to import into
         log.debug( "Can't get the metastore to import into" );
