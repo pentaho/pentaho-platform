@@ -41,6 +41,7 @@ public class MantleEntryPoint implements EntryPoint, IResourceBundleLoadCallback
       "mantleMessages",
       true,
       MantleEntryPoint.this );
+    new MantleUtils();
   }
 
   public void bundleLoaded( String bundleName ) {
