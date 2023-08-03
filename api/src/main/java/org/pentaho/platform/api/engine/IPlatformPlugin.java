@@ -108,6 +108,13 @@ public interface IPlatformPlugin extends IPluginLifecycleListener {
   public String getLifecycleListenerClassname();
 
   /**
+   * Returns the list of fully qualified name of the lifecycle listener class defined by this plugin. The class must be a
+   * {@link IPluginLifecycleListener}.
+   *
+   * @return lifecycle listener class name
+   */
+  public List<String> getLifecycleListenerClassnames();
+  /**
    * Registers a lifecycle listener with this plugin. This listener will be notified when lifecycle events occur on
    * this plugin.
    * 

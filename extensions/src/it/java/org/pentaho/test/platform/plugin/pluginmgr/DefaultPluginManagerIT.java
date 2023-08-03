@@ -579,6 +579,34 @@ public class DefaultPluginManagerIT {
     }
   }
 
+  public static class AnotherCheckingLifecycleListener implements IPluginLifecycleListener {
+    public static boolean initCalled, loadedCalled, unloadedCalled;
+
+    public static void clearFlags() {
+      initCalled = false;
+      loadedCalled = false;
+      unloadedCalled = false;
+    }
+
+    public void init() {
+      initCalled = true;
+      loadedCalled = false;
+    }
+
+    public void loaded() {
+      if ( !initCalled ) {
+        throw new IllegalStateException( "init() should have been called prior to loaded()" );
+      }
+      loadedCalled = true;
+    }
+
+    public void unLoaded() {
+      unloadedCalled = true;
+      loadedCalled = false;
+      initCalled = false;
+    }
+  }
+
   @SuppressWarnings( "deprecation" )
   @Test
   public void test16_pluginExternalResources() {
@@ -597,7 +625,7 @@ public class DefaultPluginManagerIT {
     public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
       PlatformPlugin p = new PlatformPlugin();
       p.setId( "Plugin 3" );
-      p.setLifecycleListenerClassname( "bogus.classname" );
+      p.addLifecycleListenerClassname( "bogus.classname" );
       return Arrays.asList( (IPlatformPlugin) p );
     }
   }
@@ -606,7 +634,7 @@ public class DefaultPluginManagerIT {
     public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
       PlatformPlugin p = new PlatformPlugin();
       p.setId( "test2Plugin" );
-      p.setLifecycleListenerClassname( CheckingLifecycleListener.class.getName() );
+      p.addLifecycleListenerClassname( CheckingLifecycleListener.class.getName() );
       return Arrays.asList( (IPlatformPlugin) p );
     }
   }
@@ -856,4 +884,13 @@ public class DefaultPluginManagerIT {
     }
   }
 
+  public static class Tst17PluginProvider implements IPluginProvider {
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
+      PlatformPlugin p = new PlatformPlugin();
+      p.setId( "test17Plugin" );
+      p.addLifecycleListenerClassname( CheckingLifecycleListener.class.getName() );
+      p.addLifecycleListenerClassname( AnotherCheckingLifecycleListener.class.getName() );
+      return Arrays.asList( (IPlatformPlugin) p );
+    }
+  }
 }
