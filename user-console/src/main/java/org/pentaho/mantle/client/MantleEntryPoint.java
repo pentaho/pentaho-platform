@@ -41,6 +41,10 @@ public class MantleEntryPoint implements EntryPoint, IResourceBundleLoadCallback
       "mantleMessages",
       true,
       MantleEntryPoint.this );
+    initializeNativeHooks();
+  }
+
+  private void initializeNativeHooks() {
     new MantleUtils();
   }
 
