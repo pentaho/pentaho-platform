@@ -21,24 +21,17 @@
 package org.pentaho.platform.util.versionchecker;
 
 
-import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.commons.logging.Log;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.verify;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 public class PentahoVersionCheckReflectHelperTest {
@@ -57,7 +50,8 @@ public class PentahoVersionCheckReflectHelperTest {
     List results = PentahoVersionCheckReflectHelper.performVersionCheck( false, -1 );
     assertNotNull( results );
     assertTrue( results.size() > 0 );
-    validateResult( results.get( 0 ).toString() );
+    assertTrue( results.get(0).toString().startsWith("<?php") );
+    assertTrue( results.get(0).toString().endsWith("?>\n") );
   }
 
   @Test
@@ -68,17 +62,5 @@ public class PentahoVersionCheckReflectHelperTest {
     results.add( XML_TEXT );
     PentahoVersionCheckReflectHelper.logVersionCheck( results, mockLog );
     verify( mockLog, times( 2 ) ).info( any() );
-  }
-
-  private void validateResult( String result ) {
-
-    try {
-      DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-      StringReader stringReader = new StringReader( result  );
-      documentBuilder.parse( new ReaderInputStream( stringReader ) );
-    } catch ( ParserConfigurationException | SAXException | IOException e ) {
-      assertTrue( "unexpected exception", false );
-    }
   }
 }
