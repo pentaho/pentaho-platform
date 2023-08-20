@@ -18,20 +18,27 @@
  *
  */
 
-package org.pentaho.platform.api.scheduler2;
+package org.pentaho.platform.plugin.services.repository;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openide.util.NotImplementedException;
+import org.pentaho.platform.api.action.IAction;
+//import org.pentaho.platform.repository2.unified.jcr.RepositoryCleaner;
 
 /**
- * Specifies a filter to be used when processing lists of jobs such as in {@link IScheduler#getJobs(IJobFilter)}
- * 
- * @author aphillips
+ * @author Andrey Khayrutdinov
  */
-public interface IJobFilter {
-  /**
-   * Returns <code>true</code> if the job should be accepted as part of the filtered results.
-   * 
-   * @param job
-   *          the job to decide to accept or reject
-   * @return <code>true</code> if the job should be accepted as part of the filtered results
-   */
-  boolean accept( IJob job );
+public class RepositoryGcJob implements IAction {
+  public static final String JOB_NAME = "RepositoryGcJob";
+
+  private static final Log logger = LogFactory.getLog( RepositoryGcJob.class );
+
+  @Override
+  public void execute() throws Exception {
+//    logger.info( "Starting repository GC" );
+//    new RepositoryCleaner().gc();
+//    logger.info( "Repository GC has been finished" );
+    throw new NotImplementedException();
+  }
 }

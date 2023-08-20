@@ -22,8 +22,6 @@ package org.pentaho.platform.scheduler2.recur;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
-
 /**
  * Used to specify incremental dates or times. For example an incremental recurrence with 1 as a starting value and 3 as
  * an increment translates to 1, 4, 7, etc. The time units may represent years, or days of month or hours, etc. The

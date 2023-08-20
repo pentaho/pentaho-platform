@@ -37,17 +37,9 @@ public interface IBlockoutManager {
   public static final String SCHEDULED_FIRE_TIME = "scheduledFireTime";
 
   /**
-   * @param blockOutJobId
-   * @return a IBlockOutTrigger that represents the blockOut with the name blockOutName
-   * @throws SchedulerException
-   */
-  IJobTrigger getBlockOut( String blockOutJobId );
-
-  /**
    * @return a list of jobs essentially should be used instead of getBlockOuts which is deprecated
    */
-  List<Job> getBlockOutJobs();
-
+  List<IJob> getBlockOutJobs();
   /**
    * @param scheduleJobTrigger
    *          {@link IJobTrigger}
@@ -55,20 +47,11 @@ public interface IBlockoutManager {
    * @throws SchedulerException
    */
   boolean willFire( IJobTrigger scheduleJobTrigger );
-
   /**
    * @return true if there are no current blockOuts active at the moment this method is called
    * @throws SchedulerException
    */
   boolean shouldFireNow();
-
-  /**
-   * @param testBlockOutJobTrigger
-   * @return the {@link List} of {@link IJobTrigger}s which would be blocked by the {@link IJobTrigger}
-   * @throws SchedulerException
-   */
-  List<IJobTrigger> willBlockSchedules( IJobTrigger testBlockOutJobTrigger );
-
   /**
    * @param scheduleJobTrigger
    *          {@link IJobTrigger}

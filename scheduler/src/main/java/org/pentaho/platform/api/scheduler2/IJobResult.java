@@ -37,26 +37,6 @@ public interface IJobResult {
    * 
    * @return a unique id of the job run
    */
-  public String getId();
+  String getId();
 
-  /**
-   * The job parameters used during this job run.
-   * 
-   * @return set of parameters used during job run
-   */
-  public Map<String, Serializable> getJobParams();
-
-  /**
-   * The start date/time of the job run
-   * 
-   * @return start date/time of the job run
-   */
-  public Date getStartDate();
-
-  /**
-   * The end date/time of the job run
-   * 
-   * @return end date/time of the job run
-   */
-  public Date getCompletionDate();
 }

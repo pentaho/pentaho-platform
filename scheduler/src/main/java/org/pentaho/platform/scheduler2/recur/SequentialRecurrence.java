@@ -22,8 +22,6 @@ package org.pentaho.platform.scheduler2.recur;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
-
 /**
  * Used to specify a sequence of dates or times from first value through and including the last value. The sequence may
  * represent years, or days of month or hours, etc. The method to which this class is passed will determine the meaning

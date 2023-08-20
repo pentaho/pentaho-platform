@@ -26,9 +26,9 @@ import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -83,7 +83,7 @@ public class GeneratedContentCleaner implements IAction {
         logger.debug( "File passes age criteria" );
         // now check metadata for RESERVEDMAPKEY_LINEAGE_ID (all generated content has)
         Map<String, Serializable> metadata = repository.getFileMetadata( parentFile.getId() );
-        if ( metadata.containsKey( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID ) ) {
+        if ( metadata.containsKey( IScheduler.RESERVEDMAPKEY_LINEAGE_ID ) ) {
           logger.debug( "File is generated content - adding to delete list" );
           generatedContentList.add( parentFile );
         }

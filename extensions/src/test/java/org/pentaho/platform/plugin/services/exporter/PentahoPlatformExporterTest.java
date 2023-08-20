@@ -32,10 +32,10 @@ import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
+import org.pentaho.platform.api.scheduler2.IComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
-import org.pentaho.platform.api.scheduler2.Job;
-import org.pentaho.platform.api.scheduler2.JobTrigger;
+import org.pentaho.platform.api.scheduler2.IJob;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
@@ -121,13 +121,13 @@ public class PentahoPlatformExporterTest {
 
   @Test
   public void testExportSchedules() throws Exception {
-    List<Job> jobs = new ArrayList<>();
-    ComplexJobTrigger trigger = mock( ComplexJobTrigger.class );
-    JobTrigger unknownTrigger = mock( JobTrigger.class );
+    List<IJob> jobs = new ArrayList<>();
+    IComplexJobTrigger trigger = mock( IComplexJobTrigger.class );
+    IJobTrigger unknownTrigger = mock( IJobTrigger.class );
 
-    Job job1 = mock( Job.class );
-    Job job2 = mock( Job.class );
-    Job job3 = mock( Job.class );
+    IJob job1 = mock( IJob.class );
+    IJob job2 = mock( IJob.class );
+    IJob job3 = mock( IJob.class );
     jobs.add( job1 );
     jobs.add( job2 );
     jobs.add( job3 );

@@ -26,14 +26,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
-import org.pentaho.platform.api.scheduler2.CronJobTrigger;
+import org.pentaho.platform.api.scheduler2.IComplexJobTrigger;
+import org.pentaho.platform.api.scheduler2.ICronJobTrigger;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
-import org.pentaho.platform.api.scheduler2.Job;
-import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.api.scheduler2.IJob;
+
+import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.api.scheduler2.ISimpleJobTrigger;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.RepositoryFileStreamProvider;
@@ -46,11 +48,12 @@ public class ScheduleExportUtil {
     // to get 100% coverage
   }
 
-  public static JobScheduleRequest createJobScheduleRequest( Job job ) {
+  public static JobScheduleRequest createJobScheduleRequest( IJob job ) {
     if ( job == null ) {
       throw new IllegalArgumentException( Messages.getInstance().getString( "ScheduleExportUtil.JOB_MUST_NOT_BE_NULL" ) );
     }
-
+    IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
+    assert scheduler != null;
     JobScheduleRequest schedule = new JobScheduleRequest();
     schedule.setJobName( job.getJobName() );
     schedule.setDuration( job.getJobTrigger().getDuration() );
@@ -58,7 +61,7 @@ public class ScheduleExportUtil {
 
     Map<String, Serializable> jobParams = job.getJobParams();
 
-    Object streamProviderObj = jobParams.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
+    Object streamProviderObj = jobParams.get( IScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
     RepositoryFileStreamProvider streamProvider = null;
     if ( streamProviderObj instanceof RepositoryFileStreamProvider ) {
       streamProvider = (RepositoryFileStreamProvider) streamProviderObj;
@@ -111,7 +114,7 @@ public class ScheduleExportUtil {
         JobScheduleParam param = null;
         if ( serializable instanceof String ) {
           String value = (String) serializable;
-          if ( QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS.equals( key ) ) {
+          if ( IScheduler.RESERVEDMAPKEY_ACTIONCLASS.equals( key ) ) {
             schedule.setActionClass( value );
           } else if ( IBlockoutManager.TIME_ZONE_PARAM.equals( key ) ) {
             schedule.setTimeZone( value );
@@ -130,22 +133,22 @@ public class ScheduleExportUtil {
       }
     }
 
-    if ( job.getJobTrigger() instanceof SimpleJobTrigger ) {
-      SimpleJobTrigger jobTrigger = (SimpleJobTrigger) job.getJobTrigger();
+    if ( job.getJobTrigger() instanceof ISimpleJobTrigger ) {
+      ISimpleJobTrigger jobTrigger = (ISimpleJobTrigger) job.getJobTrigger();
       schedule.setSimpleJobTrigger( jobTrigger );
 
-    } else if ( job.getJobTrigger() instanceof ComplexJobTrigger ) {
-      ComplexJobTrigger jobTrigger = (ComplexJobTrigger) job.getJobTrigger();
+    } else if ( job.getJobTrigger() instanceof IComplexJobTrigger ) {
+      IComplexJobTrigger jobTrigger = (IComplexJobTrigger) job.getJobTrigger();
       // force it to a cron trigger to get the auto-parsing of the complex trigger
-      CronJobTrigger cron = new CronJobTrigger();
+      ICronJobTrigger cron = scheduler.createCronJobTrigger();
       cron.setCronString( jobTrigger.getCronString() );
       cron.setStartTime( jobTrigger.getStartTime() );
       cron.setEndTime( jobTrigger.getEndTime() );
       cron.setDuration( jobTrigger.getDuration() );
       cron.setUiPassParam( jobTrigger.getUiPassParam() );
       schedule.setCronJobTrigger( cron );
-    } else if ( job.getJobTrigger() instanceof CronJobTrigger ) {
-      CronJobTrigger jobTrigger = (CronJobTrigger) job.getJobTrigger();
+    } else if ( job.getJobTrigger() instanceof ICronJobTrigger ) {
+      ICronJobTrigger jobTrigger = (ICronJobTrigger) job.getJobTrigger();
       schedule.setCronJobTrigger( jobTrigger );
     } else {
       // don't know what this is, can't export it

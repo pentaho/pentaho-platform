@@ -39,7 +39,6 @@ import org.pentaho.platform.engine.core.output.FileContentItem;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.ActionSequenceCompatibilityFormatter;
 import org.pentaho.platform.scheduler2.messsages.Messages;
-import org.pentaho.platform.scheduler2.quartz.SchedulerOutputPathResolver;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.beans.ActionHarness;
 import org.pentaho.platform.util.messages.LocaleHelper;

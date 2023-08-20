@@ -50,9 +50,8 @@ import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
+import org.pentaho.platform.api.scheduler2.IJob;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
-import org.pentaho.platform.api.scheduler2.Job;
-import org.pentaho.platform.api.scheduler2.Job.JobState;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
@@ -123,7 +122,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     } )
   public Response createJob( JobScheduleRequest scheduleRequest ) {
     try {
-      Job job = schedulerService.createJob( scheduleRequest );
+      IJob job = schedulerService.createJob( scheduleRequest );
       return buildPlainTextOkResponse( job.getJobId() );
     } catch ( SchedulerException e ) {
       return buildServerErrorResponse( e.getCause().getMessage() );
@@ -186,7 +185,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     } )
   public Response updateJob( JobScheduleRequest scheduleRequest ) {
     try {
-      Job job = schedulerService.updateJob( scheduleRequest );
+      IJob job = schedulerService.updateJob( scheduleRequest );
       return buildPlainTextOkResponse( job.getJobId() );
     } catch ( SchedulerException e ) {
       return buildServerErrorResponse( e.getCause().getMessage() );
@@ -233,7 +232,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     } )
   public Response triggerNow( JobRequest jobRequest ) {
     try {
-      Job job = schedulerService.triggerNow( jobRequest.getJobId() );
+      IJob job = schedulerService.triggerNow( jobRequest.getJobId() );
       return buildPlainTextOkResponse( job.getState().name() );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
@@ -302,7 +301,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 200, condition = "Content cleaner job successfully retrieved." ),
       @ResponseCode ( code = 204, condition = "No content cleaner job exists." ),
     } )
-  public Job getContentCleanerJob() {
+  public IJob getContentCleanerJob() {
     try {
       return schedulerService.getContentCleanerJob();
     } catch ( SchedulerException e ) {
@@ -414,7 +413,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 200, condition = "Jobs retrieved successfully." ),
       @ResponseCode ( code = 500, condition = "Error while retrieving jobs." )
     } )
-  public List<Job> getJobs( @DefaultValue ( "false" ) @QueryParam ( "asCronString" ) Boolean asCronString ) {
+  public List<IJob> getJobs( @DefaultValue ( "false" ) @QueryParam ( "asCronString" ) Boolean asCronString ) {
     try {
       return schedulerService.getJobs();
     } catch ( SchedulerException e ) {
@@ -523,7 +522,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 200, condition = "Jobs retrieved successfully." ),
       @ResponseCode ( code = 500, condition = "Error while retrieving jobs." ),
     } )
-  public List<Job> getAllJobs() {
+  public List<IJob> getAllJobs() {
     try {
       return schedulerService.getJobs();
     } catch ( SchedulerException e ) {
@@ -792,7 +791,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     } )
   public Response pauseJob( JobRequest jobRequest ) {
     try {
-      JobState state = schedulerService.pauseJob( jobRequest.getJobId() );
+      IJob.JobState state = schedulerService.pauseJob( jobRequest.getJobId() );
       return buildPlainTextOkResponse( state.name() );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
@@ -832,7 +831,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     } )
   public Response resumeJob( JobRequest jobRequest ) {
     try {
-      JobState state = schedulerService.resumeJob( jobRequest.getJobId() );
+      IJob.JobState state = schedulerService.resumeJob( jobRequest.getJobId() );
       return buildPlainTextOkResponse( state.name() );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
@@ -911,7 +910,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       if ( schedulerService.removeJob( jobRequest.getJobId() ) ) {
         return buildPlainTextOkResponse( "REMOVED" );
       }
-      Job job = schedulerService.getJob( jobRequest.getJobId() );
+      IJob job = schedulerService.getJob( jobRequest.getJobId() );
       return buildPlainTextOkResponse( job.getState().name() );
     } catch ( SchedulerException e ) {
       throw new RuntimeException( e );
@@ -946,7 +945,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response getJob( @QueryParam( "jobId" ) String jobId,
                      @DefaultValue( "false" ) @QueryParam( "asCronString" ) String asCronString ) {
     try {
-      Job jobInfo = schedulerService.getJobInfo( jobId );
+      IJob jobInfo = schedulerService.getJobInfo( jobId );
       if ( jobInfo == null ) {
         return buildStatusResponse( Status.NO_CONTENT  );
       }
@@ -973,7 +972,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
    */
   @Deprecated
   @Facet ( name = "Unsupported" )
-  public List<Job> getJobs() {
+  public List<IJob> getJobs() {
     return getBlockoutJobs();
   }
 
@@ -1070,7 +1069,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved blockout jobs." ),
     } )
-  public List<Job> getBlockoutJobs() {
+  public List<IJob> getBlockoutJobs() {
     return schedulerService.getBlockOutJobs();
   }
 
@@ -1146,7 +1145,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     } )
   public Response addBlockout( JobScheduleRequest jobScheduleRequest ) {
     try {
-      Job job = schedulerService.addBlockout( jobScheduleRequest );
+      IJob job = schedulerService.addBlockout( jobScheduleRequest );
       return buildPlainTextOkResponse( job.getJobId() );
     } catch ( IOException e ) {
       return buildStatusResponse( UNAUTHORIZED );
@@ -1204,7 +1203,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     } )
   public Response updateBlockout( @QueryParam ( "jobid" ) String jobId, JobScheduleRequest jobScheduleRequest ) {
     try {
-      Job job = schedulerService.updateBlockout( jobId, jobScheduleRequest );
+      IJob job = schedulerService.updateBlockout( jobId, jobScheduleRequest );
       return buildPlainTextOkResponse( job.getJobId() );
     } catch ( IOException e ) {
       return buildStatusResponse( Status.UNAUTHORIZED );

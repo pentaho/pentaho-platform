@@ -55,8 +55,8 @@ import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.scheduler2.Job;
-import org.pentaho.platform.api.scheduler2.Job.JobState;
+import org.pentaho.platform.api.scheduler2.IJob;
+import org.pentaho.platform.api.scheduler2.IJob.JobState;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
@@ -296,7 +296,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     localeFilesProcessor.processLocaleFiles( importer );
   }
 
-  List<Job> getAllJobs( SchedulerResource schedulerResource ) {
+  List<IJob> getAllJobs( SchedulerResource schedulerResource ) {
     return schedulerResource.getAllJobs();
   }
 
@@ -314,7 +314,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
         boolean jobExists = false;
 
-        List<Job> jobs = getAllJobs( schedulerResource );
+        List<IJob> jobs = getAllJobs( schedulerResource );
         if ( jobs != null ) {
 
           //paramRequest to map<String, Serializable>
@@ -323,7 +323,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             mapParamsRequest.put( paramRequest.getName(), paramRequest.getValue() );
           }
 
-          for ( Job job : jobs ) {
+          for ( IJob job : jobs ) {
 
             if ( ( mapParamsRequest.get( RESERVEDMAPKEY_LINEAGE_ID ) != null )
               && ( mapParamsRequest.get( RESERVEDMAPKEY_LINEAGE_ID )

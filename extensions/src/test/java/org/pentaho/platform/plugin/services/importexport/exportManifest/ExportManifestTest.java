@@ -26,7 +26,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.api.scheduler2.Job;
+import org.pentaho.platform.api.scheduler2.IJob;
 import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseAccessType;
@@ -111,7 +111,7 @@ public class ExportManifestTest extends TestCase {
     pdiParameters.put( "parm1", "val1" );
     jobScheduleRequest.setPdiParameters( pdiParameters );
     jobScheduleRequest.setJobName( "jobName" );
-    jobScheduleRequest.setJobState( Job.JobState.UNKNOWN );
+    jobScheduleRequest.setJobState( IJob.JobState.UNKNOWN );
     jobScheduleRequest.setActionClass( "actionClass" );
     jobScheduleRequest.setDuration( 3600 );
     jobScheduleRequest.setTimeZone( "someTimeZone" );
@@ -209,7 +209,7 @@ public class ExportManifestTest extends TestCase {
     assertEquals( 1, jobScheduleRequest.getPdiParameters().size() );
     assertEquals( "val1", jobScheduleRequest.getPdiParameters().get( "parm1" ) );
     assertEquals( "jobName", jobScheduleRequest.getJobName() );
-    assertEquals( Job.JobState.UNKNOWN, jobScheduleRequest.getJobState() );
+    assertEquals( IJob.JobState.UNKNOWN, jobScheduleRequest.getJobState() );
     assertEquals( "actionClass", jobScheduleRequest.getActionClass() );
     assertEquals( 3600, jobScheduleRequest.getDuration() );
     assertEquals( "someTimeZone", jobScheduleRequest.getTimeZone() );

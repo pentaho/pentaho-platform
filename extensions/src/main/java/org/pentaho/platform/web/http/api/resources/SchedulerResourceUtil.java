@@ -30,14 +30,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
-import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
+import org.pentaho.platform.api.scheduler2.IComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
-import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.api.scheduler2.ISimpleJobTrigger;
 import org.pentaho.platform.plugin.services.exporter.ScheduleExportUtil;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeekQualifier;
@@ -64,6 +63,7 @@ public class SchedulerResourceUtil {
                                                                 IScheduler scheduler )
     throws SchedulerException, UnifiedRepositoryException {
 
+
     // Used to determine if created by a RunInBackgroundCommand
     boolean runInBackground =
       scheduleRequest.getSimpleJobTrigger() == null && scheduleRequest.getComplexJobTrigger() == null
@@ -71,11 +71,11 @@ public class SchedulerResourceUtil {
 
     // add 10 seconds to the RIB to ensure execution (see PPP-3264)
     IJobTrigger jobTrigger =
-      runInBackground ? new SimpleJobTrigger( new Date( System.currentTimeMillis() + 10000 ), null, 0, 0 )
+      runInBackground ? scheduler.createSimpleJobTrigger( new Date( System.currentTimeMillis() + 10000 ), null, 0, 0 )
         : scheduleRequest.getSimpleJobTrigger();
 
     if ( scheduleRequest.getSimpleJobTrigger() != null ) {
-      SimpleJobTrigger simpleJobTrigger = scheduleRequest.getSimpleJobTrigger();
+      ISimpleJobTrigger simpleJobTrigger = scheduleRequest.getSimpleJobTrigger();
 
       if ( simpleJobTrigger.getStartTime() == null ) {
         simpleJobTrigger.setStartTime( new Date() );
@@ -87,7 +87,7 @@ public class SchedulerResourceUtil {
 
       ComplexJobTriggerProxy proxyTrigger = scheduleRequest.getComplexJobTrigger();
       String cronString = proxyTrigger.getCronString();
-      ComplexJobTrigger complexJobTrigger = null;
+      IComplexJobTrigger complexJobTrigger = null;
       /**
        * We will have two options. Either it is a daily scehdule to ignore DST or any other
        * complex schedule
@@ -95,9 +95,9 @@ public class SchedulerResourceUtil {
       if(cronString != null && cronString.equals("TO_BE_GENERATED")) {
         cronString = generateCronString((int)proxyTrigger.getRepeatInterval()/86400
                 ,proxyTrigger.getStartTime());
-        complexJobTrigger = QuartzScheduler.createComplexTrigger( cronString );
+        complexJobTrigger = scheduler.createComplexTrigger( cronString );
       } else {
-        complexJobTrigger = new ComplexJobTrigger();
+        complexJobTrigger = scheduler.createComplexJobTrigger();
         if ( proxyTrigger.getDaysOfWeek().length > 0 ) {
           if ( proxyTrigger.getWeeksOfMonth().length > 0 ) {
             for ( int dayOfWeek : proxyTrigger.getDaysOfWeek() ) {
@@ -137,7 +137,7 @@ public class SchedulerResourceUtil {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime( proxyTrigger.getStartTime() );
         complexJobTrigger.setHourlyRecurrence( calendar.get( Calendar.HOUR_OF_DAY ) );
-        complexJobTrigger.setMinuteRecurrence( calendar.get( Calendar.MINUTE ) );
+        complexJobTrigger.addMinuteRecurrence( calendar.get( Calendar.MINUTE ) );
       }
 
       complexJobTrigger.setStartTime( proxyTrigger.getStartTime() );
@@ -148,14 +148,14 @@ public class SchedulerResourceUtil {
 
     } else if ( scheduleRequest.getCronJobTrigger() != null ) {
 
-      if ( scheduler instanceof QuartzScheduler ) {
+      if ( scheduler instanceof IScheduler ) {
         String cronString = scheduleRequest.getCronJobTrigger().getCronString();
         String delims = "[ ]+"; //$NON-NLS-1$
         String[] tokens = cronString.split( delims );
         if ( tokens.length < 7 ) {
           cronString += " *";
         }
-        ComplexJobTrigger complexJobTrigger = QuartzScheduler.createComplexTrigger( cronString );
+        IComplexJobTrigger complexJobTrigger = scheduler.createComplexTrigger( cronString );
         complexJobTrigger.setStartTime( scheduleRequest.getCronJobTrigger().getStartTime() );
         complexJobTrigger.setEndTime( scheduleRequest.getCronJobTrigger().getEndTime() );
         complexJobTrigger.setDuration( scheduleRequest.getCronJobTrigger().getDuration() );

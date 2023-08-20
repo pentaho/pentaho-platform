@@ -35,7 +35,7 @@ import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.IScheduler;
-import org.pentaho.platform.api.scheduler2.Job;
+import org.pentaho.platform.api.scheduler2.IJob;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
@@ -311,8 +311,8 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   protected void exportSchedules() {
     log.debug( "export schedules" );
     try {
-      List<Job> jobs = getScheduler().getJobs( null );
-      for ( Job job : jobs ) {
+      List<IJob> jobs = getScheduler().getJobs( null );
+      for ( IJob job : jobs ) {
         if ( job.getJobName().equals( EmbeddedVersionCheckSystemListener.VERSION_CHECK_JOBNAME ) ) {
           // don't bother exporting the Version Checker schedule, it gets created automatically on server start
           // if it doesn't exist and fails if you try to import it due to a null ActionClass

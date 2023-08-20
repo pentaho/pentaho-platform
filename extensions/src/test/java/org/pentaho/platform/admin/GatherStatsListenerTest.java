@@ -28,8 +28,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.scheduler2.IScheduler;
-import org.pentaho.platform.api.scheduler2.Job;
-import org.pentaho.platform.api.scheduler2.JobTrigger;
+import org.pentaho.platform.api.scheduler2.IJob;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
@@ -63,12 +63,12 @@ public class GatherStatsListenerTest {
   public void testStartUp() throws Exception {
     PentahoSystem.registerObject( scheduler );
 
-    Job job = mock( Job.class );
+    IJob job = mock( IJob.class );
     when( scheduler.createJob(
       eq( "Gather Stats" ),
       eq( GatherStatsAction.class ),
       eq( gatherStatsListener.jobMap ),
-      any( JobTrigger.class ) ) ).thenReturn( job );
+      any( IJobTrigger.class ) ) ).thenReturn( job );
 
     boolean startup = gatherStatsListener.startup( session );
     assertTrue( startup );
@@ -79,7 +79,7 @@ public class GatherStatsListenerTest {
       eq( "Gather Stats" ),
       eq( GatherStatsAction.class ),
       eq( gatherStatsListener.jobMap ),
-      any( JobTrigger.class ) );
+      any( IJobTrigger.class ) );
   }
 
   @Test
@@ -96,7 +96,7 @@ public class GatherStatsListenerTest {
       eq( "Gather Stats" ),
       eq( GatherStatsAction.class ),
       eq( gatherStatsListener.jobMap ),
-      any( JobTrigger.class ) ) ).thenThrow( new SchedulerException( "error" ) );
+      any( IJobTrigger.class ) ) ).thenThrow( new SchedulerException( "error" ) );
 
     boolean startup = gatherStatsListener.startup( session );
     assertTrue( startup );
@@ -107,7 +107,7 @@ public class GatherStatsListenerTest {
       eq( "Gather Stats" ),
       eq( GatherStatsAction.class ),
       eq( gatherStatsListener.jobMap ),
-      any( JobTrigger.class ) );
+      any( IJobTrigger.class ) );
   }
 
   @After

@@ -21,17 +21,16 @@
 package org.pentaho.platform.api.scheduler2;
 
 /**
- * Specifies a filter to be used when processing lists of jobs such as in {@link IScheduler#getJobs(IJobFilter)}
+ * A simple way of specifying a schedule on which a job will fire as opposed to {@link IComplexJobTrigger}. The
+ * {@link ISimpleJobTrigger} can meet your needs if you are looking for a way to have a job start, execute a set number
+ * of times on a regular interval and then end either after a specified number of runs or at an end date.
  * 
  * @author aphillips
  */
-public interface IJobFilter {
-  /**
-   * Returns <code>true</code> if the job should be accepted as part of the filtered results.
-   * 
-   * @param job
-   *          the job to decide to accept or reject
-   * @return <code>true</code> if the job should be accepted as part of the filtered results
-   */
-  boolean accept( IJob job );
+
+public interface ISimpleJobTrigger extends IJobTrigger {
+  public int getRepeatCount();
+  public void setRepeatCount( int repeatCount );
+  public long getRepeatInterval();
+  public void setRepeatInterval( long repeatIntervalSeconds );
 }

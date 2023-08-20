@@ -20,24 +20,23 @@
 
 package org.pentaho.platform.scheduler2.versionchecker;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPentahoSystemListener;
+import org.pentaho.platform.api.scheduler2.IJob;
+import org.pentaho.platform.api.scheduler2.IJobFilter;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
+import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.api.scheduler2.SchedulerException;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.util.versionchecker.PentahoVersionCheckReflectHelper;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPentahoSystemListener;
-import org.pentaho.platform.api.scheduler2.IJobFilter;
-import org.pentaho.platform.api.scheduler2.IScheduler;
-import org.pentaho.platform.api.scheduler2.Job;
-import org.pentaho.platform.api.scheduler2.JobTrigger;
-import org.pentaho.platform.api.scheduler2.SchedulerException;
-import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.util.versionchecker.PentahoVersionCheckReflectHelper;
 
 public class EmbeddedVersionCheckSystemListener implements IPentahoSystemListener {
 
@@ -112,23 +111,19 @@ public class EmbeddedVersionCheckSystemListener implements IPentahoSystemListene
 
     Map<String, Serializable> parms = new HashMap<String, Serializable>();
     parms.put( VersionCheckerAction.VERSION_REQUEST_FLAGS, new Integer( versionRequestFlags ) );
-    JobTrigger trigger = new SimpleJobTrigger( new Date(), null, -1, repeatSeconds );
-    scheduler.createJob( EmbeddedVersionCheckSystemListener.VERSION_CHECK_JOBNAME, VersionCheckerAction.class, parms,
-        trigger );
+    IJobTrigger trigger = scheduler.createSimpleJobTrigger( new Date(), null, -1, repeatSeconds );
+//    scheduler.createJob( EmbeddedVersionCheckSystemListener.VERSION_CHECK_JOBNAME, VersionCheckerAction.class, parms,
+//        trigger );
   }
 
   protected void deleteJobIfNecessary() throws SchedulerException {
     IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
-    IJobFilter filter = new IJobFilter() {
-      public boolean accept( Job job ) {
-        return job.getJobName().contains( EmbeddedVersionCheckSystemListener.VERSION_CHECK_JOBNAME );
-      }
-    };
+    IJobFilter filter = job -> job.getJobName().contains( EmbeddedVersionCheckSystemListener.VERSION_CHECK_JOBNAME );
 
     // Like old code - remove the existing job and replace it
-    List<Job> matchingJobs = scheduler.getJobs( filter );
+    List<IJob> matchingJobs = scheduler.getJobs( filter );
     if ( ( matchingJobs != null ) && ( matchingJobs.size() > 0 ) ) {
-      for ( Job verCkJob : matchingJobs ) {
+      for ( IJob verCkJob : matchingJobs ) {
         scheduler.removeJob( verCkJob.getJobId() );
       }
     }

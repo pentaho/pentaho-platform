@@ -21,10 +21,12 @@
 package org.pentaho.platform.api.scheduler2;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.pentaho.platform.api.action.IAction;
+import org.pentaho.platform.util.ActionUtil;
 
 /**
  * An object that allows for the scheduling of IActions on the Pentaho platform
@@ -32,6 +34,26 @@ import org.pentaho.platform.api.action.IAction;
  * @author arodriguez
  */
 public interface IScheduler {
+
+  public static final String RESERVEDMAPKEY_ACTIONCLASS = ActionUtil.QUARTZ_ACTIONCLASS;
+  public static final String RESERVEDMAPKEY_ACTIONUSER = ActionUtil.QUARTZ_ACTIONUSER;
+
+  public static final String RESERVEDMAPKEY_ACTIONID = ActionUtil.QUARTZ_ACTIONID;
+
+  public static final String RESERVEDMAPKEY_STREAMPROVIDER = ActionUtil.QUARTZ_STREAMPROVIDER;
+
+  public static final String RESERVEDMAPKEY_STREAMPROVIDER_INPUTFILE = ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE;
+
+  public static final String RESERVEDMAPKEY_UIPASSPARAM = ActionUtil.QUARTZ_UIPASSPARAM;
+
+  public static final String RESERVEDMAPKEY_LINEAGE_ID = ActionUtil.QUARTZ_LINEAGE_ID;
+
+  public static final String RESERVEDMAPKEY_RESTART_FLAG = ActionUtil.QUARTZ_RESTART_FLAG;
+
+  public static final String RESERVEDMAPKEY_AUTO_CREATE_UNIQUE_FILENAME = ActionUtil.QUARTZ_AUTO_CREATE_UNIQUE_FILENAME;
+
+  public static final String RESERVEDMAPKEY_APPEND_DATE_FORMAT = ActionUtil.QUARTZ_APPEND_DATE_FORMAT;
+
   public enum SchedulerStatus {
     RUNNING, PAUSED, STOPPED
   };
@@ -51,7 +73,7 @@ public interface IScheduler {
    * @throws SchedulerException
    *           If the job could not be scheduled
    */
-  public Job createJob( String jobName, Class<? extends IAction> action, Map<String, Serializable> jobParams,
+  public IJob createJob( String jobName, Class<? extends IAction> action, Map<String, Serializable> jobParams,
       IJobTrigger trigger ) throws SchedulerException;
 
   /**
@@ -69,7 +91,7 @@ public interface IScheduler {
    * @throws SchedulerException
    *           If the job could not be scheduled
    */
-  public Job createJob( String jobName, String actionId, Map<String, Serializable> jobParams, IJobTrigger trigger )
+  public IJob createJob( String jobName, String actionId, Map<String, Serializable> jobParams, IJobTrigger trigger )
     throws SchedulerException;
 
   /**
@@ -90,7 +112,7 @@ public interface IScheduler {
    * @throws SchedulerException
    *           If the job could not be scheduled
    */
-  public Job createJob( String jobName, Class<? extends IAction> action, Map<String, Serializable> jobParams,
+  public IJob createJob( String jobName, Class<? extends IAction> action, Map<String, Serializable> jobParams,
       IJobTrigger trigger, IBackgroundExecutionStreamProvider outputStreamProvider ) throws SchedulerException;
 
   /**
@@ -111,7 +133,7 @@ public interface IScheduler {
    * @throws SchedulerException
    *           If the job could not be scheduled
    */
-  public Job createJob( String jobName, String actionId, Map<String, Serializable> jobParams, IJobTrigger trigger,
+  public IJob createJob( String jobName, String actionId, Map<String, Serializable> jobParams, IJobTrigger trigger,
       IBackgroundExecutionStreamProvider outputStreamProvider ) throws SchedulerException;
 
   /**
@@ -160,7 +182,7 @@ public interface IScheduler {
    * @param jobId
    *          the job to be returned
    */
-  public Job getJob( String jobId ) throws SchedulerException;
+  public IJob getJob( String jobId ) throws SchedulerException;
 
   /**
    * Triggers the given quartz job by jobId to be executed immediately
@@ -178,7 +200,7 @@ public interface IScheduler {
    * @param window
    *          the window of time at which the scheduler is available
    */
-  public void setSubjectAvailabilityWindow( IScheduleSubject subject, ComplexJobTrigger window );
+  public void setSubjectAvailabilityWindow( IScheduleSubject subject, IComplexJobTrigger window );
 
   /**
    * Replaces the scheduler availability map with the provided availability map.
@@ -186,7 +208,7 @@ public interface IScheduler {
    * @param windows
    *          the new scheduler availability map
    */
-  public void setAvailabilityWindows( Map<IScheduleSubject, ComplexJobTrigger> windows );
+  public void setAvailabilityWindows( Map<IScheduleSubject, IComplexJobTrigger> windows );
 
   /**
    * Gets the scheduler availability window to the specified subject
@@ -195,14 +217,14 @@ public interface IScheduler {
    *          the subject whose window is being requested
    * @return the subject's availability window
    */
-  public ComplexJobTrigger getSubjectAvailabilityWindow( IScheduleSubject subject );
+  public IComplexJobTrigger getSubjectAvailabilityWindow( IScheduleSubject subject );
 
   /**
    * Gets the scheduler availability window for all subjects for whom a window has been set
    * 
    * @return the scheduler availability map
    */
-  public Map<IScheduleSubject, ComplexJobTrigger> getAvailabilityWindows();
+  public Map<IScheduleSubject, IComplexJobTrigger> getAvailabilityWindows();
 
   /**
    * Pauses the entire scheduler, which prevents all scheduled jobs from running. Any currently running jobs are allowed
@@ -249,7 +271,7 @@ public interface IScheduler {
    *          the filter to use to determine which jobs to return. If null all scheduled jobs are return.
    * @return the scheduled jobs
    */
-  public List<Job> getJobs( IJobFilter filter ) throws SchedulerException;
+  public List<IJob> getJobs( IJobFilter filter ) throws SchedulerException;
 
   /**
    * Returns a history of the runs for a particular job.
@@ -280,6 +302,14 @@ public interface IScheduler {
   public void fireJobCompleted( final IAction actionBean, final String actionUser,
       final Map<String, Serializable> params, IBackgroundExecutionStreamProvider streamProvider );
 
+  public ISimpleJobTrigger createSimpleJobTrigger( Date startTime, Date endTime, int repeatCount, long repeatIntervalSeconds );
+
+  public ICronJobTrigger createCronJobTrigger();
+
+  public IComplexJobTrigger createComplexTrigger( String cronString );
+
+  IComplexJobTrigger createComplexJobTrigger();
+  IComplexJobTrigger createComplexTrigger( Integer year, Integer month, Integer dayOfMonth, Integer dayOfWeek, Integer hourOfDay );
   /**
    * A default implementation which doesn't do anything and exists for the backward compatibility sake.
    * @param jobParams scheduling job parameters
