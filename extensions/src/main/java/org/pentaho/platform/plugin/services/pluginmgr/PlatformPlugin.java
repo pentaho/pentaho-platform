@@ -71,9 +71,9 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
   // explicitly set
   private String sourceDescription = ""; //$NON-NLS-1$
 
-  private String lifecycleListenerClassname;
+  private List<String> lifecycleListenerClassnames = new ArrayList<>();
 
-  private IPluginLifecycleListener lifecycleListener;
+  private List<IPluginLifecycleListener> lifecycleListeners = new ArrayList<>();
 
   private ClassLoaderType loaderType;
 
@@ -92,13 +92,21 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
       initializer.init( session );
     }
   }
-
   public String getLifecycleListenerClassname() {
-    return lifecycleListenerClassname;
+    return lifecycleListenerClassnames != null
+            && !lifecycleListenerClassnames.isEmpty() ? lifecycleListenerClassnames.get(0): null;
   }
 
-  public void setLifecycleListenerClassname( String lifecycleListenerClassname ) {
-    this.lifecycleListenerClassname = lifecycleListenerClassname;
+  public void addLifecycleListenerClassname( String lifecycleListenerClassname ) {
+    this.lifecycleListenerClassnames.add( lifecycleListenerClassname );
+  }
+
+  public void setLifecycleListenerClassname( String lifecycleListenerClassnames ) {
+    this.lifecycleListenerClassnames.add( lifecycleListenerClassnames );
+  }
+
+  public List<String> getLifecycleListenerClassnames() {
+    return lifecycleListenerClassnames;
   }
 
   public List<IContentGeneratorInfo> getContentGenerators() {
@@ -203,25 +211,31 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
   }
 
   public void init() throws PluginLifecycleException {
-    if ( lifecycleListener != null ) {
-      lifecycleListener.init();
+    if ( lifecycleListeners != null && !lifecycleListeners.isEmpty() ) {
+      for(IPluginLifecycleListener lifecycleListener:lifecycleListeners) {
+        lifecycleListener.init();
+      }
     }
   }
 
   public void loaded() throws PluginLifecycleException {
-    if ( lifecycleListener != null ) {
-      lifecycleListener.loaded();
+    if ( lifecycleListeners != null && !lifecycleListeners.isEmpty() ) {
+      for(IPluginLifecycleListener lifecycleListener:lifecycleListeners) {
+        lifecycleListener.loaded();
+      }
     }
   }
 
   public void unLoaded() throws PluginLifecycleException {
-    if ( lifecycleListener != null ) {
-      lifecycleListener.unLoaded();
+    if ( lifecycleListeners != null && !lifecycleListeners.isEmpty() ) {
+      for(IPluginLifecycleListener lifecycleListener:lifecycleListeners) {
+        lifecycleListener.unLoaded();
+      }
     }
   }
 
   public void addLifecycleListener( IPluginLifecycleListener listener ) {
-    this.lifecycleListener = listener;
+    this.lifecycleListeners.add(listener);
   }
 
   public Map<String, String> getMetaProviderMap() {
