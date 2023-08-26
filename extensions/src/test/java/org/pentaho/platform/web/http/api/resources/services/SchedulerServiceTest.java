@@ -14,11 +14,52 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
+import org.pentaho.platform.api.scheduler2.IJobFilter;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
+import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.api.scheduler2.Job;
+import org.pentaho.platform.api.scheduler2.SchedulerException;
+import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.api.util.IPdiContentProvider;
+import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
+import org.pentaho.platform.web.http.api.resources.JobRequest;
+import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
+import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
+import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
+import org.pentaho.platform.web.http.api.resources.SchedulerResourceUtil;
+import org.pentaho.platform.web.http.api.resources.SessionResource;
+import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -39,43 +80,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
-import org.pentaho.platform.api.scheduler2.IBlockoutManager;
-import org.pentaho.platform.api.scheduler2.IJobFilter;
-import org.pentaho.platform.api.scheduler2.IJobTrigger;
-import org.pentaho.platform.api.scheduler2.IScheduler;
-import org.pentaho.platform.api.scheduler2.Job;
-import org.pentaho.platform.api.scheduler2.SchedulerException;
-import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
-import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
-import org.pentaho.platform.web.http.api.resources.JobRequest;
-import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
-import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
-import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
-import org.pentaho.platform.web.http.api.resources.SessionResource;
-import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 
 @RunWith( MockitoJUnitRunner.class )
 public class SchedulerServiceTest {
@@ -151,35 +155,43 @@ public class SchedulerServiceTest {
         .createJob( nullable( String.class ), any( Class.class ), any( Map.class ), any( IJobTrigger.class ) );
 
     //Test 1
-    schedulerService.createJob( scheduleRequest );
+    try ( MockedStatic<SchedulerResourceUtil> schedulerResourceUtilMockedStatic = Mockito.mockStatic( SchedulerResourceUtil.class ) ) {
+      IPdiContentProvider mockPdiContentProvider = mock( IPdiContentProvider.class );
+      schedulerResourceUtilMockedStatic.when( () -> SchedulerResourceUtil.getiPdiContentProvider() ).thenReturn( mockPdiContentProvider );
+      schedulerResourceUtilMockedStatic.when( () ->
+        SchedulerResourceUtil.convertScheduleRequestToJobTrigger( eq( scheduleRequest ), any( IScheduler.class ) ) ).thenCallRealMethod();
+      Job returnJob = schedulerService.createJob( scheduleRequest );
+      assertEquals( job, returnJob );
 
-    //Test 2
-    doReturn( "" ).when( scheduleRequest ).getJobName();
+      //Test 2
+      doReturn( "" ).when( scheduleRequest ).getJobName();
 
-    schedulerService.createJob( scheduleRequest );
+      returnJob = schedulerService.createJob( scheduleRequest );
+      assertEquals( job, returnJob );
 
-    //Test 3
-    doReturn( "" ).when( scheduleRequest ).getInputFile();
-    doReturn( "" ).when( scheduleRequest ).getActionClass();
+      //Test 3
+      doReturn( "" ).when( scheduleRequest ).getInputFile();
+      doReturn( "" ).when( scheduleRequest ).getActionClass();
 
-    schedulerService.createJob( scheduleRequest );
+      returnJob = schedulerService.createJob( scheduleRequest );
+      assertEquals( job, returnJob );
 
-    verify( scheduleRequest, times( 15 ) ).getSimpleJobTrigger();
-    verify( scheduleRequest, times( 9 ) ).getInputFile();
-    verify( schedulerService.policy, times( 3 ) ).isAllowed( SchedulerAction.NAME );
-    verify( schedulerService.repository, times( 2 ) ).getFile( nullable( String.class ) );
-    verify( scheduleRequest, times( 6 ) ).getJobName();
-    verify( scheduleRequest, times( 3 ) ).setJobName( nullable( String.class ) );
-    verify( scheduleRequest, times( 5 ) ).getActionClass();
-    verify( schedulerService.repository, times( 2 ) ).getFileMetadata( nullable( String.class ) );
-    verify( schedulerService, times( 3 ) ).isPdiFile( nullable( RepositoryFile.class ) );
-    verify( schedulerService, times( 2 ) ).handlePDIScheduling( any( RepositoryFile.class ), any( HashMap.class ), any( HashMap.class ) );
-    verify( schedulerService, times( 2 ) ).getSchedulerOutputPathResolver( any( JobScheduleRequest.class ) );
-    verify( scheduleRequest, times( 5 ) ).getActionClass();
-    verify( schedulerService ).getAction( nullable( String.class ) );
-    verify( schedulerService, times( 3 ) ).updateStartDateForTimeZone( scheduleRequest );
-    verify( schedulerService.scheduler )
-        .createJob( nullable( String.class ), any( Class.class ), any( Map.class ), any( IJobTrigger.class ) );
+      verify( scheduleRequest, times( 15 ) ).getSimpleJobTrigger();
+      verify( scheduleRequest, times( 9 ) ).getInputFile();
+      verify( schedulerService.policy, times( 3 ) ).isAllowed( SchedulerAction.NAME );
+      verify( schedulerService.repository, times( 2 ) ).getFile( nullable( String.class ) );
+      verify( scheduleRequest, times( 6 ) ).getJobName();
+      verify( scheduleRequest, times( 3 ) ).setJobName( nullable( String.class ) );
+      verify( scheduleRequest, times( 5 ) ).getActionClass();
+      verify( schedulerService.repository, times( 2 ) ).getFileMetadata( nullable( String.class ) );
+      verify( schedulerService, times( 3 ) ).isPdiFile( nullable( RepositoryFile.class ) );
+      verify( schedulerService, times( 2 ) ).handlePDIScheduling( any( RepositoryFile.class ), any( HashMap.class ),
+        any( HashMap.class ) );
+      verify( schedulerService, times( 2 ) ).getSchedulerOutputPathResolver( any( JobScheduleRequest.class ) );
+      verify( scheduleRequest, times( 5 ) ).getActionClass();
+      verify( schedulerService ).getAction( nullable( String.class ) );
+      verify( schedulerService, times( 3 ) ).updateStartDateForTimeZone( scheduleRequest );
+    }
   }
 
   @Test
@@ -217,48 +229,57 @@ public class SchedulerServiceTest {
     doReturn( "file.ext" ).when( scheduleRequest ).getInputFile();
     doReturn( repositoryFile ).when( schedulerService.repository ).getFile( nullable( String.class ) );
 
-    //Test 1
-    try {
-      schedulerService.createJob( scheduleRequest );
-      fail();
-    } catch ( SecurityException e ) {
-      //Should catch it
+    try ( MockedStatic<SchedulerResourceUtil> schedulerResourceUtilMockedStatic = Mockito.mockStatic( SchedulerResourceUtil.class ) ) {
+      IPdiContentProvider mockPdiContentProvider = mock( IPdiContentProvider.class );
+      schedulerResourceUtilMockedStatic.when( () -> SchedulerResourceUtil.getiPdiContentProvider() )
+        .thenReturn( mockPdiContentProvider );
+      schedulerResourceUtilMockedStatic.when( () ->
+          SchedulerResourceUtil.convertScheduleRequestToJobTrigger( eq( scheduleRequest ), any( IScheduler.class ) ) )
+        .thenCallRealMethod();
+      //Test 1
+      try {
+        schedulerService.createJob( scheduleRequest );
+        fail();
+      } catch ( SecurityException e ) {
+        //Should catch it
+      }
+
+      //Test 2
+      doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
+      doReturn( "false" ).when( metadata ).get( RepositoryFile.SCHEDULABLE_KEY );
+
+      try {
+        schedulerService.createJob( scheduleRequest );
+        fail();
+      } catch ( IllegalAccessException e ) {
+        //Should catch it
+      }
+
+      //Test 3
+      doReturn( "" ).when( scheduleRequest ).getInputFile();
+      doThrow( new ClassNotFoundException() ).when( schedulerService ).getAction( nullable( String.class ) );
+
+      try {
+        schedulerService.createJob( scheduleRequest );
+        fail();
+      } catch ( RuntimeException e ) {
+        //Should catch it
+      }
+
+      verify( scheduleRequest, times( 7 ) ).getSimpleJobTrigger();
+      verify( scheduleRequest, times( 3 ) ).getInputFile();
+      verify( schedulerService.policy, times( 3 ) ).isAllowed( SchedulerAction.NAME );
+      verify( schedulerService.repository, times( 1 ) ).getFile( nullable( String.class ) );
+      verify( scheduleRequest, times( 1 ) ).getJobName();
+      verify( scheduleRequest, times( 2 ) ).setJobName( nullable( String.class ) );
+      verify( scheduleRequest, times( 7 ) ).getActionClass();
+      verify( schedulerService.repository, times( 1 ) ).getFileMetadata( nullable( String.class ) );
+      verify( schedulerService, times( 1 ) ).isPdiFile( nullable( RepositoryFile.class ) );
+      verify( schedulerService, times( 1 ) ).handlePDIScheduling( nullable( RepositoryFile.class ),
+        any( HashMap.class ), any( HashMap.class ) );
+      verify( scheduleRequest, times( 7 ) ).getActionClass();
+      verify( schedulerService ).getAction( nullable( String.class ) );
     }
-
-    //Test 2
-    doReturn( true ).when( schedulerService.policy ).isAllowed( SchedulerAction.NAME );
-    doReturn( "false" ).when( metadata ).get( RepositoryFile.SCHEDULABLE_KEY );
-
-    try {
-      schedulerService.createJob( scheduleRequest );
-      fail();
-    } catch ( IllegalAccessException e ) {
-      //Should catch it
-    }
-
-    //Test 3
-    doReturn( "" ).when( scheduleRequest ).getInputFile();
-    doThrow( new ClassNotFoundException() ).when( schedulerService ).getAction( nullable( String.class ) );
-
-    try {
-      schedulerService.createJob( scheduleRequest );
-      fail();
-    } catch ( RuntimeException e ) {
-      //Should catch it
-    }
-
-    verify( scheduleRequest, times( 7 ) ).getSimpleJobTrigger();
-    verify( scheduleRequest, times( 3 ) ).getInputFile();
-    verify( schedulerService.policy, times( 3 ) ).isAllowed( SchedulerAction.NAME );
-    verify( schedulerService.repository, times( 1 ) ).getFile( nullable( String.class ) );
-    verify( scheduleRequest, times( 1 ) ).getJobName();
-    verify( scheduleRequest, times( 2 ) ).setJobName( nullable( String.class ) );
-    verify( scheduleRequest, times( 7 ) ).getActionClass();
-    verify( schedulerService.repository, times( 1 ) ).getFileMetadata( nullable( String.class ) );
-    verify( schedulerService, times( 1 ) ).isPdiFile( nullable( RepositoryFile.class ) );
-    verify( schedulerService, times( 1 ) ).handlePDIScheduling( nullable( RepositoryFile.class ), any( HashMap.class ), any( HashMap.class ) );
-    verify( scheduleRequest, times( 7 ) ).getActionClass();
-    verify( schedulerService ).getAction( nullable( String.class ) );
   }
 
   @Test
