@@ -181,7 +181,6 @@ public class JAXRSServlet extends SpringServlet {
     String springFile =
       PentahoSystem.getApplicationContext()
         .getSolutionPath( "system" + File.separator + "pentahoServices.spring.xml" ); //$NON-NLS-1$ //$NON-NLS-2$
-    //wac.setConfigLocations( new String[] { springFile, "/Users/aramos/Documents/Hitachi/REPOS/BUILDS/pentaho-server/pentaho-solutions/system/scheduler-plugin/plugin.spring.xml" } );
     wac.setConfigLocations( new String[] { springFile } );
     wac.addBeanFactoryPostProcessor( new PentahoBeanScopeValidatorPostProcessor() );
     wac.refresh();
