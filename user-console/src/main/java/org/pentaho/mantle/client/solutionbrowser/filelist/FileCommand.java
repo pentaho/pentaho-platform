@@ -30,9 +30,7 @@ import org.pentaho.mantle.client.commands.ImportFileCommand;
 import org.pentaho.mantle.client.commands.NewFolderCommand;
 import org.pentaho.mantle.client.commands.RunInBackgroundCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
-import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
-import org.pentaho.mantle.client.solutionbrowser.ScheduleCallback;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
 
@@ -97,8 +95,7 @@ public class FileCommand implements Command {
     } else if ( mode == COMMAND.BACKGROUND ) {
       new RunInBackgroundCommand( selectedItem ).execute( true );
     } else if ( mode == COMMAND.SCHEDULE_NEW ) {
-      ScheduleHelper.createSchedule( selectedItem.getRepositoryFile(), new ScheduleCallback( selectedItem
-          .getRepositoryFile() ) );
+      createSchedule( selectedItem.getRepositoryFile() );
     } else if ( mode == COMMAND.SHARE ) {
       new ShareFileCommand().execute();
     } else if ( mode == COMMAND.IMPORT ) {
@@ -115,5 +112,9 @@ public class FileCommand implements Command {
       FavoritePickList.getInstance().save( "favorites" );
     }
   }
+
+  private native void createSchedule( final RepositoryFile repositoryFile )/*-{
+   $wnd.pho.createSchedule( repositoryFile );
+  }-*/;
 
 }

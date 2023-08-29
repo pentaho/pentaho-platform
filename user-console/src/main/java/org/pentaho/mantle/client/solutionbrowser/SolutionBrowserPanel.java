@@ -47,6 +47,7 @@ import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.TreeListener;
 import com.google.gwt.user.client.ui.Widget;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
@@ -56,7 +57,6 @@ import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
 import org.pentaho.mantle.client.csrf.CsrfRequestBuilder;
-import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.ShowDescriptionsEvent;
 import org.pentaho.mantle.client.events.ShowHiddenFilesEvent;
@@ -334,10 +334,12 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
       return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setNavigatorShowing(Z)(show);
     }
-    $wnd.mantle_confirmBackgroundExecutionDialog = function (url) {
+    //$wnd.mantle_confirmBackgroundExecutionDialog = function (url) {
+      //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
+      //MAY NOT BE USED ANYMORE!!!!!
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      @org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);
-    }
+      //@org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);
+    //}
     $wnd.mantle_openRepositoryFile = function (pathToFile, mode) {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
       solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::openFile(Ljava/lang/String;Ljava/lang/String;)(pathToFile, mode);
@@ -481,7 +483,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       PerspectiveManager.getInstance().setPerspective( PerspectiveManager.OPENED_PERSPECTIVE );
       editFile( repositoryFile );
     } else if ( mode == FileCommand.COMMAND.SCHEDULE_NEW ) {
-      ScheduleHelper.createSchedule( repositoryFile, new ScheduleCallback( repositoryFile ) );
+      createSchedule( repositoryFile );
       return;
     } else if ( mode == FileCommand.COMMAND.SHARE ) {
       ShareFileCommand sfc = new ShareFileCommand();
@@ -833,4 +835,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       cancelButton.removeFromParent();
     }
   }
+
+  private native void createSchedule( final RepositoryFile repositoryFile )/*-{
+   $wnd.pho.createSchedule( repositoryFile );
+  }-*/;
 }
