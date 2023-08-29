@@ -265,6 +265,7 @@
 <script language='javascript' src='content/data-access/resources/gwt/DatasourceEditor.nocache.js'></script
 
 <!-- TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui -->
+<!-- THIS IS NECESSARY TO LOAD THE scheduler-plugin JAVASCRIPT CODE, SAME AS data-access-->
 <script language='javascript' src='content/scheduler-plugin/resources/gwt/schedulingdialogs.nocache.js'></script>
 <%}}}%>
 
