@@ -5,10 +5,10 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>9.6.0.0-SNAPSHOT</version>
+    <version>10.1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>pentaho-solutions</artifactId>
-  <version>9.6.0.0-SNAPSHOT</version>
+  <version>10.1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
     <prepared.samples.directory>${project.build.directory}/dependency/plugin-samples</prepared.samples.directory>
@@ -468,6 +468,13 @@
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.samples.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.pentaho.di.plugins</groupId>
+                  <artifactId>kettle-rest-plugin</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
               </artifactItems>
               <overWriteReleases>false</overWriteReleases>

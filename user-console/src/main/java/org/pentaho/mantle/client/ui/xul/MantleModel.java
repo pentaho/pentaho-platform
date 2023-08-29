@@ -33,7 +33,6 @@ import org.pentaho.mantle.client.commands.OpenFileCommand;
 import org.pentaho.mantle.client.commands.OpenKettleStatusCommand;
 import org.pentaho.mantle.client.commands.PrintCommand;
 import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
-//import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
 import org.pentaho.mantle.client.commands.SaveCommand;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.ISolutionBrowserEvent;
@@ -71,6 +70,8 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
 
   private MantleXul main;
 
+  private boolean isBurgerMode;
+
   private boolean saveEnabled;
 
   private boolean saveAsEnabled;
@@ -100,6 +101,18 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     EventBusUtil.EVENT_BUS.addHandler( SolutionBrowserDeselectEvent.TYPE, this );
     EventBusUtil.EVENT_BUS.addHandler( SolutionBrowserUndefinedEvent.TYPE, this );
     this.main = main;
+  }
+
+  @Bindable
+  public boolean isBurgerMode() {
+    return isBurgerMode;
+  }
+
+  @Bindable
+  public void setBurgerMode( boolean isBurgerMode ) {
+    boolean prevVal = this.isBurgerMode;
+    this.isBurgerMode = isBurgerMode;
+    this.firePropertyChange( "burgerMode", prevVal, isBurgerMode );
   }
 
   @Bindable
@@ -283,6 +296,7 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
 
   @Bindable
   public void refreshContent() {
+    //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
     // TODO Need to delegate this refresh to plugins as well
     //if ( PerspectiveManager.SCHEDULES_PERSPECTIVE.equals( PerspectiveManager.getInstance().getActivePerspective()
     //    .getId() ) ) {
