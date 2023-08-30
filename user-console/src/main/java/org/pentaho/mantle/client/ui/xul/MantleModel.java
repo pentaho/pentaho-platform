@@ -296,16 +296,13 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
 
   @Bindable
   public void refreshContent() {
-    //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-    // TODO Need to delegate this refresh to plugins as well
-    //if ( PerspectiveManager.SCHEDULES_PERSPECTIVE.equals( PerspectiveManager.getInstance().getActivePerspective()
-    //    .getId() ) ) {
-      // Command cmd = new RefreshSchedulesCommand();
-      //cmd.execute();
-    //} else {
+    if ( PerspectiveManager.SCHEDULES_PERSPECTIVE.equals( PerspectiveManager.getInstance().getActivePerspective()
+        .getId() ) ) {
+      refreshSchedules();
+    } else {
       Command cmd = new RefreshRepositoryCommand();
       cmd.execute();
-    //}
+    }
   }
 
   @Bindable
@@ -483,5 +480,9 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   public void setShowNavigatorSelected( boolean showNavigator ) {
     this.showNavigatorSelected = showNavigator;
   }
+
+  public native void refreshSchedules() /*-{
+    $wnd.pho.refreshSchedules();
+  }-*/;
 
 }
