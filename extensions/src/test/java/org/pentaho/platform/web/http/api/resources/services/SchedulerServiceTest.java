@@ -115,6 +115,9 @@ public class SchedulerServiceTest {
     JobScheduleRequest scheduleRequest = mock( JobScheduleRequest.class );
     doReturn( "className" ).when( scheduleRequest ).getActionClass();
     doReturn( "jobName" ).when( scheduleRequest ).getJobName();
+    doReturn( "runSafeMode" ).when( scheduleRequest ).getRunSafeMode();
+    doReturn( "gatheringMetrics" ).when( scheduleRequest ).getGatheringMetrics();
+    doReturn( "Basic" ).when( scheduleRequest ).getLogLevel();
     doReturn( jobParameters ).when( scheduleRequest ).getJobParameters();
     doNothing().when( scheduleRequest ).setJobName( nullable( String.class ) );
     doReturn( "timezone" ).when( scheduleRequest ).getTimeZone();
