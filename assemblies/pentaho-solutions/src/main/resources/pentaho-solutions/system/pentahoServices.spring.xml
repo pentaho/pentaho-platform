@@ -56,12 +56,6 @@
     </wss:service>
   </wss:binding>
 
-  <wss:binding url="/webservices/Scheduler">
-    <wss:service>
-      <ws:service impl="org.pentaho.platform.scheduler2.ws.DefaultSchedulerService"/>
-    </wss:service>
-  </wss:binding>
-
   <!--  GWT services are defined as Spring beans.  The id maps to the request URL like so:
       requests to "/ws/gwt/myService" will be dispatched to a bean with id "ws-gwt-myService"
   -->

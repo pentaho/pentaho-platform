@@ -29,10 +29,6 @@
     </overlay>
   </perspective>
 
-  <perspective id="schedules.perspective" title="${schedules}" layout-priority="10"
-               resourcebundle="content/default-plugin/resources/messages/messages">
-  </perspective>
-
   <perspective id="admin.perspective" title="${admin}" layout-priority="20"
                required-security-action="org.pentaho.security.administerSecurity;org.pentaho.repository.read;org.pentaho.repository.create"
                resourcebundle="content/default-plugin/resources/messages/messages">

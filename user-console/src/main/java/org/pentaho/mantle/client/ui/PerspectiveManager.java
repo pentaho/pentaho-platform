@@ -439,22 +439,8 @@ public class PerspectiveManager extends SimplePanel {
   }
 
   private void showSchedulesPerspective() {
-
-    GWT.runAsync( new RunAsyncCallback() {
-
-      public void onSuccess() {
-        DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
-        if ( getSchedulerPerspectivePanelIndex( contentDeck ) == -1 ) {
-          addSchedulesPerspectivePanel( contentDeck );
-        } else {
-          refreshSchedulesPerspectivePanel();
-        }
-        contentDeck.showWidget( getSchedulerPerspectivePanelIndex( contentDeck ) );
-      }
-
-      public void onFailure( Throwable reason ) {
-      }
-    } );
+    DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
+    showSchedulesPerspective( contentDeck );
     setCheckMMenuItem( false, true );
   }
 
@@ -498,16 +484,8 @@ public class PerspectiveManager extends SimplePanel {
     perspectiveActivated( frameElement );
   }
 
-  public native int getSchedulerPerspectivePanelIndex( DeckPanel contentDeck ) /*-{
-    return $wnd.pho.getSchedulerPerspectivePanelIndex( contentDeck );
-  }-*/;
-
-  public native void addSchedulesPerspectivePanel(  DeckPanel contentDeck ) /*-{
-    $wnd.pho.addSchedulesPerspectivePanel( contentDeck );
-  }-*/;
-
-  public native void refreshSchedulesPerspectivePanel() /*-{
-    $wnd.pho.refreshSchedulesPerspectivePanel();
+  public native void showSchedulesPerspective( DeckPanel contentDeck ) /*-{
+    return $wnd.pho.showSchedulesPerspective( contentDeck );
   }-*/;
 
   private native void perspectiveActivated( Element frameElement )
