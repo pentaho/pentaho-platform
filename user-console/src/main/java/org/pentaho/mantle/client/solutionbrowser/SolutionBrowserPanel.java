@@ -334,12 +334,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
       return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setNavigatorShowing(Z)(show);
     }
-    //$wnd.mantle_confirmBackgroundExecutionDialog = function (url) {
-      //TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui
-      //MAY NOT BE USED ANYMORE!!!!!
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      //@org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);
-    //}
     $wnd.mantle_openRepositoryFile = function (pathToFile, mode) {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
       solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::openFile(Ljava/lang/String;Ljava/lang/String;)(pathToFile, mode);
