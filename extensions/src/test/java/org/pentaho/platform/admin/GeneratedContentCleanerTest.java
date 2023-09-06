@@ -30,8 +30,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -101,7 +101,7 @@ public class GeneratedContentCleanerTest {
     when( repo.getTree( nullable( String.class ), eq( -1 ), nullable( String.class ), eq( true ) ) ).thenReturn( rootRepoFileTree );
 
     Map<String, Serializable> values = new HashMap<>();
-    values.put( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, "lineageIdGoesHere" );
+    values.put( IScheduler.RESERVEDMAPKEY_LINEAGE_ID, "lineageIdGoesHere" );
     when( repo.getFileMetadata( FILE_ID ) ).thenReturn( values );
 
     generatedContentCleaner.execute();

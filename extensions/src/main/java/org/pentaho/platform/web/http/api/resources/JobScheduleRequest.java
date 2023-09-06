@@ -26,9 +26,9 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.pentaho.platform.api.scheduler2.CronJobTrigger;
-import org.pentaho.platform.api.scheduler2.Job.JobState;
-import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.api.scheduler2.ICronJobTrigger;
+import org.pentaho.platform.api.scheduler2.IJob.JobState;
+import org.pentaho.platform.api.scheduler2.ISimpleJobTrigger;
 
 @XmlRootElement
 public class JobScheduleRequest implements Serializable {
@@ -87,11 +87,11 @@ public class JobScheduleRequest implements Serializable {
 
   String actionClass;
 
-  CronJobTrigger cronJobTrigger;
+  ICronJobTrigger cronJobTrigger;
 
   ComplexJobTriggerProxy complexJobTrigger;
 
-  SimpleJobTrigger simpleJobTrigger;
+  ISimpleJobTrigger simpleJobTrigger;
 
   ArrayList<JobScheduleParam> jobParameters = new ArrayList<JobScheduleParam>();
 
@@ -117,11 +117,11 @@ public class JobScheduleRequest implements Serializable {
     this.outputFile = file;
   }
 
-  public CronJobTrigger getCronJobTrigger() {
+  public ICronJobTrigger getCronJobTrigger() {
     return cronJobTrigger;
   }
 
-  public void setCronJobTrigger( CronJobTrigger jobTrigger ) {
+  public void setCronJobTrigger( ICronJobTrigger jobTrigger ) {
     if ( jobTrigger != null ) {
       setComplexJobTrigger( null );
       setSimpleJobTrigger( null );
@@ -141,11 +141,11 @@ public class JobScheduleRequest implements Serializable {
     this.complexJobTrigger = jobTrigger;
   }
 
-  public SimpleJobTrigger getSimpleJobTrigger() {
+  public ISimpleJobTrigger getSimpleJobTrigger() {
     return simpleJobTrigger;
   }
 
-  public void setSimpleJobTrigger( SimpleJobTrigger jobTrigger ) {
+  public void setSimpleJobTrigger( ISimpleJobTrigger jobTrigger ) {
     if ( jobTrigger != null ) {
       setCronJobTrigger( null );
       setComplexJobTrigger( null );

@@ -22,13 +22,13 @@ package org.pentaho.platform.plugin.services.exporter;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
-import org.pentaho.platform.api.scheduler2.CronJobTrigger;
+import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
-import org.pentaho.platform.api.scheduler2.Job;
-import org.pentaho.platform.api.scheduler2.JobTrigger;
-import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
-import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
+import org.pentaho.platform.api.scheduler2.IJob;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
+import org.pentaho.platform.api.scheduler2.ISimpleJobTrigger;
+import org.pentaho.platform.api.scheduler2.IComplexJobTrigger;
+import org.pentaho.platform.api.scheduler2.ICronJobTrigger;
 import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.RepositoryFileStreamProvider;
@@ -58,8 +58,8 @@ public class ScheduleExportUtilTest {
   public void testCreateJobScheduleRequest_unknownTrigger() throws Exception {
     String jobName = "JOB";
 
-    Job job = mock( Job.class );
-    JobTrigger trigger = mock( JobTrigger.class );
+    IJob job = mock( IJob.class );
+    IJobTrigger trigger = mock( IJobTrigger.class );
 
     when( job.getJobTrigger() ).thenReturn( trigger );
 
@@ -71,8 +71,8 @@ public class ScheduleExportUtilTest {
   public void testCreateJobScheduleRequest_SimpleJobTrigger() throws Exception {
     String jobName = "JOB";
 
-    Job job = mock( Job.class );
-    SimpleJobTrigger trigger = mock( SimpleJobTrigger.class );
+    IJob job = mock( IJob.class );
+    ISimpleJobTrigger trigger = mock( ISimpleJobTrigger.class );
 
     when( job.getJobTrigger() ).thenReturn( trigger );
     when( job.getJobName() ).thenReturn( jobName );
@@ -88,8 +88,8 @@ public class ScheduleExportUtilTest {
   public void testCreateJobScheduleRequest_NoStreamProvider() throws Exception {
     String jobName = "JOB";
 
-    Job job = mock( Job.class );
-    SimpleJobTrigger trigger = mock( SimpleJobTrigger.class );
+    IJob job = mock( IJob.class );
+    ISimpleJobTrigger trigger = mock( ISimpleJobTrigger.class );
 
     when( job.getJobTrigger() ).thenReturn( trigger );
     when( job.getJobName() ).thenReturn( jobName );
@@ -117,13 +117,13 @@ public class ScheduleExportUtilTest {
   public void testCreateJobScheduleRequest_StringStreamProvider() throws Exception {
     String jobName = "JOB";
 
-    Job job = mock( Job.class );
-    SimpleJobTrigger trigger = mock( SimpleJobTrigger.class );
+    IJob job = mock( IJob.class );
+    ISimpleJobTrigger trigger = mock( ISimpleJobTrigger.class );
 
     when( job.getJobTrigger() ).thenReturn( trigger );
     when( job.getJobName() ).thenReturn( jobName );
     Map<String, Serializable> params = new HashMap<>();
-    params.put( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER, "import file = /home/admin/myJob.kjb:output file=/home/admin/myJob*" );
+    params.put( IScheduler.RESERVEDMAPKEY_STREAMPROVIDER, "import file = /home/admin/myJob.kjb:output file=/home/admin/myJob*" );
     when( job.getJobParams() ).thenReturn( params );
 
     JobScheduleRequest jobScheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
@@ -140,8 +140,8 @@ public class ScheduleExportUtilTest {
     String jobName = "JOB";
     Date now = new Date();
 
-    Job job = mock( Job.class );
-    ComplexJobTrigger trigger = mock( ComplexJobTrigger.class );
+    IJob job = mock( IJob.class );
+    IComplexJobTrigger trigger = mock( IComplexJobTrigger.class );
 
     when( job.getJobTrigger() ).thenReturn( trigger );
     when( job.getJobName() ).thenReturn( jobName );
@@ -173,8 +173,8 @@ public class ScheduleExportUtilTest {
   public void testCreateJobScheduleRequest_CronJobTrigger() throws Exception {
     String jobName = "JOB";
 
-    Job job = mock( Job.class );
-    CronJobTrigger trigger = mock( CronJobTrigger.class );
+    IJob job = mock( IJob.class );
+    ICronJobTrigger trigger = mock( ICronJobTrigger.class );
 
     when( job.getJobTrigger() ).thenReturn( trigger );
     when( job.getJobName() ).thenReturn( jobName );
@@ -195,10 +195,10 @@ public class ScheduleExportUtilTest {
     Map<String, Serializable> params = new HashMap<>();
 
     RepositoryFileStreamProvider streamProvider = mock( RepositoryFileStreamProvider.class );
-    params.put( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER, streamProvider );
+    params.put( IScheduler.RESERVEDMAPKEY_STREAMPROVIDER, streamProvider );
 
-    Job job = mock( Job.class );
-    CronJobTrigger trigger = mock( CronJobTrigger.class );
+    IJob job = mock( IJob.class );
+    ICronJobTrigger trigger = mock( ICronJobTrigger.class );
 
     when( job.getJobTrigger() ).thenReturn( trigger );
     when( job.getJobName() ).thenReturn( jobName );
@@ -218,10 +218,10 @@ public class ScheduleExportUtilTest {
     String actionClass = "com.pentaho.Action";
     Map<String, Serializable> params = new HashMap<>();
 
-    params.put( QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS, actionClass );
+    params.put( IScheduler.RESERVEDMAPKEY_ACTIONCLASS, actionClass );
 
-    Job job = mock( Job.class );
-    CronJobTrigger trigger = mock( CronJobTrigger.class );
+    IJob job = mock( IJob.class );
+    ICronJobTrigger trigger = mock( ICronJobTrigger.class );
 
     when( job.getJobTrigger() ).thenReturn( trigger );
     when( job.getJobName() ).thenReturn( jobName );
@@ -240,8 +240,8 @@ public class ScheduleExportUtilTest {
 
     params.put( IBlockoutManager.TIME_ZONE_PARAM, timeZone );
 
-    Job job = mock( Job.class );
-    CronJobTrigger trigger = mock( CronJobTrigger.class );
+    IJob job = mock( IJob.class );
+    ICronJobTrigger trigger = mock( ICronJobTrigger.class );
 
     when( job.getJobTrigger() ).thenReturn( trigger );
     when( job.getJobName() ).thenReturn( jobName );
@@ -265,8 +265,8 @@ public class ScheduleExportUtilTest {
     params.put( "DateValue", d );
     params.put( "BooleanValue", b );
 
-    Job job = mock( Job.class );
-    CronJobTrigger trigger = mock( CronJobTrigger.class );
+    IJob job = mock( IJob.class );
+    ICronJobTrigger trigger = mock( ICronJobTrigger.class );
 
     when( job.getJobTrigger() ).thenReturn( trigger );
     when( job.getJobName() ).thenReturn( jobName );

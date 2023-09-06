@@ -29,9 +29,9 @@ import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.action.IActionInvokeStatus;
 import org.pentaho.platform.api.action.IActionInvoker;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
+import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.scheduler2.messsages.Messages;
-import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.messages.LocaleHelper;
@@ -60,7 +60,7 @@ public class DefaultActionInvoker implements IActionInvoker {
       return null;
     }
 
-    final Object obj = params.get( QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
+    final Object obj = params.get( IScheduler.RESERVEDMAPKEY_STREAMPROVIDER );
     return ( obj instanceof IBackgroundExecutionStreamProvider ) ? (IBackgroundExecutionStreamProvider) obj : null;
   }
 

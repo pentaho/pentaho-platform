@@ -25,8 +25,8 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.api.scheduler2.IScheduler;
-import org.pentaho.platform.api.scheduler2.JobTrigger;
-import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
+import org.pentaho.platform.api.scheduler2.ISimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import java.io.Serializable;
@@ -63,7 +63,8 @@ public class GatherStatsListener implements IPentahoSystemListener {
   private void scheduleJob( int intervalInSeconds ) throws Exception {
 
     IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
-    JobTrigger trigger = new SimpleJobTrigger( new Date(), null, -1, intervalInSeconds );
+    assert scheduler != null;
+    IJobTrigger trigger = scheduler.createSimpleJobTrigger( new Date(), null, -1, intervalInSeconds );
 
     jobMap.put( "transFileName", getTransFileName() );
     scheduler.createJob( GatherStatsListener.JOB_NAME, GatherStatsAction.class, jobMap, trigger );

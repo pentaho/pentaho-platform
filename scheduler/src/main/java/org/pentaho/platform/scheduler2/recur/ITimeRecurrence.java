@@ -18,20 +18,14 @@
  *
  */
 
-package org.pentaho.platform.api.scheduler2;
+package org.pentaho.platform.scheduler2.recur;
 
 /**
- * Specifies a filter to be used when processing lists of jobs such as in {@link IScheduler#getJobs(IJobFilter)}
+ * A marker interface used to identify classes that can be used to specify the time (hour/minute) recurrence of job
+ * triggers and scheduler availability windows.
  * 
- * @author aphillips
+ * @author arodriguez
  */
-public interface IJobFilter {
-  /**
-   * Returns <code>true</code> if the job should be accepted as part of the filtered results.
-   * 
-   * @param job
-   *          the job to decide to accept or reject
-   * @return <code>true</code> if the job should be accepted as part of the filtered results
-   */
-  boolean accept( IJob job );
+public interface ITimeRecurrence {
+
 }

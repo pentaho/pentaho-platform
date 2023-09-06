@@ -25,8 +25,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
-import org.pentaho.platform.api.scheduler2.Job;
+import org.pentaho.platform.api.scheduler2.IJob;
+import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
+import org.pentaho.platform.plugin.services.repository.RepositoryCleanerSystemListener;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 
@@ -45,9 +47,11 @@ import static org.junit.Assert.*;
 public class SchedulerResourceTest {
 
   SchedulerResource schedulerResource;
+  private IScheduler scheduler;
 
   @Before
   public void setUp() {
+    scheduler = mock( IScheduler.class );
     schedulerResource = spy( new SchedulerResource() );
     schedulerResource.schedulerService = mock( SchedulerService.class );
   }
@@ -61,7 +65,7 @@ public class SchedulerResourceTest {
   public void testCreateJob() throws Exception {
     JobScheduleRequest mockRequest = mock( JobScheduleRequest.class );
 
-    Job mockJob = mock( Job.class );
+    IJob mockJob = mock( IJob.class );
     doReturn( mockJob ).when( schedulerResource.schedulerService ).createJob( mockRequest );
 
     String jobId = "jobId";
@@ -155,10 +159,10 @@ public class SchedulerResourceTest {
     String jobId = "jobId";
     doReturn( jobId ).when( mockJobRequest ).getJobId();
 
-    Job mockJob = mock( Job.class );
+    IJob mockJob = mock( IJob.class );
     doReturn( mockJob ).when( schedulerResource.schedulerService ).triggerNow( jobId );
 
-    Job.JobState mockJobState = Job.JobState.BLOCKED;
+    IJob.JobState mockJobState = IJob.JobState.BLOCKED;
     doReturn( mockJobState ).when( mockJob ).getState();
 
     Response mockResponse = mock( Response.class );
@@ -196,10 +200,10 @@ public class SchedulerResourceTest {
 
   @Test
   public void testGetContentCleanerJob() throws Exception {
-    Job mockJob = mock( Job.class );
+    IJob mockJob = mock( IJob.class );
     doReturn( mockJob ).when( schedulerResource.schedulerService ).getContentCleanerJob();
 
-    Job testJob = schedulerResource.getContentCleanerJob();
+    IJob testJob = schedulerResource.getContentCleanerJob();
     assertEquals( mockJob, testJob );
 
     verify( schedulerResource.schedulerService, times( 1 ) ).getContentCleanerJob();
@@ -222,12 +226,12 @@ public class SchedulerResourceTest {
 
   @Test
   public void testGetJobs() throws Exception {
-    List<Job> mockJobs = mock( List.class );
+    List<IJob> mockJobs = mock( List.class );
     doReturn( mockJobs ).when( schedulerResource.schedulerService ).getJobs();
 
     Boolean asCronString = Boolean.FALSE;
 
-    List<Job> testJobs = schedulerResource.getJobs( asCronString );
+    List<IJob> testJobs = schedulerResource.getJobs( asCronString );
     assertEquals( mockJobs, testJobs );
 
     verify( schedulerResource.schedulerService, times( 1 ) ).getJobs();
@@ -398,7 +402,7 @@ public class SchedulerResourceTest {
   public void testGetJobState() throws Exception {
     JobRequest mockJobRequest = mock( JobRequest.class );
 
-    Job.JobState mockJobState = Job.JobState.BLOCKED;
+    IJob.JobState mockJobState = IJob.JobState.BLOCKED;
     doReturn( mockJobState ).when( schedulerResource.schedulerService ).getJobState( mockJobRequest );
 
     Response mockResponse = mock( Response.class );
@@ -448,7 +452,7 @@ public class SchedulerResourceTest {
     JobRequest mockJobRequest = mock( JobRequest.class );
     doReturn( jobId ).when( mockJobRequest ).getJobId();
 
-    Job.JobState state = Job.JobState.BLOCKED;
+    IJob.JobState state = IJob.JobState.BLOCKED;
     doReturn( state ).when( schedulerResource.schedulerService ).pauseJob( jobId );
 
     Response mockResponse = mock( Response.class );
@@ -488,7 +492,7 @@ public class SchedulerResourceTest {
     JobRequest mockJobRequest = mock( JobRequest.class );
     doReturn( jobId ).when( mockJobRequest ).getJobId();
 
-    Job.JobState state = Job.JobState.BLOCKED;
+    IJob.JobState state = IJob.JobState.BLOCKED;
     doReturn( state ).when( schedulerResource.schedulerService ).resumeJob( jobId );
 
     Response mockResponse = mock( Response.class );
@@ -528,10 +532,10 @@ public class SchedulerResourceTest {
     String jobId = "jobId";
     doReturn( jobId ).when( mockJobRequest ).getJobId();
 
-    Job mockJob = mock( Job.class );
+    IJob mockJob = mock( IJob.class );
     doReturn( mockJob ).when( schedulerResource.schedulerService ).getJob( jobId );
 
-    Job.JobState mockJobState = Job.JobState.BLOCKED;
+    IJob.JobState mockJobState = IJob.JobState.BLOCKED;
     doReturn( mockJobState ).when( mockJob ).getState();
 
     Response mockRemovedResponse = mock( Response.class );
@@ -583,7 +587,7 @@ public class SchedulerResourceTest {
     String jobId = "jobId";
     String asCronString = "asCronString";
 
-    Job mockJob = mock( Job.class );
+    IJob mockJob = mock( IJob.class );
     doReturn( mockJob ).when( schedulerResource.schedulerService ).getJobInfo( jobId );
 
     Response mockResponse = mock( Response.class );
@@ -640,10 +644,10 @@ public class SchedulerResourceTest {
 
   @Test
   public void testGetBlockoutJobs() {
-    List<Job> mockJobs = mock( List.class );
+    List<IJob> mockJobs = mock( List.class );
     doReturn( mockJobs ).when( schedulerResource.schedulerService ).getBlockOutJobs();
 
-    List<Job> blockoutJobs = schedulerResource.getBlockoutJobs();
+    List<IJob> blockoutJobs = schedulerResource.getBlockoutJobs();
     assertNotNull( blockoutJobs );
 
     verify( schedulerResource, times( 1 ) ).getBlockoutJobs();
@@ -668,7 +672,7 @@ public class SchedulerResourceTest {
   public void testAddBlockout() throws Exception {
     JobScheduleRequest mockJobScheduleRequest = mock( JobScheduleRequest.class );
 
-    Job mockJob = mock( Job.class );
+    IJob mockJob = mock( IJob.class );
     doReturn( mockJob ).when( schedulerResource.schedulerService ).addBlockout( mockJobScheduleRequest );
 
     String jobId = "jobId";
@@ -728,7 +732,7 @@ public class SchedulerResourceTest {
     JobRequest mockJobRequest = mock( JobRequest.class );
     doReturn( mockJobRequest ).when( schedulerResource ).getJobRequest();
 
-    Job mockJob = mock( Job.class );
+    IJob mockJob = mock( IJob.class );
     doReturn( mockJob ).when( schedulerResource.schedulerService ).updateBlockout( jobId, mockJobScheduleRequest );
 
     doReturn( jobId ).when( mockJob ).getJobId();
@@ -872,7 +876,7 @@ public class SchedulerResourceTest {
   @Test
   public void updateJob_ReturnsJobId() throws Exception {
     JobScheduleRequest request = new JobScheduleRequest();
-    Job job = new Job();
+    IJob job = scheduler.createJob( null, (String)null , null, null );
     job.setJobId( "job-id" );
     when( schedulerResource.schedulerService.updateJob( request ) ).thenReturn( job );
 

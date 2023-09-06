@@ -18,20 +18,23 @@
  *
  */
 
-package org.pentaho.platform.api.scheduler2;
+package org.pentaho.platform.scheduler2.blockout;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.action.IVarArgsAction;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
- * Specifies a filter to be used when processing lists of jobs such as in {@link IScheduler#getJobs(IJobFilter)}
- * 
- * @author aphillips
+ * @author wseyler This is the job that executes when the a block out trigger fires. This job essentially does nothing
+ *         more than logging the firing of the trigger.
  */
-public interface IJobFilter {
-  /**
-   * Returns <code>true</code> if the job should be accepted as part of the filtered results.
-   * 
-   * @param job
-   *          the job to decide to accept or reject
-   * @return <code>true</code> if the job should be accepted as part of the filtered results
-   */
-  boolean accept( IJob job );
+public interface IBlockoutAction {
+  public static String getCanonicalName() {
+    return "org.pentaho.platform.scheduler2.blockout.BlockoutAction";
+  }
+   public void execute() throws Exception;
 }

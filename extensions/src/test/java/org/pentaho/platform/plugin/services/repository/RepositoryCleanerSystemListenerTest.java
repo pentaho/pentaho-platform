@@ -24,11 +24,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
-import org.pentaho.platform.api.scheduler2.CronJobTrigger;
+import org.pentaho.platform.api.scheduler2.IJob;
 import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
-import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.plugin.services.repository.RepositoryCleanerSystemListener.Frequency;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
@@ -119,7 +118,7 @@ public class RepositoryCleanerSystemListenerTest {
   @Test
   public void removesJobs_WhenDisabled() throws Exception {
     final String jobId = "jobId";
-    Job job = new Job();
+    IJob job = scheduler.createJob( null, (String)null , null, null );
     job.setJobId( jobId );
     when( scheduler.getJobs( any( IJobFilter.class ) ) ).thenReturn( Collections.singletonList( job ) );
 
@@ -148,7 +147,7 @@ public class RepositoryCleanerSystemListenerTest {
 
 
   private void testSchedulesJob( Frequency frequency ) throws Exception {
-    when( scheduler.getJobs( any( IJobFilter.class ) ) ).thenReturn( Collections.<Job>emptyList() );
+    when( scheduler.getJobs( any( IJobFilter.class ) ) ).thenReturn( Collections.<IJob>emptyList() );
     prepareMp();
     listener.setExecute( frequency.getValue() );
 
@@ -167,7 +166,7 @@ public class RepositoryCleanerSystemListenerTest {
   }
 
   private void testSchedulesJob_IncorrectExecute( String execute ) throws Exception {
-    when( scheduler.getJobs( any( IJobFilter.class ) ) ).thenReturn( Collections.<Job>emptyList() );
+    when( scheduler.getJobs( any( IJobFilter.class ) ) ).thenReturn( Collections.<IJob>emptyList() );
     prepareMp();
     listener.setExecute( execute );
 
@@ -179,8 +178,9 @@ public class RepositoryCleanerSystemListenerTest {
   @Test
   public void reschedulesJob_IfFoundDifferent() throws Exception {
     final String oldJobId = "oldJobId";
-    Job oldJob = new Job();
-    oldJob.setJobTrigger( new CronJobTrigger() );
+//    IJob oldJob = new Job();
+    IJob oldJob = scheduler.createJob( null, (String)null , null, null );
+    oldJob.setJobTrigger( scheduler.createCronJobTrigger() );
     oldJob.setJobId( oldJobId );
     when( scheduler.getJobs( any( IJobFilter.class ) ) ).thenReturn( Collections.singletonList( oldJob ) );
 
@@ -196,7 +196,7 @@ public class RepositoryCleanerSystemListenerTest {
   @Test
   public void doesNotRescheduleJob_IfFoundSame() throws Exception {
     final String oldJobId = "oldJobId";
-    Job oldJob = new Job();
+    IJob oldJob = scheduler.createJob( null, (String)null , null, null );
     oldJob.setJobTrigger( Frequency.WEEKLY.createTrigger() );
     oldJob.setJobId( oldJobId );
     when( scheduler.getJobs( any( IJobFilter.class ) ) ).thenReturn( Collections.singletonList( oldJob ) );

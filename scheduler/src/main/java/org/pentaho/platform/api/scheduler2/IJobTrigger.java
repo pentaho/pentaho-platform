@@ -28,7 +28,7 @@ public interface IJobTrigger {
    * 
    * @return the trigger start time.
    */
-  public Date getStartTime();
+  Date getStartTime();
 
   /**
    * Sets the trigger start time.
@@ -36,14 +36,14 @@ public interface IJobTrigger {
    * @param startTime
    *          when to start the trigger. If null the trigger starts immediately.
    */
-  public void setStartTime( Date startTime );
+  void setStartTime( Date startTime );
 
   /**
    * Returns the trigger end time.
    * 
    * @return the trigger end time.
    */
-  public Date getEndTime();
+  Date getEndTime();
 
   /**
    * Sets the trigger end time.
@@ -51,12 +51,12 @@ public interface IJobTrigger {
    * @param endTime
    *          when to end the trigger. If null the trigger runs indefinitely
    */
-  public void setEndTime( Date endTime );
+  void setEndTime( Date endTime );
 
   /**
    * @return the uiPassParam
    */
-  public String getUiPassParam();
+  String getUiPassParam();
 
   /**
    * The value of this field comes from the UI and is persisted in quartz but not used by quartz or the server. It is
@@ -66,14 +66,14 @@ public interface IJobTrigger {
    * @param uiPassParam
    *          A User Interface provided string
    */
-  public void setUiPassParam( String uiPassParam );
+  void setUiPassParam( String uiPassParam );
 
   /**
    * Returns the Cron String used by quartz Scheduler
    * 
    * @return the cronString
    */
-  public String getCronString();
+  String getCronString();
 
   /**
    * Sets the cron String used by the quartz scheduler
@@ -81,22 +81,7 @@ public interface IJobTrigger {
    * @param cronString
    *          the cronString to set
    */
-  public void setCronString( String cronString );
-
-  /**
-   * Returns the User friendly description of a Cron String
-   *
-   * @return the cronDescription
-   */
-  public String getCronDescription();
-
-  /**
-   * Sets the user friendly description of a cron String=
-   *
-   * @param cronDescription
-   *          the cronString to set
-   */
-  public void setCronDescription( String cronDescription );
+  void setCronString( String cronString );
 
   /**
    * @return a long that represents in milliseconds how long this trigger should be in effect once triggered

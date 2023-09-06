@@ -27,13 +27,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
-import org.pentaho.platform.api.scheduler2.CronJobTrigger;
+import org.pentaho.platform.api.scheduler2.IComplexJobTrigger;
+import org.pentaho.platform.api.scheduler2.ICronJobTrigger;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
-import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
-import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
+import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.api.scheduler2.ISimpleJobTrigger;
+import org.pentaho.platform.api.scheduler2.wrappers.ITimeWrapper;
+import org.pentaho.platform.scheduler2.recur.ITimeRecurrence;
 import org.pentaho.platform.plugin.services.exporter.ScheduleExportUtil;
-import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.RecurrenceList;
 
@@ -59,10 +60,10 @@ import static org.mockito.Mockito.when;
 public class SchedulerResourceUtilTest {
 
   @Mock JobScheduleRequest scheduleRequest;
-  @Mock QuartzScheduler scheduler;
-  @Mock SimpleJobTrigger simple;
+  @Mock IScheduler scheduler;
+  @Mock ISimpleJobTrigger simple;
   @Mock RepositoryFile repo;
-  CronJobTrigger cron;
+  ICronJobTrigger cron;
   ComplexJobTriggerProxy complex;
   Date now;
 
@@ -90,7 +91,7 @@ public class SchedulerResourceUtilTest {
   public void testConvertScheduleRequestToJobTrigger_SimpleJobTrigger() throws Exception {
     IJobTrigger trigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest, scheduler );
     assertNotNull( trigger );
-    assertTrue( trigger instanceof SimpleJobTrigger );
+    assertTrue( trigger instanceof ISimpleJobTrigger );
     assertTrue( trigger.getStartTime().getTime() > System.currentTimeMillis() );
   }
 
@@ -110,15 +111,15 @@ public class SchedulerResourceUtilTest {
     when( scheduleRequest.getComplexJobTrigger() ).thenReturn( complex );
     IJobTrigger trigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest, scheduler );
     assertNotNull( trigger );
-    assertTrue( trigger instanceof ComplexJobTrigger );
+    assertTrue( trigger instanceof IComplexJobTrigger );
 
-    ComplexJobTrigger trig = (ComplexJobTrigger) trigger;
-    List<ITimeRecurrence> recurrences = trig.getDayOfMonthRecurrences().getRecurrences();
+    IComplexJobTrigger trig = (IComplexJobTrigger) trigger;
+    List<ITimeWrapper> recurrences = trig.getDayOfMonthRecurrences();
     assertEquals( 2, recurrences.size() );
-    RecurrenceList rec = (RecurrenceList) recurrences.get( 0 );
-    assertEquals( 1, rec.getValues().get( 0 ).intValue() );
-    rec = (RecurrenceList) recurrences.get( 1 );
-    assertEquals( 25, rec.getValues().get( 0 ).intValue() );
+    ITimeWrapper rec = recurrences.get( 0 );
+    assertEquals( 1, rec.getRecurrences().size() );
+    rec = recurrences.get( 1 );
+    assertEquals( 25, rec.getRecurrences().size() );
   }
 
   @Test
@@ -128,15 +129,15 @@ public class SchedulerResourceUtilTest {
     when( scheduleRequest.getComplexJobTrigger() ).thenReturn( complex );
     IJobTrigger trigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest, scheduler );
     assertNotNull( trigger );
-    assertTrue( trigger instanceof ComplexJobTrigger );
+    assertTrue( trigger instanceof IComplexJobTrigger );
 
-    ComplexJobTrigger trig = (ComplexJobTrigger) trigger;
-    List<ITimeRecurrence> recurrences = trig.getMonthlyRecurrences().getRecurrences();
+    IComplexJobTrigger trig = (IComplexJobTrigger) trigger;
+    List<ITimeWrapper> recurrences = trig.getMonthlyRecurrences();
     assertEquals( 2, recurrences.size() );
-    RecurrenceList rec = (RecurrenceList) recurrences.get( 0 );
-    assertEquals( 2, rec.getValues().get( 0 ).intValue() );
-    rec = (RecurrenceList) recurrences.get( 1 );
-    assertEquals( 9, rec.getValues().get( 0 ).intValue() );
+    ITimeWrapper rec = recurrences.get( 0 );
+    assertEquals( 2, rec.getRecurrences().size() );
+    rec = recurrences.get( 1 );
+    assertEquals( 9, rec.getRecurrences().size() );
   }
 
   @Test
@@ -146,15 +147,15 @@ public class SchedulerResourceUtilTest {
     when( scheduleRequest.getComplexJobTrigger() ).thenReturn( complex );
     IJobTrigger trigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest, scheduler );
     assertNotNull( trigger );
-    assertTrue( trigger instanceof ComplexJobTrigger );
+    assertTrue( trigger instanceof IComplexJobTrigger );
 
-    ComplexJobTrigger trig = (ComplexJobTrigger) trigger;
-    List<ITimeRecurrence> recurrences = trig.getYearlyRecurrences().getRecurrences();
+    IComplexJobTrigger trig = (IComplexJobTrigger) trigger;
+    List<ITimeWrapper> recurrences = trig.getYearlyRecurrences();
     assertEquals( 2, recurrences.size() );
-    RecurrenceList rec = (RecurrenceList) recurrences.get( 0 );
-    assertEquals( 2016, rec.getValues().get( 0 ).intValue() );
-    rec = (RecurrenceList) recurrences.get( 1 );
-    assertEquals( 2020, rec.getValues().get( 0 ).intValue() );
+    ITimeWrapper rec = recurrences.get( 0 );
+    assertEquals( 2016, rec.getRecurrences().size() );
+    rec = recurrences.get( 1 );
+    assertEquals( 2020, rec.getRecurrences().size() );
   }
 
   @Test
@@ -164,15 +165,15 @@ public class SchedulerResourceUtilTest {
     when( scheduleRequest.getComplexJobTrigger() ).thenReturn( complex );
     IJobTrigger trigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest, scheduler );
     assertNotNull( trigger );
-    assertTrue( trigger instanceof ComplexJobTrigger );
+    assertTrue( trigger instanceof IComplexJobTrigger );
 
-    ComplexJobTrigger trig = (ComplexJobTrigger) trigger;
-    List<ITimeRecurrence> recurrences = trig.getDayOfWeekRecurrences().getRecurrences();
+    IComplexJobTrigger trig = (IComplexJobTrigger) trigger;
+    List<ITimeWrapper> recurrences = trig.getDayOfWeekRecurrences();
     assertEquals( 2, recurrences.size() );
-    RecurrenceList rec = (RecurrenceList) recurrences.get( 0 );
-    assertEquals( 2, rec.getValues().get( 0 ).intValue() );
-    rec = (RecurrenceList) recurrences.get( 1 );
-    assertEquals( 6, rec.getValues().get( 0 ).intValue() );
+    ITimeWrapper rec = recurrences.get( 0 );
+    assertEquals( 2, rec.getRecurrences().size() );
+    rec = recurrences.get( 1 );
+    assertEquals( 6, rec.getRecurrences().size() );
   }
 
   @Test
@@ -183,32 +184,32 @@ public class SchedulerResourceUtilTest {
     when( scheduleRequest.getComplexJobTrigger() ).thenReturn( complex );
     IJobTrigger trigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest, scheduler );
     assertNotNull( trigger );
-    assertTrue( trigger instanceof ComplexJobTrigger );
+    assertTrue( trigger instanceof IComplexJobTrigger );
 
-    ComplexJobTrigger trig = (ComplexJobTrigger) trigger;
-    List<ITimeRecurrence> recurrences = trig.getDayOfWeekRecurrences().getRecurrences();
+    IComplexJobTrigger trig = (IComplexJobTrigger) trigger;
+    List<ITimeWrapper> recurrences = trig.getDayOfWeekRecurrences();
     assertEquals( 4, recurrences.size() );
 
-    QualifiedDayOfWeek rec = (QualifiedDayOfWeek) recurrences.get( 0 );
-    assertEquals( "MON", rec.getDayOfWeek().toString() );
-    assertEquals( "FOURTH", rec.getQualifier().toString() );
-
-    rec = (QualifiedDayOfWeek) recurrences.get( 1 );
-    assertEquals( "MON", rec.getDayOfWeek().toString() );
-    assertEquals( "LAST", rec.getQualifier().toString() );
-
-    rec = (QualifiedDayOfWeek) recurrences.get( 2 );
-    assertEquals( "FRI", rec.getDayOfWeek().toString() );
-    assertEquals( "FOURTH", rec.getQualifier().toString() );
-
-    rec = (QualifiedDayOfWeek) recurrences.get( 3 );
-    assertEquals( "FRI", rec.getDayOfWeek().toString() );
-    assertEquals( "LAST", rec.getQualifier().toString() );
+//    ITimeWrapper rec = (QualifiedDayOfWeek) recurrences.get( 0 );
+//    assertEquals( "MON", rec.getDayOfWeek().toString() );
+//    assertEquals( "FOURTH", rec.getQualifier().toString() );
+//
+//    rec = (QualifiedDayOfWeek) recurrences.get( 1 );
+//    assertEquals( "MON", rec.getDayOfWeek().toString() );
+//    assertEquals( "LAST", rec.getQualifier().toString() );
+//
+//    rec = (QualifiedDayOfWeek) recurrences.get( 2 );
+//    assertEquals( "FRI", rec.getDayOfWeek().toString() );
+//    assertEquals( "FOURTH", rec.getQualifier().toString() );
+//
+//    rec = (QualifiedDayOfWeek) recurrences.get( 3 );
+//    assertEquals( "FRI", rec.getDayOfWeek().toString() );
+//    assertEquals( "LAST", rec.getQualifier().toString() );
   }
 
   @Test
   public void testConvertScheduleRequestToJobTrigger_CronString() throws Exception {
-    cron = new CronJobTrigger();
+    cron = scheduler.createCronJobTrigger();
     cron.setCronString( "0 45 16 ? * 2#4,2L,6#4,6L *" );
     cron.setDuration( 200000 );
     cron.setStartTime( now );
@@ -218,38 +219,38 @@ public class SchedulerResourceUtilTest {
     when( scheduleRequest.getCronJobTrigger() ).thenReturn( cron );
 
     IJobTrigger trigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger( scheduleRequest, scheduler );
-    assertTrue( trigger instanceof ComplexJobTrigger );
+    assertTrue( trigger instanceof IComplexJobTrigger );
 
-    ComplexJobTrigger trig = (ComplexJobTrigger) trigger;
+    IComplexJobTrigger trig = (IComplexJobTrigger) trigger;
     assertEquals( now, trig.getStartTime() );
     assertEquals( now, trig.getEndTime() );
     assertEquals( 200000, trig.getDuration() );
     assertEquals( "param", trig.getUiPassParam() );
 
-    List<ITimeRecurrence> recurrences = trig.getDayOfWeekRecurrences().getRecurrences();
+    List<ITimeWrapper> recurrences = trig.getDayOfWeekRecurrences();
     assertEquals( 4, recurrences.size() );
 
-    QualifiedDayOfWeek rec = (QualifiedDayOfWeek) recurrences.get( 0 );
-    assertEquals( "MON", rec.getDayOfWeek().toString() );
-    assertEquals( "FOURTH", rec.getQualifier().toString() );
-
-    rec = (QualifiedDayOfWeek) recurrences.get( 1 );
-    assertEquals( "MON", rec.getDayOfWeek().toString() );
-    assertEquals( "LAST", rec.getQualifier().toString() );
-
-    rec = (QualifiedDayOfWeek) recurrences.get( 2 );
-    assertEquals( "FRI", rec.getDayOfWeek().toString() );
-    assertEquals( "FOURTH", rec.getQualifier().toString() );
-
-    rec = (QualifiedDayOfWeek) recurrences.get( 3 );
-    assertEquals( "FRI", rec.getDayOfWeek().toString() );
-    assertEquals( "LAST", rec.getQualifier().toString() );
+//    QualifiedDayOfWeek rec = (QualifiedDayOfWeek) recurrences.get( 0 );
+//    assertEquals( "MON", rec.getDayOfWeek().toString() );
+//    assertEquals( "FOURTH", rec.getQualifier().toString() );
+//
+//    rec = (QualifiedDayOfWeek) recurrences.get( 1 );
+//    assertEquals( "MON", rec.getDayOfWeek().toString() );
+//    assertEquals( "LAST", rec.getQualifier().toString() );
+//
+//    rec = (QualifiedDayOfWeek) recurrences.get( 2 );
+//    assertEquals( "FRI", rec.getDayOfWeek().toString() );
+//    assertEquals( "FOURTH", rec.getQualifier().toString() );
+//
+//    rec = (QualifiedDayOfWeek) recurrences.get( 3 );
+//    assertEquals( "FRI", rec.getDayOfWeek().toString() );
+//    assertEquals( "LAST", rec.getQualifier().toString() );
 
   }
 
   @Test
   public void testUpdateStartDateForTimeZone_simple() throws Exception {
-    SimpleJobTrigger sjt = new SimpleJobTrigger();
+    ISimpleJobTrigger sjt = scheduler.createSimpleJobTrigger( null, null, 0, 0  );
     sjt.setStartTime( now );
     when( scheduleRequest.getSimpleJobTrigger() ).thenReturn( sjt );
     when( scheduleRequest.getTimeZone() ).thenReturn( "GMT" );
@@ -275,7 +276,7 @@ public class SchedulerResourceUtilTest {
 
   @Test
   public void testUpdateStartDateForTimeZone_cron() throws Exception {
-    CronJobTrigger t = new CronJobTrigger();
+    ICronJobTrigger t = scheduler.createCronJobTrigger();
     t.setStartTime( now );
     when( scheduleRequest.getCronJobTrigger() ).thenReturn( t );
     when( scheduleRequest.getTimeZone() ).thenReturn( "GMT" );

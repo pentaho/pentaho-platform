@@ -26,8 +26,6 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
-
 /**
  * Used to specify a list of recurrences representing dates or times. The list may represent years, or days of month or
  * hours, etc. The method to which this class is passed will determine the meaning of the integers within the list.

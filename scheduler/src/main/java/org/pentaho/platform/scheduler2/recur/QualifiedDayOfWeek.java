@@ -22,8 +22,6 @@ package org.pentaho.platform.scheduler2.recur;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
-
 @XmlRootElement
 public class QualifiedDayOfWeek implements ITimeRecurrence {
   public enum DayOfWeek {
