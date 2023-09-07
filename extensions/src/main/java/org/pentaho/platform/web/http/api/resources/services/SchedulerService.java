@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.api.services;
+package org.pentaho.platform.web.http.api.resources.services;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
