@@ -74,7 +74,8 @@ import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
 import org.pentaho.platform.web.http.api.resources.SessionResource;
-import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
+import org.pentaho.platform.web.resources.proxies.BlockStatusProxy;
+import org.pentaho.platform.web.resources.services.SchedulerService;
 
 @RunWith( MockitoJUnitRunner.class )
 public class SchedulerServiceTest {

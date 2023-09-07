@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.api.resources;
+package org.pentaho.platform.web.http.api;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
@@ -54,8 +54,11 @@ import org.pentaho.platform.api.scheduler2.IJob;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
-import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
+import org.pentaho.platform.web.http.api.proxies.BlockStatusProxy;
+import org.pentaho.platform.web.http.api.resources.JobRequest;
+import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
+import org.pentaho.platform.web.http.api.resources.SchedulerResourceUtil;
+import org.pentaho.platform.web.http.api.services.SchedulerService;
 import org.pentaho.platform.web.http.messages.Messages;
 
 /**

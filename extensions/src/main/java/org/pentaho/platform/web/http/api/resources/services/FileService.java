@@ -1547,8 +1547,8 @@ public class FileService {
    * @throws FileNotFoundException
    * @private
    */
-  protected List<RepositoryFileDto> searchGeneratedContent( String userDir, String targetComparator,
-                                                            String metadataConstant )
+  public List<RepositoryFileDto> searchGeneratedContent( String userDir, String targetComparator,
+                                                         String metadataConstant )
     throws FileNotFoundException {
     List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
 

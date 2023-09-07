@@ -55,7 +55,7 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportMa
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
-import org.pentaho.platform.web.http.api.resources.SchedulerResource;
+import org.pentaho.platform.web.resources.SchedulerResource;
 
 import javax.ws.rs.core.Response;
 import java.io.File;

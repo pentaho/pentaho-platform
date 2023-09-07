@@ -81,10 +81,10 @@ import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogR
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.web.http.api.SchedulerResource;
 import org.pentaho.platform.web.http.api.resources.JobRequest;
 import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
-import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 public class SolutionImportHandler implements IPlatformImportHandler {
