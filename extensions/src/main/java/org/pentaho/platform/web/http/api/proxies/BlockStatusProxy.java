@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.api.resources.proxies;
+package org.pentaho.platform.web.http.api.proxies;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;

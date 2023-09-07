@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.api.resources.services;
+package org.pentaho.platform.web.http.api.services;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -48,6 +48,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.util.ActionUtil;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.web.http.api.proxies.BlockStatusProxy;
 import org.pentaho.platform.web.http.api.resources.ComplexJobTriggerProxy;
 import org.pentaho.platform.web.http.api.resources.JobRequest;
 import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
@@ -56,7 +57,8 @@ import org.pentaho.platform.web.http.api.resources.RepositoryFileStreamProvider;
 import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
 import org.pentaho.platform.web.http.api.resources.SchedulerResourceUtil;
 import org.pentaho.platform.web.http.api.resources.SessionResource;
-import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
+import org.pentaho.platform.web.http.api.resources.services.FileService;
+
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
