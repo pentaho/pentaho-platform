@@ -18,22 +18,25 @@
  *
  */
 
-package org.pentaho.platform.api.scheduler2;
+package org.pentaho.platform.api.scheduler2.wrappers;
 
-/**
- * A simple way of specifying a schedule on which a job will fire as opposed to {@link IComplexJobTrigger}. The
- * {@link ISimpleJobTrigger} can meet your needs if you are looking for a way to have a job start, execute a set number
- * of times on a regular interval and then end either after a specified number of runs or at an end date.
- *
- * @author aphillips
- */
 
-public interface ISimpleJobTrigger extends IJobTrigger {
-  int getRepeatCount();
+import org.pentaho.platform.scheduler2.recur.ITimeRecurrence;
+import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
+import org.pentaho.platform.scheduler2.recur.RecurrenceList;
+import org.pentaho.platform.scheduler2.recur.SequentialRecurrence;
 
-  void setRepeatCount( int repeatCount );
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlElementRefs;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
-  long getRepeatInterval();
-
-  void setRepeatInterval( long repeatIntervalSeconds );
+@XmlRootElement
+public class MonthlyWrapper extends ITimeWrapper {
+  @XmlElementRefs( { @XmlElementRef( type = SequentialRecurrence.class ),
+      @XmlElementRef( type = IncrementalRecurrence.class ), @XmlElementRef( type = RecurrenceList.class ) } )
+  @Override
+  public List<ITimeRecurrence> getRecurrences() {
+    return recurrences;
+  }
 }

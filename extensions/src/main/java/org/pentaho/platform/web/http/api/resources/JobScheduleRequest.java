@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.pentaho.platform.api.scheduler2.ICronJobTrigger;
@@ -117,6 +118,7 @@ public class JobScheduleRequest implements Serializable {
     this.outputFile = file;
   }
 
+  @XmlElement(name = "data", type=Object.class)
   public ICronJobTrigger getCronJobTrigger() {
     return cronJobTrigger;
   }
@@ -141,6 +143,7 @@ public class JobScheduleRequest implements Serializable {
     this.complexJobTrigger = jobTrigger;
   }
 
+  @XmlElement(name = "data", type=Object.class)
   public ISimpleJobTrigger getSimpleJobTrigger() {
     return simpleJobTrigger;
   }

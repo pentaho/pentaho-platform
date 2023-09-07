@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.api.services;
+package org.pentaho.platform.web.http.api.resources.services;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -33,7 +33,6 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
-import org.pentaho.platform.scheduler2.blockout.IBlockoutAction;
 import org.pentaho.platform.api.scheduler2.IJob;
 import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
@@ -44,6 +43,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.util.ActionUtil;
@@ -57,7 +57,6 @@ import org.pentaho.platform.web.http.api.resources.RepositoryFileStreamProvider;
 import org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver;
 import org.pentaho.platform.web.http.api.resources.SchedulerResourceUtil;
 import org.pentaho.platform.web.http.api.resources.SessionResource;
-import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 
 import java.io.FileNotFoundException;
@@ -123,7 +122,8 @@ public class SchedulerService {
     if ( hasInputFile ) {
       if ( file == null ) {
         logger.error( "Cannot find input source file " + scheduleRequest.getInputFile() + " Aborting schedule..." );
-        throw new SchedulerException( new ServiceException( "Cannot find input source file " + scheduleRequest.getInputFile() ) );
+        throw new SchedulerException(
+          new ServiceException( "Cannot find input source file " + scheduleRequest.getInputFile() ) );
       }
       Map<String, Serializable> metadata = getRepository().getFileMetadata( file.getId() );
       if ( metadata.containsKey( RepositoryFile.SCHEDULABLE_KEY ) ) {
@@ -159,7 +159,7 @@ public class SchedulerService {
       String outputFile = outputPathResolver.resolveOutputFilePath();
       String actionId = SchedulerResourceUtil.resolveActionId( scheduleRequest.getInputFile() );
       final String inputFile = scheduleRequest.getInputFile();
-      parameterMap.put( ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE,  inputFile );
+      parameterMap.put( ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE, inputFile );
       job =
         getScheduler().createJob( scheduleRequest.getJobName(), actionId, parameterMap, jobTrigger,
           new RepositoryFileStreamProvider( inputFile, outputFile,
@@ -375,7 +375,7 @@ public class SchedulerService {
   public IJob addBlockout( JobScheduleRequest jobScheduleRequest )
     throws IOException, IllegalAccessException, SchedulerException {
     if ( canAdminister() ) {
-      jobScheduleRequest.setActionClass( IBlockoutAction.getCanonicalName() );
+      jobScheduleRequest.setActionClass( BlockoutAction.class.getCanonicalName() );
       jobScheduleRequest.getJobParameters().add( getJobScheduleParam( IBlockoutManager.DURATION_PARAM,
         jobScheduleRequest.getDuration() ) );
       jobScheduleRequest.getJobParameters()

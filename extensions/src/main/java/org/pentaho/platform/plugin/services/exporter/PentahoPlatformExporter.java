@@ -61,7 +61,6 @@ import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.slf4j.Logger;
@@ -313,7 +312,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     try {
       List<IJob> jobs = getScheduler().getJobs( null );
       for ( IJob job : jobs ) {
-        if ( job.getJobName().equals( EmbeddedVersionCheckSystemListener.VERSION_CHECK_JOBNAME ) ) {
+        if ( job.getJobName().equals( "PentahoSystemVersionCheck" ) ) {
           // don't bother exporting the Version Checker schedule, it gets created automatically on server start
           // if it doesn't exist and fails if you try to import it due to a null ActionClass
           continue;

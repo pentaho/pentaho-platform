@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.api;
+package org.pentaho.platform.web.http.api.resources;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
@@ -55,16 +55,14 @@ import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.web.http.api.proxies.BlockStatusProxy;
-import org.pentaho.platform.web.http.api.resources.JobRequest;
-import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
-import org.pentaho.platform.web.http.api.resources.SchedulerResourceUtil;
-import org.pentaho.platform.web.http.api.services.SchedulerService;
+import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 import org.pentaho.platform.web.http.messages.Messages;
 
 /**
- * The SchedulerResource service provides the means to create, read, update, delete, and list schedules and blockout periods.  Also provides the ability to control the status of schedules and the scheduler.
+ * The SchedulerResource service provides the means to create, read, update, delete, and list schedules and blockout
+ * periods.  Also provides the ability to control the status of schedules and the scheduler.
  */
-@Path ( "/scheduler-plugin/api/scheduler" )
+@Path( "/scheduler" )
 public class SchedulerResource {
 
   protected SchedulerService schedulerService;
@@ -73,9 +71,9 @@ public class SchedulerResource {
 
   public SchedulerResource() {
     schedulerService = new SchedulerService();
-    System.out.println("-----------------------------------------------------------------------");
-    System.out.println("SchedulerResource was initialized.");
-    System.out.println("-----------------------------------------------------------------------");
+    System.out.println( "-----------------------------------------------------------------------" );
+    System.out.println( "SchedulerResource was initialized." );
+    System.out.println( "-----------------------------------------------------------------------" );
   }
 
 
@@ -83,10 +81,10 @@ public class SchedulerResource {
    * Creates a new scheduled job.
    *
    * <p><b>Example Request:</b><br />
-   *  POST pentaho/api/scheduler/job
+   * POST pentaho/api/scheduler/job
    * </p>
    * <br /><b>POST data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *      &lt;jobScheduleRequest&gt;
    *      &lt;jobName&gt;JobName&lt;/jobName&gt;
    *      &lt;simpleJobTrigger&gt;
@@ -108,7 +106,6 @@ public class SchedulerResource {
    * </p>
    *
    * @param scheduleRequest A JobScheduleRequest object to define the parameters of the job being created.
-   *
    * @return A jax-rs Response object with the created jobId.
    *
    * <p><b>Example Response:</b></p>
@@ -117,15 +114,15 @@ public class SchedulerResource {
    * </pre>
    */
   @POST
-  @Path ( "/job" )
-  @Consumes ( { APPLICATION_JSON, APPLICATION_XML } )
-  @Produces ( "text/plain" )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Schedule created successfully." ),
-      @ResponseCode ( code = 401, condition = "User is not allowed to create schedules." ),
-      @ResponseCode ( code = 403, condition = "Cannot create schedules for the specified file." ),
-      @ResponseCode ( code = 500, condition = "An error occurred while creating a schedule." )
-    } )
+  @Path( "/job" )
+  @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  @Produces( "text/plain" )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Schedule created successfully." ),
+    @ResponseCode( code = 401, condition = "User is not allowed to create schedules." ),
+    @ResponseCode( code = 403, condition = "Cannot create schedules for the specified file." ),
+    @ResponseCode( code = 500, condition = "An error occurred while creating a schedule." )
+  } )
   public Response createJob( JobScheduleRequest scheduleRequest ) {
     try {
       IJob job = schedulerService.createJob( scheduleRequest );
@@ -146,10 +143,10 @@ public class SchedulerResource {
    * removing the current instance.
    *
    * <p><b>Example Request:</b><br />
-   *  POST pentaho/api/scheduler/job/edit
+   * POST pentaho/api/scheduler/job/edit
    * </p>
    * <br /><b>POST data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *      &lt;jobScheduleRequest&gt;
    *      &lt;jobName&gt;JobName&lt;/jobName&gt;
    *      &lt;simpleJobTrigger&gt;
@@ -180,15 +177,15 @@ public class SchedulerResource {
    * </pre>
    */
   @POST
-  @Path ( "/job/update" )
-  @Consumes ( { APPLICATION_JSON, APPLICATION_XML } )
-  @Produces ( "text/plain" )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Schedule updated successfully." ),
-      @ResponseCode ( code = 401, condition = "User is not allowed to update schedules." ),
-      @ResponseCode ( code = 403, condition = "Cannot update schedules for the specified file." ),
-      @ResponseCode ( code = 500, condition = "An error occurred while updating a schedule." )
-    } )
+  @Path( "/job/update" )
+  @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  @Produces( "text/plain" )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Schedule updated successfully." ),
+    @ResponseCode( code = 401, condition = "User is not allowed to update schedules." ),
+    @ResponseCode( code = 403, condition = "Cannot update schedules for the specified file." ),
+    @ResponseCode( code = 500, condition = "An error occurred while updating a schedule." )
+  } )
   public Response updateJob( JobScheduleRequest scheduleRequest ) {
     try {
       IJob job = schedulerService.updateJob( scheduleRequest );
@@ -208,10 +205,10 @@ public class SchedulerResource {
    * Execute a previously scheduled job.
    *
    * <p><b>Example Request:</b><br />
-   *    POST pentaho/api/scheduler/triggerNow
+   * POST pentaho/api/scheduler/triggerNow
    * </p>
    * <br /><b>POST data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *      &lt;jobRequest&gt;
    *      &lt;jobId&gt;admin  JobName 1410786491777&lt;/jobId&gt;
    *      &lt;/jobRequest&gt;
@@ -219,7 +216,6 @@ public class SchedulerResource {
    * </p>
    *
    * @param jobRequest A JobRequest object containing the jobId.
-   *
    * @return A Response object indicating the status of the scheduler.
    *
    * <p><b>Example Response:</b></p>
@@ -228,14 +224,14 @@ public class SchedulerResource {
    * </pre>
    */
   @POST
-  @Path ( "/triggerNow" )
-  @Produces ( "text/plain" )
-  @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Job triggered successfully." ),
-      @ResponseCode ( code = 400, condition = "Invalid input." ),
-      @ResponseCode ( code = 500, condition = "Invalid jobId." )
-    } )
+  @Path( "/triggerNow" )
+  @Produces( "text/plain" )
+  @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Job triggered successfully." ),
+    @ResponseCode( code = 400, condition = "Invalid input." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  } )
   public Response triggerNow( JobRequest jobRequest ) {
     try {
       IJob job = schedulerService.triggerNow( jobRequest.getJobId() );
@@ -249,7 +245,7 @@ public class SchedulerResource {
    * Get the scheduled job created by the system for deleting generated files.
    *
    * <p><b>Example Request:</b><br />
-   *    GET pentaho/api/scheduler/getContentCleanerJob
+   * GET pentaho/api/scheduler/getContentCleanerJob
    * </p>
    *
    * @return A Job object containing the definition of the content cleaner job.
@@ -301,12 +297,12 @@ public class SchedulerResource {
    * </pre>
    */
   @GET
-  @Path ( "/getContentCleanerJob" )
-  @Produces ( { APPLICATION_JSON, APPLICATION_XML } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Content cleaner job successfully retrieved." ),
-      @ResponseCode ( code = 204, condition = "No content cleaner job exists." ),
-    } )
+  @Path( "/getContentCleanerJob" )
+  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Content cleaner job successfully retrieved." ),
+    @ResponseCode( code = 204, condition = "No content cleaner job exists." ),
+  } )
   public IJob getContentCleanerJob() {
     try {
       return schedulerService.getContentCleanerJob();
@@ -319,7 +315,7 @@ public class SchedulerResource {
    * Retrieve the all the job(s) visible to the current users.
    *
    * <p><b>Example Request:</b><br />
-   *    GET pentaho/api/scheduler/jobs
+   * GET pentaho/api/scheduler/jobs
    * </p>
    *
    * @param asCronString Cron string (Unused).
@@ -412,14 +408,14 @@ public class SchedulerResource {
    */
   @Deprecated
   @GET
-  @Path ( "/jobs" )
-  @Produces ( { APPLICATION_JSON, APPLICATION_XML } )
-  @Facet ( name = "Unsupported" )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Jobs retrieved successfully." ),
-      @ResponseCode ( code = 500, condition = "Error while retrieving jobs." )
-    } )
-  public List<IJob> getJobs( @DefaultValue ( "false" ) @QueryParam ( "asCronString" ) Boolean asCronString ) {
+  @Path( "/jobs" )
+  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @Facet( name = "Unsupported" )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Jobs retrieved successfully." ),
+    @ResponseCode( code = 500, condition = "Error while retrieving jobs." )
+  } )
+  public List<IJob> getJobs( @DefaultValue( "false" ) @QueryParam( "asCronString" ) Boolean asCronString ) {
     try {
       return schedulerService.getJobs();
     } catch ( SchedulerException e ) {
@@ -431,7 +427,7 @@ public class SchedulerResource {
    * Retrieve the all the scheduled job(s) visible to the current users.
    *
    * <p><b>Example Request:</b><br />
-   *    GET pentaho/api/scheduler/getJobs
+   * GET pentaho/api/scheduler/getJobs
    * </p>
    *
    * @return A list of jobs that are visible to the current users.
@@ -522,12 +518,12 @@ public class SchedulerResource {
    * </pre>
    */
   @GET
-  @Path ( "/getJobs" )
-  @Produces ( { APPLICATION_JSON, APPLICATION_XML } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Jobs retrieved successfully." ),
-      @ResponseCode ( code = 500, condition = "Error while retrieving jobs." ),
-    } )
+  @Path( "/getJobs" )
+  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Jobs retrieved successfully." ),
+    @ResponseCode( code = 500, condition = "Error while retrieving jobs." ),
+  } )
   public List<IJob> getAllJobs() {
     try {
       return schedulerService.getJobs();
@@ -540,12 +536,12 @@ public class SchedulerResource {
    * Checks whether the current user may schedule a repository file in the platform.
    *
    * <p><b>Example Request:</b><br />
-   *    GET pentaho/api/scheduler/isScheduleAllowed?id=b5f806b9-9f72-4814-b1e0-aa9e0ece7e1a
+   * GET pentaho/api/scheduler/isScheduleAllowed?id=b5f806b9-9f72-4814-b1e0-aa9e0ece7e1a
    * </p>
    *
    * @param id The repository file ID of the content to checked.
-   *
-   * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed for the file.
+   * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed for
+   * the file.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
@@ -553,13 +549,13 @@ public class SchedulerResource {
    * </pre>
    */
   @GET
-  @Path ( "/isScheduleAllowed" )
-  @Produces ( TEXT_PLAIN )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved scheduling ability of repository file." ),
-      @ResponseCode ( code = 500, condition = "Invalid repository file id." ),
-    } )
-  public String isScheduleAllowed( @QueryParam ( "id" ) String id ) {
+  @Path( "/isScheduleAllowed" )
+  @Produces( TEXT_PLAIN )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully retrieved scheduling ability of repository file." ),
+    @ResponseCode( code = 500, condition = "Invalid repository file id." ),
+  } )
+  public String isScheduleAllowed( @QueryParam( "id" ) String id ) {
     return "" + schedulerService.isScheduleAllowed( id );
   }
 
@@ -567,10 +563,11 @@ public class SchedulerResource {
    * Checks whether the current user has authority to schedule any content in the platform.
    *
    * <p><b>Example Request:</b><br />
-   *    GET pentaho/api/scheduler/canSchedule
+   * GET pentaho/api/scheduler/canSchedule
    * </p>
    *
-   * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed for the user.
+   * @return true or false. true indicates scheduling is allowed and false indicates scheduling is not allowed for
+   * the user.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
@@ -578,12 +575,12 @@ public class SchedulerResource {
    * </pre>
    */
   @GET
-  @Path ( "/canSchedule" )
-  @Produces ( APPLICATION_JSON )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successful retrieved the scheduling permission." ),
-      @ResponseCode ( code = 500, condition = "Unable to retrieve the scheduling permission." )
-    } )
+  @Path( "/canSchedule" )
+  @Produces( APPLICATION_JSON )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successful retrieved the scheduling permission." ),
+    @ResponseCode( code = 500, condition = "Unable to retrieve the scheduling permission." )
+  } )
   public String doGetCanSchedule() {
     return schedulerService.doGetCanSchedule();
   }
@@ -592,7 +589,7 @@ public class SchedulerResource {
    * Returns the state of the scheduler with the value of RUNNING or PAUSED.
    *
    * <p><b>Example Request:</b><br />
-   *    GET pentaho/api/scheduler/state
+   * GET pentaho/api/scheduler/state
    * </p>
    *
    * @return status of the scheduler as RUNNING or PAUSED.
@@ -603,12 +600,12 @@ public class SchedulerResource {
    * </pre>
    */
   @GET
-  @Path ( "/state" )
-  @Produces ( "text/plain" )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the state of the scheduler." ),
-      @ResponseCode ( code = 500, condition = "An error occurred when getting the state of the scheduler." )
-    } )
+  @Path( "/state" )
+  @Produces( "text/plain" )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully retrieved the state of the scheduler." ),
+    @ResponseCode( code = 500, condition = "An error occurred when getting the state of the scheduler." )
+  } )
   public Response getState() {
     try {
       String state = schedulerService.getState();
@@ -622,10 +619,10 @@ public class SchedulerResource {
    * Resume the scheduler from a paused state.
    *
    * <p><b>Example Request:</b><br />
-   *    POST pentaho/api/scheduler/start
+   * POST pentaho/api/scheduler/start
    * </p>
    * <br /><b>POST data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *    This POST body does not contain data.
    *  </pre>
    * </p>
@@ -638,12 +635,12 @@ public class SchedulerResource {
    * </pre>
    */
   @POST
-  @Path ( "/start" )
-  @Produces ( "text/plain" )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully started the server." ),
-      @ResponseCode ( code = 500, condition = "An error occurred when resuming the scheduler." )
-    } )
+  @Path( "/start" )
+  @Produces( "text/plain" )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully started the server." ),
+    @ResponseCode( code = 500, condition = "An error occurred when resuming the scheduler." )
+  } )
   public Response start() {
     try {
       String status = schedulerService.start();
@@ -657,10 +654,10 @@ public class SchedulerResource {
    * Pause the scheduler from a running state.
    *
    * <p><b>Example Request:</b><br />
-   *    POST pentaho/api/scheduler/pause
+   * POST pentaho/api/scheduler/pause
    * </p>
    * <br /><b>POST data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *    This POST body does not contain data.
    *  </pre>
    * </p>
@@ -673,12 +670,12 @@ public class SchedulerResource {
    * </pre>
    */
   @POST
-  @Path ( "/pause" )
-  @Produces ( "text/plain" )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully paused the server." ),
-      @ResponseCode ( code = 500, condition = "An error occurred when pausing the scheduler." )
-    } )
+  @Path( "/pause" )
+  @Produces( "text/plain" )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully paused the server." ),
+    @ResponseCode( code = 500, condition = "An error occurred when pausing the scheduler." )
+  } )
   public Response pause() {
     try {
       String status = schedulerService.pause();
@@ -692,10 +689,10 @@ public class SchedulerResource {
    * Shuts down the scheduler.
    *
    * <p><b>Example Request:</b><br />
-   *    POST pentaho/api/scheduler/shutdown
+   * POST pentaho/api/scheduler/shutdown
    * </p>
    * <br /><b>POST data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *    This POST body does not contain data.
    *  </pre>
    * </p>
@@ -708,12 +705,12 @@ public class SchedulerResource {
    * </pre>
    */
   @POST
-  @Path ( "/shutdown" )
-  @Produces ( "text/plain" )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully shut down the server." ),
-      @ResponseCode ( code = 500, condition = "An error occurred when shutting down the scheduler." )
-    } )
+  @Path( "/shutdown" )
+  @Produces( "text/plain" )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully shut down the server." ),
+    @ResponseCode( code = 500, condition = "An error occurred when shutting down the scheduler." )
+  } )
   public Response shutdown() {
     try {
       String status = schedulerService.shutdown();
@@ -727,10 +724,10 @@ public class SchedulerResource {
    * Checks the state of the selected scheduled job.
    *
    * <p><b>Example Request:</b><br />
-   *    POST pentaho/api/scheduler/jobState
+   * POST pentaho/api/scheduler/jobState
    * </p>
    * <br /><b>POST data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *      &lt;jobRequest&gt;
    *      &lt;jobId&gt;admin  JobName 1410786491777&lt;/jobId&gt;
    *      &lt;/jobRequest&gt;
@@ -738,7 +735,6 @@ public class SchedulerResource {
    * </p>
    *
    * @param jobRequest A JobRequest object containing the jobId.
-   *
    * @return A jax-rs Response object containing the status of the scheduled job.
    *
    * <p><b>Example Response:</b></p>
@@ -747,13 +743,13 @@ public class SchedulerResource {
    * </pre>
    */
   @POST
-  @Path ( "/jobState" )
-  @Produces ( "text/plain" )
-  @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the state of the requested job." ),
-      @ResponseCode ( code = 500, condition = "Invalid jobId." )
-    } )
+  @Path( "/jobState" )
+  @Produces( "text/plain" )
+  @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully retrieved the state of the requested job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  } )
   public Response getJobState( JobRequest jobRequest ) {
     try {
       return buildPlainTextOkResponse( schedulerService.getJobState( jobRequest ).name() );
@@ -768,10 +764,10 @@ public class SchedulerResource {
    * Pause the specified scheduled job.
    *
    * <p><b>Example Request:</b><br />
-   *    POST pentaho/api/scheduler/pauseJob
+   * POST pentaho/api/scheduler/pauseJob
    * </p>
    * <br /><b>POST data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *    &lt;jobRequest&gt;
    *    &lt;jobId&gt;admin  JobName 1410786491777&lt;/jobId&gt;
    *    &lt;/jobRequest&gt;
@@ -779,7 +775,6 @@ public class SchedulerResource {
    * </p>
    *
    * @param jobRequest A JobRequest object containing the jobId.
-   *
    * @return A jax-rs Response object containing the status of the scheduled job.
    *
    * <p><b>Example Response:</b></p>
@@ -788,13 +783,13 @@ public class SchedulerResource {
    * </pre>
    */
   @POST
-  @Path ( "/pauseJob" )
-  @Produces ( "text/plain" )
-  @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully paused the job." ),
-      @ResponseCode ( code = 500, condition = "Invalid jobId." )
-    } )
+  @Path( "/pauseJob" )
+  @Produces( "text/plain" )
+  @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully paused the job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  } )
   public Response pauseJob( JobRequest jobRequest ) {
     try {
       IJob.JobState state = schedulerService.pauseJob( jobRequest.getJobId() );
@@ -808,10 +803,10 @@ public class SchedulerResource {
    * Resume the specified scheduled job.
    *
    * <p><b>Example Request:</b><br />
-   *    POST pentaho/api/scheduler/resumeJob
+   * POST pentaho/api/scheduler/resumeJob
    * </p>
    * <br /><b>POST data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *    &lt;jobRequest&gt;
    *    &lt;jobId&gt;admin  JobName 1410786491777&lt;/jobId&gt;
    *    &lt;/jobRequest&gt;
@@ -819,7 +814,6 @@ public class SchedulerResource {
    * </p>
    *
    * @param jobRequest A JobRequest object containing the jobId.
-   *
    * @return A jax-rs Response object containing the status of the scheduled job.
    *
    * <p><b>Example Response:</b></p>
@@ -828,13 +822,13 @@ public class SchedulerResource {
    * </pre>
    */
   @POST
-  @Path ( "/resumeJob" )
-  @Produces ( "text/plain" )
-  @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully resumed the job." ),
-      @ResponseCode ( code = 500, condition = "Invalid jobId." )
-    } )
+  @Path( "/resumeJob" )
+  @Produces( "text/plain" )
+  @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully resumed the job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  } )
   public Response resumeJob( JobRequest jobRequest ) {
     try {
       IJob.JobState state = schedulerService.resumeJob( jobRequest.getJobId() );
@@ -848,10 +842,10 @@ public class SchedulerResource {
    * Delete the specified scheduled job from the platform.
    *
    * <p><b>Example Request:</b><br />
-   *    DELETE pentaho/api/scheduler/removeJob
+   * DELETE pentaho/api/scheduler/removeJob
    * </p>
    * <br /><b>DELETE data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *    &lt;jobRequest&gt;
    *    &lt;jobId&gt;admin  BlockoutAction 1410786491503&lt;/jobId&gt;
    *    &lt;/jobRequest&gt;
@@ -859,7 +853,6 @@ public class SchedulerResource {
    * </p>
    *
    * @param jobRequest A JobRequest object containing the jobId.
-   *
    * @return A jax-rs Response object containing the status of the scheduled job.
    *
    * <p><b>Example Response:</b></p>
@@ -869,13 +862,13 @@ public class SchedulerResource {
    */
   @Deprecated
   @DELETE
-  @Path ( "/removeJob" )
-  @Produces ( "text/plain" )
-  @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully removed the job." ),
-      @ResponseCode ( code = 500, condition = "Invalid jobId." )
-    } )
+  @Path( "/removeJob" )
+  @Produces( "text/plain" )
+  @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully removed the job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
+  } )
   public Response removeJob( JobRequest jobRequest ) {
     return deleteJob( jobRequest );
   }
@@ -884,10 +877,10 @@ public class SchedulerResource {
    * Delete the specified scheduled job from the platform.
    *
    * <p><b>Example Request:</b><br />
-   *    PUT pentaho/api/scheduler/removeJob
+   * PUT pentaho/api/scheduler/removeJob
    * </p>
    * <br /><b>PUT data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *    &lt;jobRequest&gt;
    *    &lt;jobId&gt;admin  BlockoutAction 1410786491503&lt;/jobId&gt;
    *    &lt;/jobRequest&gt;
@@ -895,7 +888,6 @@ public class SchedulerResource {
    * </p>
    *
    * @param jobRequest A JobRequest object containing the jobId.
-   *
    * @return A jax-rs Response object containing the status of the scheduled job.
    *
    * <p><b>Example Response:</b></p>
@@ -904,12 +896,12 @@ public class SchedulerResource {
    * </pre>
    */
   @PUT
-  @Path ( "/removeJob" )
-  @Produces ( "text/plain" )
-  @Consumes ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-    @ResponseCode ( code = 200, condition = "Successfully removed the job." ),
-    @ResponseCode ( code = 500, condition = "Invalid jobId." )
+  @Path( "/removeJob" )
+  @Produces( "text/plain" )
+  @Consumes( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully removed the job." ),
+    @ResponseCode( code = 500, condition = "Invalid jobId." )
   } )
   public Response deleteJob( JobRequest jobRequest ) {
     try {
@@ -927,12 +919,11 @@ public class SchedulerResource {
    * Return the information for a specified job.
    *
    * <p><b>Example Request:</b><br />
-   *    GET pentaho/api/scheduler/jobinfo?jobId=admin%09JobName%091410786491777
+   * GET pentaho/api/scheduler/jobinfo?jobId=admin%09JobName%091410786491777
    * </p>
    *
-   * @param jobId The jobId of the job for which we are requesting information.
+   * @param jobId        The jobId of the job for which we are requesting information.
    * @param asCronString Cron string (Unused)
-   *
    * @return A Job object containing the info for the specified job.
    *
    * <p><b>Example Response:</b></p>
@@ -941,19 +932,19 @@ public class SchedulerResource {
    * </pre>
    */
   @GET
-  @Path ( "/jobinfo" )
-  @Produces ( { APPLICATION_JSON, APPLICATION_XML } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved the information for the requested job." ),
-      @ResponseCode ( code = 204, condition = "jobId is valid, but the job is either finished or does not exists." ),
-      @ResponseCode ( code = 500, condition = "Internal error or invalid jobId." )
-    } )
+  @Path( "/jobinfo" )
+  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully retrieved the information for the requested job." ),
+    @ResponseCode( code = 204, condition = "jobId is valid, but the job is either finished or does not exists." ),
+    @ResponseCode( code = 500, condition = "Internal error or invalid jobId." )
+  } )
   public Response getJob( @QueryParam( "jobId" ) String jobId,
-                     @DefaultValue( "false" ) @QueryParam( "asCronString" ) String asCronString ) {
+                          @DefaultValue( "false" ) @QueryParam( "asCronString" ) String asCronString ) {
     try {
       IJob jobInfo = schedulerService.getJobInfo( jobId );
       if ( jobInfo == null ) {
-        return buildStatusResponse( Status.NO_CONTENT  );
+        return buildStatusResponse( Status.NO_CONTENT );
       }
       return buildOkResponse( jobInfo );
     } catch ( SchedulerException e ) {
@@ -963,9 +954,9 @@ public class SchedulerResource {
 
   @Deprecated
   @GET
-  @Path ( "/jobinfotest" )
-  @Produces ( { APPLICATION_JSON } )
-  @Facet ( name = "Unsupported" )
+  @Path( "/jobinfotest" )
+  @Produces( { APPLICATION_JSON } )
+  @Facet( name = "Unsupported" )
   public JobScheduleRequest getJobInfo() {
     return schedulerService.getJobInfo();
   }
@@ -973,11 +964,11 @@ public class SchedulerResource {
   /**
    * @return list of Job
    * @deprecated Method is deprecated as the name getBlockoutJobs is preferred over getJobs
-   *
+   * <p>
    * Retrieves all blockout jobs in the system
    */
   @Deprecated
-  @Facet ( name = "Unsupported" )
+  @Facet( name = "Unsupported" )
   public List<IJob> getJobs() {
     return getBlockoutJobs();
   }
@@ -987,7 +978,7 @@ public class SchedulerResource {
    * Get all the blockout jobs in the system.
    *
    * <p><b>Example Request:</b><br />
-   *    GET pentaho/api/scheduler/blockout/blockoutjobs
+   * GET pentaho/api/scheduler/blockout/blockoutjobs
    * </p>
    *
    * @return A Response object that contains a list of blockout jobs.
@@ -1070,11 +1061,11 @@ public class SchedulerResource {
    * </pre>
    */
   @GET
-  @Path ( "/blockout/blockoutjobs" )
-  @Produces ( { APPLICATION_JSON, APPLICATION_XML } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved blockout jobs." ),
-    } )
+  @Path( "/blockout/blockoutjobs" )
+  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully retrieved blockout jobs." ),
+  } )
   public List<IJob> getBlockoutJobs() {
     return schedulerService.getBlockOutJobs();
   }
@@ -1084,7 +1075,7 @@ public class SchedulerResource {
    * Checks if there are blockouts in the system.
    *
    * <p><b>Example Request:</b><br />
-   *    GET pentaho/api/scheduler/blockout/hasblockouts
+   * GET pentaho/api/scheduler/blockout/hasblockouts
    * </p>
    *
    * @return true or false whether there are blackouts or not.
@@ -1095,11 +1086,11 @@ public class SchedulerResource {
    * </pre>
    */
   @GET
-  @Path ( "/blockout/hasblockouts" )
-  @Produces ( { TEXT_PLAIN } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully determined whether or not the system contains blockouts." ),
-    } )
+  @Path( "/blockout/hasblockouts" )
+  @Produces( { TEXT_PLAIN } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully determined whether or not the system contains blockouts." ),
+  } )
   public Response hasBlockouts() {
     Boolean hasBlockouts = schedulerService.hasBlockouts();
     return buildOkResponse( hasBlockouts.toString() );
@@ -1109,10 +1100,10 @@ public class SchedulerResource {
    * Creates a new blockout for scheduled jobs.
    *
    * <p><b>Example Request:</b><br />
-   *    POST pentaho/api/scheduler/blockout/add
+   * POST pentaho/api/scheduler/blockout/add
    * </p>
    * <br /><b>POST data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *    &lt;jobScheduleRequest&gt;
    *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
    *    &lt;complexJobTrigger&gt;
@@ -1134,7 +1125,6 @@ public class SchedulerResource {
    * </p>
    *
    * @param jobScheduleRequest A JobScheduleRequest object defining the blockout job.
-   *
    * @return A Response object which contains the ID of the blockout which was created.
    *
    * <p><b>Example Response:</b></p>
@@ -1143,21 +1133,17 @@ public class SchedulerResource {
    * </pre>
    */
   @POST
-  @Path ( "/blockout/add" )
-  @Consumes ( { APPLICATION_JSON, APPLICATION_XML } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successful operation." ),
-      @ResponseCode ( code = 401, condition = "User is not authorized to create blockout." )
-    } )
+  @Path( "/blockout/add" )
+  @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successful operation." ),
+    @ResponseCode( code = 401, condition = "User is not authorized to create blockout." )
+  } )
   public Response addBlockout( JobScheduleRequest jobScheduleRequest ) {
     try {
       IJob job = schedulerService.addBlockout( jobScheduleRequest );
       return buildPlainTextOkResponse( job.getJobId() );
-    } catch ( IOException e ) {
-      return buildStatusResponse( UNAUTHORIZED );
-    } catch ( SchedulerException e ) {
-      return buildStatusResponse( UNAUTHORIZED );
-    } catch ( IllegalAccessException e ) {
+    } catch ( IOException | SchedulerException | IllegalAccessException e ) {
       return buildStatusResponse( UNAUTHORIZED );
     }
   }
@@ -1166,10 +1152,10 @@ public class SchedulerResource {
    * Update an existing blockout.
    *
    * <p><b>Example Request:</b><br />
-   *    POST pentaho/api/scheduler/blockout/update?jobid=admin%09BlockoutAction%091410786491209
+   * POST pentaho/api/scheduler/blockout/update?jobid=admin%09BlockoutAction%091410786491209
    * </p>
    * <br /><b>POST data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *    &lt;jobScheduleRequest&gt;
    *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
    *    &lt;complexJobTrigger&gt;
@@ -1190,9 +1176,8 @@ public class SchedulerResource {
    *  </pre>
    * </p>
    *
-   * @param jobId The jobId of the blockout we are editing.
+   * @param jobId              The jobId of the blockout we are editing.
    * @param jobScheduleRequest The payload containing the definition of the blockout.
-   *
    * @return A Response object which contains the ID of the blockout which was created.
    *
    * <p><b>Example Response:</b></p>
@@ -1201,13 +1186,13 @@ public class SchedulerResource {
    * </pre>
    */
   @POST
-  @Path ( "/blockout/update" )
-  @Consumes ( { APPLICATION_JSON, APPLICATION_XML } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successful operation." ),
-      @ResponseCode ( code = 401, condition = "User is not authorized to update blockout." )
-    } )
-  public Response updateBlockout( @QueryParam ( "jobid" ) String jobId, JobScheduleRequest jobScheduleRequest ) {
+  @Path( "/blockout/update" )
+  @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successful operation." ),
+    @ResponseCode( code = 401, condition = "User is not authorized to update blockout." )
+  } )
+  public Response updateBlockout( @QueryParam( "jobid" ) String jobId, JobScheduleRequest jobScheduleRequest ) {
     try {
       IJob job = schedulerService.updateBlockout( jobId, jobScheduleRequest );
       return buildPlainTextOkResponse( job.getJobId() );
@@ -1224,10 +1209,10 @@ public class SchedulerResource {
    * Checks if the selected blockout schedule will be fired.
    *
    * <p><b>Example Request:</b><br />
-   *    POST pentaho/api/scheduler/blockout/willFire
+   * POST pentaho/api/scheduler/blockout/willFire
    * </p>
    * <br /><b>POST data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *    &lt;jobScheduleRequest&gt;
    *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
    *    &lt;complexJobTrigger&gt;
@@ -1249,7 +1234,6 @@ public class SchedulerResource {
    * </p>
    *
    * @param jobScheduleRequest The payload containing the definition of the blockout.
-   *
    * @return true or false indicating whether or not the blockout will fire.
    *
    * <p><b>Example Response:</b></p>
@@ -1258,13 +1242,13 @@ public class SchedulerResource {
    * </pre>
    */
   @POST
-  @Path ( "/blockout/willFire" )
-  @Consumes ( { APPLICATION_JSON, APPLICATION_XML } )
-  @Produces ( { TEXT_PLAIN } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successful operation." ),
-      @ResponseCode ( code = 500, condition = "An error occurred while determining blockouts being fired." )
-    } )
+  @Path( "/blockout/willFire" )
+  @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  @Produces( { TEXT_PLAIN } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successful operation." ),
+    @ResponseCode( code = 500, condition = "An error occurred while determining blockouts being fired." )
+  } )
   public Response blockoutWillFire( JobScheduleRequest jobScheduleRequest ) {
     Boolean willFire;
     try {
@@ -1281,7 +1265,7 @@ public class SchedulerResource {
    * Checks if the selected blockout schedule should be fired now.
    *
    * <p><b>Example Request:</b><br />
-   *    GET pentaho/api/scheduler/blockout/shouldFireNow
+   * GET pentaho/api/scheduler/blockout/shouldFireNow
    * </p>
    *
    * @return true or false whether or not the blockout should fire now.
@@ -1292,11 +1276,11 @@ public class SchedulerResource {
    * </pre>
    */
   @GET
-  @Path ( "/blockout/shouldFireNow" )
-  @Produces ( { TEXT_PLAIN } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successful operation." )
-    } )
+  @Path( "/blockout/shouldFireNow" )
+  @Produces( { TEXT_PLAIN } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successful operation." )
+  } )
   public Response shouldFireNow() {
     Boolean result = schedulerService.shouldFireNow();
     return buildOkResponse( result.toString() );
@@ -1307,10 +1291,10 @@ public class SchedulerResource {
    * Check the status of the selected blockout schedule.
    *
    * <p><b>Example Request:</b><br />
-   *    POST pentaho/api/scheduler/blockout/blockstatus
+   * POST pentaho/api/scheduler/blockout/blockstatus
    * </p>
    * <br /><b>POST data:</b>
-   *  <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *    &lt;jobScheduleRequest&gt;
    *    &lt;jobName&gt;DAILY-1820438815:admin:7740000&lt;/jobName&gt;
    *    &lt;complexJobTrigger&gt;
@@ -1332,8 +1316,8 @@ public class SchedulerResource {
    * </p>
    *
    * @param jobScheduleRequest The payload containing the definition of the blockout.
-   *
-   * @return A Response object which contains a BlockStatusProxy which contains totallyBlocked and partiallyBlocked flags.
+   * @return A Response object which contains a BlockStatusProxy which contains totallyBlocked and partiallyBlocked
+   * flags.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
@@ -1344,13 +1328,13 @@ public class SchedulerResource {
    * </pre>
    */
   @POST
-  @Path ( "/blockout/blockstatus" )
-  @Consumes ( { APPLICATION_JSON, APPLICATION_XML } )
-  @Produces ( { APPLICATION_JSON, APPLICATION_XML } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully got the blockout status." ),
-      @ResponseCode ( code = 401, condition = "User is not authorized to get the blockout status." )
-    } )
+  @Path( "/blockout/blockstatus" )
+  @Consumes( { APPLICATION_JSON, APPLICATION_XML } )
+  @Produces( { APPLICATION_JSON, APPLICATION_XML } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully got the blockout status." ),
+    @ResponseCode( code = 401, condition = "User is not authorized to get the blockout status." )
+  } )
   public Response getBlockStatus( JobScheduleRequest jobScheduleRequest ) {
     try {
       BlockStatusProxy blockStatusProxy = schedulerService.getBlockStatus( jobScheduleRequest );
@@ -1364,11 +1348,11 @@ public class SchedulerResource {
    * Retrieve the list of execute content by lineage id.
    *
    * <p><b>Example Request:</b><br />
-   *    GET pentaho/api/scheduler/generatedContentForSchedule?lineageId=:public:Steel%20Wheels:Inventory%20List%20(report).prpt
+   * GET pentaho/api/scheduler/generatedContentForSchedule?lineageId=:public:Steel%20Wheels:Inventory%20List%20
+   * (report).prpt
    * </p>
    *
    * @param lineageId the path for the file.
-   *
    * @return A list of RepositoryFileDto objects.
    *
    * <p><b>Example Response:</b></p>
@@ -1418,12 +1402,12 @@ public class SchedulerResource {
    * </pre>
    */
   @GET
-  @Path ( "/generatedContentForSchedule" )
-  @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
-  @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully got the generated content for schedule" )
-    } )
-  public List<RepositoryFileDto> doGetGeneratedContentForSchedule( @QueryParam ( "lineageId" ) String lineageId ) {
+  @Path( "/generatedContentForSchedule" )
+  @Produces( { APPLICATION_XML, APPLICATION_JSON } )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully got the generated content for schedule" )
+  } )
+  public List<RepositoryFileDto> doGetGeneratedContentForSchedule( @QueryParam( "lineageId" ) String lineageId ) {
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
     try {
       repositoryFileDtoList = schedulerService.doGetGeneratedContentForSchedule( lineageId );
@@ -1431,7 +1415,7 @@ public class SchedulerResource {
       //return the empty list
     } catch ( Throwable t ) {
       logger
-          .error( Messages.getInstance().getString( "FileResource.GENERATED_CONTENT_FOR_USER_FAILED", lineageId ), t );
+        .error( Messages.getInstance().getString( "FileResource.GENERATED_CONTENT_FOR_USER_FAILED", lineageId ), t );
     }
     return repositoryFileDtoList;
   }
