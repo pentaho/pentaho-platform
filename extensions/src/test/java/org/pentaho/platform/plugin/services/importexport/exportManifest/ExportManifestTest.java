@@ -116,6 +116,9 @@ public class ExportManifestTest extends TestCase {
     jobScheduleRequest.setDuration( 3600 );
     jobScheduleRequest.setTimeZone( "someTimeZone" );
     jobScheduleRequest.setJobId( "jobId" );
+    jobScheduleRequest.setRunSafeMode( "runSafeMode" );
+    jobScheduleRequest.setGatheringMetrics( "gatheringMetrics" );
+    jobScheduleRequest.setLogLevel( "Basic" );
     exportManifest.addSchedule( jobScheduleRequest );
 
     // Datasource

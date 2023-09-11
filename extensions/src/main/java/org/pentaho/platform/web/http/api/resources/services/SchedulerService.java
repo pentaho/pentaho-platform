@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -145,6 +145,18 @@ public class SchedulerService {
 
     for ( JobScheduleParam param : scheduleRequest.getJobParameters() ) {
       parameterMap.put( param.getName(), param.getValue() );
+    }
+
+    if ( scheduleRequest.getRunSafeMode() != null ) {
+      parameterMap.put( "runSafeMode", scheduleRequest.getRunSafeMode() );
+    }
+
+    if ( scheduleRequest.getGatheringMetrics() != null ) {
+      parameterMap.put( "gatheringMetrics", scheduleRequest.getGatheringMetrics() );
+    }
+
+    if ( scheduleRequest.getLogLevel() != null ) {
+      parameterMap.put( "logLevel", scheduleRequest.getLogLevel() );
     }
 
     if ( isPdiFile( file ) ) {
