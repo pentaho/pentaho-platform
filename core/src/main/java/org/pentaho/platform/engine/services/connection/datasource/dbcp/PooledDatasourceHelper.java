@@ -14,25 +14,22 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.dbcp.AbandonedConfig;
-import org.apache.commons.dbcp.AbandonedObjectPool;
-import org.apache.commons.dbcp.ConnectionFactory;
-import org.apache.commons.dbcp.DriverManagerConnectionFactory;
-import org.apache.commons.dbcp.PoolableConnectionFactory;
-import org.apache.commons.dbcp.PoolingDataSource;
+import org.apache.commons.dbcp2.PoolableConnection;
+import org.apache.commons.dbcp2.ConnectionFactory;
+import org.apache.commons.dbcp2.DriverManagerConnectionFactory;
+import org.apache.commons.dbcp2.PoolableConnectionFactory;
+import org.apache.commons.dbcp2.PoolingDataSource;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.pool.KeyedObjectPoolFactory;
-import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
-import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.pentaho.database.DatabaseDialectException;
 import org.pentaho.database.IDatabaseDialect;
 import org.pentaho.database.IDriverLocator;
@@ -47,7 +44,6 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.plugin.action.kettle.PoolingManagedDataSource;
-import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.logging.Logger;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.Isolation;
@@ -55,6 +51,7 @@ import org.springframework.transaction.annotation.Isolation;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -97,7 +94,7 @@ public class PooledDatasourceHelper {
 
   public static GenericObjectPool createGenericPool( IDatabaseConnection databaseConnection, IDatabaseDialect dialect, Map<String, String> attributes ) throws Exception {
     // As the name says, this is a generic pool; it returns basic Object-class objects.
-    GenericObjectPool pool = initializeObjectPool( attributes );
+    GenericObjectPool pool = initializeObjectPool( attributes, databaseConnection, dialect );
     configurePool( databaseConnection, dialect, attributes, pool );
 
     return pool;
@@ -105,7 +102,7 @@ public class PooledDatasourceHelper {
 
   private static void configurePool( IDatabaseConnection databaseConnection, IDatabaseDialect dialect, Map<String, String> attributes, GenericObjectPool pool ) throws Exception {
     // Configure Max Connections
-    pool.setMaxActive( databaseConnection.getMaximumPoolSize() );
+    pool.setMaxTotal( databaseConnection.getMaximumPoolSize() );
 
     // Configure connection pool properties
     int maxIdleConnection = getIntegerPropertyValue( attributes, IDBDatasourceService.MAX_IDLE_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/max-idle-conn", null) );
@@ -115,25 +112,17 @@ public class PooledDatasourceHelper {
     boolean testWhileIdle = getBooleanPropertyValue( attributes, IDBDatasourceService.TEST_WHILE_IDLE, PentahoSystem.getSystemSetting( "dbcp-defaults/test-while-idle", null) );
     boolean testOnBorrow = getBooleanPropertyValue( attributes, IDBDatasourceService.TEST_ON_BORROW, PentahoSystem.getSystemSetting( "dbcp-defaults/test-on-borrow", null) );
     boolean testOnReturn = getBooleanPropertyValue( attributes, IDBDatasourceService.TEST_ON_RETURN, PentahoSystem.getSystemSetting( "dbcp-defaults/test-on-return", null) );
-    byte whenExhaustedActionType = getWhenExhaustedActionType();
 
-    pool.setWhenExhaustedAction( whenExhaustedActionType );
     // Tuning the connection pool
-    pool.setMaxActive( maxActiveConnection );
+    pool.setMaxTotal( maxActiveConnection );
     pool.setMaxIdle( maxIdleConnection );
-    pool.setMaxWait( waitTime );
+    pool.setMaxWait( Duration.ofMillis( waitTime ) );
     pool.setMinIdle( minIdleConnection );
     pool.setTestWhileIdle( testWhileIdle );
     pool.setTestOnReturn( testOnReturn );
     pool.setTestOnBorrow( testOnBorrow );
     pool.setTestWhileIdle( testWhileIdle );
     setTimeBetweenEvictionRunsMillis( attributes, pool );
-
-    /*
-     * Puts pool-specific wrappers on factory connections. For clarification: "[PoolableConnection]Factory," not
-     * "Poolable[ConnectionFactory]."
-     */
-    setupPoolableConnectionFactory( databaseConnection, dialect, attributes, pool );
 
     Logger.debug( PooledDatasourceHelper.class, "Pool defaults to " + maxActiveConnection + " max active/"
         + maxIdleConnection + "max idle" + "with " + waitTime + "wait time"//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
@@ -156,54 +145,6 @@ public class PooledDatasourceHelper {
       Logger.debug( PooledDatasourceHelper.class,
               "Pool has been pre-populated with " + initialConnections + " connections" );
     }
-  }
-
-  private static void setupPoolableConnectionFactory( IDatabaseConnection databaseConnection, IDatabaseDialect dialect, Map<String, String> attributes, GenericObjectPool pool ) {
-    String url = getUrl( databaseConnection, dialect );
-    String validQuery = getValidQuery( attributes );
-    /*
-     * ConnectionFactory creates connections on behalf of the pool. Here, we use the DriverManagerConnectionFactory
-     * because that essentially uses DriverManager as the source of connections.
-     */
-    ConnectionFactory factory = getConnectionFactory( databaseConnection, url );
-
-    boolean defaultReadOnly =
-            attributes.containsKey( IDBDatasourceService.DEFAULT_READ_ONLY )
-                    && Boolean.parseBoolean( attributes.get( IDBDatasourceService.DEFAULT_READ_ONLY ) ); // default to false
-
-    boolean defaultAutoCommit =
-            !attributes.containsKey( IDBDatasourceService.DEFAULT_AUTO_COMMIT )
-                    || Boolean.parseBoolean( attributes.get( IDBDatasourceService.DEFAULT_AUTO_COMMIT ) ); // default to true
-
-    KeyedObjectPoolFactory kopf = getKeyedObjectPoolFactory( attributes, pool );
-
-    PoolableConnectionFactory pcf = new PoolableConnectionFactory(
-            factory, // ConnectionFactory
-            pool, // ObjectPool
-            kopf, // KeyedObjectPoolFactory
-            validQuery, // String (validation query)
-            defaultReadOnly, // boolean (default to read-only?)
-            defaultAutoCommit // boolean (default to auto-commit statements?)
-    );
-
-    if ( attributes.containsKey( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION )
-            && !IDBDatasourceService.TRANSACTION_ISOLATION_NONE_VALUE.equalsIgnoreCase( attributes
-            .get( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION ) ) ) {
-      Isolation isolationLevel =
-          Isolation.valueOf( attributes.get( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION ) );
-
-        pcf.setDefaultTransactionIsolation( isolationLevel.value() );
-    }
-
-    if ( attributes.containsKey( IDBDatasourceService.DEFAULT_CATALOG ) ) {
-      pcf.setDefaultCatalog( attributes.get( IDBDatasourceService.DEFAULT_CATALOG ) );
-    }
-  }
-
-  private static byte getWhenExhaustedActionType() {
-    String whenExhaustedAction = PentahoSystem.getSystemSetting( "dbcp-defaults/when-exhausted-action", null ); //$NON-NLS-1$
-    return !StringUtil.isEmpty( whenExhaustedAction ) ? Byte.parseByte( whenExhaustedAction )
-            : GenericObjectPool.WHEN_EXHAUSTED_BLOCK;
   }
 
   private static String getValidQuery( Map<String, String> attributes ) {
@@ -233,23 +174,6 @@ public class PooledDatasourceHelper {
     return driverClass;
   }
 
-  private static KeyedObjectPoolFactory getKeyedObjectPoolFactory( Map<String, String> attributes, GenericObjectPool pool) {
-    if ( Boolean.parseBoolean( attributes.get( IDBDatasourceService.POOL_PREPARED_STATEMENTS ) ) ) {
-
-      int maxOpenPreparedStatements = -1; // unlimited
-
-      if ( NumberUtils.isNumber( attributes.get( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS ) ) ) {
-
-        maxOpenPreparedStatements =
-            Integer.parseInt( attributes.get( IDBDatasourceService.MAX_OPEN_PREPARED_STATEMENTS ) );
-      }
-
-      return new GenericKeyedObjectPoolFactory( null, pool.getMaxActive(), pool.getWhenExhaustedAction(), pool
-              .getMaxWait(), pool.getMaxIdle(), maxOpenPreparedStatements );
-    }
-    return null;
-  }
-
   private static void setTimeBetweenEvictionRunsMillis( Map<String, String> attributes, GenericObjectPool pool ) {
     if ( NumberUtils.isNumber( attributes.get( IDBDatasourceService.TIME_BETWEEN_EVICTION_RUNS_MILLIS ) ) ) {
       pool.setTimeBetweenEvictionRunsMillis( Long.parseLong( attributes
@@ -257,24 +181,50 @@ public class PooledDatasourceHelper {
     }
   }
 
-  private static GenericObjectPool initializeObjectPool( Map<String, String> attributes ) {
-    // if removedAbandoned = true, then an AbandonedObjectPool object will take GenericObjectPool's place
-    if ( Boolean.parseBoolean( attributes.get( IDBDatasourceService.REMOVE_ABANDONED ) ) ) {
-      return new GenericObjectPool( null );
-    }
-    AbandonedConfig config = new AbandonedConfig();
-    config.setRemoveAbandoned( Boolean.parseBoolean( attributes.get( IDBDatasourceService.REMOVE_ABANDONED ) ) );
+  private static GenericObjectPool initializeObjectPool( Map<String, String> attributes,
+                                                         IDatabaseConnection databaseConnection,
+                                                         IDatabaseDialect dialect ) {
+    String url = getUrl( databaseConnection, dialect );
+    String validQuery = getValidQuery( attributes );
+    /*
+     * ConnectionFactory creates connections on behalf of the pool. Here, we use the DriverManagerConnectionFactory
+     * because that essentially uses DriverManager as the source of connections.
+     */
+    ConnectionFactory factory = getConnectionFactory( databaseConnection, url );
+    /*
+     * Puts pool-specific wrappers on factory connections. For clarification: "[PoolableConnection]Factory," not
+     * "Poolable[ConnectionFactory]."
+     */
+    PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory( factory, null );
+    GenericObjectPool<PoolableConnection> genericObjectPool = new GenericObjectPool( poolableConnectionFactory );
+    poolableConnectionFactory.setPool( genericObjectPool );
 
-    if ( attributes.containsKey( IDBDatasourceService.LOG_ABANDONED ) ) {
-      config.setLogAbandoned( Boolean.parseBoolean( attributes.get( IDBDatasourceService.LOG_ABANDONED ) ) );
+    boolean defaultReadOnly =
+      attributes.containsKey( IDBDatasourceService.DEFAULT_READ_ONLY )
+        && Boolean.parseBoolean( attributes.get( IDBDatasourceService.DEFAULT_READ_ONLY ) ); // default to false
+
+    boolean defaultAutoCommit =
+      !attributes.containsKey( IDBDatasourceService.DEFAULT_AUTO_COMMIT )
+        || Boolean.parseBoolean( attributes.get( IDBDatasourceService.DEFAULT_AUTO_COMMIT ) );
+
+    poolableConnectionFactory.setValidationQuery( validQuery );
+    poolableConnectionFactory.setDefaultReadOnly( defaultReadOnly );
+    poolableConnectionFactory.setDefaultAutoCommit( defaultAutoCommit );
+
+    if ( attributes.containsKey( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION )
+      && !IDBDatasourceService.TRANSACTION_ISOLATION_NONE_VALUE.equalsIgnoreCase( attributes
+      .get( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION ) ) ) {
+      Isolation isolationLevel =
+        Isolation.valueOf( attributes.get( IDBDatasourceService.DEFAULT_TRANSACTION_ISOLATION ) );
+
+      poolableConnectionFactory.setDefaultTransactionIsolation( isolationLevel.value() );
     }
 
-    if ( NumberUtils.isNumber( attributes.get( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT ) ) ) {
-      config.setRemoveAbandonedTimeout( Integer.parseInt( attributes
-          .get( IDBDatasourceService.REMOVE_ABANDONED_TIMEOUT ) ) );
+    if ( attributes.containsKey( IDBDatasourceService.DEFAULT_CATALOG ) ) {
+      poolableConnectionFactory.setDefaultCatalog( attributes.get( IDBDatasourceService.DEFAULT_CATALOG ) );
     }
 
-    return new AbandonedObjectPool( null, config );
+    return genericObjectPool;
   }
 
   private static String getPropertyValue( Map<String, String> attributes, String key, String defaultValue ) {
