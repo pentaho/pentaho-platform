@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.Properties;
 
-import org.apache.commons.dbcp.ConnectionFactory;
+import org.apache.commons.dbcp2.ConnectionFactory;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -315,7 +315,7 @@ public class PooledDatasourceHelperTest {
 
     ConnectionFactory factory = PooledDatasourceHelper.getConnectionFactory( connection, "jdbc:mysql://localhost" );
 
-    Properties props = (Properties) Whitebox.getInternalState( factory, "_props" );
+    Properties props = (Properties) Whitebox.getInternalState( factory, "properties" );
     assertEquals( user, props.getProperty( "user" ) );
     assertEquals( password, props.getProperty( "password" ) );
   }
@@ -328,7 +328,7 @@ public class PooledDatasourceHelperTest {
 
     ConnectionFactory factory = PooledDatasourceHelper.getConnectionFactory( connection, "jdbc:mariadb://localhost" );
 
-    Properties props = (Properties) Whitebox.getInternalState( factory, "_props" );
+    Properties props = (Properties) Whitebox.getInternalState( factory, "properties" );
     assertEquals( user, props.getProperty( "user" ) );
     assertEquals( password, props.getProperty( "password" ) );
   }
@@ -341,7 +341,7 @@ public class PooledDatasourceHelperTest {
 
     ConnectionFactory factory = PooledDatasourceHelper.getConnectionFactory( connection, "jdbc:microsoft:sqlserver://localhost" );
 
-    Properties props = (Properties) Whitebox.getInternalState( factory, "_props" );
+    Properties props = (Properties) Whitebox.getInternalState( factory, "properties" );
     assertEquals( user, props.getProperty( "user" ) );
     assertEquals( password, props.getProperty( "password" ) );
 
