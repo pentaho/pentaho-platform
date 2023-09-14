@@ -31,6 +31,7 @@ import org.pentaho.platform.api.scheduler2.ICronJobTrigger;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJob;
 
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.ISimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -42,7 +43,7 @@ import org.pentaho.platform.web.http.api.resources.RepositoryFileStreamProvider;
 
 public class ScheduleExportUtil {
 
-  public static final  String RUN_PARAMETERS_KEY = "parameters";
+  public static final String RUN_PARAMETERS_KEY = "parameters";
 
   public ScheduleExportUtil() {
     // to get 100% coverage
@@ -50,7 +51,8 @@ public class ScheduleExportUtil {
 
   public static JobScheduleRequest createJobScheduleRequest( IJob job ) {
     if ( job == null ) {
-      throw new IllegalArgumentException( Messages.getInstance().getString( "ScheduleExportUtil.JOB_MUST_NOT_BE_NULL" ) );
+      throw new IllegalArgumentException(
+        Messages.getInstance().getString( "ScheduleExportUtil.JOB_MUST_NOT_BE_NULL" ) );
     }
     IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
     assert scheduler != null;

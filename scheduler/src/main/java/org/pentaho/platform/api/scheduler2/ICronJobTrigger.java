@@ -20,7 +20,8 @@
 
 package org.pentaho.platform.api.scheduler2;
 
-public interface ICronJobTrigger extends IJobTrigger {
+public interface ICronJobTrigger extends IJobTrigger{
   String getCronString();
+
   void setCronString( String crongString );
 }

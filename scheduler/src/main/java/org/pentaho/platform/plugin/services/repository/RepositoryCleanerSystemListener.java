@@ -25,12 +25,11 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.api.scheduler2.IComplexJobTrigger;
-import org.pentaho.platform.api.scheduler2.IJobFilter;
-import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.IJob;
+import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
+import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
-import org.pentaho.platform.api.scheduler2.ISimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.StringUtil;
 
@@ -41,11 +40,11 @@ import java.util.List;
 /**
  * This is a 5.4-only class. To use it, update <tt>systemListeners.xml</tt> by adding the following section:
  * <pre>
-  &lt;bean id="repositoryCleanerSystemListener"
-        class="org.pentaho.platform.plugin.services.repository.RepositoryCleanerSystemListener"&gt;
-    &lt;property name="gcEnabled" value="true"/&gt;
-    &lt;property name="execute" value="now"/&gt;
-  &lt;/bean&gt;
+ * &lt;bean id="repositoryCleanerSystemListener"
+ * class="org.pentaho.platform.plugin.services.repository.RepositoryCleanerSystemListener"&gt;
+ * &lt;property name="gcEnabled" value="true"/&gt;
+ * &lt;property name="execute" value="now"/&gt;
+ * &lt;/bean&gt;
  * </pre>
  * <tt>gcEnabled</tt> is a non-mandatory parameter, <tt>true</tt> by default. Use it to turn off the listener without
  * removing its description from the XML-file
@@ -57,6 +56,7 @@ import java.util.List;
  * </ul>
  * Note, that periodic executions will be planned to start at 0:00. If an execution was not started at that time,
  * e.g. the server was shut down, then it will be started as soon as the scheduler is restored.
+ *
  * @author Andrey Khayrutdinov
  */
 public class RepositoryCleanerSystemListener implements IPentahoSystemListener, IJobFilter {
@@ -67,7 +67,7 @@ public class RepositoryCleanerSystemListener implements IPentahoSystemListener, 
     NOW( "now" ) {
       @Override public IJobTrigger createTrigger() {
         IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null );
-        return scheduler.createSimpleJobTrigger(new Date(),
+        return (IJobTrigger) scheduler.createSimpleJobTrigger( new Date(),
           new Date( Long.MAX_VALUE ), 0, 1 );
       }
     },
@@ -76,7 +76,7 @@ public class RepositoryCleanerSystemListener implements IPentahoSystemListener, 
       @Override public IJobTrigger createTrigger() {
         IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null );
         // execute each first day of week at 0 hours
-        return scheduler.createComplexTrigger( null, null, null, IComplexJobTrigger.SUNDAY, 0 );
+        return (IJobTrigger) scheduler.createComplexTrigger( null, null, null, IComplexJobTrigger.SUNDAY, 0 );
       }
     },
 
@@ -85,7 +85,7 @@ public class RepositoryCleanerSystemListener implements IPentahoSystemListener, 
         IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null );
 
         // execute each first day of month at 0 hours
-        return scheduler.createComplexTrigger( null, null, 1, null, 0 );
+        return (IJobTrigger) scheduler.createComplexTrigger( null, null, 1, null, 0 );
       }
     };
 

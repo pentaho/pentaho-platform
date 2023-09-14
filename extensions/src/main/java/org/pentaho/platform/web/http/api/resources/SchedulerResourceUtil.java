@@ -57,7 +57,8 @@ public class SchedulerResourceUtil {
   private static final Log logger = LogFactory.getLog( SchedulerResourceUtil.class );
 
   public static final String RESERVEDMAPKEY_LINEAGE_ID = "lineage-id";
-  public static final String RESERVED_BACKGROUND_EXECUTION_ACTION_ID = ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String RESERVED_BACKGROUND_EXECUTION_ACTION_ID = ".backgroundExecution";
+  //$NON-NLS-1$ //$NON-NLS-2$
 
   public static IJobTrigger convertScheduleRequestToJobTrigger( JobScheduleRequest scheduleRequest,
                                                                 IScheduler scheduler )
@@ -71,7 +72,8 @@ public class SchedulerResourceUtil {
 
     // add 10 seconds to the RIB to ensure execution (see PPP-3264)
     IJobTrigger jobTrigger =
-      runInBackground ? scheduler.createSimpleJobTrigger( new Date( System.currentTimeMillis() + 10000 ), null, 0, 0 )
+      runInBackground ?
+        scheduler.createSimpleJobTrigger( new Date( System.currentTimeMillis() + 10000 ), null, 0, 0 )
         : scheduleRequest.getSimpleJobTrigger();
 
     if ( scheduleRequest.getSimpleJobTrigger() != null ) {
@@ -87,14 +89,14 @@ public class SchedulerResourceUtil {
 
       ComplexJobTriggerProxy proxyTrigger = scheduleRequest.getComplexJobTrigger();
       String cronString = proxyTrigger.getCronString();
-      IComplexJobTrigger complexJobTrigger = null;
+      IComplexJobTrigger complexJobTrigger;
       /**
        * We will have two options. Either it is a daily scehdule to ignore DST or any other
        * complex schedule
        */
-      if(cronString != null && cronString.equals("TO_BE_GENERATED")) {
-        cronString = generateCronString((int)proxyTrigger.getRepeatInterval()/86400
-                ,proxyTrigger.getStartTime());
+      if ( cronString != null && cronString.equals( "TO_BE_GENERATED" ) ) {
+        cronString = generateCronString( (int) proxyTrigger.getRepeatInterval() / 86400
+          , proxyTrigger.getStartTime() );
         complexJobTrigger = scheduler.createComplexTrigger( cronString );
       } else {
         complexJobTrigger = scheduler.createComplexJobTrigger();
@@ -119,8 +121,8 @@ public class SchedulerResourceUtil {
               complexJobTrigger.addDayOfWeekRecurrence( dayOfWeek + 1 );
             }
           }
-        } else if ( proxyTrigger.getDaysOfMonth().length > 0 ) {
-
+        } else {
+          proxyTrigger.getDaysOfMonth();
           for ( int dayOfMonth : proxyTrigger.getDaysOfMonth() ) {
             complexJobTrigger.addDayOfMonthRecurrence( dayOfMonth );
           }
@@ -161,7 +163,7 @@ public class SchedulerResourceUtil {
         complexJobTrigger.setDuration( scheduleRequest.getCronJobTrigger().getDuration() );
         complexJobTrigger.setUiPassParam( scheduleRequest.getCronJobTrigger().getUiPassParam() );
         jobTrigger = complexJobTrigger;
-      }  else {
+      } else {
         throw new IllegalArgumentException();
       }
     }
@@ -183,10 +185,10 @@ public class SchedulerResourceUtil {
         request.getComplexJobTrigger().setStartTime( serverTimeZoneStartDate );
       }
     } else if ( request.getCronJobTrigger() != null ) {
-      if ( request.getCronJobTrigger().getStartTime() != null ) {
-        Date origStartDate = request.getCronJobTrigger().getStartTime();
+      if ( request.getSimpleJobTrigger().getStartTime() != null ) {
+        Date origStartDate = request.getSimpleJobTrigger().getStartTime();
         Date serverTimeZoneStartDate = convertDateToServerTimeZone( origStartDate, request.getTimeZone() );
-        request.getCronJobTrigger().setStartTime( serverTimeZoneStartDate );
+        request.getSimpleJobTrigger().setStartTime( serverTimeZoneStartDate );
       }
     }
   }
@@ -195,7 +197,7 @@ public class SchedulerResourceUtil {
     Calendar userDefinedTime = Calendar.getInstance();
     userDefinedTime.setTime( dateTime );
     if ( !TimeZone.getDefault().getID().equalsIgnoreCase( timeZone ) ) {
-      logger.warn( "original defined time: " + userDefinedTime.getTime().toString() + " on tz:" + timeZone );
+      logger.warn( "original defined time: " + userDefinedTime.getTime() + " on tz:" + timeZone );
       Calendar quartzStartDate = new GregorianCalendar( TimeZone.getTimeZone( timeZone ) );
       quartzStartDate.set( Calendar.YEAR, userDefinedTime.get( Calendar.YEAR ) );
       quartzStartDate.set( Calendar.MONTH, userDefinedTime.get( Calendar.MONTH ) );
@@ -204,7 +206,7 @@ public class SchedulerResourceUtil {
       quartzStartDate.set( Calendar.MINUTE, userDefinedTime.get( Calendar.MINUTE ) );
       quartzStartDate.set( Calendar.SECOND, userDefinedTime.get( Calendar.SECOND ) );
       quartzStartDate.set( Calendar.MILLISECOND, userDefinedTime.get( Calendar.MILLISECOND ) );
-      logger.warn( "adapted time for " + TimeZone.getDefault().getID() + ": " + quartzStartDate.getTime().toString() );
+      logger.warn( "adapted time for " + TimeZone.getDefault().getID() + ": " + quartzStartDate.getTime() );
       return quartzStartDate.getTime();
     } else {
       return dateTime;
@@ -213,7 +215,8 @@ public class SchedulerResourceUtil {
 
 
   public static HashMap<String, Serializable> handlePDIScheduling( RepositoryFile file,
-                                                                   HashMap<String, Serializable> parameterMap, Map<String, String> pdiParameters ) {
+                                                                   HashMap<String, Serializable> parameterMap,
+                                                                   Map<String, String> pdiParameters ) {
 
     HashMap<String, Serializable> convertedParameterMap = new HashMap<>();
 
@@ -231,7 +234,7 @@ public class SchedulerResourceUtil {
 
       while ( it.hasNext() ) {
 
-        String param = (String) it.next();
+        String param = it.next();
 
         if ( !StringUtils.isEmpty( param ) && parameterMap.containsKey( param ) ) {
           convertedParameterMap.put( param, parameterMap.get( param ).toString() );
@@ -276,20 +279,21 @@ public class SchedulerResourceUtil {
     // unchanged logic, ported over from its original location ( SchedulerService ) into this SchedulerUtil class
     return RepositoryFilenameUtils.getExtension( filename );
   }
-  private static String generateCronString(long interval, Date startDate) {
-    Calendar calendar = GregorianCalendar.getInstance(); // creates a new calendar instance
-    calendar.setTime(startDate);
-    int hour = calendar.get(Calendar.HOUR_OF_DAY);
-    int minute = calendar.get(Calendar.MINUTE);
 
-    Cron cron = CronBuilder.cron(CronDefinitionBuilder.instanceDefinitionFor(CronType.QUARTZ))
-            .withYear(always())
-            .withDoM(every((int)interval))
-            .withMonth(always())
-            .withDoW(questionMark())
-            .withHour(on(hour))
-            .withMinute(on(minute))
-            .withSecond(on(0)).instance();
+  private static String generateCronString( long interval, Date startDate ) {
+    Calendar calendar = GregorianCalendar.getInstance(); // creates a new calendar instance
+    calendar.setTime( startDate );
+    int hour = calendar.get( Calendar.HOUR_OF_DAY );
+    int minute = calendar.get( Calendar.MINUTE );
+
+    Cron cron = CronBuilder.cron( CronDefinitionBuilder.instanceDefinitionFor( CronType.QUARTZ ) )
+      .withYear( always() )
+      .withDoM( every( (int) interval ) )
+      .withMonth( always() )
+      .withDoW( questionMark() )
+      .withHour( on( hour ) )
+      .withMinute( on( minute ) )
+      .withSecond( on( 0 ) ).instance();
     return cron.asString();
   }
 }

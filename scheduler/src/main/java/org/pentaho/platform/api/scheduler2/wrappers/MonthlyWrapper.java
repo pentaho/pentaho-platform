@@ -18,23 +18,25 @@
  *
  */
 
-package org.pentaho.platform.scheduler2.blockout;
+package org.pentaho.platform.api.scheduler2.wrappers;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.action.IVarArgsAction;
-import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 
-import java.util.Date;
-import java.util.Map;
+import org.pentaho.platform.scheduler2.recur.ITimeRecurrence;
+import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
+import org.pentaho.platform.scheduler2.recur.RecurrenceList;
+import org.pentaho.platform.scheduler2.recur.SequentialRecurrence;
 
-/**
- * @author wseyler This is the job that executes when the a block out trigger fires. This job essentially does nothing
- *         more than logging the firing of the trigger.
- */
-public interface IBlockoutAction {
-  public static String getCanonicalName() {
-    return "org.pentaho.platform.scheduler2.blockout.BlockoutAction";
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlElementRefs;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
+
+@XmlRootElement
+public class MonthlyWrapper extends ITimeWrapper {
+  @XmlElementRefs( { @XmlElementRef( type = SequentialRecurrence.class ),
+      @XmlElementRef( type = IncrementalRecurrence.class ), @XmlElementRef( type = RecurrenceList.class ) } )
+  @Override
+  public List<ITimeRecurrence> getRecurrences() {
+    return recurrences;
   }
-   public void execute() throws Exception;
 }

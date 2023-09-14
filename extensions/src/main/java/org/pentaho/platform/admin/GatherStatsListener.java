@@ -73,9 +73,9 @@ public class GatherStatsListener implements IPentahoSystemListener {
 
   /*
    * protected Class<?> resolveClass(String className) throws PluginBeanException {
-   * 
+   *
    * Class<?> clazz = null;
-   * 
+   *
    * IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class); clazz = pluginManager.loadClass(className);
    * if (clazz == null) { throw new PluginBeanException(); } return clazz; }
    */
