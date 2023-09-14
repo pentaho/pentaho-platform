@@ -14,14 +14,15 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2022-2023 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2022 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.action.kettle;
 
 
-import org.apache.commons.dbcp2.PoolingDataSource;
+import org.apache.commons.dbcp.PoolingDataSource;
+import org.apache.commons.pool.impl.GenericObjectPool;
 import org.pentaho.database.IDatabaseDialect;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.di.core.database.CachedManagedDataSourceInterface;
@@ -30,6 +31,7 @@ import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDat
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -40,21 +42,18 @@ public class PoolingManagedDataSource extends PoolingDataSource implements Cache
     private String poolConfigHash;
     private List<String> usedBy;
 
-    public PoolingManagedDataSource( IDatabaseConnection databaseConnection, IDatabaseDialect dialect )
-      throws Exception {
-        super( PooledDatasourceHelper.createGenericPool( databaseConnection, dialect,
-            databaseConnection.getConnectionPoolingProperties() ) );
-
+    public PoolingManagedDataSource( IDatabaseConnection databaseConnection, IDatabaseDialect dialect ) throws Exception {
         isExpired = false;
         poolConfigHash = "";
         usedBy = new ArrayList<>();
 
         Map<String, String> attributes = databaseConnection.getConnectionPoolingProperties();
-
+        GenericObjectPool pool = PooledDatasourceHelper.createGenericPool( databaseConnection, dialect, attributes );
         /*
          * All of this is wrapped in a DataSource, which client code should already know how to handle (since it's the
          * same class of object they'd fetch via the container's JNDI tree
          */
+        setPool( pool );
         setHash( databaseConnection.calculateHash() );
         if ( attributes.containsKey( IDBDatasourceService.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED ) ) {
             setAccessToUnderlyingConnectionAllowed( Boolean.parseBoolean( attributes
