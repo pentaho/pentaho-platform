@@ -20,13 +20,15 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import org.pentaho.platform.api.scheduler2.IJobScheduleParam;
+
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class JobScheduleParam implements Serializable {
+public class JobScheduleParam implements Serializable, IJobScheduleParam {
 
   private static final long serialVersionUID = -4214459740606299083L;
 

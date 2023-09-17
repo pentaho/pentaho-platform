@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.scheduler2.IJobScheduleRequest;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -53,9 +54,9 @@ public class SchedulerOutputPathResolver {
   }
 
   private IUserSettingService settingsService;
-  private JobScheduleRequest scheduleRequest;
+  private IJobScheduleRequest scheduleRequest;
 
-  public SchedulerOutputPathResolver( JobScheduleRequest scheduleRequest ) {
+  public SchedulerOutputPathResolver( IJobScheduleRequest scheduleRequest ) {
     this.scheduleRequest = scheduleRequest;
   }
 

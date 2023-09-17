@@ -21,6 +21,7 @@
 package org.pentaho.platform.api.scheduler2;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -35,28 +36,28 @@ import org.pentaho.platform.util.ActionUtil;
  */
 public interface IScheduler {
 
-  public static final String RESERVEDMAPKEY_ACTIONCLASS = ActionUtil.QUARTZ_ACTIONCLASS;
-  public static final String RESERVEDMAPKEY_ACTIONUSER = ActionUtil.QUARTZ_ACTIONUSER;
+  String RESERVEDMAPKEY_ACTIONCLASS = ActionUtil.QUARTZ_ACTIONCLASS;
+  String RESERVEDMAPKEY_ACTIONUSER = ActionUtil.QUARTZ_ACTIONUSER;
 
-  public static final String RESERVEDMAPKEY_ACTIONID = ActionUtil.QUARTZ_ACTIONID;
+  String RESERVEDMAPKEY_ACTIONID = ActionUtil.QUARTZ_ACTIONID;
 
-  public static final String RESERVEDMAPKEY_STREAMPROVIDER = ActionUtil.QUARTZ_STREAMPROVIDER;
+  String RESERVEDMAPKEY_STREAMPROVIDER = ActionUtil.QUARTZ_STREAMPROVIDER;
 
-  public static final String RESERVEDMAPKEY_STREAMPROVIDER_INPUTFILE = ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE;
+  String RESERVEDMAPKEY_STREAMPROVIDER_INPUTFILE = ActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE;
 
-  public static final String RESERVEDMAPKEY_UIPASSPARAM = ActionUtil.QUARTZ_UIPASSPARAM;
+  String RESERVEDMAPKEY_UIPASSPARAM = ActionUtil.QUARTZ_UIPASSPARAM;
 
-  public static final String RESERVEDMAPKEY_LINEAGE_ID = ActionUtil.QUARTZ_LINEAGE_ID;
+  String RESERVEDMAPKEY_LINEAGE_ID = ActionUtil.QUARTZ_LINEAGE_ID;
 
-  public static final String RESERVEDMAPKEY_RESTART_FLAG = ActionUtil.QUARTZ_RESTART_FLAG;
+  String RESERVEDMAPKEY_RESTART_FLAG = ActionUtil.QUARTZ_RESTART_FLAG;
 
-  public static final String RESERVEDMAPKEY_AUTO_CREATE_UNIQUE_FILENAME = ActionUtil.QUARTZ_AUTO_CREATE_UNIQUE_FILENAME;
+  String RESERVEDMAPKEY_AUTO_CREATE_UNIQUE_FILENAME = ActionUtil.QUARTZ_AUTO_CREATE_UNIQUE_FILENAME;
 
-  public static final String RESERVEDMAPKEY_APPEND_DATE_FORMAT = ActionUtil.QUARTZ_APPEND_DATE_FORMAT;
+  String RESERVEDMAPKEY_APPEND_DATE_FORMAT = ActionUtil.QUARTZ_APPEND_DATE_FORMAT;
 
-  public enum SchedulerStatus {
+  enum SchedulerStatus {
     RUNNING, PAUSED, STOPPED
-  };
+  }
 
   /**
    * Schedules a job to be run at one or more times in the future.
@@ -73,7 +74,7 @@ public interface IScheduler {
    * @throws SchedulerException
    *           If the job could not be scheduled
    */
-  public IJob createJob( String jobName, Class<? extends IAction> action, Map<String, Serializable> jobParams,
+  IJob createJob( String jobName, Class<? extends IAction> action, Map<String, Serializable> jobParams,
       IJobTrigger trigger ) throws SchedulerException;
 
   /**
@@ -91,7 +92,7 @@ public interface IScheduler {
    * @throws SchedulerException
    *           If the job could not be scheduled
    */
-  public IJob createJob( String jobName, String actionId, Map<String, Serializable> jobParams, IJobTrigger trigger )
+  IJob createJob( String jobName, String actionId, Map<String, Serializable> jobParams, IJobTrigger trigger )
     throws SchedulerException;
 
   /**
@@ -112,7 +113,7 @@ public interface IScheduler {
    * @throws SchedulerException
    *           If the job could not be scheduled
    */
-  public IJob createJob( String jobName, Class<? extends IAction> action, Map<String, Serializable> jobParams,
+  IJob createJob( String jobName, Class<? extends IAction> action, Map<String, Serializable> jobParams,
       IJobTrigger trigger, IBackgroundExecutionStreamProvider outputStreamProvider ) throws SchedulerException;
 
   /**
@@ -133,7 +134,7 @@ public interface IScheduler {
    * @throws SchedulerException
    *           If the job could not be scheduled
    */
-  public IJob createJob( String jobName, String actionId, Map<String, Serializable> jobParams, IJobTrigger trigger,
+  IJob createJob( String jobName, String actionId, Map<String, Serializable> jobParams, IJobTrigger trigger,
       IBackgroundExecutionStreamProvider outputStreamProvider ) throws SchedulerException;
 
   /**
@@ -148,7 +149,7 @@ public interface IScheduler {
    * @throws SchedulerException
    *           If the job could not be updated
    */
-  public void updateJob( String jobId, Map<String, Serializable> jobParams, IJobTrigger trigger )
+  void updateJob( String jobId, Map<String, Serializable> jobParams, IJobTrigger trigger )
     throws SchedulerException;
 
   /**
@@ -157,7 +158,7 @@ public interface IScheduler {
    * @param jobId
    *          the job to be removed
    */
-  public void removeJob( String jobId ) throws SchedulerException;
+  void removeJob( String jobId ) throws SchedulerException;
 
   /**
    * Prevents the specified job from running in the future. The job remains in the list of scheduled jobs in a "paused"
@@ -166,7 +167,7 @@ public interface IScheduler {
    * @param jobId
    *          the job to be paused
    */
-  public void pauseJob( String jobId ) throws SchedulerException;
+  void pauseJob( String jobId ) throws SchedulerException;
 
   /**
    * Allows previously paused jobs to resume running in the future.
@@ -174,7 +175,7 @@ public interface IScheduler {
    * @param jobId
    *          the job to be resumed
    */
-  public void resumeJob( String jobId ) throws SchedulerException;
+  void resumeJob( String jobId ) throws SchedulerException;
 
   /**
    * Fetches a Job by jobId
@@ -182,7 +183,7 @@ public interface IScheduler {
    * @param jobId
    *          the job to be returned
    */
-  public IJob getJob( String jobId ) throws SchedulerException;
+  IJob getJob( String jobId ) throws SchedulerException;
 
   /**
    * Triggers the given quartz job by jobId to be executed immediately
@@ -190,7 +191,7 @@ public interface IScheduler {
    * @param jobId
    *          the job to be executed
    */
-  public void triggerNow( String jobId ) throws SchedulerException;
+  void triggerNow( String jobId ) throws SchedulerException;
 
   /**
    * Sets when a particular subject is allowed to schedule jobs.
@@ -200,7 +201,7 @@ public interface IScheduler {
    * @param window
    *          the window of time at which the scheduler is available
    */
-  public void setSubjectAvailabilityWindow( IScheduleSubject subject, IComplexJobTrigger window );
+  void setSubjectAvailabilityWindow( IScheduleSubject subject, IComplexJobTrigger window );
 
   /**
    * Replaces the scheduler availability map with the provided availability map.
@@ -208,7 +209,7 @@ public interface IScheduler {
    * @param windows
    *          the new scheduler availability map
    */
-  public void setAvailabilityWindows( Map<IScheduleSubject, IComplexJobTrigger> windows );
+  void setAvailabilityWindows( Map<IScheduleSubject, IComplexJobTrigger> windows );
 
   /**
    * Gets the scheduler availability window to the specified subject
@@ -217,32 +218,32 @@ public interface IScheduler {
    *          the subject whose window is being requested
    * @return the subject's availability window
    */
-  public IComplexJobTrigger getSubjectAvailabilityWindow( IScheduleSubject subject );
+  IComplexJobTrigger getSubjectAvailabilityWindow( IScheduleSubject subject );
 
   /**
    * Gets the scheduler availability window for all subjects for whom a window has been set
    * 
    * @return the scheduler availability map
    */
-  public Map<IScheduleSubject, IComplexJobTrigger> getAvailabilityWindows();
+  Map<IScheduleSubject, IComplexJobTrigger> getAvailabilityWindows();
 
   /**
    * Pauses the entire scheduler, which prevents all scheduled jobs from running. Any currently running jobs are allowed
    * to complete. Note that the "paused" state of individual jobs is not changed by this call.
    */
-  public void pause() throws SchedulerException;
+  void pause() throws SchedulerException;
 
   /**
    * Allows the scheduler to process scheduled jobs. Note that the "paused" state of individual jobs is not changed by
    * this call.
    */
-  public void start() throws SchedulerException;
+  void start() throws SchedulerException;
 
   /**
    * Shuts the scheduler down so it will process no more jobs. The implementation will decide if this means kill jobs in
    * progress or let them finish.
    */
-  public void shutdown() throws SchedulerException;
+  void shutdown() throws SchedulerException;
 
   /**
    * Sets the minimum time that must elapse between runs of any jobs. For example if set to "5" then a job may not be
@@ -253,7 +254,7 @@ public interface IScheduler {
    * @param intervalInSeconds
    *          the interval in seconds
    */
-  public void setMinScheduleInterval( IScheduleSubject subject, int intervalInSeconds );
+  void setMinScheduleInterval( IScheduleSubject subject, int intervalInSeconds );
 
   /**
    * Get the minimum time that must elapse between job runs.
@@ -262,7 +263,7 @@ public interface IScheduler {
    *          the subject whose min interval is being requested return the minimum interval or null if no interval has
    *          been set
    */
-  public Integer getMinScheduleInterval( IScheduleSubject subject );
+  Integer getMinScheduleInterval( IScheduleSubject subject );
 
   /**
    * Lists currently scheduled jobs.
@@ -271,7 +272,7 @@ public interface IScheduler {
    *          the filter to use to determine which jobs to return. If null all scheduled jobs are return.
    * @return the scheduled jobs
    */
-  public List<IJob> getJobs( IJobFilter filter ) throws SchedulerException;
+  List<IJob> getJobs( IJobFilter filter ) throws SchedulerException;
 
   /**
    * Returns a history of the runs for a particular job.
@@ -280,16 +281,16 @@ public interface IScheduler {
    *          the job for which to query it's execution history
    * @return the execution history for the given job
    */
-  public List<IJobResult> getJobHistory( String jobId );
+  List<IJobResult> getJobHistory( String jobId );
 
   /**
    * Returns the current scheduler status.
    * 
    * @return the scheduler status
    */
-  public SchedulerStatus getStatus() throws SchedulerException;
+  SchedulerStatus getStatus() throws SchedulerException;
 
-  public void addListener( ISchedulerListener listener );
+  void addListener( ISchedulerListener listener );
 
   /**
    * Not intended for public use.
@@ -299,17 +300,19 @@ public interface IScheduler {
    * @param params
    * @param streamProvider
    */
-  public void fireJobCompleted( final IAction actionBean, final String actionUser,
+  void fireJobCompleted( final IAction actionBean, final String actionUser,
       final Map<String, Serializable> params, IBackgroundExecutionStreamProvider streamProvider );
 
-  public ISimpleJobTrigger createSimpleJobTrigger( Date startTime, Date endTime, int repeatCount, long repeatIntervalSeconds );
+  IJobScheduleRequest createJobScheduleRequest();
+  ISimpleJobTrigger createSimpleJobTrigger( Date startTime, Date endTime, int repeatCount, long repeatIntervalSeconds );
 
-  public ICronJobTrigger createCronJobTrigger();
+  ICronJobTrigger createCronJobTrigger();
 
-  public IComplexJobTrigger createComplexTrigger( String cronString );
+  IComplexJobTrigger createComplexTrigger( String cronString );
 
   IComplexJobTrigger createComplexJobTrigger();
   IComplexJobTrigger createComplexTrigger( Integer year, Integer month, Integer dayOfMonth, Integer dayOfWeek, Integer hourOfDay );
+  ArrayList<IJobScheduleParam> getJobParameters();
   /**
    * A default implementation which doesn't do anything and exists for the backward compatibility sake.
    * @param jobParams scheduling job parameters

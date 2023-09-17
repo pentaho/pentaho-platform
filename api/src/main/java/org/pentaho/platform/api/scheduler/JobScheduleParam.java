@@ -25,7 +25,7 @@
 // Generated on: 2013.07.25 at 11:25:28 AM EDT 
 //
 
-package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
+package org.pentaho.platform.api.scheduler;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

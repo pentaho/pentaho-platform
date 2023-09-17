@@ -27,6 +27,8 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
+import org.pentaho.platform.api.scheduler.JobScheduleParam;
+
 import java.util.ArrayList;
 import java.util.List;
 
