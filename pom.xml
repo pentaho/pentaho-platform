@@ -176,7 +176,6 @@
     <json-path.version>0.8.1</json-path.version>
     <saxon.version>9.1.0.8</saxon.version>
     <dumbster.version>1.6.0</dumbster.version>
-    <commons-pool.version>1.5.7</commons-pool.version>
     <jcommon-logging-log4jlog.version>1.0.2</jcommon-logging-log4jlog.version>
     <commons-cli.version>1.2</commons-cli.version>
     <license-maven-plugin.version>3.0</license-maven-plugin.version>
