@@ -46,6 +46,7 @@ import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.MantleUtils;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.PerspectivesLoadedEvent;
@@ -114,7 +115,7 @@ public class PerspectiveManager extends SimplePanel {
   }
 
   private void init() {
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/canSchedule/?ts=" + System.currentTimeMillis(); //$NON-NLS-1$
+    final String url = MantleUtils.getSchedulerPluginContextURL() + "api/scheduler/canSchedule/?ts=" + System.currentTimeMillis(); //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
     builder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
     builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
