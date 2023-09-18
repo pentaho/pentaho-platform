@@ -46,6 +46,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.mantle.client.MantleUtils;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.messages.Messages;
 
@@ -72,12 +73,9 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
 
   public void activate() {
     clear();
-    String moduleBaseURL = GWT.getModuleBaseURL();
-    String moduleName = GWT.getModuleName();
-    String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
 
     RequestBuilder scheduleFileRequestBuilder =
-        new RequestBuilder( RequestBuilder.GET, contextURL + "api/scheduler/getContentCleanerJob?cb="
+        new RequestBuilder( RequestBuilder.GET, MantleUtils.getSchedulerPluginContextURL() + "api/scheduler/getContentCleanerJob?cb="
             + System.currentTimeMillis() );
     scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     scheduleFileRequestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
@@ -243,7 +241,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           + "\"repeatInterval\": \"0\", \"startTime\": \"" + date + "\", \"uiPassParam\": \"RUN_ONCE\"} }";
 
     RequestBuilder scheduleFileRequestBuilder =
-        new RequestBuilder( RequestBuilder.POST, GWT.getHostPageBaseURL() + "api/scheduler/job" );
+        new RequestBuilder( RequestBuilder.POST, MantleUtils.getSchedulerPluginContextURL() + "api/scheduler/job" );
     scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     scheduleFileRequestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
     try {
@@ -254,7 +252,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
         public void onResponseReceived( Request request, Response response ) {
           String jobId = response.getText();
           final RequestBuilder requestBuilder =
-            new RequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL()
+            new RequestBuilder( RequestBuilder.GET, MantleUtils.getSchedulerPluginContextURL()
               + "api/scheduler/jobinfo?jobId=" + URL.encodeQueryString( jobId ) );
           requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
           requestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
@@ -301,7 +299,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
       activate();
       return;
     }
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/removeJob"; //$NON-NLS-1$
+    final String url = MantleUtils.getSchedulerPluginContextURL() + "api/scheduler/removeJob"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder( RequestBuilder.DELETE, url );
     builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     builder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$

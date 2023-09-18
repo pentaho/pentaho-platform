@@ -61,6 +61,10 @@ public class MantleUtils {
     EventBusUtil.EVENT_BUS.fireEvent( event );
   }
 
+  public static native String getSchedulerPluginContextURL()/*-{
+    return $wnd.pho.getSchedulerPluginContextURL();
+  }-*/;
+
   private static native void setupNativeHooks( MantleUtils utils )
   /*-{
     $wnd.mantle.setSchedulesPerspective = function() {

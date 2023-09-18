@@ -38,6 +38,7 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.MantleUtils;
 import org.pentaho.mantle.client.events.SolutionFileHandler;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -263,7 +264,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
   }
 
   protected  void checkSchedulePermissionAndDialog() {
-    final String url = getFullyQualifiedURL() + "api/scheduler/isScheduleAllowed?id=" + repositoryFile.getRepositoryFile().getId(); //$NON-NLS-1$
+    final String url = MantleUtils.getSchedulerPluginContextURL() + "api/scheduler/isScheduleAllowed?id=" + repositoryFile.getRepositoryFile().getId(); //$NON-NLS-1$
     RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     requestBuilder.setHeader( "accept", "text/plain" );
     requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
@@ -376,7 +377,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
 
                       // just run it
                       RequestBuilder scheduleFileRequestBuilder =
-                          new RequestBuilder( RequestBuilder.POST, contextURL + "api/scheduler/job" ); //$NON-NLS-1$
+                          new RequestBuilder( RequestBuilder.POST, MantleUtils.getSchedulerPluginContextURL() + "api/scheduler/job" ); //$NON-NLS-1$
                       scheduleFileRequestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
                       scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
 
