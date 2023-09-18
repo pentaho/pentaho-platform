@@ -22,6 +22,7 @@ package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.scheduler2.IJobScheduleRequest;
 import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
@@ -33,7 +34,7 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
-import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
+
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
@@ -71,7 +72,7 @@ public class ExportManifest {
   private ExportManifestDto.ExportManifestInformation manifestInformation;
   private List<ExportManifestMetadata> metadataList = new ArrayList<>();
   private List<ExportManifestMondrian> mondrianList = new ArrayList<>();
-  private List<JobScheduleRequest> scheduleList = new ArrayList<>();
+  private List<IJobScheduleRequest> scheduleList = new ArrayList<>();
   private List<DatabaseConnection> datasourceList = new ArrayList<>();
   private List<UserExport> userExports = new ArrayList<>();
   private List<RoleExport> roleExports = new ArrayList<>();
@@ -81,23 +82,24 @@ public class ExportManifest {
   public ExportManifest() {
     this.exportManifestEntities = new HashMap<>();
     this.manifestInformation = new ExportManifestDto.ExportManifestInformation();
+    IJobScheduleRequest request;
   }
 
   public ExportManifest( ExportManifestDto exportManifestDto ) {
     this();
-    this.manifestInformation = exportManifestDto.getExportManifestInformation();
+    manifestInformation = exportManifestDto.getExportManifestInformation();
     List<ExportManifestEntityDto> exportManifestEntityList = exportManifestDto.getExportManifestEntity();
     for ( ExportManifestEntityDto exportManifestEntityDto : exportManifestEntityList ) {
       exportManifestEntities
           .put( exportManifestEntityDto.getPath(), new ExportManifestEntity( exportManifestEntityDto ) );
     }
-    this.mondrianList = exportManifestDto.getExportManifestMondrian();
-    this.metadataList = exportManifestDto.getExportManifestMetadata();
-    this.scheduleList = exportManifestDto.getExportManifestSchedule();
-    this.datasourceList = exportManifestDto.getExportManifestDatasource();
-    this.userExports = exportManifestDto.getExportManifestUser();
-    this.roleExports = exportManifestDto.getExportManifestRole();
-    this.globalUserSettings = exportManifestDto.getGlobalUserSettings();
+    mondrianList = exportManifestDto.getExportManifestMondrian();
+    metadataList = exportManifestDto.getExportManifestMetadata();
+    scheduleList = exportManifestDto.getExportManifestSchedule();
+    datasourceList = exportManifestDto.getExportManifestDatasource();
+    userExports = exportManifestDto.getExportManifestUser();
+    roleExports = exportManifestDto.getExportManifestRole();
+    globalUserSettings = exportManifestDto.getGlobalUserSettings();
     setMetaStore( exportManifestDto.getExportManifestMetaStore() );
   }
 
@@ -273,7 +275,7 @@ public class ExportManifest {
     this.mondrianList.add( mondrian );
   }
 
-  public void addSchedule( JobScheduleRequest schedule ) {
+  public void addSchedule( IJobScheduleRequest schedule ) {
     this.scheduleList.add( schedule );
   }
 
@@ -289,7 +291,7 @@ public class ExportManifest {
     return mondrianList;
   }
 
-  public List<JobScheduleRequest> getScheduleList() {
+  public List<IJobScheduleRequest> getScheduleList() {
     return scheduleList;
   }
 

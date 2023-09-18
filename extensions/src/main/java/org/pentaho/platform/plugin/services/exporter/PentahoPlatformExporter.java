@@ -34,6 +34,7 @@ import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceExcep
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.scheduler2.IJobScheduleRequest;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.IJob;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
@@ -62,7 +63,6 @@ import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepos
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
-import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -318,7 +318,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
           continue;
         }
         try {
-          JobScheduleRequest scheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
+          IJobScheduleRequest scheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
           getExportManifest().addSchedule( scheduleRequest );
         } catch ( IllegalArgumentException e ) {
           log.warn( e.getMessage(), e );

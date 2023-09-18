@@ -31,14 +31,13 @@ import org.pentaho.platform.api.scheduler2.ICronJobTrigger;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJob;
 
-import org.pentaho.platform.api.scheduler2.IJobTrigger;
+import org.pentaho.platform.api.scheduler2.IJobScheduleRequest;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.ISimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
-import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.platform.web.http.api.resources.RepositoryFileStreamProvider;
 
 public class ScheduleExportUtil {
@@ -49,14 +48,14 @@ public class ScheduleExportUtil {
     // to get 100% coverage
   }
 
-  public static JobScheduleRequest createJobScheduleRequest( IJob job ) {
+  public static IJobScheduleRequest createJobScheduleRequest( IJob job ) {
     if ( job == null ) {
       throw new IllegalArgumentException(
         Messages.getInstance().getString( "ScheduleExportUtil.JOB_MUST_NOT_BE_NULL" ) );
     }
     IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
     assert scheduler != null;
-    JobScheduleRequest schedule = new JobScheduleRequest();
+    IJobScheduleRequest schedule = scheduler.createJobScheduleRequest();
     schedule.setJobName( job.getJobName() );
     schedule.setDuration( job.getJobTrigger().getDuration() );
     schedule.setJobState( job.getState() );
@@ -113,7 +112,7 @@ public class ScheduleExportUtil {
         }
         schedule.getPdiParameters().putAll( (Map<String, String>) serializable );
       } else {
-        JobScheduleParam param = null;
+        JobScheduleParam param = new JobScheduleParam();
         if ( serializable instanceof String ) {
           String value = (String) serializable;
           if ( IScheduler.RESERVEDMAPKEY_ACTIONCLASS.equals( key ) ) {
@@ -129,9 +128,7 @@ public class ScheduleExportUtil {
         } else if ( serializable instanceof Boolean ) {
           param = new JobScheduleParam( key, (Boolean) serializable );
         }
-        if ( param != null ) {
-          schedule.getJobParameters().add( param );
-        }
+        schedule.getJobParameters().add( param );
       }
     }
 
