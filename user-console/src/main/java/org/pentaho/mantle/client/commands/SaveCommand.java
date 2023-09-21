@@ -37,6 +37,7 @@ import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Label;
+import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
 
 public class SaveCommand extends AbstractCommand {
 
@@ -442,9 +443,11 @@ public class SaveCommand extends AbstractCommand {
   // used via JSNI
   private void doTabRename() {
     if ( tabName != null ) { // Save-As does not modify the name of the tab.
-      PentahoTab tab = SolutionBrowserPanel.getInstance().getContentTabPanel().getSelectedTab();
+      MantleTabPanel tabPanel = SolutionBrowserPanel.getInstance().getContentTabPanel();
+      PentahoTab tab = tabPanel.getSelectedTab();
       tab.setLabelText( tabName );
       tab.setLabelTooltip( tabName );
+      tabPanel.renameMenuTab( tab );
     }
   }
 
