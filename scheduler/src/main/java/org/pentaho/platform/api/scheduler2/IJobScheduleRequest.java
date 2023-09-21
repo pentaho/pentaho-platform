@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-;
-
 public interface IJobScheduleRequest {
   void setJobName( String jobName );
 
@@ -35,6 +33,14 @@ public interface IJobScheduleRequest {
 
   String getOutputFile();
 
-  public List<IJobScheduleParam> getJobParameters();
+  List<IJobScheduleParam> getJobParameters();
+
+  long getDuration();
+
+  String getActionClass();
+
+  String getTimeZone();
+
+  ISimpleJobTrigger getSimpleJobTrigger();
 }
 

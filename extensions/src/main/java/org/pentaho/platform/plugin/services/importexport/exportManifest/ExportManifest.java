@@ -95,7 +95,7 @@ public class ExportManifest {
     }
     mondrianList = exportManifestDto.getExportManifestMondrian();
     metadataList = exportManifestDto.getExportManifestMetadata();
-    scheduleList = exportManifestDto.getExportManifestSchedule();
+    scheduleList = ExportManifestUtil.fromBindingToSchedulerRequest( exportManifestDto.getExportManifestSchedule() );
     datasourceList = exportManifestDto.getExportManifestDatasource();
     userExports = exportManifestDto.getExportManifestUser();
     roleExports = exportManifestDto.getExportManifestRole();
@@ -215,7 +215,7 @@ public class ExportManifest {
 
     rawExportManifest.getExportManifestMetadata().addAll( this.metadataList );
     rawExportManifest.getExportManifestMondrian().addAll( this.mondrianList );
-    rawExportManifest.getExportManifestSchedule().addAll( this.scheduleList );
+    rawExportManifest.getExportManifestSchedule().addAll( ExportManifestUtil.fromSchedulerToBindingRequest( this.scheduleList ) );
     rawExportManifest.getExportManifestDatasource().addAll( this.datasourceList );
     rawExportManifest.getExportManifestUser().addAll( this.getUserExports() );
     rawExportManifest.getExportManifestRole().addAll( this.getRoleExports() );
