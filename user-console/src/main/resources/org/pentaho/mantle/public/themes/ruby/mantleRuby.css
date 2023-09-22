@@ -1183,7 +1183,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   border-spacing: 0;
 }
 
-#mainMenubar .gwt-MenuItem {
+#mainMenubar .gwt-MenuItem, #pucTabsMenuBar .gwt-MenuItem{
   color: #414141;
   font-size: 13px;
   font-family: OpenSansLight;
@@ -1191,7 +1191,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   padding: 5px 15px;
 }
 
-#mainMenubar .gwt-MenuItem-selected {
+#mainMenubar .gwt-MenuItem-selected, #pucTabsMenuBar .gwt-MenuItem-selected{
   background: #cc0000;
   border: 0 none;
   color: #FFF;
@@ -1582,7 +1582,7 @@ hr {
 }
 
 /* region Burger Menu Mode */
-#burgerBarPerspectiveMenu {
+#burgerBarPerspectiveMenu, #pucTabsMenuBar {
   display: none;
 }
 
@@ -1595,7 +1595,7 @@ hr {
   display: none;
 }
 
-:where(.burger-mode) #burgerBarPerspectiveMenu {
+:where(.burger-mode) :is(#burgerBarPerspectiveMenu, #pucTabsMenuBar) {
   display: block;
 }
 
@@ -1756,9 +1756,54 @@ hr {
   left: calc(100vw - 210px) !important;
 }
 
-:where(.burger-mode)
-.toolbar-button-focus-panel:where(#openButton, #newButton, #dummyPluginContentButton, #printButton) {
+:where(.burger-mode) .toolbar-button-focus-panel:where(#openButton, #newButton, #dummyPluginContentButton, #printButton) {
+  display: none;
+}
+
+.pentaho-tab-bar {
+  display: flex;
+  width: 100vw;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  overflow-y: hidden;
+}
+
+:where(.burger-mode) .pentaho-tab-bar {
+  display: none;
+}
+
+.empty-tabs-menu {
   display: none;
 }
 
 /* endregion Burger Menu Mode */
+
+#pucTabsMenuBar table td, .tabsSubMenuBar table td.gwt-MenuItem {
+  width: 130px;
+  display: inline-block;
+}
+
+#pucTabsMenuBar table td {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tabsSubMenuBar table td.gwt-MenuItem {
+  word-wrap:break-word;
+}
+
+.tabsSubMenuBar {
+  position: relative;
+}
+
+.tabsMenuContextSubMenu, .tabsSubMenuBar {
+  overflow-y: auto;
+}
+
+/* when the viewport width is 400px or less, preserve the tabsMenuBar width and shrink the context subMenu*/
+@media (max-width: 400px) {
+  .tabsMenuContextSubMenu table td.gwt-MenuItem  {
+    width: calc(100vw - 235px);
+  }
+}
