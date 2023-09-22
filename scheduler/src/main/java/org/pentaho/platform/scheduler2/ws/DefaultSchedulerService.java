@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -160,6 +160,22 @@ public class DefaultSchedulerService implements ISchedulerService {
   public void updateJobToUseSimpleTrigger( String jobId, Map<String, ParamValue> jobParams, SimpleJobTrigger trigger )
     throws SchedulerException {
     updateJob( jobId, jobParams, trigger );
+  }
+
+  /** {@inheritDoc} */
+  public String updateJobSimpleTriggerWithJobName( String jobName, String jobId, Map<String, ParamValue> jobParams, SimpleJobTrigger trigger )
+          throws SchedulerException {
+    String newJobId = createJob( jobName, jobParams, trigger );
+    removeJob( jobId );
+    return newJobId;
+  }
+
+  /** {@inheritDoc} */
+  public String updateJobComplexTriggerWithJobName( String jobName, String jobId, Map<String, ParamValue> jobParams, ComplexJobTrigger trigger )
+          throws SchedulerException {
+    String newJobId = createJob( jobName, jobParams, trigger );
+    removeJob( jobId );
+    return newJobId;
   }
 
   /** {@inheritDoc} */
