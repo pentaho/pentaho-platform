@@ -65,9 +65,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>commons-dbcp</groupId>
-      <artifactId>commons-dbcp</artifactId>
-      <version>${commons-dbcp.version}</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-dbcp2</artifactId>
+      <version>${commons-dbcp2.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -77,9 +77,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>commons-pool</groupId>
-      <artifactId>commons-pool</artifactId>
-      <version>${commons-pool.version}</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-pool2</artifactId>
+      <version>${commons-pool2.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -1304,8 +1304,8 @@
       <scope>compile</scope>
       <exclusions>
         <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>commons-dbcp</groupId>
+          <artifactId>commons.dbcp2</artifactId>
+          <groupId>org.apache.commons</groupId>
         </exclusion>
         <exclusion>
           <artifactId>*</artifactId>

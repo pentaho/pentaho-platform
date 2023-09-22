@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -100,6 +100,10 @@ public class JobScheduleRequest implements Serializable {
   long duration;
 
   String timeZone;
+
+  protected String runSafeMode;
+  protected String gatheringMetrics;
+  protected String logLevel;
 
   public String getInputFile() {
     return inputFile;
@@ -222,4 +226,27 @@ public class JobScheduleRequest implements Serializable {
     this.jobId = jobId;
   }
 
+  public String getRunSafeMode() {
+    return runSafeMode;
+  }
+
+  public void setRunSafeMode( String runSafeMode ) {
+    this.runSafeMode = runSafeMode;
+  }
+
+  public String getGatheringMetrics() {
+    return gatheringMetrics;
+  }
+
+  public void setGatheringMetrics( String gatheringMetrics ) {
+    this.gatheringMetrics = gatheringMetrics;
+  }
+
+  public String getLogLevel() {
+    return logLevel;
+  }
+
+  public void setLogLevel( String logLevel ) {
+    this.logLevel = logLevel;
+  }
 }

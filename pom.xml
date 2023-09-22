@@ -59,7 +59,6 @@
     <pentaho-vfs.version>1.0</pentaho-vfs.version>
     <wstx-asl.version>3.2.4</wstx-asl.version>
     <icu4j.version>54.1.1</icu4j.version>
-    <commons-dbcp.version>1.4</commons-dbcp.version>
     <gdata-analytics-meta.version>2.1</gdata-analytics-meta.version>
     <syslog4j.version>0.9.46</syslog4j.version>
     <janino.version>3.0.8</janino.version>
@@ -177,7 +176,6 @@
     <json-path.version>0.8.1</json-path.version>
     <saxon.version>9.1.0.8</saxon.version>
     <dumbster.version>1.6.0</dumbster.version>
-    <commons-pool.version>1.5.7</commons-pool.version>
     <jcommon-logging-log4jlog.version>1.0.2</jcommon-logging-log4jlog.version>
     <commons-cli.version>1.2</commons-cli.version>
     <license-maven-plugin.version>3.0</license-maven-plugin.version>

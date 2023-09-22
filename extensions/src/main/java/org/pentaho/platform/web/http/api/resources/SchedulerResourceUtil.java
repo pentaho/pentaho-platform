@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -28,6 +28,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
@@ -35,6 +37,8 @@ import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
+import org.pentaho.platform.api.util.IPdiContentProvider;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.exporter.ScheduleExportUtil;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
@@ -51,7 +55,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static com.cronutils.model.field.expression.FieldExpressionFactory.*;
+import static com.cronutils.model.field.expression.FieldExpressionFactory.always;
+import static com.cronutils.model.field.expression.FieldExpressionFactory.every;
+import static com.cronutils.model.field.expression.FieldExpressionFactory.on;
+import static com.cronutils.model.field.expression.FieldExpressionFactory.questionMark;
 
 public class SchedulerResourceUtil {
 
@@ -213,16 +220,30 @@ public class SchedulerResourceUtil {
 
 
   public static HashMap<String, Serializable> handlePDIScheduling( RepositoryFile file,
-                                                                   HashMap<String, Serializable> parameterMap, Map<String, String> pdiParameters ) {
+                                                                   HashMap<String, Serializable> parameterMap,
+                                                                   Map<String, String> pdiParameters ) {
 
     HashMap<String, Serializable> convertedParameterMap = new HashMap<>();
+    IPdiContentProvider provider = null;
+    Map<String, String> kettleParams = new HashMap<>();
+    Map<String, String> kettleVars = new HashMap<>();
+    Map<String, String> scheduleKettleVars = new HashMap<>();
+    boolean fallbackToOldBehavior = false;
+    try {
+      provider = getiPdiContentProvider();
+      kettleParams = provider.getUserParameters( file.getPath() );
+      kettleVars = provider.getVariables( file.getPath() );
+    } catch ( PluginBeanException e ) {
+      logger.error( e );
+      fallbackToOldBehavior = true;
+    }
 
     boolean paramsAdded = false;
     if ( pdiParameters != null ) {
       convertedParameterMap.put( ScheduleExportUtil.RUN_PARAMETERS_KEY, (Serializable) pdiParameters );
       paramsAdded = true;
     } else {
-      pdiParameters = new HashMap<String, String>();
+      pdiParameters = new HashMap<>();
     }
 
     if ( file != null && isPdiFile( file ) ) {
@@ -231,12 +252,15 @@ public class SchedulerResourceUtil {
 
       while ( it.hasNext() ) {
 
-        String param = (String) it.next();
+        String param = it.next();
 
         if ( !StringUtils.isEmpty( param ) && parameterMap.containsKey( param ) ) {
           convertedParameterMap.put( param, parameterMap.get( param ).toString() );
-          if ( !paramsAdded ) {
+          if ( !paramsAdded && ( fallbackToOldBehavior || kettleParams.containsKey( param ) ) ) {
             pdiParameters.put( param, parameterMap.get( param ).toString() );
+          }
+          if ( kettleVars.containsKey( param ) ) {
+            scheduleKettleVars.put( param, parameterMap.get( param ).toString() );
           }
         }
       }
@@ -249,7 +273,15 @@ public class SchedulerResourceUtil {
       convertedParameterMap.putAll( parameterMap );
     }
     convertedParameterMap.putIfAbsent( ScheduleExportUtil.RUN_PARAMETERS_KEY, (Serializable) pdiParameters );
+    convertedParameterMap.putIfAbsent( "variables", (Serializable) scheduleKettleVars );
     return convertedParameterMap;
+  }
+
+  public static IPdiContentProvider getiPdiContentProvider() throws PluginBeanException {
+    IPdiContentProvider provider;
+    provider = (IPdiContentProvider) PentahoSystem.get( IPluginManager.class ).getBean(
+      IPdiContentProvider.class.getSimpleName() );
+    return provider;
   }
 
   public static boolean isPdiFile( RepositoryFile file ) {
