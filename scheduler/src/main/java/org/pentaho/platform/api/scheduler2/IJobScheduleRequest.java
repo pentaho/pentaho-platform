@@ -5,6 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 public interface IJobScheduleRequest {
+
+  void setJobId( String jobId );
+
+  String getJobId();
+
   void setJobName( String jobName );
 
   void setDuration( long duration );
@@ -21,9 +26,15 @@ public interface IJobScheduleRequest {
 
   void setActionClass( String value );
 
+  String getActionClass();
+
   void setTimeZone( String value );
 
+  String getTimeZone();
+
   void setSimpleJobTrigger( ISimpleJobTrigger jobTrigger );
+
+  ISimpleJobTrigger getSimpleJobTrigger();
 
   void setCronJobTrigger( ICronJobTrigger cron );
 
@@ -36,11 +47,5 @@ public interface IJobScheduleRequest {
   List<IJobScheduleParam> getJobParameters();
 
   long getDuration();
-
-  String getActionClass();
-
-  String getTimeZone();
-
-  ISimpleJobTrigger getSimpleJobTrigger();
 }
 

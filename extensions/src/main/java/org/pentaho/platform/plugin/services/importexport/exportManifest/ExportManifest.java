@@ -91,7 +91,7 @@ public class ExportManifest {
     List<ExportManifestEntityDto> exportManifestEntityList = exportManifestDto.getExportManifestEntity();
     for ( ExportManifestEntityDto exportManifestEntityDto : exportManifestEntityList ) {
       exportManifestEntities
-          .put( exportManifestEntityDto.getPath(), new ExportManifestEntity( exportManifestEntityDto ) );
+        .put( exportManifestEntityDto.getPath(), new ExportManifestEntity( exportManifestEntityDto ) );
     }
     mondrianList = exportManifestDto.getExportManifestMondrian();
     metadataList = exportManifestDto.getExportManifestMetadata();
@@ -111,14 +111,14 @@ public class ExportManifest {
   public void add( RepositoryFile repositoryFile, RepositoryFileAcl repositoryFileAcl )
     throws ExportManifestFormatException {
     ExportManifestEntity exportManifestEntity =
-        new ExportManifestEntity( manifestInformation.getRootFolder(), repositoryFile, repositoryFileAcl );
+      new ExportManifestEntity( manifestInformation.getRootFolder(), repositoryFile, repositoryFileAcl );
     this.add( exportManifestEntity );
   }
 
   public void add( File file, String userId, String projectId, Boolean isFolder, Boolean isHidden,
-      Boolean isSchedulable ) throws ExportManifestFormatException {
+                   Boolean isSchedulable ) throws ExportManifestFormatException {
     ExportManifestEntity exportManifestEntity =
-        new ExportManifestEntity( file, userId, projectId, isFolder, isHidden, isSchedulable );
+      new ExportManifestEntity( file, userId, projectId, isFolder, isHidden, isSchedulable );
     this.add( exportManifestEntity );
   }
 
@@ -162,7 +162,7 @@ public class ExportManifest {
     StringWriter sw = new StringWriter();
     Marshaller marshaller = getMarshaller();
     marshaller.marshal( new JAXBElement<ExportManifestDto>( new QName( "http://www.pentaho.com/schema/",
-        "ExportManifest" ), ExportManifestDto.class, getExportManifestDto() ), sw );
+      "ExportManifest" ), ExportManifestDto.class, getExportManifestDto() ), sw );
     return sw.toString();
   }
 
@@ -190,7 +190,7 @@ public class ExportManifest {
     Source xmlSource = new SAXSource( xmlReader, new InputSource( input ) );
 
     JAXBContext jc =
-        JAXBContext.newInstance( "org.pentaho.platform.plugin.services.importexport.exportManifest.bindings" );
+      JAXBContext.newInstance( "org.pentaho.platform.plugin.services.importexport.exportManifest.bindings" );
     Unmarshaller u = jc.createUnmarshaller();
 
     try {
