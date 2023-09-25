@@ -20,12 +20,19 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
+import org.pentaho.platform.api.scheduler.JobScheduleParam;
+import org.pentaho.platform.api.scheduler2.ICronJobTrigger;
+import org.pentaho.platform.api.scheduler2.IJobScheduleParam;
 import org.pentaho.platform.api.scheduler2.IJobScheduleRequest;
 import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.api.scheduler2.ISimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.CronJobTrigger;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.JobScheduleRequest;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.SimpleJobTrigger;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ExportManifestUtil {
@@ -36,21 +43,51 @@ public class ExportManifestUtil {
       JobScheduleRequest bindingRequest = new JobScheduleRequest();
       bindingRequest.setJobName( schedulerRequest.getJobName() );
       bindingRequest.setDuration( schedulerRequest.getDuration() );
-      //bindingRequest.setJobState( schedulerRequest.getJobState() );
+      bindingRequest.setJobState( schedulerRequest.getJobState() );
       bindingRequest.setInputFile( schedulerRequest.getInputFile() );
       bindingRequest.setOutputFile( schedulerRequest.getOutputFile() );
-      //bindingRequest.setPdiParameters( schedulerRequest.getPdiParameters() );
+      bindingRequest.setPdiParameters( schedulerRequest.getPdiParameters() );
       bindingRequest.setActionClass( schedulerRequest.getActionClass() );
       bindingRequest.setTimeZone( schedulerRequest.getTimeZone() );
-      //bindingRequest.setJobParameters( schedulerRequest.getJobParameters() );
-      //bindingRequest.setSimpleJobTrigger( schedulerRequest.getSimpleJobTrigger() );
-      //bindingRequest.setCronJobTrigger( schedulerRequest.getCronJobTrigger() );
+      bindingRequest.setJobParameters(
+        fromSchedulerToBindingRequestJobParameters( schedulerRequest.getJobParameters() ) );
+      bindingRequest.setSimpleJobTrigger(
+        fromSchedulerToBindingRequestJobTrigger( schedulerRequest.getSimpleJobTrigger() ) );
+      bindingRequest.setCronJobTrigger(
+        fromSchedulerToBindingRequestCronJobTrigger( schedulerRequest.getCronJobTrigger() ) );
       schedules.add( bindingRequest );
     }
     return schedules;
   }
 
-  public static ArrayList<IJobScheduleRequest> fromBindingToSchedulerRequest( List<JobScheduleRequest> bindingRequests ) {
+  private static List<JobScheduleParam> fromSchedulerToBindingRequestJobParameters(
+    List<IJobScheduleParam> incomingParams ) {
+    List<JobScheduleParam> outgoingParams = new ArrayList<>();
+    for ( IJobScheduleParam incomingParam : incomingParams ) {
+      JobScheduleParam outgoingParam = new JobScheduleParam();
+      outgoingParam.setName( incomingParam.getName() );
+      outgoingParam.setType( incomingParam.getType() );
+      outgoingParam.setStringValue( incomingParam.getStringValue() );
+      outgoingParams.add( outgoingParam );
+    }
+    return outgoingParams;
+  }
+
+  private static SimpleJobTrigger fromSchedulerToBindingRequestJobTrigger( ISimpleJobTrigger incomingJobTrigger ) {
+    SimpleJobTrigger outgoingJobTrigger = new SimpleJobTrigger();
+    outgoingJobTrigger.setRepeatCount( incomingJobTrigger.getRepeatCount() );
+    outgoingJobTrigger.setRepeatInterval( incomingJobTrigger.getRepeatInterval() );
+    return outgoingJobTrigger;
+  }
+
+  private static CronJobTrigger fromSchedulerToBindingRequestCronJobTrigger( ICronJobTrigger incomingCronJobTrigger ) {
+    CronJobTrigger outgoingCronJobTrigger = new CronJobTrigger();
+    outgoingCronJobTrigger.setCronString( incomingCronJobTrigger.getCronString() );
+    return outgoingCronJobTrigger;
+  }
+
+  public static ArrayList<IJobScheduleRequest> fromBindingToSchedulerRequest(
+    List<JobScheduleRequest> bindingRequests ) {
     IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
     assert scheduler != null;
     ArrayList<IJobScheduleRequest> schedules = new ArrayList<>();
@@ -58,17 +95,48 @@ public class ExportManifestUtil {
       IJobScheduleRequest scheduleRequest = scheduler.createJobScheduleRequest();
       scheduleRequest.setJobName( bindingRequest.getJobName() );
       scheduleRequest.setDuration( bindingRequest.getDuration() );
-      //scheduleRequest.setJobState( bindingRequest.getJobState() );
+      scheduleRequest.setJobState( bindingRequest.getJobState() );
       scheduleRequest.setInputFile( bindingRequest.getInputFile() );
       scheduleRequest.setOutputFile( bindingRequest.getOutputFile() );
-      //scheduleRequest.setPdiParameters( bindingRequest.getPdiParameters() );
+      scheduleRequest.setPdiParameters( bindingRequest.getPdiParameters() );
       scheduleRequest.setActionClass( bindingRequest.getActionClass() );
       scheduleRequest.setTimeZone( bindingRequest.getTimeZone() );
-      //scheduleRequest.setJobParameters( bindingRequest.getJobParameters() );
-      //scheduleRequest.setSimpleJobTrigger( bindingRequest.getSimpleJobTrigger() );
-      //scheduleRequest.setCronJobTrigger( bindingRequest.getCronJobTrigger() );
+      scheduleRequest.setJobParameters(
+        fromBindingToSchedulerRequestJobParameters( bindingRequest.getJobParameters() ) );
+      scheduleRequest.setSimpleJobTrigger(
+        fromBindingToSchedulerRequestJobTrigger( bindingRequest.getSimpleJobTrigger() ) );
+      scheduleRequest.setCronJobTrigger(
+        fromBindingToSchedulerRequestCronJobTrigger( bindingRequest.getCronJobTrigger() ) );
       schedules.add( scheduleRequest );
     }
     return schedules;
+  }
+
+  private static List<IJobScheduleParam> fromBindingToSchedulerRequestJobParameters(
+    List<JobScheduleParam> incomingParams ) {
+    IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
+    List<IJobScheduleParam> outgoingParams = new ArrayList<>();
+    for ( JobScheduleParam incomingParam : incomingParams ) {
+      IJobScheduleParam outgoingParam = scheduler.createJobScheduleParam();
+      outgoingParam.setName( incomingParam.getName() );
+      outgoingParam.setType( incomingParam.getType() );
+      outgoingParam.setStringValue( incomingParam.getStringValue() );
+      outgoingParams.add( outgoingParam );
+    }
+    return outgoingParams;
+  }
+
+  private static ISimpleJobTrigger fromBindingToSchedulerRequestJobTrigger(
+    SimpleJobTrigger incomingSimpleJobTrigger ) {
+    IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
+    return scheduler.createSimpleJobTrigger( new Date(), null, incomingSimpleJobTrigger.getRepeatCount(),
+      incomingSimpleJobTrigger.getRepeatInterval() );
+  }
+
+  private static ICronJobTrigger fromBindingToSchedulerRequestCronJobTrigger( CronJobTrigger incomingCronJobTrigger ) {
+    IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
+    ICronJobTrigger outgoingCronJobTrigger = scheduler.createCronJobTrigger();
+    outgoingCronJobTrigger.setCronString( incomingCronJobTrigger.getCronString() );
+    return outgoingCronJobTrigger;
   }
 }

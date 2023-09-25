@@ -27,6 +27,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class JobScheduleParam implements Serializable, IJobScheduleParam {
 
@@ -38,7 +39,7 @@ public class JobScheduleParam implements Serializable, IJobScheduleParam {
 
   String type;
 
-  ArrayList<String> stringValue = new ArrayList<String>();
+  List<String> stringValue = new ArrayList<String>();
 
   public JobScheduleParam() {
   }
@@ -83,11 +84,11 @@ public class JobScheduleParam implements Serializable, IJobScheduleParam {
     this.type = type;
   }
 
-  public ArrayList<String> getStringValue() {
+  public List<String> getStringValue() {
     return stringValue;
   }
 
-  public void setStringValue( ArrayList<String> value ) {
+  public void setStringValue( List<String> value ) {
     this.stringValue = value;
   }
 

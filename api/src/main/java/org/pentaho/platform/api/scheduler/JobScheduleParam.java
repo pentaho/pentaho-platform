@@ -116,6 +116,10 @@ public class JobScheduleParam {
     return this.stringValue;
   }
 
+  public void setStringValue( List<String> stringValue ) {
+    this.stringValue = stringValue;
+  }
+
   /**
    * Gets the value of the type property.
    * 
