@@ -152,8 +152,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     processExternalResources( plugin, doc );
     processPerspectives( plugin, doc );
 
-    String listenerCount = ( StringUtils.isEmpty( plugin.getLifecycleListenerClassname() ) ) ? "0" : "1"; //$NON-NLS-1$//$NON-NLS-2$
-
+    String listenerCount = plugin.getLifecycleListenerClassnames() != null ? Integer.toString( plugin.getLifecycleListenerClassnames().size() ) : "0";
     String msg =
         Messages.getInstance().getString(
             "SystemPathXmlPluginProvider.PLUGIN_PROVIDES", //$NON-NLS-1$

@@ -27,7 +27,6 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
-import org.pentaho.platform.api.scheduler2.IJobScheduleRequest;
 import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
@@ -93,7 +92,7 @@ public class ExportManifestDto {
   @XmlElement ( name = "ExportManifestMetadata" )
   protected List<ExportManifestMetadata> exportManifestMetadata;
   @XmlElement ( name = "ExportManifestSchedule" )
-  protected List<IJobScheduleRequest> exportManifestSchedule;
+  protected List<JobScheduleRequest> exportManifestSchedule;
   @XmlElement ( name = "ExportManifestDatasource" )
   protected List<DatabaseConnection> exportManifestDatasource;
   @XmlElement ( name = "ExportManifestEntity" )
@@ -210,7 +209,7 @@ public class ExportManifestDto {
    * <p/>
    * Objects of the following type(s) are allowed in the list {@link JobScheduleRequest }
    */
-  public List<IJobScheduleRequest> getExportManifestSchedule() {
+  public List<JobScheduleRequest> getExportManifestSchedule() {
     if ( exportManifestSchedule == null ) {
       exportManifestSchedule = new ArrayList<>();
     }
