@@ -304,6 +304,9 @@ public interface IScheduler {
       final Map<String, Serializable> params, IBackgroundExecutionStreamProvider streamProvider );
 
   IJobScheduleRequest createJobScheduleRequest();
+
+  IJobScheduleParam createJobScheduleParam();
+
   ISimpleJobTrigger createSimpleJobTrigger( Date startTime, Date endTime, int repeatCount, long repeatIntervalSeconds );
 
   ICronJobTrigger createCronJobTrigger();
@@ -311,8 +314,13 @@ public interface IScheduler {
   IComplexJobTrigger createComplexTrigger( String cronString );
 
   IComplexJobTrigger createComplexJobTrigger();
+
   IComplexJobTrigger createComplexTrigger( Integer year, Integer month, Integer dayOfMonth, Integer dayOfWeek, Integer hourOfDay );
+
   ArrayList<IJobScheduleParam> getJobParameters();
+
+  ISchedulerResource createSchedulerResource();
+
   /**
    * A default implementation which doesn't do anything and exists for the backward compatibility sake.
    * @param jobParams scheduling job parameters
