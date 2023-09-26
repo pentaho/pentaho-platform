@@ -14,33 +14,15 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
-package org.pentaho.platform.web.http.api.resources;
+package org.pentaho.platform.api.scheduler2;
 
-import org.pentaho.platform.api.scheduler2.IJobRequest;
+public interface IJobRequest {
 
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
+  String getJobId();
 
-@XmlRootElement
-public class JobRequest implements Serializable, IJobRequest {
-
-  private static final long serialVersionUID = 6111578259094385262L;
-
-  private String jobId;
-
-  public JobRequest() {
-  }
-
-  public String getJobId() {
-    return jobId;
-  }
-
-  public void setJobId( String jobId ) {
-    this.jobId = jobId;
-  }
-
+  void setJobId( String jobId );
 }

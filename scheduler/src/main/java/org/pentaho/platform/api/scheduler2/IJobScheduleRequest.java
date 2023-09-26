@@ -1,6 +1,5 @@
 package org.pentaho.platform.api.scheduler2;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,9 +19,9 @@ public interface IJobScheduleRequest {
 
   void setOutputFile( String outputFilePath );
 
-  <V, K> Map<K,V> getPdiParameters();
+  Map<String, String> getPdiParameters();
 
-  void setPdiParameters( HashMap<String, String> stringStringHashMap );
+  void setPdiParameters( Map<String, String> stringStringHashMap );
 
   void setActionClass( String value );
 
@@ -46,6 +45,12 @@ public interface IJobScheduleRequest {
 
   List<IJobScheduleParam> getJobParameters();
 
+  void setJobParameters( List<IJobScheduleParam> parameters );
+
   long getDuration();
+
+  IJob.JobState getJobState();
+
+  ICronJobTrigger getCronJobTrigger();
 }
 

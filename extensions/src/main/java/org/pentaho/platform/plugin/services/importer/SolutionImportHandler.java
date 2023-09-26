@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.pentaho.database.model.IDatabaseConnection;
@@ -51,6 +53,11 @@ import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.scheduler2.IJob;
+import org.pentaho.platform.api.scheduler2.IJobScheduleParam;
+import org.pentaho.platform.api.scheduler2.IJobScheduleRequest;
+import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.api.scheduler2.ISchedulerResource;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
@@ -75,7 +82,10 @@ import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogR
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.web.http.api.resources.JobRequest;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
+
+import javax.ws.rs.core.Response;
 
 public class SolutionImportHandler implements IPlatformImportHandler {
 
@@ -279,16 +289,16 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     }
 
     if ( manifest != null ) {
-//      importSchedules( manifest.getScheduleList() );
+      importSchedules( manifest.getScheduleList() );
     }
 
     // Process locale files.
     localeFilesProcessor.processLocaleFiles( importer );
   }
 
-//  List<IJob> getAllJobs( SchedulerResource schedulerResource ) {
-//    return schedulerResource.getAllJobs();
-//  }
+  List<IJob> getAllJobs( ISchedulerResource schedulerResource ) {
+    return schedulerResource.getJobsList();
+  }
 
   private RepositoryFile getFile( IPlatformImportBundle importBundle, IRepositoryFileBundle fileBundle ) {
     String repositoryFilePath =
@@ -296,103 +306,104 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     return repository.getFile( repositoryFilePath );
   }
 
-//  protected void importSchedules( List<JobScheduleRequest> scheduleList ) throws PlatformImportException {
-//    if ( CollectionUtils.isNotEmpty( scheduleList ) ) {
-//      SchedulerResource schedulerResource = new SchedulerResource();
-//      schedulerResource.pause();
-//      for ( JobScheduleRequest jobScheduleRequest : scheduleList ) {
-//
-//        boolean jobExists = false;
-//
-//        List<IJob> jobs = getAllJobs( schedulerResource );
-//        if ( jobs != null ) {
-//
-//          //paramRequest to map<String, Serializable>
-//          Map<String, Serializable> mapParamsRequest = new HashMap<>();
-//          for ( JobScheduleParam paramRequest : jobScheduleRequest.getJobParameters() ) {
-//            mapParamsRequest.put( paramRequest.getName(), paramRequest.getValue() );
-//          }
-//
-//          for ( IJob job : jobs ) {
-//
-//            if ( ( mapParamsRequest.get( RESERVEDMAPKEY_LINEAGE_ID ) != null )
-//              && ( mapParamsRequest.get( RESERVEDMAPKEY_LINEAGE_ID )
-//              .equals( job.getJobParams().get( RESERVEDMAPKEY_LINEAGE_ID ) ) ) ) {
-//              jobExists = true;
-//            }
-//
-//            if ( overwriteFile && jobExists ) {
-//              JobRequest jobRequest = new JobRequest();
-//              jobRequest.setJobId( job.getJobId() );
-//              schedulerResource.removeJob( jobRequest );
-//              jobExists = false;
-//              break;
-//            }
-//          }
-//        }
-//
-//        if ( !jobExists ) {
-//          try {
-//            Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
-//            if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
-//              if ( response.getEntity() != null ) {
-//                // get the schedule job id from the response and add it to the import session
-//                ImportSession.getSession().addImportedScheduleJobId( response.getEntity().toString() );
-//              }
-//            }
-//          } catch ( Exception e ) {
-//            // there is a scenario where if the file scheduled has a space in the file name, that it won't work. the
-//            // di server
-//
-//            // replaces spaces with underscores and the export mechanism can't determine if it needs this to happen
-//            // or not
-//            // so, if we failed to import and there is a space in the path, try again but this time with replacing
-//            // the space(s)
-//            if ( jobScheduleRequest.getInputFile().contains( " " ) || jobScheduleRequest.getOutputFile()
-//              .contains( " " ) ) {
-//              getLogger().info( Messages.getInstance()
-//                .getString( "SolutionImportHandler.SchedulesWithSpaces", jobScheduleRequest.getInputFile() ) );
-//              File inFile = new File( jobScheduleRequest.getInputFile() );
-//              File outFile = new File( jobScheduleRequest.getOutputFile() );
-//              String inputFileName = inFile.getParent() + RepositoryFile.SEPARATOR
-//                + inFile.getName().replace( " ", "_" );
-//              String outputFileName = outFile.getParent() + RepositoryFile.SEPARATOR
-//                + outFile.getName().replace( " ", "_" );
-//              jobScheduleRequest.setInputFile( inputFileName );
-//              jobScheduleRequest.setOutputFile( outputFileName );
-//              try {
-//                if ( !File.separator.equals( RepositoryFile.SEPARATOR ) ) {
-//                  // on windows systems, the backslashes will result in the file not being found in the repository
-//                  jobScheduleRequest.setInputFile( inputFileName.replace( File.separator, RepositoryFile.SEPARATOR ) );
-//                  jobScheduleRequest
-//                    .setOutputFile( outputFileName.replace( File.separator, RepositoryFile.SEPARATOR ) );
-//                }
-//                Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
-//                if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
-//                  if ( response.getEntity() != null ) {
-//                    // get the schedule job id from the response and add it to the import session
-//                    ImportSession.getSession().addImportedScheduleJobId( response.getEntity().toString() );
-//                  }
-//                }
-//              } catch ( Exception ex ) {
-//                // log it and keep going. we should stop processing all schedules just because one fails.
-//                getLogger().error( Messages.getInstance()
-//                  .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ), ex );
-//              }
-//            } else {
-//              // log it and keep going. we should stop processing all schedules just because one fails.
-//              getLogger().error( Messages.getInstance()
-//                .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
-//            }
-//          }
-//        } else {
-//          getLogger().info( Messages.getInstance()
-//            .getString( "DefaultImportHandler.ERROR_0009_OVERWRITE_CONTENT", jobScheduleRequest.toString() ) );
-//        }
-//      }
-//      schedulerResource.start();
-//    }
-//  }
+  protected void importSchedules( List<IJobScheduleRequest> scheduleList ) throws PlatformImportException {
+    if ( CollectionUtils.isNotEmpty( scheduleList ) ) {
+      IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
+      ISchedulerResource schedulerResource = scheduler.createSchedulerResource();
+      schedulerResource.pause();
+      for ( IJobScheduleRequest jobScheduleRequest : scheduleList ) {
+
+        boolean jobExists = false;
+
+        List<IJob> jobs = getAllJobs( schedulerResource );
+        if ( jobs != null ) {
+
+          //paramRequest to map<String, Serializable>
+          Map<String, Serializable> mapParamsRequest = new HashMap<>();
+          for ( IJobScheduleParam paramRequest : jobScheduleRequest.getJobParameters() ) {
+            mapParamsRequest.put( paramRequest.getName(), paramRequest.getValue() );
+          }
+
+          for ( IJob job : jobs ) {
+
+            if ( ( mapParamsRequest.get( RESERVEDMAPKEY_LINEAGE_ID ) != null )
+              && ( mapParamsRequest.get( RESERVEDMAPKEY_LINEAGE_ID )
+              .equals( job.getJobParams().get( RESERVEDMAPKEY_LINEAGE_ID ) ) ) ) {
+              jobExists = true;
+            }
+
+            if ( overwriteFile && jobExists ) {
+              JobRequest jobRequest = new JobRequest();
+              jobRequest.setJobId( job.getJobId() );
+              schedulerResource.removeJob( jobRequest );
+              jobExists = false;
+              break;
+            }
+          }
+        }
+
+        if ( !jobExists ) {
+          try {
+            Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
+            if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
+              if ( response.getEntity() != null ) {
+                // get the schedule job id from the response and add it to the import session
+                ImportSession.getSession().addImportedScheduleJobId( response.getEntity().toString() );
+              }
+            }
+          } catch ( Exception e ) {
+            // there is a scenario where if the file scheduled has a space in the file name, that it won't work. the
+            // di server
+
+            // replaces spaces with underscores and the export mechanism can't determine if it needs this to happen
+            // or not
+            // so, if we failed to import and there is a space in the path, try again but this time with replacing
+            // the space(s)
+            if ( jobScheduleRequest.getInputFile().contains( " " ) || jobScheduleRequest.getOutputFile()
+              .contains( " " ) ) {
+              getLogger().info( Messages.getInstance()
+                .getString( "SolutionImportHandler.SchedulesWithSpaces", jobScheduleRequest.getInputFile() ) );
+              File inFile = new File( jobScheduleRequest.getInputFile() );
+              File outFile = new File( jobScheduleRequest.getOutputFile() );
+              String inputFileName = inFile.getParent() + RepositoryFile.SEPARATOR
+                + inFile.getName().replace( " ", "_" );
+              String outputFileName = outFile.getParent() + RepositoryFile.SEPARATOR
+                + outFile.getName().replace( " ", "_" );
+              jobScheduleRequest.setInputFile( inputFileName );
+              jobScheduleRequest.setOutputFile( outputFileName );
+              try {
+                if ( !File.separator.equals( RepositoryFile.SEPARATOR ) ) {
+                  // on windows systems, the backslashes will result in the file not being found in the repository
+                  jobScheduleRequest.setInputFile( inputFileName.replace( File.separator, RepositoryFile.SEPARATOR ) );
+                  jobScheduleRequest
+                    .setOutputFile( outputFileName.replace( File.separator, RepositoryFile.SEPARATOR ) );
+                }
+                Response response = createSchedulerJob( schedulerResource, jobScheduleRequest );
+                if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
+                  if ( response.getEntity() != null ) {
+                    // get the schedule job id from the response and add it to the import session
+                    ImportSession.getSession().addImportedScheduleJobId( response.getEntity().toString() );
+                  }
+                }
+              } catch ( Exception ex ) {
+                // log it and keep going. we should stop processing all schedules just because one fails.
+                getLogger().error( Messages.getInstance()
+                  .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ), ex );
+              }
+            } else {
+              // log it and keep going. we should stop processing all schedules just because one fails.
+              getLogger().error( Messages.getInstance()
+                .getString( "SolutionImportHandler.ERROR_0001_ERROR_CREATING_SCHEDULE", e.getMessage() ) );
+            }
+          }
+        } else {
+          getLogger().info( Messages.getInstance()
+            .getString( "DefaultImportHandler.ERROR_0009_OVERWRITE_CONTENT", jobScheduleRequest.toString() ) );
+        }
+      }
+      schedulerResource.start();
+    }
+  }
 
   protected void importMetaStore( ExportManifestMetaStore manifestMetaStore, boolean overwrite ) {
     if ( manifestMetaStore != null ) {
@@ -760,16 +771,16 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
   // handlers that extend this class may override this method and perform operations
   // over the job prior to its creation at scheduler.createJob()
-//  public Response createSchedulerJob( SchedulerResource scheduler, JobScheduleRequest jobScheduleRequest )
-//    throws IOException {
-//    Response rs = scheduler != null ? scheduler.createJob( jobScheduleRequest ) : null;
-//    if ( jobScheduleRequest.getJobState() != JobState.NORMAL ) {
-//      JobRequest jobRequest = new JobRequest();
-//      jobRequest.setJobId( rs.getEntity().toString() );
-//      scheduler.pauseJob( jobRequest );
-//    }
-//    return rs;
-//  }
+  public Response createSchedulerJob( ISchedulerResource scheduler, IJobScheduleRequest jobScheduleRequest )
+    throws IOException {
+    Response rs = scheduler != null ? (Response) scheduler.createJob( jobScheduleRequest ) : null;
+    if ( jobScheduleRequest.getJobState() != IJob.JobState.NORMAL ) {
+      JobRequest jobRequest = new JobRequest();
+      jobRequest.setJobId( rs.getEntity().toString() );
+      scheduler.pauseJob( jobRequest );
+    }
+    return rs;
+  }
 
   public boolean isOverwriteFile() {
     return overwriteFile;
