@@ -13,7 +13,7 @@ public interface IJobScheduleRequest {
 
   void setDuration( long duration );
 
-  void setJobState( IJob.JobState state );
+  void setJobState( JobState state );
 
   void setInputFile( String inputFilePath );
 
@@ -49,7 +49,7 @@ public interface IJobScheduleRequest {
 
   long getDuration();
 
-  IJob.JobState getJobState();
+  JobState getJobState();
 
   ICronJobTrigger getCronJobTrigger();
 }

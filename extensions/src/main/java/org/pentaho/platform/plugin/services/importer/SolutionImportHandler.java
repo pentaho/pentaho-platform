@@ -58,6 +58,7 @@ import org.pentaho.platform.api.scheduler2.IJobScheduleParam;
 import org.pentaho.platform.api.scheduler2.IJobScheduleRequest;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.ISchedulerResource;
+import org.pentaho.platform.api.scheduler2.JobState;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
@@ -247,13 +248,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         sourcePath = fileName;
       } else {
         sourcePath =
-            RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( actualFilePath ), fileName );
+          RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( actualFilePath ), fileName );
       }
 
       //This clause was added for processing ivb files so that it would not try process acls on folders that the user
       //may not have rights to such as /home or /public
       if ( manifest != null && manifest.getExportManifestEntity( sourcePath ) == null && fileBundle.getFile()
-          .isFolder() ) {
+        .isFolder() ) {
         continue;
       }
 
@@ -302,7 +303,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
   private RepositoryFile getFile( IPlatformImportBundle importBundle, IRepositoryFileBundle fileBundle ) {
     String repositoryFilePath =
-        repositoryPathConcat( importBundle.getPath(), fileBundle.getPath(), fileBundle.getFile().getName() );
+      repositoryPathConcat( importBundle.getPath(), fileBundle.getPath(), fileBundle.getFile().getName() );
     return repository.getFile( repositoryFilePath );
   }
 
@@ -607,7 +608,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         RepositoryFileImportBundle.Builder bundleBuilder =
           new RepositoryFileImportBundle.Builder().charSet( UTF_8 ).hidden( RepositoryFile.HIDDEN_BY_DEFAULT )
             .schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT ).name( catName ).overwriteFile(
-            isOverwriteFile() ).mime( "application/vnd.pentaho.mondrian+xml" )
+              isOverwriteFile() ).mime( "application/vnd.pentaho.mondrian+xml" )
             .withParam( "parameters", parametersStr.toString() )
             .withParam( DOMAIN_ID, catName ); // TODO: this is definitely named wrong at the very least.
         // pass as param if not in parameters string
@@ -637,10 +638,10 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   boolean fileIsScheduleInputSource( ExportManifest manifest, String sourcePath ) {
     boolean isSchedulable = false;
     if ( sourcePath != null && manifest != null
-            && manifest.getScheduleList() != null ) {
+      && manifest.getScheduleList() != null ) {
       String path = sourcePath.startsWith( "/" ) ? sourcePath : "/" + sourcePath;
       isSchedulable = manifest.getScheduleList().stream()
-              .anyMatch( schedule -> path.equals( schedule.getInputFile() ) );
+        .anyMatch( schedule -> path.equals( schedule.getInputFile() ) );
     }
 
     if ( isSchedulable ) {
@@ -774,7 +775,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   public Response createSchedulerJob( ISchedulerResource scheduler, IJobScheduleRequest jobScheduleRequest )
     throws IOException {
     Response rs = scheduler != null ? (Response) scheduler.createJob( jobScheduleRequest ) : null;
-    if ( jobScheduleRequest.getJobState() != IJob.JobState.NORMAL ) {
+    if ( jobScheduleRequest.getJobState() != JobState.NORMAL ) {
       JobRequest jobRequest = new JobRequest();
       jobRequest.setJobId( rs.getEntity().toString() );
       scheduler.pauseJob( jobRequest );
