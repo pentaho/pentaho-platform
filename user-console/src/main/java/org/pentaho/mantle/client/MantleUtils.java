@@ -62,7 +62,9 @@ public class MantleUtils {
   }
 
   public static native String getSchedulerPluginContextURL()/*-{
-    return $wnd.pho.getSchedulerPluginContextURL();
+    if (typeof $wnd.pho.getSchedulerPluginContextURL !== "undefined" ) {
+      return $wnd.pho.getSchedulerPluginContextURL();
+    }
   }-*/;
 
   private static native void setupNativeHooks( MantleUtils utils )
