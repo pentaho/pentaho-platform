@@ -29,6 +29,7 @@ package org.pentaho.platform.plugin.services.importexport.exportManifest.binding
 
 import org.pentaho.platform.api.scheduler.JobScheduleParam;
 import org.pentaho.platform.api.scheduler2.IJob;
+import org.pentaho.platform.api.scheduler2.JobState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,7 +92,7 @@ public class JobScheduleRequest {
   @XmlElement( namespace = "http://www.pentaho.com/schema/" )
   protected SimpleJobTrigger simpleJobTrigger;
   protected String timeZone;
-  protected IJob.JobState jobState;
+  protected JobState jobState;
   protected Map<String, String> pdiParameters;
 
   /**
@@ -314,11 +315,11 @@ public class JobScheduleRequest {
     this.jobId = jobId;
   }
 
-  public IJob.JobState getJobState() {
+  public JobState getJobState() {
     return jobState;
   }
 
-  public void setJobState( IJob.JobState jobState ) {
+  public void setJobState( JobState jobState ) {
     this.jobState = jobState;
   }
 

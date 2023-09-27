@@ -152,14 +152,14 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     processExternalResources( plugin, doc );
     processPerspectives( plugin, doc );
 
-    String listenerCount = plugin.getLifecycleListenerClassnames() != null ? Integer.toString( plugin.getLifecycleListenerClassnames().size() ) : "0";
+    int listenerCount = plugin.getLifecycleListenerClassnames() != null ? plugin.getLifecycleListenerClassnames().size()  : 0;
     String msg =
         Messages.getInstance().getString(
             "SystemPathXmlPluginProvider.PLUGIN_PROVIDES", //$NON-NLS-1$
             Integer.toString( plugin.getContentInfos().size() ),
             Integer.toString( plugin.getContentGenerators().size() ),
             Integer.toString( plugin.getOverlays().size() ),
-            listenerCount );
+            Integer.toString( listenerCount) );
     PluginMessageLogger.add( msg );
 
     plugin.setSourceDescription( folder );
