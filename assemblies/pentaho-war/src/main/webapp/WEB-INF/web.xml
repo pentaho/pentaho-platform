@@ -581,6 +581,4 @@
 		<error-code>500</error-code>
 		<location>/unavailable.html</location>
 	</error-page>
-
-
 </web-app>
