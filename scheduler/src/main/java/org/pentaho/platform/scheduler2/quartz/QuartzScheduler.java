@@ -429,19 +429,24 @@ public class QuartzScheduler implements IScheduler {
       Scheduler scheduler = getQuartzScheduler();
       String groupName = jobKey.getUserName();
       for ( Trigger trigger : scheduler.getTriggersOfJob( jobId, groupName ) ) {
-        if ( "MANUAL_TRIGGER".equals( trigger.getGroup() ) ) {
-          continue;
-        }
-        if ( trigger instanceof SimpleTrigger ) {
-          ( (SimpleTrigger) trigger ).setPreviousFireTime( new Date() );
-        } else if ( trigger instanceof CronTrigger ) {
-          ( (CronTrigger) trigger ).setPreviousFireTime( new Date() );
-        }
+        //BISERVER-14971 - the error was that the trigger was not being replaced, as it was not considered a new trigger
         // force the trigger to be updated with the previous fire time
-        scheduler.rescheduleJob( jobId, jobKey.getUserName(), trigger );
+        if ( trigger instanceof SimpleTrigger ) {
+          SimpleTrigger t = (SimpleTrigger) trigger.clone();
+          t.setPreviousFireTime( new Date() );
+          //BISERVER-14971 - reschedulling job to one second after this trigger, so the listener picks it up and understands it is not the old trigger
+          t.setNextFireTime( new Date(System.currentTimeMillis() + 1000) );
+          scheduler.rescheduleJob( jobId, groupName, t );
+
+        } else if ( trigger instanceof CronTrigger ) {
+          CronTrigger t = (CronTrigger) trigger.clone() ;
+          t.setPreviousFireTime( new Date() );
+          //BISERVER-14971 - reschedulling job to one second after this trigger, so the listener picks it up and understands it is not the old trigger
+          t.setNextFireTime( new Date(System.currentTimeMillis() + 1000) );
+          scheduler.rescheduleJob( jobId, groupName, t );
+        }
       }
 
-      scheduler.triggerJob( jobId, jobKey.getUserName() );
     } catch ( org.quartz.SchedulerException e ) {
       throw new SchedulerException( Messages.getInstance().getString(
           "QuartzScheduler.ERROR_0007_FAILED_TO_GET_JOB", jobId ), e ); //$NON-NLS-1$
