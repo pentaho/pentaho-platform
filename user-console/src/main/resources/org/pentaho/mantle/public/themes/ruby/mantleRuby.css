@@ -1206,10 +1206,16 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 #mainToolbarWrapper > tbody > tr,
 #mainToolbarWrapper > tbody > tr > td,
 #mainToolbarWrapper > tbody > tr > td > div,
-#mainToolbar,
-#burgerToolbar,
 :is(#mainToolbar, #burgerToolbar) > tbody > tr > td > table {
   display: contents;
+}
+
+#mainToolbar, #burgerToolbar, #tabsMenuBar {
+  display: flex;
+  flex: 0 1 auto;
+  width: auto !important;
+  flex-wrap: wrap;
+  gap: 0;
 }
 
 :where(#pucWrapper:not(.burger-mode)) #burgerToolbar {
@@ -1224,6 +1230,16 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   /* Passed by GWT via inline-style */
   --flex-max-width: initial;
   max-width: var(--flex-max-width, 10px);
+}
+
+:where(#pucWrapper.burger-mode) #mainToolbar .spacer {
+  /* Nuke the spacer widths because these would only flex after the whole toolbar
+     would wrap to a new row. This ensures less rows from the start. */
+  width: auto !important;
+}
+
+:where(#pucWrapper.burger-mode) #mainToolbar {
+  margin-left: auto;
 }
 
 :is(#mainToolbar, #burgerToolbar) :is(.toolbar-button, .toolbar-toggle-button) {
@@ -1582,8 +1598,12 @@ hr {
 }
 
 /* region Burger Menu Mode */
-#burgerBarPerspectiveMenu, #pucTabsMenuBar {
+#pucTabsMenuBar {
   display: none;
+}
+
+#pucTabsMenuBar > * {
+  display: contents;
 }
 
 /* puc header */
@@ -1595,8 +1615,9 @@ hr {
   display: none;
 }
 
-:where(.burger-mode) :is(#burgerBarPerspectiveMenu, #pucTabsMenuBar) {
-  display: block;
+:where(.burger-mode) #pucTabsMenuBar {
+  /* Show children when burger mode */
+  display: contents;
 }
 
 :where(.burger-mode) #pucHeader {
@@ -1772,7 +1793,7 @@ hr {
   display: none;
 }
 
-.empty-tabs-menu {
+#tabsMenuBar.empty-tabs-menu {
   display: none;
 }
 
