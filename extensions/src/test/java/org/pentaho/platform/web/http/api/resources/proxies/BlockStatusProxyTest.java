@@ -20,7 +20,7 @@
 
 package org.pentaho.platform.web.http.api.resources.proxies;
 
-import org.pentaho.platform.web.resources.proxies.BlockStatusProxy;
+import org.pentaho.platform.web.http.api.proxies.BlockStatusProxy;
 import org.pentaho.test.BeanTester;
 
 public class BlockStatusProxyTest extends BeanTester {

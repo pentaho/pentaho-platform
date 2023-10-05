@@ -33,9 +33,10 @@ import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
+import java.util.Date;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -62,13 +63,13 @@ public class GatherStatsListenerTest {
   @Test
   public void testStartUp() throws Exception {
     PentahoSystem.registerObject( scheduler );
-
+    IJobTrigger trigger = scheduler.createSimpleJobTrigger( new Date(), null, -1, 101L );
     IJob job = mock( IJob.class );
     when( scheduler.createJob(
       eq( "Gather Stats" ),
       eq( GatherStatsAction.class ),
       eq( gatherStatsListener.jobMap ),
-      any( IJobTrigger.class ) ) ).thenReturn( job );
+      eq( trigger ) ) ).thenReturn( job );
 
     boolean startup = gatherStatsListener.startup( session );
     assertTrue( startup );
@@ -79,7 +80,7 @@ public class GatherStatsListenerTest {
       eq( "Gather Stats" ),
       eq( GatherStatsAction.class ),
       eq( gatherStatsListener.jobMap ),
-      any( IJobTrigger.class ) );
+      eq( trigger ) );
   }
 
   @Test
@@ -91,12 +92,12 @@ public class GatherStatsListenerTest {
   @Test
   public void testStartup_withExceptionFromScheduleJobCall() throws Exception {
     PentahoSystem.registerObject( scheduler );
-
+    IJobTrigger trigger = scheduler.createSimpleJobTrigger( new Date(), null, -1, 101L );
     when( scheduler.createJob(
       eq( "Gather Stats" ),
       eq( GatherStatsAction.class ),
       eq( gatherStatsListener.jobMap ),
-      any( IJobTrigger.class ) ) ).thenThrow( new SchedulerException( "error" ) );
+      eq( trigger ) ) ).thenThrow( new SchedulerException( "error" ) );
 
     boolean startup = gatherStatsListener.startup( session );
     assertTrue( startup );
@@ -107,7 +108,7 @@ public class GatherStatsListenerTest {
       eq( "Gather Stats" ),
       eq( GatherStatsAction.class ),
       eq( gatherStatsListener.jobMap ),
-      any( IJobTrigger.class ) );
+      eq( trigger ) );
   }
 
   @After
