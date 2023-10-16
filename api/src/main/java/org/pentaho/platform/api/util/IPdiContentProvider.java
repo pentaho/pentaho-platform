@@ -14,11 +14,13 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.api.util;
+
+import java.util.Map;
 
 public interface IPdiContentProvider {
 
@@ -46,5 +48,14 @@ public interface IPdiContentProvider {
    *          ktr/kjb filePath
    * @return list of user input parameters' name
    */
-  String[] getUserParameters( String kettleFilePath );
+  Map<String, String> getUserParameters(String kettleFilePath );
+
+  /**
+   * lists variables for a given a ktr/kjb filePath
+   *
+   * @param kettleFilePath
+   *          ktr/kjb filePath
+   * @return list of variables' name
+   */
+  Map<String, String> getVariables( String kettleFilePath );
 }
