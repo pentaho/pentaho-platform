@@ -20,12 +20,7 @@
 
 package org.pentaho.platform.web.http.context;
 
-import java.util.List;
-
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.jackrabbit.api.JackrabbitRepository;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPlatformPlugin;
 import org.pentaho.platform.api.engine.IPlatformReadyListener;
@@ -35,8 +30,12 @@ import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.logging.Logger;
+
 import javax.jcr.Repository;
-import org.apache.jackrabbit.api.JackrabbitRepository;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import java.util.List;
+
 public class PentahoSystemReadyListener implements ServletContextListener {
 
   @Override
@@ -49,11 +48,13 @@ public class PentahoSystemReadyListener implements ServletContextListener {
       List<IPlatformPlugin> providedPlugins = pluginProvider.getPlugins( session );
       for ( IPlatformPlugin plugin : providedPlugins ) {
         try {
-          if ( !StringUtils.isEmpty( plugin.getLifecycleListenerClassname() ) ) {
-            ClassLoader loader = pluginManager.getClassLoader( plugin.getId() );
-            Object listener = loader.loadClass( plugin.getLifecycleListenerClassname() ).newInstance();
-            if ( IPlatformReadyListener.class.isAssignableFrom( listener.getClass() ) ) {
-              ( (IPlatformReadyListener) listener ).ready();
+          if ( plugin.getLifecycleListenerClassnames() != null ) {
+            for ( String lifecycleListener : plugin.getLifecycleListenerClassnames() ) {
+              ClassLoader loader = pluginManager.getClassLoader( plugin.getId() );
+              Object listener = loader.loadClass( lifecycleListener ).getDeclaredConstructor().newInstance();
+              if ( IPlatformReadyListener.class.isAssignableFrom( listener.getClass() ) ) {
+                ( (IPlatformReadyListener) listener ).ready();
+              }
             }
           }
         } catch ( Exception e ) {
@@ -63,7 +64,6 @@ public class PentahoSystemReadyListener implements ServletContextListener {
     } catch ( PlatformPluginRegistrationException e ) {
       Logger.warn( PentahoSystemReadyListener.class.getName(), e.getMessage(), e );
     }
-
   }
 
   @Override
