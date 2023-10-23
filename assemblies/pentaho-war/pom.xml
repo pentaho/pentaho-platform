@@ -395,7 +395,7 @@
     <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
-      <version>${joda-time.version}</version>
+      <version>${joda.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
