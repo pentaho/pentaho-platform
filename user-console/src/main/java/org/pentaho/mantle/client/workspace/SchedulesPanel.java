@@ -479,7 +479,7 @@ public class SchedulesPanel extends SimplePanel {
             return BLANK_VALUE;
           }
 
-          DateTimeFormat format = DateTimeFormat.getFormat( PredefinedFormat.DATE_TIME_MEDIUM );
+          DateTimeFormat format = DateTimeFormat.getFormat( "EEE MMM dd HH:mm:ss zzz yyyy" );
 
           return format.format( date );
         } catch ( Throwable t ) {
