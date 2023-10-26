@@ -41,7 +41,7 @@ import java.io.OutputStream;
 /**
  * Writes out the current Theme Tree out as Javascript. The current system and active module theme information is turned
  * into a JSON object for use by the web client
- * 
+ *
  * User: nbaker Date: 5/24/11
  */
 public class ThemeServlet extends ServletBase {
@@ -66,7 +66,7 @@ public class ThemeServlet extends ServletBase {
       // look for a passed in theme context (content generator, other named area)
       String moduleName = req.getParameter( "context" );
       OutputStream out = resp.getOutputStream();
-      resp.setContentType( "text/javascript" ); //$NON-NLS-1$ 
+      resp.setContentType( "text/javascript" ); //$NON-NLS-1$
       resp.setHeader( "Cache-Control", "no-cache" ); //$NON-NLS-1$
 
       IUserSettingService settingsService = PentahoSystem.get( IUserSettingService.class, getPentahoSession( req ) );
@@ -107,6 +107,8 @@ public class ThemeServlet extends ServletBase {
         themeObject = new JSONObject();
         root.put( theme.getId(), themeObject );
         themeObject.put( "rootDir", theme.getThemeRootDir() );
+        themeObject.put( "responsive", theme.getResponsive() );
+
         for ( ThemeResource res : theme.getResources() ) {
           themeObject.append( "resources", res.getLocation() );
         }
