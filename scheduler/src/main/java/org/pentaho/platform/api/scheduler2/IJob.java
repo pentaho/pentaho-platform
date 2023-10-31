@@ -21,6 +21,7 @@
 package org.pentaho.platform.api.scheduler2;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Map;
 
 public interface IJob {
@@ -30,4 +31,6 @@ public interface IJob {
   String getJobName();
   JobState getState();
   String getUserName();
+  Date getNextRun();
+  Date getLastRun();
 }
