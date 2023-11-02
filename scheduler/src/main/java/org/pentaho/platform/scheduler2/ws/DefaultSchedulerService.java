@@ -123,7 +123,16 @@ public class DefaultSchedulerService implements ISchedulerService {
   /** {@inheritDoc} */
   public void pause() throws SchedulerException {
     IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
-    scheduler.pause();
+    if(PentahoSystem.get( IAuthorizationPolicy.class ).isAllowed( ADMIN_PERM )) {
+      scheduler.pause();
+    }else {
+      throw new SchedulerException( "Operation not allowed" );
+    }
+  }
+
+  @Override
+  public boolean canStopScheduler() {
+    return PentahoSystem.get( IAuthorizationPolicy.class ).isAllowed( ADMIN_PERM );
   }
 
   /** {@inheritDoc} */
@@ -141,7 +150,12 @@ public class DefaultSchedulerService implements ISchedulerService {
   /** {@inheritDoc} */
   public void start() throws SchedulerException {
     IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
-    scheduler.start();
+    if (PentahoSystem.get( IAuthorizationPolicy.class ).isAllowed( ADMIN_PERM )) {
+      scheduler.start();
+    } else {
+      throw new SchedulerException( "Operation not allowed" );
+    }
+
   }
 
   /** {@inheritDoc} */
