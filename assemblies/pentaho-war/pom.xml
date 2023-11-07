@@ -208,7 +208,7 @@
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-bridge</artifactId>
-      <version>${batik-bridge.version}</version>
+      <version>${batik.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
