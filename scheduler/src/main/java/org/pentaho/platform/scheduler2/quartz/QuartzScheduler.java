@@ -431,19 +431,32 @@ public class QuartzScheduler implements IScheduler {
       for ( Trigger trigger : scheduler.getTriggersOfJob( jobId, groupName ) ) {
         //BISERVER-14971 - the error was that the trigger was not being replaced, as it was not considered a new trigger
         // force the trigger to be updated with the previous fire time
+        Date nextIntendedFireDate = new Date( System.currentTimeMillis() + 1000 );
+        Date firstExecutionDate = null;
+        boolean scheduleAlreadyFired = false;
         if ( trigger instanceof SimpleTrigger ) {
           SimpleTrigger t = (SimpleTrigger) trigger.clone();
+          scheduleAlreadyFired = t.getPreviousFireTime() != null;
           t.setPreviousFireTime( new Date() );
-          //BISERVER-14971 - reschedulling job to one second after this trigger, so the listener picks it up and understands it is not the old trigger
-          t.setNextFireTime( new Date(System.currentTimeMillis() + 1000) );
-          scheduler.rescheduleJob( jobId, groupName, t );
+          //BISERVER-14971 - reschedulling job to one second after this trigger, so the listener picks it up and
+          // understands it is not the old trigger
+          t.setNextFireTime( nextIntendedFireDate );
+          firstExecutionDate = scheduler.rescheduleJob( jobId, groupName, t );
 
         } else if ( trigger instanceof CronTrigger ) {
-          CronTrigger t = (CronTrigger) trigger.clone() ;
+          CronTrigger t = (CronTrigger) trigger.clone();
+          scheduleAlreadyFired = t.getPreviousFireTime() != null;
           t.setPreviousFireTime( new Date() );
-          //BISERVER-14971 - reschedulling job to one second after this trigger, so the listener picks it up and understands it is not the old trigger
-          t.setNextFireTime( new Date(System.currentTimeMillis() + 1000) );
-          scheduler.rescheduleJob( jobId, groupName, t );
+          //BISERVER-14971 - reschedulling job to one second after this trigger, so the listener picks it up and
+          // understands it is not the old trigger
+          t.setNextFireTime( nextIntendedFireDate );
+          firstExecutionDate = scheduler.rescheduleJob( jobId, groupName, t );
+        }
+        //In the case the job is being executed before the originally scheduled job,
+        // it won't run because Quartz will set the next fire date to the trigger's
+        // originally configured fist execution date. Therefore, we trigger manually
+        if ( !scheduleAlreadyFired || nextIntendedFireDate.before( firstExecutionDate ) ) {
+          scheduler.triggerJob( jobId, jobKey.getUserName() );
         }
       }
 
