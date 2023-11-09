@@ -72,6 +72,9 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     cancelBtn.setStylePrimaryName( "pentaho-button" );
     cancelBtn.addClickHandler( new CancelListener() );
 
+    setResponsive( true );
+    setWidthCategory( WidthCategory.EXTRASMALL );
+
     this.controller = controller;
   }
 
@@ -79,8 +82,6 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
   protected DialogBox createManagedDialog() {
     DialogBox dialog = super.createManagedDialog();
     dialog.setStyleDependentName( "change-password", true );
-    dialog.setResponsive( true );
-    dialog.setWidthCategory( DialogBox.DialogWidthCategory.EXTRA_SMALL );
 
     return dialog;
   }

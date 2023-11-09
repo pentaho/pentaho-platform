@@ -1183,7 +1183,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   border-spacing: 0;
 }
 
-#mainMenubar .gwt-MenuItem {
+#mainMenubar .gwt-MenuItem, #pucTabsMenuBar .gwt-MenuItem{
   color: #414141;
   font-size: 13px;
   font-family: OpenSansLight;
@@ -1191,7 +1191,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   padding: 5px 15px;
 }
 
-#mainMenubar .gwt-MenuItem-selected {
+#mainMenubar .gwt-MenuItem-selected, #pucTabsMenuBar .gwt-MenuItem-selected{
   background: #cc0000;
   border: 0 none;
   color: #FFF;
@@ -1206,10 +1206,16 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 #mainToolbarWrapper > tbody > tr,
 #mainToolbarWrapper > tbody > tr > td,
 #mainToolbarWrapper > tbody > tr > td > div,
-#mainToolbar,
-#burgerToolbar,
 :is(#mainToolbar, #burgerToolbar) > tbody > tr > td > table {
   display: contents;
+}
+
+#mainToolbar, #burgerToolbar, #tabsMenuBar {
+  display: flex;
+  flex: 0 1 auto;
+  width: auto !important;
+  flex-wrap: wrap;
+  gap: 0;
 }
 
 :where(#pucWrapper:not(.burger-mode)) #burgerToolbar {
@@ -1224,6 +1230,16 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   /* Passed by GWT via inline-style */
   --flex-max-width: initial;
   max-width: var(--flex-max-width, 10px);
+}
+
+:where(#pucWrapper.burger-mode) #mainToolbar .spacer {
+  /* Nuke the spacer widths because these would only flex after the whole toolbar
+     would wrap to a new row. This ensures less rows from the start. */
+  width: auto !important;
+}
+
+:where(#pucWrapper.burger-mode) #mainToolbar {
+  margin-left: auto;
 }
 
 :is(#mainToolbar, #burgerToolbar) :is(.toolbar-button, .toolbar-toggle-button) {
@@ -1582,8 +1598,12 @@ hr {
 }
 
 /* region Burger Menu Mode */
-#burgerBarPerspectiveMenu {
+#pucTabsMenuBar {
   display: none;
+}
+
+#pucTabsMenuBar > * {
+  display: contents;
 }
 
 /* puc header */
@@ -1595,8 +1615,9 @@ hr {
   display: none;
 }
 
-:where(.burger-mode) #burgerBarPerspectiveMenu {
-  display: block;
+:where(.burger-mode) #pucTabsMenuBar {
+  /* Show children when burger mode */
+  display: contents;
 }
 
 :where(.burger-mode) #pucHeader {
@@ -1756,9 +1777,54 @@ hr {
   left: calc(100vw - 210px) !important;
 }
 
-:where(.burger-mode)
-.toolbar-button-focus-panel:where(#openButton, #newButton, #dummyPluginContentButton, #printButton) {
+:where(.burger-mode) .toolbar-button-focus-panel:where(#openButton, #newButton, #dummyPluginContentButton, #printButton) {
+  display: none;
+}
+
+.pentaho-tab-bar {
+  display: flex;
+  width: 100vw;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  overflow-y: hidden;
+}
+
+:where(.burger-mode) .pentaho-tab-bar {
+  display: none;
+}
+
+#tabsMenuBar.empty-tabs-menu {
   display: none;
 }
 
 /* endregion Burger Menu Mode */
+
+#pucTabsMenuBar table td, .tabsSubMenuBar table td.gwt-MenuItem {
+  width: 130px;
+  display: inline-block;
+}
+
+#pucTabsMenuBar table td {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tabsSubMenuBar table td.gwt-MenuItem {
+  word-wrap:break-word;
+}
+
+.tabsSubMenuBar {
+  position: relative;
+}
+
+.tabsMenuContextSubMenu, .tabsSubMenuBar {
+  overflow-y: auto;
+}
+
+/* when the viewport width is 400px or less, preserve the tabsMenuBar width and shrink the context subMenu*/
+@media (max-width: 400px) {
+  .tabsMenuContextSubMenu table td.gwt-MenuItem  {
+    width: calc(100vw - 235px);
+  }
+}

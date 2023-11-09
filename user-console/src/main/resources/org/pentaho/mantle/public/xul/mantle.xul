@@ -70,6 +70,10 @@
                    tooltiptext="${burgerMenu}"/>
   </toolbar>
 
+  <menubar id="tabsMenuBar" layout="horizontal" scroll="true">
+    <menuitem id="tabsMenu" />
+  </menubar>
+
   <window id="mainToolbarWrapper">
     <toolbar id="mainToolbar" visible="false">
       <!-- use spacers as images, the real images are loaded via css background images to support themeing -->
