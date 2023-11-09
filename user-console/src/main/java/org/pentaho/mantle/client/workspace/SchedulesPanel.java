@@ -381,6 +381,14 @@ public class SchedulesPanel extends SimplePanel {
     };
     nameColumn.setSortable( true );
 
+
+    TextColumn<JsJob> executableType = new TextColumn<JsJob>() {
+      public String getValue(JsJob job) {
+        return job.getScheduledExtn();
+      }
+    };
+    executableType.setSortable( true );
+
     HtmlColumn<JsJob> resourceColumn = new HtmlColumn<JsJob>() {
       @Override
       public String getStringValue( JsJob job ) {
@@ -509,6 +517,7 @@ public class SchedulesPanel extends SimplePanel {
     // table.addColumn(idColumn, "ID");
     table.addColumn( nameColumn, Messages.getString( "scheduleName" ) );
     table.addColumn( scheduleColumn, Messages.getString( "recurrence" ) );
+    table.addColumn(executableType, Messages.getString( "executableType" ) );
     table.addColumn( resourceColumn, Messages.getString( "sourceFile" ) );
     table.addColumn( outputPathColumn, Messages.getString( "outputPath" ) );
 
@@ -525,10 +534,11 @@ public class SchedulesPanel extends SimplePanel {
     table.addColumnStyleName( 3, "backgroundContentHeaderTableCell" );
     table.addColumnStyleName( 4, "backgroundContentHeaderTableCell" );
     table.addColumnStyleName( 5, "backgroundContentHeaderTableCell" );
+    table.addColumnStyleName( 6, "backgroundContentHeaderTableCell" );
     if ( isAdmin ) {
-      table.addColumnStyleName( 6, "backgroundContentHeaderTableCell" );
+      table.addColumnStyleName( 7, "backgroundContentHeaderTableCell" );
     }
-    table.addColumnStyleName( isAdmin ? 7 : 6, "backgroundContentHeaderTableCell" );
+    table.addColumnStyleName( isAdmin ? 8 : 7, "backgroundContentHeaderTableCell" );
 
     table.setColumnWidth( nameColumn, 160, Unit.PX );
     table.setColumnWidth( resourceColumn, 200, Unit.PX );
@@ -536,6 +546,7 @@ public class SchedulesPanel extends SimplePanel {
     table.setColumnWidth( scheduleColumn, 170, Unit.PX );
     table.setColumnWidth( lastFireColumn, 120, Unit.PX );
     table.setColumnWidth( nextFireColumn, 120, Unit.PX );
+    table.setColumnWidth( executableType, 120, Unit.PX );
     if ( isAdmin ) {
       table.setColumnWidth( userNameColumn, 100, Unit.PX );
     }
