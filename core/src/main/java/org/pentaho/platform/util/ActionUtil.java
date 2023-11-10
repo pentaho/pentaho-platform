@@ -30,6 +30,7 @@ import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.util.QuartzActionUtil;
 import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.Messages;
@@ -45,19 +46,18 @@ public class ActionUtil {
 
   private static final Log logger = LogFactory.getLog( ActionUtil.class );
 
-  public static final String QUARTZ_ACTIONCLASS = "ActionAdapterQuartzJob-ActionClass"; //$NON-NLS-1$
-  public static final String QUARTZ_ACTIONUSER = "ActionAdapterQuartzJob-ActionUser"; //$NON-NLS-1$
-  public static final String QUARTZ_ACTIONID = "ActionAdapterQuartzJob-ActionId"; //$NON-NLS-1$
-  public static final String QUARTZ_STREAMPROVIDER = "ActionAdapterQuartzJob-StreamProvider"; //$NON-NLS-1$
-  public static final String QUARTZ_STREAMPROVIDER_INPUT_FILE =
-    "ActionAdapterQuartzJob-StreamProvider-InputFile"; //$NON-NLS-1$
-  public static final String QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE = "input file ="; //$NON-NLS-1$
-  public static final String QUARTZ_STREAMPROVIDER_INLINE_OUTPUT_FILE = ":output file="; //$NON-NLS-1$
-  public static final String QUARTZ_UIPASSPARAM = "uiPassParam"; //$NON-NLS-1$
-  public static final String QUARTZ_LINEAGE_ID = "lineage-id"; //$NON-NLS-1$
-  public static final String QUARTZ_RESTART_FLAG = "ActionAdapterQuartzJob-Restart"; //$NON-NLS-1$
-  public static final String QUARTZ_AUTO_CREATE_UNIQUE_FILENAME = "autoCreateUniqueFilename"; //$NON-NLS-1$
-  public static final String QUARTZ_APPEND_DATE_FORMAT = "appendDateFormat"; //$NON-NLS-1$
+  public static final String QUARTZ_ACTIONCLASS = QuartzActionUtil.QUARTZ_ACTIONCLASS;
+  public static final String QUARTZ_ACTIONUSER = QuartzActionUtil.QUARTZ_ACTIONUSER;
+  public static final String QUARTZ_ACTIONID = QuartzActionUtil.QUARTZ_ACTIONID;
+  public static final String QUARTZ_STREAMPROVIDER = QuartzActionUtil.QUARTZ_STREAMPROVIDER;
+  public static final String QUARTZ_STREAMPROVIDER_INPUT_FILE = QuartzActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE;
+  public static final String QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE = QuartzActionUtil.QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE;
+  public static final String QUARTZ_STREAMPROVIDER_INLINE_OUTPUT_FILE = QuartzActionUtil.QUARTZ_STREAMPROVIDER_INLINE_OUTPUT_FILE;
+  public static final String QUARTZ_UIPASSPARAM = QuartzActionUtil.QUARTZ_UIPASSPARAM;
+  public static final String QUARTZ_LINEAGE_ID = QuartzActionUtil.QUARTZ_LINEAGE_ID;
+  public static final String QUARTZ_RESTART_FLAG = QuartzActionUtil.QUARTZ_RESTART_FLAG;
+  public static final String QUARTZ_AUTO_CREATE_UNIQUE_FILENAME = QuartzActionUtil.QUARTZ_AUTO_CREATE_UNIQUE_FILENAME;
+  public static final String QUARTZ_APPEND_DATE_FORMAT = QuartzActionUtil.QUARTZ_APPEND_DATE_FORMAT;
 
   public static final String INVOKER_ACTIONPARAMS = "actionParams";
   public static final String INVOKER_ACTIONCLASS = "actionClass"; //$NON-NLS-1$
