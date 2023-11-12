@@ -36,5 +36,6 @@ public interface IComplexJobTrigger extends IJobTrigger {
   YearlyWrapper getYearlyRecurrences();
 
   DayOfWeekWrapper getDayOfWeekRecurrences();
+  void setMinuteRecurrence( Integer... recurrence );
 
 }
