@@ -321,6 +321,8 @@ public interface IScheduler {
 
   ISchedulerResource createSchedulerResource();
 
+  IJobRequest createJobRequest();
+
   /**
    * A default implementation which doesn't do anything and exists for the backward compatibility sake.
    * @param jobParams scheduling job parameters

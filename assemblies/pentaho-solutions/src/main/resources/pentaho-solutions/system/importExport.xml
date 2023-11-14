@@ -206,6 +206,10 @@
 			</util:list>
 		</constructor-arg>
 	</bean>
+
+	<bean id="IPentahoPlatformExporter" class="org.pentaho.platform.plugin.services.exporter.PentahoPlatformExporter">
+		<constructor-arg ref="unifiedRepository"/>
+	</bean>
 	
 	<bean id="IRepositoryVersionManager" class="org.pentaho.platform.repository2.unified.DefaultRepositoryVersionManager" scope="singleton">
 		<pen:publish as-type="INTERFACES">

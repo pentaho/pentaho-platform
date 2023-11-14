@@ -14,25 +14,12 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
-package org.pentaho.platform.web.http.api.resources;
+package org.pentaho.platform.api.util;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-
-/**
- * Created by rfellows on 11/10/15.
- */
-public class JobRequestTest {
-
-  @Test
-  public void testConstructor() throws Exception {
-    JobRequest jr = new JobRequest();
-    jr.setJobId( "jobId" );
-    assertEquals( "jobId", jr.getJobId() );
-  }
+public interface IExportHelper {
+  public void doExport( Object exportArg );
 }

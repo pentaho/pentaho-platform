@@ -20,22 +20,6 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -54,6 +38,7 @@ import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.IJob;
+import org.pentaho.platform.api.scheduler2.IJobRequest;
 import org.pentaho.platform.api.scheduler2.IJobScheduleParam;
 import org.pentaho.platform.api.scheduler2.IJobScheduleRequest;
 import org.pentaho.platform.api.scheduler2.IScheduler;
@@ -80,13 +65,27 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.plugin.services.messages.Messages;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
-import org.pentaho.platform.web.http.api.resources.JobRequest;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class SolutionImportHandler implements IPlatformImportHandler {
 
@@ -334,7 +333,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             }
 
             if ( overwriteFile && jobExists ) {
-              JobRequest jobRequest = new JobRequest();
+              IJobRequest jobRequest = scheduler.createJobRequest();
               jobRequest.setJobId( job.getJobId() );
               schedulerResource.removeJob( jobRequest );
               jobExists = false;
@@ -776,7 +775,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     throws IOException {
     Response rs = scheduler != null ? (Response) scheduler.createJob( jobScheduleRequest ) : null;
     if ( jobScheduleRequest.getJobState() != JobState.NORMAL ) {
-      JobRequest jobRequest = new JobRequest();
+      IJobRequest jobRequest = PentahoSystem.get( IScheduler.class, "IScheduler2", null ).createJobRequest();
       jobRequest.setJobId( rs.getEntity().toString() );
       scheduler.pauseJob( jobRequest );
     }
