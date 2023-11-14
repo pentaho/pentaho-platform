@@ -1254,9 +1254,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.lowagie</groupId>
-      <artifactId>itext-rtf</artifactId>
-      <version>${itext.version}</version>
+      <groupId>com.github.librepdf</groupId>
+      <artifactId>openrtf</artifactId>
+      <version>${openrtf.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
