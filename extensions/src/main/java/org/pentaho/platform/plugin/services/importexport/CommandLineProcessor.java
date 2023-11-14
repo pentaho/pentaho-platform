@@ -362,7 +362,7 @@ public class CommandLineProcessor {
         Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_STATUS", response.getStatus() );
       message += "\n";
 
-      if ( logFile != null && !logFile.isEmpty() ) {
+      if ( StringUtils.isNotBlank( logFile ) ) {
         message += Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_FILE_WRITTEN", logFile );
         System.out.println( message );
         writeToFile( message, logFile );
@@ -722,7 +722,7 @@ public class CommandLineProcessor {
         response.getEntity( String.class ) ) );
     }
     System.out.println( message );
-    if ( logFile != null && !logFile.isEmpty() ) {
+    if ( StringUtils.isNotBlank( logFile ) ) {
       writeToFile( message.toString(), logFile );
     }
   }
@@ -754,11 +754,7 @@ public class CommandLineProcessor {
     }
 
     // Build the complete URL to use
-    String backupURL = contextURL + API_REPO_FILES_BACKUP;
-
-    // BISERVER-14935: In case "requestParameterAuthenticationEnabled" is set to 'true'
-    backupURL += ( "?userid=" + getUsername() + "&password=" + Encr.encryptPassword(
-      Encr.decryptPasswordOptionallyEncrypted( getPassword() ) ) );
+    String backupURL = buildURL( contextURL, API_REPO_FILES_BACKUP );
 
     WebResource resource = client.resource( backupURL );
 
@@ -772,13 +768,34 @@ public class CommandLineProcessor {
       message += Messages.getInstance().getString( "CommandLineProcessor.INFO_RESPONSE_STATUS", response.getStatus() );
       message += "\n";
       message += Messages.getInstance().getString( "CommandLineProcessor.INFO_EXPORT_WRITTEN_TO", outputFile );
-      if ( logFile != null && !logFile.isEmpty() ) {
+      if ( StringUtils.isNotBlank( logFile ) ) {
         System.out.println( message );
         writeToFile( message, logFile );
       }
     } else {
       System.out.println( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0002_INVALID_RESPONSE" ) );
     }
+  }
+
+  /**
+   * Given the Context URL and an API, this method returns the corresponding complete URL adding the proper
+   * parameters for when the request Parameter Authentication is enabled.
+   *
+   * @param contextURL the context URL
+   * @param apiPath    the API path
+   * @return Complete URL for the given API and already prepared for when the request Parameter Authentication is
+   * enabled
+   * @throws ParseException
+   * @throws KettleException
+   */
+  private String buildURL( String contextURL, String apiPath ) throws ParseException, KettleException {
+    StringBuilder sb = new StringBuilder();
+    sb.append( contextURL ).append( apiPath )
+      .append( "?userid=" ).append( getUsername() )
+      .append( "&password=" )
+      .append( Encr.encryptPassword( Encr.decryptPasswordOptionallyEncrypted( getPassword() ) ) );
+
+    return sb.toString();
   }
 
   /**
@@ -872,7 +889,7 @@ public class CommandLineProcessor {
       message += Messages.getInstance().getString( "CommandLineProcessor.INFO_RESPONSE_STATUS", response.getStatus() );
       message += "\n";
       message += Messages.getInstance().getString( "CommandLineProcessor.INFO_EXPORT_WRITTEN_TO", outputFile );
-      if ( logFile != null && !logFile.isEmpty() ) {
+      if ( StringUtils.isNotBlank( logFile ) ) {
         System.out.println( message );
         writeToFile( message, logFile );
       }
@@ -900,7 +917,7 @@ public class CommandLineProcessor {
       }
     }
 
-    if ( !isValid && logFile != null && !logFile.isEmpty() ) {
+    if ( !isValid && StringUtils.isNotBlank( logFile ) ) {
       writeToFile( "Invalid file-path:" + filePath, logFile );
     }
 
@@ -924,18 +941,10 @@ public class CommandLineProcessor {
   protected String getOptionValue( final String option, final boolean required, final boolean emptyOk )
     throws ParseException {
     final String value = StringUtils.trim( commandLine.getOptionValue( option ) );
-    if ( StringUtils.isEmpty( value ) ) {
-      // Is it required?
-      if ( required ) {
-        throw new ParseException( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0001_MISSING_ARG",
-          option ) );
-      }
 
-      // Ok, it's not required, but is it Ok to be empty?
-      if ( !emptyOk ) {
-        throw new ParseException( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0001_MISSING_ARG",
-          option ) );
-      }
+    if ( StringUtils.isEmpty( value ) && ( required || !emptyOk ) ) {
+      throw new ParseException( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0001_MISSING_ARG",
+        option ) );
     }
 
     return StringUtils.removeStart( value, "=" );
