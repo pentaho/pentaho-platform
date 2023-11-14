@@ -87,6 +87,7 @@ public class CommandLineProcessor {
   private static final String ANALYSIS_DATASOURCE_IMPORT = "/plugin/data-access/api/mondrian/postAnalysis";
 
   private static final String METADATA_DATASOURCE_IMPORT = "/plugin/data-access/api/metadata/postimport";
+  private static final String API_REPO_FILES_BACKUP = "/api/repo/files/backup";
 
   private static final String METADATA_DATASOURCE_EXT = "xmi";
 
@@ -719,7 +720,6 @@ public class CommandLineProcessor {
     throws ParseException, IOException, KettleException, URISyntaxException {
     String contextURL = getOptionValue( INFO_OPTION_URL_NAME, true, false );
     String logFile = getOptionValue( INFO_OPTION_LOGFILE_NAME, false, true );
-    String backupURL = contextURL + "/api/repo/files/backup";
 
     initRestService( contextURL );
 
@@ -731,10 +731,18 @@ public class CommandLineProcessor {
     if ( !authResponse.equals( "true" ) ) {
       System.err.println( Messages.getInstance().getString( "CommandLineProcessor.ERROR_0006_NON_ADMIN_CREDENTIALS" ) );
     }
+
+    // Build the complete URL to use
+    String backupURL = contextURL + API_REPO_FILES_BACKUP;
+
+    // BISERVER-14935: In case "requestParameterAuthenticationEnabled" is set to 'true'
+    backupURL += ( "?userid=" + getUsername() + "&password=" + Encr.encryptPassword(
+      Encr.decryptPasswordOptionallyEncrypted( getPassword() ) ) );
+
     WebResource resource = client.resource( backupURL );
 
     // Response response
-    Builder builder = resource.type( MediaType.MULTIPART_FORM_DATA ).accept( MediaType.TEXT_HTML_TYPE );
+    Builder builder = resource.type( MediaType.APPLICATION_FORM_URLENCODED ).accept( MediaType.TEXT_HTML_TYPE );
     ClientResponse response = builder.get( ClientResponse.class );
     if ( response != null && response.getStatus() == 200 ) {
       String filename = getOptionValue( INFO_OPTION_FILEPATH_NAME, true, false );
