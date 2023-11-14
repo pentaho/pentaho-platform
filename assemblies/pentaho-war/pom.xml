@@ -742,9 +742,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.lowagie</groupId>
-      <artifactId>itext</artifactId>
-      <version>${itext.version}</version>
+      <groupId>com.github.librepdf</groupId>
+      <artifactId>openpdf</artifactId>
+      <version>${openpdf.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
