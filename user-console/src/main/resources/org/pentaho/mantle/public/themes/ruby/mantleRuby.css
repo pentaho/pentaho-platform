@@ -1598,9 +1598,6 @@ hr {
 }
 
 /* region Burger Menu Mode */
-#pucTabsMenuBar {
-  display: none;
-}
 
 #pucTabsMenuBar > * {
   display: contents;
