@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -22,7 +22,6 @@ package org.pentaho.mantle.client.solutionbrowser.filelist;
 
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
-
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.commands.ExportFileCommand;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
@@ -113,8 +112,12 @@ public class FileCommand implements Command {
     }
   }
 
-  private native void createSchedule( final RepositoryFile repositoryFile )/*-{
-   $wnd.pho.createSchedule( repositoryFile );
+  private void createSchedule( final RepositoryFile repositoryFile ) {
+    createSchedule( repositoryFile.getId(), repositoryFile.getPath() );
+  }
+
+  private native void createSchedule( final String repositoryFileId, final String repositoryFilePath )/*-{
+    $wnd.pho.createSchedule( repositoryFileId, repositoryFilePath );
   }-*/;
 
 }
