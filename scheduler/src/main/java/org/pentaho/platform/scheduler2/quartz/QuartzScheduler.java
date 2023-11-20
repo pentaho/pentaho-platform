@@ -816,6 +816,10 @@ public class QuartzScheduler implements IScheduler {
     String[] tokens = cronExpression.split( delims );
     if ( tokens.length > tokenIndex ) {
       String timeTokens = tokens[tokenIndex];
+      //Adding this block in case if it's for every 1 day case, where it's considering the token as * instead of */1
+      if( tokenIndex == 3 && timeTokens.equals( "*" ) ) {
+        timeTokens = timeTokens + "/1";
+      }
       tokens = timeTokens.split( "," ); //$NON-NLS-1$
       if ( ( tokens.length > 1 ) || !( tokens[0].equals( "*" ) || tokens[0].equals( "?" ) ) ) { //$NON-NLS-1$ //$NON-NLS-2$
         RecurrenceList timeList = null;
