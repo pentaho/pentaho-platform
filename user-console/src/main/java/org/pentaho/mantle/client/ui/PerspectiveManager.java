@@ -441,8 +441,49 @@ public class PerspectiveManager extends SimplePanel {
 
   private void showSchedulesPerspective() {
     DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
-    showSchedulesPerspective( contentDeck );
+
+    GWT.runAsync( new RunAsyncCallback() {
+
+      public void onSuccess() {
+        // Use a SimplePanel to hold the returned element,
+        // and add it as a child widget if it is not there yet.
+        SimplePanel activePerspectiveWidget = (SimplePanel) findPerspectiveWidget( contentDeck, activePerspective );
+        boolean isFirstTime = activePerspectiveWidget == null;
+        if ( isFirstTime ) {
+          // Setup
+          activePerspectiveWidget = new SimplePanel();
+          activePerspectiveWidget.getElement().setId( activePerspective.getId() );
+
+          contentDeck.add( activePerspectiveWidget );
+        }
+
+        com.google.gwt.dom.client.Element element =
+          getSchedulesPerspectiveElement( activePerspectiveWidget.getElement() );
+
+        if ( isFirstTime ) {
+          activePerspectiveWidget.getElement().appendChild( element );
+        }
+
+        contentDeck.showWidget( contentDeck.getWidgetIndex( activePerspectiveWidget ) );
+      }
+
+      public void onFailure( Throwable reason ) {
+      }
+    } );
+
     setCheckMMenuItem( false, true );
+  }
+
+  private static Widget findPerspectiveWidget( DeckPanel contentDeck, IPluginPerspective perspective ) {
+    int count = contentDeck.getWidgetCount();
+    for ( int i = 0; i < count; i++ ) {
+      Widget widget = contentDeck.getWidget( i );
+      if ( perspective.getId().equals( widget.getElement().getId() ) ) {
+        return widget;
+      }
+    }
+
+    return null;
   }
 
   private void showAdminPerspective( boolean browserChecked, boolean schedulesChecked ) {
@@ -485,8 +526,9 @@ public class PerspectiveManager extends SimplePanel {
     perspectiveActivated( frameElement );
   }
 
-  public native void showSchedulesPerspective( DeckPanel contentDeck ) /*-{
-    return $wnd.pho.showSchedulesPerspective( contentDeck );
+  public native com.google.gwt.dom.client.Element getSchedulesPerspectiveElement(
+    com.google.gwt.dom.client.Element containerElement ) /*-{
+    return $wnd.pho.getSchedulesPerspectiveElement(containerElement);
   }-*/;
 
   private native void perspectiveActivated( Element frameElement )
