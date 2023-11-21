@@ -310,7 +310,7 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>pentaho</groupId>
-                  <artifactId>pentaho-streaming-kafka-plugin-zip</artifactId>
+                  <artifactId>pentaho-streaming-kafka-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
