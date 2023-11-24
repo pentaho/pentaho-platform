@@ -37,9 +37,7 @@
     <poi.version>4.1.1</poi.version>
     <commons-math3.version>3.6.1</commons-math3.version>
     <curvesapi.version>1.06</curvesapi.version>
-    <commons-compress.version>1.20</commons-compress.version>
     <groovy-all.version>2.4.8</groovy-all.version>
-    <commons-beanutils.version>1.9.3</commons-beanutils.version>
     <license.current.year>2018</license.current.year>
     <jboss-modules.version>1.4.3.Final</jboss-modules.version>
     <jsp-api.version>2.1</jsp-api.version>
@@ -58,10 +56,11 @@
     <javax.inject.version>1</javax.inject.version>
     <pentaho-vfs.version>1.0</pentaho-vfs.version>
     <wstx-asl.version>3.2.4</wstx-asl.version>
-    <icu4j.version>54.1.1</icu4j.version>
+    <icu4j.version>63.1</icu4j.version>
+    <commons-dbcp.version>1.4</commons-dbcp.version>
+    <commons-pool.version>1.5.7</commons-pool.version>
     <gdata-analytics-meta.version>2.1</gdata-analytics-meta.version>
     <syslog4j.version>0.9.46</syslog4j.version>
-    <janino.version>3.0.8</janino.version>
     <bean-matchers.version>0.9</bean-matchers.version>
     <json-simple.version>1.1</json-simple.version>
     <axis2.version>1.5</axis2.version>
@@ -160,7 +159,6 @@
     <jfreechart.version>1.0.13</jfreechart.version>
     <monetdb-jdbc.version>2.8</monetdb-jdbc.version>
     <taglibs-standard-impl.version>1.2.5</taglibs-standard-impl.version>
-    <sqlite-jdbc.version>3.7.2</sqlite-jdbc.version>
     <commons-collections4.version>4.4</commons-collections4.version>
     <gdata-client.version>1.41.4</gdata-client.version>
     <jsonpath.version>1.0</jsonpath.version>
@@ -186,7 +184,6 @@
     <neethi.version>2.0.1</neethi.version>
     <barbecue.version>1.5-beta1</barbecue.version>
     <jaxws-spring.version>1.8</jaxws-spring.version>
-    <snappy-java.version>1.1.0</snappy-java.version>
     <antlr-complete.version>3.5.2</antlr-complete.version>
     <hibernate-core.version>3.6.9.Final</hibernate-core.version>
     <license.inception.year>2002</license.inception.year>
