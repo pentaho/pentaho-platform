@@ -30,6 +30,7 @@ import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -83,12 +84,21 @@ public class PentahoSystemDriver implements Driver {
   @Override
   public Connection connect( final String url, final Properties info ) throws SQLException {
     String translatedUrl = translate( url );
+    List<Exception> listOfExceptions = new ArrayList<>();
+
     for ( Driver driver : getAllDrivers() ) {
       if ( driver.acceptsURL( translatedUrl ) ) {
-        Connection conn = driver.connect( translatedUrl, info );
-        if ( conn != null ) {
-          return conn;
+        try {
+          Connection conn = driver.connect( translatedUrl, info );
+          if ( conn != null ) {
+            return conn;
+          }
+        } catch ( Exception e ) {
+          listOfExceptions.add( e );
         }
+      }
+      if ( !listOfExceptions.isEmpty() ) {
+        throw new SQLException( listOfExceptions.get( 0 ) );
       }
     }
     return null;
