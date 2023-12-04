@@ -97,9 +97,9 @@ public class PentahoSystemDriver implements Driver {
           listOfExceptions.add( e );
         }
       }
-      if ( !listOfExceptions.isEmpty() ) {
-        throw new SQLException( listOfExceptions.get( 0 ) );
-      }
+    }
+    if ( !listOfExceptions.isEmpty() ) {
+      throw new SQLException( listOfExceptions.get( 0 ) );
     }
     return null;
   }
