@@ -1598,9 +1598,6 @@ hr {
 }
 
 /* region Burger Menu Mode */
-#pucTabsMenuBar {
-  display: none;
-}
 
 #pucTabsMenuBar > * {
   display: contents;
@@ -1781,7 +1778,7 @@ hr {
   display: none;
 }
 
-.pentaho-tab-bar {
+.panelWithTitledToolbar .pentaho-tab-bar {
   display: flex;
   width: 100vw;
   overflow-x: auto;
@@ -1789,7 +1786,7 @@ hr {
   overflow-y: hidden;
 }
 
-:where(.burger-mode) .pentaho-tab-bar {
+:where(.burger-mode) .panelWithTitledToolbar .pentaho-tab-bar {
   display: none;
 }
 
