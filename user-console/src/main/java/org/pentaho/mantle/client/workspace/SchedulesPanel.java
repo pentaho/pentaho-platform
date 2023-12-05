@@ -487,7 +487,7 @@ public class SchedulesPanel extends SimplePanel {
             return BLANK_VALUE;
           }
 
-          DateTimeFormat format = DateTimeFormat.getFormat( "EEE MMM dd HH:mm:ss zzz yyyy" );
+          DateTimeFormat format = DateTimeFormat.getFormat( PredefinedFormat.DATE_TIME_MEDIUM );
 
           return format.format( date );
         } catch ( Throwable t ) {
@@ -792,20 +792,6 @@ public class SchedulesPanel extends SimplePanel {
     bar.add( Toolbar.GLUE );
 
     // Add control scheduler button
-    if ( isAdmin ) {
-      final ToolbarButton controlSchedulerButton = new ToolbarButton( ImageUtil.getThemeableImage(
-        ICON_SMALL_STYLE, "icon-start-scheduler" ) );
-
-      controlSchedulerButton.setCommand( new Command() {
-        public void execute() {
-          toggleSchedulerOnOff( controlSchedulerButton, isScheduler );
-        }
-      } );
-      updateControlSchedulerButtonState( controlSchedulerButton, isScheduler );
-
-      bar.add( controlSchedulerButton );
-      bar.addSpacer( 20 );
-    }
 
     // Add filter button
     filterButton.setCommand( new Command() {
@@ -841,18 +827,6 @@ public class SchedulesPanel extends SimplePanel {
       bar.add( filterRemoveButton );
     }
 
-    // Add refresh button
-    ToolbarButton refresh = new ToolbarButton( ImageUtil.getThemeableImage( ICON_SMALL_STYLE, "icon-refresh" ) );
-    refresh.setToolTip( Messages.getString( "refreshTooltip" ) );
-    refresh.setCommand( new Command() {
-      public void execute() {
-        RefreshSchedulesCommand cmd = new RefreshSchedulesCommand();
-        cmd.execute();
-      }
-    } );
-    bar.add( refresh );
-
-    bar.addSpacer( 20 );
 
     // Add execute now button
     triggerNowButton.setToolTip( Messages.getString( "executeNow" ) );
@@ -866,6 +840,19 @@ public class SchedulesPanel extends SimplePanel {
     } );
     triggerNowButton.setEnabled( false );
     bar.add( triggerNowButton );
+
+    bar.addSpacer( 20 );
+
+    // Add refresh button
+    ToolbarButton refresh = new ToolbarButton( ImageUtil.getThemeableImage( ICON_SMALL_STYLE, "icon-refresh" ) );
+    refresh.setToolTip( Messages.getString( "refreshTooltip" ) );
+    refresh.setCommand( new Command() {
+      public void execute() {
+        RefreshSchedulesCommand cmd = new RefreshSchedulesCommand();
+        cmd.execute();
+      }
+    } );
+    bar.add( refresh );
 
     // Add control schedule button
     controlScheduleButton.setCommand( new Command() {
@@ -885,7 +872,20 @@ public class SchedulesPanel extends SimplePanel {
     controlScheduleButton.setEnabled( false );
     bar.add( controlScheduleButton );
 
-    bar.addSpacer( 20 );
+
+    if ( isAdmin ) {
+      final ToolbarButton controlSchedulerButton = new ToolbarButton( ImageUtil.getThemeableImage(
+              ICON_SMALL_STYLE, "icon-start-scheduler" ) );
+
+      controlSchedulerButton.setCommand( new Command() {
+        public void execute() {
+          toggleSchedulerOnOff( controlSchedulerButton, isScheduler );
+        }
+      } );
+      updateControlSchedulerButtonState( controlSchedulerButton, isScheduler );
+
+      bar.add( controlSchedulerButton );
+    }
 
     // Add edit button
     editButton.setCommand( new Command() {
