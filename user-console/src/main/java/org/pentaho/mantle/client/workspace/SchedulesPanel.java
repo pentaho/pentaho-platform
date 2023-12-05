@@ -46,7 +46,6 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -61,7 +60,6 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import org.apache.http.protocol.HTTP;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
@@ -392,7 +390,12 @@ public class SchedulesPanel extends SimplePanel {
     HtmlColumn<JsJob> resourceColumn = new HtmlColumn<JsJob>() {
       @Override
       public String getStringValue( JsJob job ) {
-        String name = job.getFullResourceName().split( "\\." )[ 0 ];
+        String fullName = job.getFullResourceName();
+        if ( null == fullName || fullName.length() == 0 ) {
+          return "";
+        }
+        int lastDotIndex = fullName.lastIndexOf( "." );
+        String name = ( lastDotIndex > 0 ) ? fullName.substring( 0, lastDotIndex ) : fullName;
         return name.replaceAll( "/", "/<wbr/>" );
       }
     };
