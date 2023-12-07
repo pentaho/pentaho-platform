@@ -75,8 +75,10 @@ public class ExportManifestUtil {
 
   private static SimpleJobTrigger fromSchedulerToBindingRequestJobTrigger( ISimpleJobTrigger incomingJobTrigger ) {
     SimpleJobTrigger outgoingJobTrigger = new SimpleJobTrigger();
-    outgoingJobTrigger.setRepeatCount( incomingJobTrigger.getRepeatCount() );
-    outgoingJobTrigger.setRepeatInterval( incomingJobTrigger.getRepeatInterval() );
+    if ( incomingJobTrigger != null ) {
+      outgoingJobTrigger.setRepeatCount( incomingJobTrigger.getRepeatCount() );
+      outgoingJobTrigger.setRepeatInterval( incomingJobTrigger.getRepeatInterval() );
+    }
     return outgoingJobTrigger;
   }
 

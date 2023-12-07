@@ -332,10 +332,10 @@ public class JobScheduleRequest {
   }
 
   public void setJobParameters( List<JobScheduleParam> jobParameters ) {
-    if ( jobParameters != this.jobParameters ) {
-      this.jobParameters.clear();
+    if ( jobParameters != getJobParameters()) {
+      getJobParameters().clear();
       if ( jobParameters != null ) {
-        this.jobParameters.addAll( jobParameters );
+        getJobParameters().addAll( jobParameters );
       }
     }
   }
