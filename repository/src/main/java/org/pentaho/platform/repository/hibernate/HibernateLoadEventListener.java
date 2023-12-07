@@ -14,16 +14,16 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.repository.hibernate;
 
 import org.hibernate.HibernateException;
-import org.hibernate.event.spi.LoadEvent;
-import org.hibernate.event.internal.DefaultLoadEventListener;
-import org.hibernate.event.spi.LoadEventListener;
+import org.hibernate.event.LoadEvent;
+import org.hibernate.event.LoadEventListener;
+import org.hibernate.event.def.DefaultLoadEventListener;
 import org.pentaho.platform.api.repository.IRuntimeElement;
 
 public class HibernateLoadEventListener extends DefaultLoadEventListener {

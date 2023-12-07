@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -42,6 +42,7 @@ import org.pentaho.platform.api.repository.ISearchable;
 import org.pentaho.platform.api.repository.RepositoryException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.connection.datasource.dbcp.JndiDatasourceService;
+import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.messages.MessageUtil;
@@ -54,9 +55,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
-
-import static org.hibernate.resource.transaction.spi.TransactionStatus.COMMITTED;
-import static org.hibernate.resource.transaction.spi.TransactionStatus.ROLLED_BACK;
 
 public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemExitPoint {
 
@@ -132,9 +130,8 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
 
     try {
       HibernateUtil.configuration = new Configuration();
-      //      Used to have "HibernateUtil.configuration.setEntityResolver( new PentahoEntityResolver() );" here.
-      //      There was no replacement for it during upgrade to 5.4.24.
-      //      See jaxb.internal.stax.LocalXmlResourceResolver#resolveEntity
+      HibernateUtil.configuration.setEntityResolver( new PentahoEntityResolver() );
+      HibernateUtil.configuration.setListener( "load", new HibernateLoadEventListener() ); //$NON-NLS-1$
 
       if ( hibernateConfigurationFile != null ) {
         String configPath = applicationContext.getSolutionPath( hibernateConfigurationFile );
@@ -155,6 +152,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
       }
       String dsName = HibernateUtil.configuration.getProperty( "connection.datasource" ); //$NON-NLS-1$
       if ( ( dsName != null ) && dsName.toUpperCase().endsWith( "HIBERNATE" ) ) { //$NON-NLS-1$
+        // IDBDatasourceService datasourceService =  (IDBDatasourceService) PentahoSystem.getObjectFactory().getObject("IDBDatasourceService",null);     //$NON-NLS-1$
         IDBDatasourceService datasourceService = getDatasourceService();
         String actualDSName = datasourceService.getDSBoundName( "Hibernate" ); //$NON-NLS-1$
         HibernateUtil.configuration.setProperty( "hibernate.connection.datasource", actualDSName ); //$NON-NLS-1$
@@ -372,7 +370,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
             HibernateUtil.log
                 .debug( Messages.getInstance().getString( "HIBUTIL.DEBUG_USING_INTERCEPTOR" ) + HibernateUtil.getInterceptor().getClass() ); //$NON-NLS-1$
           }
-          s = HibernateUtil.getSessionFactory().openSession();
+          s = HibernateUtil.getSessionFactory().openSession( HibernateUtil.getInterceptor() );
         } else {
           s = HibernateUtil.getSessionFactory().openSession();
         }
@@ -440,9 +438,11 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
    * Commit the database transaction.
    */
   public static void commitTransaction() throws RepositoryException {
+    // Boolean needed = (Boolean)commitNeeded.get();
+    // if (needed.booleanValue()){
     Transaction tx = (Transaction) HibernateUtil.threadTransaction.get();
     try {
-      if ( ( tx != null ) && !tx.getStatus().isOneOf( COMMITTED ) && !tx.getStatus().isOneOf( ROLLED_BACK) ) {
+      if ( ( tx != null ) && !tx.wasCommitted() && !tx.wasRolledBack() ) {
         if ( HibernateUtil.debug ) {
           HibernateUtil.log.debug( Messages.getInstance().getString( "HIBUTIL.DEBUG_COMMIT_TRANS" ) ); //$NON-NLS-1$
         }
@@ -458,9 +458,14 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
       if ( ex instanceof ConstraintViolationException ) {
         throw new RepositoryException( Messages.getInstance().getErrorString( "HIBUTIL.ERROR_0008_COMMIT_TRANS" ), ex ); //$NON-NLS-1$
       }
+      // throw new
+      // RepositoryException(Messages.getInstance().getErrorString("HIBUTIL.ERROR_0008_COMMIT_TRANS"),
+      // ex); //$NON-NLS-1$
     } finally {
       HibernateUtil.threadTransaction.set( null );
     }
+    // }
+    // commitNeeded.set(Boolean.FALSE);
   }
 
   /**
@@ -470,7 +475,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
     Transaction tx = (Transaction) HibernateUtil.threadTransaction.get();
     try {
       HibernateUtil.threadTransaction.set( null );
-      if ( ( tx != null ) && !tx.getStatus().isOneOf( COMMITTED ) && !tx.getStatus().isOneOf( ROLLED_BACK) ) {
+      if ( ( tx != null ) && !tx.wasCommitted() && !tx.wasRolledBack() ) {
         if ( HibernateUtil.debug ) {
           HibernateUtil.log.debug( Messages.getInstance().getString( "HIBUTIL.DEBUG_ROLLBACK" ) ); //$NON-NLS-1$
         }
