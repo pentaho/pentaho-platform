@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -32,7 +32,6 @@ package org.pentaho.platform.repository.hibernate.usertypes;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.messages.Messages;
@@ -44,8 +43,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-// UserType nullSafeGet() and nullSafeSet() different signature number of arguments we would have to implement the new methods
-// nullSafeGet() and nullSafeSet()
 public class LongStringUserType implements UserType {
   private static final Log log = LogFactory.getLog( LongStringUserType.class );
 
@@ -93,18 +90,6 @@ public class LongStringUserType implements UserType {
    */
   public int hashCode( final Object x ) throws HibernateException {
     return x.hashCode();
-  }
-
-  @Override
-  public Object nullSafeGet( ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner )
-    throws HibernateException, SQLException {
-    return null;
-  }
-
-  @Override
-  public void nullSafeSet( PreparedStatement st, Object value, int index, SharedSessionContractImplementor session )
-    throws HibernateException, SQLException {
-
   }
 
   /*
