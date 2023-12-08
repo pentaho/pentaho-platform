@@ -203,10 +203,12 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
     // Set the Thread Context Classloader to that of the classloader who loaded this class.
     ClassLoader originalClassLoader = null;
     Object object;
-    
+    IPentahoSession previousSpringSession = null;
     try {
       originalClassLoader = Thread.currentThread().getContextClassLoader();
       Thread.currentThread().setContextClassLoader( getClass().getClassLoader() );
+
+      previousSpringSession = SpringScopeSessionHolder.SESSION.get();
 
       if ( session instanceof StandaloneSession ) {
         // first ask Spring for the object, if it is session scoped it will fail
@@ -254,6 +256,8 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
       }
 
     } finally {
+      SpringScopeSessionHolder.SESSION.set( previousSpringSession );
+
       if ( originalClassLoader != null ) {
         Thread.currentThread().setContextClassLoader( originalClassLoader );
       }
