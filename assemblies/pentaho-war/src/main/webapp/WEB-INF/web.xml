@@ -342,6 +342,13 @@
   </servlet>
 
   <servlet>
+    <servlet-name>jaxwsPluginEndpoint-spring</servlet-name>
+    <display-name>jaxwsPluginEndpoint-spring</display-name>
+    <description>JAX-WS endpoint for plugins</description>
+    <servlet-class>org.pentaho.platform.web.servlet.PentahoPluginWSSpringServlet</servlet-class>
+  </servlet>
+
+  <servlet>
     <servlet-name>jaxrsEndpoint-spring</servlet-name>
     <description>JAX-RS endpoint</description>
     <servlet-class>org.pentaho.platform.web.servlet.JAXRSServlet</servlet-class>
@@ -378,6 +385,11 @@
   <servlet-mapping>
     <servlet-name>jaxwsEndpoint-spring</servlet-name>
     <url-pattern>/webservices/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>jaxwsPluginEndpoint-spring</servlet-name>
+    <url-pattern>/webservices/plugins/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
