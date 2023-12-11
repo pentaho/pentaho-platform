@@ -317,4 +317,13 @@ not directly from the PentahoObjectFactory. -->
     <pen:publish as-type="INTERFACES"/>
   </bean>
 
+  <bean id="IEmailGroupResolver" class="org.pentaho.platform.util.DefaultEmailGroupResolver"
+        scope="singleton">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="10"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
 </beans>

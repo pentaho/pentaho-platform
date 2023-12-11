@@ -30,6 +30,7 @@ import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.scheduler2.IEmailGroupResolver;
 import org.pentaho.platform.api.util.QuartzActionUtil;
 import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -430,9 +431,15 @@ public class ActionUtil {
         // no destination
         return;
       }
-      emailer.setTo( to );
-      emailer.setCc( cc );
-      emailer.setBcc( bcc );
+      IEmailGroupResolver emailGroupResolver = PentahoSystem.get( IEmailGroupResolver.class );
+
+      if ( emailGroupResolver == null ) {
+        emailGroupResolver = new DefaultEmailGroupResolver();
+      }
+
+      emailer.setTo( emailGroupResolver.resolve(to) );
+      emailer.setCc( emailGroupResolver.resolve(cc) );
+      emailer.setBcc( emailGroupResolver.resolve(bcc) );
 
       String subject = (String) actionParams.get( "_SCH_EMAIL_SUBJECT" );
       if ( subject != null && !"".equals( subject ) ) {
