@@ -84,7 +84,9 @@ public class ExportManifestUtil {
 
   private static CronJobTrigger fromSchedulerToBindingRequestCronJobTrigger( ICronJobTrigger incomingCronJobTrigger ) {
     CronJobTrigger outgoingCronJobTrigger = new CronJobTrigger();
-    outgoingCronJobTrigger.setCronString( incomingCronJobTrigger.getCronString() );
+    if ( incomingCronJobTrigger != null ) {
+      outgoingCronJobTrigger.setCronString( incomingCronJobTrigger.getCronString() );
+    }
     return outgoingCronJobTrigger;
   }
 
