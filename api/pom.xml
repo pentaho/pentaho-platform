@@ -13,7 +13,7 @@
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <mockito-all.version>1.8.5</mockito-all.version>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
-    <commons-lang.version>2.4</commons-lang.version>
+    <commons-lang.version>2.6</commons-lang.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
     <pentaho-connections.version>10.1.0.0-SNAPSHOT</pentaho-connections.version>
     <pentaho-actionsequence-dom.version>10.1.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
