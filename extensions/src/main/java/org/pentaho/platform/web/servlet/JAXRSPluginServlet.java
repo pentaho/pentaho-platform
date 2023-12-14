@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -27,6 +27,9 @@ import com.sun.jersey.spi.container.servlet.WebConfig;
 import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.objfac.spring.SpringScopeSessionHolder;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -116,7 +119,18 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
         requestThread.set( originalRequest.getRequestURI().toString() );
       }
     }
-    callParentServiceMethod( request, response );
+
+    // Ensure that Resource beans (and others these consume) can use Spring scope="session".
+    // See StandaloneSpringPentahoObjectFactory. There's likely a better way to solve this issue.
+    // Perhaps in HttpSessionPentahoSessionIntegrationFilter, or even PentahoSessionHolder,
+    // but this is the place which is solving the current need, and with a lesser impact.
+    IPentahoSession previousSpringSession = SpringScopeSessionHolder.SESSION.get();
+    SpringScopeSessionHolder.SESSION.set( PentahoSessionHolder.getSession() );
+    try {
+      callParentServiceMethod( request, response );
+    } finally {
+      SpringScopeSessionHolder.SESSION.set( previousSpringSession );
+    }
 
     // JAX-RS Response return objects do not trigger the "error state" in the HttpServletResponse
     // Forcing all HTTP Error Status into "sendError" enables the configuration of custom error
