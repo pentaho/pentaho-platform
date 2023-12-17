@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2018-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2018-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -65,6 +65,7 @@ public class CommandLineProcessorPasswordTest {
 
   @Before
   public void setup() {
+    org.junit.Assume.assumeFalse( Const.isWindows() );  //skip tests on windows as it won't initialize for some reason.
     KettleClientEnvironment.reset();
   }
 
