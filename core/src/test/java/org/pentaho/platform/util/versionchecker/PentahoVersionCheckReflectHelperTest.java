@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -50,8 +50,8 @@ public class PentahoVersionCheckReflectHelperTest {
     List results = PentahoVersionCheckReflectHelper.performVersionCheck( false, -1 );
     assertNotNull( results );
     assertTrue( results.size() > 0 );
-    assertTrue( results.get(0).toString().startsWith("<?php") );
-    assertTrue( results.get(0).toString().endsWith("?>\n") );
+    assertTrue( results.get(0).toString().startsWith("<?xml") );
+    assertTrue( results.get(0).toString().endsWith(">") );
   }
 
   @Test

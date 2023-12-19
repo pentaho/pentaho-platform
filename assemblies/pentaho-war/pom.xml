@@ -18,7 +18,7 @@
     <prepared.war.lib.directory>${prepared.war.directory}/WEB-INF/lib</prepared.war.lib.directory>
     <jettison.version>1.3.3</jettison.version>
     <datasource.resources.directory>${basedir}/src/main/resources/datasources</datasource.resources.directory>
-    <hibernate-ehcache.version>3.6.9.Final</hibernate-ehcache.version>
+    <hibernate-ehcache.version>5.4.24.Final</hibernate-ehcache.version>
     <maven-resources-plugin.version>3.0.1</maven-resources-plugin.version>
     <c3p0.version>0.9.1.2</c3p0.version>
     <jcommon-xml.version>1.0.12</jcommon-xml.version>

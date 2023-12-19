@@ -46,7 +46,6 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -61,7 +60,6 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import org.apache.http.protocol.HTTP;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
@@ -392,7 +390,12 @@ public class SchedulesPanel extends SimplePanel {
     HtmlColumn<JsJob> resourceColumn = new HtmlColumn<JsJob>() {
       @Override
       public String getStringValue( JsJob job ) {
-        String name = job.getFullResourceName().split( "\\." )[ 0 ];
+        String fullName = job.getFullResourceName();
+        if ( null == fullName || fullName.length() == 0 ) {
+          return "";
+        }
+        int lastDotIndex = fullName.lastIndexOf( "." );
+        String name = ( lastDotIndex > 0 ) ? fullName.substring( 0, lastDotIndex ) : fullName;
         return name.replaceAll( "/", "/<wbr/>" );
       }
     };
@@ -487,7 +490,7 @@ public class SchedulesPanel extends SimplePanel {
             return BLANK_VALUE;
           }
 
-          DateTimeFormat format = DateTimeFormat.getFormat( "EEE MMM dd HH:mm:ss zzz yyyy" );
+          DateTimeFormat format = DateTimeFormat.getFormat( PredefinedFormat.DATE_TIME_MEDIUM );
 
           return format.format( date );
         } catch ( Throwable t ) {
@@ -792,20 +795,6 @@ public class SchedulesPanel extends SimplePanel {
     bar.add( Toolbar.GLUE );
 
     // Add control scheduler button
-    if ( isAdmin ) {
-      final ToolbarButton controlSchedulerButton = new ToolbarButton( ImageUtil.getThemeableImage(
-        ICON_SMALL_STYLE, "icon-start-scheduler" ) );
-
-      controlSchedulerButton.setCommand( new Command() {
-        public void execute() {
-          toggleSchedulerOnOff( controlSchedulerButton, isScheduler );
-        }
-      } );
-      updateControlSchedulerButtonState( controlSchedulerButton, isScheduler );
-
-      bar.add( controlSchedulerButton );
-      bar.addSpacer( 20 );
-    }
 
     // Add filter button
     filterButton.setCommand( new Command() {
@@ -841,18 +830,6 @@ public class SchedulesPanel extends SimplePanel {
       bar.add( filterRemoveButton );
     }
 
-    // Add refresh button
-    ToolbarButton refresh = new ToolbarButton( ImageUtil.getThemeableImage( ICON_SMALL_STYLE, "icon-refresh" ) );
-    refresh.setToolTip( Messages.getString( "refreshTooltip" ) );
-    refresh.setCommand( new Command() {
-      public void execute() {
-        RefreshSchedulesCommand cmd = new RefreshSchedulesCommand();
-        cmd.execute();
-      }
-    } );
-    bar.add( refresh );
-
-    bar.addSpacer( 20 );
 
     // Add execute now button
     triggerNowButton.setToolTip( Messages.getString( "executeNow" ) );
@@ -866,6 +843,19 @@ public class SchedulesPanel extends SimplePanel {
     } );
     triggerNowButton.setEnabled( false );
     bar.add( triggerNowButton );
+
+    bar.addSpacer( 20 );
+
+    // Add refresh button
+    ToolbarButton refresh = new ToolbarButton( ImageUtil.getThemeableImage( ICON_SMALL_STYLE, "icon-refresh" ) );
+    refresh.setToolTip( Messages.getString( "refreshTooltip" ) );
+    refresh.setCommand( new Command() {
+      public void execute() {
+        RefreshSchedulesCommand cmd = new RefreshSchedulesCommand();
+        cmd.execute();
+      }
+    } );
+    bar.add( refresh );
 
     // Add control schedule button
     controlScheduleButton.setCommand( new Command() {
@@ -885,7 +875,20 @@ public class SchedulesPanel extends SimplePanel {
     controlScheduleButton.setEnabled( false );
     bar.add( controlScheduleButton );
 
-    bar.addSpacer( 20 );
+
+    if ( isAdmin ) {
+      final ToolbarButton controlSchedulerButton = new ToolbarButton( ImageUtil.getThemeableImage(
+              ICON_SMALL_STYLE, "icon-start-scheduler" ) );
+
+      controlSchedulerButton.setCommand( new Command() {
+        public void execute() {
+          toggleSchedulerOnOff( controlSchedulerButton, isScheduler );
+        }
+      } );
+      updateControlSchedulerButtonState( controlSchedulerButton, isScheduler );
+
+      bar.add( controlSchedulerButton );
+    }
 
     // Add edit button
     editButton.setCommand( new Command() {
