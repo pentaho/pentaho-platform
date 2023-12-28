@@ -30,6 +30,7 @@ import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.scheduler2.IActionClassResolver;
 import org.pentaho.platform.api.scheduler2.IEmailGroupResolver;
 import org.pentaho.platform.api.util.QuartzActionUtil;
 import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
@@ -339,10 +340,23 @@ public class ActionUtil {
             return clazz;
           }
         }
-        // we will execute this only if the beanId is not provided, or if the beanId cannot be resolved
-        if ( !StringUtils.isEmpty( actionClassName ) ) {
-          clazz = Class.forName( actionClassName );
-          return clazz;
+        try {
+          // we will execute this only if the beanId is not provided, or if the beanId cannot be resolved
+          if ( !StringUtils.isEmpty( actionClassName ) ) {
+            clazz = Class.forName( actionClassName );
+            return clazz;
+          }
+        } catch ( ClassNotFoundException cnfe ) {
+          IActionClassResolver actionClassResolver = PentahoSystem.get( IActionClassResolver.class );
+          if ( actionClassResolver != null ) {
+            String id = actionClassResolver.resolve( actionClassName );
+            clazz = loadClass( id );
+            if ( clazz != null ) {
+              return clazz;
+            }
+          } else {
+            throw cnfe;
+          }
         }
       } catch ( Throwable t ) {
         try {
@@ -359,7 +373,11 @@ public class ActionUtil {
     throw new ActionInvocationException( Messages.getInstance().getErrorString(
         "ActionUtil.ERROR_0002_FAILED_TO_CREATE_ACTION", StringUtils.isEmpty( beanId ) ? actionClassName : beanId ) );
   }
-
+  private static Class loadClass( String beanId ) throws PluginBeanException {
+    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
+    Class<?> clazz = pluginManager.loadClass( beanId );
+    return clazz;
+  }
   /**
    * Returns an instance of {@link IAction} created from the provided parameters.
    *
