@@ -40,34 +40,28 @@
   <log-file>server.log</log-file>
   <log-level>DEBUG</log-level>
 
-  <!--
-  sets the mode of how to retrieve emails for the consumption of emails in groups
-  in the scheduler plugin.  Valid values are [jdbc, ldap, or pentaho] default "pentaho".
-  -->
-  <email-source>pentaho</email-source>
+	<!--
+		The configuration of publishers, system listeners, and session actions has been moved to
+		the systemListeners.xml, adminPlugins.xml, and sessionStartupActions.xml files which
+		can be found in the "system" folder within your configured pentaho solution directory.
 
-  <!--
-    The configuration of publishers, system listeners, and session actions has been moved to
-    the systemListeners.xml, adminPlugins.xml, and sessionStartupActions.xml files which
-    can be found in the "system" folder within your configured pentaho solution directory.
+		If you're looking for the objects node, this functionality
+		has been moved to the file pentahoObjects.spring.xml in the
+		system solution.
 
-    If you're looking for the objects node, this functionality
-    has been moved to the file pentahoObjects.spring.xml in the
-    system solution.
+		When everything is completed, this file will go away, and
+		not be at all required by the bi-platform-engine classes.
+		Rather, the wiring of the components/engines/system will
+		be able to be implemented by many different wiring schemes.
+		As a bare minimum, we'll have examples of system wiring using
+			Spring injection
+			Hand coded wiring
+			properties-file wiring
 
-    When everything is completed, this file will go away, and
-    not be at all required by the bi-platform-engine classes.
-    Rather, the wiring of the components/engines/system will
-    be able to be implemented by many different wiring schemes.
-    As a bare minimum, we'll have examples of system wiring using
-      Spring injection
-      Hand coded wiring
-      properties-file wiring
-
-    This new system will allow for optimized wiring without requiring
-    the PentahoSystem, SystemSettings, or any components to parse
-    or interpret an XML document.
-  -->
+		This new system will allow for optimized wiring without requiring
+		the PentahoSystem, SystemSettings, or any components to parse
+		or interpret an XML document.
+	-->
 
         <cache-provider>
           <class>org.pentaho.platform.plugin.services.cache.HvCacheRegionFactory</class>
