@@ -344,6 +344,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
 
     RootPanel.get( "pucMenuBar" ).add( MantleXul.getInstance().getMenubar() );
     RootPanel.get( "pucBurgerToolbar" ).add( MantleXul.getInstance().getBurgerToolbarWrapper() );
+    RootPanel.get( "pucTabsMenuBar" ).add( MantleXul.getInstance().getTabsMenuBarWrapper() );
     RootPanel.get( "pucPerspectives" ).add( PerspectiveManager.getInstance() );
     RootPanel.get( "pucToolBar" ).add( MantleXul.getInstance().getToolbar() );
     RootPanel.get( "pucUserDropDown" ).add( getUserDropDown() );
@@ -360,6 +361,7 @@ public class MantleApplication implements UserSettingsLoadedEventHandler, Mantle
     contentDeck.add( new Label() );
     contentDeck.showWidget( 0 );
     contentDeck.add( SolutionBrowserPanel.getInstance() );
+
     if ( showOnlyPerspective && !StringUtils.isEmpty( startupPerspective ) ) {
       SolutionBrowserPanel.getInstance().setVisible( false );
     }

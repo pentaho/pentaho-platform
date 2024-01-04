@@ -30,12 +30,12 @@ import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Logger;
-
+import org.pentaho.platform.util.logging.Logger;
 
 //This driver will delegate to drivers found in the Hitachi Vantara Object System
 //For example it can delegate to the Mondrian 4 Olap4J Driver that lives in an OSGI Bundle
@@ -44,7 +44,7 @@ public class PentahoSystemDriver implements Driver {
     try {
       DriverManager.registerDriver( new PentahoSystemDriver() );
     } catch ( SQLException e ) {
-      org.pentaho.platform.util.logging.Logger.warn(
+      Logger.warn(
         PentahoSystemDriver.class.getName(),
         Messages.getInstance().getErrorString( "PentahoSystemDriver.ERROR_0001_COULD_NOT_REGISTER_DRIVER" ),
         e );
@@ -83,13 +83,32 @@ public class PentahoSystemDriver implements Driver {
   @Override
   public Connection connect( final String url, final Properties info ) throws SQLException {
     String translatedUrl = translate( url );
+    List<Throwable> listOfExceptions = new ArrayList<>();
+    SQLException exception = new SQLException("There were failing connections to the url: " + url);
+
     for ( Driver driver : getAllDrivers() ) {
       if ( driver.acceptsURL( translatedUrl ) ) {
-        Connection conn = driver.connect( translatedUrl, info );
-        if ( conn != null ) {
-          return conn;
+        try {
+          Connection conn = driver.connect( translatedUrl, info );
+          if ( conn != null ) {
+            return conn;
+          }
+        } catch ( SQLException e ) {
+            exception.setNextException( e );
+        } catch(Exception e ){
+          throw e;
         }
       }
+
+    }
+    if ( exception.getNextException() !=  null  && !exception.getNextException().getMessage().equals(exception.getMessage())) {
+      SQLException currentException  = exception.getNextException();
+      while(currentException != null && currentException.getNextException()!= null && !currentException.getNextException().getMessage().equals(currentException.getMessage()) ){
+        Logger.info( PentahoSystemDriver.class.getName(), currentException.getMessage(),currentException );
+        currentException =  currentException.getNextException();
+
+      }
+      throw exception;
     }
     return null;
   }
@@ -132,7 +151,7 @@ public class PentahoSystemDriver implements Driver {
   }
 
   //don't add @Override annotation for Java 6 compatibility (class Driver doesn't have getParentLogger method in Java 6)
-  public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+  public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
     throw new SQLFeatureNotSupportedException( "Impossible to know which Driver to fetch the logger from" );
   }
 }

@@ -63,6 +63,10 @@ public class RoleDialog extends GwtDialog {
     cancelBtn.setStylePrimaryName( "pentaho-button" );
     cancelBtn.addClickHandler( new CancelListener() );
 
+    setResponsive( true );
+    setWidthCategory( WidthCategory.EXTRASMALL );
+    setMinimumHeightCategory( MinimumHeightCategory.CONTENT );
+
     this.controller = controller;
   }
 
@@ -70,9 +74,6 @@ public class RoleDialog extends GwtDialog {
   protected DialogBox createManagedDialog() {
     DialogBox dialog = super.createManagedDialog();
     dialog.setStyleDependentName( "new-role", true );
-    dialog.setResponsive( true );
-    dialog.setWidthCategory( DialogBox.DialogWidthCategory.EXTRA_SMALL );
-    dialog.setMinimumHeightCategory( DialogBox.DialogMinimumHeightCategory.CONTENT );
 
     return dialog;
   }
