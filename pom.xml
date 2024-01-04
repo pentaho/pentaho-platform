@@ -286,7 +286,6 @@
       <modules>
         <module>core</module>
         <module>repository</module>
-        <module>scheduler</module>
         <module>extensions</module>
         <module>tomcat-logs</module>
       </modules>

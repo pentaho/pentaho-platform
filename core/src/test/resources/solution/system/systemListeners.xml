@@ -17,7 +17,7 @@ VersionCheckSystemListener.
 				<bean class="org.pentaho.platform.plugin.action.jfreereport.JFreeReportSystemListener"/>
 				<bean class="org.pentaho.platform.plugin.action.kettle.KettleSystemListener"/>
 				<bean class="org.pentaho.platform.plugin.action.mondrian.MondrianSystemListener"/>
-				<bean class="org.pentaho.platform.scheduler.QuartzSystemListener">
+				<!--<bean class="org.pentaho.platform.scheduler.QuartzSystemListener">
 					<property name="quartzProperties">
 						<props>
 							<prop key="hsqldb.cache_file_scale">1</prop>
@@ -49,7 +49,7 @@ VersionCheckSystemListener.
 					<property name="disableVersionCheck">
 						<value>false</value>
 					</property>
-				</bean>
+				</bean> -->
 			</list>
 		</constructor-arg>
 	</bean>

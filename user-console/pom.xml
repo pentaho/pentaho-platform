@@ -374,9 +374,9 @@
               <module>org.pentaho.mantle.MantleApplication</module>
               <webappDirectory>${gwt.outputDirectory}</webappDirectory>
               <extraJvmArgs>-Xms512m -Xmx1024m</extraJvmArgs>
-              <!-- Uncomment for debugging GWT code.
+              <!-- TODO REFACTOR-DEPENDENCY TO pentaho-scheduler-plugin/ui -->
+              <!-- Uncomment for debugging GWT code. -->
                <style>PRETTY</style>
-               -->
             </configuration>
           </execution>
         </executions>

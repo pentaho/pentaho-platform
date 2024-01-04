@@ -20,24 +20,6 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
-import javax.ws.rs.core.Response;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -55,8 +37,13 @@ import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.scheduler2.Job;
-import org.pentaho.platform.api.scheduler2.Job.JobState;
+import org.pentaho.platform.api.scheduler2.IJob;
+import org.pentaho.platform.api.scheduler2.IJobRequest;
+import org.pentaho.platform.api.scheduler2.IJobScheduleParam;
+import org.pentaho.platform.api.scheduler2.IJobScheduleRequest;
+import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.api.scheduler2.ISchedulerResource;
+import org.pentaho.platform.api.scheduler2.JobState;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
@@ -78,14 +65,27 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.plugin.services.messages.Messages;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
-import org.pentaho.platform.web.http.api.resources.JobRequest;
-import org.pentaho.platform.web.http.api.resources.JobScheduleParam;
-import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
-import org.pentaho.platform.web.http.api.resources.SchedulerResource;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
+
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class SolutionImportHandler implements IPlatformImportHandler {
 
@@ -247,13 +247,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         sourcePath = fileName;
       } else {
         sourcePath =
-            RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( actualFilePath ), fileName );
+          RepositoryFilenameUtils.concat( PentahoPlatformImporter.computeBundlePath( actualFilePath ), fileName );
       }
 
       //This clause was added for processing ivb files so that it would not try process acls on folders that the user
       //may not have rights to such as /home or /public
       if ( manifest != null && manifest.getExportManifestEntity( sourcePath ) == null && fileBundle.getFile()
-          .isFolder() ) {
+        .isFolder() ) {
         continue;
       }
 
@@ -296,34 +296,35 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     localeFilesProcessor.processLocaleFiles( importer );
   }
 
-  List<Job> getAllJobs( SchedulerResource schedulerResource ) {
-    return schedulerResource.getAllJobs();
+  List<IJob> getAllJobs( ISchedulerResource schedulerResource ) {
+    return schedulerResource.getJobsList();
   }
 
   private RepositoryFile getFile( IPlatformImportBundle importBundle, IRepositoryFileBundle fileBundle ) {
     String repositoryFilePath =
-        repositoryPathConcat( importBundle.getPath(), fileBundle.getPath(), fileBundle.getFile().getName() );
+      repositoryPathConcat( importBundle.getPath(), fileBundle.getPath(), fileBundle.getFile().getName() );
     return repository.getFile( repositoryFilePath );
   }
 
-  protected void importSchedules( List<JobScheduleRequest> scheduleList ) throws PlatformImportException {
+  protected void importSchedules( List<IJobScheduleRequest> scheduleList ) throws PlatformImportException {
     if ( CollectionUtils.isNotEmpty( scheduleList ) ) {
-      SchedulerResource schedulerResource = new SchedulerResource();
+      IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
+      ISchedulerResource schedulerResource = scheduler.createSchedulerResource();
       schedulerResource.pause();
-      for ( JobScheduleRequest jobScheduleRequest : scheduleList ) {
+      for ( IJobScheduleRequest jobScheduleRequest : scheduleList ) {
 
         boolean jobExists = false;
 
-        List<Job> jobs = getAllJobs( schedulerResource );
+        List<IJob> jobs = getAllJobs( schedulerResource );
         if ( jobs != null ) {
 
           //paramRequest to map<String, Serializable>
           Map<String, Serializable> mapParamsRequest = new HashMap<>();
-          for ( JobScheduleParam paramRequest : jobScheduleRequest.getJobParameters() ) {
+          for ( IJobScheduleParam paramRequest : jobScheduleRequest.getJobParameters() ) {
             mapParamsRequest.put( paramRequest.getName(), paramRequest.getValue() );
           }
 
-          for ( Job job : jobs ) {
+          for ( IJob job : jobs ) {
 
             if ( ( mapParamsRequest.get( RESERVEDMAPKEY_LINEAGE_ID ) != null )
               && ( mapParamsRequest.get( RESERVEDMAPKEY_LINEAGE_ID )
@@ -332,7 +333,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             }
 
             if ( overwriteFile && jobExists ) {
-              JobRequest jobRequest = new JobRequest();
+              IJobRequest jobRequest = scheduler.createJobRequest();
               jobRequest.setJobId( job.getJobId() );
               schedulerResource.removeJob( jobRequest );
               jobExists = false;
@@ -606,7 +607,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         RepositoryFileImportBundle.Builder bundleBuilder =
           new RepositoryFileImportBundle.Builder().charSet( UTF_8 ).hidden( RepositoryFile.HIDDEN_BY_DEFAULT )
             .schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT ).name( catName ).overwriteFile(
-            isOverwriteFile() ).mime( "application/vnd.pentaho.mondrian+xml" )
+              isOverwriteFile() ).mime( "application/vnd.pentaho.mondrian+xml" )
             .withParam( "parameters", parametersStr.toString() )
             .withParam( DOMAIN_ID, catName ); // TODO: this is definitely named wrong at the very least.
         // pass as param if not in parameters string
@@ -636,10 +637,10 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   boolean fileIsScheduleInputSource( ExportManifest manifest, String sourcePath ) {
     boolean isSchedulable = false;
     if ( sourcePath != null && manifest != null
-            && manifest.getScheduleList() != null ) {
+      && manifest.getScheduleList() != null ) {
       String path = sourcePath.startsWith( "/" ) ? sourcePath : "/" + sourcePath;
       isSchedulable = manifest.getScheduleList().stream()
-              .anyMatch( schedule -> path.equals( schedule.getInputFile() ) );
+        .anyMatch( schedule -> path.equals( schedule.getInputFile() ) );
     }
 
     if ( isSchedulable ) {
@@ -770,11 +771,11 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
   // handlers that extend this class may override this method and perform operations
   // over the job prior to its creation at scheduler.createJob()
-  public Response createSchedulerJob( SchedulerResource scheduler, JobScheduleRequest jobScheduleRequest )
+  public Response createSchedulerJob( ISchedulerResource scheduler, IJobScheduleRequest jobScheduleRequest )
     throws IOException {
-    Response rs = scheduler != null ? scheduler.createJob( jobScheduleRequest ) : null;
+    Response rs = scheduler != null ? (Response) scheduler.createJob( jobScheduleRequest ) : null;
     if ( jobScheduleRequest.getJobState() != JobState.NORMAL ) {
-      JobRequest jobRequest = new JobRequest();
+      IJobRequest jobRequest = PentahoSystem.get( IScheduler.class, "IScheduler2", null ).createJobRequest();
       jobRequest.setJobId( rs.getEntity().toString() );
       scheduler.pauseJob( jobRequest );
     }

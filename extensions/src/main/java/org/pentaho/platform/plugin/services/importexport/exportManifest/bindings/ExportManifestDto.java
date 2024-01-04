@@ -30,7 +30,6 @@ package org.pentaho.platform.plugin.services.importexport.exportManifest.binding
 import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
-import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

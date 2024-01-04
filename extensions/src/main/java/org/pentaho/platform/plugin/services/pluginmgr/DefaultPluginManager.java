@@ -244,13 +244,14 @@ public class DefaultPluginManager implements IPluginManager {
     throws PlatformPluginRegistrationException {
     Object listener = null;
     try {
-      if ( !StringUtils.isEmpty( plugin.getLifecycleListenerClassname() ) ) {
-        listener = loader.loadClass( plugin.getLifecycleListenerClassname() ).newInstance();
+      if ( plugin.getLifecycleListenerClassnames() != null ) {
+        for ( String pluginLifeCycleListener : plugin.getLifecycleListenerClassnames() )
+        listener = loader.loadClass( pluginLifeCycleListener ).getDeclaredConstructor().newInstance();
       }
     } catch ( Throwable t ) {
       throw new PlatformPluginRegistrationException( Messages.getInstance().getErrorString(
         "PluginManager.ERROR_0017_COULD_NOT_LOAD_PLUGIN_LIFECYCLE_LISTENER", plugin.getId(), plugin //$NON-NLS-1$
-        .getLifecycleListenerClassname() ), t );
+        .getLifecycleListenerClassnames() ), t );
     }
 
     if ( listener != null ) {
@@ -260,7 +261,7 @@ public class DefaultPluginManager implements IPluginManager {
             .getInstance()
             .getErrorString(
               "PluginManager.ERROR_0016_PLUGIN_LIFECYCLE_LISTENER_WRONG_TYPE", plugin.getId(),
-              plugin.getLifecycleListenerClassname() ) ); //$NON-NLS-1$
+              plugin.getLifecycleListenerClassnames() ) ); //$NON-NLS-1$
       }
       plugin.addLifecycleListener( (IPluginLifecycleListener) listener );
     }

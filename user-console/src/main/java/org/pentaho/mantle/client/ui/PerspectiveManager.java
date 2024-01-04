@@ -46,6 +46,7 @@ import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.MantleUtils;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.PerspectivesLoadedEvent;
@@ -56,7 +57,6 @@ import org.pentaho.mantle.client.ui.xul.JsPerspective;
 import org.pentaho.mantle.client.ui.xul.JsXulOverlay;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
 import org.pentaho.gwt.widgets.client.menuitem.MenuCloner;
-import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo.DefaultPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
@@ -115,7 +115,7 @@ public class PerspectiveManager extends SimplePanel {
   }
 
   private void init() {
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/canSchedule/?ts=" + System.currentTimeMillis(); //$NON-NLS-1$
+    final String url = MantleUtils.getSchedulerPluginContextURL() + "api/scheduler/canSchedule?ts=" + System.currentTimeMillis(); //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
     builder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
     builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
@@ -440,24 +440,50 @@ public class PerspectiveManager extends SimplePanel {
   }
 
   private void showSchedulesPerspective() {
+    DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
 
     GWT.runAsync( new RunAsyncCallback() {
 
       public void onSuccess() {
-        DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
-        if ( MantleApplication.getInstance().getContentDeck().getWidgetIndex(
-          SchedulesPerspectivePanel.getInstance() ) == -1 ) {
-          contentDeck.add( SchedulesPerspectivePanel.getInstance() );
-        } else {
-          SchedulesPerspectivePanel.getInstance().refresh();
+        // Use a SimplePanel to hold the returned element,
+        // and add it as a child widget if it is not there yet.
+        SimplePanel activePerspectiveWidget = (SimplePanel) findPerspectiveWidget( contentDeck, activePerspective );
+        boolean isFirstTime = activePerspectiveWidget == null;
+        if ( isFirstTime ) {
+          // Setup
+          activePerspectiveWidget = new SimplePanel();
+          activePerspectiveWidget.getElement().setId( activePerspective.getId() );
+
+          contentDeck.add( activePerspectiveWidget );
         }
-        contentDeck.showWidget( contentDeck.getWidgetIndex( SchedulesPerspectivePanel.getInstance() ) );
+
+        com.google.gwt.dom.client.Element element =
+          getSchedulesPerspectiveElement( activePerspectiveWidget.getElement() );
+
+        if ( isFirstTime ) {
+          activePerspectiveWidget.getElement().appendChild( element );
+        }
+
+        contentDeck.showWidget( contentDeck.getWidgetIndex( activePerspectiveWidget ) );
       }
 
       public void onFailure( Throwable reason ) {
       }
     } );
+
     setCheckMMenuItem( false, true );
+  }
+
+  private static Widget findPerspectiveWidget( DeckPanel contentDeck, IPluginPerspective perspective ) {
+    int count = contentDeck.getWidgetCount();
+    for ( int i = 0; i < count; i++ ) {
+      Widget widget = contentDeck.getWidget( i );
+      if ( perspective.getId().equals( widget.getElement().getId() ) ) {
+        return widget;
+      }
+    }
+
+    return null;
   }
 
   private void showAdminPerspective( boolean browserChecked, boolean schedulesChecked ) {
@@ -499,6 +525,11 @@ public class PerspectiveManager extends SimplePanel {
     final Element frameElement = frame.getElement();
     perspectiveActivated( frameElement );
   }
+
+  public native com.google.gwt.dom.client.Element getSchedulesPerspectiveElement(
+    com.google.gwt.dom.client.Element containerElement ) /*-{
+    return $wnd.pho.getSchedulesPerspectiveElement(containerElement);
+  }-*/;
 
   private native void perspectiveActivated( Element frameElement )
   /*-{
