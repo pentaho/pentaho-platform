@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+* Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
 --%>
 
 <!DOCTYPE html>
@@ -203,10 +203,11 @@
 <body oncontextmenu="return false;" class="pentaho-page-background">
 
   <div id="pucWrapper" cellspacing="0" cellpadding="0" style="width: 100%; height: 100%;">
-    
+
     <div id="pucHeader" class="responsive" cellspacing="0" cellpadding="0">
       <div id="pucMenuBar"></div>
       <div id="pucBurgerToolbar"></div>
+      <div id="pucTabsMenuBar"></div>
       <div id="pucPerspectives"></div>
       <div id="pucToolBar"></div>
       <div id="pucUserDropDown"></div>

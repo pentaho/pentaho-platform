@@ -32,8 +32,10 @@ import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 
+import com.google.gwt.json.client.JSONValue;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
@@ -373,7 +375,9 @@ public class RunInBackgroundCommand extends AbstractCommand {
                       createScheduleEmailDialog( filePath, scheduleRequest );
                     } else {
                       // Handle Schedule Parameters
-                      getScheduleParams( scheduleRequest );
+                      String jsonStringScheduleParams = getScheduleParams( scheduleRequest );
+                      JSONValue scheduleParams = JSONParser.parseStrict( jsonStringScheduleParams );
+                      scheduleRequest.put( "jobParameters", scheduleParams.isArray() );
 
                       // just run it
                       RequestBuilder scheduleFileRequestBuilder =
@@ -490,7 +494,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
    $wnd.pho.createScheduleEmailDialog( filePath, scheduleRequest );
   }-*/;
 
-  private native void getScheduleParams( JSONObject scheduleRequest) /*-{
-   $wnd.pho.getScheduleParams( scheduleRequest );
+  private native String getScheduleParams( JSONObject scheduleRequest) /*-{
+   return $wnd.pho.getScheduleParams( scheduleRequest );
   }-*/;
 }

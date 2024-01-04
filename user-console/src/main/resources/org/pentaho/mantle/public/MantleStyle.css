@@ -644,12 +644,6 @@ code {
 
 /* end fix BISERVER-6181 */
 
-/* BISERVER-6442 */
-#previewResultsTable {
-  overflow: hidden;
-  width: 525px;
-}
-
 .adminContentPanel > tbody > tr > td > div {
   height: 100%;
 }
@@ -893,4 +887,8 @@ code {
   padding-left: 8px;
   padding-bottom: 10px;
   padding-top: 10px;
+}
+
+#pucTabsMenuBar{
+  display: none;
 }
