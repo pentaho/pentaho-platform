@@ -46,7 +46,6 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -61,7 +60,6 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import org.apache.http.protocol.HTTP;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
@@ -381,10 +379,23 @@ public class SchedulesPanel extends SimplePanel {
     };
     nameColumn.setSortable( true );
 
+
+    TextColumn<JsJob> executableType = new TextColumn<JsJob>() {
+      public String getValue(JsJob job) {
+        return job.getScheduledExtn();
+      }
+    };
+    executableType.setSortable( true );
+
     HtmlColumn<JsJob> resourceColumn = new HtmlColumn<JsJob>() {
       @Override
       public String getStringValue( JsJob job ) {
-        String name = job.getFullResourceName().split( "\\." )[ 0 ];
+        String fullName = job.getFullResourceName();
+        if ( null == fullName || fullName.length() == 0 ) {
+          return "";
+        }
+        int lastDotIndex = fullName.lastIndexOf( "." );
+        String name = ( lastDotIndex > 0 ) ? fullName.substring( 0, lastDotIndex ) : fullName;
         return name.replaceAll( "/", "/<wbr/>" );
       }
     };
@@ -509,6 +520,7 @@ public class SchedulesPanel extends SimplePanel {
     // table.addColumn(idColumn, "ID");
     table.addColumn( nameColumn, Messages.getString( "scheduleName" ) );
     table.addColumn( scheduleColumn, Messages.getString( "recurrence" ) );
+    table.addColumn(executableType, Messages.getString( "executableType" ) );
     table.addColumn( resourceColumn, Messages.getString( "sourceFile" ) );
     table.addColumn( outputPathColumn, Messages.getString( "outputPath" ) );
 
@@ -525,10 +537,11 @@ public class SchedulesPanel extends SimplePanel {
     table.addColumnStyleName( 3, "backgroundContentHeaderTableCell" );
     table.addColumnStyleName( 4, "backgroundContentHeaderTableCell" );
     table.addColumnStyleName( 5, "backgroundContentHeaderTableCell" );
+    table.addColumnStyleName( 6, "backgroundContentHeaderTableCell" );
     if ( isAdmin ) {
-      table.addColumnStyleName( 6, "backgroundContentHeaderTableCell" );
+      table.addColumnStyleName( 7, "backgroundContentHeaderTableCell" );
     }
-    table.addColumnStyleName( isAdmin ? 7 : 6, "backgroundContentHeaderTableCell" );
+    table.addColumnStyleName( isAdmin ? 8 : 7, "backgroundContentHeaderTableCell" );
 
     table.setColumnWidth( nameColumn, 160, Unit.PX );
     table.setColumnWidth( resourceColumn, 200, Unit.PX );
@@ -536,6 +549,7 @@ public class SchedulesPanel extends SimplePanel {
     table.setColumnWidth( scheduleColumn, 170, Unit.PX );
     table.setColumnWidth( lastFireColumn, 120, Unit.PX );
     table.setColumnWidth( nextFireColumn, 120, Unit.PX );
+    table.setColumnWidth( executableType, 120, Unit.PX );
     if ( isAdmin ) {
       table.setColumnWidth( userNameColumn, 100, Unit.PX );
     }
@@ -781,20 +795,6 @@ public class SchedulesPanel extends SimplePanel {
     bar.add( Toolbar.GLUE );
 
     // Add control scheduler button
-    if ( isAdmin ) {
-      final ToolbarButton controlSchedulerButton = new ToolbarButton( ImageUtil.getThemeableImage(
-        ICON_SMALL_STYLE, "icon-start-scheduler" ) );
-
-      controlSchedulerButton.setCommand( new Command() {
-        public void execute() {
-          toggleSchedulerOnOff( controlSchedulerButton, isScheduler );
-        }
-      } );
-      updateControlSchedulerButtonState( controlSchedulerButton, isScheduler );
-
-      bar.add( controlSchedulerButton );
-      bar.addSpacer( 20 );
-    }
 
     // Add filter button
     filterButton.setCommand( new Command() {
@@ -830,18 +830,6 @@ public class SchedulesPanel extends SimplePanel {
       bar.add( filterRemoveButton );
     }
 
-    // Add refresh button
-    ToolbarButton refresh = new ToolbarButton( ImageUtil.getThemeableImage( ICON_SMALL_STYLE, "icon-refresh" ) );
-    refresh.setToolTip( Messages.getString( "refreshTooltip" ) );
-    refresh.setCommand( new Command() {
-      public void execute() {
-        RefreshSchedulesCommand cmd = new RefreshSchedulesCommand();
-        cmd.execute();
-      }
-    } );
-    bar.add( refresh );
-
-    bar.addSpacer( 20 );
 
     // Add execute now button
     triggerNowButton.setToolTip( Messages.getString( "executeNow" ) );
@@ -855,6 +843,19 @@ public class SchedulesPanel extends SimplePanel {
     } );
     triggerNowButton.setEnabled( false );
     bar.add( triggerNowButton );
+
+    bar.addSpacer( 20 );
+
+    // Add refresh button
+    ToolbarButton refresh = new ToolbarButton( ImageUtil.getThemeableImage( ICON_SMALL_STYLE, "icon-refresh" ) );
+    refresh.setToolTip( Messages.getString( "refreshTooltip" ) );
+    refresh.setCommand( new Command() {
+      public void execute() {
+        RefreshSchedulesCommand cmd = new RefreshSchedulesCommand();
+        cmd.execute();
+      }
+    } );
+    bar.add( refresh );
 
     // Add control schedule button
     controlScheduleButton.setCommand( new Command() {
@@ -874,7 +875,20 @@ public class SchedulesPanel extends SimplePanel {
     controlScheduleButton.setEnabled( false );
     bar.add( controlScheduleButton );
 
-    bar.addSpacer( 20 );
+
+    if ( isAdmin ) {
+      final ToolbarButton controlSchedulerButton = new ToolbarButton( ImageUtil.getThemeableImage(
+              ICON_SMALL_STYLE, "icon-start-scheduler" ) );
+
+      controlSchedulerButton.setCommand( new Command() {
+        public void execute() {
+          toggleSchedulerOnOff( controlSchedulerButton, isScheduler );
+        }
+      } );
+      updateControlSchedulerButtonState( controlSchedulerButton, isScheduler );
+
+      bar.add( controlSchedulerButton );
+    }
 
     // Add edit button
     editButton.setCommand( new Command() {

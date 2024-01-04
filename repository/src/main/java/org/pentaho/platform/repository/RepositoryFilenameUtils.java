@@ -511,7 +511,12 @@ public class RepositoryFilenameUtils {
    * @return the extension of the file or an empty string if none exists.
    */
   public static String getExtension( final String filename ) {
-    return FilenameUtils.getExtension( filename );
+    String tempFileName = filename;
+    // PDI-19835 - FilenameUtils.getExtension() no longer supports ':' on the file path
+    if ( filename != null && filename.contains( ":" ) ) {
+      tempFileName = filename.replace( ':', '/' );
+    }
+    return FilenameUtils.getExtension( tempFileName );
   }
 
   // -----------------------------------------------------------------------

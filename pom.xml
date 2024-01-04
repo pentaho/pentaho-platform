@@ -37,9 +37,7 @@
     <poi.version>4.1.1</poi.version>
     <commons-math3.version>3.6.1</commons-math3.version>
     <curvesapi.version>1.06</curvesapi.version>
-    <commons-compress.version>1.20</commons-compress.version>
     <groovy-all.version>2.4.8</groovy-all.version>
-    <commons-beanutils.version>1.9.3</commons-beanutils.version>
     <license.current.year>2018</license.current.year>
     <jboss-modules.version>1.4.3.Final</jboss-modules.version>
     <jsp-api.version>2.1</jsp-api.version>
@@ -51,17 +49,18 @@
     <wsdl4j.version>1.6.2</wsdl4j.version>
     <asm-attrs.version>2.2.3</asm-attrs.version>
     <mstor.version>0.9.13</mstor.version>
-    <hibernate-commons-annotations.version>3.2.0.Final</hibernate-commons-annotations.version>
+    <hibernate-commons-annotations.version>5.1.2.Final</hibernate-commons-annotations.version>
     <mina-core.version>2.0.0-M6</mina-core.version>
     <jettison.version>1.2</jettison.version>
     <hamcrest-all.version>1.3</hamcrest-all.version>
     <javax.inject.version>1</javax.inject.version>
     <pentaho-vfs.version>1.0</pentaho-vfs.version>
     <wstx-asl.version>3.2.4</wstx-asl.version>
-    <icu4j.version>54.1.1</icu4j.version>
+    <icu4j.version>63.1</icu4j.version>
+    <commons-dbcp.version>1.4</commons-dbcp.version>
+    <commons-pool.version>1.5.7</commons-pool.version>
     <gdata-analytics-meta.version>2.1</gdata-analytics-meta.version>
     <syslog4j.version>0.9.46</syslog4j.version>
-    <janino.version>3.0.8</janino.version>
     <bean-matchers.version>0.9</bean-matchers.version>
     <json-simple.version>1.1</json-simple.version>
     <axis2.version>1.5</axis2.version>
@@ -86,8 +85,8 @@
     <hamcrest-core.version>1.3</hamcrest-core.version>
     <servlet-api.version>2.5</servlet-api.version>
     <joda-time.version>2.10.2</joda-time.version>
-    <hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
-    <hibernate-ehcache.version>3.6.0.Final</hibernate-ehcache.version>
+    <hibernate-validator.version>5.4.3.Final</hibernate-validator.version>
+    <hibernate-ehcache.version>5.4.24.Final</hibernate-ehcache.version>
     <jaybird.version>2.1.6</jaybird.version>
     <resolver.version>20050927</resolver.version>
     <commons-collections.version>3.2.2</commons-collections.version>
@@ -154,20 +153,18 @@
     <jcommon.version>1.0.16</jcommon.version>
     <drools.version>6.4.0.Final</drools.version>
     <snmp4j.version>1.9.3d</snmp4j.version>
-    <itext.version>2.1.7</itext.version>
     <mondrian.version>10.1.0.0-SNAPSHOT</mondrian.version>
     <wsdl4j-qname.version>1.6.1</wsdl4j-qname.version>
     <javatar.version>2.5</javatar.version>
     <jfreechart.version>1.0.13</jfreechart.version>
     <monetdb-jdbc.version>2.8</monetdb-jdbc.version>
     <taglibs-standard-impl.version>1.2.5</taglibs-standard-impl.version>
-    <sqlite-jdbc.version>3.7.2</sqlite-jdbc.version>
     <commons-collections4.version>4.4</commons-collections4.version>
     <gdata-client.version>1.41.4</gdata-client.version>
     <jsonpath.version>1.0</jsonpath.version>
     <odfdom-java.version>0.8.6</odfdom-java.version>
     <commons-math.version>1.1</commons-math.version>
-    <hibernate-c3p0.version>3.6.9.Final</hibernate-c3p0.version>
+    <hibernate-c3p0.version>5.4.24.Final</hibernate-c3p0.version>
     <gdata-analytics.version>2.1</gdata-analytics.version>
     <gdata-core.version>1.41.4</gdata-core.version>
     <javassist.version>3.20.0-GA</javassist.version>
@@ -187,9 +184,8 @@
     <neethi.version>2.0.1</neethi.version>
     <barbecue.version>1.5-beta1</barbecue.version>
     <jaxws-spring.version>1.8</jaxws-spring.version>
-    <snappy-java.version>1.1.0</snappy-java.version>
     <antlr-complete.version>3.5.2</antlr-complete.version>
-    <hibernate-core.version>3.6.9.Final</hibernate-core.version>
+    <hibernate-core.version>5.4.24.Final</hibernate-core.version>
     <license.inception.year>2002</license.inception.year>
     <jsr181-api.version>1.0-MR1</jsr181-api.version>
     <ascsapjco3wrp.version>20100529</ascsapjco3wrp.version>
@@ -199,13 +195,17 @@
     <jt400.version>6.1</jt400.version>
     <sac.version>1.3</sac.version>
     <quartz.version>1.7.2</quartz.version>
-    <hibernate-jpa-2.0-api.version>1.0.1.Final</hibernate-jpa-2.0-api.version>
+    <hibernate-jpa-2.1-api.version>1.0.2.Final</hibernate-jpa-2.1-api.version>
     <hsqldb.version>2.3.2</hsqldb.version>
     <websocket-api.version>1.0</websocket-api.version>
     <encryption-support.version>10.1.0.0-SNAPSHOT</encryption-support.version>
     <org.json.version>3.1.1</org.json.version>
     <!-- @Null @Nullable annotations -->
     <com.github.spotbugs.annotations.version>4.2.3</com.github.spotbugs.annotations.version>
+    <jboss-logging.version>3.5.3.Final</jboss-logging.version>
+    <classmate.version>1.6.0</classmate.version>
+    <javax.persistence-api.version>2.2</javax.persistence-api.version>
+    <byte-buddy.version>1.12.16</byte-buddy.version>
   </properties>
 
   <dependencyManagement>

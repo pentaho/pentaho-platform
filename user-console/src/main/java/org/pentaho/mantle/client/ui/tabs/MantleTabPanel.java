@@ -21,18 +21,25 @@
 package org.pentaho.mantle.client.ui.tabs;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.Window.ClosingHandler;
+import com.google.gwt.user.client.ui.DecoratedPopupPanel;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
+import org.pentaho.gwt.widgets.client.utils.MenuBarUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.events.EventBusUtil;
@@ -50,6 +57,7 @@ import org.pentaho.mantle.client.ui.PerspectiveManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel {
@@ -58,12 +66,23 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   private static final String FRAME_ID_PRE = "frame_"; //$NON-NLS-1$
   private static int frameIdCount = 0;
 
+  private static MenuBar tabsMenuBar;
+  private static MenuItem tabsMenuItem;
+  private static TabContextMenuBar tabsSubMenuBar;
+
+  private static final String CLASS_EMPTY_TABS_MENU = "empty-tabs-menu";
+  private static final String CLASS_FLEX_ROW = "flex-row";
+
+  private HashMap<PentahoTab, MantleTabMenuItem> menuItemHashMap;
+
   public MantleTabPanel() {
     this( false );
   }
 
   public MantleTabPanel( boolean setupNativeHooks ) {
     super();
+    menuItemHashMap = new HashMap<>();
+
     if ( setupNativeHooks ) {
       setupNativeHooks( this );
     }
@@ -85,6 +104,16 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     } );
   }
 
+  public void setTabsMenu( MenuBar menuBar, MenuItem menuItem ) {
+    tabsMenuBar = menuBar;
+    tabsMenuItem = menuItem;
+    tabsSubMenuBar = new TabContextMenuBar( true );
+    tabsSubMenuBar.addStyleName( "tabsSubMenuBar" );
+    tabsMenuItem.setSubMenu( tabsSubMenuBar );
+    tabsMenuBar.addStyleName( CLASS_FLEX_ROW );
+    tabsMenuBar.addStyleName( CLASS_EMPTY_TABS_MENU );
+  }
+
   public void addTab( String text, String tooltip, boolean closeable, Widget content ) {
     // make sure the perspective is enabled
     PerspectiveManager.getInstance().enablePerspective( PerspectiveManager.OPENED_PERSPECTIVE, true );
@@ -93,6 +122,69 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     getTabDeck().add( content );
     if ( getSelectedTab() == null ) {
       selectTab( tab );
+    }
+    MantleTabMenuItem menuItem = createTabMenuItem( tab );
+    linkTabToMenuItem( tab, menuItem );
+    tabsSubMenuBar.addItem( menuItem );
+    contextMenuRefreshThreshold( true );
+    updateTabMenuText( tab );
+  }
+
+  public void linkTabToMenuItem( PentahoTab pentahoTab, MantleTabMenuItem mantleTabMenuItem ) {
+    menuItemHashMap.put( pentahoTab, mantleTabMenuItem );
+  }
+
+  public MantleTabMenuItem getLinkedTabMenuItem( PentahoTab pentahoTab ) {
+    return menuItemHashMap.get( pentahoTab );
+  }
+
+  public void deleteTabMenuItemLinkage( PentahoTab pentahoTab ) {
+    menuItemHashMap.remove( pentahoTab );
+  }
+
+  public void renameMenuTab( PentahoTab tab ){
+    getLinkedTabMenuItem( tab ).setText( tab.getLabelText() );
+    updateTabMenuText( tab );
+  }
+
+  /**
+   * Update the tabsMenuBar text to reflect the currently selected tab.
+   * If no tab is selected, the text is empty, and the menuBar is hidden.
+   * @param selectedTab
+   */
+  public void updateTabMenuText( PentahoTab selectedTab ) {
+    if ( selectedTab == null ) {
+      tabsMenuBar.addStyleName( CLASS_EMPTY_TABS_MENU );
+      tabsMenuItem.setText( "" );
+    } else {
+      tabsMenuBar.removeStyleName( CLASS_EMPTY_TABS_MENU );
+      String tabMenuText;
+      int tabCount = getTabCount();
+      if ( tabCount > 1 ) {
+        int tabIndex = tabsSubMenuBar.getItemIndex( getLinkedTabMenuItem( selectedTab ) ) + 1;
+        tabMenuText = "Tab (" + tabIndex + "/" + tabCount + ") " + selectedTab.getLabelText();
+      } else {
+        tabMenuText = selectedTab.getLabelText();
+      }
+      tabsMenuItem.setText( tabMenuText );
+    }
+  }
+
+  private MantleTabMenuItem createTabMenuItem( MantleTab tab ) {
+    MantleTabMenuItem tabMenuItem = new MantleTabMenuItem( tab );
+    return tabMenuItem;
+  }
+
+  /**
+   * Refresh the context menu when it changes from one to many.
+   * Disables/Enables "All Tabs" and "Other Tabs" menu items:
+   * - If a tab is added and there are now 2 tabs
+   * - If a tab is removed and there is now only 1 tab
+   * @param added
+   */
+  private void contextMenuRefreshThreshold( boolean added ) {
+    if ( ( added && menuItemHashMap.size() == 2 ) || ( !added && menuItemHashMap.size() == 1 ) ) {
+      menuItemHashMap.values().forEach( m -> m.refreshContextMenu() );
     }
   }
 
@@ -595,6 +687,9 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     }
 
     super.closeTab( closeTab, invokePreTabCloseHook );
+    tabsSubMenuBar.removeItem( getLinkedTabMenuItem( closeTab ) );
+    deleteTabMenuItemLinkage( closeTab );
+    contextMenuRefreshThreshold(false);
 
     if ( getTabCount() == 0 ) {
       allTabsClosed();
@@ -605,6 +700,9 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       List<FileItem> selectedItems = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems();
       EventBusUtil.EVENT_BUS.fireEvent( new SolutionBrowserCloseEvent( selectTabContent, selectedItems ) );
     }
+
+    // now that we have closed the target tab, update the tabsMenu text to what tab is currently selected (if there is one)
+    updateTabMenuText( getSelectedTab() );
   }
 
   public static native void clearClosingFrame( Element frame )

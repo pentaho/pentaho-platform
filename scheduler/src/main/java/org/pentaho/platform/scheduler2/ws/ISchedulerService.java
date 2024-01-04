@@ -104,4 +104,7 @@ public interface ISchedulerService {
    */
   public int getSchedulerStatus() throws SchedulerException;
 
+  default public  boolean canStopScheduler (){
+    return true;
+  }
 }
