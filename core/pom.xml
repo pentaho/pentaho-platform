@@ -454,12 +454,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-core</artifactId>
-      <version>${ehcache-core.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.mozilla</groupId>
       <artifactId>rhino</artifactId>
       <scope>compile</scope>
