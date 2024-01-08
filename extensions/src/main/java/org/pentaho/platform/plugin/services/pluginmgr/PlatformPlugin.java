@@ -92,10 +92,6 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
       initializer.init( session );
     }
   }
-  public String getLifecycleListenerClassname() {
-    return lifecycleListenerClassnames != null
-            && !lifecycleListenerClassnames.isEmpty() ? lifecycleListenerClassnames.get(0): null;
-  }
 
   public void addLifecycleListenerClassname( String lifecycleListenerClassname ) {
     this.lifecycleListenerClassnames.add( lifecycleListenerClassname );

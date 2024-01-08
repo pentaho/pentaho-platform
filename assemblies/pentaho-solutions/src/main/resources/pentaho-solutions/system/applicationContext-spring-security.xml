@@ -391,7 +391,7 @@
         <sec:intercept-url pattern="\A/webservices/userroleservice\?wsdl.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/webservices/authorizationpolicy\?wsdl.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/webservices/rolebindingdao\?wsdl.*\Z" access="Anonymous,Authenticated" />
-        <sec:intercept-url pattern="\A/webservices/scheduler\?wsdl.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/webservices/plugins/scheduler-plugin/scheduler\?wsdl.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/webservices/repositorysync\?wsdl.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/webservices/datasourcemgmtservice\?wsdl.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/webservices/.*\Z" access="Authenticated" />

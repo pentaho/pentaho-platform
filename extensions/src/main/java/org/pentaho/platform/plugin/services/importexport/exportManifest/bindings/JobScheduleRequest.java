@@ -27,8 +27,13 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
+import org.pentaho.platform.api.scheduler.JobScheduleParam;
+import org.pentaho.platform.api.scheduler2.IJob;
+import org.pentaho.platform.api.scheduler2.JobState;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -70,7 +75,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType( XmlAccessType.FIELD )
 @XmlType( name = "jobScheduleRequest", propOrder = { "actionClass", "complexJobTrigger", "cronJobTrigger", "duration",
-    "inputFile", "jobName", "jobParameters", "outputFile", "simpleJobTrigger", "timeZone", "jobId" } )
+    "inputFile", "jobName", "jobParameters", "outputFile", "simpleJobTrigger", "timeZone", "jobId", "jobState", "pdiParameters" } )
 public class JobScheduleRequest {
 
   protected String actionClass;
@@ -87,6 +92,8 @@ public class JobScheduleRequest {
   @XmlElement( namespace = "http://www.pentaho.com/schema/" )
   protected SimpleJobTrigger simpleJobTrigger;
   protected String timeZone;
+  protected JobState jobState;
+  protected Map<String, String> pdiParameters;
 
   /**
    * Gets the value of the actionClass property.
@@ -308,4 +315,28 @@ public class JobScheduleRequest {
     this.jobId = jobId;
   }
 
+  public JobState getJobState() {
+    return jobState;
+  }
+
+  public void setJobState( JobState jobState ) {
+    this.jobState = jobState;
+  }
+
+  public Map<String, String> getPdiParameters() {
+    return pdiParameters;
+  }
+
+  public void setPdiParameters( Map<String, String> pdiParameters ) {
+    this.pdiParameters = pdiParameters;
+  }
+
+  public void setJobParameters( List<JobScheduleParam> jobParameters ) {
+    if ( jobParameters != getJobParameters()) {
+      getJobParameters().clear();
+      if ( jobParameters != null ) {
+        getJobParameters().addAll( jobParameters );
+      }
+    }
+  }
 }

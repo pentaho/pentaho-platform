@@ -34,12 +34,15 @@ import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceExcep
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.scheduler2.IJobScheduleRequest;
 import org.pentaho.platform.api.scheduler2.IScheduler;
-import org.pentaho.platform.api.scheduler2.Job;
+import org.pentaho.platform.api.scheduler2.IJob;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
+import org.pentaho.platform.api.util.IExportHelper;
+import org.pentaho.platform.api.util.IPentahoPlatformExporter;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
@@ -61,9 +64,7 @@ import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryExporter;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
-import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -76,6 +77,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,7 +85,7 @@ import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class PentahoPlatformExporter extends ZipExportProcessor {
+public class PentahoPlatformExporter extends ZipExportProcessor implements IPentahoPlatformExporter {
 
   private static final Logger log = LoggerFactory.getLogger( PentahoPlatformExporter.class );
 
@@ -95,7 +97,6 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   public static final String METASTORE = "metastore";
   public static final String METASTORE_BACKUP_EXT = ".mzip";
 
-  private File exportFile;
   protected ZipOutputStream zos;
 
   private IScheduler scheduler;
@@ -106,6 +107,8 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
   private IMetaStore metastore;
   private IUserSettingService userSettingService;
 
+  private List<IExportHelper> exportHelpers = new ArrayList<>();
+
   public PentahoPlatformExporter( IUnifiedRepository repository ) {
     super( ROOT, repository, true );
     setUnifiedRepository( repository );
@@ -114,6 +117,16 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
 
   public File performExport() throws ExportException, IOException {
     return this.performExport( null );
+  }
+
+  public void addExportHelper( IExportHelper helper ) {
+    exportHelpers.add( helper );
+  }
+
+  public void runExportHelpers() {
+    for ( IExportHelper helper : exportHelpers ) {
+      helper.doExport( getExportManifest() );
+    }
   }
 
   /**
@@ -128,7 +141,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     exportRepositoryFile = getUnifiedRepository().getFile( ROOT );
 
     // create temp file
-    exportFile = File.createTempFile( EXPORT_TEMP_FILENAME_PREFIX, EXPORT_TEMP_FILENAME_EXT );
+    File exportFile = File.createTempFile( EXPORT_TEMP_FILENAME_PREFIX, EXPORT_TEMP_FILENAME_EXT );
     exportFile.deleteOnExit();
 
     zos = new ZipOutputStream( new FileOutputStream( exportFile ) );
@@ -137,7 +150,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     exportDatasources();
     exportMondrianSchemas();
     exportMetadataModels();
-    exportSchedules();
+    runExportHelpers();
     exportUsersAndRoles();
     exportMetastore();
 
@@ -306,28 +319,6 @@ public class PentahoPlatformExporter extends ZipExportProcessor {
     int end = dataSourceInfo.indexOf( ";", pos ) > -1 ? dataSourceInfo.indexOf( ";", pos ) : dataSourceInfo.length();
     String xmlaEnabled = dataSourceInfo.substring( pos + key.length(), end );
     return xmlaEnabled == null ? false : Boolean.parseBoolean( xmlaEnabled.replace( "\"", "" ) );
-  }
-
-  protected void exportSchedules() {
-    log.debug( "export schedules" );
-    try {
-      List<Job> jobs = getScheduler().getJobs( null );
-      for ( Job job : jobs ) {
-        if ( job.getJobName().equals( EmbeddedVersionCheckSystemListener.VERSION_CHECK_JOBNAME ) ) {
-          // don't bother exporting the Version Checker schedule, it gets created automatically on server start
-          // if it doesn't exist and fails if you try to import it due to a null ActionClass
-          continue;
-        }
-        try {
-          JobScheduleRequest scheduleRequest = ScheduleExportUtil.createJobScheduleRequest( job );
-          getExportManifest().addSchedule( scheduleRequest );
-        } catch ( IllegalArgumentException e ) {
-          log.warn( e.getMessage(), e );
-        }
-      }
-    } catch ( SchedulerException e ) {
-      log.error( Messages.getInstance().getString( "PentahoPlatformExporter.ERROR_EXPORTING_JOBS" ), e );
-    }
   }
 
   protected void exportUsersAndRoles() {

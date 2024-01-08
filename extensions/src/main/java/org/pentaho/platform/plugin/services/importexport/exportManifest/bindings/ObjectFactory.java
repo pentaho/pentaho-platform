@@ -27,6 +27,8 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
+import org.pentaho.platform.api.scheduler.JobScheduleParam;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;

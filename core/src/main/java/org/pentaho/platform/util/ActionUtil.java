@@ -30,6 +30,9 @@ import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.scheduler2.IActionClassResolver;
+import org.pentaho.platform.api.scheduler2.IEmailGroupResolver;
+import org.pentaho.platform.api.util.QuartzActionUtil;
 import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.Messages;
@@ -45,19 +48,18 @@ public class ActionUtil {
 
   private static final Log logger = LogFactory.getLog( ActionUtil.class );
 
-  public static final String QUARTZ_ACTIONCLASS = "ActionAdapterQuartzJob-ActionClass"; //$NON-NLS-1$
-  public static final String QUARTZ_ACTIONUSER = "ActionAdapterQuartzJob-ActionUser"; //$NON-NLS-1$
-  public static final String QUARTZ_ACTIONID = "ActionAdapterQuartzJob-ActionId"; //$NON-NLS-1$
-  public static final String QUARTZ_STREAMPROVIDER = "ActionAdapterQuartzJob-StreamProvider"; //$NON-NLS-1$
-  public static final String QUARTZ_STREAMPROVIDER_INPUT_FILE =
-    "ActionAdapterQuartzJob-StreamProvider-InputFile"; //$NON-NLS-1$
-  public static final String QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE = "input file ="; //$NON-NLS-1$
-  public static final String QUARTZ_STREAMPROVIDER_INLINE_OUTPUT_FILE = ":output file="; //$NON-NLS-1$
-  public static final String QUARTZ_UIPASSPARAM = "uiPassParam"; //$NON-NLS-1$
-  public static final String QUARTZ_LINEAGE_ID = "lineage-id"; //$NON-NLS-1$
-  public static final String QUARTZ_RESTART_FLAG = "ActionAdapterQuartzJob-Restart"; //$NON-NLS-1$
-  public static final String QUARTZ_AUTO_CREATE_UNIQUE_FILENAME = "autoCreateUniqueFilename"; //$NON-NLS-1$
-  public static final String QUARTZ_APPEND_DATE_FORMAT = "appendDateFormat"; //$NON-NLS-1$
+  public static final String QUARTZ_ACTIONCLASS = QuartzActionUtil.QUARTZ_ACTIONCLASS;
+  public static final String QUARTZ_ACTIONUSER = QuartzActionUtil.QUARTZ_ACTIONUSER;
+  public static final String QUARTZ_ACTIONID = QuartzActionUtil.QUARTZ_ACTIONID;
+  public static final String QUARTZ_STREAMPROVIDER = QuartzActionUtil.QUARTZ_STREAMPROVIDER;
+  public static final String QUARTZ_STREAMPROVIDER_INPUT_FILE = QuartzActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE;
+  public static final String QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE = QuartzActionUtil.QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE;
+  public static final String QUARTZ_STREAMPROVIDER_INLINE_OUTPUT_FILE = QuartzActionUtil.QUARTZ_STREAMPROVIDER_INLINE_OUTPUT_FILE;
+  public static final String QUARTZ_UIPASSPARAM = QuartzActionUtil.QUARTZ_UIPASSPARAM;
+  public static final String QUARTZ_LINEAGE_ID = QuartzActionUtil.QUARTZ_LINEAGE_ID;
+  public static final String QUARTZ_RESTART_FLAG = QuartzActionUtil.QUARTZ_RESTART_FLAG;
+  public static final String QUARTZ_AUTO_CREATE_UNIQUE_FILENAME = QuartzActionUtil.QUARTZ_AUTO_CREATE_UNIQUE_FILENAME;
+  public static final String QUARTZ_APPEND_DATE_FORMAT = QuartzActionUtil.QUARTZ_APPEND_DATE_FORMAT;
 
   public static final String INVOKER_ACTIONPARAMS = "actionParams";
   public static final String INVOKER_ACTIONCLASS = "actionClass"; //$NON-NLS-1$
@@ -338,10 +340,23 @@ public class ActionUtil {
             return clazz;
           }
         }
-        // we will execute this only if the beanId is not provided, or if the beanId cannot be resolved
-        if ( !StringUtils.isEmpty( actionClassName ) ) {
-          clazz = Class.forName( actionClassName );
-          return clazz;
+        try {
+          // we will execute this only if the beanId is not provided, or if the beanId cannot be resolved
+          if ( !StringUtils.isEmpty( actionClassName ) ) {
+            clazz = Class.forName( actionClassName );
+            return clazz;
+          }
+        } catch ( ClassNotFoundException cnfe ) {
+          IActionClassResolver actionClassResolver = PentahoSystem.get( IActionClassResolver.class );
+          if ( actionClassResolver != null ) {
+            String id = actionClassResolver.resolve( actionClassName );
+            clazz = loadClass( id );
+            if ( clazz != null ) {
+              return clazz;
+            }
+          } else {
+            throw cnfe;
+          }
         }
       } catch ( Throwable t ) {
         try {
@@ -358,7 +373,11 @@ public class ActionUtil {
     throw new ActionInvocationException( Messages.getInstance().getErrorString(
         "ActionUtil.ERROR_0002_FAILED_TO_CREATE_ACTION", StringUtils.isEmpty( beanId ) ? actionClassName : beanId ) );
   }
-
+  private static Class loadClass( String beanId ) throws PluginBeanException {
+    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
+    Class<?> clazz = pluginManager.loadClass( beanId );
+    return clazz;
+  }
   /**
    * Returns an instance of {@link IAction} created from the provided parameters.
    *
@@ -430,9 +449,15 @@ public class ActionUtil {
         // no destination
         return;
       }
-      emailer.setTo( to );
-      emailer.setCc( cc );
-      emailer.setBcc( bcc );
+      IEmailGroupResolver emailGroupResolver = PentahoSystem.get( IEmailGroupResolver.class );
+
+      if ( emailGroupResolver == null ) {
+        emailGroupResolver = new DefaultEmailGroupResolver();
+      }
+
+      emailer.setTo( emailGroupResolver.resolve(to) );
+      emailer.setCc( emailGroupResolver.resolve(cc) );
+      emailer.setBcc( emailGroupResolver.resolve(bcc) );
 
       String subject = (String) actionParams.get( "_SCH_EMAIL_SUBJECT" );
       if ( subject != null && !"".equals( subject ) ) {
