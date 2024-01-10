@@ -27,7 +27,6 @@ import org.pentaho.mantle.client.commands.ExportFileCommand;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
 import org.pentaho.mantle.client.commands.ImportFileCommand;
 import org.pentaho.mantle.client.commands.NewFolderCommand;
-import org.pentaho.mantle.client.commands.RunInBackgroundCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -92,7 +91,7 @@ public class FileCommand implements Command {
     } else if ( mode == COMMAND.CREATE_FOLDER ) {
       new NewFolderCommand( fileSummary ).execute();
     } else if ( mode == COMMAND.BACKGROUND ) {
-      new RunInBackgroundCommand( selectedItem ).execute( true );
+      executeRunInBackground( selectedItem.getRepositoryFile(), true);
     } else if ( mode == COMMAND.SCHEDULE_NEW ) {
       createSchedule( selectedItem.getRepositoryFile() );
     } else if ( mode == COMMAND.SHARE ) {
@@ -120,4 +119,12 @@ public class FileCommand implements Command {
     $wnd.pho.createSchedule( repositoryFileId, repositoryFilePath );
   }-*/;
 
+
+  private void executeRunInBackground( final RepositoryFile repositoryFile, final boolean feedback ) {
+    executeRunInBackground( repositoryFile.getId(), repositoryFile.getPath(), feedback );
+  }
+
+  private native void executeRunInBackground( final String repositoryFileId, final String repositoryFilePath, final boolean feedback )/*-{
+    $wnd.pho.executeRunInBackground( repositoryFileId, repositoryFilePath, feedback );
+  }-*/;
 }
