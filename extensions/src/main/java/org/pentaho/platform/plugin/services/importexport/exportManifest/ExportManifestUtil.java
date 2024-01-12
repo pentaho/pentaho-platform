@@ -140,7 +140,9 @@ public class ExportManifestUtil {
   private static ICronJobTrigger fromBindingToSchedulerRequestCronJobTrigger( CronJobTrigger incomingCronJobTrigger ) {
     IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
     ICronJobTrigger outgoingCronJobTrigger = scheduler.createCronJobTrigger();
-    outgoingCronJobTrigger.setCronString( incomingCronJobTrigger.getCronString() );
+    if( incomingCronJobTrigger != null ) {
+      outgoingCronJobTrigger.setCronString( incomingCronJobTrigger.getCronString() );
+    }
     return outgoingCronJobTrigger;
   }
 }
