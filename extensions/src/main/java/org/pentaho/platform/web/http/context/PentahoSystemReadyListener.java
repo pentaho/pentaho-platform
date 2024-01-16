@@ -66,6 +66,7 @@ public class PentahoSystemReadyListener implements ServletContextListener {
     }
   }
 
+
   @Override
   public void contextDestroyed( ServletContextEvent servletContextEvent ) {
     Repository jcrRepository = PentahoSystem.get( Repository.class, "jcrRepository", null );
@@ -75,7 +76,8 @@ public class PentahoSystemReadyListener implements ServletContextListener {
     }
     if ( !( jcrRepository instanceof JackrabbitRepository ) ) {
       Logger.error( PentahoSystemReadyListener.class.getName(),
-        String.format( "Expected RepositoryImpl, but got: [%s]. Exiting", jcrRepository.getClass().getName() ) );
+        String.format( "Expected RepositoryImpl, but got: [%s]. Exiting",
+          jcrRepository.getClass().getName() ) );
       return;
     }
     ( (JackrabbitRepository) jcrRepository ).shutdown();

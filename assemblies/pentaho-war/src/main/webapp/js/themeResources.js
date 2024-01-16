@@ -34,11 +34,11 @@ window.onload = function () {
 }
 
 if(window.core_theme_tree){
-  includeResources(core_theme_tree);
+  includeResources(core_theme_tree, true);
 }
 
 if(window.module_theme_tree){
-  includeResources(module_theme_tree);
+  includeResources(module_theme_tree, false);
 }
 
 function addStylesheet(url) {
@@ -56,10 +56,14 @@ function addScript(url) {
     document.getElementsByTagName('head')[0].appendChild(script);
 }
 
-function includeResources(resourceTree) {
+function includeResources(resourceTree, isCore) {
   var activeTheme = resourceTree && resourceTree[active_theme];
   if(!activeTheme) { return; }
-  
+
+  if(isCore && activeTheme.responsive) {
+    document.documentElement.classList.add("responsive-theme");
+  }
+
   var cssPat = /\.css$/;
   var resources = activeTheme.resources;
   for(var i = 0; i < resources.length; i++){
@@ -67,7 +71,7 @@ function includeResources(resourceTree) {
     var basePath = CONTEXT_PATH + activeTheme.rootDir;
     if(cssPat.test(baseName)){
       addStylesheet(basePath + baseName);
-      
+
       // Check to see if we're in a mobile device, if so add a "-mobile"
       if(navigator.userAgent.match(/(iPad|iPod|iPhone)/) != null){
         addStylesheet(basePath + baseName.replace('.css', '') + '-mobile.css');

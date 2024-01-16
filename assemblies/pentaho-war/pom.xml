@@ -462,12 +462,6 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.quartz-scheduler</groupId>
-      <artifactId>quartz-oracle</artifactId>
-      <version>${quartz-oracle.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pdi-osgi-bridge-core</artifactId>
       <version>${project.version}</version>

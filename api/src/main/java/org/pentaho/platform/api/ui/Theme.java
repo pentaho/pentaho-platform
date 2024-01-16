@@ -26,7 +26,7 @@ import java.util.Set;
 
 /**
  * Theme encapsulates a collection of ThemeResources and a root directory to access them from.
- * 
+ *
  * User: nbaker Date: 5/15/11
  */
 public class Theme implements Serializable {
@@ -42,6 +42,7 @@ public class Theme implements Serializable {
   private String themeRootDir;
   private boolean hidden;
   private String id;
+  private boolean responsive;
 
   public Theme( String id, String name, String rootDir ) {
     this.id = id;
@@ -110,5 +111,27 @@ public class Theme implements Serializable {
 
   public void setId( String id ) {
     this.id = id;
+  }
+
+  /**
+   * Gets a value that indicates whether the theme is responsive.
+   * @return `true` if responsive; `false`, otherwise.
+   */
+  public boolean getResponsive() {
+    return responsive;
+  }
+
+  /**
+   * Sets whether the theme is responsive.
+   * <p>
+   * Responsive themes enable certain CSS classes, e.g. `responsive`, to behave in a responsive manner.
+   * <p>
+   * When the current theme is responsive, the CSS class `responsive-theme` is added to the HTML document's root
+   * element, `html`.
+   *
+   * @param responsive `true` if responsive; `false`, otherwise.
+   */
+  public void setResponsive( boolean responsive ) {
+    this.responsive = responsive;
   }
 }

@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.mantle.client.solutionbrowser;
@@ -56,7 +56,6 @@ import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
 import org.pentaho.mantle.client.csrf.CsrfRequestBuilder;
-import org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.ShowDescriptionsEvent;
 import org.pentaho.mantle.client.events.ShowHiddenFilesEvent;
@@ -334,10 +333,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
       return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setNavigatorShowing(Z)(show);
     }
-    $wnd.mantle_confirmBackgroundExecutionDialog = function (url) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      @org.pentaho.mantle.client.dialogs.scheduling.ScheduleHelper::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);
-    }
     $wnd.mantle_openRepositoryFile = function (pathToFile, mode) {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
       solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::openFile(Ljava/lang/String;Ljava/lang/String;)(pathToFile, mode);
@@ -481,7 +476,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       PerspectiveManager.getInstance().setPerspective( PerspectiveManager.OPENED_PERSPECTIVE );
       editFile( repositoryFile );
     } else if ( mode == FileCommand.COMMAND.SCHEDULE_NEW ) {
-      ScheduleHelper.createSchedule( repositoryFile, new ScheduleCallback( repositoryFile ) );
+      createSchedule( repositoryFile );
       return;
     } else if ( mode == FileCommand.COMMAND.SHARE ) {
       ShareFileCommand sfc = new ShareFileCommand();
@@ -833,4 +828,12 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       cancelButton.removeFromParent();
     }
   }
+
+  private void createSchedule( final RepositoryFile repositoryFile ) {
+    createSchedule( repositoryFile.getId(), repositoryFile.getPath() );
+  }
+
+  private native void createSchedule( final String repositoryFileId, final String repositoryFilePath )/*-{
+    $wnd.pho.createSchedule( repositoryFileId, repositoryFilePath );
+  }-*/;
 }

@@ -14,13 +14,14 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.plugin.services.cache;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.management.CacheStatistics;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Element;
@@ -505,18 +506,13 @@ public class CacheManager implements ICacheManager {
       Ehcache ehcache = hvcache.getStorageAccess().getCache();
       if ( hvcache != null ) {
         try {
-          long memCnt = ehcache.getStatistics().getMemoryStoreObjectCount();
-          long discCnt = ehcache.getStatistics().getDiskStoreObjectCount();
-          return memCnt + discCnt;
+          CacheStatistics cacheStatistics = new CacheStatistics( ehcache );
+          return cacheStatistics.getMemoryStoreObjectCount() + cacheStatistics.getDiskStoreObjectCount();
         } catch ( Exception ignored ) {
-          return -1;
         }
-      } else {
-        return -1;
       }
-    } else {
-      return -1;
     }
+    return -1;
   }
 
   @Override

@@ -21,11 +21,8 @@
 package org.pentaho.mantle.client.admin;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.Request;
@@ -49,13 +46,9 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
+import org.pentaho.mantle.client.MantleUtils;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
-import org.pentaho.mantle.client.dialogs.scheduling.ScheduleRecurrenceDialog;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.workspace.JsJob;
-import org.pentaho.mantle.client.workspace.JsJobParam;
 
 import java.util.Date;
 
@@ -80,12 +73,9 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
 
   public void activate() {
     clear();
-    String moduleBaseURL = GWT.getModuleBaseURL();
-    String moduleName = GWT.getModuleName();
-    String contextURL = moduleBaseURL.substring( 0, moduleBaseURL.lastIndexOf( moduleName ) );
 
     RequestBuilder scheduleFileRequestBuilder =
-        new RequestBuilder( RequestBuilder.GET, contextURL + "api/scheduler/getContentCleanerJob?cb="
+        new RequestBuilder( RequestBuilder.GET, MantleUtils.getSchedulerPluginContextURL() + "api/scheduler/getContentCleanerJob?cb="
             + System.currentTimeMillis() );
     scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     scheduleFileRequestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
@@ -104,34 +94,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           nowTextBox.getElement().getStyle().setMarginRight( 5, Unit.PX );
           final TextBox scheduleTextBox = new TextBox();
           scheduleTextBox.setVisibleLength( 4 );
-
-          JsJob tmpJsJob = parseJsonJob( JsonUtils.escapeJsonForEval( response.getText() ) );
-
-          boolean fakeJob = false;
-          if ( tmpJsJob == null ) {
-            tmpJsJob = createJsJob();
-            fakeJob = true;
-          }
-          final JsJob jsJob = tmpJsJob;
-
-          if ( jsJob != null ) {
-            scheduleTextBox.setValue( "" + ( Long.parseLong( jsJob.getJobParamValue( "age" ) ) / DAY_IN_MILLIS ) );
-          } else {
-            scheduleTextBox.setText( "180" );
-          }
-          scheduleTextBox.addChangeHandler( new ChangeHandler() {
-            public void onChange( ChangeEvent event ) {
-              if ( jsJob != null ) {
-                JsArray<JsJobParam> params = jsJob.getJobParams();
-                for ( int i = 0; i < params.length(); i++ ) {
-                  if ( params.get( i ).getName().equals( "age" ) ) {
-                    params.get( i ).setValue( "" + ( Long.parseLong( scheduleTextBox.getText() ) * DAY_IN_MILLIS ) );
-                    break;
-                  }
-                }
-              }
-            }
-          } );
+          processScheduleTextBox( JsonUtils.escapeJsonForEval( response.getText() ), scheduleTextBox );
 
           Label settingsLabel = new Label( Messages.getString( "settings" ) );
           settingsLabel.setStyleName( "pentaho-fieldgroup-major" );
@@ -190,8 +153,9 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           scheduledPanel.add( deleteScheduleLabel );
 
           Label descLabel;
+          boolean fakeJob = isFakeJob();
           if ( !fakeJob ) {
-            String desc = jsJob.getJobTrigger().getDescription();
+            String desc = getJobDescription();
             descLabel = new Label( desc );
             scheduledPanel.add( descLabel );
           } else {
@@ -210,7 +174,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           deleteScheduleButton.addStyleName( "last" );
           deleteScheduleButton.addClickHandler( new ClickHandler() {
             public void onClick( ClickEvent event ) {
-              deleteContentCleaner( jsJob );
+              deleteContentCleaner();
             }
           } );
           editScheduleButton.setStylePrimaryName( "pentaho-button" );
@@ -219,7 +183,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
             public void onClick( ClickEvent event ) {
               IDialogCallback callback = new IDialogCallback() {
                 public void okPressed() {
-                  deleteContentCleaner( jsJob );
+                  deleteContentCleaner();
                 }
 
                 public void cancelPressed() {
@@ -230,12 +194,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
               scheduleLabelPanel.add( new Label( Messages.getString( "deleteGeneratedFilesOlderThan" ), false ) );
               scheduleLabelPanel.add( scheduleTextBox );
               scheduleLabelPanel.add( new Label( Messages.getString( "daysUsingTheFollowingRules" ), false ) );
-              ScheduleRecurrenceDialog editSchedule =
-                  new ScheduleRecurrenceDialog( null, jsJob, callback, false, false,
-                      AbstractWizardDialog.ScheduleDialogType.SCHEDULER );
-              editSchedule.setShowSuccessDialog( false );
-              editSchedule.addCustomPanel( scheduleLabelPanel, DockPanel.NORTH );
-              editSchedule.center();
+              createScheduleRecurrenceDialog( scheduleLabelPanel, callback );
             }
           } );
           HorizontalPanel scheduleButtonPanel = new HorizontalPanel();
@@ -282,7 +241,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           + "\"repeatInterval\": \"0\", \"startTime\": \"" + date + "\", \"uiPassParam\": \"RUN_ONCE\"} }";
 
     RequestBuilder scheduleFileRequestBuilder =
-        new RequestBuilder( RequestBuilder.POST, GWT.getHostPageBaseURL() + "api/scheduler/job" );
+        new RequestBuilder( RequestBuilder.POST, MantleUtils.getSchedulerPluginContextURL() + "api/scheduler/job" );
     scheduleFileRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     scheduleFileRequestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
     try {
@@ -293,7 +252,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
         public void onResponseReceived( Request request, Response response ) {
           String jobId = response.getText();
           final RequestBuilder requestBuilder =
-            new RequestBuilder( RequestBuilder.GET, GWT.getHostPageBaseURL()
+            new RequestBuilder( RequestBuilder.GET, MantleUtils.getSchedulerPluginContextURL()
               + "api/scheduler/jobinfo?jobId=" + URL.encodeQueryString( jobId ) );
           requestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
           requestBuilder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
@@ -335,49 +294,18 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
     }
   }
 
-  private final native JsJob parseJsonJob( String json )
-  /*-{
-    window.parent.jobjson = json;
-    if (null == json || "" == json) {
-      return null;
-    }
-    var obj = JSON.parse(json);
-    return obj;
-  }-*/;
-
-  private final native JsJob createJsJob()
-  /*-{
-    var jsJob = new Object();
-    jsJob.jobParams = new Object();
-    jsJob.jobParams.jobParams = [];
-    jsJob.jobParams.jobParams[0] = new Object();
-    jsJob.jobParams.jobParams[0].name = "ActionAdapterQuartzJob-ActionClass";
-    jsJob.jobParams.jobParams[0].value = "org.pentaho.platform.admin.GeneratedContentCleaner";
-    jsJob.jobParams.jobParams[1] = new Object();
-    jsJob.jobParams.jobParams[1].name = "age";
-    jsJob.jobParams.jobParams[1].value = "15552000000";
-    jsJob.jobTrigger = new Object();
-    jsJob.jobTrigger['@type'] = "simpleJobTrigger";
-    jsJob.jobTrigger.repeatCount = -1;
-    jsJob.jobTrigger.repeatInterval = 86400;
-    jsJob.jobTrigger.scheduleType = "DAILY";
-    //jsJob.jobTrigger.startTime = "2013-03-22T09:35:52.276-04:00";
-    jsJob.jobName = "GeneratedContentCleaner";
-    return jsJob;
-  }-*/;
-
-  private void deleteContentCleaner( JsJob jsJob ) {
-    if ( jsJob == null || StringUtils.isEmpty( jsJob.getJobId() ) ) {
+  private void deleteContentCleaner() {
+    if ( getJobId() == null ) {
       activate();
       return;
     }
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/removeJob"; //$NON-NLS-1$
+    final String url = MantleUtils.getSchedulerPluginContextURL() + "api/scheduler/removeJob"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder( RequestBuilder.DELETE, url );
     builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     builder.setHeader( "Content-Type", "application/json" ); //$NON-NLS-1$//$NON-NLS-2$
 
     JSONObject startJobRequest = new JSONObject();
-    startJobRequest.put( "jobId", new JSONString( jsJob.getJobId() ) ); //$NON-NLS-1$
+    startJobRequest.put( "jobId", new JSONString( getJobId() ) ); //$NON-NLS-1$
 
     try {
       builder.sendRequest( startJobRequest.toString(), new RequestCallback() {
@@ -403,5 +331,25 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
   private static void hideLoadingIndicator() {
     WaitPopup.getInstance().setVisible( false );
   }
+
+  private native void processScheduleTextBox( String jsonJobString, TextBox scheduleTextBox )/*-{
+   $wnd.pho.processScheduleTextBox( jsonJobString, scheduleTextBox );
+  }-*/;
+
+  private native boolean isFakeJob()/*-{
+   return $wnd.pho.isFakeJob();
+  }-*/;
+
+  private native String getJobDescription()/*-{
+   return $wnd.pho.getJobDescription();
+  }-*/;
+
+  private native String getJobId()/*-{
+   return $wnd.pho.getJobId();
+  }-*/;
+
+  private native void createScheduleRecurrenceDialog( HorizontalPanel scheduleLabelPanel, IDialogCallback callback )/*-{
+   $wnd.pho.createScheduleRecurrenceDialog( scheduleLabelPanel, callback);
+  }-*/;
 
 }

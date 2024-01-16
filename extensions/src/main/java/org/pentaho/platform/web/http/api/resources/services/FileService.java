@@ -20,6 +20,73 @@
 
 package org.pentaho.platform.web.http.api.resources.services;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.Level;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.webservices.LocaleMapDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
+import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.api.util.IPentahoPlatformExporter;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.exporter.PentahoPlatformExporter;
+import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
+import org.pentaho.platform.plugin.services.importer.PlatformImportException;
+import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
+import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
+import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
+import org.pentaho.platform.plugin.services.importexport.ExportException;
+import org.pentaho.platform.plugin.services.importexport.ExportHandler;
+import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
+import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
+import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
+import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.locale.PentahoLocale;
+import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
+import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
+import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
+import org.pentaho.platform.repository2.unified.webservices.PropertiesWrapper;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.web.http.api.resources.SessionResource;
+import org.pentaho.platform.web.http.api.resources.Setting;
+import org.pentaho.platform.web.http.api.resources.StringListWrapper;
+import org.pentaho.platform.web.http.api.resources.operations.CopyFilesOperation;
+import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
+import org.pentaho.platform.web.http.api.resources.utils.RepositoryFileHelper;
+import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
+import org.pentaho.platform.web.http.messages.Messages;
+import org.pentaho.platform.web.servlet.HttpMimeTypeListener;
+
+import javax.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,73 +115,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
-
-import javax.ws.rs.core.StreamingOutput;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.logging.log4j.Level;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISystemConfig;
-import org.pentaho.platform.api.engine.PentahoAccessControlException;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
-import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
-import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
-import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.exporter.PentahoPlatformExporter;
-import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
-import org.pentaho.platform.plugin.services.importer.PlatformImportException;
-import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
-import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
-import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
-import org.pentaho.platform.plugin.services.importexport.ExportException;
-import org.pentaho.platform.plugin.services.importexport.ExportHandler;
-import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
-import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
-import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
-import org.pentaho.platform.plugin.services.importexport.ImportSession;
-import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
-import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import org.pentaho.platform.repository2.locale.PentahoLocale;
-import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
-import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
-import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
-import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
-import org.pentaho.platform.api.repository2.unified.webservices.LocaleMapDto;
-import org.pentaho.platform.repository2.unified.webservices.PropertiesWrapper;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
-import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
-import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.platform.web.http.api.resources.SessionResource;
-import org.pentaho.platform.web.http.api.resources.Setting;
-import org.pentaho.platform.web.http.api.resources.StringListWrapper;
-import org.pentaho.platform.web.http.api.resources.operations.CopyFilesOperation;
-import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
-import org.pentaho.platform.web.http.api.resources.utils.RepositoryFileHelper;
-import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
-import org.pentaho.platform.web.http.messages.Messages;
-import org.pentaho.platform.web.servlet.HttpMimeTypeListener;
 
 public class FileService {
 
@@ -159,7 +159,7 @@ public class FileService {
       boolean overwriteFileFlag = !"false".equals( overwriteFile );
       boolean applyAclSettingsFlag = !"false".equals( applyAclSettings );
       boolean overwriteAclSettingsFlag = "true".equals( overwriteAclSettings );
-      IRepositoryImportLogger importLogger = null;
+      IRepositoryImportLogger importLogger;
       Level level = Level.ERROR;
       ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
       String importDirectory = "/";
@@ -1547,8 +1547,8 @@ public class FileService {
    * @throws FileNotFoundException
    * @private
    */
-  protected List<RepositoryFileDto> searchGeneratedContent( String userDir, String targetComparator,
-                                                            String metadataConstant )
+  public List<RepositoryFileDto> searchGeneratedContent( String userDir, String targetComparator,
+                                                         String metadataConstant )
     throws FileNotFoundException {
     List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
 
@@ -1935,7 +1935,8 @@ public class FileService {
 
   private PentahoPlatformExporter getBackupExporter() {
     if ( backupExporter == null ) {
-      backupExporter = new PentahoPlatformExporter( getRepository() );
+      backupExporter =
+        (PentahoPlatformExporter) PentahoSystem.get( IPentahoPlatformExporter.class, "IPentahoPlatformExporter", null );
     }
 
     return backupExporter;

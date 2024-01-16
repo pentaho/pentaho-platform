@@ -48,7 +48,7 @@ import java.util.ResourceBundle;
  * Plugins that specify a "root_theme_folder" will have this folder's subfolders added as themes. If the themes are also
  * in the "system_themes' plugin setting they will be added as system-level themes. If there's already a system theme by
  * that name loaded it will be overridden.
- * 
+ *
  * User: nbaker Date: 5/15/11
  */
 public class PluginThemeResolver implements IThemeResolver {
@@ -138,6 +138,7 @@ public class PluginThemeResolver implements IThemeResolver {
         Theme theme =
             new Theme( themeId, themeName, "content/" + pluginId + "/" + rootThemeFolder + "/" + themeId + "/" );
         theme.setHidden( "true".equals( themeNode.attributeValue( "hidden" ) ) );
+        theme.setResponsive( "true".equals( themeNode.attributeValue( "responsive" ) ) );
 
         if ( "true".equals( themeNode.attributeValue( "system" ) ) ) {
           moduleThemeInfo.getSystemThemes().add( theme );

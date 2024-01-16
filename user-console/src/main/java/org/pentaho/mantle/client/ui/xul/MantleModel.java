@@ -33,7 +33,6 @@ import org.pentaho.mantle.client.commands.OpenFileCommand;
 import org.pentaho.mantle.client.commands.OpenKettleStatusCommand;
 import org.pentaho.mantle.client.commands.PrintCommand;
 import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
-import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
 import org.pentaho.mantle.client.commands.SaveCommand;
 import org.pentaho.mantle.client.events.EventBusUtil;
 import org.pentaho.mantle.client.events.ISolutionBrowserEvent;
@@ -299,8 +298,7 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   public void refreshContent() {
     if ( PerspectiveManager.SCHEDULES_PERSPECTIVE.equals( PerspectiveManager.getInstance().getActivePerspective()
         .getId() ) ) {
-      Command cmd = new RefreshSchedulesCommand();
-      cmd.execute();
+      refreshSchedules();
     } else {
       Command cmd = new RefreshRepositoryCommand();
       cmd.execute();
@@ -482,5 +480,9 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   public void setShowNavigatorSelected( boolean showNavigator ) {
     this.showNavigatorSelected = showNavigator;
   }
+
+  public native void refreshSchedules() /*-{
+    $wnd.pho.refreshSchedules();
+  }-*/;
 
 }
