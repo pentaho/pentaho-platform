@@ -779,7 +779,7 @@ public class SolutionImportHandlerTest {
     }
 
     @Override public String getInputFile() {
-      return null;
+      return inputFile;
     }
 
     @Override public String getJobName() {
