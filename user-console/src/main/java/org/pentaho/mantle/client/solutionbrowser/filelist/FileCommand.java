@@ -91,7 +91,7 @@ public class FileCommand implements Command {
     } else if ( mode == COMMAND.CREATE_FOLDER ) {
       new NewFolderCommand( fileSummary ).execute();
     } else if ( mode == COMMAND.BACKGROUND ) {
-      executeRunInBackground( selectedItem.getRepositoryFile(), true);
+      executeRunInBackground( selectedItem.getRepositoryFile().getPath(), true);
     } else if ( mode == COMMAND.SCHEDULE_NEW ) {
       createSchedule( selectedItem.getRepositoryFile() );
     } else if ( mode == COMMAND.SHARE ) {
@@ -119,12 +119,7 @@ public class FileCommand implements Command {
     $wnd.pho.createSchedule( repositoryFileId, repositoryFilePath );
   }-*/;
 
-
-  private void executeRunInBackground( final RepositoryFile repositoryFile, final boolean feedback ) {
-    executeRunInBackground( repositoryFile.getId(), repositoryFile.getPath(), feedback );
-  }
-
-  private native void executeRunInBackground( final String repositoryFileId, final String repositoryFilePath, final boolean feedback )/*-{
-    $wnd.pho.executeRunInBackground( repositoryFileId, repositoryFilePath, feedback );
+  private native void executeRunInBackground( final String repositoryFilePath, final boolean feedback )/*-{
+    $wnd.mantle_runInBackgroundCommand_performOperation( repositoryFilePath, feedback );
   }-*/;
 }

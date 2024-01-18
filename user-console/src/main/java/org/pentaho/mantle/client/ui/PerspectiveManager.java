@@ -556,10 +556,13 @@ public class PerspectiveManager extends SimplePanel {
       manager.@org.pentaho.mantle.client.ui.PerspectiveManager::setPerspective(Ljava/lang/String;)(perspectiveId);      
     }
     $wnd.mantle_getActivePerspectiveId = function() {
-      manager.@org.pentaho.mantle.client.ui.PerspectiveManager::getActivePerspective()::getId();
+      return manager.@org.pentaho.mantle.client.ui.PerspectiveManager::getActivePerspectiveID();
     }
   }-*/;
 
+  public String getActivePerspectiveID() {
+    return getActivePerspective().getId();
+  }
   private JsArrayString getPerspectives() {
     JsArrayString stringArray = getJsArrayString();
     for ( IPluginPerspective perspective : perspectives ) {
