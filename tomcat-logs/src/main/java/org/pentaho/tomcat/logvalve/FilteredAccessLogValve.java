@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2022 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2022-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -35,7 +35,15 @@ public class FilteredAccessLogValve extends AccessLogValve {
   public void log( CharArrayWriter message ) {
     try ( CharArrayWriter caw = new CharArrayWriter() ) {
       // Mask the user password
-      caw.write( message.toString().replaceAll( "j_password=[^&^ ]*", "j_password=***" ) );
+      String tempString = message.toString();
+      if ( tempString.contains( "/pentaho/api/csrf" ) || tempString.contains( "/pentaho/api/repo/files/backup" ) ) {
+        tempString = tempString.replaceAll( "\\?userid[^&]+%26", "" );
+        tempString = tempString.replaceAll( "\\?userid[^&]+", "" );
+        tempString = tempString.replaceAll( "password[^&]+%26", "" );
+        tempString = tempString.replaceAll( "\\&password[^&]+", "" );
+      }
+      tempString = tempString.replaceAll( "j_password=[^&^ ]*", "j_password=***" );
+      caw.write( tempString );
       super.log( caw );
     } catch ( IOException e ) {
       e.printStackTrace();
