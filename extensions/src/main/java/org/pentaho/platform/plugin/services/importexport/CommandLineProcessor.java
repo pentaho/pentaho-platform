@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -790,10 +790,7 @@ public class CommandLineProcessor {
    */
   private String buildURL( String contextURL, String apiPath ) throws ParseException, KettleException {
     StringBuilder sb = new StringBuilder();
-    sb.append( contextURL ).append( apiPath )
-      .append( "?userid=" ).append( getUsername() )
-      .append( "&password=" )
-      .append( Encr.encryptPassword( Encr.decryptPasswordOptionallyEncrypted( getPassword() ) ) );
+    sb.append( contextURL ).append( apiPath );
 
     return sb.toString();
   }
