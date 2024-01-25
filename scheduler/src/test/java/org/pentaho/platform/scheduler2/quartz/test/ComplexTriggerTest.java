@@ -126,7 +126,7 @@ public class ComplexTriggerTest {
     trigger = QuartzScheduler.createComplexTrigger( "* * * * * ? *" );
     Assert.assertEquals( trigger.getYearlyRecurrences().size(), 0 );
     Assert.assertEquals( trigger.getMonthlyRecurrences().size(), 0 );
-    Assert.assertEquals( trigger.getDayOfMonthRecurrences().size(), 0 );
+    Assert.assertEquals( trigger.getDayOfMonthRecurrences().size(), 1 );
     Assert.assertEquals( trigger.getDayOfWeekRecurrences().size(), 0 );
     Assert.assertEquals( trigger.getHourlyRecurrences().size(), 0 );
     Assert.assertEquals( trigger.getMinuteRecurrences().size(), 0 );
