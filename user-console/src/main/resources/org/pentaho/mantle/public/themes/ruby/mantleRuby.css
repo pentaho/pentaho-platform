@@ -21,7 +21,7 @@
 
 .schedulerPerspective {
   background: transparent;
-  width: 1230px;
+  width: auto;
   margin: 0 auto;
   padding: 30px 40px 40px 40px;
 }

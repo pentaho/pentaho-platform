@@ -454,22 +454,26 @@ public class ActionUtil {
       if ( emailGroupResolver == null ) {
         emailGroupResolver = new DefaultEmailGroupResolver();
       }
+      String resolveToList = emailGroupResolver.resolve(to);
+      if (resolveToList != null && resolveToList.length() > 0) {
+        emailer.setTo( emailGroupResolver.resolve( to ) );
+        emailer.setCc( emailGroupResolver.resolve( cc ) );
+        emailer.setBcc( emailGroupResolver.resolve( bcc ) );
 
-      emailer.setTo( emailGroupResolver.resolve(to) );
-      emailer.setCc( emailGroupResolver.resolve(cc) );
-      emailer.setBcc( emailGroupResolver.resolve(bcc) );
-
-      String subject = (String) actionParams.get( "_SCH_EMAIL_SUBJECT" );
-      if ( subject != null && !"".equals( subject ) ) {
-        emailer.setSubject( subject );
+        String subject = ( String ) actionParams.get( "_SCH_EMAIL_SUBJECT" );
+        if (subject != null && !"".equals( subject ) ) {
+          emailer.setSubject( subject );
+        } else {
+          emailer.setSubject( "Pentaho Scheduler" + ( emailer.getAttachmentName() != null ? " : " + emailer.getAttachmentName() : "" ) );
+        }
+        String message = (String) actionParams.get( "_SCH_EMAIL_MESSAGE" );
+        if ( subject != null && !"".equals( subject ) ) {
+          emailer.setBody( message );
+        }
+        emailer.send();
       } else {
-        emailer.setSubject( "Pentaho Scheduler" + ( emailer.getAttachmentName() != null ? " : " + emailer.getAttachmentName() : "" ) );
+        logger.error( Messages.getInstance().getErrorString( "ActionUtil.ERROR_0001_INVALID_EMAIL_LIST" ) );
       }
-      String message = (String) actionParams.get( "_SCH_EMAIL_MESSAGE" );
-      if ( subject != null && !"".equals( subject ) ) {
-        emailer.setBody( message );
-      }
-      emailer.send();
     } catch ( Exception e ) {
       logger.warn( e.getMessage(), e );
     }
