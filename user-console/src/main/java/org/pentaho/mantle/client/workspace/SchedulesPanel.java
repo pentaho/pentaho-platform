@@ -375,7 +375,12 @@ public class SchedulesPanel extends SimplePanel {
     HtmlColumn<JsJob> resourceColumn = new HtmlColumn<JsJob>() {
       @Override
       public String getStringValue( JsJob job ) {
-        String name = job.getFullResourceName().split( "\\." )[ 0 ];
+        String fullName = job.getFullResourceName();
+        if ( null == fullName || fullName.length() == 0 ) {
+          return "";
+        }
+        int lastDotIndex = fullName.lastIndexOf( "." );
+        String name = ( lastDotIndex > 0 ) ? fullName.substring( 0, lastDotIndex ) : fullName;
         return name.replaceAll( "/", "/<wbr/>" );
       }
     };
