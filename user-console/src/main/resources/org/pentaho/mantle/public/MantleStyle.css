@@ -832,6 +832,7 @@ code {
 
 #blockout-table .gwt-ScrollTable {
   height: auto !important;
+  width: auto !important;
 }
 
 #blockout-table .gwt-ScrollTable>div {
