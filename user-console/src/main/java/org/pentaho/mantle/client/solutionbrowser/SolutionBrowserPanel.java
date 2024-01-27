@@ -306,7 +306,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     int adjustedWidth = solutionNavigatorPanel.getOffsetWidth() + splitterWidth;
     int width = this.getOffsetWidth() - adjustedWidth;
     if ( width > 0 ) {
-      contentTabPanel.setWidth( width + "px" );
+      String widthString = "calc( 100vw - " + adjustedWidth + "px )";
+      contentTabPanel.setTabBarWidth( widthString );
     }
   }
 

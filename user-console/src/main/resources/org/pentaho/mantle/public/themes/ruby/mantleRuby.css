@@ -1780,7 +1780,6 @@ hr {
 
 .panelWithTitledToolbar .pentaho-tab-bar {
   display: flex;
-  width: 100vw;
   overflow-x: auto;
   scrollbar-width: thin;
   overflow-y: hidden;
