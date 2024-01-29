@@ -40,6 +40,7 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
 import org.pentaho.gwt.widgets.client.utils.MenuBarUtils;
+import org.pentaho.gwt.widgets.client.utils.string.CssUtils;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.events.EventBusUtil;
@@ -112,6 +113,11 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     tabsMenuItem.setSubMenu( tabsSubMenuBar );
     tabsMenuBar.addStyleName( CLASS_FLEX_ROW );
     tabsMenuBar.addStyleName( CLASS_EMPTY_TABS_MENU );
+    setTabBarWidth( "100vw" );
+  }
+
+  public void setTabBarWidth( String widthString ){
+    CssUtils.setElementWidth( getTabBar(), widthString );
   }
 
   public void addTab( String text, String tooltip, boolean closeable, Widget content ) {
