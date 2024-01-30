@@ -58,8 +58,8 @@
 		<property name="password" value="${datasource.password}" />
 		<!-- the following are optional -->
 		<property name="validationQuery" value="${datasource.validation.query}" />
-		<property name="maxWait" value="${datasource.pool.max.wait}" />
-		<property name="maxActive" value="${datasource.pool.max.active}" />
+		<property name="maxWaitMillis" value="${datasource.pool.max.wait}" />
+		<property name="maxTotal" value="${datasource.pool.max.active}" />
 		<property name="maxIdle" value="${datasource.max.idle}" />
 		<property name="minIdle" value="${datasource.min.idle}" />
 	</bean>
