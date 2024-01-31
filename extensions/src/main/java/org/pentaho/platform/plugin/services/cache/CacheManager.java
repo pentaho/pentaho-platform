@@ -315,10 +315,13 @@ public class CacheManager implements ICacheManager {
 
   public void clearRegionCache( String region ) {
     if ( checkCacheEnabled() ) {
-      Cache cache = regionCache.get( region );
+       HvCache cache = (HvCache) regionCache.get( region );
       if ( cache != null ) {
         try {
-          cache.evictAll();
+          try ( SessionImpl session = (SessionImpl) cache.getSessionFactory().openSession() ) {
+            cache.getStorageAccess().clearCache( session );
+            cache.evictAll();
+          }
         } catch ( CacheException e ) {
           CacheManager.logger.error( Messages.getInstance().getString(
             "CacheManager.ERROR_0006_CACHE_EXCEPTION", e.getLocalizedMessage() ) ); //$NON-NLS-1$
@@ -400,7 +403,10 @@ public class CacheManager implements ICacheManager {
   public void removeFromRegionCache( String region, Object key ) {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );
-      hvcache.evictEntityData( (String) key );
+      try ( SessionImpl session = (SessionImpl) hvcache.getSessionFactory().openSession() ) {
+        hvcache.getStorageAccess().removeFromCache( key, session );
+        hvcache.evictEntityData( (String) key );
+      }
     } else {
       CacheManager.logger.warn( Messages.getInstance().getString(
         "CacheManager.WARN_0003_REGION_DOES_NOT_EXIST", region ) ); //$NON-NLS-1$
