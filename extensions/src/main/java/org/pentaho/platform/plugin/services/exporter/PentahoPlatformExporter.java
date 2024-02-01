@@ -173,7 +173,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor implements IPent
     zos.close();
 
     // clean up
-    exportManifest = null;
+    initManifest();
     zos = null;
 
     return exportFile;

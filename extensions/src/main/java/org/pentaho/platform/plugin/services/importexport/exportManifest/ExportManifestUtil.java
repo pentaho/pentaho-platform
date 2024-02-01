@@ -74,8 +74,9 @@ public class ExportManifestUtil {
   }
 
   private static SimpleJobTrigger fromSchedulerToBindingRequestJobTrigger( ISimpleJobTrigger incomingJobTrigger ) {
-    SimpleJobTrigger outgoingJobTrigger = new SimpleJobTrigger();
+    SimpleJobTrigger outgoingJobTrigger = null;
     if ( incomingJobTrigger != null ) {
+      outgoingJobTrigger = new SimpleJobTrigger();
       outgoingJobTrigger.setRepeatCount( incomingJobTrigger.getRepeatCount() );
       outgoingJobTrigger.setRepeatInterval( incomingJobTrigger.getRepeatInterval() );
     }
@@ -83,9 +84,14 @@ public class ExportManifestUtil {
   }
 
   private static CronJobTrigger fromSchedulerToBindingRequestCronJobTrigger( ICronJobTrigger incomingCronJobTrigger ) {
-    CronJobTrigger outgoingCronJobTrigger = new CronJobTrigger();
+    CronJobTrigger outgoingCronJobTrigger = null;
     if ( incomingCronJobTrigger != null ) {
+      outgoingCronJobTrigger = new CronJobTrigger();
       outgoingCronJobTrigger.setCronString( incomingCronJobTrigger.getCronString() );
+      outgoingCronJobTrigger.setDuration( incomingCronJobTrigger.getDuration() );
+      outgoingCronJobTrigger.setEndTime( XmlGregorianCalendarConverter.asXMLGregorianCalendar( incomingCronJobTrigger.getEndTime() ) );
+      outgoingCronJobTrigger.setStartTime( XmlGregorianCalendarConverter.asXMLGregorianCalendar( incomingCronJobTrigger.getStartTime() ) );
+      outgoingCronJobTrigger.setUiPassParam( incomingCronJobTrigger.getUiPassParam() );
     }
     return outgoingCronJobTrigger;
   }
@@ -133,15 +139,27 @@ public class ExportManifestUtil {
   private static ISimpleJobTrigger fromBindingToSchedulerRequestJobTrigger(
     SimpleJobTrigger incomingSimpleJobTrigger ) {
     IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
-    return scheduler.createSimpleJobTrigger( new Date(), null, incomingSimpleJobTrigger.getRepeatCount(),
-      incomingSimpleJobTrigger.getRepeatInterval() );
+    ISimpleJobTrigger outgoingJobTrigger = null;
+    if ( incomingSimpleJobTrigger != null ) {
+      outgoingJobTrigger = scheduler.createSimpleJobTrigger(
+              new Date(),
+              null,
+              incomingSimpleJobTrigger.getRepeatCount(),
+              incomingSimpleJobTrigger.getRepeatInterval() );
+    }
+    return outgoingJobTrigger;
   }
 
   private static ICronJobTrigger fromBindingToSchedulerRequestCronJobTrigger( CronJobTrigger incomingCronJobTrigger ) {
     IScheduler scheduler = PentahoSystem.get( IScheduler.class, "IScheduler2", null ); //$NON-NLS-1$
-    ICronJobTrigger outgoingCronJobTrigger = scheduler.createCronJobTrigger();
+    ICronJobTrigger outgoingCronJobTrigger = null;
     if( incomingCronJobTrigger != null ) {
+      outgoingCronJobTrigger = scheduler.createCronJobTrigger();
       outgoingCronJobTrigger.setCronString( incomingCronJobTrigger.getCronString() );
+      outgoingCronJobTrigger.setDuration( incomingCronJobTrigger.getDuration() );
+      outgoingCronJobTrigger.setEndTime( XmlGregorianCalendarConverter.asDate( incomingCronJobTrigger.getEndTime() ) );
+      outgoingCronJobTrigger.setStartTime( XmlGregorianCalendarConverter.asDate( incomingCronJobTrigger.getStartTime() ) );
+      outgoingCronJobTrigger.setUiPassParam( incomingCronJobTrigger.getUiPassParam() );
     }
     return outgoingCronJobTrigger;
   }
