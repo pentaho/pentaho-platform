@@ -320,7 +320,6 @@ public class CacheManager implements ICacheManager {
         try {
           try ( SessionImpl session = (SessionImpl) cache.getSessionFactory().openSession() ) {
             cache.getStorageAccess().clearCache( session );
-            cache.evictAll();
           }
         } catch ( CacheException e ) {
           CacheManager.logger.error( Messages.getInstance().getString(
@@ -425,7 +424,7 @@ public class CacheManager implements ICacheManager {
         String key = ( entry.getKey() != null ) ? entry.getKey().toString() : ""; //$NON-NLS-1$
         if ( key != null ) {
           Cache cache = regionCache.get( key );
-          cache.evictAll();
+          removeRegionCache( key );
         }
       }
     }
@@ -450,7 +449,9 @@ public class CacheManager implements ICacheManager {
           while ( it.hasNext() ) {
             String key = (String) it.next();
             if ( key.indexOf( session.getId() ) >= 0 ) {
-              hvcache.evictEntityData( key );
+              try ( SessionImpl hibSession = (SessionImpl) hvcache.getSessionFactory().openSession() ) {
+                hvcache.getStorageAccess().removeFromCache( key, hibSession );
+              }
             }
           }
         }
