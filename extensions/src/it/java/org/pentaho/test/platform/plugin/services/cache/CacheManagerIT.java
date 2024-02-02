@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -51,8 +51,6 @@ public class CacheManagerIT extends BaseTest {
       return ALT_SOLUTION_PATH;
     }
   }
-
-  // private final StringBuffer longString = new StringBuffer();
 
   public void testCache() {
 
