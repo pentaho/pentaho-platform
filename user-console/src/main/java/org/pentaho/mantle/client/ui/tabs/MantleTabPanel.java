@@ -130,6 +130,9 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       selectTab( tab );
     }
     MantleTabMenuItem menuItem = createTabMenuItem( tab );
+    if( tabsSubMenuBar == null || tabsMenuBar == null ){
+      return; //TODO bypass implemented as a race condition workaround for BACKLOG-39781
+    }
     linkTabToMenuItem( tab, menuItem );
     tabsSubMenuBar.addItem( menuItem );
     contextMenuRefreshThreshold( true );
@@ -164,7 +167,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       tabsMenuItem.setText( "" );
     } else {
       tabsMenuBar.removeStyleName( CLASS_EMPTY_TABS_MENU );
-      String tabMenuText;
+      String tabMenuText = "";
       int tabCount = getTabCount();
       if ( tabCount > 1 ) {
         int tabIndex = tabsSubMenuBar.getItemIndex( getLinkedTabMenuItem( selectedTab ) ) + 1;
