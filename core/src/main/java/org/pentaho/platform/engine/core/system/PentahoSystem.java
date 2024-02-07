@@ -400,7 +400,6 @@ public class PentahoSystem {
     if ( debug ) {
       Logger.debug( PentahoSystem.class, "PentahoSystem Init Complete" ); //$NON-NLS-1$
     }
-    PentahoSystemPublisher.getInstance().publish( PentahoSystemPublisher.START_UP_TOPIC, true );
     return true;
   }
 
