@@ -162,9 +162,11 @@ public class SolutionContextListener implements ServletContextListener {
       updateStatusMessages( initOk );
       PeriodicStatusLogger.stop();
     }
+    // This line signals to the scheduler that the system has initialized and that the scheduler can
+    // start processing jobs
+    PentahoSystemPublisher.getInstance().publish( PentahoSystemPublisher.START_UP_TOPIC, true );
 
     this.showInitializationMessage( initOk, fullyQualifiedServerUrl );
-    PentahoSystemPublisher.getInstance().publish( PentahoSystemPublisher.START_UP_TOPIC, true );
   }
 
   private void updateStatusMessages( boolean initOk ) {
