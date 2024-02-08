@@ -296,8 +296,8 @@ define([
       window.parent.mantle_setPerspective('browser.perspective');
     },
 
-    runInBackgroundHandler: function (path, title) {
-      window.parent.executeCommand("RunInBackgroundCommand", this.buildParameter(path, title));
+    runInBackgroundHandler: function (path, title, id) {
+      window.parent.pho.runInBackground(id, path);
     },
 
     editHandler: function (path) {
