@@ -315,10 +315,12 @@ public class CacheManager implements ICacheManager {
 
   public void clearRegionCache( String region ) {
     if ( checkCacheEnabled() ) {
-      Cache cache = regionCache.get( region );
+       HvCache cache = (HvCache) regionCache.get( region );
       if ( cache != null ) {
         try {
-          cache.evictAll();
+          try ( SessionImpl session = (SessionImpl) cache.getSessionFactory().openSession() ) {
+            cache.getStorageAccess().clearCache( session );
+          }
         } catch ( CacheException e ) {
           CacheManager.logger.error( Messages.getInstance().getString(
             "CacheManager.ERROR_0006_CACHE_EXCEPTION", e.getLocalizedMessage() ) ); //$NON-NLS-1$
@@ -400,7 +402,10 @@ public class CacheManager implements ICacheManager {
   public void removeFromRegionCache( String region, Object key ) {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );
-      hvcache.evictEntityData( (String) key );
+      try ( SessionImpl session = (SessionImpl) hvcache.getSessionFactory().openSession() ) {
+        hvcache.getStorageAccess().removeFromCache( key, session );
+        hvcache.evictEntityData( (String) key );
+      }
     } else {
       CacheManager.logger.warn( Messages.getInstance().getString(
         "CacheManager.WARN_0003_REGION_DOES_NOT_EXIST", region ) ); //$NON-NLS-1$
@@ -419,7 +424,7 @@ public class CacheManager implements ICacheManager {
         String key = ( entry.getKey() != null ) ? entry.getKey().toString() : ""; //$NON-NLS-1$
         if ( key != null ) {
           Cache cache = regionCache.get( key );
-          cache.evictAll();
+          removeRegionCache( key );
         }
       }
     }
@@ -444,7 +449,9 @@ public class CacheManager implements ICacheManager {
           while ( it.hasNext() ) {
             String key = (String) it.next();
             if ( key.indexOf( session.getId() ) >= 0 ) {
-              hvcache.evictEntityData( key );
+              try ( SessionImpl hibSession = (SessionImpl) hvcache.getSessionFactory().openSession() ) {
+                hvcache.getStorageAccess().removeFromCache( key, hibSession );
+              }
             }
           }
         }

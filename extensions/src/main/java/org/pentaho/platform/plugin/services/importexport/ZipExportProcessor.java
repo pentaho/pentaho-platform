@@ -85,6 +85,10 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
     this.exportHandlerList = new ArrayList<>();
 
+    initManifest();
+  }
+
+  protected void initManifest() {
     this.exportManifest = new ExportManifest();
 
     // set created by and create date in manifest information
@@ -96,7 +100,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
     exportManifest.getManifestInformation().setExportBy( session.getName() );
     exportManifest.getManifestInformation().setExportDate(
-        dateFormat.format( todaysDate ) + " " + timeFormat.format( todaysDate ) );
+            dateFormat.format( todaysDate ) + " " + timeFormat.format( todaysDate ) );
     exportManifest.getManifestInformation().setManifestVersion( "2" );
   }
 

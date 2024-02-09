@@ -141,7 +141,7 @@ public class LastModifiedCache implements ILastModifiedCacheItem, HvCache {
   }
 
   @Override public void evictEntityData() {
-    sessionFactory.getMetamodel().entityPersisters().values().forEach( this::evictEntityData );
+    throwNotImplemented();
   }
 
   @Override

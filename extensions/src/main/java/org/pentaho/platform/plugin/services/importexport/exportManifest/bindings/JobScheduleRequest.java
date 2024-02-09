@@ -80,7 +80,7 @@ public class JobScheduleRequest {
 
   protected String actionClass;
   protected ComplexJobTriggerProxy complexJobTrigger;
-  @XmlElement( namespace = "http://www.pentaho.com/schema/" )
+  @XmlElement
   protected CronJobTrigger cronJobTrigger;
   protected long duration;
   protected String inputFile;
@@ -89,7 +89,7 @@ public class JobScheduleRequest {
   @XmlElement( nillable = true )
   protected List<JobScheduleParam> jobParameters;
   protected String outputFile;
-  @XmlElement( namespace = "http://www.pentaho.com/schema/" )
+  @XmlElement
   protected SimpleJobTrigger simpleJobTrigger;
   protected String timeZone;
   protected JobState jobState;

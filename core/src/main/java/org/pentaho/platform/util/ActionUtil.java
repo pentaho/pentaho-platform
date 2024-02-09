@@ -456,10 +456,15 @@ public class ActionUtil {
       }
       String resolveToList = emailGroupResolver.resolve(to);
       if (resolveToList != null && resolveToList.length() > 0) {
-        emailer.setTo( emailGroupResolver.resolve( to ) );
-        emailer.setCc( emailGroupResolver.resolve( cc ) );
-        emailer.setBcc( emailGroupResolver.resolve( bcc ) );
-
+        emailer.setTo( resolveToList );
+        String resolveCCList = emailGroupResolver.resolve(cc);
+        if (resolveCCList != null && resolveCCList.length() > 0) {
+          emailer.setCc( resolveCCList );
+        }
+        String resolveBCCList = emailGroupResolver.resolve( bcc );
+        if (resolveBCCList != null && resolveBCCList.length() > 0) {
+          emailer.setBcc( resolveBCCList );
+        }
         String subject = ( String ) actionParams.get( "_SCH_EMAIL_SUBJECT" );
         if (subject != null && !"".equals( subject ) ) {
           emailer.setSubject( subject );

@@ -22,7 +22,6 @@ package org.pentaho.platform.plugin.services.exporter;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
@@ -34,11 +33,7 @@ import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.scheduler2.IComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
-import org.pentaho.platform.api.scheduler2.IJob;
-import org.pentaho.platform.api.scheduler2.IJobTrigger;
-import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -80,10 +75,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.anyBoolean;
 
 public class PentahoPlatformExporterTest {
 
@@ -117,42 +110,6 @@ public class PentahoPlatformExporterTest {
   @After
   public void tearDown() {
     PentahoSystem.clearObjectFactory();
-  }
-
-  @Test
-  @Ignore
-  public void testExportSchedules() throws Exception {
-    List<IJob> jobs = new ArrayList<>();
-    IComplexJobTrigger trigger = mock( IComplexJobTrigger.class );
-    IJobTrigger unknownTrigger = mock( IJobTrigger.class );
-
-    IJob job1 = mock( IJob.class );
-    IJob job2 = mock( IJob.class );
-    IJob job3 = mock( IJob.class );
-    jobs.add( job1 );
-    jobs.add( job2 );
-    jobs.add( job3 );
-
-    when( scheduler.getJobs( null ) ).thenReturn( jobs );
-    when( job1.getJobName() ).thenReturn( "job 1" );
-    when( job2.getJobName() ).thenReturn( "job 2" );
-    when( job2.getJobTrigger() ).thenReturn( trigger );
-    when( job3.getJobName() ).thenReturn( "job 3" );
-    when( job3.getJobTrigger() ).thenReturn( unknownTrigger );
-//    exporterSpy.exportSchedules();
-
-    verify( scheduler ).getJobs( null );
-    assertEquals( 1, exporterSpy.getExportManifest().getScheduleList().size() );
-  }
-
-  @Test
-  public void testExportSchedules_SchedulereThrowsException() throws Exception {
-    when( scheduler.getJobs( null ) ).thenThrow( new SchedulerException( "bad" ) );
-
-//    exporterSpy.exportSchedules();
-
-    verify( scheduler ).getJobs( null );
-    assertEquals( 0, exporterSpy.getExportManifest().getScheduleList().size() );
   }
 
   @Test
