@@ -26,6 +26,7 @@ import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.util.IVersionHelper;
 import org.pentaho.platform.engine.core.system.PathBasedSystemSettings;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.PentahoSystemPublisher;
 import org.pentaho.platform.engine.core.system.status.PeriodicStatusLogger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.PentahoHttpSessionHelper;
@@ -161,6 +162,9 @@ public class SolutionContextListener implements ServletContextListener {
       updateStatusMessages( initOk );
       PeriodicStatusLogger.stop();
     }
+    // This line signals to the scheduler that the system has initialized and that the scheduler can
+    // start processing jobs
+    PentahoSystemPublisher.getInstance().publish( PentahoSystemPublisher.START_UP_TOPIC, true );
 
     this.showInitializationMessage( initOk, fullyQualifiedServerUrl );
   }
