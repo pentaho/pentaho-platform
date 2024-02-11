@@ -513,13 +513,18 @@ public class CacheManager implements ICacheManager {
       Ehcache ehcache = hvcache.getStorageAccess().getCache();
       if ( hvcache != null ) {
         try {
-          CacheStatistics cacheStatistics = new CacheStatistics( ehcache );
-          return cacheStatistics.getMemoryStoreObjectCount() + cacheStatistics.getDiskStoreObjectCount();
+          long memCnt = ehcache.getStatistics().getMemoryStoreObjectCount();
+          long discCnt = ehcache.getStatistics().getDiskStoreObjectCount();
+          return memCnt + discCnt;
         } catch ( Exception ignored ) {
+          return -1;
         }
+      } else {
+        return -1;
       }
+    } else {
+      return -1;
     }
-    return -1;
   }
 
   @Override
