@@ -117,6 +117,10 @@ function customizeThemeStyling() {
     if (version <= 11) {
       document.getElementsByTagName("body")[0].className += className;
     }
+  } else {
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if (isSafari) {
+      document.documentElement.classList.add("safari");
+    }
   }
-
 }
