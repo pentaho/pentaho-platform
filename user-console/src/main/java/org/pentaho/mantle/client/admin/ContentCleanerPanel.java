@@ -14,15 +14,16 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.mantle.client.admin;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.Request;
@@ -56,6 +57,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
 
   private static ContentCleanerPanel instance = new ContentCleanerPanel();
   private static final long DAY_IN_MILLIS = 24L * 60L * 60L * 1000L;
+  private String scheduleTextBoxValue = null;
 
   /**
    * Use get instance for use in Admin, otherwise use constructor
@@ -67,6 +69,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
   }
 
   public ContentCleanerPanel() {
+    setupNativeHooks( this );
     setStyleName( "pentaho-admin-panel" );
     activate();
   }
@@ -94,7 +97,19 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           nowTextBox.getElement().getStyle().setMarginRight( 5, Unit.PX );
           final TextBox scheduleTextBox = new TextBox();
           scheduleTextBox.setVisibleLength( 4 );
-          processScheduleTextBox( JsonUtils.escapeJsonForEval( response.getText() ), scheduleTextBox );
+
+          scheduleTextBoxValue = processScheduleTextBoxValue( JsonUtils.escapeJsonForEval( response.getText() ) );
+          if ( scheduleTextBoxValue != null ) {
+            scheduleTextBox.setValue( scheduleTextBoxValue );
+          } else {
+            scheduleTextBox.setText( "180" );
+          }
+
+          scheduleTextBox.addChangeHandler( new ChangeHandler() {
+            public void onChange( ChangeEvent event ) {
+              processScheduleTextBoxChangeHandler( scheduleTextBoxValue );
+            }
+          } );
 
           Label settingsLabel = new Label( Messages.getString( "settings" ) );
           settingsLabel.setStyleName( "pentaho-fieldgroup-major" );
@@ -181,20 +196,7 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           editScheduleButton.addStyleName( "first" );
           editScheduleButton.addClickHandler( new ClickHandler() {
             public void onClick( ClickEvent event ) {
-              IDialogCallback callback = new IDialogCallback() {
-                public void okPressed() {
-                  deleteContentCleaner();
-                }
-
-                public void cancelPressed() {
-                }
-              };
-
-              HorizontalPanel scheduleLabelPanel = new HorizontalPanel();
-              scheduleLabelPanel.add( new Label( Messages.getString( "deleteGeneratedFilesOlderThan" ), false ) );
-              scheduleLabelPanel.add( scheduleTextBox );
-              scheduleLabelPanel.add( new Label( Messages.getString( "daysUsingTheFollowingRules" ), false ) );
-              createScheduleRecurrenceDialog( scheduleLabelPanel, callback );
+              createScheduleRecurrenceDialog( scheduleTextBoxValue, Messages.getString( "deleteGeneratedFilesOlderThan" ), Messages.getString( "daysUsingTheFollowingRules" ) );
             }
           } );
           HorizontalPanel scheduleButtonPanel = new HorizontalPanel();
@@ -332,8 +334,12 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
     WaitPopup.getInstance().setVisible( false );
   }
 
-  private native void processScheduleTextBox( String jsonJobString, TextBox scheduleTextBox )/*-{
-   $wnd.pho.processScheduleTextBox( jsonJobString, scheduleTextBox );
+  private native String processScheduleTextBoxValue( String jsonJobString )/*-{
+   $wnd.pho.processScheduleTextBoxValue( jsonJobString );
+  }-*/;
+
+  private native void processScheduleTextBoxChangeHandler( String scheduleTextBoxValue )/*-{
+   $wnd.pho.processScheduleTextBoxChangeHandler( scheduleTextBoxValue );
   }-*/;
 
   private native boolean isFakeJob()/*-{
@@ -348,8 +354,15 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
    return $wnd.pho.getJobId();
   }-*/;
 
-  private native void createScheduleRecurrenceDialog( HorizontalPanel scheduleLabelPanel, IDialogCallback callback )/*-{
-   $wnd.pho.createScheduleRecurrenceDialog( scheduleLabelPanel, callback);
+  private native void createScheduleRecurrenceDialog( String scheduleValue, String olderThanLabel, String daysLabel ) /*-{
+   $wnd.pho.createScheduleRecurrenceDialog( scheduleValue, olderThanLabel, daysLabel );
   }-*/;
 
+  private static native void setupNativeHooks( ContentCleanerPanel panel )
+  /*-{
+    $wnd.mantle.deleteContentCleaner = function() {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      panel.@org.pentaho.mantle.client.admin.ContentCleanerPanel::deleteContentCleaner()();
+    }
+  }-*/;
 }
