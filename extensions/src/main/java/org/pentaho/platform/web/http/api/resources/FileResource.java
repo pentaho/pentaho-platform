@@ -87,9 +87,18 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Providers;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -138,6 +147,8 @@ public class FileResource extends AbstractJaxRSResource {
   protected static IAuthorizationPolicy policy;
 
   protected static UserRoleListService userRoleListService;
+  
+  private @Context Providers providers;
 
   IRepositoryContentConverterHandler converterHandler;
   Map<String, Converter> converters;
@@ -742,7 +753,7 @@ public class FileResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 403, condition = "Failed to save acls due to missing or incorrect properties." ),
       @ResponseCode ( code = 400, condition = "Failed to save acls due to malformed xml." ),
       @ResponseCode ( code = 500, condition = "Failed to save acls due to another error." ) } )
-  public Response setFileAcls( @PathParam ( "pathId" ) String pathId, RepositoryFileAclDto acl ) {
+  public Response setFileAcls( @PathParam ( "pathId" ) String pathId, StreamSource xmlSource ) {
     /*
      * [BISERVER-14294] Ensuring the owner is set to a non-null, non-empty string value to prevent any issues
      * that might cause problems with the repository. Then following it up with a user existence check
@@ -752,7 +763,23 @@ public class FileResource extends AbstractJaxRSResource {
      * We can't check if a user or a role exist, some scenarios like mixed AuthZ / AuthN are unable of confirming
      * that a user or role exist. One of such scenarios is with SAML.
      */
-    try {
+
+	try {
+	  ContextResolver<JAXBContext> jaxbResolver = providers.getContextResolver(JAXBContext.class, MediaType.APPLICATION_XML_TYPE);
+	  JAXBContext jaxbContext= null;
+	  if(null != jaxbResolver) {
+	    jaxbContext = jaxbResolver.getContext(RepositoryFileAclDto.class);
+	  }
+	  if(null == jaxbContext) {
+	    jaxbContext = JAXBContext.newInstance(RepositoryFileAclDto.class);
+	  }
+
+	  XMLInputFactory xif = XMLInputFactory.newFactory();
+	  xif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+	  xif.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+	  XMLStreamReader xsr = xif.createXMLStreamReader(xmlSource);
+	  Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+	  RepositoryFileAclDto acl = (RepositoryFileAclDto) unmarshaller.unmarshal(xsr);
       if ( validateUsersAndRoles( acl ) ) {
         fileService.setFileAcls( pathId, acl );
         return buildOkResponse();
