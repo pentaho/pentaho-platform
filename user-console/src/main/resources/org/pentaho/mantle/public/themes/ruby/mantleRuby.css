@@ -1530,6 +1530,11 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   height: 510px;
 }
 
+div.alignleft > table.pentaho-tab-panel {
+  width: 100%;
+  height: unset;
+}
+
 /* targetting IE 10 only */
 .IE10 .pentaho-tab-panel, .IE10 #userRolesAdminPanel .pentaho-tab-panel {
   height: 100%;
