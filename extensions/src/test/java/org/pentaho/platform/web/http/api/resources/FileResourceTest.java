@@ -14,12 +14,13 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
+import com.ctc.wstx.exc.WstxLazyException;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.junit.After;
@@ -61,6 +62,13 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -84,9 +92,11 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -933,6 +943,240 @@ public class FileResourceTest {
     doCallRealMethod().when( fileResource ).validateUsersAndRoles( any() );
 
     assertEquals( FORBIDDEN.getStatusCode(), fileResource.setFileAcls( PATH_ID, repository ).getStatus() );
+  }
+
+  /*
+   * [PPP-5021] Ensure external entities cannot be inserted into XML payloads.
+   * Test validates that the secure parser actually breaks on external enties
+   */
+  @Test
+  public void testSecureXmlProcessing() throws XMLStreamException, JAXBException {
+    String xmlDocWithExternalEntitiesLol =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \n"
+        + "<!DOCTYPE lolz ["
+        + "<!ENTITY lol \"lol\">"
+        + "<!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">"
+        + "<!ENTITY lol2 \"&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;\">"
+        + "<!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">"
+        + "<!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">"
+        + "]>"
+        + "\n"
+        + "<repositoryFileAclDto>"
+        + "<entriesInheriting>true</entriesInheriting>"
+        + "<id>a56f5043-c5d7-4b6c-80d2-b5964bcfd860</id>"
+        + "<owner>admin&lol4;</owner>"
+        + "<ownerType>0</ownerType>"
+        + "</repositoryFileAclDto> ";
+    doCallRealMethod().when( fileResource ).getUnmarshaller( RepositoryFileAclDto.class );
+    doCallRealMethod().when( fileResource ).getSecureXmlStreamReader( any( StreamSource.class ) );
+    Unmarshaller unmarshaller = fileResource.getUnmarshaller( RepositoryFileAclDto.class );
+    XMLStreamReader xsr = fileResource.getSecureXmlStreamReader( new StreamSource( new ByteArrayInputStream( xmlDocWithExternalEntitiesLol.getBytes() ) ) );
+    try {
+      unmarshaller.unmarshal( xsr );
+      fail();
+    } catch ( WstxLazyException e ) {
+      assertTrue( e.getMessage().contains( "Undeclared general entity \"lol4\"" ) );
+    } catch ( Exception e ) {
+      fail();
+    }
+  }
+
+  /*
+   * [PPP-5021] Ensure external entities cannot be inserted into XML payloads
+   */
+  @Test
+  public void testSetFileAclsXxeError() throws JAXBException, XMLStreamException {
+    String xmlDocWithExternalEntitiesLol =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \n"
+        + "<!DOCTYPE lolz ["
+        + "<!ENTITY lol \"lol\">"
+        + "<!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">"
+        + "<!ENTITY lol2 \"&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;\">"
+        + "<!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">"
+        + "<!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">"
+        + "]>"
+        + "\n"
+        + "<repositoryFileAclDto>"
+        + "<entriesInheriting>true</entriesInheriting>"
+        + "<id>a56f5043-c5d7-4b6c-80d2-b5964bcfd860</id>"
+        + "<owner>admin&lol4;</owner>"
+        + "<ownerType>0</ownerType>"
+        + "</repositoryFileAclDto> ";
+
+    doCallRealMethod().when( fileResource ).setFileAcls( anyString(), any( StreamSource.class ) );
+    doCallRealMethod().when( fileResource ).getUnmarshaller( any() );
+    doCallRealMethod().when( fileResource ).getSecureXmlStreamReader( any( StreamSource.class ) );
+    assertEquals( INTERNAL_SERVER_ERROR.getStatusCode(),
+      fileResource.setFileAcls( PATH_ID, new StreamSource( new ByteArrayInputStream( xmlDocWithExternalEntitiesLol.getBytes() ) ) ).getStatus() );
+  }
+
+  @Test
+  public void testSetFileAclsXxeErrorClean() throws JAXBException, XMLStreamException {
+    String xmlDocWithExternalEntitiesLol =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \n"
+        + "<repositoryFileAclDto>"
+        + "<entriesInheriting>true</entriesInheriting>"
+        + "<id>a56f5043-c5d7-4b6c-80d2-b5964bcfd860</id>"
+        + "<owner>admin</owner>"
+        + "<ownerType>0</ownerType>"
+        + "</repositoryFileAclDto> ";
+
+    doCallRealMethod().when( fileResource ).setFileAcls( anyString(), any( StreamSource.class ) );
+    doCallRealMethod().when( fileResource ).getUnmarshaller( any() );
+    doCallRealMethod().when( fileResource ).getSecureXmlStreamReader( any( StreamSource.class ) );
+    assertEquals( OK.getStatusCode(),
+      fileResource.setFileAcls( PATH_ID, new StreamSource( new ByteArrayInputStream( xmlDocWithExternalEntitiesLol.getBytes() ) ) ).getStatus() );
+  }
+
+  /* Note: tests commented out because we removed the Accepts: XML decorator from this method; should only
+   * accept JSON now.
+   * [PPP-5021] Ensure external entities cannot be inserted into XML payloads
+   */
+//  @Test
+//  public void testDoSetMetadataXxeError() throws JAXBException, XMLStreamException {
+//    String xmlDocWithExternalEntitiesLol =
+//      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+//        + "<!DOCTYPE lolz ["
+//        + "<!ENTITY lol \"lol\">"
+//        + "<!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">"
+//        + "<!ENTITY lol2 \"&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;\">"
+//        + "<!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">"
+//        + "<!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">"
+//        + "]>"
+//        + "\n"
+//        + "<stringKeyStringValueDto><key>fooKey</key><value>barValue&lol4;</value></stringKeyStringValueDto>";
+//
+//    doCallRealMethod().when( fileResource ).doSetMetadata( anyString(), any( StreamSource.class ) );
+//    doCallRealMethod().when( fileResource ).getUnmarshaller( any() );
+//    doCallRealMethod().when( fileResource ).getSecureXmlStreamReader( any( StreamSource.class ) );
+//    assertEquals( INTERNAL_SERVER_ERROR.getStatusCode(),
+//      fileResource.doSetMetadata( PATH_ID, new StreamSource( new ByteArrayInputStream( xmlDocWithExternalEntitiesLol.getBytes() ) ) ).getStatus() );
+//  }
+
+  /*
+   * [PPP-5021] Ensure external entities cannot be inserted into XML payloads
+   */
+//  @Test
+//  public void testDoSetMetadataXxeErrorClean() throws JAXBException, XMLStreamException {
+//    String xmlDocWithExternalEntitiesLol =
+//      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+//        + "<stringKeyStringValueDtoes><stringKeyStringValueDto><key>fooKey</key><value>barValue</value></stringKeyStringValueDto>"
+//        + "<stringKeyStringValueDto><key>fooKey1</key><value>barValue1</value></stringKeyStringValueDto></stringKeyStringValueDtoes>";
+//
+//    doCallRealMethod().when( fileResource ).doSetMetadata( anyString(), any( StreamSource.class ) );
+//    doCallRealMethod().when( fileResource ).getUnmarshaller( any() );
+//    doCallRealMethod().when( fileResource ).getSecureXmlStreamReader( any( StreamSource.class ) );
+//    assertEquals( OK.getStatusCode(),
+//      fileResource.doSetMetadata( PATH_ID, new StreamSource( new ByteArrayInputStream( xmlDocWithExternalEntitiesLol.getBytes() ) ) ).getStatus() );
+//  }
+
+//  public void generateStringKeyAndValueXml() throws JAXBException {
+//    // save this in case someone needs to rebuild the XML
+//    StringKeyStringValueDto stringKeyStringValueDto1 = new StringKeyStringValueDto();
+//    stringKeyStringValueDto1.setKey( "fooKey" );
+//    stringKeyStringValueDto1.setValue( "barValue" );
+//    StringKeyStringValueDto stringKeyStringValueDto2 = new StringKeyStringValueDto();
+//    stringKeyStringValueDto2.setKey( "fooKey" );
+//    stringKeyStringValueDto2.setValue( "barValue" );
+//    List<StringKeyStringValueDto> stringKeyStringValueDtoList = new ArrayList<>();
+//    stringKeyStringValueDtoList.add( stringKeyStringValueDto1 );
+//    stringKeyStringValueDtoList.add( stringKeyStringValueDto2 );
+//    JAXBContext jaxbContext = JAXBContext.newInstance( StringKeyStringValueDto.class, ArrayList.class );
+//    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//    jaxbContext.createMarshaller().marshal( stringKeyStringValueDtoList, bos );
+//    System.out.println( bos.toString() );
+//  }
+
+  /*
+   * [PPP-5021] Ensure external entities cannot be inserted into XML payloads
+   */
+  @Test
+  public void testDoSetContentCreatorXxeError() throws JAXBException, XMLStreamException {
+    String xmlDocWithExternalEntitiesLol =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+        + "<!DOCTYPE lolz ["
+        + "<!ENTITY lol \"lol\">"
+        + "<!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">"
+        + "<!ENTITY lol2 \"&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;\">"
+        + "<!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">"
+        + "<!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">"
+        + "]>"
+        + "\n"
+        + "<repositoryFileDto>"
+        + "<aclNode>false</aclNode>"
+        + "<createdDate>01-01-2020</createdDate>"
+        + "<creatorId>creatorFoo</creatorId>"
+        + "<description>barDescription</description>"
+        + "<fileSize>42</fileSize>"
+        + "<folder>false</folder>"
+        + "<hidden>false</hidden>"
+        + "<id>zardozId</id>"
+        + "<locked>false</locked>"
+        + "<name>fileNameField&lol4;</name>"
+        + "<notSchedulable>false</notSchedulable>"
+        + "<owner>nobody</owner>"
+        + "<ownerType>-1</ownerType>"
+        + "<path>/home/nobody</path>"
+        + "<versioned>false</versioned>"
+        + "</repositoryFileDto>\n";
+
+    doCallRealMethod().when( fileResource ).doSetContentCreator( anyString(), any( StreamSource.class ) );
+    doCallRealMethod().when( fileResource ).getUnmarshaller( any() );
+    doCallRealMethod().when( fileResource ).getSecureXmlStreamReader( any( StreamSource.class ) );
+    assertEquals( INTERNAL_SERVER_ERROR.getStatusCode(),
+      fileResource.doSetContentCreator( PATH_ID, new StreamSource( new ByteArrayInputStream( xmlDocWithExternalEntitiesLol.getBytes() ) ) ).getStatus() );
+  }
+
+  /*
+   * [PPP-5021] Ensure external entities cannot be inserted into XML payloads
+   */
+  @Test
+  public void testDoSetContentCreatorXxeErrorClean() throws JAXBException, XMLStreamException {
+    String xmlDocWithExternalEntitiesLol =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+        + "<repositoryFileDto>"
+        + "<aclNode>false</aclNode>"
+        + "<createdDate>01-01-2020</createdDate>"
+        + "<creatorId>creatorFoo</creatorId>"
+        + "<description>barDescription</description>"
+        + "<fileSize>42</fileSize>"
+        + "<folder>false</folder>"
+        + "<hidden>false</hidden>"
+        + "<id>zardozId</id>"
+        + "<locked>false</locked>"
+        + "<name>fileNameField</name>"
+        + "<notSchedulable>false</notSchedulable>"
+        + "<owner>nobody</owner>"
+        + "<ownerType>-1</ownerType>"
+        + "<path>/home/nobody</path>"
+        + "<versioned>false</versioned>"
+        + "</repositoryFileDto>\n";
+
+    doCallRealMethod().when( fileResource ).doSetContentCreator( anyString(), any( StreamSource.class ) );
+    doCallRealMethod().when( fileResource ).getUnmarshaller( any() );
+    doCallRealMethod().when( fileResource ).getSecureXmlStreamReader( any( StreamSource.class ) );
+    assertEquals( OK.getStatusCode(),
+      fileResource.doSetContentCreator( PATH_ID, new StreamSource( new ByteArrayInputStream( xmlDocWithExternalEntitiesLol.getBytes() ) ) ).getStatus() );
+  }
+
+  private void generateRepositoryFileDtoXml() throws JAXBException {
+    // save this in case someone needs to rebuild the XML
+    RepositoryFileDto repositoryFileDto = new RepositoryFileDto();
+    repositoryFileDto.setCreatorId( "creatorFoo" );
+    repositoryFileDto.setFileSize( 42L );
+    repositoryFileDto.setCreatedDate( "01-01-2020" );
+    repositoryFileDto.setDescription( "barDescription" );
+    repositoryFileDto.setFolder( false );
+    repositoryFileDto.setAclNode( false );
+    repositoryFileDto.setHidden( false );
+    repositoryFileDto.setId( "zardozId" );
+    repositoryFileDto.setName( "fileNameField" );
+    repositoryFileDto.setOwner( "nobody" );
+    repositoryFileDto.setPath( "/home/nobody" );
+    JAXBContext jaxbContext = JAXBContext.newInstance( RepositoryFileDto.class );
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    jaxbContext.createMarshaller().marshal( repositoryFileDto, bos );
+    System.out.println( bos.toString() );
   }
 
   @Test
