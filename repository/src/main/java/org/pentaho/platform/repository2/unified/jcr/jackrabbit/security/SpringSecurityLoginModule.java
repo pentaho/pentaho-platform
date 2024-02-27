@@ -39,7 +39,6 @@ import javax.jcr.SimpleCredentials;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import java.security.Principal;
-import java.security.acl.Group;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -201,7 +200,7 @@ public class SpringSecurityLoginModule extends AbstractLoginModule {
   protected Principal getPrincipal( final Credentials credentials ) {
     String userId = getUserID( credentials );
     Principal principal = principalProvider.getPrincipal( userId );
-    if ( principal == null || principal instanceof Group ) {
+    if ( principal == null || principal instanceof SpringSecurityRolePrincipal ) {
       // no matching user principal
       return null;
     } else {
