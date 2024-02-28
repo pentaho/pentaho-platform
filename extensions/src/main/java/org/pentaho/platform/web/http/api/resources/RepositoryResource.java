@@ -764,8 +764,12 @@ public class RepositoryResource extends AbstractJaxRSResource {
   }
 
   private boolean validatePrptiOutputFormat() {
-    String outputFormat = this.httpServletRequest.getParameterMap().get( "output-target" )[0];
-    return AllowedPrptiTypes.getByType( outputFormat ) != null;
+    boolean valid = true;
+    if ( this.httpServletRequest.getParameterMap() != null && this.httpServletRequest.getParameterMap().containsKey( "output-target" ) ) {
+      String outputFormat = this.httpServletRequest.getParameterMap().get( "output-target" )[0];
+      valid = AllowedPrptiTypes.getByType( outputFormat ) != null;
+    }
+    return valid;
   }
 
   abstract class CGFactory implements ContentGeneratorDescriptor {
