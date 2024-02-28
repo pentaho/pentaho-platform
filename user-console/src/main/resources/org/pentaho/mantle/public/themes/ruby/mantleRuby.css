@@ -1333,7 +1333,11 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 .schedulesPanel .toolbar {
   background: none;
   border: 0;
-  margin-bottom: 5px;
+  padding: var(--focus-ring-padding) 0;
+}
+
+.schedulesPanel .toolbar-button-focus-panel {
+  margin: 0;
 }
 
 .schedulesPanel .pentaho-table th {
@@ -1343,6 +1347,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   padding: 8px 10px 10px 10px;
   font-weight: normal;
 }
+
 /* endregion Main and Burger Toolbars */
 
 /*****************************************/
@@ -1352,14 +1357,6 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   background-color: white;
   font-size: 13px;
   border-bottom: 1px solid #6f7277;
-}
-
-.pentaho-table .cellTableFirstColumn {
-
-}
-
-.pentaho-table .cellTableLastColumn {
-
 }
 
 .pentaho-table .cellTableFooter {
@@ -1383,22 +1380,6 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   overflow: hidden;
   text-align: left;
   font-size: 12px;
-}
-
-.pentaho-table .cellTableFirstColumnFooter {
-
-}
-
-.pentaho-table .cellTableFirstColumnHeader {
-
-}
-
-.pentaho-table .cellTableLastColumnFooter {
-
-}
-
-.pentaho-table .cellTableLastColumnHeader {
-
 }
 
 .pentaho-table .cellTableSortableHeader {
