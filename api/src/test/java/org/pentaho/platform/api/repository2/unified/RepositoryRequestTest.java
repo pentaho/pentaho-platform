@@ -14,20 +14,20 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.api.repository2.unified;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by bgroves on 10/28/15.
@@ -50,7 +50,7 @@ public class RepositoryRequestTest {
 
   private RepositoryRequest request;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     request = new RepositoryRequest( PATH, SHOW_HIDE, DEPTH, LEGACY_FILTER );
     request.setTypes( RepositoryRequest.FILES_TYPE_FILTER.FILES );

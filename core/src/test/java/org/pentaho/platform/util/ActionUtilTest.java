@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -34,7 +34,6 @@ import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.workitem.DummyPublisher;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -51,7 +50,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 
 @RunWith( MockitoJUnitRunner.class )
-@PrepareForTest( { PentahoSystem.class, ActionUtil.class } )
 public class ActionUtilTest {
 
   @Test( expected = ActionInvocationException.class )

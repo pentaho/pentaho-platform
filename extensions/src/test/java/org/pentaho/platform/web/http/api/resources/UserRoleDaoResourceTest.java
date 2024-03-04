@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -23,7 +23,6 @@ package org.pentaho.platform.web.http.api.resources;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
@@ -408,13 +407,11 @@ public class UserRoleDaoResourceTest {
   public void testCreateUserAndCheckDataSent() throws Exception {
     ArgumentCaptor<User> argument = ArgumentCaptor.forClass( User.class );
 
-    UserRoleDaoService userRoleDaoService = mock( UserRoleDaoService.class );
-    Whitebox.setInternalState( userRoleResource, "userRoleDaoService", userRoleDaoService );
     String username = "name";
     String password = "password";
     String b64Password = "ENC:" + Base64.getEncoder().encodeToString( password.getBytes() );
     Response response = userRoleResource.createUser( new User( username, b64Password ) );
-    verify( userRoleDaoService, times( 1 ) ).createUser( argument.capture() );
+    verify( userRoleService, times( 1 ) ).createUser( argument.capture() );
 
     assertEquals( username, argument.getValue().getUserName() );
     assertEquals( password, argument.getValue().getPassword() );

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -84,7 +84,7 @@ import static org.pentaho.platform.plugin.services.metadata.PentahoMetadataDomai
 import static org.pentaho.platform.plugin.services.metadata.PentahoMetadataDomainRepository.TYPE_DOMAIN;
 import static org.pentaho.platform.plugin.services.metadata.PentahoMetadataDomainRepository.TYPE_LOCALE;
 import static org.pentaho.test.platform.repository2.unified.MockUnifiedRepository.everyone;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 @RunWith ( MockitoJUnitRunner.class )
 public class PentahoMetadataDomainRepositoryTest {
