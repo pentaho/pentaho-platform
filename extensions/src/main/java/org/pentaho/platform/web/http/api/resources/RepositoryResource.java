@@ -662,6 +662,11 @@ public class RepositoryResource extends AbstractJaxRSResource {
         logger.error( MessageFormat.format( "Repository file [{0}] not found", contextId ) );
         return Response.serverError().build();
       }
+      if ( FileResource.idToPath( contextId ).endsWith( ".prpti" ) && !validatePrptiOutputFormat() ) {
+        logger.error( MessageFormat.format( "Output Format [{0}] for PIR report not allowed for file [{1}]",
+          this.httpServletRequest.getParameterMap().get( "output-target" )[ 0 ], FileResource.idToPath( contextId ) ) );
+        return Response.serverError().status( Status.BAD_REQUEST ).build();
+      }
 
       Response response = null;
 
@@ -753,6 +758,15 @@ public class RepositoryResource extends AbstractJaxRSResource {
     logger.warn( MessageFormat.format( "End of the resolution chain. No resource [{0}] found in context [{1}].",
         resourceId, contextId ) );
     return Response.status( NOT_FOUND ).build();
+  }
+
+  private boolean validatePrptiOutputFormat() {
+    boolean valid = true;
+    if ( this.httpServletRequest.getParameterMap() != null && this.httpServletRequest.getParameterMap().containsKey( "output-target" ) ) {
+      String outputFormat = this.httpServletRequest.getParameterMap().get( "output-target" )[0];
+      valid = AllowedPrptiTypes.getByType( outputFormat ) != null;
+    }
+    return valid;
   }
 
   abstract class CGFactory implements ContentGeneratorDescriptor {
@@ -980,5 +994,39 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   public void setWhitelist( RepositoryDownloadWhitelist whitelist ) {
     this.whitelist = whitelist;
+  }
+
+  public enum AllowedPrptiTypes {
+    MIME_TYPE_HTML_1( "table/html;page-mode=page" ),
+    MIME_TYPE_HTML_2( "table/html;page-mode=stream" ),
+    MIME_TYPE_EMAIL( "mime-message/text/html" ),
+    MIME_TYPE_PDF( "pageable/pdf" ),
+    MIME_TYPE_CSV( "table/csv;page-mode=stream" ),
+    MIME_TYPE_XLS( "table/excel;page-mode=flow" ),
+    MIME_TYPE_XLSX( "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;page-mode=flow" ),
+    MIME_TYPE_TXT( "pageable/text" ),
+    MIME_TYPE_RTF( "table/rtf;page-mode=flow" );
+    private final String type;
+
+    AllowedPrptiTypes( String type ) {
+      this.type = type;
+    }
+
+    public String getAllowedPrptiType() {
+      return type;
+    }
+
+    public static AllowedPrptiTypes getByType( String type ) {
+      if ( type == null || type.isEmpty() ) {
+        return null;
+      }
+      AllowedPrptiTypes result = null;
+      for ( AllowedPrptiTypes en : AllowedPrptiTypes.values() ) {
+        if ( en.getAllowedPrptiType().equals( type ) ) {
+          result = en;
+        }
+      }
+      return result;
+    }
   }
 }
