@@ -35,7 +35,7 @@
 }
 
 .schedulesPanel .workspaceHeading {
-  padding: 0px 0px 10px 0px;
+  padding: 0 0 10px 0;
 }
 
 .schedulerPerspective-wrapper {
@@ -1348,6 +1348,10 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   font-weight: normal;
 }
 
+.blockout-schedules-panel-wrapper .gwt-ScrollTable :is(.headerWrapper .headerTable, .dataWrapper .dataTable) {
+  width: 100% !important;
+}
+
 /* endregion Main and Burger Toolbars */
 
 /*****************************************/
@@ -1403,8 +1407,7 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   background-position: right 10px center;
 }
 
-.pentaho-table .cellTableSortedHeaderAscending img,
-.pentaho-table .cellTableSortedHeaderDescending img {
+.pentaho-table :is(.cellTableSortedHeaderAscending, .cellTableSortedHeaderDescending) img {
   display: none;
 }
 
@@ -1416,31 +1419,18 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
   background: #fafafa;
 }
 
-.pentaho-table .cellTableEvenRowCell,
-.pentaho-table .cellTableOddRowCell {
+.pentaho-table :is(.cellTableEvenRowCell, .cellTableOddRowCell) {
   border: 1px solid #dedede;
   border-right: 0 none;
   border-top: 0 none;
 }
 
-.pentaho-table .cellTableEvenRowCell.cellTableLastColumn,
-.pentaho-table .cellTableOddRowCell.cellTableLastColumn {
+.pentaho-table :is(.cellTableEvenRowCell, .cellTableOddRowCell).cellTableLastColumn {
   border-right: 1px solid #dedede;
 }
 
-.pentaho-table .cellTableEvenRow.cellTableHoveredRow,
-.pentaho-table .cellTableOddRow.cellTableHoveredRow {
+.pentaho-table :is(.cellTableEvenRow, .cellTableOddRow).cellTableHoveredRow {
   background-color: #E0E0E0;
-}
-
-.pentaho-table .cellTableEvenRowCell.cellTableHoveredRowCell,
-.pentaho-table .cellTableOddRowCell.cellTableHoveredRowCell {
-}
-
-.pentaho-table .cellTableKeyboardSelectedRow {
-}
-
-.pentaho-table .cellTableKeyboardSelectedRowCell {
 }
 
 .pentaho-table .cellTableSelectedRow {
