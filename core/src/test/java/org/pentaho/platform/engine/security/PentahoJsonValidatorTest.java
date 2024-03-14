@@ -6,10 +6,14 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+
 public class PentahoJsonValidatorTest {
 
     private final String VALID_JSON = "{\"class\":\"org.pentaho.platform.engine.security.TestObject\",\"intValue\":\"5\",\"stringValue\":\"XPTO\"}";
+    private final String VALID_JSON_WITH_CHILD = "{\"class\":\"org.pentaho.platform.engine.security.TestObject\",\"intValue\":\"5\",\"stringValue\":\"XPTO\",\"child\":{\"class\":\"org.pentaho.platform.engine.security.TestChildObject\"}}";
     private final String INVALID_CLASS_JSON = "{\"class\":\"org.pentaho.platform.engine.security.TestObjectW\",\"intValue\":\"5\",\"stringValue\":\"XPTO\"}";
+    private final String INVALID_JSON_WITH_CHILD = "{\"class\":\"org.pentaho.platform.engine.security.TestObject\",\"intValue\":\"5\",\"stringValue\":\"XPTO\",\"child\":{\"class\":\"org.pentaho.platform.engine.security.TestChildObject2\"}}";
     private final String EMPTY_JSON = "";
 
     @Test
@@ -38,6 +42,16 @@ public class PentahoJsonValidatorTest {
     @Test
     public void testValidJson() {
         assertTrue( PentahoJsonValidator.isJsonValid( VALID_JSON, TestObject.class ) );
+    }
+
+    @Test
+    public void testValidJsonWithChild() {
+        assertTrue( PentahoJsonValidator.isJsonValid( VALID_JSON_WITH_CHILD, Arrays.asList( TestObject.class, TestChildObject.class ) ) );
+    }
+
+    @Test
+    public void testInvalidJsonWithChild() {
+        assertFalse( PentahoJsonValidator.isJsonValid( INVALID_JSON_WITH_CHILD, Arrays.asList( TestObject.class, TestChildObject.class ) ) );
     }
 }
 
@@ -81,4 +95,8 @@ class TestObject {
 
         return intValue == that.intValue && stringValue.equals( that.stringValue );
     }
+}
+
+class TestChildObject extends TestObject {
+  public TestChildObject() { }
 }
