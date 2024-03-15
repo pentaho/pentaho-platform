@@ -35,15 +35,7 @@ public class FilteredAccessLogValve extends AccessLogValve {
   public void log( CharArrayWriter message ) {
     try ( CharArrayWriter caw = new CharArrayWriter() ) {
       // Mask the user password
-      String tempString = message.toString();
-      if ( tempString.contains( "/pentaho/api/csrf" ) || tempString.contains( "/pentaho/api/repo/files/backup" ) ) {
-        tempString = tempString.replaceAll( "\\?userid[^&]+%26", "" );
-        tempString = tempString.replaceAll( "\\?userid[^&]+", "" );
-        tempString = tempString.replaceAll( "password[^&]+%26", "" );
-        tempString = tempString.replaceAll( "\\&password[^&]+", "" );
-      }
-      tempString = tempString.replaceAll( "j_password=[^&^ ]*", "j_password=***" );
-      caw.write( tempString );
+      caw.write( message.toString().replaceAll( "j_password=[^&^ ]*", "j_password=***" ) );
       super.log( caw );
     } catch ( IOException e ) {
       e.printStackTrace();

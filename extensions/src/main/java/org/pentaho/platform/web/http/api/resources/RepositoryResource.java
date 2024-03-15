@@ -1043,7 +1043,6 @@ public class RepositoryResource extends AbstractJaxRSResource {
     MIME_TYPE_EMAIL( "mime-message/text/html" ),
     MIME_TYPE_PDF( "pageable/pdf" ),
     MIME_TYPE_CSV( "table/csv;page-mode=stream" ),
-    MIME_TYPE_XLS( "table/excel;page-mode=flow" ),
     MIME_TYPE_XLSX( "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;page-mode=flow" ),
     MIME_TYPE_TXT( "pageable/text" ),
     MIME_TYPE_RTF( "table/rtf;page-mode=flow" );

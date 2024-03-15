@@ -857,6 +857,14 @@ a:active, a:hover {
   margin-bottom: 5px;
 }
 
+.schedulesPanel .toolbar-button-focus-panel {
+  margin-right: 5px;
+}
+
+.schedulesPanel .toolbar-button {
+  margin-left: 0 !important;
+}
+
 .schedulesPanel .pentaho-table th {
   font-size: 12px;
   border-spacing: 0;
