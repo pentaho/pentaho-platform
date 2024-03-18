@@ -21,10 +21,13 @@
 package org.pentaho.test.platform.plugin.services.webservices;
 
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.AxisWebServiceManager;
 import org.pentaho.platform.plugin.services.webservices.content.AxisServiceWsdlGenerator;
@@ -38,6 +41,11 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 public class AxisServiceWsdlGeneratorTest {
 
@@ -50,6 +58,12 @@ public class AxisServiceWsdlGeneratorTest {
 
   @Test
   public void testBadInit3() throws Exception {
+
+    MockedStatic<PentahoSystem>  pentahoSystem = mockStatic( PentahoSystem.class );
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    pentahoSystem.when( () -> PentahoSystem.get( eq( IAuthorizationPolicy.class ) ) ).thenReturn( policy );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
+
     StandaloneSession session = new StandaloneSession( "test" ); //$NON-NLS-1$
 
     AxisServiceWsdlGenerator contentGenerator = new AxisServiceWsdlGenerator();

@@ -22,6 +22,8 @@ package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.commons.util.repository.exception.PermissionDeniedException;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -32,6 +34,7 @@ import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.services.solution.SimpleContentGenerator;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.MimeHelper;
@@ -85,6 +88,8 @@ public class GeneratorStreamingOutput {
   protected ContentGeneratorDescriptor contentGeneratorDescriptor;
 
   private static final boolean MIMETYPE_MUTABLE = true;
+
+  private String RepositoryCreateAction = "org.pentaho.repository.create";
 
   /**
    * Invokes a content generator to produce some content either in the context of a repository file, or in the form of a
@@ -176,6 +181,11 @@ public class GeneratorStreamingOutput {
   }
 
   protected void generateContent( OutputStream outputStream, final MimeTypeCallback callback ) throws Exception {
+
+    if ( !PentahoSystem.get( IAuthorizationPolicy.class ).isAllowed( RepositoryCreateAction ) ) {
+      throw new PermissionDeniedException();
+    }
+
     try {
       httpServletResponse.setCharacterEncoding( LocaleHelper.getSystemEncoding() );
     } catch ( Throwable t ) {
