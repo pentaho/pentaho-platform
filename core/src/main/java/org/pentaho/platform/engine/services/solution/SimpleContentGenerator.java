@@ -20,7 +20,10 @@
 
 package org.pentaho.platform.engine.services.solution;
 
+import org.pentaho.commons.util.repository.exception.PermissionDeniedException;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository.IContentItem;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.UUIDUtil;
 
@@ -30,9 +33,15 @@ import java.security.InvalidParameterException;
 public abstract class SimpleContentGenerator extends BaseContentGenerator {
 
   private static final long serialVersionUID = -8882315618256741737L;
+  private static final String REPOSITORY_CREATE_ACTION = "org.pentaho.repository.create";
 
   @Override
   public void createContent() throws Exception {
+
+    if ( !PentahoSystem.get( IAuthorizationPolicy.class ).isAllowed( REPOSITORY_CREATE_ACTION ) ) {
+      throw new PermissionDeniedException();
+    }
+
     OutputStream out = null;
     if ( outputHandler == null ) {
       error( Messages.getInstance().getErrorString( "SimpleContentGenerator.ERROR_0001_NO_OUTPUT_HANDLER" ) ); //$NON-NLS-1$
