@@ -112,25 +112,52 @@ public class PerspectiveManager extends SimplePanel {
     RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
     builder.setHeader( CONTENT_TYPE, APPLICATION_JSON );
     builder.setHeader( IF_MODIFIED_SINCE, IF_MODIFIED_SINCE_DATE );
-    canSchedule = true;
+    canSchedule = false;
 
     try {
       builder.sendRequest( null, new RequestCallback() {
         @Override
         public void onError( Request request, Throwable throwable ) {
-          setupPerspectiveManager();
+          canExecuteSchedules();
         }
 
         @Override
         public void onResponseReceived( Request request, Response response ) {
           if ( response.getStatusCode() == 200 ) {
             canSchedule = "true".equals( response.getText() );
+
+            if ( canSchedule ) {
+              setupPerspectiveManager();
+              return;
+            }
           }
 
-          setupPerspectiveManager();
+          canExecuteSchedules();
         }
       } );
     } catch ( Exception ignored ) {
+      // ignore
+    }
+  }
+
+  private void canExecuteSchedules() {
+    try {
+      final String url = MantleUtils.getSchedulerPluginContextURL() + "api/scheduler/canExecuteSchedules?ts="
+        + System.currentTimeMillis(); //$NON-NLS-1$
+      RequestBuilder requestBuilder = new RequestBuilder( RequestBuilder.GET, url );
+      requestBuilder.setHeader( CONTENT_TYPE, APPLICATION_JSON );
+      requestBuilder.setHeader( IF_MODIFIED_SINCE, IF_MODIFIED_SINCE_DATE );
+      requestBuilder.sendRequest( null, new RequestCallback() {
+        public void onError( Request request, Throwable caught ) {
+          setupPerspectiveManager();
+        }
+
+        public void onResponseReceived( Request request, Response response ) {
+          canSchedule = "true".equalsIgnoreCase( response.getText() ); //$NON-NLS-1$
+          setupPerspectiveManager();
+        }
+      } );
+    } catch ( RequestException ignored ) {
       // ignore
     }
   }
