@@ -34,7 +34,6 @@ import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.services.solution.SimpleContentGenerator;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.MimeHelper;
@@ -89,7 +88,7 @@ public class GeneratorStreamingOutput {
 
   private static final boolean MIMETYPE_MUTABLE = true;
 
-  private String RepositoryCreateAction = "org.pentaho.repository.create";
+  private static final String REPOSITORY_CREATE_ACTION = "org.pentaho.repository.create";
 
   /**
    * Invokes a content generator to produce some content either in the context of a repository file, or in the form of a
@@ -182,7 +181,7 @@ public class GeneratorStreamingOutput {
 
   protected void generateContent( OutputStream outputStream, final MimeTypeCallback callback ) throws Exception {
 
-    if ( !PentahoSystem.get( IAuthorizationPolicy.class ).isAllowed( RepositoryCreateAction ) ) {
+    if ( !PentahoSystem.get( IAuthorizationPolicy.class ).isAllowed( REPOSITORY_CREATE_ACTION ) ) {
       throw new PermissionDeniedException();
     }
 

@@ -33,12 +33,12 @@ import java.security.InvalidParameterException;
 public abstract class SimpleContentGenerator extends BaseContentGenerator {
 
   private static final long serialVersionUID = -8882315618256741737L;
-  private String RepositoryCreateAction = "org.pentaho.repository.create";
+  private static final String REPOSITORY_CREATE_ACTION = "org.pentaho.repository.create";
 
   @Override
   public void createContent() throws Exception {
 
-    if ( !PentahoSystem.get( IAuthorizationPolicy.class ).isAllowed( RepositoryCreateAction ) ) {
+    if ( !PentahoSystem.get( IAuthorizationPolicy.class ).isAllowed( REPOSITORY_CREATE_ACTION ) ) {
       throw new PermissionDeniedException();
     }
 
