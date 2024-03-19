@@ -20,6 +20,8 @@ define([
   "common-ui/jquery"
 ], function () {
 
+  const buttonIds = ["#newFolderButton", "#deleteFolderButton", "#renameButton", "#pasteButton", "#uploadButton", "#downloadButton", "#propertiesButton"];
+
   var local = {
     renameDialog: null,
 
@@ -151,6 +153,10 @@ define([
           $("#renameButton").prop("disabled", true);
         }
       }
+    },
+
+    isVfsConnection: function( isVfsConnection ){
+      buttonIds.forEach((buttonId) => $(buttonId).prop("disabled", isVfsConnection));
     },
 
     eventLogger: function (event) {
