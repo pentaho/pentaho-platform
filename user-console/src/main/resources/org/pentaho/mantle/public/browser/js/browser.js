@@ -344,50 +344,60 @@ define([
       var folderPath = Encoder.encodeRepositoryPath( _folderPath);
 
       // BACKLOG-23730: server+client side code uses centralized logic to check if user can download/upload
-      //
-      // Ajax request to check if user can download
-      $.ajax({
-        url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=" + encodeURIComponent( _folderPath ),
-        type: "GET",
-        async: true,
-        success: function (response) {
-          folderButtons.canDownload(response == "true");
-        },
-        error: function (response) {
-          folderButtons.canDownload(false);
-        }
-      });
 
-      // Ajax request to check if user can upload (a.k.a. publish)
-      $.ajax({
-        url: CONTEXT_PATH + "api/repo/files/canUpload?dirPath=" + encodeURIComponent( _folderPath ),
-        type: "GET",
-        async: true,
-        success: function (response) {
-          folderButtons.canPublish(response == "true");
-        },
-        error: function (response) {
-          folderButtons.canPublish(false);
-        }
-      });
+      //Ajax request to check if user can download
+      if( folderPath.charAt(0) == ":" ) {
+        // this is a Repository connection path
+        //TODO BACKLOG-40086: refactor when we've implemented permissions for vfs connections folders/files
+        folderButtons.isVfsConnection(false);
 
-      //Ajax request to check write permissions for folder
-      $.ajax({
-        url: CONTEXT_PATH + 'api/repo/files/' + FileBrowser.encodePathComponents(folderPath) + '/canAccessMap',
-        type: "GET",
-        beforeSend: function (request) {
-          request.setRequestHeader('accept', 'application/json');
-        },
-        data: {"permissions": "1"}, //check write permissions for the given folder
-        async: true,
-        cache: false,
-        success: function (response) {
-          folderButtons.updateFolderPermissionButtons(response, model.get('browserUtils').multiSelectItems, !(folderPath == userHomePath));
-        },
-        error: function (response) {
-          folderButtons.updateFolderPermissionButtons(false, model.get('browserUtils').multiSelectItems, false);
-        }
-      });
+        $.ajax({
+          url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=" + encodeURIComponent(_folderPath),
+          type: "GET",
+          async: true,
+          success: function (response) {
+            folderButtons.canDownload(response == "true");
+          },
+          error: function (response) {
+            folderButtons.canDownload(false);
+          }
+        });
+
+        // Ajax request to check if user can upload (a.k.a. publish)
+        $.ajax({
+          url: CONTEXT_PATH + "api/repo/files/canUpload?dirPath=" + encodeURIComponent(_folderPath),
+          type: "GET",
+          async: true,
+          success: function (response) {
+            folderButtons.canPublish(response == "true");
+          },
+          error: function (response) {
+            folderButtons.canPublish(false);
+          }
+        });
+
+        //Ajax request to check write permissions for folder
+        $.ajax({
+          url: CONTEXT_PATH + 'api/repo/files/' + FileBrowser.encodePathComponents(folderPath) + '/canAccessMap',
+          type: "GET",
+          beforeSend: function (request) {
+            request.setRequestHeader('accept', 'application/json');
+          },
+          data: {"permissions": "1"}, //check write permissions for the given folder
+          async: true,
+          cache: false,
+          success: function (response) {
+            folderButtons.updateFolderPermissionButtons(response, model.get('browserUtils').multiSelectItems, !(folderPath == userHomePath));
+          },
+          error: function (response) {
+            folderButtons.updateFolderPermissionButtons(false, model.get('browserUtils').multiSelectItems, false);
+          }
+        });
+      } else {
+        // This is a VFS Connection path
+        //TODO BACKLOG-40086: refactor when we've implemented permissions for vfs connections folders/files
+        folderButtons.isVfsConnection(true);
+      }
     },
 
     updateFileClicked: function () {
@@ -412,27 +422,38 @@ define([
       }
 
       fileButtons.canDownload(this.get("canDownload"));
-      //TODO handle file button press
+
       var filePath = clickedFile.obj.attr("path");
-      filePath = Encoder.encodeRepositoryPath(filePath);
 
       //Ajax request to check write permissions for file
-      $.ajax({
-        url: CONTEXT_PATH + 'api/repo/files/' + FileBrowser.encodePathComponents(filePath) + '/canAccessMap',
-        type: "GET",
-        beforeSend: function (request) {
-          request.setRequestHeader('accept', 'application/json');
-        },
-        data: {"permissions": "1|2"}, //check write and delete permissions for the given file
-        async: true,
-        cache: false,
-        success: function (response) {
-          fileButtons.updateFilePermissionButtons(response);
-        },
-        error: function (response) {
-          fileButtons.updateFilePermissionButtons(false);
-        }
-      });
+      if( filePath.charAt(0) == "/" ) {
+        // this is a Repository connection path
+        //TODO BACKLOG-40086: refactor when we've implemented permissions for vfs connections folders/files
+        fileButtons.isVfsConnection(false);
+
+        filePath = Encoder.encodeRepositoryPath(filePath);
+
+        $.ajax({
+          url: CONTEXT_PATH + 'api/repo/files/' + FileBrowser.encodePathComponents(filePath) + '/canAccessMap',
+          type: "GET",
+          beforeSend: function (request) {
+            request.setRequestHeader('accept', 'application/json');
+          },
+          data: {"permissions": "1|2"}, //check write and delete permissions for the given file
+          async: true,
+          cache: false,
+          success: function (response) {
+            fileButtons.updateFilePermissionButtons(response);
+          },
+          error: function (response) {
+            fileButtons.updateFilePermissionButtons(false);
+          }
+        });
+      } else {
+        // this is a VFS connection path
+        //TODO BACKLOG-40086: refactor when we've implemented permissions for vfs connections folders/files
+        fileButtons.isVfsConnection(true);
+      }
     },
 
     updateFolderLastClick: function () {
@@ -501,15 +522,15 @@ define([
     updateData: function () {
       var myself = this;
       myself.set("runSpinner", true);
-      myself.fetchData("/", function (response) {
+      myself.fetchTreeRootData(function (response) {
         var trash = {
           "file": {
             "trash": "trash",
             "createdDate": "1365427106132",
             "fileSize": "0",
-            "folder": "true",
+            "folder": true,
             "hidden": "false",
-            "id:": jQuery.i18n.prop('trash'),
+            "objectId:": jQuery.i18n.prop('trash'),
             "locale": "en",
             "locked": "false",
             "name": jQuery.i18n.prop('trash'),
@@ -525,11 +546,11 @@ define([
       });
     },
 
-    fetchData: function (path, callback) {
+    fetchTreeRootData: function (callback) {
       var myself = this,
-          tree = null,
-          localSequenceNumber = myself.get("sequenceNumber");
-      var url = this.getFileTreeRequest(FileBrowser.encodePathComponents(path == null ? ":" : Encoder.encodeRepositoryPath(path)));
+          localSequenceNumber = myself.get("sequenceNumber"),
+          url = this.getFolderTreeRootRequest();
+
       $.ajax({
         async: true,
         cache: false, // prevent IE from caching the request
@@ -549,12 +570,14 @@ define([
       });
     },
 
-    /*
-     * Path has already been converted to colons
-     */
-    getFileTreeRequest: function (path) {
-      return CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=" + depth
-          + "&showHidden=" + this.get("showHiddenFiles") + "&filter=*%7CFOLDERS";
+    getFolderTreeRootRequest: function (path) {
+      var expandedPathParam = "";
+
+      if (FileBrowser.fileBrowserModel.get("startFolder")) {
+        expandedPathParam = "&expandedPath=" + FileBrowser.fileBrowserModel.get("startFolder");
+      }
+
+      return "/pentaho/plugin/scheduler-plugin/api/generic-files/files/tree?depth=1&showHidden=false&filter=FOLDERS" + expandedPathParam;
     }
   });
 
@@ -620,14 +643,14 @@ define([
       var newResp = {
         children: []
       }
-      if (response && response.repositoryFileDto) {
+      if (response) {
 
-        for (var i = 0; i < response.repositoryFileDto.length; i++) {
+        for (var i = 0; i < response.children.length; i++) {
           var obj = {
             file: Object
           }
 
-          obj.file = response.repositoryFileDto[i];
+          obj.file = response.children[i].file;
           obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
           newResp.children.push(obj);
         }
@@ -656,7 +679,7 @@ define([
 
     fetchData: function (path, callback) {
       var myself = this,
-          url = this.getFileListRequest(FileBrowser.encodePathComponents(path == null ? ":" : Encoder.encodeRepositoryPath(path))),
+          url = this.getFileListRequest(path == null ? ":" : path.replaceAll(':','~').replaceAll('/',':')),
           localSequenceNumber = myself.get("sequenceNumber");
       $.ajax({
         async: true,
@@ -724,7 +747,7 @@ define([
       }
       else {
         //request = CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FILES";
-        request = CONTEXT_PATH + "api/repo/files/" + path + "/children?showHidden=" + this.get("showHiddenFiles") + "&filter=*%7CFILES";
+        request = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/files/" + path + "/tree?depth=1&showHidden=" + this.get("showHiddenFiles") + "&filter=FILES";
       }
       return request;
     }
@@ -1126,6 +1149,9 @@ define([
         }
         FileBrowser.fileBrowserModel.updateFolderButtons($folder.attr("path"));
         myself.updateDescriptions();
+
+        //scroll the selected folder div into view
+        $("div.folders .selected").get()[0].scrollIntoView();
       }
     },
 
@@ -1180,9 +1206,9 @@ define([
         var path = $target.attr("path");
         var myself = this;
 
-        var url = CONTEXT_PATH + "api/repo/files/" +
-            FileBrowser.encodePathComponents(path == null ? ":" : Encoder.encodeRepositoryPath(path))
-            + "/tree?depth=1&showHidden=" + myself.model.get("showHiddenFiles") + "&filter=*%7CFOLDERS";
+        var url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/files/" +
+            FileBrowser.encodePathComponents(path == null ? ":" : path.replaceAll(':','~').replaceAll('/',':'))
+            + "/tree?depth=1&showHidden=" + myself.model.get("showHiddenFiles") + "&filter=FOLDERS";
         $.ajax({
           async: true,
           cache: false, // prevent IE from caching the request
@@ -1845,7 +1871,7 @@ define([
   function customSort(response) {
 
     var sortFunction = function (a, b) {
-      return window.parent.localeCompare(a.file.title, b.file.title);
+     return window.parent.localeCompare(a.file.name, b.file.name);
     };
 
     var recursivePreorder = function (node) {
