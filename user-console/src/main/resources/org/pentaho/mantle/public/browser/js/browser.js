@@ -522,6 +522,7 @@ define([
     updateData: function () {
       var myself = this;
       myself.set("runSpinner", true);
+      myself.clearTreeCache();
       myself.fetchTreeRootData(function (response) {
         var trash = {
           "file": {
@@ -543,6 +544,25 @@ define([
         //Add trash to data model
         response.children.push(trash);
         myself.set("data", response);
+      });
+    },
+
+    clearTreeCache: function () {
+      let url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/files/tree/cache";
+
+      $.ajax({
+        async: true,
+        cache: false, // prevent IE from caching the request
+        type: 'DELETE',
+        dataType: "json",
+        url: url,
+        success: function (response) {
+        },
+        error: function () {
+          //TODO SOMETHING ON ERROR look at browser.dialogs
+        },
+        beforeSend: function (xhr) {
+        }
       });
     },
 
@@ -577,7 +597,7 @@ define([
         expandedPathParam = "&expandedPath=" + FileBrowser.fileBrowserModel.get("startFolder");
       }
 
-      return "/pentaho/plugin/scheduler-plugin/api/generic-files/files/tree?depth=1&showHidden=false&filter=FOLDERS" + expandedPathParam;
+      return CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/files/tree?depth=1&showHidden=false&filter=FOLDERS" + expandedPathParam;
     }
   });
 
@@ -1150,8 +1170,11 @@ define([
         FileBrowser.fileBrowserModel.updateFolderButtons($folder.attr("path"));
         myself.updateDescriptions();
 
-        //scroll the selected folder div into view
-        $("div.folders .selected").get()[0].scrollIntoView();
+        //scroll the first selected folder div into view
+        let selectedFolders = $("div.folders .selected").get();
+        if (selectedFolders.length > 0) {
+          selectedFolders[0].scrollIntoView();
+        }
       }
     },
 
@@ -1454,6 +1477,12 @@ define([
       setTimeout(function () {
         myself.model.set("runSpinner", false);
       }, 100);
+
+      //scroll the first selected file div into view
+      let selectedFiles = $("div.file.selected").get();
+      if (selectedFiles.length > 0) {
+        selectedFiles[0].scrollIntoView();
+      }
     },
 
     /*!
