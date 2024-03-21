@@ -1246,19 +1246,7 @@ define([
           url: url,
           success: function (response) {
             if (response.children) {
-              var toAppend = "";
-              for(var i = 0; i < response.children.length; i++) {
-                var child = response.children[i].file;
-                toAppend += "<div id=\"" + child.id + "\" class=\"folder\" path=\"" + child.path +
-                    "\" ext=\"" + child.name + "\" desc=\"" + child.name + "\">" +
-                    "<div class=\"element\" role='treeitem' aria-selected='false' aria-expanded='false' tabindex='-1'>" +
-                    "<div class=\"expandCollapse\"></div>" +
-                    "<div class=\"icon\"></div>" +
-                    "<div class=\"title\">" + ( child.title ? child.title : child.name ) + "</div>" +
-                    "</div>" +
-                    "<div class=\"folders\" style=\"\"></div>" +
-                    "</div>"
-              }
+              var toAppend = templates.folders(FileBrowser.fileBrowserModel.get("fileListModel").reformatResponse(response));
               $target.find("> .folders").append(toAppend ? toAppend : "");
               depth = $target.attr("path").split("/").length;
             }
