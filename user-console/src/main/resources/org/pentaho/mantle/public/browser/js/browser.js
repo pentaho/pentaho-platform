@@ -343,14 +343,13 @@ define([
       var model = FileBrowser.fileBrowserModel; // trap model
       var folderPath = Encoder.encodeRepositoryPath( _folderPath);
 
+      let isRepositoryPath = _isRepositoryPath(folderPath);
+      folderButtons.isVfsConnection(!isRepositoryPath);
+
       // BACKLOG-23730: server+client side code uses centralized logic to check if user can download/upload
 
       //Ajax request to check if user can download
-      if( folderPath.charAt(0) == ":" ) {
-        // this is a Repository connection path
-        //TODO BACKLOG-40086: refactor when we've implemented permissions for vfs connections folders/files
-        folderButtons.isVfsConnection(false);
-
+      if( isRepositoryPath ) {
         $.ajax({
           url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=" + encodeURIComponent(_folderPath),
           type: "GET",
@@ -396,7 +395,6 @@ define([
       } else {
         // This is a VFS Connection path
         //TODO BACKLOG-40086: refactor when we've implemented permissions for vfs connections folders/files
-        folderButtons.isVfsConnection(true);
       }
     },
 
@@ -424,13 +422,11 @@ define([
       fileButtons.canDownload(this.get("canDownload"));
 
       var filePath = clickedFile.obj.attr("path");
+      let isRepositoryPath = _isRepositoryPath(filePath);
+      fileButtons.isVfsConnection(!isRepositoryPath);
 
       //Ajax request to check write permissions for file
       if( filePath.charAt(0) == "/" ) {
-        // this is a Repository connection path
-        //TODO BACKLOG-40086: refactor when we've implemented permissions for vfs connections folders/files
-        fileButtons.isVfsConnection(false);
-
         filePath = Encoder.encodeRepositoryPath(filePath);
 
         $.ajax({
@@ -452,7 +448,6 @@ define([
       } else {
         // this is a VFS connection path
         //TODO BACKLOG-40086: refactor when we've implemented permissions for vfs connections folders/files
-        fileButtons.isVfsConnection(true);
       }
     },
 
@@ -521,28 +516,37 @@ define([
 
     updateData: function () {
       var myself = this;
+
+      const trashFolder = {
+        "file": {
+          "trash": "trash",
+          "createdDate": "1365427106132",
+          "fileSize": "0",
+          "folder": true,
+          "hidden": "false",
+          "objectId:": jQuery.i18n.prop('trash'),
+          "locale": "en",
+          "locked": "false",
+          "name": jQuery.i18n.prop('trash'),
+          "ownerType": "-1",
+          "path": ".trash",
+          "title": jQuery.i18n.prop('trash'),
+          "versioned": "false"
+        }
+      };
+
       myself.set("runSpinner", true);
       myself.clearTreeCache();
       myself.fetchTreeRootData(function (response) {
-        var trash = {
-          "file": {
-            "trash": "trash",
-            "createdDate": "1365427106132",
-            "fileSize": "0",
-            "folder": true,
-            "hidden": "false",
-            "objectId:": jQuery.i18n.prop('trash'),
-            "locale": "en",
-            "locked": "false",
-            "name": jQuery.i18n.prop('trash'),
-            "ownerType": "-1",
-            "path": ".trash",
-            "title": jQuery.i18n.prop('trash'),
-            "versioned": "false"
+        //Add trash folder once to the first Repository folder
+        //This should only ever happen once anyway, but implemented safely
+        for( let i=0; i < response.children.length; i++){
+          let childFolder = response.children[0];
+          if (_isRepositoryPath(childFolder.file.path)){
+            childFolder.children.push(trashFolder);
+            break;
           }
-        };
-        //Add trash to data model
-        response.children.push(trash);
+        }
         myself.set("data", response);
       });
     },
@@ -1198,6 +1202,9 @@ define([
     },
 
     expandFolder: function (event) {
+      const LOADING_FOLDER_CLASS = "loading";
+      const ERROR_FOLDER_CLASS = "error";
+
       let $target;
       if ($(event.currentTarget).hasClass("element")) {
         $target = $(event.currentTarget).parent();
@@ -1264,12 +1271,19 @@ define([
                 tries++;
               }
             });
+            $target.removeClass(ERROR_FOLDER_CLASS);
+            $target.removeClass(LOADING_FOLDER_CLASS);
             $target.children(".element").attr("aria-expanded", true);
             $target.addClass("open").find("> .folders").show();
           },
           error: function () {
+            $target.removeClass(LOADING_FOLDER_CLASS);
+            $target.addClass(ERROR_FOLDER_CLASS);
+            //TODO indicate some failure via dialog?
           },
           beforeSend: function (xhr) {
+            $target.removeClass(ERROR_FOLDER_CLASS);
+            $target.addClass(LOADING_FOLDER_CLASS);
           }
         });
       }
@@ -1900,7 +1914,11 @@ define([
   function customSort(response) {
 
     var sortFunction = function (a, b) {
-     return window.parent.localeCompare(a.file.name, b.file.name);
+      //if the file doesn't have a title, sort by its name
+      //this is expected to only be the case for root folders
+      let aCompare = a.file.title ? a.file.title : a.file.name;
+      let bCompare = b.file.title ? b.file.title : b.file.name;
+      return window.parent.localeCompare(aCompare, bCompare);
     };
 
     var recursivePreorder = function (node) {
@@ -1926,6 +1944,10 @@ define([
 
     return response;
   }
+
+  function _isRepositoryPath(path) {
+    return path.charAt(0) === "/" || path.charAt(0) === ":";
+  };
 
   return {
     encodePathComponents: FileBrowser.encodePathComponents,
