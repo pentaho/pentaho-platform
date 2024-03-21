@@ -1175,7 +1175,7 @@ define([
         myself.updateDescriptions();
 
         //scroll the first selected folder div into view
-        let selectedFolders = $("div.folders .selected").get();
+        const selectedFolders = $("div.folders .selected").get();
         if (selectedFolders.length > 0) {
           selectedFolders[0].scrollIntoView();
         }
@@ -1481,7 +1481,7 @@ define([
       }, 100);
 
       //scroll the first selected file div into view
-      let selectedFiles = $("div.file.selected").get();
+      const selectedFiles = $("div.file.selected").get();
       if (selectedFiles.length > 0) {
         selectedFiles[0].scrollIntoView();
       }
