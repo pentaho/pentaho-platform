@@ -552,7 +552,7 @@ define([
     },
 
     clearTreeCache: function () {
-      let url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/files/tree/cache";
+      let url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/tree/cache";
 
       $.ajax({
         async: true,
@@ -601,7 +601,7 @@ define([
         expandedPathParam = "&expandedPath=" + FileBrowser.fileBrowserModel.get("startFolder");
       }
 
-      return CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/files/tree?depth=1&showHidden=false&filter=FOLDERS" + expandedPathParam;
+      return CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/tree?depth=1&showHidden=false&filter=FOLDERS" + expandedPathParam;
     }
   });
 
@@ -771,7 +771,7 @@ define([
       }
       else {
         //request = CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FILES";
-        request = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/files/" + path + "/tree?depth=1&showHidden=" + this.get("showHiddenFiles") + "&filter=FILES";
+        request = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/" + path + "/tree?depth=1&showHidden=" + this.get("showHiddenFiles") + "&filter=FILES";
       }
       return request;
     }
@@ -1236,7 +1236,7 @@ define([
         var path = $target.attr("path");
         var myself = this;
 
-        var url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/files/" +
+        var url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/" +
             FileBrowser.encodePathComponents(path == null ? ":" : path.replaceAll(':','~').replaceAll('/',':'))
             + "/tree?depth=1&showHidden=" + myself.model.get("showHiddenFiles") + "&filter=FOLDERS";
         $.ajax({
