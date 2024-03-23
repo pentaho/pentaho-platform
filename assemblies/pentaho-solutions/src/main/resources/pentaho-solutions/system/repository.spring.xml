@@ -779,6 +779,13 @@
       </pen:attributes>
     </pen:publish>
   </bean>
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.SchedulerExecuteAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="35"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
   <bean class="org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
