@@ -561,6 +561,13 @@
       </pen:attributes>
     </pen:publish>
   </bean>
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.SchedulerExecuteAction" id="SchedulerExecuteAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="35"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
   <bean class="org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction" id="SchedulerAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
@@ -588,6 +595,7 @@
     <util:list id="AuthorizationActions">
         <ref bean="RepositoryReadAction"/>
         <ref bean="RepositoryCreateAction"/>
+        <ref bean="SchedulerExecuteAction"/>
         <ref bean="SchedulerAction"/>
         <ref bean="AdministerSecurityAction"/>
         <ref bean="PublishAction"/>
