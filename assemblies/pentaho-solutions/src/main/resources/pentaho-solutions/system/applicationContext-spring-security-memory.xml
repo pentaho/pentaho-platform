@@ -26,15 +26,14 @@
 	</bean>
 
 	<bean id="memoryUserDetailsService" class="org.pentaho.platform.plugin.services.security.userrole.memory.DefaultInMemoryUserDetailsService">
-		<constructor-arg ref="tenantedUserNameUtils"/>	
-		<constructor-arg ref="users"/>	
+		<constructor-arg ref="tenantedUserNameUtils"/>
+		<constructor-arg ref="users"/>
 		<pen:publish as-type="INTERFACES">
 	      <pen:attributes>
 	        <pen:attr key="providerName" value="memory"/>
 	      </pen:attributes>
 	    </pen:publish>
 	</bean>
-
 
 	<bean id="users" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 	  <property name="properties">
@@ -44,6 +43,7 @@
 	      <prop key="pat">password,Business Analyst,Authenticated</prop>
 	      <prop key="tiffany">password,Report Author,Authenticated</prop>
 	      <prop key="joe">password,Report Author,Administrator,Authenticated</prop>
+	      <prop key="bob">password,Schedule Power User,Authenticated</prop>
 	    </props>
 	  </property>
 	</bean>
