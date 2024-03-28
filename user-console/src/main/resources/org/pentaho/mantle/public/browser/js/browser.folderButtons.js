@@ -153,6 +153,14 @@ define([
       }
     },
 
+    isVfsConnection: function( isVfsConnection ){
+      this.buttons.forEach((buttonDef) => {
+        if(buttonDef.id !== "separator") {
+          $("#" + buttonDef.id).prop("disabled", isVfsConnection);
+        }
+      });
+    },
+
     eventLogger: function (event) {
       console.log(event.action + " : " + event.message);
     },
