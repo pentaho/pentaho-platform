@@ -32,7 +32,7 @@ then
 JAVA_ADD_OPENS=""
 else
 # Used to allow reflective access for Java 11
-JAVA_ADD_OPENS="--add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/sun.net.www.protocol.jar=ALL-UNNAMED"
+JAVA_ADD_OPENS="--add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/sun.net.www.protocol.jar=ALL-UNNAMED --add-opens jdk.security.auth/com.sun.security.auth.login=ALL-UNNAMED --add-opens java.base/sun.security.provider=ALL-UNNAMED"
 fi
 
 ### =========================================================== ###
