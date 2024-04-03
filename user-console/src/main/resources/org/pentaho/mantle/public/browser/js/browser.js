@@ -358,18 +358,18 @@ define([
     },
 
     updateFolderButtons: function( _folderPath) {
-      const isRepositoryPath = _isRepositoryPath(_folderPath);
+      const isRepoPath = isRepositoryPath(_folderPath);
 
       var userHomePath = Encoder.encodeRepositoryPath(window.parent.HOME_FOLDER);
       var model = FileBrowser.fileBrowserModel; // trap model
       var folderPath = Encoder.encodeRepositoryPath( _folderPath);
 
-      folderButtons.enableButtons(isRepositoryPath);
+      folderButtons.enableButtons(isRepoPath);
 
       // BACKLOG-23730: server+client side code uses centralized logic to check if user can download/upload
 
       //Ajax request to check if user can download
-      if( isRepositoryPath ) {
+      if( isRepoPath ) {
         $.ajax({
           url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=" + encodeURIComponent(_folderPath),
           type: "GET",
@@ -442,8 +442,8 @@ define([
       fileButtons.canDownload(this.get("canDownload"));
 
       var filePath = clickedFile.obj.attr("path");
-      const isRepositoryPath = _isRepositoryPath(filePath);
-      fileButtons.enableButtons(isRepositoryPath);
+      const isRepoPath = isRepositoryPath(filePath);
+      fileButtons.enableButtons(isRepoPath);
 
       //Ajax request to check write permissions for file
       if( filePath.charAt(0) == "/" ) {
@@ -720,7 +720,7 @@ define([
 
     fetchData: function (path, callback) {
       var myself = this,
-          url = this.getFileListRequest(path == null ? ":" : _encodeGenericPath(path)),
+          url = this.getFileListRequest(path == null ? ":" : encodeGenericPath(path)),
           localSequenceNumber = myself.get("sequenceNumber");
 
       // BACKLOG-40086: Clear the tree cache if flag is set. Cleared below in ajax success block.
@@ -1258,7 +1258,7 @@ define([
         var myself = this;
 
         var url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/" +
-            FileBrowser.encodePathComponents(path == null ? ":" : _encodeGenericPath(path))
+            FileBrowser.encodePathComponents(path == null ? ":" : encodeGenericPath(path))
             + "/tree?depth=1&showHidden=" + myself.model.get("showHiddenFiles") + "&filter=FOLDERS";
         $.ajax({
           async: true,
@@ -1954,11 +1954,11 @@ define([
     return response;
   }
 
-  function _isRepositoryPath(path) {
+  function isRepositoryPath(path) {
     return path.charAt(0) === "/";
   }
 
-  function _encodeGenericPath(path) {
+  function encodeGenericPath(path) {
     return path.replaceAll(':','~').replaceAll('/',':');
   }
 
