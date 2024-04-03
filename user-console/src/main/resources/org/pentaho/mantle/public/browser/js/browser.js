@@ -231,6 +231,25 @@ define([
     $folder.find("> .element .name").trigger("click");
   };
 
+  FileBrowser.clearTreeCache = function () {
+    let url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/tree/cache";
+
+    $.ajax({
+      async: true,
+      cache: false, // prevent IE from caching the request
+      type: 'DELETE',
+      dataType: "json",
+      url: url,
+      success: function (response) {
+      },
+      error: function () {
+        //TODO SOMETHING ON ERROR look at browser.dialogs
+      },
+      beforeSend: function (xhr) {
+      }
+    });
+  };
+
   var FileBrowserModel = Backbone.Model.extend({
     defaults: {
       showHiddenFilesURL: CONTEXT_PATH + "api/user-settings/MANTLE_SHOW_HIDDEN_FILES",
@@ -339,12 +358,13 @@ define([
     },
 
     updateFolderButtons: function( _folderPath) {
+      const isRepositoryPath = _isRepositoryPath(_folderPath);
+
       var userHomePath = Encoder.encodeRepositoryPath(window.parent.HOME_FOLDER);
       var model = FileBrowser.fileBrowserModel; // trap model
       var folderPath = Encoder.encodeRepositoryPath( _folderPath);
 
-      let isRepositoryPath = _isRepositoryPath(folderPath);
-      folderButtons.isVfsConnection(!isRepositoryPath);
+      folderButtons.enableButtons(isRepositoryPath);
 
       // BACKLOG-23730: server+client side code uses centralized logic to check if user can download/upload
 
@@ -422,8 +442,8 @@ define([
       fileButtons.canDownload(this.get("canDownload"));
 
       var filePath = clickedFile.obj.attr("path");
-      let isRepositoryPath = _isRepositoryPath(filePath);
-      fileButtons.isVfsConnection(!isRepositoryPath);
+      const isRepositoryPath = _isRepositoryPath(filePath);
+      fileButtons.enableButtons(isRepositoryPath);
 
       //Ajax request to check write permissions for file
       if( filePath.charAt(0) == "/" ) {
@@ -536,37 +556,25 @@ define([
       };
 
       myself.set("runSpinner", true);
-      myself.clearTreeCache();
+      FileBrowser.clearTreeCache();
       myself.fetchTreeRootData(function (response) {
-        //Add trash folder once to the first Repository folder
-        //This should only ever happen once anyway, but implemented safely
-        for( let i=0; i < response.children.length; i++){
-          let childFolder = response.children[0];
-          if (_isRepositoryPath(childFolder.file.path)){
+        let foundRepositoryFolder = false;
+
+        //Add the trash folder once to the first Repository folder
+        for (let i = 0; i < response.children.length; i++) {
+          let childFolder = response.children[i];
+          if (childFolder.file.path == "/") {
             childFolder.children.push(trashFolder);
+            foundRepositoryFolder = true;
             break;
           }
         }
-        myself.set("data", response);
-      });
-    },
-
-    clearTreeCache: function () {
-      let url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/tree/cache";
-
-      $.ajax({
-        async: true,
-        cache: false, // prevent IE from caching the request
-        type: 'DELETE',
-        dataType: "json",
-        url: url,
-        success: function (response) {
-        },
-        error: function () {
-          //TODO SOMETHING ON ERROR look at browser.dialogs
-        },
-        beforeSend: function (xhr) {
+        if (!foundRepositoryFolder) {
+          //This is a CE instance, place the trash folder at the end of the first generation list
+          response.children.push(trashFolder);
         }
+
+        myself.set("data", response);
       });
     },
 
@@ -597,11 +605,12 @@ define([
     getFolderTreeRootRequest: function (path) {
       var expandedPathParam = "";
 
-      if (FileBrowser.fileBrowserModel.get("startFolder")) {
+      // BACKLOG-40086: the trash folder as a concept does not currently exist in the generic-files API
+      if (FileBrowser.fileBrowserModel.get("startFolder") && FileBrowser.fileBrowserModel.get("startFolder") != '.trash') {
         expandedPathParam = "&expandedPath=" + FileBrowser.fileBrowserModel.get("startFolder");
       }
 
-      return CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/tree?depth=1&showHidden=false&filter=FOLDERS" + expandedPathParam;
+      return CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/tree?depth=1&filter=FOLDERS&showHidden=" + this.get("showHiddenFiles") + expandedPathParam;
     }
   });
 
@@ -648,8 +657,17 @@ define([
             file: Object
           }
           obj.file = response.repositoryFileDto[i];
-          obj.file.trash = "true";
+          obj.file.trash = true;
           obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
+
+          /* BACKLOG-40086: we've updated the browser.templates.js to match the objects returned by generic-files endpoints
+             Trash is still using /api/repo/files and repositoryFileDto. To match template change:
+             - Convert "folder" from string to boolean
+             - Convert "id" to "objectId"
+           */
+          obj.file.folder = (obj.file.folder == "true");
+          obj.file.objectId = obj.file.id;
+
           if (obj.file.id) {
             if (myself.get("deletedFiles") == "") {
               myself.set("deletedFiles", obj.file.id + ",");
@@ -667,8 +685,7 @@ define([
       var newResp = {
         children: []
       }
-      if (response) {
-
+      if (response && response.children) {
         for (var i = 0; i < response.children.length; i++) {
           var obj = {
             file: Object
@@ -703,8 +720,14 @@ define([
 
     fetchData: function (path, callback) {
       var myself = this,
-          url = this.getFileListRequest(path == null ? ":" : path.replaceAll(':','~').replaceAll('/',':')),
+          url = this.getFileListRequest(path == null ? ":" : _encodeGenericPath(path)),
           localSequenceNumber = myself.get("sequenceNumber");
+
+      // BACKLOG-40086: Clear the tree cache if flag is set. Cleared below in ajax success block.
+      if (window.parent.mantle_isBrowseRepoDirty == true) {
+        FileBrowser.clearTreeCache();
+      }
+
       $.ajax({
         async: true,
         cache: false, // prevent IE from caching the request
@@ -768,10 +791,8 @@ define([
       var request;
       if (path == ".trash") {
         request = CONTEXT_PATH + "api/repo/files/deleted";
-      }
-      else {
-        //request = CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FILES";
-        request = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/" + path + "/tree?depth=1&showHidden=" + this.get("showHiddenFiles") + "&filter=FILES";
+      } else {
+        request = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/" + path + "/tree?depth=1&filter=FILES&showHidden=" + this.get("showHiddenFiles");
       }
       return request;
     }
@@ -1237,7 +1258,7 @@ define([
         var myself = this;
 
         var url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/" +
-            FileBrowser.encodePathComponents(path == null ? ":" : path.replaceAll(':','~').replaceAll('/',':'))
+            FileBrowser.encodePathComponents(path == null ? ":" : _encodeGenericPath(path))
             + "/tree?depth=1&showHidden=" + myself.model.get("showHiddenFiles") + "&filter=FOLDERS";
         $.ajax({
           async: true,
@@ -1904,8 +1925,8 @@ define([
     var sortFunction = function (a, b) {
       //if the file doesn't have a title, sort by its name
       //this is expected to only be the case for root folders
-      let aCompare = a.file.title ? a.file.title : a.file.name;
-      let bCompare = b.file.title ? b.file.title : b.file.name;
+      const aCompare = a.file.title || a.file.name;
+      const bCompare = b.file.title || b.file.name;
       return window.parent.localeCompare(aCompare, bCompare);
     };
 
@@ -1934,8 +1955,12 @@ define([
   }
 
   function _isRepositoryPath(path) {
-    return path.charAt(0) === "/" || path.charAt(0) === ":";
-  };
+    return path.charAt(0) === "/";
+  }
+
+  function _encodeGenericPath(path) {
+    return path.replaceAll(':','~').replaceAll('/',':');
+  }
 
   return {
     encodePathComponents: FileBrowser.encodePathComponents,
@@ -1956,7 +1981,8 @@ define([
     templates: FileBrowser.templates,
     openFolder: FileBrowser.openFolder,
     pushUnique: FileBrowser.pushUnique,
-    concatArray: FileBrowser.concatArray
+    concatArray: FileBrowser.concatArray,
+    clearTreeCache: FileBrowser.clearTreeCache
   }
 });
 

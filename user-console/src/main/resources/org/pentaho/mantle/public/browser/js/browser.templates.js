@@ -182,7 +182,7 @@ define([
       trashPath: (this.file.name.charAt(0) == "/") ? this.file.pathText + this.file.originalParentFolderPath + this.file.name : this.file.pathText + this.file.originalParentFolderPath + "/" + this.file.name,
       name: nameNoExtension,
       title: title,
-      id: this.file.id,
+      objectId: this.file.objectId,
       classes: extension,
       description: this.file.description,
       folder: this.file.folder,

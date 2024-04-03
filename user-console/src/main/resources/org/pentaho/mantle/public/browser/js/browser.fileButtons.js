@@ -193,10 +193,10 @@ define([
       }
     },
 
-    isVfsConnection: function( isVfsConnection ){
+    enableButtons: function (enableButtons) {
       this.buttons.forEach((buttonDef) => {
-        if(buttonDef.id !== "separator") {
-          $("#" + buttonDef.id).prop("disabled", isVfsConnection);
+        if (buttonDef.id !== "separator") {
+          $("#" + buttonDef.id).prop("disabled", !enableButtons);
         }
       });
     },
