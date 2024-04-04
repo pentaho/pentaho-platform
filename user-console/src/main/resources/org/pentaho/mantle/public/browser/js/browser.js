@@ -561,7 +561,6 @@ define([
       };
 
       myself.set("runSpinner", true);
-      FileBrowser.clearTreeCache();
       myself.fetchTreeRootData(function (response) {
         let foundRepositoryFolder = false;
 
@@ -587,6 +586,8 @@ define([
       var myself = this,
           localSequenceNumber = myself.get("sequenceNumber"),
           url = this.getFolderTreeRootRequest();
+
+      FileBrowser.clearTreeCache();
 
       $.ajax({
         async: true,
@@ -725,7 +726,7 @@ define([
 
     fetchData: function (path, callback) {
       var myself = this,
-          url = this.getFileListRequest(path == null ? ":" : encodeGenericPath(path)),
+          url = this.getFileListRequest(encodeGenericPath(path == null ? ":" : path)),
           localSequenceNumber = myself.get("sequenceNumber");
 
       // BACKLOG-40086: Clear the tree cache if flag is set. Flag is cleared below in ajax success block.
@@ -1262,8 +1263,8 @@ define([
         var path = $target.attr("path");
         var myself = this;
 
-        var url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/" +
-            FileBrowser.encodePathComponents(path == null ? ":" : encodeGenericPath(path))
+        var url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/"
+            + FileBrowser.encodePathComponents(encodeGenericPath(path))
             + "/tree?depth=1&showHidden=" + myself.model.get("showHiddenFiles") + "&filter=FOLDERS";
         $.ajax({
           async: true,
