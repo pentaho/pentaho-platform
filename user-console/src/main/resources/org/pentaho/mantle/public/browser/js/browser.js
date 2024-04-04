@@ -235,7 +235,7 @@ define([
     let url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/tree/cache";
 
     $.ajax({
-      async: true,
+      async: false,
       cache: false, // prevent IE from caching the request
       type: 'DELETE',
       dataType: "json",
@@ -358,7 +358,12 @@ define([
     },
 
     updateFolderButtons: function( _folderPath) {
-      const isRepoPath = isRepositoryPath(_folderPath);
+      let isRepoPath;
+      if (_folderPath){
+        isRepoPath = isRepositoryPath(_folderPath);
+      } else {
+        isRepoPath = false;
+      }
 
       var userHomePath = Encoder.encodeRepositoryPath(window.parent.HOME_FOLDER);
       var model = FileBrowser.fileBrowserModel; // trap model
@@ -412,10 +417,10 @@ define([
             folderButtons.updateFolderPermissionButtons(false, model.get('browserUtils').multiSelectItems, false);
           }
         });
-      } else {
+      } //else {
         // This is a VFS Connection path
         //TODO BACKLOG-40086: refactor when we've implemented permissions for vfs connections folders/files
-      }
+        //}
     },
 
     updateFileClicked: function () {
@@ -446,7 +451,7 @@ define([
       fileButtons.enableButtons(isRepoPath);
 
       //Ajax request to check write permissions for file
-      if( filePath.charAt(0) == "/" ) {
+      if( isRepoPath ) {
         filePath = Encoder.encodeRepositoryPath(filePath);
 
         $.ajax({
@@ -465,10 +470,10 @@ define([
             fileButtons.updateFilePermissionButtons(false);
           }
         });
-      } else {
+      } //else {
         // this is a VFS connection path
         //TODO BACKLOG-40086: refactor when we've implemented permissions for vfs connections folders/files
-      }
+        //}
     },
 
     updateFolderLastClick: function () {
@@ -562,7 +567,7 @@ define([
 
         //Add the trash folder once to the first Repository folder
         for (let i = 0; i < response.children.length; i++) {
-          let childFolder = response.children[i];
+          const childFolder = response.children[i];
           if (childFolder.file.path == "/") {
             childFolder.children.push(trashFolder);
             foundRepositoryFolder = true;
@@ -723,7 +728,7 @@ define([
           url = this.getFileListRequest(path == null ? ":" : encodeGenericPath(path)),
           localSequenceNumber = myself.get("sequenceNumber");
 
-      // BACKLOG-40086: Clear the tree cache if flag is set. Cleared below in ajax success block.
+      // BACKLOG-40086: Clear the tree cache if flag is set. Flag is cleared below in ajax success block.
       if (window.parent.mantle_isBrowseRepoDirty == true) {
         FileBrowser.clearTreeCache();
       }
@@ -1959,7 +1964,7 @@ define([
   }
 
   function encodeGenericPath(path) {
-    return path.replaceAll(':','~').replaceAll('/',':');
+    return path.replaceAll(":", "~").replaceAll("/", ":");
   }
 
   return {
