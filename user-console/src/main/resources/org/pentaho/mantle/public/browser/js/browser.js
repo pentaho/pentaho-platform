@@ -243,7 +243,7 @@ define([
       success: function (response) {
       },
       error: function () {
-        //TODO SOMETHING ON ERROR look at browser.dialogs
+        //TODO indicate error via dialog?
       },
       beforeSend: function (xhr) {
       }
@@ -562,21 +562,9 @@ define([
 
       myself.set("runSpinner", true);
       myself.fetchTreeRootData(function (response) {
-        let foundRepositoryFolder = false;
 
         //Add the trash folder once to the first Repository folder
-        for (let i = 0; i < response.children.length; i++) {
-          const childFolder = response.children[i];
-          if (childFolder.file.path == "/") {
-            childFolder.children.push(trashFolder);
-            foundRepositoryFolder = true;
-            break;
-          }
-        }
-        if (!foundRepositoryFolder) {
-          //This is a CE instance, place the trash folder at the end of the first generation list
-          response.children.push(trashFolder);
-        }
+        myself.getRepositoryFolderChildren(response).push(trashFolder);
 
         myself.set("data", response);
       });
@@ -617,6 +605,16 @@ define([
       }
 
       return CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/tree?depth=1&filter=FOLDERS&showHidden=" + this.get("showHiddenFiles") + expandedPathParam;
+    },
+
+    getRepositoryFolderChildren: function (response) {
+      for (let i = 0; i < response.children.length; i++) {
+        const childFolder = response.children[i];
+        if (childFolder.file.path == "/") {
+          return childFolder.children;
+        }
+      }
+      return response.children;
     }
   });
 
