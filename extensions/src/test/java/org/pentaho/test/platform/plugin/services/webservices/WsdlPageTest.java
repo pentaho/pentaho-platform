@@ -25,10 +25,13 @@ import org.apache.axis2.engine.AxisConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.AxisWebServiceManager;
 import org.pentaho.platform.plugin.services.webservices.content.AxisServiceWsdlGenerator;
@@ -43,6 +46,11 @@ import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 public class WsdlPageTest {
 
@@ -53,6 +61,7 @@ public class WsdlPageTest {
 
   private ByteArrayOutputStream out;
   private AxisServiceWsdlGenerator contentGenerator;
+  private static MockedStatic<PentahoSystem> pentahoSystem;
 
   @Before
   public void setUp() {
@@ -77,12 +86,19 @@ public class WsdlPageTest {
     contentGenerator.setMessagesList( new ArrayList<String>() );
     contentGenerator.setSession( session );
     contentGenerator.setUrlFactory( new SimpleUrlFactory( BASE_URL + "?" ) );
+
+    pentahoSystem = mockStatic( PentahoSystem.class );
+    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
+    pentahoSystem.when( () -> PentahoSystem.get( eq( IAuthorizationPolicy.class ) ) ).thenReturn( policy );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
   }
 
   @After
   public void tearDown() {
     AxisWebServiceManager.currentAxisConfiguration = beforeTestCfg;
     AxisWebServiceManager.currentAxisConfigContext = beforeTestCtx;
+
+    pentahoSystem.close();
   }
 
 
