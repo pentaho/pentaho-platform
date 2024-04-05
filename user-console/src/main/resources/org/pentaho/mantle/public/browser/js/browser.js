@@ -601,7 +601,11 @@ define([
         expandedPathParam = "&expandedPath=" + FileBrowser.fileBrowserModel.get("startFolder");
       }
 
-      return CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/tree?depth=1&filter=FOLDERS&showHidden=" + this.get("showHiddenFiles") + expandedPathParam;
+      /**
+       * TODO BACKLOG-40086: In order to prevent regressions in current behavior we include the depth parameter here like it was for repository api.
+       * This is expensive, however, fetching the entire folder tree to whatever depth, just to view a specific folder.
+       */
+      return CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/tree?depth="+ depth +"&filter=FOLDERS&showHidden=" + this.get("showHiddenFiles") + expandedPathParam;
     },
 
     getRepositoryFolderChildren: function (response) {
