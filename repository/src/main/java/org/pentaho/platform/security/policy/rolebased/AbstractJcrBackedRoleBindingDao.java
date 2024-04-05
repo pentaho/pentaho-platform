@@ -14,30 +14,15 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.security.policy.rolebased;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.jcr.NamespaceException;
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Value;
-
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.HashMultimap;
+import org.apache.commons.lang.ArrayUtils;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -52,10 +37,29 @@ import org.pentaho.platform.repository2.unified.jcr.JcrStringHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.repository2.unified.jcr.NodeHelper;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
+import org.pentaho.platform.security.policy.rolebased.actions.HideAnalyzerAction;
+import org.pentaho.platform.security.policy.rolebased.actions.HideDashboardsAction;
+import org.pentaho.platform.security.policy.rolebased.actions.HideInteractiveReportingAction;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.HashMultimap;
+import javax.jcr.NamespaceException;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Value;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizationPolicyRoleBindingDao {
 
@@ -78,6 +82,13 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
   public static final String FOLDER_NAME_RUNTIMEROLES = "runtimeRoles"; //$NON-NLS-1$
 
   private static final String LOGICAL_ROLE_BINDINGS_REGION = "roleBindingCache";
+
+  @VisibleForTesting
+  protected static final String[] EXCLUDE_FROM_IMMUTABLE_ROLE_BINDINGS = new String[] {
+    HideAnalyzerAction.NAME,
+    HideDashboardsAction.NAME,
+    HideInteractiveReportingAction.NAME
+  };
 
   public AbstractJcrBackedRoleBindingDao() {
 
@@ -129,8 +140,14 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
         @Override
         public void onReload() {
           if ( !loaded ) {
-            setAuthorizationActions( PentahoSystem.getAll( IAuthorizationAction.class ) );
-            updateImmutableRoleBindingNames();
+            List<IAuthorizationAction> allActions = PentahoSystem.getAll( IAuthorizationAction.class );
+            setAuthorizationActions( allActions );
+
+            List<IAuthorizationAction> filteredActions = allActions.stream()
+                .filter( action -> !ArrayUtils.contains( EXCLUDE_FROM_IMMUTABLE_ROLE_BINDINGS, action.getName()) )
+                .collect( Collectors.toList());
+            updateImmutableRoleBindingNames(filteredActions);
+
             // when immutableRoleBindingNames gets updated, we should ensure no stale logical roles remain cached
             if ( cacheManager.cacheEnabled( LOGICAL_ROLE_BINDINGS_REGION ) ) {
               cacheManager.removeRegionCache( LOGICAL_ROLE_BINDINGS_REGION );
@@ -142,10 +159,10 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
     }
   }
 
-  public void updateImmutableRoleBindingNames() {
+  public void updateImmutableRoleBindingNames( List<IAuthorizationAction> actionList ) {
     for ( List<String> roles : immutableRoleBindingNames.values() ) {
       roles.clear();
-      for ( final IAuthorizationAction action : authorizationActions ) {
+      for ( final IAuthorizationAction action : actionList ) {
         roles.add( action.getName() );
       }
     }
