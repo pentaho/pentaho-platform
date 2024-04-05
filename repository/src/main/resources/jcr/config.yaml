@@ -65,3 +65,30 @@ MagicAces:
   applyToAncestors: false
   exceptChildren: 
      - "{0}/etc/pdi/databases"
+
+- id: 5
+  path: "{0}/etc"
+  logicalRole: org.pentaho.security.hideAnalyzer
+  privileges: []
+  applyToTarget: true
+  applyToChildren: true
+  applyToAncestors: false
+  exceptChildren:
+
+- id: 6
+  path: "{0}/etc"
+  logicalRole: org.pentaho.security.hideInteractiveReporting
+  privileges: []
+  applyToTarget: true
+  applyToChildren: true
+  applyToAncestors: false
+  exceptChildren:
+
+- id: 7
+  path: "{0}/etc"
+  logicalRole: org.pentaho.security.hideDashboards
+  privileges: []
+  applyToTarget: true
+  applyToChildren: true
+  applyToAncestors: false
+  exceptChildren:
