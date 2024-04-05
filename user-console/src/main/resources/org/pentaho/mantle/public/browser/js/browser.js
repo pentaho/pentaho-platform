@@ -572,10 +572,7 @@ define([
           localSequenceNumber = myself.get("sequenceNumber"),
           url = this.getFolderTreeRootRequest();
 
-      //Clear the cache if flag is set. Flag is cleared later in the File List Model.
-      if (window.parent.mantle_isBrowseRepoDirty) {
-        FileBrowser.clearTreeCache();
-      }
+      FileBrowser.clearTreeCache();
 
       $.ajax({
         async: true,
@@ -727,11 +724,6 @@ define([
           url = this.getFileListRequest(encodeGenericPath(path == null ? ":" : path)),
           localSequenceNumber = myself.get("sequenceNumber");
 
-      // BACKLOG-40086: Clear the tree cache if flag is set. Flag is cleared below in ajax success block.
-      if (window.parent.mantle_isBrowseRepoDirty == true) {
-        FileBrowser.clearTreeCache();
-      }
-
       $.ajax({
         async: true,
         cache: false, // prevent IE from caching the request
@@ -782,8 +774,10 @@ define([
                 myself.set("runSpinner", false);
               }
             }
+          } else {
+            // BACKLOG-40086: Clear the server-side tree cache if isBrowseRepoDirty flag is set.
+            FileBrowser.clearTreeCache();
           }
-
         }
       });
     },
