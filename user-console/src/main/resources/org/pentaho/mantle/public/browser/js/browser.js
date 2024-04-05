@@ -33,6 +33,8 @@ define([
   "common-ui/jquery"
 ], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder, a11yUtil) {
 
+  const REPOSITORY_ROOT_PATH = "/";
+
   if (window.parent.mantle_isBrowseRepoDirty == undefined) {
     window.parent.mantle_isBrowseRepoDirty = false;
   }
@@ -358,12 +360,7 @@ define([
     },
 
     updateFolderButtons: function( _folderPath) {
-      let isRepoPath;
-      if (_folderPath){
-        isRepoPath = isRepositoryPath(_folderPath);
-      } else {
-        isRepoPath = false;
-      }
+      const isRepoPath = !!_folderPath && isRepositoryPath(_folderPath);
 
       var userHomePath = Encoder.encodeRepositoryPath(window.parent.HOME_FOLDER);
       var model = FileBrowser.fileBrowserModel; // trap model
@@ -575,7 +572,10 @@ define([
           localSequenceNumber = myself.get("sequenceNumber"),
           url = this.getFolderTreeRootRequest();
 
-      FileBrowser.clearTreeCache();
+      //Clear the cache if flag is set. Flag is cleared later in the File List Model.
+      if (window.parent.mantle_isBrowseRepoDirty) {
+        FileBrowser.clearTreeCache();
+      }
 
       $.ajax({
         async: true,
@@ -610,7 +610,7 @@ define([
     getRepositoryFolderChildren: function (response) {
       for (let i = 0; i < response.children.length; i++) {
         const childFolder = response.children[i];
-        if (childFolder.file.path == "/") {
+        if (isRepositoryRootPath(childFolder.file.path)) {
           return childFolder.children;
         }
       }
@@ -1959,7 +1959,11 @@ define([
   }
 
   function isRepositoryPath(path) {
-    return path.charAt(0) === "/";
+    return path.charAt(0) === REPOSITORY_ROOT_PATH;
+  }
+
+  function isRepositoryRootPath(path) {
+    return path === REPOSITORY_ROOT_PATH;
   }
 
   function encodeGenericPath(path) {
