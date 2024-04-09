@@ -20,13 +20,17 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.hamcrest.core.IsInstanceOf;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
+import org.mockito.MockedStatic;
+import org.pentaho.commons.util.repository.exception.PermissionDeniedException;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 
@@ -45,16 +49,25 @@ import static org.junit.Assert.*;
 public class SchedulerResourceTest {
 
   SchedulerResource schedulerResource;
+  private static MockedStatic<PentahoSystem> pentahoSystem;
+  IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
 
   @Before
   public void setUp() {
     schedulerResource = spy( new SchedulerResource() );
     schedulerResource.schedulerService = mock( SchedulerService.class );
+
+    pentahoSystem = mockStatic( PentahoSystem.class );
+
+    pentahoSystem.when( () -> PentahoSystem.get( eq( IAuthorizationPolicy.class ) ) ).thenReturn( policy );
+    when( policy.isAllowed( anyString() ) ).thenReturn( true );
   }
 
   @After
   public void tearDown() {
     schedulerResource = null;
+
+    pentahoSystem.close();
   }
 
   @Test
@@ -920,4 +933,27 @@ public class SchedulerResourceTest {
     assertEquals( expectedStatus.getStatusCode(), response.getStatus() );
     assertEquals( expectedResponse, response.getEntity() );
   }
+  @Rule
+  public ExpectedException exceptionRule = ExpectedException.none();
+  @Test
+  public void testGetAllJobsNoPermission() {
+    when( policy.isAllowed( anyString() ) ).thenReturn( false );
+
+    exceptionRule.expect( RuntimeException.class );
+    exceptionRule.expectCause( IsInstanceOf.instanceOf( PermissionDeniedException.class) );
+
+    schedulerResource.getAllJobs();
+  }
+
+  @Test
+  public void testGetBlockoutJobsNoPermission() {
+
+    when( policy.isAllowed( anyString() ) ).thenReturn( false );
+
+    exceptionRule.expect( RuntimeException.class );
+    exceptionRule.expectCause( IsInstanceOf.instanceOf( PermissionDeniedException.class) );
+
+    schedulerResource.getBlockoutJobs();
+  }
+
 }
