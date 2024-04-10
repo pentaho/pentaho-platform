@@ -72,6 +72,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.nullable;
 import static org.mockito.Mockito.spy;
@@ -88,6 +89,8 @@ public class SolutionImportHandlerTest {
   private IUnifiedRepository repository;
   private IRoleAuthorizationPolicyRoleBindingDao roleAuthorizationPolicyRoleBindingDao;
   private IPlatformMimeResolver mockMimeResolver;
+  private static MockedStatic<PentahoSystem> pentahoSystem;
+  IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
 
   @Before
   public void setUp() throws Exception {
@@ -496,6 +499,8 @@ public class SolutionImportHandlerTest {
       when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
       pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession )
         .thenReturn( mock( IPentahoSession.class ) );
+      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( eq( IAuthorizationPolicy.class ) ) ).thenReturn( policy );
+      when( policy.isAllowed( anyString() ) ).thenReturn( true );
 
       importHandler.importSchedules( schedules );
 
@@ -527,6 +532,8 @@ public class SolutionImportHandlerTest {
       when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
       pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession )
         .thenReturn( mock( IPentahoSession.class ) );
+      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( eq( IAuthorizationPolicy.class ) ) ).thenReturn( policy );
+      when( policy.isAllowed( anyString() ) ).thenReturn( true );
 
       importHandler.importSchedules( schedules );
       Assert.assertEquals( 0, ImportSession.getSession().getImportedScheduleJobIds().size() );
@@ -535,6 +542,7 @@ public class SolutionImportHandlerTest {
 
   @Test
   public void testImportSchedules_FailsToCreateScheduleWithSpace() throws Exception {
+
     List<JobScheduleRequest> schedules = new ArrayList<>();
     JobScheduleRequest scheduleRequest = spy( new JobScheduleRequest() );
     scheduleRequest.setInputFile( "/home/admin/scheduled Transform.ktr" );
@@ -563,6 +571,9 @@ public class SolutionImportHandlerTest {
         .thenReturn( iSchedulerMock );
       when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
       pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession ).thenReturn( mock( IPentahoSession.class ) );
+      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( eq( IAuthorizationPolicy.class ) ) ).thenReturn( policy );
+      when( policy.isAllowed( anyString() ) ).thenReturn( true );
+
       importHandler.importSchedules( schedules );
       verify( importHandler, times( 2 ) ).createSchedulerJob(
         any( SchedulerResource.class ), any( JobScheduleRequest.class ) );
@@ -604,6 +615,8 @@ public class SolutionImportHandlerTest {
       when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
       pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession )
         .thenReturn( mock( IPentahoSession.class ) );
+      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( eq( IAuthorizationPolicy.class ) ) ).thenReturn( policy );
+      when( policy.isAllowed( anyString() ) ).thenReturn( true );
 
       importHandler.importSchedules( schedules );
       verify( importHandler, times( 2 ) )
