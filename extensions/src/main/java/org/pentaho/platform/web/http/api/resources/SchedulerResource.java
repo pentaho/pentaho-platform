@@ -49,12 +49,15 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
+import org.pentaho.commons.util.repository.exception.PermissionDeniedException;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.Job.JobState;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 import org.pentaho.platform.web.http.api.resources.services.SchedulerService;
 import org.pentaho.platform.web.http.messages.Messages;
@@ -525,8 +528,14 @@ public class SchedulerResource extends AbstractJaxRSResource {
     } )
   public List<Job> getAllJobs() {
     try {
-      return schedulerService.getJobs();
+      if ( PentahoSystem.get( IAuthorizationPolicy.class ).isAllowed( "org.pentaho.scheduler.manage" ) ) {
+        return schedulerService.getJobs();
+      } else {
+        throw new PermissionDeniedException();
+      }
     } catch ( SchedulerException e ) {
+      throw new RuntimeException( e );
+    } catch ( PermissionDeniedException e ) {
       throw new RuntimeException( e );
     }
   }
@@ -1071,7 +1080,15 @@ public class SchedulerResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 200, condition = "Successfully retrieved blockout jobs." ),
     } )
   public List<Job> getBlockoutJobs() {
-    return schedulerService.getBlockOutJobs();
+    try {
+      if ( PentahoSystem.get( IAuthorizationPolicy.class ).isAllowed( "org.pentaho.scheduler.manage" ) ) {
+        return schedulerService.getBlockOutJobs();
+      } else {
+        throw new PermissionDeniedException();
+      }
+    } catch ( PermissionDeniedException e ) {
+      throw new RuntimeException( e );
+    }
   }
 
 
