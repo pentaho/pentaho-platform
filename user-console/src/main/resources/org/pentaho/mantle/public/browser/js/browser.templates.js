@@ -87,11 +87,15 @@ define([
 
   //folder template with recursive behavior
   templates.folderText =
-      "{{#ifCond file.folder 'true'}}" +
+      "{{#ifCond file.folder true}}" +
           "{{#ifCond file.path '.trash'}}" +
-          "<div id='{{file.id}}' class='trash folder' path='{{file.path}}' ext='{{file.name}}' desc='{{file.name}}'>" +
+          "<div id='{{file.objectId}}' class='trash folder' path='{{file.path}}' ext='{{file.name}}' desc='{{file.name}}'>" +
           "{{else}}" +
-          "<div id='{{file.id}}' class='folder' path='{{file.path}}' desc='{{file.description}}' ext='{{file.name}}'>" +
+              "{{#if file.title}}" +
+                  "<div id='{{file.objectId}}' class='folder' path='{{file.path}}' desc='{{file.description}}' ext='{{file.name}}' title='{{file.title}}'>" +
+              "{{else}}" +
+                  "<div id='{{file.objectId}}' class='folder' path='{{file.path}}' desc='{{file.description}}' ext='{{file.name}}' title='{{file.name}}'>" +
+              "{{/if}}" +
           "{{/ifCond}}" +
           "<div class='element' role='treeitem' aria-selected='false' aria-expanded='false' tabindex='-1'>" +
           "<div class='expandCollapse'> </div>" +
@@ -113,19 +117,19 @@ define([
 
   //file template
   templates.file = Handlebars.compile(
-      "{{#ifCond folder 'false' }}" +
+      "{{#ifCond folder false}}" +
           "{{#if trash}}" +
-          "<div id='{{id}}' class='file' origPath='{{origPath}}' path='{{path}}' type='file' ext='{{trashPath}}' title='{{trashPath}}' role='option'>" +
+          "<div id='{{objectId}}' class='file' origPath='{{origPath}}' path='{{path}}' type='file' ext='{{trashPath}}' title='{{trashPath}}' role='option'>" +
           "{{else}}" +
-          "<div id='{{id}}' class='file' path='{{path}}' type='file' desc='{{description}}' ext='{{fileWithExtension}}' role='option'>" +
+          "<div id='{{objectId}}' class='file' path='{{path}}' type='file' desc='{{description}}' ext='{{fileWithExtension}}' role='option'>" +
           "{{/if}}" +
           "<div class='icon {{classes}}'> </div>" +
           "<div class='title'>{{title}}</div>" +
           "</div>" +
           "{{/ifCond}}" +
-          "{{#ifCond trash 'true'}}" +
-          "{{#ifCond folder 'true'}}" +
-          "<div id='{{id}}' class='file' origPath='{{trashPath}}' path='{{path}}' type='folder' ext='{{trashPath}}' title='{{trashPath}}' role='option'>" +
+          "{{#ifCond trash true}}" +
+          "{{#ifCond folder true}}" +
+          "<div id='{{objectId}}' class='file' origPath='{{trashPath}}' path='{{path}}' type='folder' ext='{{trashPath}}' title='{{trashPath}}' role='option'>" +
           "<div class='icon trashFolder'> </div>" +
           "<div class='title'>{{title}}</div>" +
           "</div>" +
@@ -178,7 +182,7 @@ define([
       trashPath: (this.file.name.charAt(0) == "/") ? this.file.pathText + this.file.originalParentFolderPath + this.file.name : this.file.pathText + this.file.originalParentFolderPath + "/" + this.file.name,
       name: nameNoExtension,
       title: title,
-      id: this.file.id,
+      objectId: this.file.objectId,
       classes: extension,
       description: this.file.description,
       folder: this.file.folder,

@@ -727,10 +727,10 @@
 
   <util:map id="immutableRoleBindingMap">
     <entry key-ref="singleTenantAdminAuthorityName">
-	<pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/> 
+	    <pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/>
     </entry>
     <entry key-ref="superAdminAuthorityName">
-	<pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/> 
+	    <pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/>
     </entry>
   </util:map>
 
@@ -765,6 +765,27 @@
   </bean>
 
   <!-- Built-In ABS Logical Roles -->
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.HideAnalyzerAction" id="HideAnalyzerAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="80"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.HideInteractiveReportingAction" id="HideInteractiveReportingAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="70"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.HideDashboardsAction" id="HideDashboardsAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="60"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
   <bean class="org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
