@@ -445,7 +445,6 @@ define([
 
       var filePath = clickedFile.obj.attr("path");
       const isRepoPath = isRepositoryPath(filePath);
-      fileButtons.enableButtons(isRepoPath);
 
       //Ajax request to check write permissions for file
       if( isRepoPath ) {
@@ -1005,6 +1004,14 @@ define([
           }
         });
       });
+
+      // TODO BACKLOG-40086: for now, disable all file actions for VFS Connections, i.e. isRepoPath = false
+      let selectedFilePath = fileClicked ? fileClicked.attr("path") : false;
+      if (selectedFilePath && buttonsType.enableButtons) {
+        const isRepoPath = isRepositoryPath(selectedFilePath);
+        buttonsType.enableButtons(isRepoPath);
+      }
+
       model.updateFolderButtons( folderClicked == undefined ? window.parent.HOME_FOLDER : folderClicked.attr("path") );
     },
 
@@ -1062,6 +1069,13 @@ define([
           }
         });
       });
+
+      // TODO BACKLOG-40086: for now, disable all file actions for VFS Connections, i.e. isRepoPath = false
+      let selectedFilePath = fileClicked ? fileClicked.attr("path") : false;
+      if (selectedFilePath && buttonsType.enableButtons) {
+        const isRepoPath = isRepositoryPath(selectedFilePath);
+        buttonsType.enableButtons(isRepoPath);
+      }
     },
 
     checkButtonsEnabled: function () {
@@ -1859,7 +1873,9 @@ define([
     doubleClickFile: function (event) {
       var path = $(event.currentTarget).attr("path");
       //if not trash item, try to open the file.
-      if (FileBrowser.fileBrowserModel.getLastClick() != "trashItem") {
+
+      //TODO BACKLOG-40086: disable double click actions on VFS Connection files for now. To be addressed in BACKLOG-40475
+      if (isRepositoryRootPath(path) && FileBrowser.fileBrowserModel.getLastClick() != "trashItem") {
         this.model.get("openFileHandler")(path, "run");
       }
     },

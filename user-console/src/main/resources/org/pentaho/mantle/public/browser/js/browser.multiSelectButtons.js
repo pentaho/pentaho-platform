@@ -114,6 +114,14 @@ define([
 
     eventLogger: function (event) {
       console.log(event.action + " : " + event.message);
+    },
+
+    enableButtons: function (enableButtons) {
+      this.buttons.forEach((buttonDef) => {
+        if (buttonDef.id !== "separator") {
+          $("#" + buttonDef.id).prop("disabled", !enableButtons);
+        }
+      });
     }
 
   };
