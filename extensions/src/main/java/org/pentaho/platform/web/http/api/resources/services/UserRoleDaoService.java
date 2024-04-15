@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -59,6 +59,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -330,6 +331,7 @@ public class UserRoleDaoService {
         systemRolesMap.getLocalizedRoleNames().add(
             new LocalizedLogicalRoleName( localalizeNameEntry.getKey(), localalizeNameEntry.getValue() ) );
       }
+      systemRolesMap.getLocalizedRoleNames().sort( Comparator.comparing( LocalizedLogicalRoleName::getLocalizedName ) );
       for ( Map.Entry<String, List<String>> logicalRoleAssignments : roleBindingStruct.bindingMap.entrySet() ) {
         systemRolesMap.getAssignments().add(
             new LogicalRoleAssignment( logicalRoleAssignments.getKey(), logicalRoleAssignments.getValue(), roleBindingStruct.immutableRoles.contains( logicalRoleAssignments.getKey() ) )

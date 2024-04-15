@@ -848,9 +848,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
-      <version>${snakeyaml.version}</version>
+      <groupId>org.hitachivantara</groupId>
+      <artifactId>safeyaml</artifactId>
     </dependency>
     <dependency>
       <groupId>asm</groupId>
