@@ -47,6 +47,8 @@ fi
 if [ "$?" = 0 ]; then
   cd "$DIR/tomcat/bin"
   CATALINA_OPTS="-Xms2048m -Xmx6144m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8044 -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dfile.encoding=utf8 -Djava.locale.providers=COMPAT,SPI -DDI_HOME=\"$DI_HOME\""
+    #Add this property to CATALINA_OPTS change the equivalent value of "SaveOnlyUsedConnectionsToXML" property on the server. Please see JIRA PDI-20078 for more information
+    #-DSTRING_ONLY_USED_DB_TO_XML=N"
   export CATALINA_OPTS
 
   #Sets options that only get read by Java 11 to remove illegal reflective access warnings
