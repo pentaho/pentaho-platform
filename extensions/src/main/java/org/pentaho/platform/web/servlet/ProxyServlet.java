@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -56,14 +56,14 @@ import java.util.Map;
 
 /**
  * This servlet is used to Proxy a Servlet request to another server for processing and returns that result to the
- * caller as if this Servlet actiually serviced it. Setup the proxy by editing the <b>web.xml</b> to map the servlet
+ * caller as if this Servlet actually serviced it. Setup the proxy by editing the <b>web.xml</b> to map the servlet
  * name you want to proxy to the Proxy Servlet class.
  * <p>
  * <p>
  * <pre>
  *  &lt;servlet&gt;
  *    &lt;servlet-name&gt;ViewAction&lt;/servlet-name&gt;
- *    &lt;servlet-class&gt;com.pentaho.ui.servlet.ProxyServlet&lt;/servlet-class&gt;
+ *    &lt;servlet-class&gt;org.pentaho.platform.web.servlet.ProxyServlet&lt;/servlet-class&gt;
  *    &lt;init-param&gt;
  *       &lt;param-name&gt;ProxyURL&lt;/param-name&gt;
  *       &lt;param-value&gt;http://my.remoteserver.com:8080/pentaho&lt;/param-value&gt;
@@ -72,7 +72,7 @@ import java.util.Map;
  * </pre>
  * <p>
  * In the above example, all requests to /ViewAction will be forwarded to the ViewAction Servlet running on the Hitachi
- * Vantara server atmy.remoteserver.com:8080
+ * Vantara server at my.remoteserver.com:8080
  * <p>
  * <p>
  * NOTES:
@@ -80,7 +80,7 @@ import java.util.Map;
  * <p>
  * For this to be useful, both Pentaho servers should be using the same database repository.
  * <p>
- * The recieving server should have the ProxyTrustingFilter enabled to handle authicentation.
+ * The receiving server should have the ProxyTrustingFilter enabled to handle authentication.
  * <p>
  * This Servlet only works with GET requests. All requests in the Pentaho BI Platform are currently gets.
  *
@@ -101,11 +101,17 @@ public class ProxyServlet extends ServletBase {
     return ProxyServlet.logger;
   }
 
-  private String proxyURL = null; // "http://localhost:8080/pentaho";
+  /**
+   * The URL the proxy servlet will redirect the request to. E.g. "http://localhost:8080/pentaho".
+   */
+  private String proxyURL = null;
 
   private boolean isLocaleOverrideEnabled = true;
 
-  private String errorURL = null; // The URL to redirect to if the user is invalid
+  /**
+   * The URL to redirect to if the an error occurs
+   */
+  private String errorURL = null;
 
   /**
    * Base Constructor
@@ -116,9 +122,9 @@ public class ProxyServlet extends ServletBase {
 
   @Override
   public void init( final ServletConfig servletConfig ) throws ServletException {
-    proxyURL = servletConfig.getInitParameter( "ProxyURL" ); //$NON-NLS-1$
+    proxyURL = servletConfig.getInitParameter( "ProxyURL" );
     if ( ( proxyURL == null ) ) {
-      error( Messages.getInstance().getString( "ProxyServlet.ERROR_0001_NO_PROXY_URL_SPECIFIED" ) ); //$NON-NLS-1$
+      error( Messages.getInstance().getString( "ProxyServlet.ERROR_0001_NO_PROXY_URL_SPECIFIED" ) );
     } else {
       try {
         URL url = new URL( proxyURL.trim() ); // Just doing this to verify
@@ -162,20 +168,19 @@ public class ProxyServlet extends ServletBase {
     PentahoSystem.systemEntryPoint();
     try {
       // Get the user from the session
-      IPentahoSession userSession = getPentahoSession( request );
-      String userName = userSession != null ? userSession.getName() : null;
+      final IPentahoSession userSession = getPentahoSession( request );
+      final String userName = userSession != null ? userSession.getName() : null;
       if ( StringUtils.isEmpty( userName ) && StringUtils.isNotBlank( errorURL ) ) {
         response.sendRedirect( errorURL );
         return;
       }
 
-      URI requestUri = buildProxiedUri( request, userName );
+      final URI requestUri = buildProxiedUri( request, userName );
 
       doProxyCore( requestUri, response );
 
     } catch ( URISyntaxException e ) {
       error( Messages.getInstance().getErrorString( "ProxyServlet.ERROR_0006_URI_SYNTAX_EXCEPTION", e.getMessage() ) );
-      e.printStackTrace();
     } finally {
       PentahoSystem.systemExitPoint();
     }
@@ -229,7 +234,7 @@ public class ProxyServlet extends ServletBase {
       int statusCode = statusLine.getStatusCode();
       if ( statusCode != HttpStatus.SC_OK ) {
         error( Messages.getInstance().getErrorString(
-          "ProxyServlet.ERROR_0003_REMOTE_HTTP_CALL_FAILED", statusLine.toString() ) ); //$NON-NLS-1$
+          "ProxyServlet.ERROR_0003_REMOTE_HTTP_CALL_FAILED", statusLine.toString() ) );
         return;
       }
 
