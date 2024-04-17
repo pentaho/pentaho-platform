@@ -35,6 +35,7 @@ import org.pentaho.test.platform.engine.core.BaseTestCase;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
@@ -43,7 +44,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -160,7 +160,7 @@ public class ProxyServletIT extends BaseTestCase {
   // We're only stubbing the parts where network access would occur.
   private static class TestProxyServlet extends ProxyServlet {
     @Override
-    protected void doProxyCore( URI requestUri, HttpServletResponse response ) {
+    protected void doProxyCore( final URI requestUri, final HttpServletRequest request, final HttpServletResponse response ) {
       // Do not access network.
     }
   }
@@ -180,13 +180,14 @@ public class ProxyServletIT extends BaseTestCase {
 
     URIBuilder uriBuilder = new URIBuilder( "http://foo.bar/pentaho" );
     uriBuilder.addParameter( "_TRUST_USER_", "system" );
+    uriBuilder.addParameter( "_TRUST_LOCALE_OVERRIDE_", "en_PT" );
 
     TestProxyServlet servlet = spy( new TestProxyServlet() );
     servlet.init( config );
 
     servlet.service( request, response );
 
-    verify( servlet ).doProxyCore( eq( uriBuilder.build() ), eq( response ) );
+    verify( servlet ).doProxyCore( uriBuilder.build(), request, response );
   }
 
   public void testServiceTrustLocaleOverrideQueryParameter() throws ServletException, IOException, URISyntaxException {
@@ -214,7 +215,7 @@ public class ProxyServletIT extends BaseTestCase {
 
     servlet.service( request, response );
 
-    verify( servlet ).doProxyCore( eq( uriBuilder.build() ), eq( response ) );
+    verify( servlet ).doProxyCore( uriBuilder.build(), request, response );
   }
 
   public void testServiceNoUserSessionQueryParameter() throws ServletException, IOException, URISyntaxException {
@@ -239,7 +240,7 @@ public class ProxyServletIT extends BaseTestCase {
 
     servlet.service( request, response );
 
-    verify( servlet ).doProxyCore( eq( uriBuilder.build() ), eq( response ) );
+    verify( servlet ).doProxyCore( uriBuilder.build(), request, response );
   }
   // endregion
 
