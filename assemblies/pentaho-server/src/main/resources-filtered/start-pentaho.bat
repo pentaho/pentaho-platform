@@ -34,6 +34,8 @@ SET BITS=64
 SET DI_HOME="%~dp0pentaho-solutions\system\kettle"
 
 set CATALINA_OPTS=-Xms2048m -Xmx6144m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dfile.encoding=utf8 -Djava.locale.providers=COMPAT,SPI -DDI_HOME=%DI_HOME%
+REM Add this property to change the equivalent value of "SaveOnlyUsedConnectionsToXML" property on the server. Please see JIRA PDI-20078 for more information
+REM set CATALINA_OPTS=%CATALINA_OPTS% -DSTRING_ONLY_USED_DB_TO_XML=N
 
 rem Sets options that only get read by Java 11 to remove illegal reflective access warnings
 set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens=java.base/sun.net.www.protocol.jar=ALL-UNNAMED"
