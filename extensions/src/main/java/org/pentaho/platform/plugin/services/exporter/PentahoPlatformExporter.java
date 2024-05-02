@@ -125,7 +125,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor implements IPent
 
   public void runExportHelpers() {
     for ( IExportHelper helper : exportHelpers ) {
-      helper.doExport( getExportManifest() );
+      helper.doExport( this );
     }
   }
 
@@ -593,4 +593,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor implements IPent
     return true;
   }
 
+  public ZipOutputStream getZipStream() {
+    return zos;
+  }
 }

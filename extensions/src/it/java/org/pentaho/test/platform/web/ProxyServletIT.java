@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -35,6 +35,7 @@ import org.pentaho.test.platform.engine.core.BaseTestCase;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
@@ -43,7 +44,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -68,7 +68,7 @@ public class ProxyServletIT extends BaseTestCase {
     PentahoSessionHolder.setSession( getPentahoSession() );
 
     StandaloneApplicationContext applicationContext =
-      new StandaloneApplicationContext( getSolutionPath(), "" ); //$NON-NLS-1$
+      new StandaloneApplicationContext( getSolutionPath(), "" );
     PentahoSystem.init( applicationContext, getRequiredListeners() );
   }
 
@@ -79,17 +79,19 @@ public class ProxyServletIT extends BaseTestCase {
     PentahoSessionHolder.setSession( null );
   }
 
-  protected Map getRequiredListeners() {
-    HashMap listeners = new HashMap();
-    listeners.put( "globalObjects", "globalObjects" ); //$NON-NLS-1$ //$NON-NLS-2$
-    return listeners;
+  protected Map<String, String> getRequiredListeners() {
+    return new HashMap<String, String>() {
+      {
+        put( "globalObjects", "globalObjects" );
+      }
+    };
   }
 
   public void testServiceWithNoConfig() throws ServletException, IOException {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpSession session = new MockHttpSession();
     request.setSession( session );
-    request.setupAddParameter( "ProxyURL", "http://www.pentaho.org" ); //$NON-NLS-1$//$NON-NLS-2$
+    request.setupAddParameter( "ProxyURL", "http://www.pentaho.org" );
 
     MockHttpServletResponse response = new MockHttpServletResponse();
     ProxyServlet servlet = new ProxyServlet();
@@ -137,7 +139,7 @@ public class ProxyServletIT extends BaseTestCase {
     ProxyServlet servlet = new ProxyServlet();
     servlet.init( config );
 
-    assertEquals( servlet.isLocaleOverrideEnabled(), false );
+    assertFalse( servlet.isLocaleOverrideEnabled() );
   }
 
   public void testServiceInitParameterLocaleOverrideEnabledDefault() throws ServletException {
@@ -147,7 +149,7 @@ public class ProxyServletIT extends BaseTestCase {
     ProxyServlet servlet = new ProxyServlet();
     servlet.init( config );
 
-    assertEquals( servlet.isLocaleOverrideEnabled(), true );
+    assertTrue( servlet.isLocaleOverrideEnabled() );
   }
   // endregion
 
@@ -158,7 +160,7 @@ public class ProxyServletIT extends BaseTestCase {
   // We're only stubbing the parts where network access would occur.
   private static class TestProxyServlet extends ProxyServlet {
     @Override
-    protected void doProxyCore( URI requestUri, HttpServletResponse response ) {
+    protected void doProxyCore( final URI requestUri, final HttpServletRequest request, final HttpServletResponse response ) {
       // Do not access network.
     }
   }
@@ -178,13 +180,14 @@ public class ProxyServletIT extends BaseTestCase {
 
     URIBuilder uriBuilder = new URIBuilder( "http://foo.bar/pentaho" );
     uriBuilder.addParameter( "_TRUST_USER_", "system" );
+    uriBuilder.addParameter( "_TRUST_LOCALE_OVERRIDE_", "en_PT" );
 
     TestProxyServlet servlet = spy( new TestProxyServlet() );
     servlet.init( config );
 
     servlet.service( request, response );
 
-    verify( servlet ).doProxyCore( eq( uriBuilder.build() ), eq( response ) );
+    verify( servlet ).doProxyCore( uriBuilder.build(), request, response );
   }
 
   public void testServiceTrustLocaleOverrideQueryParameter() throws ServletException, IOException, URISyntaxException {
@@ -212,7 +215,7 @@ public class ProxyServletIT extends BaseTestCase {
 
     servlet.service( request, response );
 
-    verify( servlet ).doProxyCore( eq( uriBuilder.build() ), eq( response ) );
+    verify( servlet ).doProxyCore( uriBuilder.build(), request, response );
   }
 
   public void testServiceNoUserSessionQueryParameter() throws ServletException, IOException, URISyntaxException {
@@ -224,12 +227,12 @@ public class ProxyServletIT extends BaseTestCase {
 
     MockHttpSession session = new MockHttpSession();
     request.setSession( session );
-    
+
     PentahoSessionHolder.setSession( new StandaloneSession( "" ) );
-    
+
     MockServletConfig config = new MockServletConfig();
     config.setInitParameter( "ProxyURL", "http://foo.bar" );
-    
+
     URIBuilder uriBuilder = new URIBuilder( "http://foo.bar/pentaho" );
 
     TestProxyServlet servlet = spy( new TestProxyServlet() );
@@ -237,7 +240,8 @@ public class ProxyServletIT extends BaseTestCase {
 
     servlet.service( request, response );
 
-    verify( servlet ).doProxyCore( eq( uriBuilder.build() ), eq( response ) );
+    verify( servlet ).doProxyCore( uriBuilder.build(), request, response );
   }
   // endregion
+
 }
