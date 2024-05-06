@@ -153,6 +153,11 @@ public class PlatformXmlaExtra implements XmlaHandler.XmlaExtra {
   }
 
   @Override
+  public String getMeasureDisplayFolder( final Member member ) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public int getMeasureAggregator( final Member member ) {
     throw new UnsupportedOperationException();
   }
