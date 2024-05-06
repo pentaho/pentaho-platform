@@ -68,7 +68,6 @@ import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringV
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
-import org.pentaho.platform.web.http.api.resources.services.UserRoleListService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 import org.pentaho.platform.web.http.messages.Messages;
@@ -147,8 +146,6 @@ public class FileResource extends AbstractJaxRSResource {
   protected static DefaultUnifiedRepositoryWebService repoWs;
 
   protected static IAuthorizationPolicy policy;
-
-  protected static UserRoleListService userRoleListService;
 
   private @Context Providers providers;
 

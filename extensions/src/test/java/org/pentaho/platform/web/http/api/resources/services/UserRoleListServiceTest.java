@@ -14,21 +14,11 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -36,6 +26,16 @@ import org.junit.Test;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 public class UserRoleListServiceTest {
 
@@ -143,8 +143,9 @@ public class UserRoleListServiceTest {
     extraRoles.add( "EXTRA_ROLE1" );
     extraRoles.add( "EXTRA_ROLE2" );
     userRoleListService.setExtraRoles( extraRoles );
+    userRoleListService.setAdminRole( "ADMIN_ROLE" );
 
-    RoleListWrapper roleWrapper = userRoleListService.getPermissionRoles( "ADMIN_ROLE" );
+    RoleListWrapper roleWrapper = userRoleListService.getPermissionRoles();
     assertTrue( !roleWrapper.getRoles().contains( "ADMIN_ROLE" ) );
     assertTrue( roleWrapper.getRoles().size() == 4 );
   }
