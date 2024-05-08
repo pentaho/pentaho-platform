@@ -72,6 +72,7 @@ if [ "$errCode" = 0 ]; then
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.base/java.io=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.base/java.lang.Object=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.base/sun.nio.ch=ALL-UNNAMED"
+  JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.base/java.nio=ALL-UNNAMED"
   export JDK_JAVA_OPTIONS
 
   JAVA_HOME=$_PENTAHO_JAVA_HOME
