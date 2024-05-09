@@ -311,6 +311,32 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   }
 
   /**
+   * Gets the administrator role.
+   *
+   * <p>
+   * <b>Example Request:</b><br />
+   * GET pentaho/api/userrolelist/adminRole
+   * </p>
+   *
+   * @return The administrator role.
+   *
+   * <p>
+   * <b>Example Response:</b>
+   * </p>
+   *
+   * <pre function="syntax.xml">
+   *     Administrator
+   * </pre>
+   */
+  @GET
+  @Path( "/adminRole" )
+  @Produces( { TEXT_PLAIN } )
+  @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the administrator role." ), } )
+  public String getAdminRole() {
+    return userRoleListService.getAdminRole();
+  }
+
+  /**
    * Gets the roles for the given user.
    *
    * <p>

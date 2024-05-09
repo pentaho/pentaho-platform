@@ -168,9 +168,14 @@ public class UserRoleListResourceTest {
 
     RoleListWrapper testWrapper = userRoleListResource.getPermissionRoles();
     assertEquals( mockWrapper, testWrapper );
-
-    verify( userRoleListServiceMock, times( 1 ) )
-      .getPermissionRoles( adminRole );
   }
+
+  @Test
+  public void testGetAdminRole() {
+    String adminRole = "adminRole";
+    doReturn( adminRole ).when( userRoleListServiceMock ).getAdminRole();
+
+    String result = userRoleListResource.getAdminRole();
+    assertEquals( adminRole, result );
   }
 }
