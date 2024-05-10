@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--+
+  | Application context containing SSRF related beans.
+  +-->
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="
+          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd"
+       default-lazy-init="true">
+
+    <!-- read the alternative-fully-qualified-server-url and fully-qualified-server-url from the system.properties file -->
+    <!-- read the ssrf-protection-enabled from the system.properties file -->
+
+    <bean id="pentahoSsrfConfigurationPojo" class="org.pentaho.platform.config.PentahoSsrfConfigurationPojo">
+        <constructor-arg value="${server.fully-qualified-server-url}"/>
+        <constructor-arg value="${server.alternative-fully-qualified-server-urls}"/>
+        <constructor-arg value= "${system.ssrf-protection-enabled:false}"/>
+    </bean>
+
+    <!-- servlet filter class that will be used to filter the request and response for SSRF protection -->
+
+    <bean id="ssrfGateFilter" class="com.hitachivantara.security.web.impl.service.ssrf.servlet.SsrfGateFilter">
+        <constructor-arg ref="pentahoSsrfConfigurationPojo" />
+    </bean>
+
+</beans>
+
