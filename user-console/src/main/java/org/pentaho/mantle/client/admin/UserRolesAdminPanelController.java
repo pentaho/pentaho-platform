@@ -91,7 +91,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     try {
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       executableTypesRequestBuilder.setHeader( "Content-Type", "application/json" );
-      String json = "{\"userName\": \"" + encodeUri( name ) + "\", \"password\": \"ENC:" + b64encode( password ) + "\"}";
+      String json = "{\"userName\": \"" + encodeUri( name ) + "\", \"password\": \"ENC:" + b64encodePassword( password ) + "\"}";
       executableTypesRequestBuilder.sendRequest( json, new RequestCallback() {
         public void onError( Request request, Throwable exception ) {
           displayErrorInMessageBox( Messages.getString( "Error" ), exception.getLocalizedMessage() );
@@ -250,7 +250,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       executableTypesRequestBuilder.setHeader( "Content-Type", "application/json" );
       String json =
-          "{\"userName\": \"" + encodeUri( userName ) + "\", \"password\": \"ENC:" + b64encode( newPassword ) + "\", \"administratorPassword\": \"ENC:" + b64encode( administratorPassword ) + "\"}";
+          "{\"userName\": \"" + encodeUri( userName ) + "\", \"password\": \"ENC:" + b64encodePassword( newPassword ) + "\", \"administratorPassword\": \"ENC:" + b64encodePassword( administratorPassword ) + "\"}";
       executableTypesRequestBuilder.sendRequest( json, new RequestCallback() {
         public void onError( Request request, Throwable exception ) {
           showXulErrorMessage( Messages.getString( "changePasswordErrorTitle" ), Messages.getString( "changePasswordErrorMessage" ) );
@@ -815,8 +815,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     return encodeURIComponent(URI);
   }-*/;
 
-  private static native String b64encode( String a ) /*-{
-    return window.btoa(a);
+  private static native String b64encodePassword( String a ) /*-{
+    return window.btoa( encodeURIComponent(a) );
   }-*/;
 
   /**
