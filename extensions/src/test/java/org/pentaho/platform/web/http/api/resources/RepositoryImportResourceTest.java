@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -30,7 +30,10 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.sun.jersey.multipart.FormDataBodyPart;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -150,6 +153,21 @@ public class RepositoryImportResourceTest {
     importResource.doPostImport( IMPORT_DIR, mockInputStream, "true", "true", "true", "true", "UTF-8", "WARN", formDataContentDisposition, "" );
     Assert.assertNull( ImportSession.getSession().getManifest()  );
   }
+
+  @Test
+  public void doPostImportMultipleFiles() {
+    RepositoryImportResource importResource = new RepositoryImportResource();
+    List<FormDataBodyPart> fileParts = new ArrayList<>();
+    FormDataBodyPart mockInputStream1 = mock( FormDataBodyPart.class );
+    FormDataBodyPart mockInputStream2 = mock( FormDataBodyPart.class );
+    fileParts.add( mockInputStream1 );
+    fileParts.add( mockInputStream2 );
+    FormDataContentDisposition formDataContentDisposition =  mock( FormDataContentDisposition.class );
+    when( policy.isAllowed( nullable( String.class ) ) ).thenAnswer( (Answer<Boolean>) invocation -> true );
+    importResource.doPostImport( IMPORT_DIR, fileParts, "true", "true", "true", "true", "UTF-8", "WARN", formDataContentDisposition, "" );
+    Assert.assertNull( ImportSession.getSession().getManifest()  );
+  }
+
   private Class<?> anyClass() {
     return argThat( new AnyClassMatcher() );
   }
