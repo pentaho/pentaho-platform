@@ -1,5 +1,4 @@
 /*!
- *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -13,9 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
- *
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  */
 
 package org.pentaho.platform.web.http.api.resources.services;
@@ -30,7 +27,6 @@ import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -40,36 +36,40 @@ public class UserRoleListService {
 
   protected IUserRoleListService userRoleListService;
 
-  private ArrayList<String> extraRoles;
+  private List<String> extraRoles;
 
-  private ArrayList<String> systemRoles;
+  private List<String> systemRoles;
+
+  private String adminRole;
 
   private Comparator<String> roleComparator;
 
   private Comparator<String> userComparator;
 
   public List<String> doGetRolesForUser( String user ) throws UnauthorizedException {
-    if ( canAdminister() ) {
-      return getRolesForUser( user );
-    } else {
+    if ( !canAdminister() ) {
       throw new UnauthorizedException();
     }
+
+    return getRolesForUser( user );
   }
 
   public List<String> doGetUsersInRole( String role ) throws UnauthorizedException {
-    if ( canAdminister() ) {
-      return getUsersInRole( role );
-    } else {
+    if ( !canAdminister() ) {
       throw new UnauthorizedException();
     }
+
+    return getUsersInRole( role );
   }
 
   public UserListWrapper getUsers() {
     IUserRoleListService service = getUserRoleListService();
+
     List<String> allUsers = service.getAllUsers();
-    if ( null != userComparator ) {
-      Collections.sort( allUsers, userComparator );
+    if ( userComparator != null ) {
+      allUsers.sort( userComparator );
     }
+
     return new UserListWrapper( allUsers );
   }
 
@@ -93,33 +93,41 @@ public class UserRoleListService {
 
   public RoleListWrapper getAllRoles() {
     Set<String> existingRoles = new HashSet<>( getUserRoleListService().getAllRoles() );
-    List<String> extraRoles = getExtraRoles();
-    if ( extraRoles == null ) {
-      extraRoles = new ArrayList<>();
-    }
-    if ( systemRoles != null ) {
-      extraRoles.addAll( systemRoles );
+
+    List<String> allRoles = getExtraRoles();
+    if ( allRoles == null ) {
+      allRoles = new ArrayList<>();
     }
 
-    existingRoles.addAll( extraRoles );
+    if ( systemRoles != null ) {
+      allRoles.addAll( systemRoles );
+    }
+
+    existingRoles.addAll( allRoles );
 
     return new RoleListWrapper( existingRoles );
   }
 
   public RoleListWrapper getSystemRoles() {
-
     return new RoleListWrapper( systemRoles );
   }
 
-  public RoleListWrapper getPermissionRoles( String adminRole ) {
-    IUserRoleListService userRoleListService = getUserRoleListService();
-    List<String> allRoles = userRoleListService.getAllRoles();
-    // We will not allow user to update permission for Administrator
-    if ( allRoles.contains( adminRole ) ) {
-      allRoles.remove( adminRole );
+  /**
+   * Gets the existing roles for permission/ACL management purposes.
+   *
+   * @return A list of roles.
+   */
+  public RoleListWrapper getPermissionRoles() {
+    List<String> allRoles = getUserRoleListService().getAllRoles();
+
+    // We will not allow user to update permission for Administrator.
+    // Using getAdminRole() to support mocking in unit tests.
+    String administratorRole = getAdminRole();
+    if ( administratorRole != null ) {
+      allRoles.remove( administratorRole );
     }
 
-    // Add extra roles to the list of roles
+    // Add extra roles to the list of roles.
     if ( extraRoles != null ) {
       for ( String extraRole : extraRoles ) {
         if ( !allRoles.contains( extraRole ) ) {
@@ -127,9 +135,11 @@ public class UserRoleListService {
         }
       }
     }
-    if ( null != roleComparator ) {
-      Collections.sort( allRoles, roleComparator );
+
+    if ( roleComparator != null ) {
+      allRoles.sort( roleComparator );
     }
+
     return new RoleListWrapper( allRoles );
   }
 
@@ -139,7 +149,8 @@ public class UserRoleListService {
 
   protected boolean canAdminister() {
     IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
-    return policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
+    return policy.isAllowed( RepositoryReadAction.NAME )
+      && policy.isAllowed( RepositoryCreateAction.NAME )
       && ( policy.isAllowed( AdministerSecurityAction.NAME ) );
   }
 
@@ -147,6 +158,7 @@ public class UserRoleListService {
     if ( userRoleListService == null ) {
       userRoleListService = PentahoSystem.get( IUserRoleListService.class );
     }
+
     return userRoleListService;
   }
 
@@ -154,15 +166,15 @@ public class UserRoleListService {
     return SystemService.getSystemService().getRolesForUser( user );
   }
 
-  protected List<String> getUsersInRole( String role )  {
+  protected List<String> getUsersInRole( String role ) {
     return SystemService.getSystemService().getUsersInRole( role );
   }
 
-  public void setExtraRoles( ArrayList<String> extraRoles ) {
+  public void setExtraRoles( List<String> extraRoles ) {
     this.extraRoles = extraRoles;
   }
 
-  public void setSystemRoles( ArrayList<String> systemRoles ) {
+  public void setSystemRoles( List<String> systemRoles ) {
     this.systemRoles = systemRoles;
   }
 
@@ -174,10 +186,18 @@ public class UserRoleListService {
     this.userComparator = userComparator;
   }
 
-  public ArrayList<String> getExtraRoles() {
+  public List<String> getExtraRoles() {
     return this.extraRoles;
   }
 
-  public class UnauthorizedException extends Exception {
+  public String getAdminRole() {
+    return adminRole;
+  }
+
+  public void setAdminRole( String adminRole ) {
+    this.adminRole = adminRole;
+  }
+
+  public static class UnauthorizedException extends Exception {
   }
 }

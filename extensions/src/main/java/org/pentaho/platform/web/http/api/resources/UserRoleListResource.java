@@ -14,20 +14,16 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-
-import java.util.ArrayList;
-
-
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.DefaultRoleComparator;
@@ -38,6 +34,13 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
 /**
  * The UserRoleListResource service lists roles, permissions, and users. Provides a list of users per role and roles per
@@ -46,38 +49,74 @@ import javax.ws.rs.QueryParam;
 @Path( "/userrolelist/" )
 public class UserRoleListResource extends AbstractJaxRSResource {
 
-  private ArrayList<String> systemRoles;
-  protected String adminRole;
-  private String anonymousRole;
-  private ArrayList<String> extraRoles;
-
-  protected static UserRoleListService userRoleListService;
+  @NonNull
+  private final UserRoleListService userRoleListService;
 
   public UserRoleListResource() {
-    this( PentahoSystem.get( ArrayList.class, "singleTenantSystemAuthorities", PentahoSessionHolder.getSession() ),
-        PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession() ),
-        PentahoSystem.get( String.class, "singleTenantAnonymousAuthorityName", PentahoSessionHolder.getSession() ),
-        PentahoSystem.get( ArrayList.class, "extraSystemAuthorities", PentahoSessionHolder.getSession() ) );
+    this( createUserRoleListServiceFromConfiguration() );
   }
 
-  public UserRoleListResource( final ArrayList<String> systemRoles, final String adminRole,
-      final ArrayList<String> extraRoles ) {
-    this( systemRoles, adminRole, PentahoSystem.get( String.class, "singleTenantAnonymousAuthorityName",
-        PentahoSessionHolder.getSession() ), extraRoles );
+  public UserRoleListResource( @NonNull List<String> systemRoles,
+                               @NonNull String adminRole,
+                               @NonNull String anonymousRole,
+                               @NonNull List<String> extraRoles ) {
+    // While anonymousRole is not used anymore, this constructor is still being used from spring config files.
+    // Opted to keep the constructor for both config backwards compatibility and because it makes sense to receive
+    // all types of roles.
+    this( createUserRoleListService( systemRoles, adminRole, extraRoles ) );
   }
 
-  public UserRoleListResource( final ArrayList<String> systemRoles, final String adminRole, final String anonymousRole,
-      final ArrayList<String> extraRoles ) {
-    this.systemRoles = systemRoles;
-    this.adminRole = adminRole;
-    this.anonymousRole = anonymousRole;
-    this.extraRoles = extraRoles;
+  /**
+   * Creates a user role list resource with a given user role list service.
+   *
+   * @param userRoleListService The user role list service.
+   */
+  public UserRoleListResource( @NonNull UserRoleListService userRoleListService ) {
+    this.userRoleListService = Objects.requireNonNull( userRoleListService );
+  }
 
-    userRoleListService = new UserRoleListService();
-    userRoleListService.setExtraRoles( extraRoles );
-    userRoleListService.setSystemRoles( systemRoles );
+  /**
+   * Creates the default user role list service using roles metadata from Pentaho System configuration.
+   *
+   * @return The default user role list service.
+   */
+  @SuppressWarnings( "unchecked" )
+  @NonNull
+  private static UserRoleListService createUserRoleListServiceFromConfiguration() {
+    IPentahoSession session = PentahoSessionHolder.getSession();
+
+    List<String> systemRoles = PentahoSystem.get( ArrayList.class, "singleTenantSystemAuthorities", session );
+    String adminRole = PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", session );
+    List<String> extraRoles = PentahoSystem.get( ArrayList.class, "extraSystemAuthorities", session );
+
+    Objects.requireNonNull( systemRoles );
+    Objects.requireNonNull( adminRole );
+    Objects.requireNonNull( extraRoles );
+
+    return createUserRoleListService( systemRoles, adminRole, extraRoles );
+  }
+
+  /**
+   * Creates the default user role list service, given the system and extra roles lists.
+   *
+   * @param systemRoles The system roles.
+   * @param adminRole   The administrator role.
+   * @param extraRoles  The extra roles.
+   * @return The default user role list service.
+   */
+  @NonNull
+  private static UserRoleListService createUserRoleListService( @NonNull List<String> systemRoles,
+                                                                @NonNull String adminRole,
+                                                                @NonNull List<String> extraRoles ) {
+
+    UserRoleListService userRoleListService = new UserRoleListService();
+    userRoleListService.setSystemRoles( new ArrayList<>( systemRoles ) );
+    userRoleListService.setAdminRole( adminRole );
+    userRoleListService.setExtraRoles( new ArrayList<>( extraRoles ) );
     userRoleListService.setRoleComparator( new DefaultRoleComparator() );
     userRoleListService.setUserComparator( new DefaultUsernameComparator() );
+
+    return userRoleListService;
   }
 
   /**
@@ -90,11 +129,11 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    *
    * @return A list of User objects for users with permissions in the platform.
    *
-   *         <p>
-   *         <b>Example Response:</b>
-   *         </p>
-   * 
-   *         <pre function="syntax.xml">
+   * <p>
+   * <b>Example Response:</b>
+   * </p>
+   *
+   * <pre function="syntax.xml">
    *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;userList&gt;&lt;users&gt;pat&lt;/users&gt;&lt;users&gt;admin&lt;/users&gt;&lt;users&gt;suzy&lt;/users&gt;&lt;users&gt;tiffany&lt;/users&gt;&lt;users&gt;enco*de:te^s_t$&lt;/users&gt;&lt;/userList&gt;
    * </pre>
    */
@@ -103,7 +142,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the list of User objects." ),
     @ResponseCode( code = 500, condition = "Unable to retrieve User objects." ) } )
-  public UserListWrapper getPermissionUsers() throws Exception {
+  public UserListWrapper getPermissionUsers() {
     return getUsers();
   }
 
@@ -117,11 +156,11 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    *
    * @return A list of permission roles in the platform.
    *
-   *         <p>
-   *         <b>Example Response:</b>
-   *         </p>
-   * 
-   *         <pre function="syntax.xml">
+   * <p>
+   * <b>Example Response:</b>
+   * </p>
+   *
+   * <pre function="syntax.xml">
    *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;roleList&gt;&lt;roles&gt;Anonymous&lt;/roles&gt;&lt;roles&gt;Business Analyst&lt;/roles&gt;&lt;roles&gt;Authenticated&lt;/roles&gt;&lt;roles&gt;Report Author&lt;/roles&gt;&lt;roles&gt;Power User&lt;/roles&gt;&lt;/roleList&gt;
    * </pre>
    */
@@ -130,7 +169,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the list of permission roles." ) } )
   public RoleListWrapper getPermissionRoles() throws Exception {
-    return userRoleListService.getPermissionRoles( adminRole );
+    return userRoleListService.getPermissionRoles();
   }
 
   /**
@@ -143,11 +182,11 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    *
    * @return A list of User objects for users in the platform.
    *
-   *         <p>
-   *         <b>Example Response:</b>
-   *         </p>
-   * 
-   *         <pre function="syntax.xml">
+   * <p>
+   * <b>Example Response:</b>
+   * </p>
+   *
+   * <pre function="syntax.xml">
    *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;userList&gt;&lt;users&gt;pat&lt;/users&gt;&lt;users&gt;admin&lt;/users&gt;&lt;users&gt;suzy&lt;/users&gt;&lt;users&gt;tiffany&lt;/users&gt;&lt;users&gt;enco*de:te^s_t$&lt;/users&gt;&lt;/userList&gt;
    * </pre>
    */
@@ -156,7 +195,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the list of User objects." ),
     @ResponseCode( code = 500, condition = "Unable to retrieve User objects." ) } )
-  public UserListWrapper getUsers() throws Exception {
+  public UserListWrapper getUsers() {
     return userRoleListService.getUsers();
   }
 
@@ -170,11 +209,11 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    *
    * @return A list of Role objects that contains the standard roles in the platform.
    *
-   *         <p>
-   *         <b>Example Response:</b>
-   *         </p>
-   * 
-   *         <pre function="syntax.xml">
+   * <p>
+   * <b>Example Response:</b>
+   * </p>
+   *
+   * <pre function="syntax.xml">
    *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;roleList&gt;&lt;roles&gt;Anonymous&lt;/roles&gt;&lt;roles&gt;Business Analyst&lt;/roles&gt;&lt;roles&gt;Authenticated&lt;/roles&gt;&lt;roles&gt;Report Author&lt;/roles&gt;&lt;roles&gt;Power User&lt;/roles&gt;&lt;/roleList&gt;
    * </pre>
    */
@@ -185,9 +224,11 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   public RoleListWrapper getRoles( @QueryParam( "addExtraRoles" ) String addExtraRoles ) {
     boolean includeExtraRoles = true;
 
-    if ( addExtraRoles != null && addExtraRoles.length() > 0 ) {
+    if ( addExtraRoles != null && !addExtraRoles.isEmpty() ) {
       includeExtraRoles = Boolean.parseBoolean( addExtraRoles );
     }
+
+
     return userRoleListService.getRoles( includeExtraRoles );
   }
 
@@ -201,11 +242,11 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    *
    * @return A list of Role objects that contains all the roles in the platform.
    *
-   *         <p>
-   *         <b>Example Response:</b>
-   *         </p>
-   * 
-   *         <pre function="syntax.xml">
+   * <p>
+   * <b>Example Response:</b>
+   * </p>
+   *
+   * <pre function="syntax.xml">
    *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;roleList&gt;&lt;roles&gt;Anonymous&lt;/roles&gt;&lt;roles&gt;Business Analyst&lt;/roles&gt;&lt;roles&gt;Authenticated&lt;/roles&gt;&lt;roles&gt;Report Author&lt;/roles&gt;&lt;roles&gt;Power User&lt;/roles&gt;&lt;roles&gt;Authenticated&lt;/roles&gt;&lt;roles&gt;Anonymous&lt;/roles&gt;&lt;/roleList&gt;
    * </pre>
    */
@@ -213,7 +254,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @Path( "/allRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the list of Role objects." ), } )
-  public RoleListWrapper getAllRoles() throws Exception {
+  public RoleListWrapper getAllRoles() {
     return userRoleListService.getAllRoles();
   }
 
@@ -227,11 +268,11 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    *
    * @return A list of system roles.
    *
-   *         <p>
-   *         <b>Example Response:</b>
-   *         </p>
-   * 
-   *         <pre function="syntax.xml">
+   * <p>
+   * <b>Example Response:</b>
+   * </p>
+   *
+   * <pre function="syntax.xml">
    *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;roleList&gt;&lt;roles&gt;Authenticated&lt;/roles&gt;&lt;roles&gt;Administrator&lt;/roles&gt;&lt;roles&gt;Anonymous&lt;/roles&gt;&lt;/roleList&gt;
    * </pre>
    */
@@ -253,11 +294,11 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    *
    * @return Roles identified as "extra roles" are returned as a list from the repository as shown in the example.
    *
-   *         <p>
-   *         <b>Example Response:</b>
-   *         </p>
-   * 
-   *         <pre function="syntax.xml">
+   * <p>
+   * <b>Example Response:</b>
+   * </p>
+   *
+   * <pre function="syntax.xml">
    *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;roleList&gt;&lt;roles&gt;Authenticated&lt;/roles&gt;&lt;roles&gt;Anonymous&lt;/roles&gt;&lt;/roleList&gt;
    * </pre>
    */
@@ -270,6 +311,32 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   }
 
   /**
+   * Gets the administrator role.
+   *
+   * <p>
+   * <b>Example Request:</b><br />
+   * GET pentaho/api/userrolelist/adminRole
+   * </p>
+   *
+   * @return The administrator role.
+   *
+   * <p>
+   * <b>Example Response:</b>
+   * </p>
+   *
+   * <pre function="syntax.xml">
+   *     Administrator
+   * </pre>
+   */
+  @GET
+  @Path( "/adminRole" )
+  @Produces( { TEXT_PLAIN } )
+  @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the administrator role." ), } )
+  public String getAdminRole() {
+    return userRoleListService.getAdminRole();
+  }
+
+  /**
    * Gets the roles for the given user.
    *
    * <p>
@@ -277,16 +344,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * GET pentaho/api/userrolelist/getRolesForUser?user=admin
    * </p>
    *
-   * @param user
-   *          The username to get the roles for
-   *
+   * @param user The username to get the roles for
    * @return A list of Role objects containing the roles for the given user.
    *
-   *         <p>
-   *         <b>Example Response:</b>
-   *         </p>
-   * 
-   *         <pre function="syntax.xml">
+   * <p>
+   * <b>Example Response:</b>
+   * </p>
+   *
+   * <pre function="syntax.xml">
    *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;roles&gt;&lt;role&gt;Administrator&lt;/role&gt;&lt;role&gt;Authenticated&lt;/role&gt;&lt;/roles&gt;
    * </pre>
    */
@@ -308,16 +373,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    * GET pentaho/api/userrolelist/getUsersInRole?role=Authenticated
    * </p>
    *
-   * @param role
-   *          The role to get the users for
-   *
+   * @param role The role to get the users for
    * @return A list of User objects that have the roles specified in the role parameter.
    *
-   *         <p>
-   *         <b>Example Response:</b>
-   *         </p>
-   * 
-   *         <pre function="syntax.xml">
+   * <p>
+   * <b>Example Response:</b>
+   * </p>
+   *
+   * <pre function="syntax.xml">
    *     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;users&gt;&lt;user&gt;pat&lt;/user&gt;&lt;user&gt;admin&lt;/user&gt;&lt;user&gt;suzy&lt;/user&gt;&lt;user&gt;tiffany&lt;/user&gt;&lt;user&gt;enco*de:te^s_t$&lt;/user&gt;&lt;/users&gt;
    * </pre>
    */
