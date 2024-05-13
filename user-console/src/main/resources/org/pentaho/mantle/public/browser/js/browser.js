@@ -147,7 +147,7 @@ define([
     // Sets initialPath as the clicked folder
     if (this.fileBrowserModel && clickedPath) {
       this.fileBrowserModel.set("clickedFolder", {
-        obj: $("[path='" + clickedPath + "']"),
+        obj: $("[path='" + escapeCssSelector(clickedPath) + "']"),
         time: (new Date()).getTime()
       });
     }
@@ -228,7 +228,7 @@ define([
 
   FileBrowser.openFolder = function (path) {
     //first select folder
-    var $folder = $("[path='"+path+"']"),
+    var $folder = $("[path='"+escapeCssSelector(path)+"']"),
         $parentFolder = $folder.parent(".folders");
     while(!$parentFolder.hasClass("body") && $parentFolder.length > 0){
       $parentFolder.show();
@@ -602,7 +602,7 @@ define([
 
       // BACKLOG-40086: the trash folder as a concept does not currently exist in the generic-files API
       if (FileBrowser.fileBrowserModel.get("startFolder") && FileBrowser.fileBrowserModel.get("startFolder") != '.trash') {
-        expandedPathParam = "&expandedPath=" + FileBrowser.fileBrowserModel.get("startFolder");
+        expandedPathParam = "&expandedPath=" + encodeURIComponent(FileBrowser.fileBrowserModel.get("startFolder"));
       }
 
       /**
@@ -1181,11 +1181,11 @@ define([
         // verify if clicked folder is visible
         if ( FileBrowser.fileBrowserModel.getFolderClicked() &&
             FileBrowser.fileBrowserModel.getFolderClicked().attr("path") &&
-            ( $( "div[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "']" ).length !== 0 ) ) {
-          $folder = $("[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "']");
+            ( $( "div[path='" + escapeCssSelector(FileBrowser.fileBrowserModel.getFolderClicked().attr("path")) + "']" ).length !== 0 ) ) {
+          $folder = $("[path='" + escapeCssSelector(FileBrowser.fileBrowserModel.getFolderClicked().attr("path")) + "']");
         } else if ( FileBrowser.fileBrowserModel.get("startFolder") &&
-            ( $( "div[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']" ).length !== 0 ) ) {
-          $folder = $( "[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']" );
+            ( $( "div[path='" + escapeCssSelector(FileBrowser.fileBrowserModel.get("startFolder")) + "']" ).length !== 0 ) ) {
+          $folder = $( "[path='" + escapeCssSelector(FileBrowser.fileBrowserModel.get("startFolder")) + "']" );
         } else {
           $folder = myself.getFirstVisibleFolder();
         }
@@ -1237,14 +1237,14 @@ define([
       for ( var i = 0; i < foldersList.length; i++ ) {
         var elem = foldersList[i];
         if (elem && elem.file && elem.file.folder && elem.file.path &&
-          $("div[path=\"" + elem.file.path + "\"]").length != 0) {
+          $("div[path=\"" + escapeCssSelector(elem.file.path) + "\"]").length != 0) {
           firstVisibleFolder = elem;
           break;
         }
       }
 
       if ( firstVisibleFolder ) {
-        return $( "[path='" + firstVisibleFolder.file.path + "']" );
+        return $( "[path='" + escapeCssSelector(firstVisibleFolder.file.path) + "']" );
       }
     },
 
@@ -1988,6 +1988,15 @@ define([
 
   function isRepositoryRootPath(path) {
     return path === REPOSITORY_ROOT_PATH;
+  }
+
+  /**
+   * Escapes special characters in jquery selector
+   * @param selector
+   * @returns selector with special characters escaped by "\\"
+   */
+  function escapeCssSelector(selector) {
+    return selector.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&");
   }
 
   return {
