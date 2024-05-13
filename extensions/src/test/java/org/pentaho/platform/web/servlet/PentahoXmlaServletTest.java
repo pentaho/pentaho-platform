@@ -22,15 +22,19 @@ package org.pentaho.platform.web.servlet;
 
 import mondrian.olap.DriverManager;
 import mondrian.olap.MondrianException;
+import mondrian.olap.Util;
 import mondrian.rolap.RolapConnection;
+import mondrian.xmla.XmlaException;
 import mondrian.xmla.XmlaHandler;
 import org.dom4j.Document;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.olap4j.OlapConnection;
 import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -41,6 +45,7 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 import javax.servlet.ServletConfig;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
@@ -51,6 +56,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -193,5 +199,85 @@ public class PentahoXmlaServletTest {
       // We verify that only one Catalog Locator is created for multiple requests
       verify( xmlaServlet, times( 1 ) ).makeCatalogLocator( any() );
     }
+  }
+
+  @Test
+  public void testIfConnectionIsXMLANotEnabled() throws Exception {
+    OlapConnection connection = mock( OlapConnection.class );
+    RolapConnection rc = mock( RolapConnection.class );
+    doReturn( rc ).when( connection ).unwrap( RolapConnection.class );
+
+    Util.PropertyList propertyList = new Util.PropertyList();
+    propertyList.put( "EnableXmla", "false" );
+    when( rc.getConnectInfo() ).thenReturn( propertyList );
+    when( rc.getCatalogName() ).thenReturn( "SteelWheels" );
+
+    PentahoXmlaServlet xmlaServlet = spy( new PentahoXmlaServlet() );
+
+    try {
+      xmlaServlet.checkIfXMLAEnabled( connection );
+      Assert.fail();
+    } catch ( Exception e ) {
+      assertTrue( e instanceof XmlaException );
+    }
+
+    verify( connection, times( 1 ) ).unwrap( RolapConnection.class );
+    verify( rc, times( 1 ) ).getConnectInfo();
+    verify( rc, times( 1 ) ).getCatalogName();
+  }
+
+  @Test
+  public void testIfConnectionIsXMLANotEnabledButDontExistProperty() throws Exception {
+    OlapConnection connection = mock( OlapConnection.class );
+    RolapConnection rc = mock( RolapConnection.class );
+    doReturn( rc ).when( connection ).unwrap( RolapConnection.class );
+
+    when( rc.getConnectInfo() ).thenReturn( new Util.PropertyList() );
+    when( rc.getCatalogName() ).thenReturn( "SteelWheels" );
+
+    PentahoXmlaServlet xmlaServlet = spy( new PentahoXmlaServlet() );
+
+    try {
+      xmlaServlet.checkIfXMLAEnabled( connection );
+      Assert.fail();
+    } catch ( Exception e ) {
+      assertTrue( e instanceof XmlaException );
+    }
+
+    verify( connection, times( 1 ) ).unwrap( RolapConnection.class );
+    verify( rc, times( 1 ) ).getConnectInfo();
+    verify( rc, times( 1 ) ).getCatalogName();
+  }
+
+  @Test
+  public void testIfConnectionCheckIfXMLAEnabled() throws Exception {
+    OlapConnection connection = mock( OlapConnection.class );
+    RolapConnection rc = mock( RolapConnection.class );
+    doReturn( rc ).when( connection ).unwrap( RolapConnection.class );
+
+    Util.PropertyList propertyList = new Util.PropertyList();
+    propertyList.put( "EnableXmla", "true" );
+    when( rc.getConnectInfo() ).thenReturn( propertyList );
+
+    PentahoXmlaServlet xmlaServlet = spy( new PentahoXmlaServlet() );
+    xmlaServlet.checkIfXMLAEnabled( connection );
+
+    verify( connection, times( 1 ) ).unwrap( RolapConnection.class );
+    verify( rc, times( 1 ) ).getConnectInfo();
+    verify( rc, times( 0 ) ).getCatalogName();
+  }
+
+  @Test
+  public void testIfConnectionCheckIfXMLAEnabledException() throws Exception {
+    OlapConnection connection = mock( OlapConnection.class );
+    RolapConnection rc = mock( RolapConnection.class );
+    doThrow( SQLException.class ).when( connection ).unwrap( RolapConnection.class );
+
+    PentahoXmlaServlet xmlaServlet = spy( new PentahoXmlaServlet() );
+    xmlaServlet.checkIfXMLAEnabled( connection );
+
+    verify( connection, times( 1 ) ).unwrap( RolapConnection.class );
+    verify( rc, times( 0 ) ).getConnectInfo();
+    verify( rc, times( 0 ) ).getCatalogName();
   }
 }
