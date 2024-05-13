@@ -20,10 +20,12 @@
 
 package org.pentaho.platform.web.servlet;
 
+import com.google.common.annotations.VisibleForTesting;
 import mondrian.olap.Connection;
 import mondrian.olap.DriverManager;
 import mondrian.olap.MondrianException;
 import mondrian.olap.MondrianServer;
+import mondrian.rolap.RolapConnection;
 import mondrian.server.DynamicContentFinder;
 import mondrian.server.FileRepository;
 import mondrian.server.RepositoryContentFinder;
@@ -71,6 +73,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import static org.pentaho.platform.plugin.services.importer.MondrianImportHandler.ENABLE_XMLA;
 
 /**
  * Filters out <code>DataSource</code> elements that are not XMLA-related.
@@ -297,7 +301,12 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
 
         // Now let the delegate connection factory do its magic.
         if ( catalogName == null ) {
-          return delegate.getConnection( databaseName, null, null, props );
+          OlapConnection connection = delegate.getConnection( databaseName, null, null, props );
+
+          // check if the connection has the property 'EnableXmla' with the value 'true'
+          checkIfXMLAEnabled( connection );
+
+          return connection;
         } else {
           //We create a connection differently, so we can ensure that the XMLA servlet shares the same MondrianServer
           // instance as the rest of the platform
@@ -320,6 +329,9 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
 
             OlapConnection connection = fr.getConnection( server, databaseName, catalogName, roleName, props );
             fr.shutdown();
+
+            // check if the connection has the property 'EnableXmla' with the value 'true'
+            checkIfXMLAEnabled( connection );
             return connection;
           } finally {
             con.close();
@@ -333,5 +345,22 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
   public void init( ServletConfig servletConfig ) throws ServletException {
     super.init( servletConfig );
     catalogLocator = makeCatalogLocator( servletConfig );
+  }
+
+  @VisibleForTesting
+  protected void checkIfXMLAEnabled( OlapConnection connection ) {
+    try {
+      final RolapConnection rolapConnection = connection.unwrap( RolapConnection.class );
+      final String enabledXMLAValue = rolapConnection.getConnectInfo().get( ENABLE_XMLA );
+
+      if ( enabledXMLAValue == null || "false".equalsIgnoreCase( enabledXMLAValue ) ) {
+        final Exception e =
+          new MondrianException( "The XMLA is not enabled in the catalog: " + rolapConnection.getCatalogName() );
+        logger.error( e );
+        throw new XmlaException( CLIENT_FAULT_FC, UNKNOWN_ERROR_CODE, UNKNOWN_ERROR_FAULT_FS, e );
+      }
+    } catch ( SQLException e ) {
+      logger.error( "The connection does not support XMLA.", e );
+    }
   }
 }
