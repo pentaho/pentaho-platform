@@ -707,6 +707,8 @@ define([
             obj.file.objectId = obj.file.path;
           }
 
+          obj.file.id = obj.file.objectId;
+
           newResp.children.push(obj);
         }
       }
@@ -1853,7 +1855,7 @@ define([
         var inRange = false;
         var secondMatch = false;
         for (var i = 0; i < files.length; i++) {
-          if (files[i].file.folder === "false") {
+          if (files[i].file.folder === false) {
             if ((files[i].file.id == from.attr("id") || files[i].file.id == target.attr("id"))) {
               if (inRange == true) {
                 secondMatch = true;
