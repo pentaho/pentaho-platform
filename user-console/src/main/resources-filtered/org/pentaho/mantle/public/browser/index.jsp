@@ -109,7 +109,7 @@
 				success: function (response) {
 					if(response != null && response.length > 0) {
 
-						open_dir = decodeURIComponent(response);
+						open_dir = response;
 
 						var headers = {};
                         var csrfToken = csrfService.getToken(initialFolderResourceUrl);
