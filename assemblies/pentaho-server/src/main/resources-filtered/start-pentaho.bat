@@ -46,6 +46,8 @@ set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens java.base/sun.net.www.proto
 set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens java.base/sun.net.www.protocol.ftp=ALL-UNNAMED"
 set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens java.base/sun.net.www.protocol.http=ALL-UNNAMED"
 set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens java.base/sun.net.www.protocol.https=ALL-UNNAMED"
+set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens jdk.security.auth/com.sun.security.auth.login=ALL-UNNAMED"
+set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens java.base/sun.security.provider=ALL-UNNAMED"
 
 rem Make sure we set the appropriate variable so Tomcat can start (e.g. JAVA_HOME iff. _PENTAHO_JAVA_HOME points to a JDK)
 if not exist "%_PENTAHO_JAVA_HOME%\bin\jdb.exe" goto noJdk
