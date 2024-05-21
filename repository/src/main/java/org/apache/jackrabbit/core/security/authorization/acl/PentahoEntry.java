@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -31,6 +31,7 @@ import org.apache.jackrabbit.core.security.authorization.PrivilegeBits;
 import org.apache.jackrabbit.core.security.authorization.PrivilegeManagerImpl;
 import org.apache.jackrabbit.core.value.InternalValue;
 import org.apache.jackrabbit.spi.Name;
+import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSecurityRolePrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,6 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import java.security.Principal;
-import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -158,7 +158,7 @@ public class PentahoEntry implements AccessControlConstants {
         boolean isGroupEntry = false;
         Principal princ = principalMgr.getPrincipal(principalName);
         if (princ != null) {
-          isGroupEntry = (princ instanceof Group );
+          isGroupEntry = ( princ instanceof SpringSecurityRolePrincipal );
         }
 
         InternalValue[] privValues = aceNode.getProperty(P_PRIVILEGES).internalGetValues();

@@ -14,13 +14,12 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2020-2024 Hitachi Vantara. All rights reserved.
  *
  */
-
-
 package org.pentaho.platform.engine.security;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -31,8 +30,10 @@ import java.util.concurrent.TimeUnit;
 
 public class LoginAttemptService implements ILoginAttemptService {
 
-  private LoadingCache<String, Integer> attemptsCache;
-  private final int maxAttempt;
+  @VisibleForTesting
+  protected LoadingCache<String, Integer> attemptsCache;
+  @VisibleForTesting
+  protected final int maxAttempt;
 
   public LoginAttemptService( int maxAttempt, int cacheMinutes ) {
     this.maxAttempt = maxAttempt;

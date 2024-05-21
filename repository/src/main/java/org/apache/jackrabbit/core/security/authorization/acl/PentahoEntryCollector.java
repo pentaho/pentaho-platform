@@ -22,7 +22,6 @@ package org.apache.jackrabbit.core.security.authorization.acl;
 
 import java.io.InputStream;
 import java.security.Principal;
-import java.security.acl.Group;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,6 +54,7 @@ import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository2.unified.jcr.IAclMetadataStrategy.AclMetadata;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclUtils;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSecurityRolePrincipal;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -399,7 +399,7 @@ public class PentahoEntryCollector extends EntryCollector {
     Principal ownerPrincipal = systemSession.getPrincipalManager().getPrincipal( owner );
     if ( ownerPrincipal != null ) {
       Principal magicPrincipal = null;
-      if ( ownerPrincipal instanceof Group ) {
+      if ( ownerPrincipal instanceof SpringSecurityRolePrincipal ) {
         magicPrincipal = new MagicGroup( JcrTenantUtils.getTenantedUser( ownerPrincipal.getName() ) );
       } else {
         magicPrincipal = new MagicPrincipal( JcrTenantUtils.getTenantedUser( ownerPrincipal.getName() ) );
@@ -514,7 +514,7 @@ public class PentahoEntryCollector extends EntryCollector {
     if ( ace != null ) {
 
       Principal principal = ace.getPrincipal();
-      boolean isGroupEntry = principal instanceof Group;
+      boolean isGroupEntry = principal instanceof SpringSecurityRolePrincipal;
       PrivilegeBits bits = ( (ACLTemplate.Entry) ace ).getPrivilegeBits();
       boolean isAllow = ( (ACLTemplate.Entry) ace ).isAllow();
 

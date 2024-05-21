@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -35,7 +35,6 @@ import org.pentaho.platform.config.SystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.test.platform.plugin.services.metadata.MockSessionAwareMetadataDomainRepository;
-import org.powermock.api.mockito.PowerMockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -479,7 +478,7 @@ public class SessionCachingMetadataDomainRepositoryTest {
 
   public ISystemConfig createSystemConfigTestObject( Properties properties ) throws Exception {
     IConfiguration configuration = Mockito.mock( IConfiguration.class );
-    PowerMockito.when( configuration.getId() ).thenReturn( "system" );
+    Mockito.when( configuration.getId() ).thenReturn( "system" );
     Mockito.when( configuration.getProperties() ).thenReturn( properties );
 
     List<IConfiguration> configs = new ArrayList<>();

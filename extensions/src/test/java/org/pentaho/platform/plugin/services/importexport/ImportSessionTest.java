@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -37,7 +37,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileExtraMetaData;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestEntity;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
-import org.powermock.reflect.Whitebox;
 
 public class ImportSessionTest {
   private static final String PATH = "path";
@@ -124,8 +123,8 @@ public class ImportSessionTest {
     when( manifest.getExportManifestEntity( nullable( String.class ) )).thenReturn( entity );
     when( entity.getRepositoryFileExtraMetaData() ).thenReturn( repositoryFileExtraMetaData );
 
-    Whitebox.setInternalState( importSession, "manifest", manifest );
-    Assert.assertEquals( repositoryFileExtraMetaData, importSession.processExtraMetaDataForFile( "filePath" ));
+    importSession.setManifest( manifest );
+    Assert.assertEquals( repositoryFileExtraMetaData, importSession.processExtraMetaDataForFile( "filePath" ) );
 
   }
 }

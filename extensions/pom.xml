@@ -27,6 +27,8 @@
     <pentaho-actionsequence-dom.version>10.2.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
     <pentaho-metadata.version>10.2.0.0-SNAPSHOT</pentaho-metadata.version>
     <pentaho-chartbeans.version>10.2.0.0-SNAPSHOT</pentaho-chartbeans.version>
+    <maven-surefire-plugin.argLine> --add-opens=java.base/java.lang=ALL-UNNAMED </maven-surefire-plugin.argLine>
+    <nashorn.version>15.4</nashorn.version>
   </properties>
   <dependencies>
     <!-- @Null, @Nullable annotations -->
@@ -625,7 +627,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.axis2</groupId>
+      <groupId>org.pentaho.axis2</groupId>
       <artifactId>axis2-kernel</artifactId>
       <version>${axis2.version}</version>
       <scope>compile</scope>
@@ -2150,15 +2152,15 @@
       <artifactId>org.osgi.compendium</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.openjdk.nashorn</groupId>
+      <artifactId>nashorn-core</artifactId>
+      <version>${nashorn.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-inline</artifactId>
-      <version>${mockito-core.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -2195,18 +2197,6 @@
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-library</artifactId>
       <version>${hamcrest-library.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <version>${powermock.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
-      <version>${powermock.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.google.code.bean-matchers</groupId>

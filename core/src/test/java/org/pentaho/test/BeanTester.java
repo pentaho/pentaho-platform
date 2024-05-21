@@ -22,6 +22,7 @@ package org.pentaho.test;
 
 import org.junit.Assume;
 import org.junit.Test;
+import org.springframework.context.annotation.Bean;
 
 import static com.google.code.beanmatchers.BeanMatchers.hasValidBeanConstructor;
 import static com.google.code.beanmatchers.BeanMatchers.hasValidBeanEquals;
@@ -30,13 +31,17 @@ import static com.google.code.beanmatchers.BeanMatchers.hasValidBeanToString;
 import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSetters;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class BeanTester {
+public abstract class BeanTester {
   private Class<?> clazz;
   private boolean testHasValidBeanConstructor;
   private boolean testHasValidGettersAndSetters;
   private boolean testHasValidBeanHashCode;
   private boolean testHasValidBeanEquals;
   private boolean testHasValidBeanToString;
+
+  public BeanTester () {
+    this( org.pentaho.test.BeanTester.class, true, true, true, true, true );
+  }
 
   public BeanTester( Class<?> clazz ) {
     this( clazz, true, true, true, true, true );
