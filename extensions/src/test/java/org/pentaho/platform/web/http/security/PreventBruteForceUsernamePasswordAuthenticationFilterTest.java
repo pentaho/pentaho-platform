@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2020-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2020-2024 Hitachi Vantara. All rights reserved.
  *
  */
 package org.pentaho.platform.web.http.security;
@@ -25,6 +25,7 @@ import org.pentaho.platform.api.security.ILoginAttemptService;
 import org.pentaho.platform.engine.security.LoginAttemptService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,7 +36,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.reflect.Whitebox.setInternalState;
 
 
 public class PreventBruteForceUsernamePasswordAuthenticationFilterTest {
@@ -64,12 +64,12 @@ public class PreventBruteForceUsernamePasswordAuthenticationFilterTest {
   @Test
   public void testAttemptAuthenticationWithoutBlock() {
     PreventBruteForceUsernamePasswordAuthenticationFilter authenticationFilter =
-    spy( new PreventBruteForceUsernamePasswordAuthenticationFilter( mockLoginAttemptService ) );
+      spy( new PreventBruteForceUsernamePasswordAuthenticationFilter( mockLoginAttemptService ) );
 
     when( mockLoginAttemptService.isBlocked( ip ) ).thenReturn( false );
     when( mockAuthenticationManager.authenticate( any() ) ).thenReturn( mockAuthentication );
 
-    setInternalState( authenticationFilter, "authenticationManager", mockAuthenticationManager );
+    authenticationFilter.setAuthenticationManager( mockAuthenticationManager );
 
     authenticationFilter.attemptAuthentication( mockRequest, mockResponse );
     verify( mockLoginAttemptService, times( 1 ) ).isBlocked( ip );

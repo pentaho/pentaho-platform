@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -37,13 +37,13 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import org.apache.commons.dbcp2.ConnectionFactory;
+import org.apache.commons.dbcp2.DriverManagerConnectionFactory;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.database.DatabaseDialectException;
 import org.pentaho.database.IDatabaseDialect;
@@ -315,7 +315,7 @@ public class PooledDatasourceHelperTest {
 
     ConnectionFactory factory = PooledDatasourceHelper.getConnectionFactory( connection, "jdbc:mysql://localhost" );
 
-    Properties props = (Properties) Whitebox.getInternalState( factory, "properties" );
+    Properties props = ((DriverManagerConnectionFactory) factory).getProperties();
     assertEquals( user, props.getProperty( "user" ) );
     assertEquals( password, props.getProperty( "password" ) );
   }
@@ -328,7 +328,7 @@ public class PooledDatasourceHelperTest {
 
     ConnectionFactory factory = PooledDatasourceHelper.getConnectionFactory( connection, "jdbc:mariadb://localhost" );
 
-    Properties props = (Properties) Whitebox.getInternalState( factory, "properties" );
+    Properties props = ((DriverManagerConnectionFactory) factory).getProperties();
     assertEquals( user, props.getProperty( "user" ) );
     assertEquals( password, props.getProperty( "password" ) );
   }
@@ -341,7 +341,7 @@ public class PooledDatasourceHelperTest {
 
     ConnectionFactory factory = PooledDatasourceHelper.getConnectionFactory( connection, "jdbc:microsoft:sqlserver://localhost" );
 
-    Properties props = (Properties) Whitebox.getInternalState( factory, "properties" );
+    Properties props = ((DriverManagerConnectionFactory) factory).getProperties();
     assertEquals( user, props.getProperty( "user" ) );
     assertEquals( password, props.getProperty( "password" ) );
 

@@ -14,14 +14,13 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 
 import java.security.Principal;
-import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -330,7 +329,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     // make sure it's a user; also, repo admins are never in back-end--no
     // need to attempt to look them up; also acl
     // metadata principals never have group membership
-    if ( !( principal instanceof Group ) && !( principal instanceof AdminPrincipal )
+    if ( !( principal instanceof SpringSecurityRolePrincipal ) && !( principal instanceof AdminPrincipal )
       && !( principal instanceof AclMetadataPrincipal ) ) {
       UserDetails user = internalGetUserDetails( principal.getName() );
       if ( user == null ) {

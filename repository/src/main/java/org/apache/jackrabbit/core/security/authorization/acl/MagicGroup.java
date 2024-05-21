@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -24,7 +24,6 @@ import org.apache.jackrabbit.core.security.principal.UnknownPrincipal;
 import org.pentaho.platform.repository2.unified.jcr.IPentahoInternalPrincipal;
 
 import java.security.Principal;
-import java.security.acl.Group;
 import java.util.Enumeration;
 
 /**
@@ -36,7 +35,7 @@ import java.util.Enumeration;
  * 
  * @author mlowery
  */
-public class MagicGroup extends UnknownPrincipal implements Group, IPentahoInternalPrincipal {
+public class MagicGroup extends UnknownPrincipal implements IPentahoInternalPrincipal {
 
   private static final long serialVersionUID = 2395449661136335711L;
 
@@ -44,22 +43,17 @@ public class MagicGroup extends UnknownPrincipal implements Group, IPentahoInter
     super( name );
   }
 
-  @Override
   public boolean addMember( Principal arg0 ) {
     throw new UnsupportedOperationException();
   }
-
-  @Override
   public boolean isMember( Principal arg0 ) {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public Enumeration<? extends Principal> members() {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public boolean removeMember( Principal arg0 ) {
     throw new UnsupportedOperationException();
   }

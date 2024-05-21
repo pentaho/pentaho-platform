@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2020-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -27,42 +27,15 @@ import org.junit.Test;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.internal.util.reflection.Whitebox.getInternalState;
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 public class PentahoEhCacheBasedUserCacheTest {
 
   @Before
   public void setUp() {
-
-  }
-
-  @Test
-  public void testIsCaseSensitive() {
-    PentahoEhCacheBasedUserCache userCache = new PentahoEhCacheBasedUserCache();
-
-    setInternalState( userCache, "caseSensitive", true );
-    assertTrue( userCache.isCaseSensitive() );
-
-    setInternalState( userCache, "caseSensitive", false );
-    assertFalse( userCache.isCaseSensitive() );
-  }
-
-  @Test
-  public void testSetCaseSensitive() {
-    PentahoEhCacheBasedUserCache userCache = new PentahoEhCacheBasedUserCache();
-
-    userCache.setCaseSensitive( true );
-    assertTrue( (boolean) getInternalState( userCache, "caseSensitive" ) );
-
-    userCache.setCaseSensitive( false );
-    assertFalse( (boolean) getInternalState( userCache, "caseSensitive" ) );
 
   }
 

@@ -20,13 +20,13 @@
 
 package org.pentaho.platform.api.repository2.unified.webservices;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Created by efreitas on 30-07-2018.
