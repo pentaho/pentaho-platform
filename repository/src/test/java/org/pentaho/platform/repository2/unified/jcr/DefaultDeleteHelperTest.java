@@ -314,6 +314,7 @@ public class DefaultDeleteHelperTest {
     final Calendar date1 = Calendar.getInstance();
     final Node deletedNode1 = createDeletedNode( path1, date1 );
 
+
     final String path2 = "path2";
     final Calendar date2 = Calendar.getInstance();
     final Node deletedNode2 = createDeletedNode( path2, date2 );
@@ -328,6 +329,7 @@ public class DefaultDeleteHelperTest {
 
     final Node nodeOtherFolder = mock( Node.class );
     when( nodeOtherFolder.hasNode( anyString() ) ).thenReturn( true );
+    when( nodeOtherFolder.hasNodes(  ) ).thenReturn( true );
     when( nodeOtherFolder.getNode( anyString() ) ).thenReturn( nodeTrash );
 
     final String pathUsr = "pathUser";
@@ -344,6 +346,7 @@ public class DefaultDeleteHelperTest {
 
     final Node nodeUserFolder = mock( Node.class );
     when( nodeUserFolder.hasNode( anyString() ) ).thenReturn( true );
+    when( nodeUserFolder.hasNodes(  ) ).thenReturn( true );
     when( nodeUserFolder.getNode( anyString() ) ).thenReturn( nodeTrashUsr );
 
     final boolean[] admin = { false };
@@ -359,6 +362,17 @@ public class DefaultDeleteHelperTest {
     };
     when( session.getItem( endsWith( "/other" ) ) ).thenReturn( nodeOtherFolder );
     when( session.getItem( endsWith( "/test" ) ) ).thenReturn( nodeUserFolder );
+
+    final Node nodeHomeFolder = mock( Node.class );
+    when( nodeHomeFolder.hasNode( anyString() ) ).thenReturn( true );
+    when( nodeHomeFolder.getNodes() ).thenAnswer( invoc -> {
+      NodeIterator nodeIteratorHome = mock( NodeIterator.class );
+      when( nodeIteratorHome.hasNext() ).thenReturn( true, true, false );
+      when( nodeIteratorHome.next() ).thenReturn( nodeOtherFolder, nodeUserFolder );
+      return nodeIteratorHome;
+    } );
+
+    when ( session.getItem( "/pentaho/tenant0/home" ) ).thenReturn( nodeHomeFolder );
 
     // regular user
     final List<RepositoryFile> deletedFiles = defaultDeleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
@@ -390,6 +404,7 @@ public class DefaultDeleteHelperTest {
 
     final Node nodeUser1 = mock( Node.class );
     when( nodeUser1.hasNode( anyString() ) ).thenReturn( true );
+    when( nodeUser1.hasNodes(  ) ).thenReturn( true );
     when( nodeUser1.getNode( anyString() ) ).thenReturn( nodeTrashUser1 );
 
     final String pathUser2 = "pathUser2";
@@ -406,6 +421,7 @@ public class DefaultDeleteHelperTest {
 
     final Node nodeUser2 = mock( Node.class );
     when( nodeUser2.hasNode( anyString() ) ).thenReturn( true );
+    when( nodeUser2.hasNodes(  ) ).thenReturn( true );
     when( nodeUser2.getNode( anyString() ) ).thenReturn( nodeTrashUser2 );
 
 
@@ -424,6 +440,7 @@ public class DefaultDeleteHelperTest {
     final Node nodeUserTest = mock( Node.class );
     when( nodeUserTest.hasNode( anyString() ) ).thenReturn( true );
     when( nodeUserTest.getNode( anyString() ) ).thenReturn( nodeTrashUserTest );
+    when( nodeUserTest.hasNodes( ) ).thenReturn( true );
 
     defaultDeleteHelper = new DefaultDeleteHelper( lockHelper, pathConversionHelper ) {
       @Override
@@ -443,6 +460,19 @@ public class DefaultDeleteHelperTest {
     when( session.getItem( endsWith( "/test" ) ) ).thenReturn( nodeUserTest );
     when( session.getItem( endsWith( "/user2" ) ) ).thenReturn( nodeUser2 );
     when( session.getItem( endsWith( "/user1" ) ) ).thenReturn( nodeUser1 );
+
+    final Node nodeHomeFolder = mock( Node.class );
+    when( nodeHomeFolder.hasNode( anyString() ) ).thenReturn( true );
+    when( nodeHomeFolder.getNodes() ).thenAnswer( invoc -> {
+      NodeIterator nodeIteratorHome = mock( NodeIterator.class );
+      when( nodeIteratorHome.hasNext() ).thenReturn( true, true, true, false );
+      when( nodeIteratorHome.next() ).thenReturn( nodeUserTest, nodeUser2, nodeUser1 );
+      return nodeIteratorHome;
+    } );
+
+    when ( session.getItem( "/pentaho/tenant0/home" ) ).thenReturn( nodeHomeFolder );
+
+
 
     final List<RepositoryFile> deletedFilesAdmin = defaultDeleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
     assertNotNull( deletedFilesAdmin );
