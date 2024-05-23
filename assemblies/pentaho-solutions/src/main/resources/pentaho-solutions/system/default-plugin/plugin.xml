@@ -1,17 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin title="BI Server default plugin">
 
-  <!-- Commented out per BISERVER-13533
-  <content-generator id="ws-services" type="ws-services" title="Web services discovery page"
-                     class="org.pentaho.platform.plugin.services.webservices.content.StyledHtmlAxisServiceLister"/>
-  -->
-  <content-generator id="ws-run" type="ws-run" title="Web services execution"
-                     class="org.pentaho.platform.plugin.services.webservices.content.AxisServiceExecutor"/>
-  <!-- Commented out per BISERVER-13533
-  <content-generator id="ws-wsdl" type="ws-wsdl" title="Web services execution"
-                     class="org.pentaho.platform.plugin.services.webservices.content.AxisServiceWsdlGenerator"/>
-  -->
-
   <perspective id="home.perspective" title="${home}" layout-priority="-2"
                resourcebundle="content/default-plugin/resources/messages/messages" content-url="mantle/home">
   </perspective>
