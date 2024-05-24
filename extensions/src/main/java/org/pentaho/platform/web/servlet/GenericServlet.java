@@ -45,9 +45,9 @@ import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
 import org.pentaho.platform.web.servlet.messages.Messages;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -142,7 +142,7 @@ public class GenericServlet extends ServletBase {
       }
       urlPath = "content/" + contentGeneratorId; //$NON-NLS-1$
 
-      IParameterProvider requestParameters = new HttpRequestParameterProvider( request );
+      IParameterProvider requestParameters = new HttpRequestParameterProvider((jakarta.servlet.http.HttpServletRequest) request);
       pathParams.setParameter( "query", request.getQueryString() ); //$NON-NLS-1$
       pathParams.setParameter( "contentType", request.getContentType() ); //$NON-NLS-1$
 

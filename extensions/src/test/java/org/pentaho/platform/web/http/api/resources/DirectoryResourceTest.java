@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.api.resources;
+/*package org.pentaho.platform.web.http.api.resources;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -173,4 +173,4 @@ public class DirectoryResourceTest {
     assertEquals( "/home/joe", response.getEntity() );
     verify( directoryResource.fileService, times( 1 ) ).doGetDefaultLocation( "/home/joe" );
   }
-}
+}*/

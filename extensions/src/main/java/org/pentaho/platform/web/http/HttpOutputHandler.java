@@ -30,7 +30,7 @@ import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.messages.Messages;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -115,7 +115,7 @@ public class HttpOutputHandler implements IOutputHandler, IMimeTypeListener {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.pentaho.core.solution.IOutputHandler#getFeedbackStream()
    */
   public IContentItem getFeedbackContentItem() {
@@ -134,7 +134,7 @@ public class HttpOutputHandler implements IOutputHandler, IMimeTypeListener {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.pentaho.core.solution.IOutputHandler#getContentStream()
    */
   public IContentItem getOutputContentItem( final String objectName, final String contentName, final String instanceId,

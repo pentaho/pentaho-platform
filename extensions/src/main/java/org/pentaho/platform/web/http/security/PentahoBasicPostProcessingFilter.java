@@ -20,14 +20,14 @@
 
 package org.pentaho.platform.web.http.security;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -36,7 +36,7 @@ import java.io.IOException;
  * have the valid Basic-Auth credentials, but is denied. A second request will then be sent with known fake credentials.
  * This second request is accepted, causing the browser to replace the old good credentials with bad. The next time the
  * browser's session is timed out the new bad credentials will fail.
- * 
+ *
  * User: nbaker Date: 8/16/13
  */
 public class PentahoBasicPostProcessingFilter implements Filter {

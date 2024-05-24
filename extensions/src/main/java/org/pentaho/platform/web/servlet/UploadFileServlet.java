@@ -24,13 +24,13 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.servlet.messages.Messages;
 import org.pentaho.reporting.libraries.base.util.StringUtils;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -51,7 +51,7 @@ public class UploadFileServlet extends HttpServlet implements Servlet {
 
       response.setContentType( "text/plain" );
 
-      Part uploadPart = request.getPart( "uploadFormElement" );
+      Part uploadPart = (jakarta.servlet.http.Part) request.getPart( "uploadFormElement" );
       if ( uploadPart == null ) {
         String error = Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0001_NO_FILE_TO_UPLOAD" );
         response.getWriter().write( error );
@@ -82,7 +82,7 @@ public class UploadFileServlet extends HttpServlet implements Servlet {
       utils.setTemporary( isTemporary );
       utils.setFileName( fileName );
       utils.setWriter( response.getWriter() );
-      utils.setUploadedPart( uploadPart );
+      utils.setUploadedPart((jakarta.servlet.http.Part) uploadPart);
 
       // Do nothing with success value - the output should already have been written to the servlet response.
       utils.process();

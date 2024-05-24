@@ -46,9 +46,9 @@ import org.pentaho.platform.web.http.MessageFormatUtils;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 import org.pentaho.platform.web.servlet.messages.Messages;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -58,7 +58,7 @@ import java.util.Map;
 
 /**
  * Servlet Class
- * 
+ *
  * web.servlet name="ViewAction" display-name="Name for ViewAction" description="Description for ViewAction"
  * web.servlet-mapping url-pattern="/ViewAction" web.servlet-init-param name="A parameter" value="A value"
  */
@@ -74,7 +74,7 @@ public class ViewAction extends ServletBase {
   }
 
   /**
-   * 
+   *
    */
   public ViewAction() {
     super();
@@ -85,7 +85,7 @@ public class ViewAction extends ServletBase {
     if ( "true".equals( request.getParameter( "background" ) ) ) { //$NON-NLS-1$ //$NON-NLS-2$
       IBackgroundExecution backgroundExecutionHandler = PentahoSystem.get( IBackgroundExecution.class, userSession );
       if ( backgroundExecutionHandler != null ) {
-        HttpRequestParameterProvider parameterProvider = new HttpRequestParameterProvider( request );
+        HttpRequestParameterProvider parameterProvider = new HttpRequestParameterProvider( request);
         String intro = ""; //$NON-NLS-1$
         String footer = ""; //$NON-NLS-1$
         IUITemplater templater = PentahoSystem.get( IUITemplater.class, userSession );
@@ -295,7 +295,7 @@ public class ViewAction extends ServletBase {
         IMimeTypeListener listener = new HttpMimeTypeListener( request, response, fileName );
         outputHandler.setMimeTypeListener( listener );
         SimpleUrlFactory urlFactory = new SimpleUrlFactory( requestContext.getContextPath() + "ViewAction?" ); //$NON-NLS-1$
-        IParameterProvider requestParameters = new HttpRequestParameterProvider( request );
+        IParameterProvider requestParameters = new HttpRequestParameterProvider(request);
         HttpServletRequestHandler requestHandler =
             getRequestHandler( request, response, userSession, requestParameters, outputStream, outputHandler,
                 urlFactory );
@@ -341,7 +341,7 @@ public class ViewAction extends ServletBase {
     requestHandler.setParameterXsl( defaultParameterXsl );
     if ( doSubscribe( requestParameters ) ) {
       requestHandler.setForcePrompt( true );
-      requestHandler.setParameterProvider( "PRO_EDIT_SUBSCRIPTION", requestParameters ); //$NON-NLS-1$ 
+      requestHandler.setParameterProvider( "PRO_EDIT_SUBSCRIPTION", requestParameters ); //$NON-NLS-1$
     }
   }
 }

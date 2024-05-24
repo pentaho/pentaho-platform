@@ -29,17 +29,17 @@ import org.apache.axis2.description.AxisService;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.axis2.transport.http.AxisServlet;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
  * This class subclasses AxisServlet to expose protected methods and variables
- * 
+ *
  * @author jamesdixon
- * 
+ *
  */
 
 public class AxisServletHooks extends AxisServlet {
@@ -58,7 +58,7 @@ public class AxisServletHooks extends AxisServlet {
 
   /**
    * Returns the current Axis MessageContext object.
-   * 
+   *
    * @return message context
    */
   public MessageContext getMessageContext() {
@@ -67,7 +67,7 @@ public class AxisServletHooks extends AxisServlet {
 
   /**
    * Sets the Axis configuration context object
-   * 
+   *
    * @param configContext
    */
   public void setContext( ConfigurationContext configContext ) {
@@ -76,7 +76,7 @@ public class AxisServletHooks extends AxisServlet {
 
   /**
    * Sets the Axis configuration object
-   * 
+   *
    * @param axisConfiguration
    */
   public void setConfiguration( AxisConfiguration axisConfiguration ) {
@@ -85,7 +85,7 @@ public class AxisServletHooks extends AxisServlet {
 
   /**
    * Sets the Axis service context for this request
-   * 
+   *
    * @param serviceContext
    */
   public void setServiceContext( ServiceContext serviceContext ) {
@@ -94,13 +94,13 @@ public class AxisServletHooks extends AxisServlet {
 
   /**
    * Sets the servlet config object. This is mainly used for standalone and testing purposes
-   * 
+   *
    * @param servletConfig
    * @throws ServletException
    */
-  public void setServletConfig( ServletConfig servletConfig ) throws ServletException {
+  public void setServletConfig( ServletConfig servletConfig ) throws ServletException, javax.servlet.ServletException {
     if ( servletConfig != null ) {
-      init( servletConfig );
+      init((javax.servlet.ServletConfig) servletConfig);
     }
   }
 
@@ -108,10 +108,10 @@ public class AxisServletHooks extends AxisServlet {
    * Creates an Axis message context object for this request. If the AxisOperation is null (this will be the case during
    * a POST operation) the operation is determined by examining the contentType
    */
-  @Override
+
   public MessageContext createMessageContext( HttpServletRequest request, HttpServletResponse response,
       boolean invocationType ) throws IOException {
-    messageContext = super.createMessageContext( request, response, invocationType );
+    messageContext = super.createMessageContext((javax.servlet.http.HttpServletRequest) request, (javax.servlet.http.HttpServletResponse) response, invocationType );
 
     if ( axisOperation == null ) {
       // we don't know the operation yet so pull it from the requests's contentType
@@ -139,7 +139,7 @@ public class AxisServletHooks extends AxisServlet {
 
   /**
    * Handle and HTTP PUT request
-   * 
+   *
    * @param httpMethodString
    *          "PUT"
    * @param request
@@ -150,14 +150,14 @@ public class AxisServletHooks extends AxisServlet {
    * @throws IOException
    */
   public void handlePut( String httpMethodString, HttpServletRequest request, HttpServletResponse response )
-    throws ServletException, IOException {
+          throws ServletException, IOException, javax.servlet.ServletException {
 
-    new RestRequestProcessor( httpMethodString, request, response ).processXMLRequest();
+    new RestRequestProcessor( httpMethodString, (javax.servlet.http.HttpServletRequest) request, (javax.servlet.http.HttpServletResponse) response).processXMLRequest();
   }
 
   /**
    * Handle and HTTP GET request
-   * 
+   *
    * @param httpMethodString
    *          "GET"
    * @param request
@@ -168,15 +168,15 @@ public class AxisServletHooks extends AxisServlet {
    * @throws IOException
    */
   public void handleGet( String httpMethodString, HttpServletRequest request, HttpServletResponse response )
-    throws ServletException, IOException {
+          throws ServletException, IOException, javax.servlet.ServletException {
 
-    RestRequestProcessor processor = new RestRequestProcessor( httpMethodString, request, response );
+    RestRequestProcessor processor = new RestRequestProcessor( httpMethodString, (javax.servlet.http.HttpServletRequest) request, (javax.servlet.http.HttpServletResponse) response);
     processor.processURLRequest();
   }
 
   /**
    * Handle and HTTP POST request
-   * 
+   *
    * @param httpMethodString
    *          "POST"
    * @param request
@@ -187,15 +187,15 @@ public class AxisServletHooks extends AxisServlet {
    * @throws IOException
    */
   public void handlePost( String httpMethodString, HttpServletRequest request, HttpServletResponse response )
-    throws ServletException, IOException {
+          throws ServletException, IOException, javax.servlet.ServletException {
 
-    super.doPost( request, response );
+    super.doPost((javax.servlet.http.HttpServletRequest) request, (javax.servlet.http.HttpServletResponse) response);
 
   }
 
   /**
    * Sets the Axis service object for this request
-   * 
+   *
    * @param axisService
    */
   public void setAxisService( AxisService axisService ) {
@@ -204,7 +204,7 @@ public class AxisServletHooks extends AxisServlet {
 
   /**
    * Sets the Axis opertation for the current request
-   * 
+   *
    * @param axisOperation
    */
   public void setAxisOperation( AxisOperation axisOperation ) {
@@ -213,7 +213,7 @@ public class AxisServletHooks extends AxisServlet {
 
   /**
    * Sets the Axis operation context for the current request
-   * 
+   *
    * @param operationContext
    */
   public void setOperationContext( OperationContext operationContext ) {

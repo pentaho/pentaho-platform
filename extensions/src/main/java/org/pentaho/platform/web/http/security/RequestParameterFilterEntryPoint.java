@@ -24,14 +24,14 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
  * Used by the <code>SecurityEnforcementFilter</code> to commence authentication via the {@link PentahoBasicProcessingFilter}.
- * 
+ *
  * <P>
  * Once a user agent is authenticated using Request Parameter authentication, logout requires that the browser be closed
  * or an unauthorized (401) header be sent. The simplest way of achieving the latter is to call the

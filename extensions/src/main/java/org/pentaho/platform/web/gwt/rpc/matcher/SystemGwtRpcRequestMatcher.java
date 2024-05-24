@@ -23,7 +23,7 @@ import org.pentaho.platform.web.gwt.rpc.AbstractGwtRpc;
 import org.pentaho.platform.web.gwt.rpc.IGwtRpcSerializationPolicyCache;
 import org.pentaho.platform.web.gwt.rpc.SystemGwtRpc;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collection;
 
 /**
@@ -34,20 +34,20 @@ import java.util.Collection;
  * @see SystemGwtRpc
  */
 public class SystemGwtRpcRequestMatcher extends AbstractGwtRpcRequestMatcher {
-
+  
   public SystemGwtRpcRequestMatcher( @NonNull String pattern,
                                      @Nullable Collection<String> rpcMethods,
                                      @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
     super( pattern, rpcMethods, serializationPolicyCache );
   }
-
+  
   public SystemGwtRpcRequestMatcher( @NonNull String pattern,
                                      boolean isCaseInsensitive,
                                      @Nullable Collection<String> rpcMethods,
                                      @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
     super( pattern, isCaseInsensitive, rpcMethods, serializationPolicyCache );
   }
-
+  
   @NonNull @Override
   protected AbstractGwtRpc getGwtRpc( @NonNull HttpServletRequest httpRequest ) {
     return SystemGwtRpc.getInstance( httpRequest, getSerializationPolicyCache() );

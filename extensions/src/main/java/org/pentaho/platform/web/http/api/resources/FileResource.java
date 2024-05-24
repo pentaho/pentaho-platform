@@ -75,7 +75,7 @@ import org.pentaho.platform.web.http.messages.Messages;
 import org.pentaho.platform.web.servlet.HttpMimeTypeListener;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;

@@ -24,7 +24,7 @@ import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.web.http.api.resources.services.SystemService;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -69,9 +69,7 @@ public class SystemUsersResource extends AbstractJaxRSResource {
       return buildOkResponse( getSystemService().getUsers().asXML(), MediaType.APPLICATION_XML );
     } catch ( IllegalAccessException exception ) {
       return Response.status( UNAUTHORIZED ).build();
-    } catch ( ServletException exception ) {
-      return Response.status( INTERNAL_SERVER_ERROR ).build();
-    } catch ( IOException exception ) {
+    } catch (IOException exception ) {
       return Response.status( INTERNAL_SERVER_ERROR ).build();
     }
   }

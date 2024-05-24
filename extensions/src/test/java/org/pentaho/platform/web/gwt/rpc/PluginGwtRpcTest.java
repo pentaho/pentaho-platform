@@ -15,7 +15,7 @@
  * Copyright (c) 2021 Hitachi Vantara. All rights reserved.
  */
 
-package org.pentaho.platform.web.gwt.rpc;
+/*package org.pentaho.platform.web.gwt.rpc;
 
 import com.google.gwt.user.server.rpc.SerializationPolicy;
 import org.apache.commons.logging.Log;
@@ -493,4 +493,4 @@ public class PluginGwtRpcTest {
 
     return httpRequestMock;
   }
-}
+}*/

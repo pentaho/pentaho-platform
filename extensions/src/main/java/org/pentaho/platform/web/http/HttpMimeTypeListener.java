@@ -22,8 +22,8 @@ package org.pentaho.platform.web.http;
 
 import org.pentaho.platform.api.engine.IMimeTypeListener;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Deprecated
 public class HttpMimeTypeListener implements IMimeTypeListener {

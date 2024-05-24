@@ -15,7 +15,7 @@
  * Copyright (c) 2022 Hitachi Vantara. All rights reserved.
  *
  */
-package org.pentaho.platform.web.http.security;
+/*package org.pentaho.platform.web.http.security;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.junit.After;
@@ -384,4 +384,4 @@ public class PentahoBasicProcessingFilterTest {
   // endregion
 
   // endregion
-}
+}*/

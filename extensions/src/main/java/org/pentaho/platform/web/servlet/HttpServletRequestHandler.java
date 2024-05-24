@@ -31,7 +31,7 @@ import org.pentaho.platform.uifoundation.component.BaseUIComponent;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
@@ -60,7 +60,7 @@ public class HttpServletRequestHandler extends BaseRequestHandler {
 
   public void setRequest( final HttpServletRequest request ) {
     this.request = request;
-    IParameterProvider requestParameters = new HttpRequestParameterProvider( request );
+    IParameterProvider requestParameters = new HttpRequestParameterProvider((jakarta.servlet.http.HttpServletRequest) request);
     setParameterProvider( HttpRequestParameterProvider.SCOPE_REQUEST, requestParameters );
 
   }

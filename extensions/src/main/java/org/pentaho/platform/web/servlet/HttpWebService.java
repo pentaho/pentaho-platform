@@ -56,9 +56,9 @@ import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
 import org.pentaho.platform.web.servlet.messages.Messages;
 import org.pentaho.reporting.libraries.base.util.StringUtils;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -72,14 +72,14 @@ import java.util.Set;
 
 /**
  * Servlet Class
- * 
+ *
  * web.servlet name="ViewAction" display-name="Name for ViewAction" description="Description for ViewAction"
  * web.servlet-mapping url-pattern="/ViewAction" web.servlet-init-param name="A parameter" value="A value"
  */
 public class HttpWebService extends ServletBase {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -2011812808062152707L;
 
@@ -91,7 +91,7 @@ public class HttpWebService extends ServletBase {
   }
 
   /**
-   * 
+   *
    */
   public HttpWebService() {
     super();
@@ -148,7 +148,7 @@ public class HttpWebService extends ServletBase {
         }
         parameterProvider = new SimpleParameterProvider( parameters );
       } else {
-        parameterProvider = new HttpRequestParameterProvider( request );
+        parameterProvider = new HttpRequestParameterProvider( request);
       }
 
       response.setContentType( "text/xml" ); //$NON-NLS-1$

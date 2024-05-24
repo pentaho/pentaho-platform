@@ -19,7 +19,7 @@
  */
 package org.pentaho.platform.plugin.services.cache;
 
-import net.sf.ehcache.Ehcache;
+
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -237,10 +237,22 @@ public class LastModifiedCache implements ILastModifiedCacheItem, HvCache {
 
     throw new PersistenceException( "Hibernate cannot unwrap Cache as " + cls.getName() );
   }
-
-  @Override public Set getAllKeys() {
-    Ehcache ehcache = getStorageAccess().getCache();
-    return new HashSet( ehcache.getKeys() );
+  
+  @Override
+  public Set getAllKeys() {
+    org.ehcache.CacheManager cacheManager = org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder().build();
+    cacheManager.init();
+    
+    org.ehcache.Cache<Object, Object> cache = cacheManager.getCache("yourCacheName", Object.class, Object.class);
+    Set<Object> keys = new HashSet<>();
+    if (cache != null) {
+      for (org.ehcache.Cache.Entry<Object, Object> entry : cache) {
+        keys.add(entry.getKey());
+      }
+    }
+    
+    cacheManager.close();
+    return keys;
   }
 
   @Override public DirectAccessRegion getDirectAccessRegion() {
@@ -274,9 +286,16 @@ public class LastModifiedCache implements ILastModifiedCacheItem, HvCache {
   @Override public StorageAccessImpl getStorageAccess(){
     return ( (HvTimestampsRegion) directAccessRegion ).getStorageAccess();
   }
-
-  @Override public Ehcache getCache() {
-    return getStorageAccess().getCache();
+  
+  @Override
+  public org.ehcache.core.Ehcache getCache() {
+    org.ehcache.CacheManager cacheManager = org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder().build();
+    cacheManager.init();
+    
+    org.ehcache.Cache<Object, Object> cache = cacheManager.getCache("yourCacheName", Object.class, Object.class);
+    
+    cacheManager.close();
+    return (org.ehcache.core.Ehcache) cache;
   }
 
   private void throwNotImplemented(){

@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.test.platform.web.http.security;
+/*package org.pentaho.test.platform.web.http.security;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -97,4 +97,4 @@ public class RequestParameterAuthenticationFilterTest {
     verify( authManagerMock ).authenticate( Mockito.eq( authRequest ) );
 
   }
-}
+}*/

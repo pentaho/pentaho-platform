@@ -68,4 +68,3 @@ set "JAVA_ADD_OPENS=%JAVA_ADD_OPENS% --add-opens java.base/sun.net.www.protocol.
 
 :SKIPADDOPENSASSIGNMENT
 "%_PENTAHO_JAVA%" %JAVA_ADD_OPENS% -Xmx2048m -Dfile.encoding=utf8 -DDI_HOME="%DI_HOME%" -Dpentaho.disable.karaf=true -classpath "%~dp0tomcat\webapps\pentaho\WEB-INF\classes;%~dp0tomcat\webapps\pentaho\WEB-INF\lib\*" org.pentaho.platform.plugin.services.importexport.CommandLineProcessor %*
-

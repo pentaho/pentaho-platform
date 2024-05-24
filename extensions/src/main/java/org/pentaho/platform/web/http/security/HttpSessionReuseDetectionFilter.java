@@ -27,15 +27,15 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
@@ -43,16 +43,16 @@ import java.io.IOException;
  * is attempting to authenticate again without logging out. Upon detecting this condition, the session is invalidated,
  * the security context is cleared, and the user is redirected to <code>sessionReuseDetectedUrl</code>. This prevents
  * reuse of an HTTP session which contains potentially sensitive, user-specific data.
- * 
+ *
  * <p>
  * To use: Insert after <code>httpSessionContextIntegrationFilter</code> but before
  * <code>authenticationProcessingFilter</code>.
  * </p>
- * 
+ *
  * <p>
  * Note: Some code copied from <code>AbstractProcessingFilter</code>.
  * </p>
- * 
+ *
  * @author mlowery
  */
 public class HttpSessionReuseDetectionFilter implements Filter, InitializingBean {
@@ -148,22 +148,22 @@ public class HttpSessionReuseDetectionFilter implements Filter, InitializingBean
    * <p>
    * Indicates whether this filter should attempt to process a login request for the current invocation.
    * </p>
-   * 
+   *
    * <p>
    * It strips any parameters from the "path" section of the request URL (such as the jsessionid parameter in
    * <em>http://host/myapp/index.html;jsessionid=blah</em>) before matching against the <code>filterProcessesUrl</code>
    * property.
    * </p>
-   * 
+   *
    * <p>
    * Subclasses may override for special requirements, such as Tapestry integration.
    * </p>
-   * 
+   *
    * @param request
    *          as received from the filter chain
    * @param response
    *          as received from the filter chain
-   * 
+   *
    * @return <code>true</code> if the filter should attempt authentication, <code>false</code> otherwise
    */
   protected boolean requiresAuthentication( final HttpServletRequest request, final HttpServletResponse response ) {

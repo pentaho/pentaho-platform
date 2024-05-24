@@ -33,9 +33,9 @@ import org.pentaho.platform.web.gwt.rpc.util.ThrowingSupplier;
 import org.pentaho.platform.web.servlet.GwtRpcProxyException;
 import org.pentaho.platform.web.servlet.messages.Messages;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -83,26 +83,26 @@ import java.util.function.Function;
  * </ul>
  */
 public abstract class AbstractGwtRpc {
-
+  
   private static final Log logger = LogFactory.getLog( AbstractGwtRpc.class );
-
+  
   protected static final String HTTP_GWT_RPC_ATTRIBUTE = AbstractGwtRpc.class.getSimpleName();
-
+  
   @NonNull
   private final HttpServletRequest httpRequest;
-
+  
   @Nullable
   private Object target;
-
+  
   @Nullable
   private String requestPayload;
-
+  
   @Nullable
   private RPCRequest request;
-
+  
   @Nullable
   private IGwtRpcSerializationPolicyCache serializationPolicyCache;
-
+  
   /**
    * Creates an instance given an HTTP request.
    *
@@ -112,7 +112,7 @@ public abstract class AbstractGwtRpc {
     Objects.requireNonNull( httpRequest );
     this.httpRequest = httpRequest;
   }
-
+  
   /**
    * Sets the serialization policy cache which will be used to load a serialization policy before creating one,
    * or to store the created one if none exists.
@@ -125,7 +125,7 @@ public abstract class AbstractGwtRpc {
   public void setSerializationPolicyCache( @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
     this.serializationPolicyCache = serializationPolicyCache;
   }
-
+  
   /**
    * Gets the serialization policy cache instance used by this GWT-RPC call.
    *
@@ -135,9 +135,9 @@ public abstract class AbstractGwtRpc {
   public IGwtRpcSerializationPolicyCache getSerializationPolicyCache() {
     return serializationPolicyCache;
   }
-
+  
   // region Servlet
-
+  
   /**
    * Gets the associated HTTP request.
    *
@@ -147,7 +147,7 @@ public abstract class AbstractGwtRpc {
   public HttpServletRequest getServletRequest() {
     return httpRequest;
   }
-
+  
   /**
    * Gets the associated servlet context.
    * <p>
@@ -159,7 +159,7 @@ public abstract class AbstractGwtRpc {
   protected ServletContext getServletContext() {
     return getServletRequest().getServletContext();
   }
-
+  
   /**
    * Gets the associated web app context path.
    * <p>
@@ -173,7 +173,7 @@ public abstract class AbstractGwtRpc {
   protected String getAppContextPath() {
     return httpRequest.getContextPath();
   }
-
+  
   /**
    * Gets the associated servlet context path.
    * <p>
@@ -187,13 +187,13 @@ public abstract class AbstractGwtRpc {
     if ( path.contains( "//" ) ) {
       path = path.replaceAll( "//", "/" );
     }
-
+    
     return path;
   }
   // endregion
-
+  
   // region Target
-
+  
   /**
    * Gets the target object on which the remote call will be made.
    *
@@ -207,15 +207,15 @@ public abstract class AbstractGwtRpc {
         target = resolveTarget();
       } catch ( GwtRpcProxyException ex ) {
         logger.error( Messages.getInstance().getErrorString(
-          "AbstractGwtRpcProxyServlet.ERROR_0001_FAILED_TO_RESOLVE_DISPATCH_TARGET",
-          getServletContextPath() ), ex );
+                "AbstractGwtRpcProxyServlet.ERROR_0001_FAILED_TO_RESOLVE_DISPATCH_TARGET",
+                getServletContextPath() ), ex );
         throw ex;
       }
     }
-
+    
     return target;
   }
-
+  
   /**
    * Gets the class loader which must be current to deserialize the request, invoke the method and
    * serialize the response.
@@ -227,7 +227,7 @@ public abstract class AbstractGwtRpc {
   public ClassLoader getTargetClassLoader() {
     return getTarget().getClass().getClassLoader();
   }
-
+  
   /**
    * Resolves the target object on which the remote call will be made.
    *
@@ -237,34 +237,35 @@ public abstract class AbstractGwtRpc {
   @NonNull
   protected abstract Object resolveTarget();
   // endregion
-
+  
   // region Request Payload, Decoding
-
+  
   /**
    * Gets the serialized request payload which is present in the HTTP request.
    *
    * @return The serialized request payload.
    * @throws GwtRpcProxyException if the request is not valid.
-   * @see RPCServletUtils#readContentAsGwtRpc(HttpServletRequest)
    */
   @NonNull
   public String getRequestPayload() throws GwtRpcProxyException {
     if ( requestPayload == null ) {
       try {
-        requestPayload = RPCServletUtils.readContentAsGwtRpc( httpRequest );
-      } catch ( IOException | ServletException ex ) {
+        requestPayload = RPCServletUtils.readContentAsGwtRpc((javax.servlet.http.HttpServletRequest) httpRequest);
+      } catch ( java.io.IOException ex ) {
         String message =
-          Messages.getInstance().getErrorString( "AbstractGwtRpcProxyServlet.ERROR_0002_RPC_INVALID_REQUEST" );
+                Messages.getInstance().getErrorString( "AbstractGwtRpcProxyServlet.ERROR_0002_RPC_INVALID_REQUEST" );
         logger.error( message, ex );
         throw new GwtRpcProxyException( message, ex );
+      } catch (javax.servlet.ServletException e) {
+        throw new RuntimeException (e);
       }
     }
-
+    
     return requestPayload;
   }
-
+  
   // Based on RemoteServiceServlet#processPost(..)
-
+  
   /**
    * Gets the processed GWT-RPC request object.
    *
@@ -275,15 +276,15 @@ public abstract class AbstractGwtRpc {
   @NonNull
   public RPCRequest getRequest() {
     if ( request == null ) {
-
+      
       String requestPayload = getRequestPayload();
-
+      
       request = GwtRpcUtil.withClassLoader( getTargetClassLoader(), () -> getRequestCore( requestPayload ) );
     }
-
+    
     return request;
   }
-
+  
   // Visible For Testing
   @NonNull
   RPCRequest getRequestCore( @NonNull String requestPayload ) {
@@ -291,15 +292,15 @@ public abstract class AbstractGwtRpc {
       return RPC.decodeRequest( requestPayload, null, this::getSerializationPolicy );
     } catch ( IllegalArgumentException | IncompatibleRemoteServiceException ex ) {
       String message =
-        Messages.getInstance().getErrorString( "AbstractGwtRpcProxyServlet.ERROR_0002_RPC_INVALID_REQUEST" );
+              Messages.getInstance().getErrorString( "AbstractGwtRpcProxyServlet.ERROR_0002_RPC_INVALID_REQUEST" );
       logger.error( message, ex );
       throw new GwtRpcProxyException( message, ex );
     }
   }
   // endregion
-
+  
   // region Serialization Policy
-
+  
   /*
    * Request path break down.
    *
@@ -317,53 +318,53 @@ public abstract class AbstractGwtRpc {
    * - appContextPath = '/pentaho'
    * - moduleContextPath = '/mantle/'
    */
-
+  
   @NonNull
   protected SerializationPolicy getSerializationPolicy( @Nullable String moduleBaseURL, @Nullable String strongName ) {
     if ( serializationPolicyCache != null ) {
       return serializationPolicyCache.getSerializationPolicy(
-        moduleBaseURL,
-        strongName,
-        this::getSerializationPolicyCore );
+              moduleBaseURL,
+              strongName,
+              this::getSerializationPolicyCore );
     }
-
+    
     return getSerializationPolicyCore( moduleBaseURL, strongName );
   }
-
+  
   @NonNull
   private SerializationPolicy getSerializationPolicyCore( @Nullable String moduleBaseURL,
                                                           @Nullable String strongName ) {
     if ( moduleBaseURL == null ) {
       logger.error( Messages.getInstance().getErrorString(
-        "GwtRpcPluginProxyServlet.ERROR_0004_MALFORMED_URL", "" ) );
+              "GwtRpcPluginProxyServlet.ERROR_0004_MALFORMED_URL", "" ) );
       return getDefaultSerializationPolicy();
     }
-
+    
     String modulePath;
     try {
       modulePath = new URL( moduleBaseURL ).getPath();
     } catch ( MalformedURLException ex ) {
       logger.error( Messages.getInstance().getErrorString(
-        "GwtRpcPluginProxyServlet.ERROR_0004_MALFORMED_URL", moduleBaseURL ), ex );
+              "GwtRpcPluginProxyServlet.ERROR_0004_MALFORMED_URL", moduleBaseURL ), ex );
       return getDefaultSerializationPolicy();
     }
-
+    
     String appContextPath = getAppContextPath();
     modulePath = GwtRpcUtil.scrubWebAppRoot( modulePath, appContextPath );
-
+    
     if ( !modulePath.startsWith( appContextPath ) ) {
       logger.error( Messages.getInstance().getErrorString(
-        "GwtRpcPluginProxyServlet.ERROR_0004_MALFORMED_URL", moduleBaseURL ) );
+              "GwtRpcPluginProxyServlet.ERROR_0004_MALFORMED_URL", moduleBaseURL ) );
       return getDefaultSerializationPolicy();
     }
-
+    
     String moduleContextPath = modulePath.substring( appContextPath.length() );
-
+    
     SerializationPolicy serializationPolicy = loadSerializationPolicy( moduleContextPath, strongName );
-
+    
     return serializationPolicy != null ? serializationPolicy : getDefaultSerializationPolicy();
   }
-
+  
   /**
    * Loads the serialization policy having the given GWT module context path and strong name.
    * <p>
@@ -378,7 +379,7 @@ public abstract class AbstractGwtRpc {
   @Nullable
   protected abstract SerializationPolicy loadSerializationPolicy( @NonNull String moduleContextPath,
                                                                   @Nullable String strongName );
-
+  
   /**
    * Gets a serialization policy to use when no specific serialization policy is available.
    * <p>
@@ -392,7 +393,7 @@ public abstract class AbstractGwtRpc {
   protected static SerializationPolicy getDefaultSerializationPolicy() {
     return RPC.getDefaultSerializationPolicy();
   }
-
+  
   /**
    * Loads a serialization policy given an input stream whose content is in GWT-RPC
    * serialization policy standard format.
@@ -405,30 +406,30 @@ public abstract class AbstractGwtRpc {
    */
   @Nullable
   protected static SerializationPolicy loadSerializationPolicyFromInputStream(
-    @NonNull ThrowingSupplier<InputStream, IOException> inputStreamSupplier,
-    @NonNull String serializationPolicyFileName ) {
-
+          @NonNull ThrowingSupplier<InputStream, IOException> inputStreamSupplier,
+          @NonNull String serializationPolicyFileName ) {
+    
     try ( InputStream rpcFileInputStream = inputStreamSupplier.get() ) {
       if ( rpcFileInputStream != null ) {
         return SerializationPolicyLoader.loadFromStream( rpcFileInputStream, null );
       }
-
+      
       logger.error( Messages.getInstance().getErrorString(
-        "GwtRpcPluginProxyServlet.ERROR_0007_FAILED_TO_OPEN_FILE", serializationPolicyFileName ) );
+              "GwtRpcPluginProxyServlet.ERROR_0007_FAILED_TO_OPEN_FILE", serializationPolicyFileName ) );
     } catch ( IOException e ) {
       logger.error( Messages.getInstance().getErrorString(
-        "GwtRpcPluginProxyServlet.ERROR_0007_FAILED_TO_OPEN_FILE", serializationPolicyFileName ), e );
+              "GwtRpcPluginProxyServlet.ERROR_0007_FAILED_TO_OPEN_FILE", serializationPolicyFileName ), e );
     } catch ( ParseException e ) {
       logger.error( Messages.getInstance().getErrorString(
-        "GwtRpcPluginProxyServlet.ERROR_0008_FAILED_TO_PARSE_FILE", serializationPolicyFileName ), e );
+              "GwtRpcPluginProxyServlet.ERROR_0008_FAILED_TO_PARSE_FILE", serializationPolicyFileName ), e );
     }
-
+    
     return null;
   }
   // endregion
-
+  
   // region Invocation
-
+  
   /**
    * Makes the remote call on the target object and returns the serialized response.
    *
@@ -437,55 +438,55 @@ public abstract class AbstractGwtRpc {
    */
   @NonNull
   public String invoke() {
-
+    
     Object target = getTarget();
-
+    
     Class<?> targetClass = target.getClass();
-
+    
     RPCRequest rpcRequest = getRequest();
-
+    
     try {
       Method targetMethod = getTargetMethod( targetClass, rpcRequest );
-
+      
       return GwtRpcUtil.withClassLoaderThrowing(
-        // Making it this way, effectively repeating getTarget(), makes it easier to test.
-        getTargetClassLoader(),
-        () -> invokeCore( target, targetMethod, rpcRequest ) );
-
+              // Making it this way, effectively repeating getTarget(), makes it easier to test.
+              getTargetClassLoader(),
+              () -> invokeCore( target, targetMethod, rpcRequest ) );
+      
     } catch ( NoSuchMethodException | SerializationException ex ) {
       String message = Messages.getInstance().getErrorString(
-        "AbstractGwtRpcProxyServlet.ERROR_0003_RPC_INVOCATION_FAILED", targetClass.getName() );
+              "AbstractGwtRpcProxyServlet.ERROR_0003_RPC_INVOCATION_FAILED", targetClass.getName() );
       logger.error( message, ex );
       throw new GwtRpcProxyException( message, ex );
     }
   }
-
+  
   // Visible For Testing
   @NonNull
   Method getTargetMethod( @NonNull Class<?> targetClass, @NonNull RPCRequest rpcRequest )
-    throws NoSuchMethodException {
-
+          throws NoSuchMethodException {
+    
     Method serviceInterfaceMethod = rpcRequest.getMethod();
-
+    
     // Don't require the target class to implement the service interface.
     return targetClass.getMethod(
-      serviceInterfaceMethod.getName(),
-      serviceInterfaceMethod.getParameterTypes() );
+            serviceInterfaceMethod.getName(),
+            serviceInterfaceMethod.getParameterTypes() );
   }
-
+  
   // Visible For Testing
   @NonNull
   String invokeCore( @NonNull Object target, @NonNull Method targetMethod, @NonNull RPCRequest rpcRequest )
-    throws SerializationException {
-
+          throws SerializationException {
+    
     return RPC.invokeAndEncodeResponse(
-      target,
-      targetMethod,
-      rpcRequest.getParameters(),
-      rpcRequest.getSerializationPolicy() );
+            target,
+            targetMethod,
+            rpcRequest.getParameters(),
+            rpcRequest.getSerializationPolicy() );
   }
   // endregion
-
+  
   /**
    * Gets the instance of a sub-class of {@link AbstractGwtRpc}, <code>R</code>,
    * which is stored in the given HTTP request, if there is one already, or creates one and stores it if not.
@@ -503,13 +504,13 @@ public abstract class AbstractGwtRpc {
    */
   @NonNull
   protected static <R extends AbstractGwtRpc> R getInstance(
-    @NonNull HttpServletRequest httpRequest,
-    @NonNull Function<HttpServletRequest, R> factory,
-    @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
-
+          @NonNull HttpServletRequest httpRequest,
+          @NonNull Function<HttpServletRequest, R> factory,
+          @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
+    
     Objects.requireNonNull( httpRequest );
     Objects.requireNonNull( factory );
-
+    
     @SuppressWarnings( "unchecked" )
     R rpc = (R) httpRequest.getAttribute( HTTP_GWT_RPC_ATTRIBUTE );
     if ( rpc == null ) {
@@ -517,12 +518,12 @@ public abstract class AbstractGwtRpc {
       if ( rpc == null ) {
         throw new RuntimeException( "Factory returned a null GwtRpc instance" );
       }
-
+      
       rpc.setSerializationPolicyCache( serializationPolicyCache );
-
+      
       httpRequest.setAttribute( HTTP_GWT_RPC_ATTRIBUTE, rpc );
     }
-
+    
     return rpc;
   }
 }

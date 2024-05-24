@@ -20,8 +20,7 @@
 
 package org.pentaho.platform.plugin.services.cache;
 
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.management.CacheStatistics;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Element;
@@ -57,9 +56,9 @@ import java.util.stream.Collectors;
  * mechanisms implemented in <code>org.hibernate.cache</code> for Timestamp Regions.
  * <p>
  * To use the cache manager, you need to include the following information in your <code>pentaho.xml</code>.
- * 
+ *
  * <pre>
- * 
+ *
  *  &lt;cache-provider&gt;
  *    &lt;class&gt;org.pentaho.platform.plugin.services.cache.HvCacheRegionFactory&lt;/class&gt;
  *    &lt;region&gt;pentahoCache&lt;/region&gt;
@@ -68,7 +67,7 @@ import java.util.stream.Collectors;
  *    &lt;/properties&gt;
  *  &lt;/cache-provider&gt;
  * </pre>
- * 
+ *
  * <p>
  * The specified class must extend <code>org.hibernate.cache.spi.AbstractRegionFactory</code> and/or implement
  * <code>org.hibernate.cache.spi.RegionFactory</code>.
@@ -78,12 +77,12 @@ import java.util.stream.Collectors;
  * for more information (available from the Sourceforge Hibernate project). Also, some region factories (notably the
  * <code>org.hibernate.cache.EhCacheRegionFactory</code>) completely ignore the passed in properties, and only configure
  * themselves by locating a configuration file (e.g. ehcache.xml) on the classpath.
- * 
+ *
  * <p>
  * The cache manager supports session-based caching (that is, caching of data that is user-specific) as well as
  * global-based caching (that is, caching of data that is system-wide). To differentiate between session-based and
  * global-based caching, there are different methods that get called depending upon the storage type.
- * 
+ *
  * <p>
  * Data that is cached for user sessions require an <code>IPentahoSession</code> object to be passed in. The cache
  * manager uses the <code>IPentahoSession.getId()</code> to classify saved objects underneath a specific user session.
@@ -91,19 +90,19 @@ import java.util.stream.Collectors;
  * putInSessionCache(IPentahoSession session, String key, Object value)</code>
  * <p>
  * Data that is server-wide (i.e. global) uses different methods for storage/retrieval/management. For an example of
- * this, see <code><br> 
+ * this, see <code><br>
  * getFromGlobalCache(Object key)</code>
  * <p>
  * <b>Example Usage:</b>
  * <p>
- * 
+ *
  * <pre>
  * String globalCachable = &quot;String to cache&quot;;
  * String globalCacheKey = &quot;StringKey&quot;;
  * CacheManager cacheManager = PentahoSystem.getCacheManager();
  * cacheManager.putInGlobalCache( globalCacheKey, globalCachable );
  * </pre>
- * 
+ *
  * <p>
  * <b>Important Considerations</b>
  * <ul>
@@ -111,16 +110,16 @@ import java.util.stream.Collectors;
  * Serializable. It is a safe assumption that both the Key and the Value should implement Serializable.</li>
  * <li>Some caches are read-only. Other caches are read-write. What does this mean? It means that once you put an object
  * in the cache, you can't put an object into the cache with the same key. You'd need to remove it first</li>
- * 
+ *
  * </ul>
- * 
+ *
  * <p>
- * 
+ *
  * @see org.hibernate.cache.RegionFactory
  * @see org.hibernate.Cache
- * 
+ *
  * @author mbatchel
- * 
+ *
  */
 public class CacheManager implements ICacheManager {
 
@@ -153,7 +152,7 @@ public class CacheManager implements ICacheManager {
    * <li>Calls the buildCache method (see the <code>org.hibernate.cache.CacheProvider</code> interface)</li>
    * </ul>
    * <p>
-   * 
+   *
    */
   public CacheManager() {
     ISystemSettings settings = PentahoSystem.getSystemSettings();
@@ -216,7 +215,7 @@ public class CacheManager implements ICacheManager {
 
   /**
    * Returns the underlying regionFactory (implements <code>org.hibernate.cache.RegionFactory</code>)
-   * 
+   *
    * @return regionFactory.
    */
   protected RegionFactory getRegionFactory() {
@@ -225,7 +224,7 @@ public class CacheManager implements ICacheManager {
 
   /**
    * Populates the properties object from the pentaho.xml
-   * 
+   *
    * @param settings
    *          The Pentaho ISystemSettings object
    */
@@ -358,22 +357,22 @@ public class CacheManager implements ICacheManager {
     }
     return returnValue;
   }
-
-  public List getAllValuesFromRegionCache( String region ) {
-    List list = new ArrayList<Object>();
-    if ( checkRegionEnabled( region ) ) {
-      HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
-      try ( SessionImpl session = (SessionImpl) hvcache.getSessionFactory().openSession() ) {
-        Ehcache ehcache = hvcache.getStorageAccess().getCache();
-        Map cacheMap = ehcache.getAll( ehcache.getKeys() );
-        if ( cacheMap != null ) {
-          Iterator it = cacheMap.entrySet().iterator();
-          while ( it.hasNext() ) {
-            Map.Entry entry = (Map.Entry) it.next();
-            list.add( entry.getValue() );
-          }
+  
+  
+  public List<Object> getAllValuesFromRegionCache(String region) {
+    List<Object> list = new ArrayList<>();
+    if (checkRegionEnabled(region)) {
+      org.ehcache.CacheManager cacheManager = org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder().build();
+      cacheManager.init();
+      
+      org.ehcache.Cache<Object, Object> cache = cacheManager.getCache(region, Object.class, Object.class);
+      if (cache != null) {
+        for (org.ehcache.Cache.Entry<Object, Object> entry : cache) {
+          list.add(entry.getValue());
         }
       }
+      
+      cacheManager.close();
     }
     return list;
   }
@@ -387,16 +386,23 @@ public class CacheManager implements ICacheManager {
     }
     return null;
   }
-
-  public Set getAllEntriesFromRegionCache( String region ) {
-    if ( checkRegionEnabled( region ) ) {
-      HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
-      try ( SessionImpl session = (SessionImpl) hvcache.getSessionFactory().openSession() ) {
-        Ehcache ehcache = hvcache.getStorageAccess().getCache();
-        return ehcache.getAll( ehcache.getKeys() ).values().stream().collect( Collectors.toSet() );
+  
+  public Set<Object> getAllEntriesFromRegionCache(String region) {
+    Set<Object> set = new java.util.HashSet<> ();
+    if (checkRegionEnabled(region)) {
+      org.ehcache.CacheManager cacheManager = org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder().build();
+      cacheManager.init();
+      
+      org.ehcache.Cache<Object, Object> cache = cacheManager.getCache(region, Object.class, Object.class);
+      if (cache != null) {
+        for (org.ehcache.Cache.Entry<Object, Object> entry : cache) {
+          set.add(entry.getValue());
+        }
       }
+      
+      cacheManager.close();
     }
-    return null;
+    return set;
   }
 
   public void removeFromRegionCache( String region, Object key ) {
@@ -437,25 +443,24 @@ public class CacheManager implements ICacheManager {
   public Object getFromSessionCache( IPentahoSession session, String key ) {
     return getFromRegionCache( SESSION, getCorrectedKey( session, key ) );
   }
-
-  public void killSessionCache( IPentahoSession session ) {
-    if ( cacheEnabled ) {
-      HvCache hvcache = (HvCache) regionCache.get( SESSION );
-      if ( hvcache != null ) {
-        Ehcache ehcache = hvcache.getStorageAccess().getCache();
-        Map cacheMap = ehcache.getAll( ehcache.getKeys() );
-        if ( cacheMap != null ) {
-          Iterator it = cacheMap.keySet().iterator();
-          while ( it.hasNext() ) {
-            String key = (String) it.next();
-            if ( key.indexOf( session.getId() ) >= 0 ) {
-              try ( SessionImpl hibSession = (SessionImpl) hvcache.getSessionFactory().openSession() ) {
-                hvcache.getStorageAccess().removeFromCache( key, hibSession );
-              }
-            }
+  
+  
+  public void killSessionCache(IPentahoSession session) {
+    if (cacheEnabled) {
+      org.ehcache.CacheManager cacheManager = org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder ().build ();
+      cacheManager.init ();
+      
+      org.ehcache.Cache<Object, Object> cache = cacheManager.getCache (SESSION, Object.class, Object.class);
+      if (cache != null) {
+        for (org.ehcache.Cache.Entry<Object, Object> entry : cache) {
+          String key = (String) entry.getKey ();
+          if (key.indexOf (session.getId ()) >= 0) {
+            cache.remove (key);
           }
         }
       }
+      
+      cacheManager.close ();
     }
   }
 
@@ -507,25 +512,23 @@ public class CacheManager implements ICacheManager {
   }
 
   @Override
-  public long getElementCountInRegionCache( String region ) {
-    if ( checkRegionEnabled( region ) ) {
-      HvCache hvcache = (HvCache) regionCache.get( region );
-      Ehcache ehcache = hvcache.getStorageAccess().getCache();
-      if ( hvcache != null ) {
-        try {
-          long memCnt = ehcache.getStatistics().getMemoryStoreObjectCount();
-          long discCnt = ehcache.getStatistics().getDiskStoreObjectCount();
-          return memCnt + discCnt;
-        } catch ( Exception ignored ) {
-          return -1;
-        }
-      } else {
-        return -1;
+  public long getElementCountInRegionCache(String region) {
+    if (checkRegionEnabled(region)) {
+      org.ehcache.CacheManager cacheManager = org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder().build();
+      cacheManager.init();
+      
+      org.ehcache.Cache<Object, Object> cache = cacheManager.getCache(region, Object.class, Object.class);
+      if (cache != null) {
+        long elementCount = cache.spliterator().getExactSizeIfKnown();
+        cacheManager.close();
+        return elementCount;
       }
-    } else {
-      return -1;
+      
+      cacheManager.close();
     }
+    return -1;
   }
+
 
   @Override
   public long getElementCountInSessionCache() {

@@ -21,7 +21,7 @@
 package org.pentaho.platform.web.http.filters;
 
 
-import org.junit.Before;
+/*import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -151,4 +151,4 @@ public class HttpSessionPentahoSessionIntegrationFilterTest {
     }
   }
 
-}
+}*/

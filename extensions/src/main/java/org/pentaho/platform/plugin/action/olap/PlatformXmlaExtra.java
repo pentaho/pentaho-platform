@@ -150,6 +150,11 @@ public class PlatformXmlaExtra implements XmlaHandler.XmlaExtra {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public String getMeasureDisplayFolder(Member member) {
+    return null;
+  }
+
   @Override public void checkMemberOrdinal( final Member member ) throws OlapException {
     throw new UnsupportedOperationException(  );
   }

@@ -26,17 +26,17 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.web.hsqldb.HsqlDatabaseStarterBean;
 import org.pentaho.platform.web.hsqldb.messages.Messages;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class HsqldbStartupListener implements ServletContextListener {
-
+  
   private static final Log logger = LogFactory.getLog( HsqldbStartupListener.class );
-
+  
   public void contextDestroyed( ServletContextEvent sce ) {
     ServletContext ctx = sce.getServletContext();
     Object obj = ctx.getAttribute( "hsqldb-starter-bean" ); //$NON-NLS-1$
@@ -46,7 +46,7 @@ public class HsqldbStartupListener implements ServletContextListener {
       starterBean.stop();
     }
   }
-
+  
   private Map<String, String> getDatabases( ServletContext ctx ) {
     HashMap<String, String> map = new LinkedHashMap<String, String>();
     String dbs = ctx.getInitParameter( "hsqldb-databases" ); //$NON-NLS-1$
@@ -56,7 +56,7 @@ public class HsqldbStartupListener implements ServletContextListener {
         String[] entry = dbEntries[ i ].split( "@" ); //$NON-NLS-1$
         if ( ( entry.length != 2 ) || ( StringUtils.isEmpty( entry[ 0 ] ) ) || ( StringUtils.isEmpty( entry[ 1 ] ) ) ) {
           logger.error(
-            Messages.getErrorString( "HsqlDatabaseStartupListener.ERROR_0001_HSQLDB_ENTRY_MALFORMED" ) ); //$NON-NLS-1$
+                  Messages.getErrorString( "HsqlDatabaseStartupListener.ERROR_0001_HSQLDB_ENTRY_MALFORMED" ) ); //$NON-NLS-1$
           continue;
         }
         map.put( entry[ 0 ], entry[ 1 ] );
@@ -64,10 +64,10 @@ public class HsqldbStartupListener implements ServletContextListener {
     }
     return map;
   }
-
+  
   public void contextInitialized( ServletContextEvent sce ) {
     ServletContext ctx = sce.getServletContext();
-
+    
     logger.debug( "Starting HSQLDB Embedded Listener" ); //$NON-NLS-1$
     HsqlDatabaseStarterBean starterBean = new HsqlDatabaseStarterBean();
     String port = ctx.getInitParameter( "hsqldb-port" ); //$NON-NLS-1$
@@ -82,19 +82,19 @@ public class HsqldbStartupListener implements ServletContextListener {
         port = null; // force check default port
       }
     }
-
+    
     starterBean.setDatabases( getDatabases( ctx ) );
-
+    
     String sampleDataAllowPortFailover = ctx.getInitParameter( "hsqldb-allow-port-failover" ); //$NON-NLS-1$
     if ( ( sampleDataAllowPortFailover != null ) && ( sampleDataAllowPortFailover.equalsIgnoreCase( "true" ) ) ) { //$NON-NLS-1$
       logger.debug( String.format( "Allow Port Failover specified" ) ); //$NON-NLS-1$
       starterBean.setAllowPortFailover( true );
     }
-
+    
     if ( starterBean.start() ) {
       ctx.setAttribute( "hsqldb-starter-bean", starterBean ); //$NON-NLS-1$
     }
-
+    
   }
-
+  
 }

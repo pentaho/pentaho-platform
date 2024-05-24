@@ -65,8 +65,8 @@ import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.platform.web.servlet.messages.Messages;
 import org.xml.sax.EntityResolver;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -216,9 +216,9 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
     }
   }
 
-  @Override
+  
   protected CatalogLocator makeCatalogLocator( ServletConfig servletConfig ) {
-    return new ServletContextCatalogLocator( servletConfig.getServletContext() ) {
+    return new ServletContextCatalogLocator((javax.servlet.ServletContext) servletConfig.getServletContext()) {
       @Override
       public String locate( String catalogPath ) {
         if ( catalogPath.startsWith( "mondrian:" ) ) { //$NON-NLS-1$
@@ -238,16 +238,16 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
     };
   }
 
-  @Override
+  
   protected String makeDataSourcesUrl( ServletConfig config ) {
     return "";
   }
 
-  @Override
-  protected ConnectionFactory createConnectionFactory( final ServletConfig servletConfig ) throws ServletException {
+ 
+  protected ConnectionFactory createConnectionFactory( final ServletConfig servletConfig ) throws ServletException, javax.servlet.ServletException {
 
     final ConnectionFactory delegate =
-        super.createConnectionFactory( servletConfig );
+        super.createConnectionFactory((javax.servlet.ServletConfig) servletConfig);
 
     /*
      * This wrapper for the connection factory allows us to
@@ -373,8 +373,8 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
     };
   }
 
-  @Override public void init( ServletConfig servletConfig ) throws ServletException {
-    super.init( servletConfig );
+   public void init( ServletConfig servletConfig ) throws ServletException, javax.servlet.ServletException {
+    super.init((javax.servlet.ServletConfig) servletConfig);
 
     catalogLocator = makeCatalogLocator( servletConfig );
 

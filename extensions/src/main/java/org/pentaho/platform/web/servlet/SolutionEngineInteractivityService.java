@@ -47,9 +47,9 @@ import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -275,7 +275,7 @@ public class SolutionEngineInteractivityService extends ServletBase {
       SimpleUrlFactory urlFactory =
           new SimpleUrlFactory( requestContext.getContextPath()
             + "SolutionEngineInteractivityService?" ); //$NON-NLS-1$
-      IParameterProvider requestParameters = new HttpRequestParameterProvider( request );
+      IParameterProvider requestParameters = new HttpRequestParameterProvider((jakarta.servlet.http.HttpServletRequest) request);
       setupOutputHandler( outputHandler, requestParameters );
       HttpServletRequestHandler requestHandler =
           getRequestHandler( request, response, userSession, requestParameters, outputStream,

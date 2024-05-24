@@ -38,18 +38,18 @@ import org.pentaho.platform.plugin.services.webservices.AxisServletHooks;
 import org.pentaho.platform.plugin.services.webservices.AxisUtil;
 import org.pentaho.platform.plugin.services.webservices.messages.Messages;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 import java.util.Enumeration;
 
 /**
  * Executes an operation of a web service. This class requires that a HttpServletRequest, HttpServletResponse, and
  * ServletConfig object are provided. Mock objects can be used instead of real HTTP objects.
- * 
+ *
  * @author jamesdixon
- * 
+ *
  */
 public class AxisServiceExecutor extends AxisWebServiceRequestDispatcher implements OutTransportInfo {
 
@@ -90,9 +90,9 @@ public class AxisServiceExecutor extends AxisWebServiceRequestDispatcher impleme
     // create an object to hook into Axis and give it everything we have
     AxisServletHooks hooks = new AxisServletHooks();
     hooks.setContext( context );
-    hooks.setServletConfig( servletConfig );
+    hooks.setServletConfig( servletConfig);
     hooks.setConfiguration( axisConfiguration );
-    hooks.initContextRoot( request );
+    hooks.initContextRoot((javax.servlet.http.HttpServletRequest) request);
     hooks.setAxisService( axisService );
     hooks.setAxisOperation( axisOperation );
     hooks.setOperationContext( operationContext );
@@ -105,11 +105,11 @@ public class AxisServiceExecutor extends AxisWebServiceRequestDispatcher impleme
         PentahoSessionHolder.setSession( userSession );
         String method = request.getMethod();
         if ( "GET".equalsIgnoreCase( method ) ) { //$NON-NLS-1$
-          hooks.handleGet( method, request, response );
+          hooks.handleGet( method, (jakarta.servlet.http.HttpServletRequest) request, (jakarta.servlet.http.HttpServletResponse) response);
         } else if ( "POST".equalsIgnoreCase( request.getMethod() ) ) { //$NON-NLS-1$
-          hooks.handlePost( method, request, response );
+          hooks.handlePost( method, (jakarta.servlet.http.HttpServletRequest) request, (jakarta.servlet.http.HttpServletResponse) response);
         } else if ( "PUT".equalsIgnoreCase( request.getMethod() ) ) { //$NON-NLS-1$
-          hooks.handlePut( method, request, response );
+          hooks.handlePut( method, (jakarta.servlet.http.HttpServletRequest) request, (jakarta.servlet.http.HttpServletResponse) response);
         }
       } catch ( Exception e ) {
         processAxisFault( hooks.getMessageContext(), out, e );

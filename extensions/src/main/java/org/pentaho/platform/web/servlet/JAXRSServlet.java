@@ -31,11 +31,10 @@ import com.sun.jersey.spi.container.ContainerRequest;
 import com.sun.jersey.spi.container.ContainerResponse;
 import com.sun.jersey.spi.container.ContainerResponseWriter;
 import com.sun.jersey.spi.container.WebApplication;
-import com.sun.jersey.spi.container.servlet.ServletContainer;
 import com.sun.jersey.spi.container.servlet.WebComponent;
 import com.sun.jersey.spi.container.servlet.WebConfig;
 import com.sun.jersey.spi.container.servlet.WebServletConfig;
-import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -49,11 +48,12 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
@@ -81,10 +81,10 @@ import java.util.Map;
  *
  * @author Aaron Phillips
  */
-public class JAXRSServlet extends SpringServlet {
-
+public class JAXRSServlet extends com.sun.jersey.spi.spring.container.servlet.SpringServlet {
+  
   private static final long serialVersionUID = 457538570048660945L;
-
+  
   private static final Log logger = LogFactory.getLog( JAXRSServlet.class );
   public static final String MIME_TYPE = "mime-type";
   public static final String GET_HEADERS = "getHeaders";
@@ -92,60 +92,60 @@ public class JAXRSServlet extends SpringServlet {
   public static final String ACCEPT = "accept";
   public static final String GET = "GET";
   protected boolean SendEmptyEntityForServicesFlag;
-
-  @Override
+  
+ 
   protected ConfigurableApplicationContext getContext() {
     return (ConfigurableApplicationContext) getAppContext();
   }
-
-  @Override
-  public void service( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException {
-
+  
+  
+  public void service( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException, jakarta.servlet.ServletException, javax.servlet.ServletException {
+    
     if ( logger.isDebugEnabled() ) {
       logger.debug( "servicing request for resource " + request.getPathInfo() ); //$NON-NLS-1$
     }
-
+    
     if ( request.getMethod().equals( GET ) ) {
       // Extension to allow accept type override from mime-type query param
       final String mimeType = request.getParameter( MIME_TYPE );
       if ( mimeType != null ) {
         final HttpServletRequest originalRequest = request;
-
+        
         request =
-          (HttpServletRequest) Proxy.newProxyInstance( getClass().getClassLoader(),
-            new Class[] { HttpServletRequest.class }, new InvocationHandler() {
-              public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
-                if ( method.getName().equals( GET_HEADERS ) && args.length > 0 && args[ 0 ].equals( ACCEPT ) ) {
-                  return new Enumeration() {
-                    boolean hasMore = true;
-
-                    @Override
-                    public boolean hasMoreElements() {
-                      return hasMore;
-                    }
-
-                    @Override
-                    public Object nextElement() {
-                      hasMore = false;
-                      return mimeType;
-                    }
-                  };
-                }
-                return method.invoke( originalRequest, args );
-              }
-            } );
+                (HttpServletRequest) Proxy.newProxyInstance( getClass().getClassLoader(),
+                        new Class[] { HttpServletRequest.class }, new InvocationHandler() {
+                          public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
+                            if ( method.getName().equals( GET_HEADERS ) && args.length > 0 && args[ 0 ].equals( ACCEPT ) ) {
+                              return new Enumeration() {
+                                boolean hasMore = true;
+                                
+                                @Override
+                                public boolean hasMoreElements() {
+                                  return hasMore;
+                                }
+                                
+                                @Override
+                                public Object nextElement() {
+                                  hasMore = false;
+                                  return mimeType;
+                                }
+                              };
+                            }
+                            return method.invoke( originalRequest, args );
+                          }
+                        } );
       }
     }
-    super.service( request, response );
+    super.service((javax.servlet.http.HttpServletRequest) request, (javax.servlet.http.HttpServletResponse) response);
   }
-
-  @Override
-  public void service( ServletRequest req, ServletResponse res ) throws ServletException, IOException {
-    super.service( req, res );
+  
+  
+  public void service( ServletRequest req, ServletResponse res ) throws ServletException, IOException, javax.servlet.ServletException {
+    super.service((javax.servlet.http.HttpServletRequest) req, (javax.servlet.http.HttpServletResponse) res);
   }
-
+  
   @SuppressWarnings( "unchecked" )
-  @Override
+ // @Override
   protected void initiate( ResourceConfig rc, WebApplication wa ) {
     if ( logger.isDebugEnabled() ) {
       rc.getFeatures().put( ResourceConfig.FEATURE_TRACE, true );
@@ -155,144 +155,161 @@ public class JAXRSServlet extends SpringServlet {
     if ( logger.isDebugEnabled() ) {
       MessageBodyWorkers messageBodyWorkers = wa.getMessageBodyWorkers();
       Map<MediaType, List<MessageBodyWriter>> writers = messageBodyWorkers == null ? null
-        : messageBodyWorkers.getWriters( MediaType.WILDCARD_TYPE );
+                                                                : messageBodyWorkers.getWriters( MediaType.WILDCARD_TYPE );
       logger.debug( "Writers: " + writers ); //$NON-NLS-1$
     }
   }
-
+  
   @VisibleForTesting
   protected void callSuperInitiate( ResourceConfig rc, WebApplication wa ) {
-    super.initiate( rc, wa );
-  }
-
+    super.initiate (rc, wa);
+    }
+  
   @VisibleForTesting
   protected ApplicationContext getAppContext() {
-
-    ConfigurableWebApplicationContext wac = new XmlWebApplicationContext() {
+    
+    org.springframework.web.context.ConfigurableWebApplicationContext wac = new org.springframework.web.context.support.XmlWebApplicationContext () {
       @Override
-      protected Resource getResourceByPath( String path ) {
-        return new FileSystemResource( new File( path ) );
+      protected Resource getResourceByPath(String path ) {
+        return new FileSystemResource ( new File( path ) );
       }
     };
-
-    wac.setServletContext( getServletContext() );
-    wac.setServletConfig( getServletConfig() );
+    
+    wac.setServletContext((jakarta.servlet.ServletContext) getServletContext());
+    wac.setServletConfig((jakarta.servlet.ServletConfig) getServletConfig());
     wac.setNamespace( getServletName() );
     String springFile =
-      PentahoSystem.getApplicationContext()
-        .getSolutionPath( "system" + File.separator + "pentahoServices.spring.xml" ); //$NON-NLS-1$ //$NON-NLS-2$
+            PentahoSystem.getApplicationContext()
+                    .getSolutionPath( "system" + File.separator + "pentahoServices.spring.xml" ); //$NON-NLS-1$ //$NON-NLS-2$
     wac.setConfigLocations( new String[] { springFile } );
     wac.addBeanFactoryPostProcessor( new PentahoBeanScopeValidatorPostProcessor() );
     wac.refresh();
-
+    
     return wac;
   }
-
-  @Override public void init() throws ServletException {
+  
+  @Override public void init() {
     SendEmptyEntityForServicesFlag =
-      Boolean.parseBoolean( PentahoSystem.getSystemSetting( "pentaho.xml", "set-empty-entity-rest-services", "true" ) );
-    Application app = (Application) getPrivate( "app", ServletContainer.class, this );
+            Boolean.parseBoolean( PentahoSystem.getSystemSetting( "pentaho.xml", "set-empty-entity-rest-services", "true" ) );
+    javax.ws.rs.core.Application app = null;
+    try {
+      app = (javax.ws.rs.core.Application) getPrivate( "app", com.sun.jersey.spi.container.servlet.ServletContainer.class, this );
+    } catch (jakarta.servlet.ServletException e) {
+      throw new RuntimeException (e);
+    }
     WebComponent component;
     if ( app == null ) {
       component = new InternalWebComponent();
     } else {
       component = new InternalWebComponent( app );
     }
-    setPrivate( "webComponent", ServletContainer.class, this, component, false );
+    try {
+      setPrivate( "webComponent", com.sun.jersey.spi.container.servlet.ServletContainer.class, this, component, false );
+    } catch (jakarta.servlet.ServletException e) {
+      throw new RuntimeException (e);
+    }
     WebServletConfig webConfig = createWebConfig( this );
-    component.init( webConfig );
-
+    try {
+      component.init( webConfig );
+    } catch (javax.servlet.ServletException e) {
+      throw new RuntimeException (e);
+    }
+    
   }
-
+  
   @VisibleForTesting
-  protected WebServletConfig createWebConfig( ServletContainer container ) {
+  protected WebServletConfig createWebConfig( com.sun.jersey.spi.container.servlet.ServletContainer container ) {
     return new WebServletConfig( container );
   }
-
+  
   class InternalWebComponent extends WebComponent {
-
+    
     InternalWebComponent() {
     }
-
+    
     InternalWebComponent( Application app ) {
       super( app );
     }
-
+    
     @Override
     protected WebApplication create() {
       return JAXRSServlet.this.create();
     }
-
+    
     @Override
     protected void configure( WebConfig wc, ResourceConfig rc, WebApplication wa ) {
       super.configure( wc, rc, wa );
-
+      
       JAXRSServlet.this.configure( wc, rc, wa );
     }
-
+    
     @Override
     protected void initiate( ResourceConfig rc, WebApplication wa ) {
       JAXRSServlet.this.initiate( rc, wa );
     }
-
+    
     @Override
     protected ResourceConfig getDefaultResourceConfig( Map<String, Object> props,
-                                                       WebConfig wc ) throws ServletException {
-      return JAXRSServlet.this.getDefaultResourceConfig( props, wc );
+                                                       WebConfig wc )  {
+      try {
+        return org.pentaho.platform.web.servlet.JAXRSServlet.this.getDefaultResourceConfig( props, wc );
+      } catch (javax.servlet.ServletException e) {
+        throw new RuntimeException (e);
+      }
     }
-
-    @Override
+    
+    
     public int service( URI baseUri, URI requestUri, HttpServletRequest request, HttpServletResponse response )
-      throws ServletException, IOException {
+            throws ServletException, IOException {
       // Copy the application field to local instance to ensure that the
       // currently loaded web application is used to process
       // request
       final WebApplication _application = (WebApplication) getPrivate( "application", WebComponent.class, this );
-
+      
       final ContainerRequest cRequest = createRequest(
-        _application,
-        request,
-        baseUri,
-        requestUri );
-
+              _application,
+              (javax.servlet.http.HttpServletRequest) request,
+              baseUri,
+              requestUri );
+      
       cRequest.setSecurityContext( new SecurityContext() {
         public Principal getUserPrincipal() {
           return request.getUserPrincipal();
         }
-
+        
         public boolean isUserInRole( String role ) {
           return request.isUserInRole( role );
         }
-
+        
         public boolean isSecure() {
           return request.isSecure();
         }
-
+        
         public String getAuthenticationScheme() {
           return request.getAuthType();
         }
       } );
-
+      
       try {
         // Check if any servlet filters have consumed a request entity
         // of the media type application/x-www-form-urlencoded
         // This can happen if a filter calls request.getParameter(...)
         runFilterFormParameters( request, cRequest );
-
+        
         UriRuleProbeProvider.requestStart( requestUri );
-
+        
         runRequestInvokerSet( request );
         runResponseInvokerSet( response );
-
+        
         final BackwardCompatibleWriter w = new BackwardCompatibleWriter( response );
         _application.handleRequest( cRequest, w );
         return w.cResponse.getStatus();
       } catch ( WebApplicationException ex ) {
         final Response exResponse = ex.getResponse();
         final String entity = exResponse.getEntity() != null ? exResponse.getEntity().toString() : null;
-
+        
         response.sendError( exResponse.getStatus(), entity );
-
+        
         return exResponse.getStatus();
       } catch ( AccessDeniedException ex ) {
         response.sendError( Response.Status.FORBIDDEN.getStatusCode() );
@@ -315,32 +332,32 @@ public class JAXRSServlet extends SpringServlet {
         runResponseInvokerSet( null );
       }
     }
-
+    
     private void runTraceOnException( ContainerRequest cRequest, HttpServletResponse response )
-      throws ServletException {
+            throws ServletException {
       runPrivate( "traceOnException", WebComponent.class,
-        new Class[] { ContainerRequest.class, HttpServletResponse.class }, this, cRequest, response );
+              new Class[] { ContainerRequest.class, HttpServletResponse.class }, this, cRequest, response );
     }
-
+    
     private void runFilterFormParameters( HttpServletRequest request, ContainerRequest cRequest )
-      throws ServletException {
+            throws ServletException {
       runPrivate( "filterFormParameters", WebComponent.class,
-        new Class[] { HttpServletRequest.class, ContainerRequest.class }, this, request, cRequest );
+              new Class[] { HttpServletRequest.class, ContainerRequest.class }, this, request, cRequest );
     }
-
+    
     private void runRequestInvokerSet( HttpServletRequest request )
-      throws ServletException {
+            throws ServletException {
       ( (ThreadLocalInvoker<HttpServletRequest>) getPrivate( "requestInvoker", WebComponent.class, this ) )
-        .set( request );
+              .set( request );
     }
-
+    
     private void runResponseInvokerSet( HttpServletResponse response )
-      throws ServletException {
+            throws ServletException {
       ( (ThreadLocalInvoker<HttpServletResponse>) getPrivate( "responseInvoker", WebComponent.class, this ) )
-        .set( response );
+              .set( response );
     }
   }
-
+  
   private static Object getPrivate( String nameField, Class classOfField, Object fromObj ) throws ServletException {
     Field field = null;
     try {
@@ -351,10 +368,10 @@ public class JAXRSServlet extends SpringServlet {
       throw new ServletException( e );
     }
   }
-
+  
   private static void setPrivate( String nameField, Class classOfField, Object fromObj, Object value,
                                   boolean finalFlag )
-    throws ServletException {
+          throws ServletException {
     Field field = null;
     try {
       field = classOfField.getDeclaredField( nameField );
@@ -369,10 +386,10 @@ public class JAXRSServlet extends SpringServlet {
       throw new ServletException( e );
     }
   }
-
+  
   private static void runPrivate( String methodName, Class classOfField, Class<?>[] parameterTypes, Object fromObj,
                                   Object... args )
-    throws ServletException {
+          throws ServletException {
     try {
       Method m = classOfField.getDeclaredMethod( methodName, parameterTypes );
       m.setAccessible( true );
@@ -381,23 +398,23 @@ public class JAXRSServlet extends SpringServlet {
       throw new ServletException( e );
     }
   }
-
-
+  
+  
   private class BackwardCompatibleWriter extends OutputStream implements ContainerResponseWriter {
     final HttpServletResponse response;
-
+    
     ContainerResponse cResponse;
-
+    
     long contentLength;
-
+    
     OutputStream out;
-
+    
     boolean statusAndHeadersWritten = false;
-
+    
     BackwardCompatibleWriter( HttpServletResponse response ) {
       this.response = response;
     }
-
+    
     public OutputStream writeStatusAndHeaders( long contentLength,
                                                ContainerResponse cResponse ) throws IOException {
       this.contentLength = contentLength;
@@ -405,28 +422,28 @@ public class JAXRSServlet extends SpringServlet {
       this.statusAndHeadersWritten = false;
       return this;
     }
-
+    
     public void finish() throws IOException {
       if ( statusAndHeadersWritten ) {
         return;
       }
-
+      
       // Note that the writing of headers MUST be performed before
       // the invocation of sendError as on some Servlet implementations
       // modification of the response headers will have no effect
       // after the invocation of sendError.
       writeHeaders();
-
-
+      
+      
       writeStatus();
     }
-
+    
     private void writeStatus() throws IOException {
       Response.StatusType statusType = cResponse.getStatusType();
       final String reasonPhrase = statusType.getReasonPhrase();
-
+      
       if ( !SendEmptyEntityForServicesFlag && ( statusType.getFamily().equals( Response.Status.Family.CLIENT_ERROR )
-        || statusType.getFamily().equals( Response.Status.Family.SERVER_ERROR ) ) ) {
+                                                        || statusType.getFamily().equals( Response.Status.Family.SERVER_ERROR ) ) ) {
         if ( reasonPhrase == null || reasonPhrase.isEmpty() ) {
           response.sendError( cResponse.getStatus() );
         } else {
@@ -440,13 +457,13 @@ public class JAXRSServlet extends SpringServlet {
         }
       }
     }
-
-
+    
+    
     public void write( int b ) throws IOException {
       initiate();
       out.write( b );
     }
-
+    
     @Override
     public void write( byte[] b ) throws IOException {
       if ( b.length > 0 ) {
@@ -454,7 +471,7 @@ public class JAXRSServlet extends SpringServlet {
         out.write( b );
       }
     }
-
+    
     @Override
     public void write( byte[] b, int off, int len ) throws IOException {
       if ( len > 0 ) {
@@ -462,7 +479,7 @@ public class JAXRSServlet extends SpringServlet {
         out.write( b, off, len );
       }
     }
-
+    
     @Override
     public void flush() throws IOException {
       writeStatusAndHeaders();
@@ -470,35 +487,35 @@ public class JAXRSServlet extends SpringServlet {
         out.flush();
       }
     }
-
+    
     @Override
     public void close() throws IOException {
       initiate();
       out.close();
     }
-
+    
     void initiate() throws IOException {
       if ( out == null ) {
         writeStatusAndHeaders();
         out = response.getOutputStream();
       }
     }
-
+    
     void writeStatusAndHeaders() throws IOException {
       if ( statusAndHeadersWritten ) {
         return;
       }
-
+      
       writeHeaders();
       writeStatus();
       statusAndHeadersWritten = true;
     }
-
+    
     void writeHeaders() {
       if ( contentLength != -1 && contentLength < Integer.MAX_VALUE ) {
         response.setContentLength( (int) contentLength );
       }
-
+      
       MultivaluedMap<String, Object> headers = cResponse.getHttpHeaders();
       for ( Map.Entry<String, List<Object>> e : headers.entrySet() ) {
         for ( Object v : e.getValue() ) {

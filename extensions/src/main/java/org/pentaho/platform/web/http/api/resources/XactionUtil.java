@@ -59,9 +59,9 @@ import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
 import org.pentaho.platform.web.servlet.HttpMimeTypeListener;
 import org.pentaho.reporting.libraries.base.util.StringUtils;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 
 import java.io.ByteArrayOutputStream;
@@ -162,7 +162,7 @@ public class XactionUtil {
         MessageFormatUtils.formatFailureMessage( htmlMimeType, runtime, buffer, messages );
       }
     }
-    // clear files which was generated during action execution 
+    // clear files which was generated during action execution
     // http://jira.pentaho.com/browse/BISERVER-12639
     IUnifiedRepository unifiedRepository = PentahoSystem.get( IUnifiedRepository.class, null );
     if ( unifiedRepository != null ) {

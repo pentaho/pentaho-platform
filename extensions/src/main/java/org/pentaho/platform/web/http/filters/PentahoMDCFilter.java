@@ -22,12 +22,12 @@ package org.pentaho.platform.web.http.filters;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.audit.MDCUtil;
@@ -39,7 +39,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 /**
  * PentahoMDCFilter is a Servlet filter that adds and clears MDC logging information. The primary use case is to track
  * access to sensitive data back to a user/session/IP.
- * 
+ *
  * @author Benny
  *
  */

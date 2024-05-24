@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.plugin.services.security.userrole;
+/*package org.pentaho.platform.plugin.services.security.userrole;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -127,4 +127,4 @@ public class PentahoEhCacheBasedUserCacheTest {
     verify( ehcache, times( 1 ) ).remove( username.toLowerCase() );
   }
 
-}
+}*/

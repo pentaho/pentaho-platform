@@ -35,11 +35,11 @@ import org.pentaho.platform.web.servlet.messages.Messages;
 import org.safehaus.uuid.UUID;
 import org.owasp.encoder.Encode;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -148,7 +148,7 @@ public class PluggableUploadFileServlet extends HttpServlet implements Servlet {
     FileItemFactory factory = new DiskFileItemFactory();
     ServletFileUpload upload = new ServletFileUpload( factory );
     upload.setFileSizeMax( maxFileSize );
-    List items = upload.parseRequest( request );
+    List items = upload.parseRequest((javax.servlet.http.HttpServletRequest) request);
     Iterator it = items.iterator();
     while ( it.hasNext() ) {
       FileItem item = (FileItem) it.next();
@@ -180,7 +180,7 @@ public class PluggableUploadFileServlet extends HttpServlet implements Servlet {
    * Returns the dispatch key for this request. This name is the part of the request path beyond the servlet base path.
    * I.e. if the PluggableUploadFileServlet is mapped to the "/upload" context in web.xml, then this method will return
    * "testuploader" given a request to "http://localhost:8080/pentaho/upload/testuploader".
-   * 
+   *
    * @return the part of the request url used to dispatch the request
    */
   public String getDispatchKey( HttpServletRequest request ) {

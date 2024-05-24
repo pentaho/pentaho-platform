@@ -25,7 +25,7 @@ import org.pentaho.platform.web.gwt.rpc.AbstractGwtRpc;
 import org.pentaho.platform.web.gwt.rpc.IGwtRpcSerializationPolicyCache;
 import org.pentaho.platform.web.servlet.GwtRpcProxyException;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import javax.ws.rs.HttpMethod;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,13 +52,13 @@ public abstract class AbstractGwtRpcRequestMatcher extends RegexRequestMatcher {
    * only tries to extract the method from the body when there's surely one.
    */
   private static final Collection<String> HTTP_METHODS_GWT_RPC = Collections.singletonList( HttpMethod.POST );
-
+  
   @Nullable
   private final Collection<String> rpcMethodNames;
-
+  
   @Nullable
   private final IGwtRpcSerializationPolicyCache serializationPolicyCache;
-
+  
   /**
    * Constructs a GWT-RPC request matcher given a path pattern, collection of RPC method names,
    * and a GWT-RPC serialization policy cache.
@@ -75,13 +75,13 @@ public abstract class AbstractGwtRpcRequestMatcher extends RegexRequestMatcher {
   public AbstractGwtRpcRequestMatcher( @NonNull String pattern,
                                        @Nullable Collection<String> rpcMethodNames,
                                        @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
-
+    
     super( pattern, HTTP_METHODS_GWT_RPC );
-
+    
     this.rpcMethodNames = rpcMethodNames;
     this.serializationPolicyCache = serializationPolicyCache;
   }
-
+  
   /**
    * Constructs a GWT-RPC request matcher given a path pattern, collection of RPC method names,
    * and a GWT-RPC serialization policy cache.
@@ -99,13 +99,13 @@ public abstract class AbstractGwtRpcRequestMatcher extends RegexRequestMatcher {
                                        boolean isCaseInsensitive,
                                        @Nullable Collection<String> rpcMethodNames,
                                        @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
-
+    
     super( pattern, HTTP_METHODS_GWT_RPC, isCaseInsensitive );
-
+    
     this.rpcMethodNames = rpcMethodNames;
     this.serializationPolicyCache = serializationPolicyCache;
   }
-
+  
   /**
    * Gets the serialization policy cache, if any.
    */
@@ -113,7 +113,7 @@ public abstract class AbstractGwtRpcRequestMatcher extends RegexRequestMatcher {
   public IGwtRpcSerializationPolicyCache getSerializationPolicyCache() {
     return serializationPolicyCache;
   }
-
+  
   /**
    * Gets the collection of matching GWT-RPC service method names.
    * When <code>null</code>, all methods match.
@@ -122,13 +122,13 @@ public abstract class AbstractGwtRpcRequestMatcher extends RegexRequestMatcher {
   public Collection<String> getRpcMethodNames() {
     return rpcMethodNames;
   }
-
-  @Override
+  
+  
   public boolean test( @NonNull HttpServletRequest httpRequest ) {
-    return super.test( httpRequest )
-      && ( rpcMethodNames == null || rpcMethodNames.contains( getRpcMethodName( httpRequest ) ) );
+    return super.test((javax.servlet.http.HttpServletRequest) httpRequest)
+                   && ( rpcMethodNames == null || rpcMethodNames.contains( getRpcMethodName( httpRequest ) ) );
   }
-
+  
   /**
    * Gets the {@link AbstractGwtRpc} instance associated with the given request,
    * creating one if it has not yet been created.
@@ -139,9 +139,9 @@ public abstract class AbstractGwtRpcRequestMatcher extends RegexRequestMatcher {
    */
   @NonNull
   protected abstract AbstractGwtRpc getGwtRpc( @NonNull HttpServletRequest httpRequest );
-
+  
   // Visible For Testing
-
+  
   /**
    * Obtains the GWT-RPC service method name associated with the given HTTP request.
    * <p>

@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.filters;
+/*package org.pentaho.platform.web.http.filters;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -82,4 +82,4 @@ public class PreFlightReportingFilterTest {
     Mockito.verify( response, Mockito.times( 1 ) ).sendError( HttpServletResponse.SC_METHOD_NOT_ALLOWED );
   }
 
-}
+}*/

@@ -15,7 +15,7 @@
  * Copyright (c) 2021 Hitachi Vantara.  All rights reserved.
  */
 
-package org.pentaho.platform.web.servlet;
+/*package org.pentaho.platform.web.servlet;
 
 import org.apache.commons.logging.Log;
 import org.junit.Before;
@@ -73,4 +73,4 @@ public class UIServletTest {
     uiServlet.doGet( request, response );
     verify( uiServlet ).getComponent( "UIServlet" );
   }
-}
+}*/

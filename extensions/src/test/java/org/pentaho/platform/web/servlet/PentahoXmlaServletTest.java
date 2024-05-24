@@ -40,7 +40,7 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
-import javax.servlet.ServletConfig;
+import jakarta.servlet.ServletConfig;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 

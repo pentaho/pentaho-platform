@@ -84,12 +84,12 @@
           <groupId>org.apache.xmlgraphics</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>org.osgi.core</artifactId>
-          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi</artifactId>
+          <groupId>osgi.core</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>org.osgi.core</artifactId>
-          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi</artifactId>
+          <groupId>osgi.core</groupId>
         </exclusion>
         <exclusion>
           <artifactId>javax.servlet</artifactId>
@@ -557,7 +557,7 @@
     <!-- pentaho-platform-core (PentahoSystem) and pdi-osgi-bridge-core (KarafLifecycleListener and OSGIPluginRegistryExtension) -->
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
+      <artifactId>osgi.core</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>

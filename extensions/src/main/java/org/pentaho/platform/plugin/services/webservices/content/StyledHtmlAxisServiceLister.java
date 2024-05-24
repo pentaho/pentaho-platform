@@ -31,7 +31,7 @@ import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.io.OutputStream;
 
 public class StyledHtmlAxisServiceLister extends HtmlAxisServiceLister {

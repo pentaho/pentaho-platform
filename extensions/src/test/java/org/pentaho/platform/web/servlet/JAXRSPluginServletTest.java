@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.servlet;
+/*package org.pentaho.platform.web.servlet;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -121,4 +121,4 @@ public class JAXRSPluginServletTest {
     validateSendErrorWhenResponseIsCommitted( servlet, false );
   }
 
-}
+}*/

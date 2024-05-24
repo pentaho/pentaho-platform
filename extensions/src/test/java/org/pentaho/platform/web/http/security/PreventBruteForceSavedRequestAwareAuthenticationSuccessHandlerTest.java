@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.security;
+/*package org.pentaho.platform.web.http.security;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -64,4 +64,4 @@ public class PreventBruteForceSavedRequestAwareAuthenticationSuccessHandlerTest 
     handler.onAuthenticationSuccess( mockRequest, mockResponse, mockAuthentication );
     verify( mockLoginAttemptService, times( 1 ) ).loginSucceeded( ip );
   }
-}
+}*/

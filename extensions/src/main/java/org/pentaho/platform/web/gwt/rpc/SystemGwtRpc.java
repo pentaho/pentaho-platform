@@ -33,7 +33,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 
 /**
@@ -63,30 +63,30 @@ import java.io.File;
  * <code>/mantle/&lt;strongName&gt;.gwt.rpc</code>.
  */
 public class SystemGwtRpc extends AbstractGwtRpc {
-
+  
   public SystemGwtRpc( @NonNull HttpServletRequest request ) {
     super( request );
   }
-
+  
   @NonNull @Override
   protected Object resolveTarget() throws GwtRpcProxyException {
-
+    
     ApplicationContext beanFactory = createAppContext();
-
+    
     String beanId = getTargetBeanId();
     if ( !beanFactory.containsBean( beanId ) ) {
       throw new GwtRpcProxyException( Messages.getInstance()
-        .getErrorString( "GwtRpcProxyServlet.ERROR_0001_NO_BEAN_FOUND_FOR_SERVICE", beanId, getServletContextPath() ) );
+                                              .getErrorString( "GwtRpcProxyServlet.ERROR_0001_NO_BEAN_FOUND_FOR_SERVICE", beanId, getServletContextPath() ) );
     }
-
+    
     try {
       return beanFactory.getBean( beanId );
     } catch ( BeansException ex ) {
       throw new GwtRpcProxyException( Messages.getInstance()
-        .getErrorString( "GwtRpcProxyServlet.ERROR_0002_FAILED_TO_GET_BEAN_REFERENCE", beanId ), ex );
+                                              .getErrorString( "GwtRpcProxyServlet.ERROR_0002_FAILED_TO_GET_BEAN_REFERENCE", beanId ), ex );
     }
   }
-
+  
   @Nullable @Override
   protected SerializationPolicy loadSerializationPolicy( @NonNull String moduleContextPath,
                                                          @Nullable String strongName ) {
@@ -99,49 +99,49 @@ public class SystemGwtRpc extends AbstractGwtRpc {
      * - moduleContextPath = '/mantle/'
      * - serializationPolicyFilePath = '/mantle/{strongName}.gwt.rpc'
      */
-
+    
     String serializationPolicyFilePath = SerializationPolicyLoader.getSerializationPolicyFileName(
-      moduleContextPath + strongName );
-
+            moduleContextPath + strongName );
+    
     return loadSerializationPolicyFromInputStream(
-      () -> getServletContext().getResourceAsStream( serializationPolicyFilePath ),
-      serializationPolicyFilePath );
+            () -> getServletContext().getResourceAsStream( serializationPolicyFilePath ),
+            serializationPolicyFilePath );
   }
-
+  
   // Visible For Testing
   @NonNull
   ApplicationContext createAppContext() {
     WebApplicationContext parent = WebApplicationContextUtils.getRequiredWebApplicationContext( getServletContext() );
-
+    
     ConfigurableWebApplicationContext wac = new XmlWebApplicationContext() {
       @Override
       protected Resource getResourceByPath( @NonNull String path ) {
         return new FileSystemResource( new File( path ) );
       }
     };
-
+    
     wac.setParent( parent );
     wac.setServletContext( getServletContext() );
-
+    
     // This code was previously part of the GwtRpcProxyServlet class.
     // There were/are really no known uses of this class.
     // The only declared System, GWT-RPC service is /ws/gwt/unifiedRepository and is not used by any Pentaho code.
     //
-
+    
     // No access to servlet config. Used to be passed, when this code was part of GwtRpcProxyServlet class.
     // The GwtRpcProxyServlet servlet had no init parameters configured.
     // wac.setServletConfig( getServletConfig() );
-
+    
     // J.I.C. Used to be created with getServerName(), in the GwtRpcProxyServlet class.
     wac.setNamespace( "GwtRpcProxyServlet" );
-
+    
     String springFile = PentahoSystem.getApplicationContext()
-      .getSolutionPath( "system" + File.separator + "pentahoServices.spring.xml" );
+                                .getSolutionPath( "system" + File.separator + "pentahoServices.spring.xml" );
     wac.setConfigLocations( springFile );
     wac.refresh();
     return wac;
   }
-
+  
   // Example
   // servletContextPath = /ws/gwt/unifiedRepository
   // targetBeanId = ws-gwt-unifiedRepository
@@ -151,10 +151,10 @@ public class SystemGwtRpc extends AbstractGwtRpc {
     if ( servletContextPath.startsWith( "/" ) ) {
       servletContextPath = servletContextPath.substring( 1 );
     }
-
+    
     return servletContextPath.replaceAll( "/", "-" );
   }
-
+  
   /**
    * Gets the instance of {@link SystemGwtRpc} which is associated with the given HTTP request,
    * creating one, if needed.
@@ -171,7 +171,7 @@ public class SystemGwtRpc extends AbstractGwtRpc {
   public static SystemGwtRpc getInstance( @NonNull HttpServletRequest httpRequest ) {
     return getInstance( httpRequest, null );
   }
-
+  
   /**
    * Gets the instance of {@link SystemGwtRpc} which is associated with the given HTTP request,
    * creating one, if needed.

@@ -32,16 +32,16 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.logging.Logger;
 
 import javax.jcr.Repository;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 import java.util.List;
 
 public class PentahoSystemReadyListener implements ServletContextListener {
-
+  
   @Override
   public void contextInitialized( ServletContextEvent servletContextEvent ) {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
-
+    
     IPentahoSession session = PentahoSessionHolder.getSession();
     IPluginProvider pluginProvider = PentahoSystem.get( IPluginProvider.class, "IPluginProvider", session );
     try {
@@ -65,8 +65,8 @@ public class PentahoSystemReadyListener implements ServletContextListener {
       Logger.warn( PentahoSystemReadyListener.class.getName(), e.getMessage(), e );
     }
   }
-
-
+  
+  
   @Override
   public void contextDestroyed( ServletContextEvent servletContextEvent ) {
     Repository jcrRepository = PentahoSystem.get( Repository.class, "jcrRepository", null );
@@ -76,11 +76,11 @@ public class PentahoSystemReadyListener implements ServletContextListener {
     }
     if ( !( jcrRepository instanceof JackrabbitRepository ) ) {
       Logger.error( PentahoSystemReadyListener.class.getName(),
-        String.format( "Expected RepositoryImpl, but got: [%s]. Exiting",
-          jcrRepository.getClass().getName() ) );
+              String.format( "Expected RepositoryImpl, but got: [%s]. Exiting",
+                      jcrRepository.getClass().getName() ) );
       return;
     }
     ( (JackrabbitRepository) jcrRepository ).shutdown();
   }
-
+  
 }

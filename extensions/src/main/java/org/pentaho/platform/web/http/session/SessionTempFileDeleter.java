@@ -26,8 +26,8 @@ import org.pentaho.platform.api.engine.ILogoutListener;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
+import jakarta.servlet.http.HttpSessionBindingEvent;
+import jakarta.servlet.http.HttpSessionBindingListener;
 import java.io.Serializable;
 
 public class SessionTempFileDeleter extends StandaloneTempFileDeleter implements HttpSessionBindingListener,
@@ -55,7 +55,7 @@ public class SessionTempFileDeleter extends StandaloneTempFileDeleter implements
   }
 
   public void onLogout( IPentahoSession session ) {
-    // Implementation of onLogout to do the temp file cleanup as part of the 
+    // Implementation of onLogout to do the temp file cleanup as part of the
     // logout for the user. PRD-5900
     if ( session != null ) {
       ITempFileDeleter realFileDeleter = (ITempFileDeleter) session.getAttribute( ITempFileDeleter.DELETER_SESSION_VARIABLE );

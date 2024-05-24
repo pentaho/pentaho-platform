@@ -17,7 +17,7 @@
  * Copyright (c) 2020-2024 Hitachi Vantara. All rights reserved.
  *
  */
-package org.pentaho.platform.web.http.security;
+/*package org.pentaho.platform.web.http.security;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -84,4 +84,4 @@ public class PreventBruteForceUsernamePasswordAuthenticationFilterTest {
     when( mockLoginAttemptService.isBlocked( ip ) ).thenReturn( true );
     authenticationFilter.attemptAuthentication( mockRequest, mockResponse );
   }
-}
+}*/

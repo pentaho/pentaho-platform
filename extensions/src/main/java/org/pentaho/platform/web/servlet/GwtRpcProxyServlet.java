@@ -23,22 +23,22 @@ import org.pentaho.platform.web.gwt.rpc.AbstractGwtRpc;
 import org.pentaho.platform.web.gwt.rpc.IGwtRpcSerializationPolicyCache;
 import org.pentaho.platform.web.gwt.rpc.SystemGwtRpc;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * This servlet is the traffic cop for GWT services core to the BIServer. See pentahoServices.spring.xml for bean
  * definitions referenced by this servlet.
  */
 public class GwtRpcProxyServlet extends AbstractGwtRpcProxyServlet {
-
+  
   public GwtRpcProxyServlet() {
     super();
   }
-
+  
   public GwtRpcProxyServlet( @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
     super( serializationPolicyCache );
   }
-
+  
   @NonNull @Override
   protected AbstractGwtRpc getRpc( @NonNull HttpServletRequest httpRequest ) {
     return SystemGwtRpc.getInstance( httpRequest, getSerializationPolicyCache() );

@@ -21,6 +21,7 @@
 package org.pentaho.platform.config;
 
 import com.hitachivantara.security.web.impl.model.ssrf.SsrfConfigurationPojo;
+import org.pentaho.platform.util.logging.Logger;
 
 import java.net.URI;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.Set;
 import java.util.LinkedHashSet;
 
 public class PentahoSsrfConfigurationPojo extends SsrfConfigurationPojo {
+
   public PentahoSsrfConfigurationPojo( URI mainFullyQualifiedUrl, List<URI> alternativeFullyQualifiedUrls,
                                          boolean isEnabled ) {
     super( buildAllowedOrigins( mainFullyQualifiedUrl, alternativeFullyQualifiedUrls ), isEnabled );
@@ -37,6 +39,7 @@ public class PentahoSsrfConfigurationPojo extends SsrfConfigurationPojo {
     Set<URI> allowedOrigins = new LinkedHashSet<>();
     allowedOrigins.add( mainFullyQualifiedUrl );
     allowedOrigins.addAll( alternativeFullyQualifiedUrls );
+
     return allowedOrigins;
   }
 }

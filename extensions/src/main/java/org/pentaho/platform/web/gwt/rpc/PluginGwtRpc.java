@@ -33,7 +33,7 @@ import org.pentaho.platform.web.gwt.rpc.util.ThrowingSupplier;
 import org.pentaho.platform.web.servlet.GwtRpcProxyException;
 import org.pentaho.platform.web.servlet.messages.Messages;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -98,32 +98,32 @@ import java.util.List;
  * a warning is logged.
  */
 public class PluginGwtRpc extends AbstractGwtRpc {
-
+  
   private static final Log logger = LogFactory.getLog( PluginGwtRpc.class );
-
+  
   public PluginGwtRpc( @NonNull HttpServletRequest request ) {
     super( request );
   }
-
+  
   @NonNull @Override
   protected Object resolveTarget() throws GwtRpcProxyException {
-
+    
     IServiceManager serviceManager = PentahoSystem.get( IServiceManager.class, PentahoSessionHolder.getSession() );
-
+    
     String key = getServiceKey();
     if ( serviceManager.getServiceConfig( "gwt", key ) == null ) {
       throw new GwtRpcProxyException( Messages.getInstance()
-        .getErrorString( "GwtRpcPluginProxyServlet.ERROR_0001_SERVICE_NOT_FOUND", key ) );
+                                              .getErrorString( "GwtRpcPluginProxyServlet.ERROR_0001_SERVICE_NOT_FOUND", key ) );
     }
-
+    
     try {
       return serviceManager.getServiceBean( "gwt", key );
     } catch ( ServiceException e ) {
       throw new GwtRpcProxyException( Messages.getInstance()
-        .getErrorString( "GwtRpcPluginProxyServlet.ERROR_0002_FAILED_TO_GET_BEAN_REFERENCE", key ), e );
+                                              .getErrorString( "GwtRpcPluginProxyServlet.ERROR_0002_FAILED_TO_GET_BEAN_REFERENCE", key ), e );
     }
   }
-
+  
   @Nullable @Override
   protected SerializationPolicy loadSerializationPolicy( @NonNull String moduleContextPath,
                                                          @Nullable String strongName ) {
@@ -137,33 +137,33 @@ public class PluginGwtRpc extends AbstractGwtRpc {
      * - pluginContextPath = '/data-access/resources/gwt/'
      * - serializationPolicyFileName = '/data-access/resources/gwt/{strongName}.gwt.rpc'
      */
-
+    
     // Special logic to use a spring defined SerializationPolicy for a plugin.
     String pluginId = PluginUtil.getPluginIdFromPath( moduleContextPath );
-
+    
     SerializationPolicy serializationPolicy = PentahoSystem.get(
-      SerializationPolicy.class,
-      PentahoSessionHolder.getSession(),
-      Collections.singletonMap( "plugin", pluginId ) );
+            SerializationPolicy.class,
+            PentahoSessionHolder.getSession(),
+            Collections.singletonMap( "plugin", pluginId ) );
     if ( serializationPolicy != null ) {
       return serializationPolicy;
     }
-
+    
     String serializationPolicyFileName = SerializationPolicyLoader.getSerializationPolicyFileName( strongName );
     URL serializationPolicyUrl = getSerializationPolicyUrl( serializationPolicyFileName, moduleContextPath );
-
+    
     return serializationPolicyUrl != null
-      ? loadSerializationPolicyFromInputStream( getInputStreamSupplier( serializationPolicyUrl ),
-      serializationPolicyFileName )
-      : null;
+                   ? loadSerializationPolicyFromInputStream( getInputStreamSupplier( serializationPolicyUrl ),
+            serializationPolicyFileName )
+                   : null;
   }
-
+  
   // Visible For Testing
   @NonNull
   ThrowingSupplier<InputStream, IOException> getInputStreamSupplier( @NonNull URL inputStreamURL ) {
     return inputStreamURL::openStream;
   }
-
+  
   /**
    * The request path is broken up for processing like so: Ex: given a request for serialization file at
    * '/pentaho/content/data-access/resources/gwt/'
@@ -176,35 +176,35 @@ public class PluginGwtRpc extends AbstractGwtRpc {
    */
   @Nullable
   private URL getSerializationPolicyUrl( @NonNull String serializationPolicyFilename, String moduleContextPath ) {
-
+    
     ClassLoader serviceClassloader = PluginUtil.getClassLoaderForService( moduleContextPath );
     if ( serviceClassloader == null ) {
       // if we get here, then the service is not supplied by a plugin and thus we cannot hope to find
       // the appropriate serialization policy.
       logger.error( Messages.getInstance().getErrorString(
-        "GwtRpcPluginProxyServlet.ERROR_0005_FAILED_TO_FIND_PLUGIN", getAppContextPath() ) );
+              "GwtRpcPluginProxyServlet.ERROR_0005_FAILED_TO_FIND_PLUGIN", getAppContextPath() ) );
       return null;
     }
-
+    
     // We know what plugin is supposed to have the serialization policy file,
     // now go find it in the plugin's filesystem.
     IPluginResourceLoader resLoader =
-      PentahoSystem.get( IPluginResourceLoader.class, PentahoSessionHolder.getSession() );
+            PentahoSystem.get( IPluginResourceLoader.class, PentahoSessionHolder.getSession() );
     List<URL> urls = resLoader.findResources( serviceClassloader, serializationPolicyFilename );
     if ( urls.size() < 1 ) {
       logger.error( Messages.getInstance().getErrorString(
-        "GwtRpcPluginProxyServlet.ERROR_0006_FAILED_TO_FIND_FILE", serializationPolicyFilename ) );
+              "GwtRpcPluginProxyServlet.ERROR_0006_FAILED_TO_FIND_FILE", serializationPolicyFilename ) );
       return null;
     }
-
+    
     if ( urls.size() > 1 ) {
       logger.warn( Messages.getInstance().getString(
-        "GwtRpcPluginProxyServlet.WARN_MULTIPLE_RESOURCES_FOUND", serializationPolicyFilename ) );
+              "GwtRpcPluginProxyServlet.WARN_MULTIPLE_RESOURCES_FOUND", serializationPolicyFilename ) );
     }
-
+    
     return urls.get( 0 );
   }
-
+  
   /**
    * Returns the dispatch key for this request. This name is the part of the request path beyond the servlet base path.
    * I.e. if the GwtRpcPluginProxyServlet is mapped to the "/gwtrpc" context in web.xml, then this method will return
@@ -219,16 +219,16 @@ public class PluginGwtRpc extends AbstractGwtRpc {
     if ( requestPathInfo.startsWith( "/" ) ) {
       requestPathInfo = requestPathInfo.substring( 1 );
     }
-
+    
     if ( requestPathInfo.contains( "/" ) ) {
       // if the request path happens to be multiple levels deep, return the last element in the path
       String[] elements = requestPathInfo.split( "/" );
       return elements[ elements.length - 1 ];
     }
-
+    
     return requestPathInfo;
   }
-
+  
   /**
    * Gets the instance of {@link PluginGwtRpc} which is associated with the given HTTP request, creating one, if needed.
    * <p>
@@ -244,7 +244,7 @@ public class PluginGwtRpc extends AbstractGwtRpc {
   public static PluginGwtRpc getInstance( @NonNull HttpServletRequest httpRequest ) {
     return getInstance( httpRequest, null );
   }
-
+  
   /**
    * Gets the instance of {@link PluginGwtRpc} which is associated with the given HTTP request, creating one, if needed.
    * <p>

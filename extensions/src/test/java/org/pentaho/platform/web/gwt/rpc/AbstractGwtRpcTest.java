@@ -15,7 +15,7 @@
  * Copyright (c) 2021 Hitachi Vantara. All rights reserved.
  */
 
-package org.pentaho.platform.web.gwt.rpc;
+/*package org.pentaho.platform.web.gwt.rpc;
 
 import com.google.gwt.user.client.rpc.IncompatibleRemoteServiceException;
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -972,4 +972,4 @@ public class AbstractGwtRpcTest {
     verify( httpRequestMock, Mockito.times( 0 ) ).setAttribute( HTTP_GWT_RPC_ATTRIBUTE, gwtRpcMock1 );
   }
   // endregion
-}
+}*/

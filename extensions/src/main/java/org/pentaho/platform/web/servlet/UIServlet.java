@@ -33,16 +33,16 @@ import org.pentaho.platform.web.http.HttpOutputHandler;
 import org.pentaho.platform.web.servlet.messages.Messages;
 import org.springframework.http.MediaType;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.OutputStream;
 
 /**
  * @author James Dixon
- * 
+ *
  *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style -
  *         Code Templates
  */
@@ -54,7 +54,7 @@ import java.io.OutputStream;
 public class UIServlet extends ServletBase {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 7018489258697145705L;
 

@@ -23,7 +23,7 @@ package org.pentaho.platform.web.http.request;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.util.web.HttpUtil;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -48,7 +48,7 @@ public class HttpRequestParameterProvider extends SimpleParameterProvider {
 
   /**
    * Converts single value arrays to String parameters
-   * 
+   *
    */
   private void setServletRequestParameters( final Map paramMap ) {
     for ( Iterator it = paramMap.entrySet().iterator(); it.hasNext(); ) {

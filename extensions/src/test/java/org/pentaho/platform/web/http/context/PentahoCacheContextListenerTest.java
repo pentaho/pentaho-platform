@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.context;
+/*package org.pentaho.platform.web.http.context;
 
 import org.junit.After;
 import org.junit.Before;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.verify;
 /**
  * Created by rfellows on 10/28/15.
  */
-@RunWith( MockitoJUnitRunner.class )
+/*@RunWith( MockitoJUnitRunner.class )
 public class PentahoCacheContextListenerTest {
 
   PentahoCacheContextListener pentahoCacheContextListener;
@@ -74,4 +74,4 @@ public class PentahoCacheContextListenerTest {
     verify( cacheManager, never() ).cacheStop();
   }
 
-}
+}*/

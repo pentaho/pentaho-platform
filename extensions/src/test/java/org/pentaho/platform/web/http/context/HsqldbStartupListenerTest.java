@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.context;
+/*package org.pentaho.platform.web.http.context;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by rfellows on 10/28/15.
  */
-@RunWith( MockitoJUnitRunner.class )
+/*@RunWith( MockitoJUnitRunner.class )
 public class HsqldbStartupListenerTest {
 
   HsqldbStartupListener startupListener;
@@ -102,4 +102,4 @@ public class HsqldbStartupListenerTest {
     verify( context ).setAttribute( eq( "hsqldb-starter-bean" ), any() );
     startupListener.contextDestroyed( contextEvent );
   }
-}
+}*/

@@ -29,7 +29,7 @@ import org.pentaho.platform.api.util.ITempFileDeleter;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.servlet.messages.Messages;
 
-import javax.servlet.http.Part;
+import jakarta.servlet.http.Part;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;

@@ -28,9 +28,9 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.SoapHelper;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
@@ -83,7 +83,7 @@ public class CacheExpirationService extends ServletBase {
   /**
    * this should only be used for granular unit testing. The ICacheExpirationRegistry is provided by PentahoSystem if
    * this is never called
-   * 
+   *
    * @param registry
    */
   public void setExpirationRegistry( ICacheExpirationRegistry registry ) {

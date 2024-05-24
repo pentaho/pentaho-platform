@@ -22,20 +22,20 @@ package org.pentaho.platform.web.http.filters;
 
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
  * The purpose of this filter is to check to make sure that the platform is properly initialized before letting requests
  * in.
- * 
+ *
  */
 public class SystemStatusFilter implements Filter {
 
@@ -48,7 +48,7 @@ public class SystemStatusFilter implements Filter {
     if ( ( failurePage == null ) || ( failurePage.length() == 0 ) ) {
       failurePage = "InitFailure"; //$NON-NLS-1$
     }
-    redirectToOnInitError = "/" + failurePage; //$NON-NLS-1$ 
+    redirectToOnInitError = "/" + failurePage; //$NON-NLS-1$
     systemInitializedOk = PentahoSystem.getInitializedOK();
   }
 

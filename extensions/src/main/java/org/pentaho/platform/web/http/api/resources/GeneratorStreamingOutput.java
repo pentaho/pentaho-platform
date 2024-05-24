@@ -44,8 +44,8 @@ import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
 import org.pentaho.platform.web.servlet.HttpMimeTypeListener;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 
 import java.io.IOException;
@@ -93,7 +93,7 @@ public class GeneratorStreamingOutput {
   /**
    * Invokes a content generator to produce some content either in the context of a repository file, or in the form of a
    * direct service call (no repository file in view).
-   * 
+   *
    * @param contentGenerator
    *          the content generator to invoke
    * @param ContentGeneratorDescriptor

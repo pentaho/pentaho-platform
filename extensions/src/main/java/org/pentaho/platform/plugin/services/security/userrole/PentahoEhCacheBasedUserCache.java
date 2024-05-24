@@ -20,7 +20,7 @@
 
 package org.pentaho.platform.plugin.services.security.userrole;
 
-import net.sf.ehcache.Element;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -43,13 +43,23 @@ public class PentahoEhCacheBasedUserCache extends EhCacheBasedUserCache {
     return super.getUserFromCache( caseSensitive ? username : username.toLowerCase() );
   }
 
-  @Override public void putUserInCache( UserDetails user ) {
-    Element element = new Element( caseSensitive ? user.getUsername() : user.getUsername().toLowerCase(), user );
-    if ( logger.isDebugEnabled() ) {
-      logger.debug( "Cache put: " + element.getKey() );
+  @Override public void putUserInCache(UserDetails user) {
+    org.ehcache.CacheManager cacheManager = org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder().build();
+    cacheManager.init();
+
+    org.ehcache.Cache<String, org.springframework.security.core.userdetails.UserDetails> cache = cacheManager.createCache("userCache",
+            org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, UserDetails.class,
+                            org.ehcache.config.builders.ResourcePoolsBuilder.heap(10))
+                    .withExpiry(org.ehcache.expiry.Expirations.timeToLiveExpiration(org.ehcache.expiry.Duration.of(20, java.util.concurrent.TimeUnit.SECONDS))));
+
+    String key = caseSensitive ? user.getUsername() : user.getUsername().toLowerCase();
+    cache.put(key, user);
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("Cache put: " + key);
     }
 
-    this.getCache().put( element );
+    cacheManager.close();
   }
 
   @Override public void removeUserFromCache( String username ) {

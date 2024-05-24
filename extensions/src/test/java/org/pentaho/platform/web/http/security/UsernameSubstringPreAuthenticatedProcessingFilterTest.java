@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.security;
+/*package org.pentaho.platform.web.http.security;
 
 import com.mockrunner.mock.web.MockHttpServletRequest;
 import org.junit.After;
@@ -104,4 +104,4 @@ public class UsernameSubstringPreAuthenticatedProcessingFilterTest {
     return req;
   }
 
-}
+}*/

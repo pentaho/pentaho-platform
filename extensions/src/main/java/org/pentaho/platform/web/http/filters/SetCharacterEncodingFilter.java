@@ -20,12 +20,12 @@
 
 package org.pentaho.platform.web.http.filters;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import java.io.IOException;
 
 /**
@@ -43,14 +43,14 @@ import java.io.IOException;
  * called <strong>only</strong> if the client has not already specified an encoding. By default, this parameter is set
  * to "true".</li>
  * </ul>
- * 
+ *
  * <p>
  * Although this filter can be used unchanged, it is also easy to subclass it and make the <code>selectEncoding()</code>
  * method more intelligent about what encoding to choose, based on characteristics of the incoming request (such as the
  * values of the <code>Accept-Language</code> and <code>User-Agent</code> headers, or a value stashed in the current
  * user's session.
  * </p>
- * 
+ *
  * @author Craig McClanahan
  * @version $Revision: 267129 $ $Date: 2004-03-18 11:40:35 -0500 (Thu, 18 Mar 2004) $
  */
@@ -89,14 +89,14 @@ public class SetCharacterEncodingFilter implements Filter {
 
   /**
    * Select and set (if specified) the character encoding to be used to interpret request parameters for this request.
-   * 
+   *
    * @param request
    *          The servlet request we are processing
    * @param result
    *          The servlet response we are creating
    * @param chain
    *          The filter chain we are processing
-   * 
+   *
    * @exception IOException
    *              if an input/output error occurs
    * @exception ServletException
@@ -120,7 +120,7 @@ public class SetCharacterEncodingFilter implements Filter {
 
   /**
    * Place this filter into service.
-   * 
+   *
    * @param localFilterConfig
    *          The filter configuration object
    */
@@ -149,7 +149,7 @@ public class SetCharacterEncodingFilter implements Filter {
    * <p>
    * The default implementation unconditionally returns the value configured by the <strong>encoding</strong>
    * initialization parameter for this filter.
-   * 
+   *
    * @param request
    *          The servlet request we are processing
    */

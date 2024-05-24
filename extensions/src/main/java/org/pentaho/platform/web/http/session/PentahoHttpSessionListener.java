@@ -28,37 +28,37 @@ import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.messages.Messages;
 
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionListener;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSessionListener;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PentahoHttpSessionListener implements HttpSessionListener {
-
+  
   private static final boolean debug = PentahoSystem.debug;
-
+  
   private static final Map<String, String[]> sessionMap = new ConcurrentHashMap<String, String[]>();
-
+  
   public void sessionCreated( final HttpSessionEvent event ) {
     // We can't find out what the locale of the request is so we go with the
     // default for now...
     // Proper handling is done "ahead" by
     // HttpSessionPentahoSessionIntegrationFilter#localeLeftovers( HttpServletRequest )
     LocaleHelper.setThreadLocaleOverride( Locale.getDefault() );
-
+    
     String sessionId = event.getSession().getId();
     if ( PentahoHttpSessionListener.debug ) {
       Logger.debug( this, Messages.getInstance().getString( "HttpSessionListener.DEBUG_SESSION_CREATED", sessionId ) ); //$NON-NLS-1$
     }
-
+    
     // AuditHelper.audit( instanceId, String userId, String actionName,
     // String objectType, MessageTypes.PROCESS_ID_SESSION,
     // MessageTypes.SESSION_CREATE, "http session", "", 0, null );
   }
-
+  
   public void sessionDestroyed( final HttpSessionEvent event ) {
     HttpSession session = event.getSession();
     try {
@@ -84,30 +84,30 @@ public class PentahoHttpSessionListener implements HttpSessionListener {
             long endTime = new Date().getTime();
             if ( !"anonymousUser".equals( userId ) ) {
               AuditHelper.audit( instanceId, userId, activityId, objectType, processId, messageType, message, value,
-                  ( ( endTime - startTime ) / 1000 ), null );
+                      ( ( endTime - startTime ) / 1000 ), null );
             }
           }
         }
       }
     } catch ( Throwable e ) {
       Logger.error( this, Messages.getInstance().getErrorString(
-          "HttpSessionListener.ERROR_0001_ERROR_DESTROYING_SESSION" ), e ); //$NON-NLS-1$
+              "HttpSessionListener.ERROR_0001_ERROR_DESTROYING_SESSION" ), e ); //$NON-NLS-1$
     }
-
+    
   }
-
+  
   public static void registerHttpSession( final String sessionId, final String processId, final String activityId,
-      final String objectName, final String userName, final String id, final long start ) {
+                                          final String objectName, final String userName, final String id, final long start ) {
     PentahoHttpSessionListener.sessionMap.put( id, new String[] { processId, activityId, objectName, userName,
-      new Long( start ).toString(), sessionId } );
+            new Long( start ).toString(), sessionId } );
   }
-
+  
   public static void deregisterHttpSession( final String id ) {
     PentahoHttpSessionListener.sessionMap.remove( id );
   }
-
+  
   private static String[] getSessionInfo( final String id ) {
     return (String[]) PentahoHttpSessionListener.sessionMap.get( id );
   }
-
+  
 }

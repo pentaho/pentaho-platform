@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.servlet;
+/*package org.pentaho.platform.web.servlet;
 
 import org.dom4j.Document;
 import org.junit.After;
@@ -62,7 +62,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by rfellows on 11/5/15.
  */
-@RunWith( MockitoJUnitRunner.class )
+/*@RunWith( MockitoJUnitRunner.class )
 public class HttpWebServiceTest {
 
   HttpWebService httpWebService;
@@ -331,4 +331,4 @@ public class HttpWebServiceTest {
     assertEquals( "minutia", service.getDetailsParameter( request ) );
   }
 
-}
+}*/

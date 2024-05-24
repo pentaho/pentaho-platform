@@ -31,7 +31,7 @@ import org.pentaho.platform.web.gwt.rpc.AbstractGwtRpc;
 import org.pentaho.platform.web.gwt.rpc.support.GwtRpcSerializationPolicyCache;
 import org.pentaho.platform.web.gwt.rpc.IGwtRpcSerializationPolicyCache;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,66 +40,66 @@ import java.util.Map;
  * client POST requests to subclasses of this class.
  */
 public abstract class AbstractGwtRpcProxyServlet extends RemoteServiceServlet {
-
+  
   private static final Log logger = LogFactory.getLog( AbstractGwtRpcProxyServlet.class );
-
+  
   @NonNull
   private final IGwtRpcSerializationPolicyCache serializationPolicyCache;
-
+  
   protected AbstractGwtRpcProxyServlet() {
     this( null );
   }
-
+  
   protected AbstractGwtRpcProxyServlet( @Nullable IGwtRpcSerializationPolicyCache serializationPolicyCache ) {
     this.serializationPolicyCache = serializationPolicyCache != null
-      ? serializationPolicyCache
-      : new GwtRpcSerializationPolicyCache();
+                                            ? serializationPolicyCache
+                                            : new GwtRpcSerializationPolicyCache();
   }
-
+  
   @NonNull
   public IGwtRpcSerializationPolicyCache getSerializationPolicyCache() {
     return serializationPolicyCache;
   }
-
+  
   protected void doUnexpectedFailure( Throwable e ) {
     super.doUnexpectedFailure( e );
     logger.error( e );
   }
-
+  
   @NonNull
   protected abstract AbstractGwtRpc getRpc( @NonNull HttpServletRequest httpRequest );
-
-  @Override
+  
+  
   protected String readContent( HttpServletRequest httpRequest ) {
     return getRpc( httpRequest ).getRequestPayload();
   }
-
+  
   @Override
   public String processCall( String requestPayload ) throws SerializationException {
-
+    
     checkPermutationStrongName();
-
+    
     try {
-      return getRpc( getThreadLocalRequest() ).invoke();
+      return getRpc((jakarta.servlet.http.HttpServletRequest) getThreadLocalRequest()).invoke();
     } catch ( GwtRpcProxyException ex ) {
       return RPC.encodeResponseForFailure( null, ex, getBasicSerializationPolicy() );
     }
   }
-
-  @Override
+  
+  
   protected SerializationPolicy doGetSerializationPolicy( HttpServletRequest request,
                                                           String moduleBaseURL,
                                                           String strongName ) {
     throw new UnsupportedOperationException( "Class is not being used as SerializationPolicyProvider" );
   }
-
+  
   @NonNull
   static StandardSerializationPolicy getBasicSerializationPolicy() {
     Map<Class<?>, Boolean> whitelist = new HashMap<>();
     whitelist.put( GwtRpcProxyException.class, Boolean.TRUE );
-
+    
     Map<Class<?>, String> obfuscatedTypeIds = new HashMap<>();
-
+    
     return new StandardSerializationPolicy( whitelist, whitelist, obfuscatedTypeIds );
   }
 }

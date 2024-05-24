@@ -56,27 +56,29 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+
+
 /**
  * Overrides <code>getResourceByPath</code> so that relative paths are relative to the Hitachi Vantara solution repository's
  * system directory instead of being relative to servlet context root.
- * 
+ *
  * @author mlowery
  */
 public class PentahoSolutionSpringApplicationContext extends XmlWebApplicationContext {
-
+  
   private static final String DEFAULT_NAMESPASE = "ns";
-
+  
   private static final String SYSTEM_FOLDER = "system";
-
+  
   private static final String DEFAULT_SPRING_XML = "pentaho-spring-beans.xml";
   private static final String IMPORT_TAG = "import";
   private static final String RESOURCE_ATTR = "resource";
   private static final String RESOURCE = "importExport.xml";
-
+  
   private static final String IMPORT_COMMENT = "Import \"{0}\" was added by \"{1}\" class automatically";
-
+  
   private static final XPathFactory XPATH_FACTORY = XPathFactory.newInstance();
-
+  
   protected Resource getResourceByPath( String path ) {
     Resource resource = null;
     String solutionPath = PentahoHttpSessionHelper.getSolutionPath( getServletContext() );
@@ -89,36 +91,36 @@ public class PentahoSolutionSpringApplicationContext extends XmlWebApplicationCo
     ClientType clientType = null;
     // We need to check if we are running in spoon. For that we need to get the kettle client type
     if ( KettleClientEnvironment.isInitialized( )
-        && KettleClientEnvironment.getInstance() != null ) {
+                 && KettleClientEnvironment.getInstance() != null ) {
       clientType  = KettleClientEnvironment.getInstance().getClient();
     }
     // If the client type is spoon then we will skip adding the xml file
     if ( path.toLowerCase().endsWith( DEFAULT_SPRING_XML )
-        && ( clientType == null || !clientType.equals( ClientType.SPOON ) ) ) {
+                 && ( clientType == null || !clientType.equals( ClientType.SPOON ) ) ) {
       try {
-
+        
         Document doc = getResourceDocument( resource.getInputStream() );
-
+        
         Node node = doc.getDocumentElement();
-
+        
         NodeList nodes =
-            evaluateXPath( node, MessageFormat.format( "./{0}:{1}[@{2}=''{3}'']", DEFAULT_NAMESPASE, IMPORT_TAG,
-                RESOURCE_ATTR, RESOURCE ), XPathConstants.NODESET );
-
+                evaluateXPath( node, MessageFormat.format( "./{0}:{1}[@{2}=''{3}'']", DEFAULT_NAMESPASE, IMPORT_TAG,
+                        RESOURCE_ATTR, RESOURCE ), XPathConstants.NODESET );
+        
         if ( nodes.getLength() > 0 ) {
           return resource;
         }
-
+        
         Element importEl = doc.createElementNS( node.getNamespaceURI(), IMPORT_TAG );
         importEl.setAttribute( RESOURCE_ATTR, RESOURCE );
         Comment comment =
-            doc.createComment( MessageFormat.format( IMPORT_COMMENT, RESOURCE, this.getClass().getSimpleName() ) );
+                doc.createComment( MessageFormat.format( IMPORT_COMMENT, RESOURCE, this.getClass().getSimpleName() ) );
         addLineBreak( node );
         node.appendChild( comment );
         addLineBreak( node );
         node.appendChild( importEl );
         addLineBreak( node );
-
+        
         TransformerFactory tFactory = TransformerFactory.newInstance();
         Transformer transformer = tFactory.newTransformer();
         DOMSource source = new DOMSource( doc );
@@ -134,29 +136,29 @@ public class PentahoSolutionSpringApplicationContext extends XmlWebApplicationCo
         e.printStackTrace();
       }
     }
-
+    
     return resource;
   }
-
+  
   private void addLineBreak( Node node ) {
     node.appendChild( node.getOwnerDocument().createTextNode( "\n" ) );
   }
-
+  
   @SuppressWarnings( "unchecked" )
   private <T> T evaluateXPath( Node node, String exp, QName res ) throws XPathExpressionException {
     XPath xpath = XPATH_FACTORY.newXPath();
     xpath.setNamespaceContext( new DefNamespaceContext( node.getNamespaceURI() ) );
     return (T) xpath.compile( exp ).evaluate( node, res );
   }
-
+  
   private static class DefNamespaceContext implements NamespaceContext {
-
+    
     String defaultNS;
-
+    
     public DefNamespaceContext( String defaultNS ) {
       this.defaultNS = defaultNS;
     }
-
+    
     @Override
     public String getNamespaceURI( String prefix ) {
       if ( DEFAULT_NAMESPASE.equals( prefix ) ) {
@@ -164,22 +166,22 @@ public class PentahoSolutionSpringApplicationContext extends XmlWebApplicationCo
       }
       return null;
     }
-
+    
     @Override
     public String getPrefix( String namespaceURI ) {
       return null;
     }
-
+    
     @Override
     public Iterator<String> getPrefixes( String namespaceURI ) {
       return null;
     }
-
+    
   }
-
+  
   @VisibleForTesting
   Document getResourceDocument( InputStream is )
-    throws ParserConfigurationException, SAXException, IOException {
+          throws ParserConfigurationException, SAXException, IOException {
     DocumentBuilderFactory dFactory = XMLParserFactoryProducer.createSecureDocBuilderFactory();
     dFactory.setNamespaceAware( true );
     DocumentBuilder dBuilder = dFactory.newDocumentBuilder();

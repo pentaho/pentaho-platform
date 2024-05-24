@@ -29,9 +29,9 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.servlet.messages.Messages;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ResourceBundle;
@@ -82,7 +82,7 @@ public class LocalizationServlet extends ServletBase {
 
   /**
    * Retrieve a {@link java.util.ResourceBundle} from a plugin.
-   * 
+   *
    * @param pluginId
    *          ID of the plugin to load the resource bundle from
    * @param name
@@ -116,7 +116,7 @@ public class LocalizationServlet extends ServletBase {
 
   /**
    * Should the messages in the Resource Bundle be cached?
-   * 
+   *
    * @param pm
    *          Plugin manager
    * @param pluginId
@@ -134,7 +134,7 @@ public class LocalizationServlet extends ServletBase {
    * to be used with Dojo's i18n system
    * (http://dojotoolkit.org/reference-guide/1.7/quickstart/internationalization/index
    * .html#quickstart-internationalization-index)
-   * 
+   *
    * @param pluginId
    *          ID of plugin to load the resource from
    * @param name
@@ -151,7 +151,7 @@ public class LocalizationServlet extends ServletBase {
 
   /**
    * Convert a {@see ResourceBundle} into a JSON string.
-   * 
+   *
    * @param bundle
    *          Resource bundle to convert
    * @return Bundle with all key/value pairs as entries in a hash, returned as a JSON string.

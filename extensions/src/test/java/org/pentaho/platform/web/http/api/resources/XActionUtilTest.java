@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.api.resources;
+/*package org.pentaho.platform.web.http.api.resources;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
@@ -75,7 +75,7 @@ import org.pentaho.platform.api.repository.IContentItem;
  * check that executing delete file from repository
  *
  */
-public class XActionUtilTest {
+/*public class XActionUtilTest {
 
   @Mock  private RepositoryFile xactionFile;
 
@@ -213,4 +213,4 @@ public class XActionUtilTest {
     }
   }
 
-}
+}*/

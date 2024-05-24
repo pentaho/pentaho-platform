@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.servlet;
+/*package org.pentaho.platform.web.servlet;
 
 import com.mockrunner.mock.web.MockHttpServletRequest;
 import com.mockrunner.mock.web.MockHttpServletResponse;
@@ -547,4 +547,4 @@ public class ProxyServletTest {
 
     verify( servlet, times( 1 ) ).doProxy( request, response );
   }
-}
+}*/

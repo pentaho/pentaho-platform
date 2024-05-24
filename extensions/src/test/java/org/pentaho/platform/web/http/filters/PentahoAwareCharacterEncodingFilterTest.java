@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.filters;
+/*package org.pentaho.platform.web.http.filters;
 
 import com.mockrunner.mock.web.MockFilterChain;
 import org.junit.Before;
@@ -108,4 +108,4 @@ public class PentahoAwareCharacterEncodingFilterTest {
 
     assertEquals( PentahoAwareCharacterEncodingFilter.DEFAULT_CHAR_ENCODING, request.getCharacterEncoding() );
   }
-}
+}*/

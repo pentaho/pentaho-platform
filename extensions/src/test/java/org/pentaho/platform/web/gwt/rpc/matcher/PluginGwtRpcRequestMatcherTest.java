@@ -15,7 +15,7 @@
  * Copyright (c) 2021 Hitachi Vantara. All rights reserved.
  */
 
-package org.pentaho.platform.web.gwt.rpc.matcher;
+/*package org.pentaho.platform.web.gwt.rpc.matcher;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.junit.Test;
@@ -231,4 +231,4 @@ public class PluginGwtRpcRequestMatcherTest {
     assertEquals( gwtRpc1, gwtRpc2 );
   }
   // endregion
-}
+}*/

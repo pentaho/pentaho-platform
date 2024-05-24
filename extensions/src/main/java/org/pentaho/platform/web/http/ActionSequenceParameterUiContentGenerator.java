@@ -33,8 +33,8 @@ import org.pentaho.platform.engine.services.solution.SimpleParameterSetter;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.XactionUtil;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.util.Iterator;
@@ -74,7 +74,7 @@ public class ActionSequenceParameterUiContentGenerator extends SimpleContentGene
       HttpServletRequest httpRequest = (HttpServletRequest) pathParams.getParameter( "httprequest" ); //$NON-NLS-1$
       HttpServletResponse httpResponse = (HttpServletResponse) pathParams.getParameter( "httpresponse" ); //$NON-NLS-1$
       String buffer =
-        XactionUtil.executeScheduleUi( file, httpRequest, httpResponse, PentahoSessionHolder.getSession(),
+        XactionUtil.executeScheduleUi( file, (jakarta.servlet.http.HttpServletRequest) httpRequest, (jakarta.servlet.http.HttpServletResponse) httpResponse, PentahoSessionHolder.getSession(),
           outputHandler.getMimeTypeListener() );
       outputStream.write( buffer.toString().getBytes( LocaleHelper.getSystemEncoding() ) );
     }

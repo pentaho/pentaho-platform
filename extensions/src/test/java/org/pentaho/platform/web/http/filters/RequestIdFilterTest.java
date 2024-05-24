@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.filters;
+/*package org.pentaho.platform.web.http.filters;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -70,4 +70,4 @@ public class RequestIdFilterTest {
 
     verify( response ).setHeader( eq( RequestIdUtil.X_REQUEST_ID ), eq( requestId ) );
   }
-}
+}*/

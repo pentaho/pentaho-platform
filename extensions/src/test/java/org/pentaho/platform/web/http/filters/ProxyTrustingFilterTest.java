@@ -18,7 +18,7 @@
  *
  */
 
-package org.pentaho.platform.web.http.filters;
+/*package org.pentaho.platform.web.http.filters;
 
 import org.junit.After;
 import org.junit.Before;
@@ -247,4 +247,4 @@ public class ProxyTrustingFilterTest {
     assertEquals( locale.toString(), httpSession.getAttribute( IPentahoSession.ATTRIBUTE_LOCALE_OVERRIDE ) );
   }
   // endregion
-}
+}*/

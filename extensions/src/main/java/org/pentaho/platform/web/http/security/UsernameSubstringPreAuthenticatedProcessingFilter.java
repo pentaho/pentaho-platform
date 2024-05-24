@@ -25,7 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthenticatedProcessingFilter;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,11 +33,11 @@ import java.util.regex.Pattern;
  * Specialization of {@link J2eePreAuthenticatedProcessingFilter} where
  * {@link #getPreAuthenticatedPrincipal(HttpServletRequest)} optionally extracts a substring of the user principal to
  * use as the return value.
- * 
+ *
  * <p>
  * The original user principal is stored in a request attribute named {@link #PENTAHO_ORIG_USER_PRINCIPAL}.
  * </p>
- * 
+ *
  * @author mlowery
  */
 public class UsernameSubstringPreAuthenticatedProcessingFilter extends J2eePreAuthenticatedProcessingFilter {
@@ -74,14 +74,14 @@ public class UsernameSubstringPreAuthenticatedProcessingFilter extends J2eePreAu
   /**
    * Regular expression where the first capture group will be extracted and used as the username. Set to {@code null} or
    * empty string to disable matching and extraction.
-   * 
+   *
    * <p>
    * Example:
-   * 
+   *
    * <pre>
    * {@code .+\\(.+)}
    * </pre>
-   * 
+   *
    * The above example regular expression would extract {@code USER} from {@code DOMAIN\USER}.
    */
   public void setRegex( final String regex ) {
