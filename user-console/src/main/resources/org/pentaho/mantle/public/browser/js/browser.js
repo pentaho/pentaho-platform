@@ -72,9 +72,11 @@ define([
   var trashItemButtons = new TrashItemButtons(jQuery.i18n);
   var browserUtils = new BrowserUtils();
   var multiSelectButtons = new MultiSelectButtons(jQuery.i18n);
-  // BACKLOG-30159 -- depth preset to 3 because initial folder will be /home/<user> (i.e. /home/admin)
-  // and we need 3 levels, 1. home, 2. <user>, and 3. any folders within /home/<user>
-  var depth = 3;
+  // BACKLOG-40444 -- After the addition of vfs connections to fetch all the folders with depth of 3 has become a
+  // performance issue. Changing the depth to 1 to fetch the folders lazily. For the last clicked folders if it's depth
+  // is more than one we are using extendedPath param to fetch the tree structure of last clicked folder and remaining
+  // all folders loads with depth of 1.
+  var depth = 1;
 
   fileButtons.renameDialog = renameDialog;
   folderButtons.renameDialog = renameDialog;
@@ -295,20 +297,21 @@ define([
       var config = myself.get("spinConfig").getLargeConfig();
       var spinner1 = new Spinner(config),
           spinner2 = new Spinner(config);
-      var _clickedFolder = undefined;
-      var _clickedFile = undefined;
-      if ( foldersTreeModel ) {
-        _clickedFolder = {
-          obj: foldersTreeModel.get("clickedFolder"),
-          time: (new Date()).getTime()
-        }
+
+      function getClickedFolder(model) {
+        return model && model.get("clickedFolder") && model.get("clickedFolder").obj;
       }
-      if ( fileListModel ) {
-        _clickedFile = {
-          obj: fileListModel.get("clickedFile"),
-          time: (new Date()).getTime()
-        }
+
+      function getClickedFile(model) {
+        return model && model.get("clickedFile") && model.get("clickedFile").obj;
       }
+
+      var _clickedFolderObj = getClickedFolder(foldersTreeModel) ?? getClickedFolder(myself);
+      var _clickedFolder = _clickedFolderObj ? {obj: _clickedFolderObj, time: (new Date()).getTime()} : null;
+
+      var _clickedFileObj = getClickedFile(fileListModel) ?? getClickedFile(myself);
+      var _clickedFile = _clickedFileObj ? {obj: _clickedFileObj, time: (new Date()).getTime()} : null;
+
       //create two models
       foldersTreeModel = new FileBrowserFolderTreeModel({
         spinner: spinner1,
@@ -597,19 +600,26 @@ define([
       });
     },
 
-    getFolderTreeRootRequest: function (path) {
-      var expandedPathParam = "";
+    _getResolvedClickedFolder: function() {
+       return this.get("clickedFolder")?.obj?.attr("path");
+    },
 
-      // BACKLOG-40086: the trash folder as a concept does not currently exist in the generic-files API
-      if (FileBrowser.fileBrowserModel.get("startFolder") && FileBrowser.fileBrowserModel.get("startFolder") != '.trash') {
-        expandedPathParam = "&expandedPath=" + encodeURIComponent(FileBrowser.fileBrowserModel.get("startFolder"));
-      }
+    _getResolvedStartFolder: function() {
+      const startFolder = FileBrowser.fileBrowserModel.get("startFolder");
+      return startFolder && startFolder !== '.trash' ? startFolder : null;
+    },
+
+    getFolderTreeRootRequest: function(path) {
+      const expandedPath = this._getResolvedClickedFolder() || this._getResolvedStartFolder();
+      const expandedPathParam = expandedPath ? (`&expandedPath=${encodeURIComponent(expandedPath)}`) : "";
 
       /**
-       * TODO BACKLOG-40086: In order to prevent regressions in current behavior we include the depth parameter here like it was for repository api.
+       * TODO BACKLOG-40086: In order to prevent regressions in current behavior we include the depth parameter here
+       * like it was for repository api.
        * This is expensive, however, fetching the entire folder tree to whatever depth, just to view a specific folder.
        */
-      return CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/tree?depth="+ depth +"&filter=FOLDERS&showHidden=" + this.get("showHiddenFiles") + expandedPathParam;
+      return `${CONTEXT_PATH}plugin/scheduler-plugin/api/generic-files/tree?depth=${depth}&filter=FOLDERS&showHidden=${
+        this.get("showHiddenFiles")}${expandedPathParam}`;
     },
 
     getRepositoryFolderChildren: function (response) {
@@ -1214,7 +1224,6 @@ define([
           $folder.removeClass("selected");
           $clickedFile.addClass("selected");
         } else {
-          $folder.addClass("open");
           $folder.children(".element").attr("aria-expanded", true);
           $folder.addClass("selected");
           $folder.children(".element").attr("tabindex", 0).attr("aria-selected", true);
@@ -1297,7 +1306,6 @@ define([
             if (response.children) {
               var toAppend = templates.folders(FileBrowser.fileBrowserModel.get("fileListModel").reformatResponse(response));
               $target.find("> .folders").append(toAppend ? toAppend : "");
-              depth = $target.attr("path").split("/").length;
             }
             // set the widths of new folder descriptions
             $target.find(".element").each(function () {
@@ -1352,7 +1360,6 @@ define([
       //deselect any files
       $("#fileBrowserFiles").children("[role=listbox]").removeAttr("aria-activedescendant");
       $(".file.selected").removeClass("selected");
-      depth = $target.attr("path").split("/").length;
       event.stopPropagation();
     },
 
@@ -2028,5 +2035,5 @@ define([
 
 function perspectiveActivated() {
   window.parent.mantle_isBrowseRepoDirty = true;
-  FileBrowser.update(FileBrowser.fileBrowserModel.getFolderClicked().attr("path"));
+  FileBrowser.update();
 }
