@@ -384,10 +384,10 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
 
   private void fetchWithEEOverlay( JsArray<JsXulOverlay> jsoverlays ) {
 
-    final String url = GWT.getHostPageBaseURL() + "api/licenseManager/getLicenses"; //$NON-NLS-1$
+    final String url = GWT.getHostPageBaseURL() + "api/dsc/biserver-ee/valid"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder( RequestBuilder.GET, url );
     builder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
-    builder.setHeader( "accept", "application/json" );
+    builder.setHeader( "accept", "text/plain" );
 
     try {
       builder.sendRequest( null, new RequestCallback() {
@@ -397,7 +397,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserOpenEventHa
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          boolean containsEELicense = response.getText().contains( "BISERVER-EE" );
+          boolean containsEELicense = response.getText().equals( "true" );
 
           ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
           for ( int i = 0; i < jsoverlays.length(); i++ ) {
