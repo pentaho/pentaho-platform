@@ -54,6 +54,7 @@ if [ "$?" = 0 ]; then
   #Sets options that only get read by Java 11 to remove illegal reflective access warnings
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.base/sun.net.www.protocol.jar=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.base/java.lang=ALL-UNNAMED"
+  JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.base/java.util=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.base/java.lang.reflect=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.base/java.net=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.base/java.security=ALL-UNNAMED"
@@ -65,6 +66,12 @@ if [ "$?" = 0 ]; then
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.management/javax.management=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.management/javax.management.openmbean=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.naming/com.sun.jndi.ldap=ALL-UNNAMED"
+  JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.base/java.math=ALL-UNNAMED"
+  JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.base/java.io=ALL-UNNAMED"
+  JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.base/java.lang.Object=ALL-UNNAMED"
+  JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.base/sun.nio.ch=ALL-UNNAMED"
+  JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.base/java.nio=ALL-UNNAMED"
+  JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens java.desktop/sun.java2d=ALL-UNNAMED"
   export JDK_JAVA_OPTIONS
   JAVA_HOME=$_PENTAHO_JAVA_HOME
   sh startup.sh
