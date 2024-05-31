@@ -126,7 +126,6 @@
         <Logger name="org.pentaho.di.monitor" level="ERROR"/>
         <Logger name="org.pentaho.platform.engine.core.system.status" level="INFO"/>
         <Logger name="org.pentaho.hadoop.shim.DriverManager" level="INFO"/>
-        <Logger name="org.pentaho.database.dialect.MySQLDatabaseDialect" level="INFO"/>
         
         <!-- =========================== -->
         <!-- Repository Import Log Level -->
