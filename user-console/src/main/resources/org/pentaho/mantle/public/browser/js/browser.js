@@ -601,7 +601,8 @@ define([
     },
 
     _getResolvedClickedFolder: function() {
-       return this.get("clickedFolder")?.obj?.attr("path");
+       const clickedFolder = this.get("clickedFolder")?.obj?.attr("path");
+       return clickedFolder && clickedFolder !== '.trash' ? clickedFolder : null;
     },
 
     _getResolvedStartFolder: function() {
