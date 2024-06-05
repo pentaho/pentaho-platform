@@ -332,6 +332,14 @@
 
   }
 
+  function getUserDataForLogin(loginForm) {
+    var username = loginForm.find("#j_username").val();
+    var password = loginForm.find("#j_password").val();
+
+    return "j_username="+encodeURIComponent(username)+"&j_password=ENC:"+window.btoa( encodeURIComponent(password) );
+  }
+
+
   function doLogin() {
 
     // if we have a valid session and we attempt to login on top of it, the server
@@ -350,11 +358,13 @@
     var userState = '';
     <% } %>
 
+    var userData = getUserDataForLogin($("#login"));
+
     jQuery.ajax({
       type: "POST",
       url: "j_spring_security_check",
       dataType: "text",
-      data: $("#login").serialize(),
+      data: userData,
 
       error:function (xhr, ajaxOptions, thrownError){
         if (xhr.status == 404) {
