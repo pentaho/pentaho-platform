@@ -97,7 +97,7 @@ public class MantleUtils {
     } else {
       // fallback to the default location when the getter is unavailable
       // e.g. race condition loading GWT JavaScript code, PUC JS executes before the Scheduler Plugin JS is loaded
-      return $wnd.FULL_QUALIFIED_URL + "plugin/scheduler-plugin/";
+      return $wnd.location.protocol + "//" + $wnd.location.host + $wnd.CONTEXT_PATH + "plugin/scheduler-plugin/";
     }
   }-*/;
 
