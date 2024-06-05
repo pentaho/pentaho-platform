@@ -1129,8 +1129,18 @@ public class MantleController extends AbstractXulEventHandler {
 
     model.setContentEditToggled();
 
+    toggleEditContentBtnTooltip( model, contentEditBtn );
+
     executeEditContentCallback( SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame().getFrame()
         .getElement(), model.isContentEditSelected() );
+  }
+
+  private void toggleEditContentBtnTooltip( MantleModel model, XulComponent button ) {
+    if ( model.isContentEditSelected() ) {
+      button.setTooltiptext( "View Mode" );
+    } else {
+      button.setTooltiptext( "Edit Content" );
+    }
   }
 
   @Bindable
