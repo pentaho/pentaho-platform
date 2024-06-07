@@ -70,7 +70,6 @@ if [ "$errCode" = 0 ]; then
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.management/javax.management.openmbean=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.base/java.math=ALL-UNNAMED"
-  JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.base/java.lang.Object=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.base/java.nio=ALL-UNNAMED"
   JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-opens=java.security.jgss/sun.security.krb5=ALL-UNNAMED"
