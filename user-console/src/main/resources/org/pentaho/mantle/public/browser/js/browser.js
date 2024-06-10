@@ -1304,10 +1304,14 @@ define([
           dataType: "json",
           url: url,
           success: function (response) {
+
             if (response.children) {
+              response = customSort(response);
+
               var toAppend = templates.folders(FileBrowser.fileBrowserModel.get("fileListModel").reformatResponse(response));
               $target.find("> .folders").append(toAppend ? toAppend : "");
             }
+
             // set the widths of new folder descriptions
             $target.find(".element").each(function () {
               var $this = $(this);
@@ -1960,32 +1964,41 @@ define([
 
   function customSort(response) {
 
+    // Code should be in sync with org.pentaho.gwt.widgets.client.filechooser.TreeItemComparator#compare.
+    var localeCompare = function(a, b) {
+      const aLowerCase = a.toLowerCase();
+      const bLowerCase = b.toLowerCase();
+
+      if(aLowerCase.localeCompare(bLowerCase) === 0) {
+        // if values are equal, case ignored, use original values for comparison.
+        return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+      }
+
+      return aLowerCase.localeCompare(bLowerCase);
+    };
+
     var sortFunction = function (a, b) {
       //if the file doesn't have a title, sort by its name
       //this is expected to only be the case for root folders
       const aCompare = a.file.title || a.file.name;
       const bCompare = b.file.title || b.file.name;
-      return window.parent.localeCompare(aCompare, bCompare);
+      return localeCompare(aCompare, bCompare);
     };
 
-    var recursivePreorder = function (node) {
-      if (node != undefined) {
-        if (node.children == undefined || node.children == null || node.children.length <= 0) {
+    var recursivePreorder = function(node) {
+      if(node != null) {
+        if(node.children == null || node.children.length === 0) {
           // do nothing if node is not a parent
-        }
-        else {
-          for (var i = 0; i < node.children.length; i++)
-              // recursively sort children
+        } else {
+          for(var i = 0; i < node.children.length; i++) {
+            // recursively sort children
             recursivePreorder(node.children[i]);
+          }
+
           node.children.sort(sortFunction);
         }
       }
     };
-
-    if (!window.parent.localeCompare) {
-      console.log('window.parent.localeCompare function has not been loaded');
-      return response; // the server should still return a sorted tree list
-    }
 
     recursivePreorder(response);
 
