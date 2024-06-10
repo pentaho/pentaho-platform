@@ -68,9 +68,8 @@ public class PentahoJsonValidator {
      */
   private static void findJsonClassNames( JSONObject json, Set<String> jsonClassNames ) throws JSONException {
     if ( json.length() > 0 ) {
-      final String className = (String) json.get("class");
-      if (className != null) {
-        jsonClassNames.add(className);
+      if ( json.has( "class" ) ) {
+        jsonClassNames.add( (String) json.get( "class" ) );
       }
       final Iterator keys = json.keys();
       while (keys.hasNext()) {
