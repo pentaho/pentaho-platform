@@ -67,19 +67,23 @@ public class PentahoJsonValidator {
      * @throws JSONException
      */
   private static void findJsonClassNames( JSONObject json, Set<String> jsonClassNames ) throws JSONException {
-    final String className = (String) json.get( "class" );
-    if ( className != null ) {
-      jsonClassNames.add( className );
-    }
-    final Iterator keys = json.keys();
-    while ( keys.hasNext() ) {
-      Object value = json.get( keys.next().toString() );
-      if ( value instanceof JSONObject ) {
-        findJsonClassNames( (JSONObject) value, jsonClassNames );
-      } else if ( value instanceof JSONArray ) {
-        JSONArray jsonArray = (JSONArray) value;
-        for ( int jsonIndex = 0 ;jsonIndex < jsonArray.length() ;jsonIndex++ ) {
-          findJsonClassNames( (JSONObject) jsonArray.get( jsonIndex ), jsonClassNames );
+    if ( json.length() > 0 ) {
+      final String className = (String) json.get("class");
+      if (className != null) {
+        jsonClassNames.add(className);
+      }
+      final Iterator keys = json.keys();
+      while (keys.hasNext()) {
+        Object value = json.get(keys.next().toString());
+        if (value instanceof JSONObject) {
+          findJsonClassNames((JSONObject) value, jsonClassNames);
+        } else if (value instanceof JSONArray) {
+          JSONArray jsonArray = (JSONArray) value;
+          for ( int jsonIndex = 0; jsonIndex < jsonArray.length(); jsonIndex++ ) {
+            if ( jsonArray.get( jsonIndex ) != null && jsonArray.get( jsonIndex ) instanceof JSONObject ) {
+              findJsonClassNames( (JSONObject) jsonArray.get( jsonIndex ), jsonClassNames );
+            }
+          }
         }
       }
     }
