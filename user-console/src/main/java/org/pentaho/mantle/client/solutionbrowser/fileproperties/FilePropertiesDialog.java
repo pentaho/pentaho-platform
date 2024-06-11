@@ -95,7 +95,11 @@ public class FilePropertiesDialog extends PromptDialogBox {
     okButton.getElement().setId( "filePropertiesOKButton" );
     cancelButton.getElement().setId( "filePropertiesCancelButton" );
 
-    parentPath = fileSummary.getPath().substring( 0, fileSummary.getPath().lastIndexOf( "/" ) );
+    if ( fileSummary.isFolder() ) {
+      parentPath = fileSummary.getPath();
+    } else {
+      parentPath = fileSummary.getPath().substring(0, fileSummary.getPath().lastIndexOf("/"));
+    }
 
     super.setCallback( new IDialogCallback() {
 
