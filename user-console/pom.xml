@@ -159,6 +159,10 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.pentaho</groupId>
       <artifactId>commons-xul-core</artifactId>
       <version>${commons-xul.version}</version>
