@@ -118,8 +118,21 @@ define([
 
     enableButtons: function (enableButtons) {
       this.buttons.forEach((buttonDef) => {
-        if (buttonDef.id !== "separator") {
-          $("#" + buttonDef.id).prop("disabled", !enableButtons);
+        if (buttonDef.id !== "openButton") {
+          let target;
+          if (buttonDef.id == "separator") {
+            target = $(".separator");
+          } else {
+            target = $("#" + buttonDef.id);
+          }
+
+          target.prop("disabled", !enableButtons);
+
+          if (!enableButtons) {
+            target.hide();
+          } else {
+            target.show();
+          }
         }
       });
     }

@@ -433,29 +433,31 @@ define([
       this.set("clickedFile", clickedFile);
 
       var clickedFolder = this.get("clickedFolder");
-      var didClickTrash = (!!clickedFolder) && clickedFolder.obj.attr("path") == ".trash";
-      if (didClickTrash) {
-        this.updateTrashItemLastClick();
-      }
-
-      if ( clickedFile == null ) {
-        fileButtons.updateFilePermissionButtons(false);
-        fileButtons.canDownload(false);
-        return;
-      }
-
-      if (!didClickTrash) {
-        // BISERVER-9127 - Provide the selected path to the FileButtons object
-        fileButtons.onFileSelect(clickedFile.obj.attr("path"));
-      }
-
-      fileButtons.canDownload(this.get("canDownload"));
 
       var filePath = clickedFile.obj.attr("path");
       const isRepoPath = isRepositoryPath(filePath);
 
+      //Repository Only Logic
       //Ajax request to check write permissions for file
       if( isRepoPath ) {
+        var didClickTrash = (!!clickedFolder) && clickedFolder.obj.attr("path") == ".trash";
+        if (didClickTrash) {
+          this.updateTrashItemLastClick();
+        }
+
+        if ( clickedFile == null ) {
+          fileButtons.updateFilePermissionButtons(false);
+          fileButtons.canDownload(false);
+          return;
+        }
+
+        if (!didClickTrash) {
+          // BISERVER-9127 - Provide the selected path to the FileButtons object
+          fileButtons.onFileSelect(clickedFile.obj.attr("path"));
+        }
+
+        fileButtons.canDownload(this.get("canDownload"));
+
         filePath = Encoder.encodeRepositoryPath(filePath);
 
         $.ajax({
@@ -714,6 +716,13 @@ define([
           obj.file = response.children[i].file;
           obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
 
+          //decode potentially encoded name and title attributes of PVFS paths
+          if( !isRepositoryPath(obj.file.path) && !obj.file.decoded ){
+            obj.file.name = this.decodePvfsFileAttribute(obj.file.name);
+            obj.file.title = obj.file.title === null ? null : this.decodePvfsFileAttribute(obj.file.title);
+            obj.file.decoded = true;
+          }
+
           if(!obj.file.objectId){
             obj.file.objectId = obj.file.path;
           }
@@ -724,6 +733,18 @@ define([
         }
       }
       return newResp;
+    },
+
+    decodePvfsFileAttribute: function (attribute) {
+      try {
+        return decodeURI(attribute).replace("%23", "#");
+      } catch (error) {
+        // if there is an error, simply return the value. This should only impact the UI visually, not functionally.
+        // we can show an error if we'd like, but have opted not to at this time.
+        // let errorMessage = "Error decoding file attribute: " + attribute + "\n" + error;
+        // window.parent.mantle_showGenericError(errorMessage);
+        return attribute;
+      }
     },
 
     updateData: function () {
@@ -1898,8 +1919,7 @@ define([
       var path = $(event.currentTarget).attr("path");
       //if not trash item, try to open the file.
 
-      //TODO BACKLOG-40086: disable double click actions on VFS Connection files for now. To be addressed in BACKLOG-40475
-      if (isRepositoryRootPath(path) && FileBrowser.fileBrowserModel.getLastClick() != "trashItem") {
+      if (FileBrowser.fileBrowserModel.getLastClick() != "trashItem") {
         this.model.get("openFileHandler")(path, "run");
       }
     },
