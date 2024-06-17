@@ -25,6 +25,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.MockedStatic;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -32,6 +33,7 @@ import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoFileExistsException;
 import org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoReferentialIntegrityException;
@@ -80,6 +82,7 @@ import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.ArgumentMatchers.endsWith;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -372,7 +375,7 @@ public class DefaultDeleteHelperTest {
       return nodeIteratorHome;
     } );
 
-    when ( session.getItem( "/pentaho/tenant0/home" ) ).thenReturn( nodeHomeFolder );
+    when( session.getItem( "/pentaho/tenant0/home" ) ).thenReturn( nodeHomeFolder );
 
     // regular user
     final List<RepositoryFile> deletedFiles = defaultDeleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
@@ -385,6 +388,17 @@ public class DefaultDeleteHelperTest {
     final List<RepositoryFile> deletedFilesAdmin = defaultDeleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
     assertNotNull( deletedFilesAdmin );
     assertEquals( 3, deletedFilesAdmin.size() );
+
+    // as admin all user trash access disabled
+    try ( MockedStatic<PentahoSystem> mockedPentahoSystem = mockStatic( PentahoSystem.class ) ) {
+      mockedPentahoSystem.when(
+        () -> PentahoSystem.getSystemSetting( "adminAccessAllUsersTrash", "false" ) )
+        .thenReturn( "false" );
+      admin[0] = true;
+      final List<RepositoryFile> deletedFilesAdminNoAccess = defaultDeleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
+      assertNotNull( deletedFilesAdminNoAccess );
+      assertEquals( 1, deletedFilesAdminNoAccess.size() );
+    }
   }
 
   @Test
@@ -470,7 +484,7 @@ public class DefaultDeleteHelperTest {
       return nodeIteratorHome;
     } );
 
-    when ( session.getItem( "/pentaho/tenant0/home" ) ).thenReturn( nodeHomeFolder );
+    when( session.getItem( "/pentaho/tenant0/home" ) ).thenReturn( nodeHomeFolder );
 
 
 
