@@ -310,9 +310,9 @@ public class DefaultDeleteHelperTest {
     verify( valueFactory ).createValue( someFilter );
   }
 
+  private void setupGetAllDeletedFiles( final String pathUsr, final boolean[] admin )
+      throws RepositoryException {
 
-  @Test
-  public void testGetAllDeletedFiles() throws Exception {
     final String path1 = "path1";
     final Calendar date1 = Calendar.getInstance();
     final Node deletedNode1 = createDeletedNode( path1, date1 );
@@ -335,7 +335,6 @@ public class DefaultDeleteHelperTest {
     when( nodeOtherFolder.hasNodes(  ) ).thenReturn( true );
     when( nodeOtherFolder.getNode( anyString() ) ).thenReturn( nodeTrash );
 
-    final String pathUsr = "pathUser";
     final Calendar dateUsr = Calendar.getInstance();
     final Node deletedNodeUsr = createDeletedNode( pathUsr, dateUsr );
     final Node nodeTrashUsr = mock( Node.class );
@@ -352,7 +351,6 @@ public class DefaultDeleteHelperTest {
     when( nodeUserFolder.hasNodes(  ) ).thenReturn( true );
     when( nodeUserFolder.getNode( anyString() ) ).thenReturn( nodeTrashUsr );
 
-    final boolean[] admin = { false };
     defaultDeleteHelper = new DefaultDeleteHelper( lockHelper, pathConversionHelper ) {
       @Override
       protected boolean isAdmin() {
@@ -376,29 +374,64 @@ public class DefaultDeleteHelperTest {
     } );
 
     when( session.getItem( "/pentaho/tenant0/home" ) ).thenReturn( nodeHomeFolder );
+  }
 
-    // regular user
+  @Test
+  public void testGetAllDeletedFiles_NonAdmin() throws RepositoryException {
+    final String pathUsr = "pathUser";
+    final boolean[] admin = { false };
+    setupGetAllDeletedFiles( pathUsr, admin );
+
     final List<RepositoryFile> deletedFiles = defaultDeleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
     assertNotNull( deletedFiles );
     assertEquals( 1, deletedFiles.size() );
     assertEquals( pathUsr, deletedFiles.get( 0 ).getOriginalParentFolderPath() );
+  }
 
-    // as admin
-    admin[0] = true;
-    final List<RepositoryFile> deletedFilesAdmin = defaultDeleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
-    assertNotNull( deletedFilesAdmin );
-    assertEquals( 3, deletedFilesAdmin.size() );
+  @Test
+  public void testGetAllDeletedFiles_Admin_Default() throws RepositoryException {
+    final String pathUsr = "pathUser";
+    final boolean[] admin = {true};
+    setupGetAllDeletedFiles( pathUsr, admin );
 
-    // as admin all user trash access disabled
+    final List<RepositoryFile> deletedFiles = defaultDeleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
+    assertNotNull( deletedFiles );
+    assertEquals( 3, deletedFiles.size() );
+  }
+
+  private void assertAdminAccessAllUsersTrash( boolean adminAccessAllUsersTrash, int expectedFiles ) throws RepositoryException {
+    RepositoryFileProxyFactory repositoryFileProxyFactory = PentahoSystem.get( RepositoryFileProxyFactory.class );
     try ( MockedStatic<PentahoSystem> mockedPentahoSystem = mockStatic( PentahoSystem.class ) ) {
+      // By mocking PentahoSystem, the value of this property will become null when called,
+      // so we need to set it up in the mocked object
+      mockedPentahoSystem.when( () -> PentahoSystem.get( RepositoryFileProxyFactory.class ) )
+        .thenReturn( repositoryFileProxyFactory );
+
       mockedPentahoSystem.when(
-        () -> PentahoSystem.getSystemSetting( "adminAccessAllUsersTrash", "false" ) )
-        .thenReturn( "false" );
-      admin[0] = true;
-      final List<RepositoryFile> deletedFilesAdminNoAccess = defaultDeleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
-      assertNotNull( deletedFilesAdminNoAccess );
-      assertEquals( 1, deletedFilesAdminNoAccess.size() );
+        () -> PentahoSystem.getSystemSetting( "adminAccessAllUsersTrash", "true" ) )
+        .thenReturn( String.valueOf( adminAccessAllUsersTrash ) );
+      final List<RepositoryFile> deletedFiles = defaultDeleteHelper.getAllDeletedFiles( session, pentahoJcrConstants );
+      assertNotNull( deletedFiles );
+      assertEquals( expectedFiles, deletedFiles.size() );
     }
+  }
+
+  @Test
+  public void testGetAllDeletedFiles_AdminAccessAllUsersTrash() throws RepositoryException {
+    final String pathUsr = "pathUser";
+    final boolean[] admin = {true};
+    setupGetAllDeletedFiles( pathUsr, admin );
+
+    assertAdminAccessAllUsersTrash( true, 3 );
+  }
+
+  @Test
+  public void testGetAllDeletedFiles_AdminCannotAccessAllUsersTrash() throws RepositoryException {
+    final String pathUsr = "pathUser";
+    final boolean[] admin = {true};
+    setupGetAllDeletedFiles( pathUsr, admin );
+
+    assertAdminAccessAllUsersTrash( false, 1 );
   }
 
   @Test
