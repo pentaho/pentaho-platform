@@ -126,14 +126,25 @@ public class UserRoleListResourceTest {
   }
 
   @Test
-  public void testGetAllRoles() throws Exception {
+  public void testGetAllRoles() {
     RoleListWrapper mockWrapper = mock( RoleListWrapper.class );
-    doReturn( mockWrapper ).when( userRoleListServiceMock ).getAllRoles();
+    doReturn( mockWrapper ).when( userRoleListServiceMock ).getAllRoles( false );
 
-    RoleListWrapper testWrapper = userRoleListResource.getAllRoles();
+    RoleListWrapper testWrapper = userRoleListResource.getAllRoles( false );
     assertEquals( mockWrapper, testWrapper );
 
-    verify( userRoleListServiceMock, times( 1 ) ).getAllRoles();
+    verify( userRoleListServiceMock, times( 1 ) ).getAllRoles( false );
+  }
+
+  @Test
+  public void testGetAllRolesWithoutAnonymous() {
+    RoleListWrapper mockWrapper = mock( RoleListWrapper.class );
+    doReturn( mockWrapper ).when( userRoleListServiceMock ).getAllRoles( true );
+
+    RoleListWrapper testWrapper = userRoleListResource.getAllRoles( true );
+    assertEquals( mockWrapper, testWrapper );
+
+    verify( userRoleListServiceMock, times( 1 ) ).getAllRoles( true );
   }
 
   @Test

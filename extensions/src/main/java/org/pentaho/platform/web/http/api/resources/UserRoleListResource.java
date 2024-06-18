@@ -34,6 +34,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.DefaultValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -60,10 +61,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
                                @NonNull String adminRole,
                                @NonNull String anonymousRole,
                                @NonNull List<String> extraRoles ) {
-    // While anonymousRole is not used anymore, this constructor is still being used from spring config files.
-    // Opted to keep the constructor for both config backwards compatibility and because it makes sense to receive
-    // all types of roles.
-    this( createUserRoleListService( systemRoles, adminRole, extraRoles ) );
+    this( createUserRoleListService( systemRoles, adminRole, anonymousRole, extraRoles ) );
   }
 
   /**
@@ -88,12 +86,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     List<String> systemRoles = PentahoSystem.get( ArrayList.class, "singleTenantSystemAuthorities", session );
     String adminRole = PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", session );
     List<String> extraRoles = PentahoSystem.get( ArrayList.class, "extraSystemAuthorities", session );
+    String anonymousRole = PentahoSystem.get( String.class, "singleTenantAnonymousAuthorityName", session );
 
     Objects.requireNonNull( systemRoles );
     Objects.requireNonNull( adminRole );
     Objects.requireNonNull( extraRoles );
+    Objects.requireNonNull( anonymousRole );
 
-    return createUserRoleListService( systemRoles, adminRole, extraRoles );
+    return createUserRoleListService( systemRoles, adminRole, anonymousRole, extraRoles );
   }
 
   /**
@@ -101,12 +101,14 @@ public class UserRoleListResource extends AbstractJaxRSResource {
    *
    * @param systemRoles The system roles.
    * @param adminRole   The administrator role.
+   * @param anonymousRole   The anonymous role.
    * @param extraRoles  The extra roles.
    * @return The default user role list service.
    */
   @NonNull
   private static UserRoleListService createUserRoleListService( @NonNull List<String> systemRoles,
                                                                 @NonNull String adminRole,
+                                                                @NonNull String anonymousRole,
                                                                 @NonNull List<String> extraRoles ) {
 
     UserRoleListService userRoleListService = new UserRoleListService();
@@ -115,6 +117,7 @@ public class UserRoleListResource extends AbstractJaxRSResource {
     userRoleListService.setExtraRoles( new ArrayList<>( extraRoles ) );
     userRoleListService.setRoleComparator( new DefaultRoleComparator() );
     userRoleListService.setUserComparator( new DefaultUsernameComparator() );
+    userRoleListService.setAnonymousRole( anonymousRole );
 
     return userRoleListService;
   }
@@ -233,11 +236,15 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Get a list of the all roles in the platform including Anonymous and Administrator.
+   * Get a list of the all roles in the platform including Administrator. If excludeAnonymous is false, Anonymous role is included, else excluded.
    *
    * <p>
    * <b>Example Request:</b><br />
-   * GET pentaho/api/userrolelist/allRoles
+   * GET pentaho/api/userrolelist/allRoles?excludeAnonymous=false
+   * </p>
+   *
+   * <p>
+   *  @param excludeAnonymous The excludeAnonymous flag.
    * </p>
    *
    * @return A list of Role objects that contains all the roles in the platform.
@@ -254,8 +261,8 @@ public class UserRoleListResource extends AbstractJaxRSResource {
   @Path( "/allRoles" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully retrieved the list of Role objects." ), } )
-  public RoleListWrapper getAllRoles() {
-    return userRoleListService.getAllRoles();
+  public RoleListWrapper getAllRoles( @DefaultValue( "false" ) @QueryParam( "excludeAnonymous" ) boolean excludeAnonymous ) {
+    return userRoleListService.getAllRoles( excludeAnonymous );
   }
 
   /**
