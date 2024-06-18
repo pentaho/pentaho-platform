@@ -207,8 +207,6 @@
     <classmate.version>1.6.0</classmate.version>
     <javax.persistence-api.version>2.2</javax.persistence-api.version>
     <byte-buddy.version>1.12.16</byte-buddy.version>
-    <commons-io.version>2.16.1</commons-io.version>
-    <commons-compress.version>1.26.1</commons-compress.version>
   </properties>
 
   <dependencyManagement>
