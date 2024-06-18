@@ -368,18 +368,21 @@ define([
     },
 
     updateFolderButtons: function( _folderPath) {
-      const isRepoPath = !!_folderPath && isRepositoryPath(_folderPath);
+      const isRepositoryFolderPath = !!_folderPath && !isRepositoryRootPath(_folderPath) && isRepositoryPath(_folderPath);
 
       var userHomePath = Encoder.encodeRepositoryPath(window.parent.HOME_FOLDER);
       var model = FileBrowser.fileBrowserModel; // trap model
       var folderPath = Encoder.encodeRepositoryPath( _folderPath);
 
-      folderButtons.enableButtons(isRepoPath);
+      // BACKLOG-40475: Disable and hide all folder actions for roots "Repository" and "VFS Connections", along with all PVFS folders
+      // "Repository" and "VFS Connections" are technically folders in the tree, but shouldn't be considered regular "folders" from a user perspective
+      // They should be considered "folder categories" or something of the like.
+      folderButtons.enableButtons(isRepositoryFolderPath);
 
       // BACKLOG-23730: server+client side code uses centralized logic to check if user can download/upload
 
       //Ajax request to check if user can download
-      if( isRepoPath ) {
+      if (isRepositoryFolderPath) {
         $.ajax({
           url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=" + encodeURIComponent(_folderPath),
           type: "GET",
@@ -716,10 +719,14 @@ define([
           obj.file = response.children[i].file;
           obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
 
+          if( isRootPath(obj.file.path) ){
+            obj.file.isRootPath = true;
+          }
+
           //decode potentially encoded name and title attributes of PVFS paths
           if( !isRepositoryPath(obj.file.path) && !obj.file.decoded ){
             obj.file.name = this.decodePvfsFileAttribute(obj.file.name);
-            obj.file.title = obj.file.title === null ? null : this.decodePvfsFileAttribute(obj.file.title);
+            obj.file.title = obj.file.title === null ? obj.file.name : this.decodePvfsFileAttribute(obj.file.title);
             obj.file.decoded = true;
           }
 
@@ -1198,6 +1205,10 @@ define([
 
       //remove padding of first folder
       myself.$el.children().each(function () {
+        if( isRootPath($(this).attr("path")) ){
+          $(this).addClass("rootFolder");
+        }
+
         $(this).addClass("first");
       });
 
@@ -2027,6 +2038,10 @@ define([
 
   function isRepositoryPath(path) {
     return path.charAt(0) === REPOSITORY_ROOT_PATH;
+  }
+
+  function isRootPath(path) {
+    return isRepositoryRootPath(path) || path === "pvfs://";
   }
 
   function isRepositoryRootPath(path) {

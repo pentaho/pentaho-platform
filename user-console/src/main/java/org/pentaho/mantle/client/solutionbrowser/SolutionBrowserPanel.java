@@ -413,6 +413,10 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     return supportedFileExtensions.contains( extension );
   }
 
+  public static List<String> getSupportedGenericFileExtensions() {
+    return supportedGenericFileExtensions;
+  }
+
   public boolean isSupportedGenericFileExtension( String extension ){
     return supportedGenericFileExtensions.contains( extension );
   }
