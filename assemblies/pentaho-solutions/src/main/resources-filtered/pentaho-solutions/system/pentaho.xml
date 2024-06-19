@@ -178,4 +178,10 @@
      content
     <edit-permission>org.pentaho.repository.create</edit-permission>
     -->
+
+    <!--
+      This property controls whether admin users have access to all users' trash.
+      This is enabled by default, set the value to "false" to disable this access.
+    -->
+  <adminAccessAllUsersTrash>true</adminAccessAllUsersTrash>
 </pentaho-system>

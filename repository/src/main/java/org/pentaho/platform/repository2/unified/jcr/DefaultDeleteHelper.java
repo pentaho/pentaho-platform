@@ -41,7 +41,6 @@ import org.springframework.util.StringUtils;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
@@ -58,7 +57,6 @@ import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -368,7 +366,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
       final PentahoJcrConstants pentahoJcrConstants )
     throws RepositoryException {
 
-    if ( isAdmin() ) {
+    if ( isAdmin() && canAdminAccessAllUsersTrash() ) {
       List<RepositoryFile> deletedFiles = new ArrayList<>();
       ITenant tenant = JcrTenantUtils.getTenant();
       // Because of LDAP and others, for the admin to be able to access all the trash files, we iterate through all users' trash folders
@@ -389,6 +387,10 @@ public class DefaultDeleteHelper implements IDeleteHelper {
       return deletedFiles;
     }
     return getDeletedFiles( session, pentahoJcrConstants );
+  }
+
+  private boolean canAdminAccessAllUsersTrash() {
+    return Boolean.parseBoolean( PentahoSystem.getSystemSetting( "adminAccessAllUsersTrash", "true" ) );
   }
 
   protected String getHomePath( ITenant tenant, String user ) {
