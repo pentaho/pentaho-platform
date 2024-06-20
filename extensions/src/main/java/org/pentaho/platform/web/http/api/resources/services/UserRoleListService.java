@@ -42,6 +42,8 @@ public class UserRoleListService {
 
   private String adminRole;
 
+  private String anonymousRole;
+
   private Comparator<String> roleComparator;
 
   private Comparator<String> userComparator;
@@ -92,6 +94,10 @@ public class UserRoleListService {
   }
 
   public RoleListWrapper getAllRoles() {
+    return getAllRoles( false );
+  }
+
+  public RoleListWrapper getAllRoles( boolean excludeAnonymous ) {
     Set<String> existingRoles = new HashSet<>( getUserRoleListService().getAllRoles() );
 
     List<String> allRoles = getExtraRoles();
@@ -104,6 +110,10 @@ public class UserRoleListService {
     }
 
     existingRoles.addAll( allRoles );
+
+    if ( excludeAnonymous && getAnonymousRole() != null ) {
+      existingRoles.remove( getAnonymousRole() );
+    }
 
     return new RoleListWrapper( existingRoles );
   }
@@ -196,6 +206,14 @@ public class UserRoleListService {
 
   public void setAdminRole( String adminRole ) {
     this.adminRole = adminRole;
+  }
+
+  public String getAnonymousRole() {
+    return anonymousRole;
+  }
+
+  public void setAnonymousRole( String anonymousRole ) {
+    this.anonymousRole = anonymousRole;
   }
 
   public static class UnauthorizedException extends Exception {

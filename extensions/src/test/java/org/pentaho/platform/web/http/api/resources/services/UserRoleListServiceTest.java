@@ -32,6 +32,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -191,5 +192,28 @@ public class UserRoleListServiceTest {
 
     assertEquals( 4, roleListWrapper.getRoles().size() );
     assertEquals( extraRoles, roleListWrapper.getRoles() );
+  }
+
+  @Test
+  public void testAllRolesExcludingAnonymous() {
+    final String ANONYMOUS = "Anonymous";
+    List<String> roles = new ArrayList<String>();
+    roles.add( "ROLE1" );
+    roles.add( "ROLE2" );
+    roles.add( "ROLE3" );
+    roles.add( "ROLE4" );
+    roles.add( ANONYMOUS );
+
+    IUserRoleListService userRoleListService1 = mock( IUserRoleListService.class );
+    doReturn( userRoleListService1 ).when( userRoleListService ).getUserRoleListService();
+    doReturn( roles ).when( userRoleListService1 ).getAllRoles();
+    doReturn( ANONYMOUS ).when( userRoleListService ).getAnonymousRole();
+
+    RoleListWrapper roleListWrapper = userRoleListService.getAllRoles( true );
+
+    verify( userRoleListService ).getAllRoles( true );
+
+    assertEquals( 4, roleListWrapper.getRoles().size() );
+    assertFalse( roleListWrapper.getRoles().contains( ANONYMOUS ) );
   }
 }
