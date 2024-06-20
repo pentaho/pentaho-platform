@@ -91,10 +91,10 @@ define([
           "{{#ifCond file.path '.trash'}}" +
           "<div id='{{file.objectId}}' class='trash folder' path='{{file.path}}' ext='{{file.name}}' desc='{{file.name}}'>" +
           "{{else}}" +
-              "{{#if file.title}}" +
-                  "<div id='{{file.objectId}}' class='folder' path='{{file.path}}' desc='{{file.description}}' ext='{{file.name}}' title='{{file.title}}'>" +
+              "{{#if file.isProviderRootPath}}" +
+                  "<div id='{{file.objectId}}' class='folder providerRootFolder' path='{{file.path}}' desc='{{file.description}}' ext='{{file.name}}' title='{{file.title}}'>" +
               "{{else}}" +
-                  "<div id='{{file.objectId}}' class='folder' path='{{file.path}}' desc='{{file.description}}' ext='{{file.name}}' title='{{file.name}}'>" +
+                  "<div id='{{file.objectId}}' class='folder' path='{{file.path}}' desc='{{file.description}}' ext='{{file.name}}' title='{{file.title}}'>" +
               "{{/if}}" +
           "{{/ifCond}}" +
           "<div class='element' role='treeitem' aria-selected='false' aria-expanded='false' tabindex='-1'>" +

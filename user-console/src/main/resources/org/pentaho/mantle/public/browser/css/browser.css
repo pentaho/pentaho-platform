@@ -135,6 +135,12 @@
   background: url("../resources/images/folder.png") no-repeat -16px 3px;
 }
 
+/* Hide folder icons for all rootFolders: e.g. "Repository" and "VFS Connections" */
+#fileBrowserFolders.fileBrowserColumn .body div.first.folder.providerRootFolder > div.element > div.icon {
+  background: none;
+  width: 0px;
+}
+
 .fileBrowserColumn .body .file .icon {
   width: 20px;
   margin-right: 4px;

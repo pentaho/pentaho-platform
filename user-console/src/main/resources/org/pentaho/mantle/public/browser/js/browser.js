@@ -368,18 +368,21 @@ define([
     },
 
     updateFolderButtons: function( _folderPath) {
-      const isRepoPath = !!_folderPath && isRepositoryPath(_folderPath);
+      const isRepositoryFolderPath = !!_folderPath && isRepositoryPath(_folderPath) && !isRepositoryRootPath(_folderPath);
 
       var userHomePath = Encoder.encodeRepositoryPath(window.parent.HOME_FOLDER);
       var model = FileBrowser.fileBrowserModel; // trap model
-      var folderPath = Encoder.encodeRepositoryPath( _folderPath);
+      var folderPath = Encoder.encodeRepositoryPath(_folderPath);
 
-      folderButtons.enableButtons(isRepoPath);
+      // BACKLOG-40475, BACKLOG-41134: Disable and hide all folder actions for roots "Repository" and "VFS Connections", along with all PVFS folders.
+      // "Repository" and "VFS Connections" are technically folders in the tree, but shouldn't be considered regular "folders" from a user perspective.
+      // They should be considered "folder categories" or something of the like. We have called them "provider roots" in the scope of this code.
+      folderButtons.enableButtons(isRepositoryFolderPath);
 
       // BACKLOG-23730: server+client side code uses centralized logic to check if user can download/upload
 
       //Ajax request to check if user can download
-      if( isRepoPath ) {
+      if (isRepositoryFolderPath) {
         $.ajax({
           url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=" + encodeURIComponent(_folderPath),
           type: "GET",
@@ -571,7 +574,8 @@ define([
 
         //Add the trash folder once to the first Repository folder
         myself.getRepositoryFolderChildren(response).push(trashFolder);
-
+        
+        response.children = reformatResponse(response).children;
         myself.set("data", response);
       });
     },
@@ -703,50 +707,6 @@ define([
       return newResp;
     },
 
-    reformatResponse: function (response) {
-      var newResp = {
-        children: []
-      }
-      if (response && response.children) {
-        for (var i = 0; i < response.children.length; i++) {
-          var obj = {
-            file: Object
-          }
-
-          obj.file = response.children[i].file;
-          obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
-
-          //decode potentially encoded name and title attributes of PVFS paths
-          if( !isRepositoryPath(obj.file.path) && !obj.file.decoded ){
-            obj.file.name = this.decodePvfsFileAttribute(obj.file.name);
-            obj.file.title = obj.file.title === null ? null : this.decodePvfsFileAttribute(obj.file.title);
-            obj.file.decoded = true;
-          }
-
-          if(!obj.file.objectId){
-            obj.file.objectId = obj.file.path;
-          }
-
-          obj.file.id = obj.file.objectId;
-
-          newResp.children.push(obj);
-        }
-      }
-      return newResp;
-    },
-
-    decodePvfsFileAttribute: function (attribute) {
-      try {
-        return decodeURI(attribute).replace("%23", "#");
-      } catch (error) {
-        // if there is an error, simply return the value. This should only impact the UI visually, not functionally.
-        // we can show an error if we'd like, but have opted not to at this time.
-        // let errorMessage = "Error decoding file attribute: " + attribute + "\n" + error;
-        // window.parent.mantle_showGenericError(errorMessage);
-        return attribute;
-      }
-    },
-
     updateData: function () {
       var myself = this;
       myself.set("runSpinner", true);
@@ -759,7 +719,7 @@ define([
             FileBrowser.fileBrowserModel.get("trashButtons").onTrashSelect(true);
           }
         } else {
-          var newResp = myself.reformatResponse(response);
+          var newResp = reformatResponse(response);
           newResp.ts = new Date(); // force backbone to trigger onchange event even if response is the same
           myself.set("data", newResp);
         }
@@ -794,8 +754,7 @@ define([
                   = FileBrowser.fileBrowserModel.attributes.fileListModel.reformatTrashResponse(myself, response);
             }
             else {
-              myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")] = FileBrowser.
-              fileBrowserModel.attributes.fileListModel.reformatResponse(response);
+              myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")] = reformatResponse(response);
             }
           }
         },
@@ -1329,7 +1288,7 @@ define([
             if (response.children) {
               response = customSort(response);
 
-              var toAppend = templates.folders(FileBrowser.fileBrowserModel.get("fileListModel").reformatResponse(response));
+              var toAppend = templates.folders(reformatResponse(response));
               $target.find("> .folders").append(toAppend ? toAppend : "");
             }
 
@@ -2029,9 +1988,71 @@ define([
     return path.charAt(0) === REPOSITORY_ROOT_PATH;
   }
 
+  function isProviderRootPath(file) {
+    return file.parentPath === null;
+  }
+
   function isRepositoryRootPath(path) {
     return path === REPOSITORY_ROOT_PATH;
   }
+
+  /**
+   * Reformat response data to handle conditionals before passing off to templates.
+   * We can do conditional logic in templates, but it is better to do as much as possible here.
+   */
+  function reformatResponse(response) {
+    var newResp = {
+      children: []
+    }
+    if (response && response.children) {
+      for (var i = 0; i < response.children.length; i++) {
+        var obj = {
+          file: Object
+        }
+
+        obj.file = response.children[i].file;
+
+        if (obj.file.hasChildren){
+          obj.children = response.children[i].children;
+        }
+
+        obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
+
+        if( isProviderRootPath(obj.file) ){
+          obj.file.isProviderRootPath = true;
+        }
+
+        //decode potentially encoded name and title attributes of PVFS paths
+        if( !isRepositoryPath(obj.file.path) && !obj.file.decoded ){
+          obj.file.name = decodePvfsFileAttribute(obj.file.name);
+          obj.file.title = obj.file.title === null ? obj.file.name : decodePvfsFileAttribute(obj.file.title);
+          obj.file.decoded = true;
+        }
+
+        if(!obj.file.objectId){
+          obj.file.objectId = obj.file.path;
+        }
+
+        obj.file.id = obj.file.objectId;
+
+        newResp.children.push(obj);
+      }
+    }
+    return newResp;
+  }
+
+  function decodePvfsFileAttribute(attribute) {
+    try {
+      return decodeURI(attribute).replace("%23", "#");
+    } catch (error) {
+      // if there is an error, simply return the value. This should only impact the UI visually, not functionally.
+      // we can show an error if we'd like, but have opted not to at this time.
+      // let errorMessage = "Error decoding file attribute: " + attribute + "\n" + error;
+      // window.parent.mantle_showGenericError(errorMessage);
+      return attribute;
+    }
+  }
+
 
   /**
    * Escapes special characters in jquery selector
