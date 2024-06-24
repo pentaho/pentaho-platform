@@ -938,11 +938,16 @@ div#customDropdownPopupMajor .gwt-MenuBar-vertical .gwt-MenuItem:hover:not(.gwt-
 /* region #pucWrapper et al. */
 :root {
   /* Main and burger toolbar */
-  --puc-toolbar-button-inner-height: calc(1em * 32/14);
-  --puc-toolbar-button-inner-width: calc(1em * 32/14);
+  --puc-toolbar-button-inner-height: calc(1em * var(--icon-width)/14);
+  --puc-toolbar-button-inner-width: calc(1em * var(--icon-width)/14);
   --puc-toolbar-button-border-width: 1px;
-  --puc-toolbar-button-height: calc(2 * var(--puc-toolbar-button-border-width) + var(--puc-toolbar-button-inner-height));
-
+  /* High DPI screen shows border of reduced size,
+     round-off error in border used to accommodate it for calculating toolbar height */
+  --puc-toolbar-button-border-round-off-error: 1px;
+  --puc-toolbar-button-height: calc(
+      2 * var(--puc-toolbar-button-border-width) +
+      var(--puc-toolbar-button-inner-height) -
+      var(--puc-toolbar-button-border-round-off-error));
   --puc-header-border-top-width: 4px;
   --puc-header-box-shadow-blur-radius: 5px;
   --puc-header-burger-mode-height: calc(
