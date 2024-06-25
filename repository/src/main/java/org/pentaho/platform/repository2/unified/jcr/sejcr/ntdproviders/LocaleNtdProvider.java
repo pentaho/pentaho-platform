@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -62,6 +62,22 @@ public class LocaleNtdProvider implements NodeTypeDefinitionProvider {
   static final String NORWEGIAN = "nb";
   static final String NORWEGIAN_NYNORSK = "nn_NO";
 
+  /**
+   * Indonesian and Hebrew changed from Java 11 to Java 17
+   * Java 11 Indonesian: in, in_ID
+   *         Hebrew: iw, iw_IL
+   * Java 17 Indonesian: id, id_ID
+   *         Hebrew: he, he_IL
+   */
+  static final String INDONESIAN_11 = "in";
+  static final String INDONESIAN_INDONESIA_11 = "in_ID";
+  static final String HEBREW_11 = "iw";
+  static final String HEBREW_ISRAEL_11 = "iw_IL";
+  static final String INDONESIAN_17 = "id";
+  static final String INDONESIAN_INDONESIA_17 = "id_ID";
+  static final String HEBREW_17 = "he";
+  static final String HEBREW_ISRAEL_17 = "he_IL";
+
   @SuppressWarnings( "unchecked" )
   @Override
   public NodeTypeDefinition getNodeTypeDefinition( final NodeTypeManager ntMgr, final ValueFactory vFac )
@@ -89,6 +105,15 @@ public class LocaleNtdProvider implements NodeTypeDefinitionProvider {
         .filter( localeName -> !localeName.isEmpty() )
         //GERMAN_GREECE was removed in Java 11, filter it out to prevent duplication when we add it back later
         .filter( localeName -> !GERMAN_GREECE.equals( localeName ) )
+        //INDONESIAN and HEBREW were changed in Java 17 from Java 11, filter them out to prevent duplication when we add them back later
+        .filter( localeName -> !INDONESIAN_11.equals( localeName ) )
+        .filter( localeName -> !INDONESIAN_INDONESIA_11.equals( localeName ) )
+        .filter( localeName -> !HEBREW_11.equals( localeName ) )
+        .filter( localeName -> !HEBREW_ISRAEL_11.equals( localeName ) )
+        .filter( localeName -> !INDONESIAN_17.equals( localeName ) )
+        .filter( localeName -> !INDONESIAN_INDONESIA_17.equals( localeName ) )
+        .filter( localeName -> !HEBREW_17.equals( localeName ) )
+        .filter( localeName -> !HEBREW_ISRAEL_17.equals( localeName ) )
         /* All the below locales were added in Java 11. Locales are used as NodeType children in Jackrabbit. If a user
            upgrades to Java 11, then reverts back to Java 8, the jackrabbit repository will have non-trivial remove
            operations for each of these locales. To prevent this don't add these new locales at this time.
@@ -105,6 +130,15 @@ public class LocaleNtdProvider implements NodeTypeDefinitionProvider {
     // Add German (Greece) as this was deleted in Java 11, this prevents Jackrabbit from having a non-trivial remove
     //operation after upgrading from Java 8 to Java 11.
     localeNames.add( GERMAN_GREECE );
+    // Add Indonesian and Hebrew back in for Java 11 and java 17
+    localeNames.add( INDONESIAN_11 );
+    localeNames.add( INDONESIAN_INDONESIA_11 );
+    localeNames.add( HEBREW_11 );
+    localeNames.add( HEBREW_ISRAEL_11 );
+    localeNames.add( INDONESIAN_17 );
+    localeNames.add( INDONESIAN_INDONESIA_17 );
+    localeNames.add( HEBREW_17);
+    localeNames.add( HEBREW_ISRAEL_17) ;
     return localeNames;
   }
 
