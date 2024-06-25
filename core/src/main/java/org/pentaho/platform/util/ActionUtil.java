@@ -508,7 +508,7 @@ public class ActionUtil {
       }
       String extension = MimeHelper.getExtension( data.getMimeType(), ".bin" );
       path = path.substring( path.lastIndexOf( "/" ) + 1, path.length() );
-      emailer.setAttachmentName( attachmentName.endsWith( extension ) ?  path : path + extension );
+      emailer.setAttachmentName( path.endsWith( extension ) ?  path : path + extension );
     }
     if ( data == null || data.getMimeType() == null || "".equals( data.getMimeType() ) ) {
       emailer.setAttachmentMimeType( "binary/octet-stream" );
