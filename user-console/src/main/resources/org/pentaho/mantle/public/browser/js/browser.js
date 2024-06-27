@@ -575,7 +575,7 @@ define([
         //Add the trash folder once to the first Repository folder
         myself.getRepositoryFolderChildren(response).push(trashFolder);
         
-        response.children = reformatResponse(response).children;
+        response.children = reformatResponseFolderTree(response).children;
         myself.set("data", response);
       });
     },
@@ -719,7 +719,7 @@ define([
             FileBrowser.fileBrowserModel.get("trashButtons").onTrashSelect(true);
           }
         } else {
-          var newResp = reformatResponse(response);
+          var newResp = reformatResponseFolderTree(response);
           newResp.ts = new Date(); // force backbone to trigger onchange event even if response is the same
           myself.set("data", newResp);
         }
@@ -754,7 +754,7 @@ define([
                   = FileBrowser.fileBrowserModel.attributes.fileListModel.reformatTrashResponse(myself, response);
             }
             else {
-              myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")] = reformatResponse(response);
+              myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")] = reformatResponseFolderTree(response);
             }
           }
         },
@@ -1288,7 +1288,7 @@ define([
             if (response.children) {
               response = customSort(response);
 
-              var toAppend = templates.folders(reformatResponse(response));
+              var toAppend = templates.folders(reformatResponseFolderTree(response));
               $target.find("> .folders").append(toAppend ? toAppend : "");
             }
 
@@ -1997,23 +1997,31 @@ define([
   }
 
   /**
-   * Reformat response data to handle conditionals before passing off to templates.
+   * Reformat responseFolderTree data to handle conditionals before passing off to templates.
    * We can do conditional logic in templates, but it is better to do as much as possible here.
+   * This function achieves the following:
+   * - Repo vs Generic-Files response normalization
+   * - FileTree response to UI element reformatting
+   * - Generic-File name and title decoding //TODO remove/refactor this when we decode on the backend
    */
-  function reformatResponse(response) {
-    var newResp = {
+  function reformatResponseFolderTree(responseFolderTree) {
+    var newResponseFolderTree = {
       children: []
     }
-    if (response && response.children) {
-      for (var i = 0; i < response.children.length; i++) {
+    if (responseFolderTree && responseFolderTree.children) {
+      for (var i = 0; i < responseFolderTree.children.length; i++) {
         var obj = {
           file: Object
         }
 
-        obj.file = response.children[i].file;
+        obj.file = responseFolderTree.children[i].file;
 
         if (obj.file.hasChildren){
-          obj.children = response.children[i].children;
+          let childFolderTree = {
+            file: obj.file,
+            children: responseFolderTree.children[i].children
+          }
+          obj.children = reformatResponseFolderTree( childFolderTree ).children;
         }
 
         obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
@@ -2022,10 +2030,11 @@ define([
           obj.file.isProviderRootPath = true;
         }
 
+        // TODO BACKLOG-41091: Decoding would ideally be coming from the back-end (see also, BACKLOG-41089, BACKLOG-41229)
         //decode potentially encoded name and title attributes of PVFS paths
-        if( !isRepositoryPath(obj.file.path) && !obj.file.decoded ){
-          obj.file.name = decodePvfsFileAttribute(obj.file.name);
-          obj.file.title = obj.file.title === null ? obj.file.name : decodePvfsFileAttribute(obj.file.title);
+        if (!isRepositoryPath(obj.file.path) && !obj.file.decoded) {
+          obj.file.name = Encoder.urlDecodePvfsFilePath(obj.file.name);
+          obj.file.title = obj.file.title === null ? obj.file.name : Encoder.urlDecodePvfsFilePath(obj.file.title);
           obj.file.decoded = true;
         }
 
@@ -2035,24 +2044,11 @@ define([
 
         obj.file.id = obj.file.objectId;
 
-        newResp.children.push(obj);
+        newResponseFolderTree.children.push(obj);
       }
     }
-    return newResp;
+    return newResponseFolderTree;
   }
-
-  function decodePvfsFileAttribute(attribute) {
-    try {
-      return decodeURI(attribute).replace("%23", "#");
-    } catch (error) {
-      // if there is an error, simply return the value. This should only impact the UI visually, not functionally.
-      // we can show an error if we'd like, but have opted not to at this time.
-      // let errorMessage = "Error decoding file attribute: " + attribute + "\n" + error;
-      // window.parent.mantle_showGenericError(errorMessage);
-      return attribute;
-    }
-  }
-
 
   /**
    * Escapes special characters in jquery selector
