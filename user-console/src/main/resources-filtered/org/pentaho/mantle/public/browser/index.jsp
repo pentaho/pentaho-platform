@@ -77,7 +77,7 @@
         return;
     }
 
-    if (!window.parent.mantle_isRepositoryPath(path) && !window.parent.mantle_isSupportedGenericFileExtension(extension)) {
+    if (!window.parent.mantle_isRepositoryPath(path)) {
       window.parent.mantle_showUnsupportedFiletypeError(filename, extension);
       return;
     }
