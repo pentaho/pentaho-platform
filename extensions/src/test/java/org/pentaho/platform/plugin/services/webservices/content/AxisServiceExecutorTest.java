@@ -24,11 +24,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -39,14 +34,12 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.engine.AxisConfiguration;
-import org.junit.*;
-import org.mockito.MockedStatic;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.junit.Before;
+import org.junit.Test;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.AxisWebServiceManager;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
@@ -67,8 +60,6 @@ public class AxisServiceExecutorTest {
 
   private ByteArrayOutputStream out;
   private AxisServiceExecutor contentGenerator;
-  private static MockedStatic<PentahoSystem> pentahoSystem;
-
 
   @Before
   public void setUp() throws Exception {
@@ -108,16 +99,6 @@ public class AxisServiceExecutorTest {
 
     assertNotNull( "contentGenerator is null", contentGenerator );
     assertNotNull( "Logger is null", contentGenerator.getLogger() );
-
-    pentahoSystem = mockStatic( PentahoSystem.class );
-    IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
-    pentahoSystem.when( () -> PentahoSystem.get( eq( IAuthorizationPolicy.class ) ) ).thenReturn( policy );
-    when( policy.isAllowed( anyString() ) ).thenReturn( true );
-  }
-
-  @After
-  public void cleanUp() {
-    pentahoSystem.close();
   }
 
   @Test
