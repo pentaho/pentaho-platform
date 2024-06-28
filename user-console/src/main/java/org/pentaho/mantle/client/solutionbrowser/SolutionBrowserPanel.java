@@ -115,16 +115,11 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private List<String> executableFileExtensions = new ArrayList<String>();
   private static List<String> supportedFileExtensions;
 
-  private static List<String> supportedGenericFileExtensions;
   private JsArrayString filters;
 
   {
     supportedFileExtensions = Arrays.asList( "cda", "xaction", "kjb", "xcdf", "wcdf",
       "xjpivot", "ktr", "prpt", "url", "xanalyzer", "prpti", "xdash" );
-  }
-
-  {
-    supportedGenericFileExtensions = Arrays.asList( "html", "pdf", "txt", "rtf", "xlsx" );
   }
 
   private Command ToggleLocalizedNamesCommand = new Command() {
@@ -372,10 +367,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
       solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::showUnsupportedFiletypeError(Ljava/lang/String;Ljava/lang/String;)(filename, extension);
     }
-    $wnd.mantle_showGenericError = function (errorMessage) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::showGenericError(Ljava/lang/String;)(errorMessage);
-    }
     $wnd.mantle_isSupportedExtension = function (extension) {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
       return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isSupportedExtension(Ljava/lang/String;)(extension);
@@ -383,10 +374,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     $wnd.mantle_isRepositoryPath = function (path) {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
       return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isRepositoryPath(Ljava/lang/String;)(path);
-    }
-    $wnd.mantle_isSupportedGenericFileExtension = function (extension) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isSupportedGenericFileExtension(Ljava/lang/String;)(extension);
     }
   }-*/;
 
@@ -398,10 +385,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     showError( "Unsupported File Type", "Cannot open file \"" + fileName + "\" with unsupported extension \"" + extension +"\".");
   }
 
-  public void showGenericError( String errorMessage ) {
-    showError( Messages.getString( "error" ), errorMessage );
-  }
-
   private void showError( String dialogTitle, String errorMessage ) {
     InfoDialog dialogBox =
       new InfoDialog( dialogTitle, errorMessage, true, false, true ); //$NON-NLS-1$ $NON-NLS-2$
@@ -411,10 +394,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   public boolean isSupportedExtension( String extension ) {
     return supportedFileExtensions.contains( extension );
-  }
-
-  public boolean isSupportedGenericFileExtension( String extension ){
-    return supportedGenericFileExtensions.contains( extension );
   }
 
   public void setDashboardsFilter( JsArrayString filters ) {
@@ -506,14 +485,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       extension = fileName.substring( fileName.lastIndexOf( FILE_EXTENSION_DELIMETER ) + 1 ); //$NON-NLS-1$
     }
 
-    // For now, we only support a limited set of extensions for PVFS files
-    if ( isSupportedGenericFileExtension( extension ) ) {
-      url = getPath() + "plugin/scheduler-plugin/api/generic-files/" + encodeGenericFilePath( filePath )
-        + "/content"; //$NON-NLS-1$ //$NON-NLS-2$
-    } else {
-      showUnsupportedFiletypeError( fileName, extension );
-      return;
-    }
+    url = getPath() + "plugin/scheduler-plugin/api/generic-files/" + encodeGenericFilePath( filePath )
+      + "/content"; //$NON-NLS-1$ //$NON-NLS-2$
 
     // force to open pdf files in another window due to issues with pdf readers in IE browsers
     // via class added on themeResources for IE browsers
