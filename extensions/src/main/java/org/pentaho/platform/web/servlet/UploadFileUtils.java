@@ -373,23 +373,31 @@ public class UploadFileUtils {
 
             String extension = FilenameUtils.getExtension( entry.getName() );
             if ( checkExtension( extension, false ) ) {
+              boolean isDestinationValid = true;
+
               if ( isTemporary() ) {
                 entryFile =
                   PentahoSystem.getApplicationContext()
                     .createTempFile( session, StringUtil.EMPTY_STRING, DOT + extension + DOT_TMP, true );
               } else {
-                entryFile = new File( getPath() + File.separatorChar + entry.getName() );
+                File destination = new File( getPath() + File.separatorChar );
+                entryFile = new File( destination, entry.getName() );
+                isDestinationValid = validateZipSlip( entryFile, destination );
               }
 
-              if ( sb.length() > 0 ) {
-                sb.append( '\n' );
-              }
-              sb.append( entryFile.getName() );
-              FileOutputStream entryOutputStream = new FileOutputStream( entryFile );
-              try {
-                IOUtils.copy( zipStream, entryOutputStream );
-              } finally {
-                IOUtils.closeQuietly( entryOutputStream );
+              if ( isDestinationValid ) {
+                if ( sb.length() > 0 ) {
+                  sb.append( '\n' );
+                }
+
+                sb.append( entryFile.getName() );
+                FileOutputStream entryOutputStream = new FileOutputStream( entryFile );
+
+                try {
+                  IOUtils.copy( zipStream, entryOutputStream );
+                } finally {
+                  IOUtils.closeQuietly( entryOutputStream );
+                }
               }
             }
           }
@@ -489,23 +497,31 @@ public class UploadFileUtils {
 
             String extension = FilenameUtils.getExtension( entry.getName() );
             if ( checkExtension( extension, false ) ) {
+              boolean isDestinationValid = true;
+
               if ( isTemporary() ) {
                 entryFile =
                   PentahoSystem.getApplicationContext()
                     .createTempFile( session, StringUtil.EMPTY_STRING, DOT + extension + DOT_TMP, true );
               } else {
-                entryFile = new File( getPath() + File.separatorChar + entry.getName() );
+                File destination = new File( getPath() + File.separatorChar );
+                entryFile = new File( destination, entry.getName() );
+                isDestinationValid = validateZipSlip( entryFile, destination );
               }
 
-              if ( sb.length() > 0 ) {
-                sb.append( '\n' );
-              }
-              sb.append( entryFile.getName() );
-              FileOutputStream entryOutputStream = new FileOutputStream( entryFile );
-              try {
-                IOUtils.copy( zipStream, entryOutputStream );
-              } finally {
-                IOUtils.closeQuietly( entryOutputStream );
+              if ( isDestinationValid ) {
+                if ( sb.length() > 0 ) {
+                  sb.append( '\n' );
+                }
+
+                sb.append( entryFile.getName() );
+                FileOutputStream entryOutputStream = new FileOutputStream( entryFile );
+
+                try {
+                  IOUtils.copy( zipStream, entryOutputStream );
+                } finally {
+                  IOUtils.closeQuietly( entryOutputStream );
+                }
               }
             }
           }
@@ -524,6 +540,10 @@ public class UploadFileUtils {
       // no valid entries in the zip - nothing unzipped
       return Messages.getInstance().getErrorString( "UploadFileServlet.ERROR_0012_ILLEGAL_CONTENTS" );
     }
+  }
+
+  private boolean validateZipSlip( File destinationFile, File destinationDir ) throws IOException {
+    return destinationFile.getCanonicalPath().startsWith( destinationDir.getCanonicalPath() + File.separator );
   }
 
   protected String handleTarGZ( File file ) throws IOException {
