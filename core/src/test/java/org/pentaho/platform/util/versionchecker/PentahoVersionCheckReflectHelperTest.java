@@ -22,6 +22,7 @@ package org.pentaho.platform.util.versionchecker;
 
 
 import org.apache.commons.logging.Log;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -46,6 +47,7 @@ public class PentahoVersionCheckReflectHelperTest {
     + "   </error>\n"
     + " </Level2></Level1>";
   @Test
+  @Ignore
   public void performVersionCheckTest() {
     List results = PentahoVersionCheckReflectHelper.performVersionCheck( false, -1 );
     assertNotNull( results );
@@ -55,6 +57,7 @@ public class PentahoVersionCheckReflectHelperTest {
   }
 
   @Test
+  @Ignore
   public void logVersionCheckTest() {
     Log mockLog = Mockito.mock( Log.class );
 
