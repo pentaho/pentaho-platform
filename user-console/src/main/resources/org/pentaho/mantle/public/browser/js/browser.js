@@ -574,7 +574,7 @@ define([
 
         //Add the trash folder once to the first Repository folder
         myself.getRepositoryFolderChildren(response).push(trashFolder);
-        
+
         response.children = reformatResponse(response).children;
         myself.set("data", response);
       });
@@ -2013,7 +2013,12 @@ define([
         obj.file = response.children[i].file;
 
         if (obj.file.hasChildren){
-          obj.children = response.children[i].children;
+          const childFolderTree = {
+            file: obj.file,
+            children: response.children[i].children
+          }
+
+          obj.children = reformatResponse(childFolderTree).children;
         }
 
         obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
@@ -2022,11 +2027,9 @@ define([
           obj.file.isProviderRootPath = true;
         }
 
-        //decode potentially encoded name and title attributes of PVFS paths
-        if( !isRepositoryPath(obj.file.path) && !obj.file.decoded ){
-          obj.file.name = decodePvfsFileAttribute(obj.file.name);
-          obj.file.title = obj.file.title === null ? obj.file.name : decodePvfsFileAttribute(obj.file.title);
-          obj.file.decoded = true;
+        // Default title to non-encoded name.
+        if (!obj.file.title) {
+          obj.file.title = obj.file.nameDecoded;
         }
 
         if(!obj.file.objectId){
