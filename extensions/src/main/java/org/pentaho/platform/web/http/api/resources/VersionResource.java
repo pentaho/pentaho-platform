@@ -26,14 +26,12 @@ import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.VersionHelper;
 import org.pentaho.platform.util.VersionInfo;
-import org.pentaho.platform.util.versionchecker.PentahoVersionCheckReflectHelper;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
@@ -61,23 +59,4 @@ public class VersionResource extends AbstractJaxRSResource {
     VersionInfo versionInfo = VersionHelper.getVersionInfo( PentahoSystem.class );
     return Response.ok( versionInfo.getVersionNumber() ).type( MediaType.TEXT_PLAIN ).build();
   }
-
-  /**
-   * Return software update document to the user
-   * 
-   * @return software update document
-   */
-  @GET
-  @Path( "/softwareUpdates" )
-  @Facet ( name = "Unsupported" )
-  @Produces( TEXT_PLAIN )
-  public String getSoftwareUpdatesDocument() {
-    if ( PentahoVersionCheckReflectHelper.isVersionCheckerAvailable() ) {
-      @SuppressWarnings( "rawtypes" )
-      List results = PentahoVersionCheckReflectHelper.performVersionCheck( false, -1 );
-      return PentahoVersionCheckReflectHelper.logVersionCheck( results, logger );
-    }
-    return "<vercheck><error><[!CDATA[Version Checker is disabled]]></error></vercheck>"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-  }
-
 }
