@@ -43,7 +43,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDto;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.util.RepositoryPathEncoder;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -666,6 +665,11 @@ public class RepositoryResource extends AbstractJaxRSResource {
         logger.error( MessageFormat.format( "Repository file [{0}] not found", contextId ) );
         return Response.serverError().build();
       }
+      if ( FileResource.idToPath( contextId ).endsWith( ".prpti" ) && !validatePrptiOutputFormat() ) {
+        logger.error( MessageFormat.format( "Output Format [{0}] for PIR report not allowed for file [{1}]",
+          this.httpServletRequest.getParameterMap().get( "output-target" )[ 0 ], FileResource.idToPath( contextId ) ) );
+        return Response.serverError().status( Status.BAD_REQUEST ).build();
+      }
 
       Response response = null;
 
@@ -757,6 +761,15 @@ public class RepositoryResource extends AbstractJaxRSResource {
     logger.warn( MessageFormat.format( "End of the resolution chain. No resource [{0}] found in context [{1}].",
         resourceId, contextId ) );
     return Response.status( NOT_FOUND ).build();
+  }
+
+  private boolean validatePrptiOutputFormat() {
+    boolean valid = true;
+    if ( this.httpServletRequest.getParameterMap() != null && this.httpServletRequest.getParameterMap().containsKey( "output-target" ) ) {
+      String outputFormat = this.httpServletRequest.getParameterMap().get( "output-target" )[0];
+      valid = AllowedPrptiTypes.getByType( outputFormat ) != null;
+    }
+    return valid;
   }
 
   abstract class CGFactory implements ContentGeneratorDescriptor {
@@ -893,13 +906,13 @@ public class RepositoryResource extends AbstractJaxRSResource {
       rsc( "Nope, [{0}] is not a content generator ID.", fac.getContentGeneratorId() ); //$NON-NLS-1$
       return null;
     }
-    Response response = checkPermissionIfUserIsEditingContent(fac.getContentGeneratorId());
-    if( response == null ) {
+    Response response = checkPermissionIfUserIsEditingContent( fac.getContentGeneratorId() );
+    if ( response == null ) {
       rsc(
               "Yep, [{0}] is a content generator ID. Executing (where command path is {1})..", fac.getContentGeneratorId(),
-              fac.getCommand()); //$NON-NLS-1$
-      GeneratorStreamingOutput gso = fac.getStreamingOutput(contentGenerator);
-      response = Response.ok(gso).build();
+              fac.getCommand() ); //$NON-NLS-1$
+      GeneratorStreamingOutput gso = fac.getStreamingOutput( contentGenerator );
+      response = Response.ok( gso ).build();
     }
     return response;
   }
@@ -990,19 +1003,19 @@ public class RepositoryResource extends AbstractJaxRSResource {
     this.whitelist = whitelist;
   }
 
-  private Response checkPermissionIfUserIsEditingContent(String resourceId) {
+  private Response checkPermissionIfUserIsEditingContent( String resourceId ) {
     // Check if we are editing a content
     String perspectiveId = resourceId;
     if ( perspectiveId != null && perspectiveId.indexOf( "." ) >= 0 ) {
       String[] parts = perspectiveId.split( "\\." );
-      if( parts != null && parts.length > 0) {
+      if ( parts != null && parts.length > 0 ) {
         perspectiveId = parts[1];
       }
     }
 
-    if( perspectiveId != null && ( perspectiveId.equals( "editor" ) || perspectiveId.equals( "edit" ) ) ) {
+    if ( perspectiveId != null && ( perspectiveId.equals( "editor" ) || perspectiveId.equals( "edit" ) ) ) {
       // Check if user has permission to edit the content. If they do not have access, throw and error
-      if( !canEdit() ) {
+      if ( !canEdit() ) {
         logger.error( Messages.getInstance().getString( "RepositoryResource.USER_NOT_AUTHORIZED_TO_EDIT" ) );
         return buildSafeHtmlServerErrorResponse( Messages.getInstance().getString( "RepositoryResource.USER_NOT_AUTHORIZED_TO_EDIT" ) );
       }
@@ -1011,7 +1024,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
   }
 
   protected Response buildSafeHtmlServerErrorResponse( String msg ) {
-    return Response.status(Status.FORBIDDEN).entity( new SafeHtmlBuilder()
+    return Response.status( Status.FORBIDDEN ).entity( new SafeHtmlBuilder()
             .appendEscapedLines( msg ).toSafeHtml().asString() ).build();
   }
 
@@ -1022,5 +1035,38 @@ public class RepositoryResource extends AbstractJaxRSResource {
       return authorizationPolicy.isAllowed( editPermission );
     }
     return true;
+  }
+
+  public enum AllowedPrptiTypes {
+    MIME_TYPE_HTML_1( "table/html;page-mode=page" ),
+    MIME_TYPE_HTML_2( "table/html;page-mode=stream" ),
+    MIME_TYPE_EMAIL( "mime-message/text/html" ),
+    MIME_TYPE_PDF( "pageable/pdf" ),
+    MIME_TYPE_CSV( "table/csv;page-mode=stream" ),
+    MIME_TYPE_XLSX( "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;page-mode=flow" ),
+    MIME_TYPE_TXT( "pageable/text" ),
+    MIME_TYPE_RTF( "table/rtf;page-mode=flow" );
+    private final String type;
+
+    AllowedPrptiTypes( String type ) {
+      this.type = type;
+    }
+
+    public String getAllowedPrptiType() {
+      return type;
+    }
+
+    public static AllowedPrptiTypes getByType( String type ) {
+      if ( type == null || type.isEmpty() ) {
+        return null;
+      }
+      AllowedPrptiTypes result = null;
+      for ( AllowedPrptiTypes en : AllowedPrptiTypes.values() ) {
+        if ( en.getAllowedPrptiType().equals( type ) ) {
+          result = en;
+        }
+      }
+      return result;
+    }
   }
 }

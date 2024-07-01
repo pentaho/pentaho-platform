@@ -41,7 +41,6 @@ import org.springframework.util.StringUtils;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
@@ -58,7 +57,6 @@ import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -368,37 +366,31 @@ public class DefaultDeleteHelper implements IDeleteHelper {
       final PentahoJcrConstants pentahoJcrConstants )
     throws RepositoryException {
 
-    if ( isAdmin() ) {
+    if ( isAdmin() && canAdminAccessAllUsersTrash() ) {
       List<RepositoryFile> deletedFiles = new ArrayList<>();
       ITenant tenant = JcrTenantUtils.getTenant();
-      // BISERVER-14482: this user list refers to Jcr, as so, if authentication/authorization is otherwise managed
-      // (LDAP, for instance), one has to guarantee that the current user is on this list!
-      // The correct way would be to fix the list by obtaining the LDAP users, but this has the potential of getting
-      // thousands of users and, consequently, thousands of deleted files!
-      List<String> userList = getUserList();
-      String currentUser = getCurrentUser();
-      if ( !userList.contains( currentUser ) ) {
-        userList.add( currentUser );
-      }
-      for ( String user : userList ) {
-        String homePath = getHomePath( tenant, user );
-        try {
-          Node userHomeFolderNode = (Node) session.getItem( homePath );
-          if ( userHomeFolderNode.hasNode( FOLDER_NAME_TRASH ) ) {
-            Node trashNode = userHomeFolderNode.getNode( FOLDER_NAME_TRASH );
-            List<RepositoryFile> deletedForUser = getDeletedFiles( session, pentahoJcrConstants, trashNode, user );
-            deletedFiles.addAll( deletedForUser );
+      // Because of LDAP and others, for the admin to be able to access all the trash files, we iterate through all users' trash folders
+      Node userHomeFolderNode = (Node) session.getItem( ServerRepositoryPaths.getTenantHomeFolderPath( tenant ) );
+      if ( userHomeFolderNode != null ) {
+        NodeIterator it = userHomeFolderNode.getNodes();
+        while ( it.hasNext() ) { //iterate by user folder
+          //if in the future, we need to limit the number of files, a limit in this while could be a solution
+          Node node = (Node) it.next();
+          if ( node.hasNodes() && node.hasNode( FOLDER_NAME_TRASH ) ) {
+            Node trashNode = node.getNode( FOLDER_NAME_TRASH );
+            deletedFiles.addAll(
+              getDeletedFiles( session, pentahoJcrConstants, trashNode, node.getName() ) );
           }
-        } catch ( PathNotFoundException e ) {
-          logger.warn( MessageFormat.format(
-            Messages.getInstance()
-              .getString( "DefaultDeleteHelper.PATH_NOT_FOUND_EXCEPTION" ), homePath, user ), e );
         }
       }
       Collections.sort( deletedFiles );
       return deletedFiles;
     }
     return getDeletedFiles( session, pentahoJcrConstants );
+  }
+
+  private boolean canAdminAccessAllUsersTrash() {
+    return Boolean.parseBoolean( PentahoSystem.getSystemSetting( "adminAccessAllUsersTrash", "true" ) );
   }
 
   protected String getHomePath( ITenant tenant, String user ) {

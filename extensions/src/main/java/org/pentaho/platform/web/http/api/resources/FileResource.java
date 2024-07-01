@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -68,7 +68,6 @@ import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringV
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
-import org.pentaho.platform.web.http.api.resources.services.UserRoleListService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 import org.pentaho.platform.web.http.messages.Messages;
@@ -87,9 +86,20 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Providers;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -119,7 +129,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 @Path ( "/repo/files/" )
 public class FileResource extends AbstractJaxRSResource {
 
-  private static final String INVALID_SECURITY_PRINCIPAL_CHARACTERS = ".*[#,+\"\\\\<>]+.*";
+  private static final String INVALID_SECURITY_PRINCIPAL_CHARACTERS = "[#,+\"\\\\<>]";
   private static final Pattern INVALID_SECURITY_PRINCIPAL_PATTERN = Pattern.compile( INVALID_SECURITY_PRINCIPAL_CHARACTERS );
 
   public static final String APPLICATION_ZIP = "application/zip";
@@ -137,7 +147,7 @@ public class FileResource extends AbstractJaxRSResource {
 
   protected static IAuthorizationPolicy policy;
 
-  protected static UserRoleListService userRoleListService;
+  private @Context Providers providers;
 
   IRepositoryContentConverterHandler converterHandler;
   Map<String, Converter> converters;
@@ -725,6 +735,63 @@ public class FileResource extends AbstractJaxRSResource {
    * </p>
    *
    * @param pathId Colon separated path for the repository file.
+   * @param aclXml Acl of the repository file RepositoryFileAclDto.
+   *
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   *
+   * <p><b>Example Response:</b></p>
+   *    <pre function="syntax.xml">
+   *        This response does not contain data.
+   *    </pre>
+   */
+  @PUT
+  @Path ( "{pathId : .+}/acl" )
+  @Consumes ( { MediaType.APPLICATION_XML } )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Successfully saved file." ),
+      @ResponseCode ( code = 403, condition = "Failed to save acls due to missing or incorrect properties." ),
+      @ResponseCode ( code = 400, condition = "Failed to save acls due to malformed xml." ),
+      @ResponseCode ( code = 500, condition = "Failed to save acls due to another error." ) } )
+  public Response setFileAcls( @PathParam ( "pathId" ) String pathId, StreamSource aclXml ) {
+    /*
+     * [BISERVER-14294] Ensuring the owner is set to a non-null, non-empty string value to prevent any issues
+     * that might cause problems with the repository. Then following it up with a user existence check
+     *
+     * [BISERVER-14409] What we need to check is that the users or roles don't contain invalid characters.
+     *
+     * We can't check if a user or a role exist, some scenarios like mixed AuthZ / AuthN are unable of confirming
+     * that a user or role exist. One of such scenarios is with SAML.
+     */
+
+    try {
+      Unmarshaller unmarshaller = getUnmarshaller( RepositoryFileAclDto.class );
+      XMLStreamReader xsr = getSecureXmlStreamReader( aclXml );
+      RepositoryFileAclDto acl = (RepositoryFileAclDto) unmarshaller.unmarshal( xsr );
+      if ( validateUsersAndRoles( acl ) ) {
+        fileService.setFileAcls( pathId, acl );
+        return buildOkResponse();
+      } else {
+        logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ) );
+        return buildStatusResponse( Response.Status.FORBIDDEN );
+      }
+    } catch ( Exception exception ) {
+      logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), exception );
+      return buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
+    }
+  }
+
+  /**
+   * This method is used to update and save the acls of the selected file to the repository.
+   *
+   * <p><b>Example Request:</b><br />
+   *    PUT pentaho/api/repo/files/:jmeter-test:test_file_1.xml/acl
+   * <br /><b>PUT data:</b>
+   *  <pre function="syntax.xml">
+   *    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;repositoryFileAclDto&gt;&lt;entriesInheriting&gt;true&lt;/entriesInheriting&gt;&lt;id&gt;d45d4972-989e-48d5-8bd0-f7024a77f08f&lt;/id&gt;&lt;owner&gt;admin&lt;/owner&gt;&lt;ownerType&gt;0&lt;/ownerType&gt;&lt;/repositoryFileAclDto&gt;
+   *  </pre>
+   * </p>
+   *
+   * @param pathId Colon separated path for the repository file.
    * @param acl    Acl of the repository file RepositoryFileAclDto.
    *
    * @return A jax-rs Response object with the appropriate status code, header, and body.
@@ -736,13 +803,13 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "{pathId : .+}/acl" )
-  @Consumes ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
+  @Consumes ( { MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully saved file." ),
-      @ResponseCode ( code = 403, condition = "Failed to save acls due to missing or incorrect properties." ),
-      @ResponseCode ( code = 400, condition = "Failed to save acls due to malformed xml." ),
-      @ResponseCode ( code = 500, condition = "Failed to save acls due to another error." ) } )
-  public Response setFileAcls( @PathParam ( "pathId" ) String pathId, RepositoryFileAclDto acl ) {
+    @ResponseCode ( code = 200, condition = "Successfully saved file." ),
+    @ResponseCode ( code = 403, condition = "Failed to save acls due to missing or incorrect properties." ),
+    @ResponseCode ( code = 400, condition = "Failed to save acls due to malformed xml." ),
+    @ResponseCode ( code = 500, condition = "Failed to save acls due to another error." ) } )
+  public Response setFileAcls( @PathParam ( "pathId" ) String pathId, RepositoryFileAclDto acl  ) {
     /*
      * [BISERVER-14294] Ensuring the owner is set to a non-null, non-empty string value to prevent any issues
      * that might cause problems with the repository. Then following it up with a user existence check
@@ -762,6 +829,105 @@ public class FileResource extends AbstractJaxRSResource {
       }
     } catch ( Exception exception ) {
       logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), exception );
+      return buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
+    }
+  }
+
+  protected XMLStreamReader getSecureXmlStreamReader( StreamSource xmlSource ) throws XMLStreamException {
+    XMLInputFactory xif = XMLInputFactory.newFactory();
+    xif.setProperty( XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false );
+    xif.setProperty( XMLInputFactory.SUPPORT_DTD, false );
+    XMLStreamReader xsr = xif.createXMLStreamReader( xmlSource );
+    return xsr;
+  }
+
+  protected Unmarshaller getUnmarshaller( Class<?> clazz ) throws JAXBException {
+    ContextResolver<JAXBContext> jaxbResolver = null;
+    JAXBContext jaxbContext = null;
+    if ( null != providers ) { // should never be null except in unit tests
+      jaxbResolver = providers.getContextResolver( JAXBContext.class, MediaType.APPLICATION_XML_TYPE );
+    }
+    if ( null != jaxbResolver ) {
+      jaxbContext = jaxbResolver.getContext( clazz );
+    }
+    if ( null == jaxbContext ) {
+      jaxbContext = JAXBContext.newInstance( clazz );
+    }
+    Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+    return unmarshaller;
+  }
+
+  /**
+   * Store content creator for the given path of created content.
+   *
+   * @param pathId         colon separated path for the repository file that was created by the contenCreator below
+   *                       <pre function="syntax.xml">
+   *                       :path:to:file:id
+   *                       </pre>
+   * @param contentCreatorXml Repository file that created the file at the above pathId location
+   *                       <pre function="syntax.xml">
+   *                       &lt;repositoryFileDto&gt;
+   *                       &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
+   *                       &lt;fileSize&gt;3461&lt;/fileSize&gt;
+   *                       &lt;folder&gt;false&lt;/folder&gt;
+   *                       &lt;hidden&gt;false&lt;/hidden&gt;
+   *                       &lt;id&gt;ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/id&gt;
+   *                       &lt;lastModifiedDate&gt;1406647160536&lt;/lastModifiedDate&gt;
+   *                       &lt;locale&gt;en&lt;/locale&gt;
+   *                       &lt;localePropertiesMapEntries&gt;
+   *                       &lt;localeMapDto&gt;
+   *                       &lt;locale&gt;default&lt;/locale&gt;
+   *                       &lt;properties&gt;
+   *                       &lt;stringKeyStringValueDto&gt;
+   *                       &lt;key&gt;file.title&lt;/key&gt;
+   *                       &lt;value&gt;myFile&lt;/value&gt;
+   *                       &lt;/stringKeyStringValueDto&gt;
+   *                       &lt;stringKeyStringValueDto&gt;
+   *                       &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   *                       &lt;value&gt;nt:unstructured&lt;/value&gt;
+   *                       &lt;/stringKeyStringValueDto&gt;
+   *                       &lt;stringKeyStringValueDto&gt;
+   *                       &lt;key&gt;title&lt;/key&gt;
+   *                       &lt;value&gt;myFile&lt;/value&gt;
+   *                       &lt;/stringKeyStringValueDto&gt;
+   *                       &lt;stringKeyStringValueDto&gt;
+   *                       &lt;key&gt;file.description&lt;/key&gt;
+   *                       &lt;value&gt;myFile Description&lt;/value&gt;
+   *                       &lt;/stringKeyStringValueDto&gt;
+   *                       &lt;/properties&gt;
+   *                       &lt;/localeMapDto&gt;
+   *                       &lt;/localePropertiesMapEntries&gt;
+   *                       &lt;locked&gt;false&lt;/locked&gt;
+   *                       &lt;name&gt;myFile.prpt&lt;/name&gt;&lt;/name&gt;
+   *                       &lt;originalParentFolderPath&gt;/public/admin&lt;/originalParentFolderPath&gt;
+   *                       &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *                       &lt;path&gt;/public/admin/ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/path&gt;
+   *                       &lt;title&gt;myFile&lt;/title&gt;
+   *                       &lt;versionId&gt;1.9&lt;/versionId&gt;
+   *                       &lt;versioned&gt;true&lt;/versioned&gt;
+   *                       &lt;/repositoryFileAclDto&gt;
+   *                       </pre>
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
+   */
+  @PUT
+  @Path ( "{pathId : .+}/creator" )
+  @Consumes ( { MediaType.APPLICATION_XML } )
+  @StatusCodes ( {
+      @ResponseCode ( code = 200, condition = "Successfully retrieved file." ),
+      @ResponseCode ( code = 500, condition = "Failed to download file because of some other error." ) } )
+  @Facet ( name = "Unsupported" )
+  public Response doSetContentCreator( @PathParam ( "pathId" ) String pathId, StreamSource contentCreatorXml ) {
+    try {
+      Unmarshaller unmarshaller = getUnmarshaller( RepositoryFileDto.class );
+      XMLStreamReader xsr = getSecureXmlStreamReader( contentCreatorXml );
+      RepositoryFileDto contentCreator = (RepositoryFileDto) unmarshaller.unmarshal( xsr );
+      fileService.doSetContentCreator( pathId, contentCreator );
+      return buildOkResponse();
+    } catch ( FileNotFoundException e ) {
+      logger.error( getMessagesInstance().getErrorString( "FileResource.FILE_NOT_FOUND", pathId ), e );
+      return buildStatusResponse( Response.Status.NOT_FOUND );
+    } catch ( Throwable t ) {
+      logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), t );
       return buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
     }
   }
@@ -820,10 +986,10 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @PUT
   @Path ( "{pathId : .+}/creator" )
-  @Consumes ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
+  @Consumes ( { MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved file." ),
-      @ResponseCode ( code = 500, condition = "Failed to download file because of some other error." ) } )
+    @ResponseCode ( code = 200, condition = "Successfully retrieved file." ),
+    @ResponseCode ( code = 500, condition = "Failed to download file because of some other error." ) } )
   @Facet ( name = "Unsupported" )
   public Response doSetContentCreator( @PathParam ( "pathId" ) String pathId, RepositoryFileDto contentCreator ) {
     try {
@@ -1994,11 +2160,12 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path ( "{pathId : .+}/metadata" )
   @Produces ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
+  @Consumes ( { MediaType.APPLICATION_JSON } )
   @StatusCodes ( {
-      @ResponseCode ( code = 200, condition = "Successfully retrieved metadata." ),
-      @ResponseCode ( code = 403, condition = "Invalid path." ),
-      @ResponseCode ( code = 400, condition = "Invalid payload." ),
-      @ResponseCode ( code = 500, condition = "Server Error." ) } )
+    @ResponseCode ( code = 200, condition = "Successfully retrieved metadata." ),
+    @ResponseCode ( code = 403, condition = "Invalid path." ),
+    @ResponseCode ( code = 400, condition = "Invalid payload." ),
+    @ResponseCode ( code = 500, condition = "Server Error." ) } )
   public Response doSetMetadata( @PathParam ( "pathId" ) String pathId, List<StringKeyStringValueDto> metadata ) {
     try {
       fileService.doSetMetadata( pathId, metadata );
@@ -2354,6 +2521,6 @@ public class FileResource extends AbstractJaxRSResource {
    */
   @VisibleForTesting
   boolean validateSecurityPrincipal( String principal ) {
-    return !INVALID_SECURITY_PRINCIPAL_PATTERN.matcher( principal ).matches();
+    return !INVALID_SECURITY_PRINCIPAL_PATTERN.matcher( principal ).find();
   }
 }

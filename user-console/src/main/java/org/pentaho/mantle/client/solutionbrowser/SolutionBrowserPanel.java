@@ -29,6 +29,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -50,6 +51,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.genericfile.GenericFileNameUtils;
 import org.pentaho.gwt.widgets.client.utils.NameUtils;
 import org.pentaho.mantle.client.EmptyRequestCallback;
 import org.pentaho.mantle.client.commands.AbstractCommand;
@@ -89,6 +91,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   private static final String FILE_EXTENSION_DELIMETER = ".";
 
+  private static final char FILE_PATH_SEPARATOR = '/';
+
   private final int defaultSplitPosition = 220; //$NON-NLS-1$
 
   private SplitLayoutPanel navigatorAndContentSplit = new SplitLayoutPanel() {
@@ -110,6 +114,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private PickupDragController dragController;
   private List<String> executableFileExtensions = new ArrayList<String>();
   private static List<String> supportedFileExtensions;
+
   private JsArrayString filters;
 
   {
@@ -358,15 +363,31 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
       solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::showPluginError(Ljava/lang/String;)(filename);
     }
+    $wnd.mantle_showUnsupportedFiletypeError = function (filename, extension) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::showUnsupportedFiletypeError(Ljava/lang/String;Ljava/lang/String;)(filename, extension);
+    }
     $wnd.mantle_isSupportedExtension = function (extension) {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
       return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isSupportedExtension(Ljava/lang/String;)(extension);
     }
+    $wnd.mantle_isRepositoryPath = function (path) {
+      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
+      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isRepositoryPath(Ljava/lang/String;)(path);
+    }
   }-*/;
 
   public void showPluginError( String filename ) {
+    showError( Messages.getString( "error.NoPlugin" ), Messages.getString( "error.NoPluginText", filename ) );
+  }
+
+  public void showUnsupportedFiletypeError( String fileName, String extension ){
+    showError( "Unsupported File Type", "Cannot open file \"" + fileName + "\" with unsupported extension \"" + extension +"\".");
+  }
+
+  private void showError( String dialogTitle, String errorMessage ) {
     InfoDialog dialogBox =
-      new InfoDialog( Messages.getString( "error.NoPlugin" ), Messages.getString( "error.NoPluginText", filename ), true, false, true ); //$NON-NLS-1$ $NON-NLS-2$
+      new InfoDialog( dialogTitle, errorMessage, true, false, true ); //$NON-NLS-1$ $NON-NLS-2$
     dialogBox.setWidth( "350px" );
     dialogBox.center();
   }
@@ -392,6 +413,10 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     return NameUtils.URLEncode( id );
   }
 
+  private String encodeGenericFilePath( String path ){
+    return NameUtils.URLEncode( GenericFileNameUtils.encodePath( path ) );
+  }
+
   public List<String> getExecutableFileExtensions() {
     return executableFileExtensions;
   }
@@ -403,7 +428,16 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     } catch ( IllegalArgumentException e ) {
       // bad mode passed in, using default
     }
-    openFile( fileNameWithPath, realMode );
+
+    /*
+    TODO BACKLOG-40475: For now, we only support RUN ("Open") and NEWWINDOW ("Open in new window") modes for PVFS files.
+     This logic can be better integrated into the existing flow in a future release.
+     */
+    if( isRepositoryPath( fileNameWithPath ) ) {
+      openFile( fileNameWithPath, realMode );
+    } else {
+      openGenericFile( fileNameWithPath, realMode);
+    }
   }
 
   public void getFile( final String solutionPath, final SolutionFileHandler handler ) {
@@ -435,6 +469,34 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       } );
     } catch ( RequestException e ) {
       // showError(e);
+    }
+  }
+
+  //TODO BACKLOG-40475: See if we can integrate the PVFS flow into the repository flow. For now we have a seperate, similar function.
+  private void openGenericFile( String filePath, COMMAND mode ) {
+    String url = null;
+    String extension = ""; //$NON-NLS-1$
+
+    String fileName = filePath.substring( filePath.lastIndexOf( FILE_PATH_SEPARATOR ) +1 );
+
+    fileName = URL.decode( fileName ).replace( "%23", "#" );
+
+    if ( fileName.lastIndexOf( FILE_EXTENSION_DELIMETER ) > 0 ) { //$NON-NLS-1$
+      extension = fileName.substring( fileName.lastIndexOf( FILE_EXTENSION_DELIMETER ) + 1 ); //$NON-NLS-1$
+    }
+
+    url = getPath() + "plugin/scheduler-plugin/api/generic-files/" + encodeGenericFilePath( filePath )
+      + "/content"; //$NON-NLS-1$ //$NON-NLS-2$
+
+    // force to open pdf files in another window due to issues with pdf readers in IE browsers
+    // via class added on themeResources for IE browsers
+    boolean pdfReaderEmbeded = RootPanel.getBodyElement().getClassName().contains( "pdfReaderEmbeded" );
+    if ( mode == FileCommand.COMMAND.NEWWINDOW || ( extension.equals( "pdf" ) && pdfReaderEmbeded ) ) {
+      Window.open( url, "_blank", "menubar=yes,location=no,resizable=yes,scrollbars=yes,status=no" ); //$NON-NLS-1$ //$NON-NLS-2$
+    } else {
+      PerspectiveManager.getInstance().setPerspective( PerspectiveManager.OPENED_PERSPECTIVE );
+      contentTabPanel.showNewURLTab( fileName, fileName, url, true );
+      addRecent( encodeUri( filePath ), fileName );
     }
   }
 
@@ -470,6 +532,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     }
   }
 
+  //TODO if we can use IGenericFile here, we could better integrate the PVFS flow into existing code
   public void openFile( final RepositoryFile repositoryFile, final FileCommand.COMMAND mode ) {
 
     String fileNameWithPath = repositoryFile.getPath();
@@ -494,7 +557,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
           showPluginError( repositoryFile.getName() );
           return;
         }
-        url = getPath() + "api/repos/" + pathToId( fileNameWithPath ) + "/content"; //$NON-NLS-1$ //$NON-NLS-2$
+        url = getPath() + "plugin/scheduler-plugin/api/generic-files/" + encodeGenericFilePath( fileNameWithPath ) + "/content"; //$NON-NLS-1$ //$NON-NLS-2$
       } else {
         ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin( fileNameWithPath );
         url =
@@ -837,4 +900,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private native void createSchedule( final String repositoryFileId, final String repositoryFilePath )/*-{
     $wnd.pho.createSchedule( repositoryFileId, repositoryFilePath );
   }-*/;
+
+  private boolean isRepositoryPath( String path ){
+    return GenericFileNameUtils.isRepositoryPath( path );
+  }
 }

@@ -20,8 +20,8 @@
 
 package org.pentaho.platform.api.repository2.unified.data;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 
 import java.io.ByteArrayInputStream;
@@ -29,11 +29,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -54,7 +54,7 @@ public class SimpleRepositoryFileDataTest {
   private SimpleRepositoryFileData file;
   private InputStream inputStreamSpy;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     inputStreamSpy = spy( INPUT_STREAM );
     file = new SimpleRepositoryFileData( inputStreamSpy, ENCODING, MIME_TYPE );

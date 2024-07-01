@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -23,13 +23,12 @@ package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.security.Principal;
-import java.security.acl.Group;
 import java.util.Enumeration;
 
 /**
  * In Spring Security, there are users and roles. This class represents a Spring Security role. This class is the
  * Jackrabbit representation of a {@code org.springframework.security.acls.sid.GrantedAuthoritySid}. This class was
- * required as no {@link Group} implementations were found that could re-used.
+ * required as no Group implementations were found that could re-used.
  * 
  * <p>
  * Why Group and not Principal? Group is more like a Spring Security role in that there can be "members" that have
@@ -39,7 +38,7 @@ import java.util.Enumeration;
  * 
  * @author mlowery
  */
-public class SpringSecurityRolePrincipal implements Group {
+public class SpringSecurityRolePrincipal implements Principal {
 
   // ~ Static fields/initializers
   // ======================================================================================

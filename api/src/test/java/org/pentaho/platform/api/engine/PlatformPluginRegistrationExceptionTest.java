@@ -14,18 +14,18 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.api.engine;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import org.pentaho.platform.api.repository.ContentException;
 
 import java.lang.reflect.Constructor;
 
-import org.junit.Test;
-import org.pentaho.platform.api.repository.ContentException;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class PlatformPluginRegistrationExceptionTest {
 

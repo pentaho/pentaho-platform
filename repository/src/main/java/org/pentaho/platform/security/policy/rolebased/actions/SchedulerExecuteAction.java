@@ -14,31 +14,26 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2022-2024 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2024 Hitachi Vantara. All rights reserved.
  *
  */
 
-package org.pentaho.tomcat.logvalve;
+package org.pentaho.platform.security.policy.rolebased.actions;
 
-import java.io.CharArrayWriter;
-import java.io.IOException;
-import org.apache.catalina.valves.AccessLogValve;
+import java.util.ResourceBundle;
 
-/**
- * This class makes sure that the passwords visible in the tomcat server access logs are masked
- *
- * @author samhithavootkoor
- */
-public class FilteredAccessLogValve extends AccessLogValve {
+public class SchedulerExecuteAction extends AbstractAuthorizationAction {
+  public static final String NAME = "org.pentaho.scheduler.execute";
+  ResourceBundle resourceBundle;
 
   @Override
-  public void log( CharArrayWriter message ) {
-    try ( CharArrayWriter caw = new CharArrayWriter() ) {
-      // Mask the user password
-      caw.write( message.toString().replaceAll( "j_password=[^&^ ]*", "j_password=***" ) );
-      super.log( caw );
-    } catch ( IOException e ) {
-      e.printStackTrace();
-    }
+  public String getName() {
+    return NAME;
+  }
+
+  @Override
+  public String getLocalizedDisplayName( String localeString ) {
+    resourceBundle = getResourceBundle( localeString );
+    return resourceBundle.getString( NAME );
   }
 }

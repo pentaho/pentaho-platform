@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2020 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2020-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -29,7 +29,6 @@ import org.pentaho.platform.api.security.ILoginAttemptService;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-import static org.powermock.reflect.Whitebox.getInternalState;
 import static org.junit.Assert.assertEquals;
 
 public class LoginAttemptServiceTest {
@@ -50,7 +49,7 @@ public class LoginAttemptServiceTest {
     int maxAttempt = 3;
     int cacheMinutes = 60;
     ILoginAttemptService loginAttemptService = new LoginAttemptService( maxAttempt, cacheMinutes );
-    assertEquals( maxAttempt, (int) getInternalState( loginAttemptService, "maxAttempt" ) );
+    assertEquals( maxAttempt, ((LoginAttemptService)loginAttemptService).maxAttempt );
   }
 
   @Test
@@ -63,22 +62,15 @@ public class LoginAttemptServiceTest {
 
     for ( int i = 1; i <= attempts; i++ ) {
       loginAttemptService.loginFailed( key );
-      assertEquals(
-        Integer.valueOf( i ),
-        ( (LoadingCache<String, Integer>) getInternalState( loginAttemptService, "attemptsCache" ) ).get( key )
-      );
+      assertEquals( Integer.valueOf( i ), ( ( (LoginAttemptService) loginAttemptService ).attemptsCache ).get( key ) );
     }
   }
-
-
 
   @Test
   public void testLoginSucceeded() throws ExecutionException {
     testLoginFailed();
     loginAttemptService.loginSucceeded( key );
-    assertEquals(
-      Integer.valueOf( 0 ),
-      ( (LoadingCache<String, Integer>) getInternalState( loginAttemptService, "attemptsCache" ) ).get( key ) );
+    assertEquals( Integer.valueOf( 0 ), ( ( (LoginAttemptService) loginAttemptService ).attemptsCache ).get( key ) );
   }
 
   @Test

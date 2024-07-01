@@ -807,6 +807,10 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }
 
   public void selectTab( final PentahoTab selectedTab ) {
+    selectTab( selectedTab, false );
+  }
+
+  public void selectTab( final PentahoTab selectedTab, boolean setFocus ) {
 
     // Save previous tab's solution browser panel navigator state
     PentahoTab prevTab = getSelectedTab();
@@ -817,7 +821,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         mantlePrevTab.setSolutionBrowserShowing( prevState );
       }
     }
-    super.selectTab( selectedTab );
+    super.selectTab( selectedTab, setFocus );
 
     if ( selectedTab == null ) {
       return;

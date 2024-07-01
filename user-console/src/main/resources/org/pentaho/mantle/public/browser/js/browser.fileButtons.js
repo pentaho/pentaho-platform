@@ -193,6 +193,29 @@ define([
       }
     },
 
+    //TODO Only enable the open buttons for supported file types...
+    enableButtons: function (enableButtons) {
+      this.buttons.forEach((buttonDef) => {
+        //TODO for now, "Open" and "Open in new window" buttons are always enabled. Extension support/error dialog is handled in SolutionBrowserPanel.
+        if (buttonDef.id !== "openButton" && buttonDef.id !== "openNewButton") {
+          let target;
+          if ( buttonDef.id == "separator" ){
+            target = $(".separator");
+          } else {
+            target = $("#" + buttonDef.id);
+          }
+
+          target.prop("disabled", !enableButtons);
+
+          if( !enableButtons ){
+            target.hide();
+          } else {
+            target.show();
+          }
+        }
+      });
+    },
+
     eventLogger: function (event) {
       console.log(event.action + " : " + event.message);
     },

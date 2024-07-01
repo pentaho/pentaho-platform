@@ -153,6 +153,25 @@ define([
       }
     },
 
+    enableButtons: function (enableButtons) {
+      this.buttons.forEach((buttonDef) => {
+        let target;
+        if (buttonDef.id == "separator") {
+          target = $(".separator");
+        } else {
+          target = $("#" + buttonDef.id);
+        }
+
+        target.prop("disabled", !enableButtons);
+
+        if (!enableButtons) {
+          target.hide();
+        } else {
+          target.show();
+        }
+      });
+    },
+
     eventLogger: function (event) {
       console.log(event.action + " : " + event.message);
     },

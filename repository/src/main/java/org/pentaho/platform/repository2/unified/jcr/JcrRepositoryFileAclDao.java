@@ -51,7 +51,6 @@ import javax.jcr.security.Privilege;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.Principal;
-import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -243,7 +242,7 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
     String name = principal.getName();
     DefaultPermissionConversionHelper permissionConversionHelper = new DefaultPermissionConversionHelper( session );
 
-    if ( principal instanceof Group ) {
+    if ( principal instanceof SpringSecurityRolePrincipal ) {
       sid =
           new RepositoryFileSid( JcrTenantUtils.getRoleNameUtils().getPrincipleName( name ),
               RepositoryFileSid.Type.ROLE );

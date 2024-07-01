@@ -33,6 +33,8 @@ define([
   "common-ui/jquery"
 ], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder, a11yUtil) {
 
+  const REPOSITORY_ROOT_PATH = "/";
+
   if (window.parent.mantle_isBrowseRepoDirty == undefined) {
     window.parent.mantle_isBrowseRepoDirty = false;
   }
@@ -70,9 +72,11 @@ define([
   var trashItemButtons = new TrashItemButtons(jQuery.i18n);
   var browserUtils = new BrowserUtils();
   var multiSelectButtons = new MultiSelectButtons(jQuery.i18n);
-  // BACKLOG-30159 -- depth preset to 3 because initial folder will be /home/<user> (i.e. /home/admin)
-  // and we need 3 levels, 1. home, 2. <user>, and 3. any folders within /home/<user>
-  var depth = 3;
+  // BACKLOG-40444 -- After the addition of vfs connections to fetch all the folders with depth of 3 has become a
+  // performance issue. Changing the depth to 1 to fetch the folders lazily. For the last clicked folders if it's depth
+  // is more than one we are using extendedPath param to fetch the tree structure of last clicked folder and remaining
+  // all folders loads with depth of 1.
+  var depth = 1;
 
   fileButtons.renameDialog = renameDialog;
   folderButtons.renameDialog = renameDialog;
@@ -94,6 +98,11 @@ define([
   FileBrowser.encodePathComponents = function (path) {
     return Encoder.encode("{0}", path);
   };
+
+  FileBrowser.encodeGenericFilePathComponents = function (path) {
+    const encodedFilePath = Encoder.encodeGenericFilePath(path);
+    return Encoder.encode("{0}", encodedFilePath);
+  }
 
   FileBrowser.setShowHiddenFiles = function (value) {
     this.showHiddenFiles = value;
@@ -140,7 +149,7 @@ define([
     // Sets initialPath as the clicked folder
     if (this.fileBrowserModel && clickedPath) {
       this.fileBrowserModel.set("clickedFolder", {
-        obj: $("[path='" + clickedPath + "']"),
+        obj: $("[path='" + escapeCssSelector(clickedPath) + "']"),
         time: (new Date()).getTime()
       });
     }
@@ -221,7 +230,7 @@ define([
 
   FileBrowser.openFolder = function (path) {
     //first select folder
-    var $folder = $("[path='"+path+"']"),
+    var $folder = $("[path='"+escapeCssSelector(path)+"']"),
         $parentFolder = $folder.parent(".folders");
     while(!$parentFolder.hasClass("body") && $parentFolder.length > 0){
       $parentFolder.show();
@@ -229,6 +238,25 @@ define([
       $parentFolder = $parentFolder.parent().parent();
     }
     $folder.find("> .element .name").trigger("click");
+  };
+
+  FileBrowser.clearTreeCache = function () {
+    let url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/tree/cache";
+
+    $.ajax({
+      async: false,
+      cache: false, // prevent IE from caching the request
+      type: 'DELETE',
+      dataType: "json",
+      url: url,
+      success: function (response) {
+      },
+      error: function () {
+        //TODO indicate error via dialog?
+      },
+      beforeSend: function (xhr) {
+      }
+    });
   };
 
   var FileBrowserModel = Backbone.Model.extend({
@@ -269,20 +297,21 @@ define([
       var config = myself.get("spinConfig").getLargeConfig();
       var spinner1 = new Spinner(config),
           spinner2 = new Spinner(config);
-      var _clickedFolder = undefined;
-      var _clickedFile = undefined;
-      if ( foldersTreeModel ) {
-        _clickedFolder = {
-          obj: foldersTreeModel.get("clickedFolder"),
-          time: (new Date()).getTime()
-        }
+
+      function getClickedFolder(model) {
+        return model && model.get("clickedFolder") && model.get("clickedFolder").obj;
       }
-      if ( fileListModel ) {
-        _clickedFile = {
-          obj: fileListModel.get("clickedFile"),
-          time: (new Date()).getTime()
-        }
+
+      function getClickedFile(model) {
+        return model && model.get("clickedFile") && model.get("clickedFile").obj;
       }
+
+      var _clickedFolderObj = getClickedFolder(foldersTreeModel) ?? getClickedFolder(myself);
+      var _clickedFolder = _clickedFolderObj ? {obj: _clickedFolderObj, time: (new Date()).getTime()} : null;
+
+      var _clickedFileObj = getClickedFile(fileListModel) ?? getClickedFile(myself);
+      var _clickedFile = _clickedFileObj ? {obj: _clickedFileObj, time: (new Date()).getTime()} : null;
+
       //create two models
       foldersTreeModel = new FileBrowserFolderTreeModel({
         spinner: spinner1,
@@ -339,55 +368,67 @@ define([
     },
 
     updateFolderButtons: function( _folderPath) {
+      const isRepositoryFolderPath = !!_folderPath && isRepositoryPath(_folderPath) && !isRepositoryRootPath(_folderPath);
+
       var userHomePath = Encoder.encodeRepositoryPath(window.parent.HOME_FOLDER);
       var model = FileBrowser.fileBrowserModel; // trap model
-      var folderPath = Encoder.encodeRepositoryPath( _folderPath);
+      var folderPath = Encoder.encodeRepositoryPath(_folderPath);
+
+      // BACKLOG-40475, BACKLOG-41134: Disable and hide all folder actions for roots "Repository" and "VFS Connections", along with all PVFS folders.
+      // "Repository" and "VFS Connections" are technically folders in the tree, but shouldn't be considered regular "folders" from a user perspective.
+      // They should be considered "folder categories" or something of the like. We have called them "provider roots" in the scope of this code.
+      folderButtons.enableButtons(isRepositoryFolderPath);
 
       // BACKLOG-23730: server+client side code uses centralized logic to check if user can download/upload
-      //
-      // Ajax request to check if user can download
-      $.ajax({
-        url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=" + encodeURIComponent( _folderPath ),
-        type: "GET",
-        async: true,
-        success: function (response) {
-          folderButtons.canDownload(response == "true");
-        },
-        error: function (response) {
-          folderButtons.canDownload(false);
-        }
-      });
 
-      // Ajax request to check if user can upload (a.k.a. publish)
-      $.ajax({
-        url: CONTEXT_PATH + "api/repo/files/canUpload?dirPath=" + encodeURIComponent( _folderPath ),
-        type: "GET",
-        async: true,
-        success: function (response) {
-          folderButtons.canPublish(response == "true");
-        },
-        error: function (response) {
-          folderButtons.canPublish(false);
-        }
-      });
+      //Ajax request to check if user can download
+      if (isRepositoryFolderPath) {
+        $.ajax({
+          url: CONTEXT_PATH + "api/repo/files/canDownload?dirPath=" + encodeURIComponent(_folderPath),
+          type: "GET",
+          async: true,
+          success: function (response) {
+            folderButtons.canDownload(response == "true");
+          },
+          error: function (response) {
+            folderButtons.canDownload(false);
+          }
+        });
 
-      //Ajax request to check write permissions for folder
-      $.ajax({
-        url: CONTEXT_PATH + 'api/repo/files/' + FileBrowser.encodePathComponents(folderPath) + '/canAccessMap',
-        type: "GET",
-        beforeSend: function (request) {
-          request.setRequestHeader('accept', 'application/json');
-        },
-        data: {"permissions": "1"}, //check write permissions for the given folder
-        async: true,
-        cache: false,
-        success: function (response) {
-          folderButtons.updateFolderPermissionButtons(response, model.get('browserUtils').multiSelectItems, !(folderPath == userHomePath));
-        },
-        error: function (response) {
-          folderButtons.updateFolderPermissionButtons(false, model.get('browserUtils').multiSelectItems, false);
-        }
-      });
+        // Ajax request to check if user can upload (a.k.a. publish)
+        $.ajax({
+          url: CONTEXT_PATH + "api/repo/files/canUpload?dirPath=" + encodeURIComponent(_folderPath),
+          type: "GET",
+          async: true,
+          success: function (response) {
+            folderButtons.canPublish(response == "true");
+          },
+          error: function (response) {
+            folderButtons.canPublish(false);
+          }
+        });
+
+        //Ajax request to check write permissions for folder
+        $.ajax({
+          url: CONTEXT_PATH + 'api/repo/files/' + FileBrowser.encodePathComponents(folderPath) + '/canAccessMap',
+          type: "GET",
+          beforeSend: function (request) {
+            request.setRequestHeader('accept', 'application/json');
+          },
+          data: {"permissions": "1"}, //check write permissions for the given folder
+          async: true,
+          cache: false,
+          success: function (response) {
+            folderButtons.updateFolderPermissionButtons(response, model.get('browserUtils').multiSelectItems, !(folderPath == userHomePath));
+          },
+          error: function (response) {
+            folderButtons.updateFolderPermissionButtons(false, model.get('browserUtils').multiSelectItems, false);
+          }
+        });
+      } //else {
+        // This is a VFS Connection path
+        //TODO BACKLOG-40086: refactor when we've implemented permissions for vfs connections folders/files
+        //}
     },
 
     updateFileClicked: function () {
@@ -395,44 +436,53 @@ define([
       this.set("clickedFile", clickedFile);
 
       var clickedFolder = this.get("clickedFolder");
-      var didClickTrash = (!!clickedFolder) && clickedFolder.obj.attr("path") == ".trash";
-      if (didClickTrash) {
-        this.updateTrashItemLastClick();
-      }
 
-      if ( clickedFile == null ) {
-        fileButtons.updateFilePermissionButtons(false);
-        fileButtons.canDownload(false);
-        return;
-      }
-
-      if (!didClickTrash) {
-        // BISERVER-9127 - Provide the selected path to the FileButtons object
-        fileButtons.onFileSelect(clickedFile.obj.attr("path"));
-      }
-
-      fileButtons.canDownload(this.get("canDownload"));
-      //TODO handle file button press
       var filePath = clickedFile.obj.attr("path");
-      filePath = Encoder.encodeRepositoryPath(filePath);
+      const isRepoPath = isRepositoryPath(filePath);
 
+      //Repository Only Logic
       //Ajax request to check write permissions for file
-      $.ajax({
-        url: CONTEXT_PATH + 'api/repo/files/' + FileBrowser.encodePathComponents(filePath) + '/canAccessMap',
-        type: "GET",
-        beforeSend: function (request) {
-          request.setRequestHeader('accept', 'application/json');
-        },
-        data: {"permissions": "1|2"}, //check write and delete permissions for the given file
-        async: true,
-        cache: false,
-        success: function (response) {
-          fileButtons.updateFilePermissionButtons(response);
-        },
-        error: function (response) {
-          fileButtons.updateFilePermissionButtons(false);
+      if( isRepoPath ) {
+        var didClickTrash = (!!clickedFolder) && clickedFolder.obj.attr("path") == ".trash";
+        if (didClickTrash) {
+          this.updateTrashItemLastClick();
         }
-      });
+
+        if ( clickedFile == null ) {
+          fileButtons.updateFilePermissionButtons(false);
+          fileButtons.canDownload(false);
+          return;
+        }
+
+        if (!didClickTrash) {
+          // BISERVER-9127 - Provide the selected path to the FileButtons object
+          fileButtons.onFileSelect(clickedFile.obj.attr("path"));
+        }
+
+        fileButtons.canDownload(this.get("canDownload"));
+
+        filePath = Encoder.encodeRepositoryPath(filePath);
+
+        $.ajax({
+          url: CONTEXT_PATH + 'api/repo/files/' + FileBrowser.encodePathComponents(filePath) + '/canAccessMap',
+          type: "GET",
+          beforeSend: function (request) {
+            request.setRequestHeader('accept', 'application/json');
+          },
+          data: {"permissions": "1|2"}, //check write and delete permissions for the given file
+          async: true,
+          cache: false,
+          success: function (response) {
+            fileButtons.updateFilePermissionButtons(response);
+          },
+          error: function (response) {
+            fileButtons.updateFilePermissionButtons(false);
+          }
+        });
+      } //else {
+        // this is a VFS connection path
+        //TODO BACKLOG-40086: refactor when we've implemented permissions for vfs connections folders/files
+        //}
     },
 
     updateFolderLastClick: function () {
@@ -500,36 +550,43 @@ define([
 
     updateData: function () {
       var myself = this;
+
+      const trashFolder = {
+        "file": {
+          "trash": "trash",
+          "createdDate": "1365427106132",
+          "fileSize": "0",
+          "folder": true,
+          "hidden": "false",
+          "objectId:": jQuery.i18n.prop('trash'),
+          "locale": "en",
+          "locked": "false",
+          "name": jQuery.i18n.prop('trash'),
+          "ownerType": "-1",
+          "path": ".trash",
+          "title": jQuery.i18n.prop('trash'),
+          "versioned": "false"
+        }
+      };
+
       myself.set("runSpinner", true);
-      myself.fetchData("/", function (response) {
-        var trash = {
-          "file": {
-            "trash": "trash",
-            "createdDate": "1365427106132",
-            "fileSize": "0",
-            "folder": "true",
-            "hidden": "false",
-            "id:": jQuery.i18n.prop('trash'),
-            "locale": "en",
-            "locked": "false",
-            "name": jQuery.i18n.prop('trash'),
-            "ownerType": "-1",
-            "path": ".trash",
-            "title": jQuery.i18n.prop('trash'),
-            "versioned": "false"
-          }
-        };
-        //Add trash to data model
-        response.children.push(trash);
+      myself.fetchTreeRootData(function (response) {
+
+        //Add the trash folder once to the first Repository folder
+        myself.getRepositoryFolderChildren(response).push(trashFolder);
+        
+        response.children = reformatResponse(response).children;
         myself.set("data", response);
       });
     },
 
-    fetchData: function (path, callback) {
+    fetchTreeRootData: function (callback) {
       var myself = this,
-          tree = null,
-          localSequenceNumber = myself.get("sequenceNumber");
-      var url = this.getFileTreeRequest(FileBrowser.encodePathComponents(path == null ? ":" : Encoder.encodeRepositoryPath(path)));
+          localSequenceNumber = myself.get("sequenceNumber"),
+          url = this.getFolderTreeRootRequest();
+
+      FileBrowser.clearTreeCache();
+
       $.ajax({
         async: true,
         cache: false, // prevent IE from caching the request
@@ -549,12 +606,37 @@ define([
       });
     },
 
-    /*
-     * Path has already been converted to colons
-     */
-    getFileTreeRequest: function (path) {
-      return CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=" + depth
-          + "&showHidden=" + this.get("showHiddenFiles") + "&filter=*%7CFOLDERS";
+    _getResolvedClickedFolder: function() {
+       const clickedFolder = this.get("clickedFolder")?.obj?.attr("path");
+       return clickedFolder && clickedFolder !== '.trash' ? clickedFolder : null;
+    },
+
+    _getResolvedStartFolder: function() {
+      const startFolder = FileBrowser.fileBrowserModel.get("startFolder");
+      return startFolder && startFolder !== '.trash' ? startFolder : null;
+    },
+
+    getFolderTreeRootRequest: function(path) {
+      const expandedPath = this._getResolvedClickedFolder() || this._getResolvedStartFolder();
+      const expandedPathParam = expandedPath ? (`&expandedPath=${encodeURIComponent(expandedPath)}`) : "";
+
+      /**
+       * TODO BACKLOG-40086: In order to prevent regressions in current behavior we include the depth parameter here
+       * like it was for repository api.
+       * This is expensive, however, fetching the entire folder tree to whatever depth, just to view a specific folder.
+       */
+      return `${CONTEXT_PATH}plugin/scheduler-plugin/api/generic-files/tree?depth=${depth}&filter=FOLDERS&showHidden=${
+        this.get("showHiddenFiles")}${expandedPathParam}`;
+    },
+
+    getRepositoryFolderChildren: function (response) {
+      for (let i = 0; i < response.children.length; i++) {
+        const childFolder = response.children[i];
+        if (isRepositoryRootPath(childFolder.file.path)) {
+          return childFolder.children;
+        }
+      }
+      return response.children;
     }
   });
 
@@ -601,8 +683,17 @@ define([
             file: Object
           }
           obj.file = response.repositoryFileDto[i];
-          obj.file.trash = "true";
+          obj.file.trash = true;
           obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
+
+          /* BACKLOG-40086: we've updated the browser.templates.js to match the objects returned by generic-files endpoints
+             Trash is still using /api/repo/files and repositoryFileDto. To match template change:
+             - Convert "folder" from string to boolean
+             - Convert "id" to "objectId"
+           */
+          obj.file.folder = (obj.file.folder == "true");
+          obj.file.objectId = obj.file.id;
+
           if (obj.file.id) {
             if (myself.get("deletedFiles") == "") {
               myself.set("deletedFiles", obj.file.id + ",");
@@ -610,25 +701,6 @@ define([
               myself.set("deletedFiles", myself.get("deletedFiles") + obj.file.id + ",");
             }
           }
-          newResp.children.push(obj);
-        }
-      }
-      return newResp;
-    },
-
-    reformatResponse: function (response) {
-      var newResp = {
-        children: []
-      }
-      if (response && response.repositoryFileDto) {
-
-        for (var i = 0; i < response.repositoryFileDto.length; i++) {
-          var obj = {
-            file: Object
-          }
-
-          obj.file = response.repositoryFileDto[i];
-          obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
           newResp.children.push(obj);
         }
       }
@@ -647,7 +719,7 @@ define([
             FileBrowser.fileBrowserModel.get("trashButtons").onTrashSelect(true);
           }
         } else {
-          var newResp = myself.reformatResponse(response);
+          var newResp = reformatResponse(response);
           newResp.ts = new Date(); // force backbone to trigger onchange event even if response is the same
           myself.set("data", newResp);
         }
@@ -656,8 +728,9 @@ define([
 
     fetchData: function (path, callback) {
       var myself = this,
-          url = this.getFileListRequest(FileBrowser.encodePathComponents(path == null ? ":" : Encoder.encodeRepositoryPath(path))),
+          url = this.getFileListRequest(FileBrowser.encodeGenericFilePathComponents(path == null ? "/" : path)),
           localSequenceNumber = myself.get("sequenceNumber");
+
       $.ajax({
         async: true,
         cache: false, // prevent IE from caching the request
@@ -681,8 +754,7 @@ define([
                   = FileBrowser.fileBrowserModel.attributes.fileListModel.reformatTrashResponse(myself, response);
             }
             else {
-              myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")] = FileBrowser.
-              fileBrowserModel.attributes.fileListModel.reformatResponse(response);
+              myself.get("cachedData")[FileBrowser.fileBrowserModel.getFolderClicked().attr("path")] = reformatResponse(response);
             }
           }
         },
@@ -708,8 +780,10 @@ define([
                 myself.set("runSpinner", false);
               }
             }
+          } else {
+            // BACKLOG-40086: Clear the server-side tree cache if isBrowseRepoDirty flag is set.
+            FileBrowser.clearTreeCache();
           }
-
         }
       });
     },
@@ -721,10 +795,8 @@ define([
       var request;
       if (path == ".trash") {
         request = CONTEXT_PATH + "api/repo/files/deleted";
-      }
-      else {
-        //request = CONTEXT_PATH + "api/repo/files/" + path + "/tree?depth=-1&showHidden=" + this.get("showHiddenFiles") + "&filter=*|FILES";
-        request = CONTEXT_PATH + "api/repo/files/" + path + "/children?showHidden=" + this.get("showHiddenFiles") + "&filter=*%7CFILES";
+      } else {
+        request = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/" + path + "/tree?depth=1&filter=FILES&showHidden=" + this.get("showHiddenFiles");
       }
       return request;
     }
@@ -935,6 +1007,14 @@ define([
           }
         });
       });
+
+      // TODO BACKLOG-40086: for now, disable all file actions for VFS Connections, i.e. isRepoPath = false
+      const selectedFilePath = fileClicked ? fileClicked.attr("path") : null;
+      if (selectedFilePath != null && buttonsType.enableButtons) {
+        const isRepoPath = isRepositoryPath(selectedFilePath);
+        buttonsType.enableButtons(isRepoPath);
+      }
+
       model.updateFolderButtons( folderClicked == undefined ? window.parent.HOME_FOLDER : folderClicked.attr("path") );
     },
 
@@ -992,6 +1072,13 @@ define([
           }
         });
       });
+
+      // TODO BACKLOG-40086: for now, disable all file actions for VFS Connections, i.e. isRepoPath = false
+      const selectedFilePath = fileClicked ? fileClicked.attr("path") : null;
+      if (selectedFilePath != null && buttonsType.enableButtons) {
+        const isRepoPath = isRepositoryPath(selectedFilePath);
+        buttonsType.enableButtons(isRepoPath);
+      }
     },
 
     checkButtonsEnabled: function () {
@@ -1087,11 +1174,11 @@ define([
         // verify if clicked folder is visible
         if ( FileBrowser.fileBrowserModel.getFolderClicked() &&
             FileBrowser.fileBrowserModel.getFolderClicked().attr("path") &&
-            ( $( "div[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "']" ).length !== 0 ) ) {
-          $folder = $("[path='" + FileBrowser.fileBrowserModel.getFolderClicked().attr("path") + "']");
+            ( $( "div[path='" + escapeCssSelector(FileBrowser.fileBrowserModel.getFolderClicked().attr("path")) + "']" ).length !== 0 ) ) {
+          $folder = $("[path='" + escapeCssSelector(FileBrowser.fileBrowserModel.getFolderClicked().attr("path")) + "']");
         } else if ( FileBrowser.fileBrowserModel.get("startFolder") &&
-            ( $( "div[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']" ).length !== 0 ) ) {
-          $folder = $( "[path='" + FileBrowser.fileBrowserModel.get("startFolder") + "']" );
+            ( $( "div[path='" + escapeCssSelector(FileBrowser.fileBrowserModel.get("startFolder")) + "']" ).length !== 0 ) ) {
+          $folder = $( "[path='" + escapeCssSelector(FileBrowser.fileBrowserModel.get("startFolder")) + "']" );
         } else {
           $folder = myself.getFirstVisibleFolder();
         }
@@ -1118,7 +1205,6 @@ define([
           $folder.removeClass("selected");
           $clickedFile.addClass("selected");
         } else {
-          $folder.addClass("open");
           $folder.children(".element").attr("aria-expanded", true);
           $folder.addClass("selected");
           $folder.children(".element").attr("tabindex", 0).attr("aria-selected", true);
@@ -1126,6 +1212,12 @@ define([
         }
         FileBrowser.fileBrowserModel.updateFolderButtons($folder.attr("path"));
         myself.updateDescriptions();
+
+        //scroll the first selected folder div into view
+        const selectedFolders = $("div.folders .selected").get();
+        if (selectedFolders.length > 0) {
+          selectedFolders[0].scrollIntoView();
+        }
       }
     },
 
@@ -1137,18 +1229,21 @@ define([
       for ( var i = 0; i < foldersList.length; i++ ) {
         var elem = foldersList[i];
         if (elem && elem.file && elem.file.folder && elem.file.path &&
-          $("div[path=\"" + elem.file.path + "\"]").length != 0) {
+          $("div[path=\"" + escapeCssSelector(elem.file.path) + "\"]").length != 0) {
           firstVisibleFolder = elem;
           break;
         }
       }
 
       if ( firstVisibleFolder ) {
-        return $( "[path='" + firstVisibleFolder.file.path + "']" );
+        return $( "[path='" + escapeCssSelector(firstVisibleFolder.file.path) + "']" );
       }
     },
 
     expandFolder: function (event) {
+      const LOADING_FOLDER_CLASS = "loading";
+      const ERROR_FOLDER_CLASS = "error";
+
       let $target;
       if ($(event.currentTarget).hasClass("element")) {
         $target = $(event.currentTarget).parent();
@@ -1180,32 +1275,23 @@ define([
         var path = $target.attr("path");
         var myself = this;
 
-        var url = CONTEXT_PATH + "api/repo/files/" +
-            FileBrowser.encodePathComponents(path == null ? ":" : Encoder.encodeRepositoryPath(path))
-            + "/tree?depth=1&showHidden=" + myself.model.get("showHiddenFiles") + "&filter=*%7CFOLDERS";
+        var url = CONTEXT_PATH + "plugin/scheduler-plugin/api/generic-files/"
+            + FileBrowser.encodeGenericFilePathComponents(path)
+            + "/tree?depth=1&showHidden=" + myself.model.get("showHiddenFiles") + "&filter=FOLDERS";
         $.ajax({
           async: true,
           cache: false, // prevent IE from caching the request
           dataType: "json",
           url: url,
           success: function (response) {
+
             if (response.children) {
-              var toAppend = "";
-              for(var i = 0; i < response.children.length; i++) {
-                var child = response.children[i].file;
-                toAppend += "<div id=\"" + child.id + "\" class=\"folder\" path=\"" + child.path +
-                    "\" ext=\"" + child.name + "\" desc=\"" + child.name + "\">" +
-                    "<div class=\"element\" role='treeitem' aria-selected='false' aria-expanded='false' tabindex='-1'>" +
-                    "<div class=\"expandCollapse\"></div>" +
-                    "<div class=\"icon\"></div>" +
-                    "<div class=\"title\">" + ( child.title ? child.title : child.name ) + "</div>" +
-                    "</div>" +
-                    "<div class=\"folders\" style=\"\"></div>" +
-                    "</div>"
-              }
+              response = customSort(response);
+
+              var toAppend = templates.folders(reformatResponse(response));
               $target.find("> .folders").append(toAppend ? toAppend : "");
-              depth = $target.attr("path").split("/").length;
             }
+
             // set the widths of new folder descriptions
             $target.find(".element").each(function () {
               var $this = $(this);
@@ -1215,12 +1301,19 @@ define([
                 tries++;
               }
             });
+            $target.removeClass(ERROR_FOLDER_CLASS);
+            $target.removeClass(LOADING_FOLDER_CLASS);
             $target.children(".element").attr("aria-expanded", true);
             $target.addClass("open").find("> .folders").show();
           },
           error: function () {
+            $target.removeClass(LOADING_FOLDER_CLASS);
+            $target.addClass(ERROR_FOLDER_CLASS);
+            //TODO indicate some failure via dialog?
           },
           beforeSend: function (xhr) {
+            $target.removeClass(ERROR_FOLDER_CLASS);
+            $target.addClass(LOADING_FOLDER_CLASS);
           }
         });
       }
@@ -1252,7 +1345,6 @@ define([
       //deselect any files
       $("#fileBrowserFiles").children("[role=listbox]").removeAttr("aria-activedescendant");
       $(".file.selected").removeClass("selected");
-      depth = $target.attr("path").split("/").length;
       event.stopPropagation();
     },
 
@@ -1428,6 +1520,12 @@ define([
       setTimeout(function () {
         myself.model.set("runSpinner", false);
       }, 100);
+
+      //scroll the first selected file div into view
+      const selectedFiles = $("div.file.selected").get();
+      if (selectedFiles.length > 0) {
+        selectedFiles[0].scrollIntoView();
+      }
     },
 
     /*!
@@ -1749,7 +1847,7 @@ define([
         var inRange = false;
         var secondMatch = false;
         for (var i = 0; i < files.length; i++) {
-          if (files[i].file.folder === "false") {
+          if (files[i].file.folder === false) {
             if ((files[i].file.id == from.attr("id") || files[i].file.id == target.attr("id"))) {
               if (inRange == true) {
                 secondMatch = true;
@@ -1779,6 +1877,7 @@ define([
     doubleClickFile: function (event) {
       var path = $(event.currentTarget).attr("path");
       //if not trash item, try to open the file.
+
       if (FileBrowser.fileBrowserModel.getLastClick() != "trashItem") {
         this.model.get("openFileHandler")(path, "run");
       }
@@ -1844,36 +1943,129 @@ define([
 
   function customSort(response) {
 
-    var sortFunction = function (a, b) {
-      return window.parent.localeCompare(a.file.title, b.file.title);
+    // Code should be in sync with org.pentaho.gwt.widgets.client.filechooser.TreeItemComparator#compare.
+    var localeCompare = function(a, b) {
+      const aLowerCase = a.toLowerCase();
+      const bLowerCase = b.toLowerCase();
+
+      if(aLowerCase.localeCompare(bLowerCase) === 0) {
+        // if values are equal, case ignored, use original values for comparison.
+        return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+      }
+
+      return aLowerCase.localeCompare(bLowerCase);
     };
 
-    var recursivePreorder = function (node) {
-      if (node != undefined) {
-        if (node.children == undefined || node.children == null || node.children.length <= 0) {
+    var sortFunction = function (a, b) {
+      //if the file doesn't have a title, sort by its name
+      //this is expected to only be the case for root folders
+      const aCompare = a.file.title || a.file.name;
+      const bCompare = b.file.title || b.file.name;
+      return localeCompare(aCompare, bCompare);
+    };
+
+    var recursivePreorder = function(node) {
+      if(node != null) {
+        if(node.children == null || node.children.length === 0) {
           // do nothing if node is not a parent
-        }
-        else {
-          for (var i = 0; i < node.children.length; i++)
-              // recursively sort children
+        } else {
+          for(var i = 0; i < node.children.length; i++) {
+            // recursively sort children
             recursivePreorder(node.children[i]);
+          }
+
           node.children.sort(sortFunction);
         }
       }
     };
-
-    if (!window.parent.localeCompare) {
-      console.log('window.parent.localeCompare function has not been loaded');
-      return response; // the server should still return a sorted tree list
-    }
 
     recursivePreorder(response);
 
     return response;
   }
 
+  function isRepositoryPath(path) {
+    return path.charAt(0) === REPOSITORY_ROOT_PATH;
+  }
+
+  function isProviderRootPath(file) {
+    return file.parentPath === null;
+  }
+
+  function isRepositoryRootPath(path) {
+    return path === REPOSITORY_ROOT_PATH;
+  }
+
+  /**
+   * Reformat response data to handle conditionals before passing off to templates.
+   * We can do conditional logic in templates, but it is better to do as much as possible here.
+   */
+  function reformatResponse(response) {
+    var newResp = {
+      children: []
+    }
+    if (response && response.children) {
+      for (var i = 0; i < response.children.length; i++) {
+        var obj = {
+          file: Object
+        }
+
+        obj.file = response.children[i].file;
+
+        if (obj.file.hasChildren){
+          obj.children = response.children[i].children;
+        }
+
+        obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
+
+        if( isProviderRootPath(obj.file) ){
+          obj.file.isProviderRootPath = true;
+        }
+
+        //decode potentially encoded name and title attributes of PVFS paths
+        if( !isRepositoryPath(obj.file.path) && !obj.file.decoded ){
+          obj.file.name = decodePvfsFileAttribute(obj.file.name);
+          obj.file.title = obj.file.title === null ? obj.file.name : decodePvfsFileAttribute(obj.file.title);
+          obj.file.decoded = true;
+        }
+
+        if(!obj.file.objectId){
+          obj.file.objectId = obj.file.path;
+        }
+
+        obj.file.id = obj.file.objectId;
+
+        newResp.children.push(obj);
+      }
+    }
+    return newResp;
+  }
+
+  function decodePvfsFileAttribute(attribute) {
+    try {
+      return decodeURI(attribute).replace("%23", "#");
+    } catch (error) {
+      // if there is an error, simply return the value. This should only impact the UI visually, not functionally.
+      // we can show an error if we'd like, but have opted not to at this time.
+      // let errorMessage = "Error decoding file attribute: " + attribute + "\n" + error;
+      // window.parent.mantle_showGenericError(errorMessage);
+      return attribute;
+    }
+  }
+
+
+  /**
+   * Escapes special characters in jquery selector
+   * @param selector
+   * @returns selector with special characters escaped by "\\"
+   */
+  function escapeCssSelector(selector) {
+    return selector.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&");
+  }
+
   return {
     encodePathComponents: FileBrowser.encodePathComponents,
+    encodeGenericFilePathComponents: FileBrowser.encodeGenericFilePathComponents,
     setContainer: FileBrowser.setContainer,
     setOpenFileHandler: FileBrowser.setOpenFileHandler,
     setShowHiddenFiles: FileBrowser.setShowHiddenFiles,
@@ -1891,11 +2083,12 @@ define([
     templates: FileBrowser.templates,
     openFolder: FileBrowser.openFolder,
     pushUnique: FileBrowser.pushUnique,
-    concatArray: FileBrowser.concatArray
+    concatArray: FileBrowser.concatArray,
+    clearTreeCache: FileBrowser.clearTreeCache
   }
 });
 
 function perspectiveActivated() {
   window.parent.mantle_isBrowseRepoDirty = true;
-  FileBrowser.update(FileBrowser.fileBrowserModel.getFolderClicked().attr("path"));
+  FileBrowser.update();
 }

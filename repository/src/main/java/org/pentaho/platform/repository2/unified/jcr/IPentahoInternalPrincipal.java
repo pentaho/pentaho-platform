@@ -21,6 +21,7 @@
 package org.pentaho.platform.repository2.unified.jcr;
 
 import java.security.Principal;
+import java.util.Enumeration;
 
 /**
  * Marker interface that denotes principals that are part of internal ACEs that are never exposed to clients.
