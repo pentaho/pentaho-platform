@@ -89,22 +89,18 @@ define([
   templates.folderText =
       "{{#ifCond file.folder true}}" +
           "{{#ifCond file.path '.trash'}}" +
-          "<div id='{{file.objectId}}' class='trash folder' path='{{file.path}}' ext='{{file.name}}' desc='{{file.name}}'>" +
+          "<div id='{{file.objectId}}' class='trash folder' path='{{file.path}}' ext='{{file.nameDecoded}}' desc='{{file.nameDecoded}}'>" +
           "{{else}}" +
               "{{#if file.isProviderRootPath}}" +
-                  "<div id='{{file.objectId}}' class='folder providerRootFolder' path='{{file.path}}' desc='{{file.description}}' ext='{{file.name}}' title='{{file.title}}'>" +
+                  "<div id='{{file.objectId}}' class='folder providerRootFolder' path='{{file.path}}' desc='{{file.description}}' ext='{{file.nameDecoded}}' title='{{file.title}}'>" +
               "{{else}}" +
-                  "<div id='{{file.objectId}}' class='folder' path='{{file.path}}' desc='{{file.description}}' ext='{{file.name}}' title='{{file.title}}'>" +
+                  "<div id='{{file.objectId}}' class='folder' path='{{file.path}}' desc='{{file.description}}' ext='{{file.nameDecoded}}' title='{{file.title}}'>" +
               "{{/if}}" +
           "{{/ifCond}}" +
           "<div class='element' role='treeitem' aria-selected='false' aria-expanded='false' tabindex='-1'>" +
           "<div class='expandCollapse'> </div>" +
           "<div class='icon'> </div>" +
-          "{{#if file.title}}" +
           "<div class='title'>{{file.title}}</div>" +
-          "{{else}}" +
-          "<div class='title'>{{file.name}}</div>" +
-          "{{/if}}" +
           "</div>" +
           "<div class='folders' role='group'>" +
           "{{#each children}} {{> folder}} {{/each}}" +
@@ -165,7 +161,7 @@ define([
   //helper registration for file template
   Handlebars.registerHelper('file', function () {
     //handle file name
-    var name = this.file.name,
+    var name = this.file.nameDecoded,
         title = this.file.title,
         path = this.file.path;
 
@@ -186,7 +182,7 @@ define([
       classes: extension,
       description: this.file.description,
       folder: this.file.folder,
-      fileWithExtension: this.file.name
+      fileWithExtension: this.file.nameDecoded
     }));
   });
 
