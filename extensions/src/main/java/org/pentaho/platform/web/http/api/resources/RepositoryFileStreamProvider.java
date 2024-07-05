@@ -98,6 +98,16 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
   }
 
   public OutputStream getOutputStream() throws Exception {
+    String tempOutputFilePath = getTempOutputFilePath();
+
+    RepositoryFileOutputStream outputStream =
+        new RepositoryFileOutputStream( tempOutputFilePath, autoCreateUniqueFilename, true );
+    outputStream.addListener( this );
+    outputStream.forceFlush( false );
+    return outputStream;
+  }
+
+  protected String getTempOutputFilePath() {
     String tempOutputFilePath = outputFilePath;
     String extension = RepositoryFilenameUtils.getExtension( tempOutputFilePath );
     if ( "*".equals( extension ) ) { //$NON-NLS-1$
@@ -121,12 +131,7 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
         }
       }
     }
-
-    RepositoryFileOutputStream outputStream =
-        new RepositoryFileOutputStream( tempOutputFilePath, autoCreateUniqueFilename, true );
-    outputStream.addListener( this );
-    outputStream.forceFlush( false );
-    return outputStream;
+    return tempOutputFilePath;
   }
 
   public void fileCreated( String filePath ) {
