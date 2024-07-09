@@ -184,4 +184,23 @@
       This is enabled by default, set the value to "false" to disable this access.
     -->
   <adminAccessAllUsersTrash>true</adminAccessAllUsersTrash>
+
+  <!--
+    System fallback scheduler output location.
+
+    When a schedule's output location is unavailable, the first available fallback location is used, in the order:
+    1. schedule owner user setting `default-scheduler-output-path`
+    2. system setting `default-scheduler-output-path` (this property)
+    3. schedule owner user home folder
+
+    A location is unavailable if:
+    1. Value is unspecified or empty.
+    2. Specified path has an invalid syntax.
+    3. Specified path does not exist.
+    4. Specified path is not a folder.
+    5. The schedule owner user does not have read/write access to the specified folder.
+
+    Example:
+    <default-scheduler-output-path>/public/output</default-scheduler-output-path>
+  -->
 </pentaho-system>
