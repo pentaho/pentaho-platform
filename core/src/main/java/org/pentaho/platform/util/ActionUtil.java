@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2020 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -179,7 +179,7 @@ public class ActionUtil {
    * @return work item name from the {@link Map} or a new one, or {@code null} in the absence of
    * the {@link IWorkItemLifecycleEventPublisher} bean
    */
-  public static String extractName( final Map<String, Object> params ) {
+  public static String extractName( final Map<String, Serializable> params ) {
     final IWorkItemLifecycleEventPublisher publisher = PentahoSystem.get( IWorkItemLifecycleEventPublisher.class );
     // if the published bean is null, we do not want to generate the work item name, as this is a worker nodes
     // concept, and we do not want any worker nodes related information in the logs. Given that
@@ -207,7 +207,7 @@ public class ActionUtil {
    * @return a name for the work item
    * @see {@link #generateWorkItemName(String, String)}
    */
-  public static String generateWorkItemName( final Map<String, Object> params ) {
+  public static String generateWorkItemName( final Map<String, Serializable> params ) {
     if ( params == null ) {
       return generateWorkItemName( null, null );
     }
@@ -227,11 +227,11 @@ public class ActionUtil {
     return generateWorkItemName( inputFilePath, userName );
   }
 
-  public static boolean isInlinePassingOfInputOnStreamProvider( final Map<String, Object> params ) {
+  public static boolean isInlinePassingOfInputOnStreamProvider( final Map<String, Serializable> params ) {
     return params != null && getStreamProviderContent( params ).contains( QUARTZ_STREAMPROVIDER_INLINE_INPUT_FILE );
   }
 
-  public static String getInlineInputFileOnStreamProvider( final Map<String, Object> params ) {
+  public static String getInlineInputFileOnStreamProvider( final Map<String, Serializable> params ) {
 
     try {
 
@@ -251,7 +251,7 @@ public class ActionUtil {
     return null;
   }
 
-  public static String getStreamProviderContent( final Map<String, Object> params ) {
+  public static String getStreamProviderContent( final Map<String, Serializable> params ) {
     return ( params.containsKey( QUARTZ_STREAMPROVIDER )
             ? params.get( QUARTZ_STREAMPROVIDER ) : params.containsKey( INVOKER_STREAMPROVIDER )
             ? params.get( INVOKER_STREAMPROVIDER ) : StringUtils.EMPTY ).toString().trim();
@@ -428,7 +428,7 @@ public class ActionUtil {
    * @param params       a {@link Map} of parameter used to invoke the action
    * @param filePath     the path of the repository file that was generated when the action was invoked
    */
-  public static void sendEmail( Map<String, Object> actionParams, Map<String, Object> params, String filePath ) {
+  public static void sendEmail( Map<String, Object> actionParams, Map<String, Serializable> params, String filePath ) {
     try {
       // if email is setup and we have tos, then do it
       Emailer emailer = new Emailer();
@@ -484,7 +484,7 @@ public class ActionUtil {
     }
   }
 
-  private static void addAttachment( Map<String, Object> actionParams, Map<String, Object> params,
+  private static void addAttachment( Map<String, Object> actionParams, Map<String, Serializable> params,
                                      String filePath, Emailer emailer ) {
     IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
     RepositoryFile sourceFile = repo.getFile( filePath );

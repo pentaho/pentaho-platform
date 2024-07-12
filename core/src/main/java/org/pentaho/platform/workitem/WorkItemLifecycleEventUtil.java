@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -43,7 +43,7 @@ public class WorkItemLifecycleEventUtil {
    * @param workItemLifecyclePhase a {@link WorkItemLifecyclePhase} representing the lifecycle event
    */
   public static void publish( final String workItemUid,
-                              final Map<String, Object> details,
+                              final Map<String, Serializable> details,
                               final WorkItemLifecyclePhase workItemLifecyclePhase ) {
     publish( workItemUid, details, workItemLifecyclePhase, null, null );
   }
@@ -59,7 +59,7 @@ public class WorkItemLifecycleEventUtil {
    *                               pertinent failure messages
    */
   public static void publish( final String workItemUid,
-                              final Map<String, Object> details,
+                              final Map<String, Serializable> details,
                               final WorkItemLifecyclePhase workItemLifecyclePhase, final String lifecycleDetails ) {
     publish( workItemUid, details, workItemLifecyclePhase, lifecycleDetails, null );
   }
@@ -77,7 +77,7 @@ public class WorkItemLifecycleEventUtil {
    * @param sourceTimestamp        a {@link Date} representing the time the lifecycle change occurred.
    */
   public static void publish( final String workItemUid,
-                              final Map<String, Object> details,
+                              final Map<String, Serializable> details,
                               final WorkItemLifecyclePhase workItemLifecyclePhase,
                               final String lifecycleDetails,
                               final Date sourceTimestamp ) {
@@ -129,7 +129,7 @@ public class WorkItemLifecycleEventUtil {
     }
   }
 
-  private static String extractDetails( final Map<String, Object> detailsMap ) {
+  private static String extractDetails( final Map<String, Serializable> detailsMap ) {
     if ( detailsMap == null ) {
       return "";
     }
