@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -38,7 +38,7 @@ public interface IActionInvoker {
    * @return the {@link IActionInvokeStatus} object containing information about the action invocation
    * @throws Exception if the action cannot be run for some reason
    */
-  IActionInvokeStatus invokeAction( IAction action, final String user, final Map<String, Object> params )
+  IActionInvokeStatus invokeAction( IAction action, final String user, final Map<String, Serializable> params )
         throws Exception;
 
   /**

@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -26,6 +26,6 @@ import java.util.Map;
 import org.pentaho.platform.api.action.IAction;
 
 public interface ISchedulerListener {
-  public void jobCompleted( IAction actionBean, String actionUser, Map<String, Object> params,
+  public void jobCompleted( IAction actionBean, String actionUser, Map<String, Serializable> params,
       IBackgroundExecutionStreamProvider streamProvider );
 }

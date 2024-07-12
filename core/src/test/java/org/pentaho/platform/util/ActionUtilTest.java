@@ -156,7 +156,7 @@ public class ActionUtilTest {
     try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
       // fake the publisher, so that a call to extractName returns a value and puts it in the params map
       pentahoSystem.when( () -> PentahoSystem.get( eq( IWorkItemLifecycleEventPublisher.class ) ) ).thenReturn( new DummyPublisher() );
-      final Map<String, Object> params = new HashMap<>();
+      final Map<String, Serializable> params = new HashMap<>();
 
       assertNotNull( ActionUtil.extractName( params ) );
       // the map should now contain a uid
@@ -170,7 +170,7 @@ public class ActionUtilTest {
   @Test
   public void testExtractNameWithoutPublisher() {
     // by default, there is no IWorkItemLifecycleEventPublisher bean, call to extractName should return null
-    final Map<String, Object> params = new HashMap<>();
+    final Map<String, Serializable> params = new HashMap<>();
 
     assertNull( ActionUtil.extractName( params ) );
     assertFalse( params.containsKey( ActionUtil.WORK_ITEM_UID ) );
@@ -179,7 +179,7 @@ public class ActionUtilTest {
   @Test
   public void testGenerateWorkItemNameWithMap() {
 
-    Map<String, Object> map = null;
+    Map<String, Serializable> map = null;
     String result;
 
     // null map
