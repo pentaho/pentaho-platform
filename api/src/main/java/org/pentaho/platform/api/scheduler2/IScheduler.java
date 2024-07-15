@@ -14,13 +14,12 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.api.scheduler2;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -74,7 +73,7 @@ public interface IScheduler {
    * @throws SchedulerException
    *           If the job could not be scheduled
    */
-  IJob createJob( String jobName, Class<? extends IAction> action, Map<String, Serializable> jobParams,
+  IJob createJob( String jobName, Class<? extends IAction> action, Map<String, Object> jobParams,
       IJobTrigger trigger ) throws SchedulerException;
 
   /**
@@ -92,7 +91,7 @@ public interface IScheduler {
    * @throws SchedulerException
    *           If the job could not be scheduled
    */
-  IJob createJob( String jobName, String actionId, Map<String, Serializable> jobParams, IJobTrigger trigger )
+  IJob createJob( String jobName, String actionId, Map<String, Object> jobParams, IJobTrigger trigger )
     throws SchedulerException;
 
   /**
@@ -113,7 +112,7 @@ public interface IScheduler {
    * @throws SchedulerException
    *           If the job could not be scheduled
    */
-  IJob createJob( String jobName, Class<? extends IAction> action, Map<String, Serializable> jobParams,
+  IJob createJob( String jobName, Class<? extends IAction> action, Map<String, Object> jobParams,
       IJobTrigger trigger, IBackgroundExecutionStreamProvider outputStreamProvider ) throws SchedulerException;
 
   /**
@@ -134,7 +133,7 @@ public interface IScheduler {
    * @throws SchedulerException
    *           If the job could not be scheduled
    */
-  IJob createJob( String jobName, String actionId, Map<String, Serializable> jobParams, IJobTrigger trigger,
+  IJob createJob( String jobName, String actionId, Map<String, Object> jobParams, IJobTrigger trigger,
       IBackgroundExecutionStreamProvider outputStreamProvider ) throws SchedulerException;
 
   /**
@@ -149,7 +148,7 @@ public interface IScheduler {
    * @throws SchedulerException
    *           If the job could not be updated
    */
-  void updateJob( String jobId, Map<String, Serializable> jobParams, IJobTrigger trigger )
+  void updateJob( String jobId, Map<String, Object> jobParams, IJobTrigger trigger )
     throws SchedulerException;
 
   /**
@@ -301,7 +300,7 @@ public interface IScheduler {
    * @param streamProvider
    */
   void fireJobCompleted( final IAction actionBean, final String actionUser,
-      final Map<String, Serializable> params, IBackgroundExecutionStreamProvider streamProvider );
+      final Map<String, Object> params, IBackgroundExecutionStreamProvider streamProvider );
 
   IJobScheduleRequest createJobScheduleRequest();
 
@@ -328,6 +327,6 @@ public interface IScheduler {
    * @param jobParams scheduling job parameters
    * @throws SchedulerException
    */
-  default void validateJobParams( final Map<String, Serializable> jobParams ) throws SchedulerException {
+  default void validateJobParams( final Map<String, Object> jobParams ) throws SchedulerException {
   }
 }
