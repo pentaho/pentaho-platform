@@ -15,7 +15,7 @@
         <!-- ================================= -->
         <!-- Preserve messages in a local file -->
         <!-- ================================= -->
-        
+
         <!-- A time/date based rolling appender -->
         <RollingFile name="PENTAHOFILE" fileName="../logs/pentaho.log" filePattern="../logs/pentaho.log.%d{yyyy-MM-dd}">
             <PatternLayout>
@@ -83,7 +83,7 @@
             <DefaultRolloverStrategy max="1" />
         </RollingFile>
          -->
-         
+
         <!-- ========================================================== -->
         <!-- Special log file specifically for sensitive data access    -->
         <!-- on a per user/session/IP level                             -->
@@ -126,7 +126,7 @@
         <Logger name="org.pentaho.di.monitor" level="ERROR"/>
         <Logger name="org.pentaho.platform.engine.core.system.status" level="INFO"/>
         <Logger name="org.pentaho.hadoop.shim.DriverManager" level="INFO"/>
-        
+
         <!-- =========================== -->
         <!-- Repository Import Log Level -->
         <!-- =========================== -->
@@ -137,6 +137,13 @@
         <Logger name="org.pentaho.di.job.Job" level="INFO" additivity="false">
             <appender-ref ref="pdi-execution-appender"/>
         </Logger>
+
+        <!-- =========================== -->
+        <!-- Scheduler Log Levels        -->
+        <!-- =========================== -->
+        <!-- Set these to WARN to enable logging of scheduler output location validation and fallback process. -->
+        <Logger name="org.pentaho.platform.scheduler2.action.SchedulerOutputPathResolver" level="WARN"/>
+        <Logger name="org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver" level="WARN"/>
 
         <!-- =========================== -->
         <!-- Mondrian Log Levels         -->
