@@ -55,26 +55,6 @@
         <exclude>**/PentahoAnalyzer.html</exclude>
       </excludes>
     </fileSet>
-
-    <fileSet>
-      <directory>${webjars.target.directory}/bootstrap/${bootstrap.version}/dist/css</directory>
-      <outputDirectory>public/Steel Wheels/Enterprise Edition/css</outputDirectory>
-      <excludes>
-        <exclude>**/*.min.map</exclude>
-        <exclude>**/*.css.map</exclude>
-      </excludes>
-    </fileSet>
-    <fileSet>
-      <directory>${webjars.target.directory}/bootstrap/${bootstrap.version}/dist/fonts</directory>
-      <outputDirectory>public/Steel Wheels/Enterprise Edition/fonts</outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>${webjars.target.directory}/bootstrap/${bootstrap.version}/dist/js</directory>
-      <outputDirectory>public/Steel Wheels/Enterprise Edition/js/vendor</outputDirectory>
-      <excludes>
-        <exclude>**/npm.js</exclude>
-      </excludes>
-    </fileSet>
   </fileSets>
 
 </assembly>
