@@ -13,18 +13,17 @@
 
 package org.pentaho.platform.web.servlet;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 
-public class UploadFileUtilsTest {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+public class UploadFileUtilsTest {
   @Before
   public void setupPentahoSystem() {
     PentahoSystem.setApplicationContext(
@@ -57,7 +56,7 @@ public class UploadFileUtilsTest {
   }
 
   @Test
-  public void testGetAllExtensions() throws Exception {
+  public void testGetAllExtensions() {
     UploadFileUtils testUtils = new UploadFileUtils( null );
     assertNull( testUtils.removeFileName( null ) );
     assertEquals( "", testUtils.removeFileName( "" ) );
