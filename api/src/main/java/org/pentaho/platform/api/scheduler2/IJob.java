@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -26,7 +26,7 @@ import java.util.Map;
 
 public interface IJob {
   IJobTrigger getJobTrigger();
-  Map<String, Serializable> getJobParams();
+  Map<String, Object> getJobParams();
   String getJobId();
   String getJobName();
   JobState getState();

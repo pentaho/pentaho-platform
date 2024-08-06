@@ -20,22 +20,7 @@
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-import java.util.Properties;
-
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.dbcp2.ConnectionFactory;
 import org.apache.commons.dbcp2.DriverManagerConnectionFactory;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -60,7 +45,28 @@ import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-import com.google.common.collect.ImmutableMap;
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith( MockitoJUnitRunner.class )
 public class PooledDatasourceHelperTest {
@@ -346,6 +352,174 @@ public class PooledDatasourceHelperTest {
     assertEquals( password, props.getProperty( "password" ) );
 
   }
+
+  // region getJndiDataSource(..)
+  static abstract class BaseJndiScenario {
+    public final Context context;
+    public final List<String> allowedJndiSchemes;
+
+    public BaseJndiScenario() {
+      this( null );
+    }
+
+    public BaseJndiScenario( List<String> allowedJndiSchemes ) {
+      this.context = mock( Context.class );
+      this.allowedJndiSchemes = allowedJndiSchemes != null ? allowedJndiSchemes : List.of( "java" );
+    }
+
+    public void registerResource( String fullName, Object resource ) {
+      try {
+        when( context.lookup( fullName ) ).thenReturn( resource );
+      } catch ( NamingException e ) {
+        // Does not happen during testing.
+        throw new RuntimeException( e );
+      }
+    }
+
+    public DataSource getJndiDataSource( String name ) throws DBDatasourceServiceException {
+      return PooledDatasourceHelper.getJndiDataSource( context, name, allowedJndiSchemes );
+    }
+  }
+
+  static class Tomcat1JndiScenario extends BaseJndiScenario {
+    public final String DATA_SOURCE_NON_EXISTING_FULL_NAME = "java:comp/env/jdbc/FOOO";
+
+    public final String DATA_SOURCE_1_NAME = "DataSource1";
+    public final String DATA_SOURCE_1_JAVA_RELATIVE_NAME = "comp/env/jdbc/" + DATA_SOURCE_1_NAME;
+    public final String DATA_SOURCE_1_FULL_NAME = "java:" + DATA_SOURCE_1_JAVA_RELATIVE_NAME;
+    public final DataSource dataSource1;
+
+    public final String DATA_SOURCE_2_NAME = "DataSource2";
+    public final String DATA_SOURCE_2_JAVA_RELATIVE_NAME = "comp/env/jdbc/" + DATA_SOURCE_2_NAME;
+    public final String DATA_SOURCE_2_FULL_NAME = "java:" + DATA_SOURCE_2_JAVA_RELATIVE_NAME;
+    public final DataSource dataSource2;
+
+    public final String DATA_SOURCE_3_RMI_FULL_NAME = "rmi:DataSource3";
+    public final DataSource dataSource3;
+
+    public final String NOT_DATA_SOURCE_NAME = "NotADataSource";
+    public final Object notADataSource;
+
+    public Tomcat1JndiScenario() {
+      this( null );
+    }
+
+    public Tomcat1JndiScenario( List<String> allowedJndiSchemes ) {
+      super( allowedJndiSchemes );
+
+      dataSource1 = mock( DataSource.class );
+      registerResource( DATA_SOURCE_1_FULL_NAME, dataSource1 );
+
+      dataSource2 = mock( DataSource.class );
+      registerResource( DATA_SOURCE_2_FULL_NAME, dataSource2 );
+
+      dataSource3 = mock( DataSource.class );
+      registerResource( DATA_SOURCE_3_RMI_FULL_NAME, dataSource3 );
+
+      notADataSource = mock( Object.class );
+      registerResource( NOT_DATA_SOURCE_NAME, notADataSource );
+    }
+  }
+
+  static class OtherJndiScenario extends BaseJndiScenario {
+    public final String DATA_SOURCE_1_NAME = "DataSource1";
+    public final String DATA_SOURCE_1_FULL_NAME = "jdbc/" + DATA_SOURCE_1_NAME;
+    public final DataSource dataSource1;
+
+    public OtherJndiScenario() {
+      dataSource1 = mock( DataSource.class );
+      registerResource( DATA_SOURCE_1_FULL_NAME, dataSource1 );
+    }
+  }
+
+  @Test
+  public void testGetJndiDataSourceResolvesExistingDataSourceGivenFullJndiName() throws Exception {
+    Tomcat1JndiScenario scenario = new Tomcat1JndiScenario();
+
+    DataSource ds = scenario.getJndiDataSource( scenario.DATA_SOURCE_1_FULL_NAME );
+
+    assertSame( scenario.dataSource1, ds );
+  }
+
+  @Test
+  public void testGetJndiDataSourceResolvesDistinctDataSourcesGivenFullJndiNames() throws Exception {
+    Tomcat1JndiScenario scenario = new Tomcat1JndiScenario();
+
+    assertSame( scenario.dataSource1, scenario.getJndiDataSource( scenario.DATA_SOURCE_1_FULL_NAME ) );
+    assertSame( scenario.dataSource2, scenario.getJndiDataSource( scenario.DATA_SOURCE_2_FULL_NAME ) );
+  }
+
+  @Test
+  public void testGetJndiDataSourceResolvesExistingDataSourceGivenName() throws Exception {
+    Tomcat1JndiScenario scenario = new Tomcat1JndiScenario();
+
+    DataSource ds = scenario.getJndiDataSource( scenario.DATA_SOURCE_1_NAME );
+
+    assertSame( scenario.dataSource1, ds );
+  }
+
+  @Test
+  public void testGetJndiDataSourceResolvesExistingDataSourceGivenJavaSchemeRelativeName() throws Exception {
+    Tomcat1JndiScenario scenario = new Tomcat1JndiScenario();
+
+    DataSource ds = scenario.getJndiDataSource( scenario.DATA_SOURCE_1_JAVA_RELATIVE_NAME );
+
+    assertSame( scenario.dataSource1, ds );
+  }
+
+
+  @Test
+  public void testGetJndiDataSourceResolvesExistingDataSourceGivenFullJdbcName() throws Exception {
+    OtherJndiScenario scenario = new OtherJndiScenario();
+
+    DataSource ds = scenario.getJndiDataSource( scenario.DATA_SOURCE_1_FULL_NAME );
+
+    assertSame( scenario.dataSource1, ds );
+  }
+
+  @Test
+  public void testGetJndiDataSourceResolvesExistingDataSourceGivenJdbcRelativeName() throws Exception {
+    OtherJndiScenario scenario = new OtherJndiScenario();
+
+    DataSource ds = scenario.getJndiDataSource( scenario.DATA_SOURCE_1_NAME );
+
+    assertSame( scenario.dataSource1, ds );
+  }
+
+  @Test( expected = DBDatasourceServiceException.class )
+  public void testGetJndiDataSourceThrowsGivenNameOfNonExistingResource() throws Exception {
+    Tomcat1JndiScenario scenario = new Tomcat1JndiScenario();
+
+    scenario.getJndiDataSource( scenario.DATA_SOURCE_NON_EXISTING_FULL_NAME );
+  }
+
+  @Test( expected = DBDatasourceServiceException.class )
+  public void testGetJndiDataSourceThrowsGivenNameOfExistingResourceNotDataSource() throws Exception {
+    Tomcat1JndiScenario scenario = new Tomcat1JndiScenario();
+
+    scenario.getJndiDataSource( scenario.NOT_DATA_SOURCE_NAME );
+  }
+
+  @Test( expected = DBDatasourceServiceException.class )
+  public void testGetJndiDataSourceThrowsGivenNameWithDisallowedScheme() throws Exception {
+    Tomcat1JndiScenario scenario = new Tomcat1JndiScenario();
+
+    scenario.getJndiDataSource( scenario.DATA_SOURCE_3_RMI_FULL_NAME );
+
+    verify( scenario.context, never() ).lookup( anyString() );
+  }
+
+  @Test( expected = DBDatasourceServiceException.class )
+  public void testGetJndiDataSourceThrowsGivenNameWithDisallowedJavaScheme() throws Exception {
+    // This tests that it is possible to disable the java scheme via configuration!
+
+    Tomcat1JndiScenario scenario = new Tomcat1JndiScenario( List.of( "rmi" ) );
+
+    scenario.getJndiDataSource( scenario.DATA_SOURCE_1_NAME );
+
+    verify( scenario.context, never() ).lookup( anyString() );
+  }
+  // endregion
 
   @After
   public void after() {

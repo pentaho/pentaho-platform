@@ -150,7 +150,23 @@
 	  <test-on-borrow>true</test-on-borrow>
 	  <test-on-return>false</test-on-return>
 	  <pre-populate-pool>false</pre-populate-pool>
-   </dbcp-defaults>
+  </dbcp-defaults>
+
+  <!--
+    Allowed Datasource JNDI URL Schemes.
+
+    Comma separated list of schemes.
+
+    This property specifies the allowed schemes for datasource JNDI names with a scheme. Schemeless names are not affected.
+
+    Please, be advised that changing this property to include schemes other than `java` may pose a security risk, such
+    as enabling remote code execution attacks.
+
+    Examples (first is default value):
+    <allowed-datasource-jndi-schemes>java</allowed-datasource-jndi-schemes>
+    <allowed-datasource-jndi-schemes>java,other</allowed-datasource-jndi-schemes>
+  -->
+
    <file-upload-defaults>
    		<relative-path>/system/metadata/csvfiles/</relative-path>
 

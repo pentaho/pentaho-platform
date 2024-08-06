@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -29,7 +29,6 @@ import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.ISimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +42,7 @@ public class GatherStatsListener implements IPentahoSystemListener {
   private static final Log logger = LogFactory.getLog( GatherStatsListener.class );
   private int intervalInSeconds = -1;
 
-  Map<String, Serializable> jobMap = new HashMap<String, Serializable>();
+  Map<String, Object> jobMap = new HashMap<>();
 
   @Override
   public void shutdown() {
