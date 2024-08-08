@@ -84,11 +84,11 @@
           <groupId>org.apache.xmlgraphics</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>org.osgi.core</artifactId>
+          <artifactId>osgi.core</artifactId>
           <groupId>org.osgi</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>org.osgi.core</artifactId>
+          <artifactId>osgi.core</artifactId>
           <groupId>org.osgi</groupId>
         </exclusion>
         <exclusion>
@@ -557,13 +557,18 @@
     <!-- pentaho-platform-core (PentahoSystem) and pdi-osgi-bridge-core (KarafLifecycleListener and OSGIPluginRegistryExtension) -->
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
+      <artifactId>osgi.core</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.compendium</artifactId>
+      <artifactId>osgi.cmpn</artifactId>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.service.log</artifactId>
+      <version>1.5.0</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
@@ -896,6 +901,11 @@
       <groupId>com.sun.mail</groupId>
       <artifactId>javax.mail</artifactId>
       <version>${mail.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>javax.json</artifactId>
+      <version>1.0.4</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
