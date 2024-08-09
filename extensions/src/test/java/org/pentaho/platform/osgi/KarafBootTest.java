@@ -101,6 +101,7 @@ public class KarafBootTest {
       props.store( fileOutputStream, "Minimal properties for test KarafBoot without issue" );
     }
     System.setProperty( Const.KARAF_BOOT_LOCK_WAIT_TIME, "3000" );
+    System.setProperty( Const.KARAF_WAIT_FOR_BOOT_LOCK_FILE, "true" );
   }
 
   @AfterClass
@@ -108,6 +109,7 @@ public class KarafBootTest {
     if ( tmpDir.exists() ) {
       FileUtils.deleteDirectory( tmpDir );
     }
+    System.setProperty( Const.KARAF_WAIT_FOR_BOOT_LOCK_FILE, "false" );
   }
 
   @Before
