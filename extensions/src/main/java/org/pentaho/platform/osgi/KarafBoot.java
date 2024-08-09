@@ -135,7 +135,10 @@ public class KarafBoot implements IPentahoSystemListener {
         transientRoot = true;
       }
 
-      waitForBootLock();
+      boolean shouldWaitForLock = Boolean.parseBoolean( System.getProperty( Const.KARAF_WAIT_FOR_BOOT_LOCK_FILE, "false" ) );
+      if ( shouldWaitForLock ) {
+        waitForBootLock();
+      }
       final File destDir;
       if ( transientRoot ) {
         if ( rootCopyFolderString == null ) {
