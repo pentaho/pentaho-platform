@@ -164,4 +164,10 @@
   <default-theme>ruby</default-theme>
   <session-expired-dialog>true</session-expired-dialog>
   <set-empty-entity-rest-services>false</set-empty-entity-rest-services>
+
+    <!--
+      This property controls whether admin users have access to all users' trash.
+      This is enabled by default, set the value to "false" to disable this access.
+    -->
+  <adminAccessAllUsersTrash>true</adminAccessAllUsersTrash>
 </pentaho-system>
