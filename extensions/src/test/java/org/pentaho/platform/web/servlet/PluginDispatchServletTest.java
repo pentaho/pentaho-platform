@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2018-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -30,6 +30,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.websocket.DeploymentException;
 import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
@@ -61,6 +62,39 @@ public class PluginDispatchServletTest {
   public void testGetServerUrl() {
     String serverUrl = pluginDispatchServlet.getServerUrl( "/pentaho" );
     assertEquals( "http://localhost:8080/", serverUrl );
+  }
+
+  public void testGetDispatchKey( String pathInfo, String expected ) {
+    final HttpServletRequest request = mock( HttpServletRequest.class );
+
+    when( request.getPathInfo() ).thenReturn( pathInfo );
+
+    assertEquals( expected, pluginDispatchServlet.getDispatchKey( request ) );
+  }
+
+  @Test
+  public void testGetDispatchKey() {
+    testGetDispatchKey( "/myPlugin/myServlet", "myPlugin/myServlet" );
+  }
+
+  @Test
+  public void testGetDispatchKeySuffixForwardSlash() {
+    testGetDispatchKey( "/myPlugin/myServlet/", "myPlugin/myServlet" );
+  }
+
+  @Test
+  public void testGetDispatchKeyMatch() {
+    testGetDispatchKey( "myPlugin/myServlet", "myPlugin/myServlet" );
+  }
+
+  @Test
+  public void testGetDispatchEmpty() {
+    testGetDispatchKey( "", null );
+  }
+
+  @Test
+  public void testGetDispatchNull() {
+    testGetDispatchKey( null, null );
   }
 
   @Test
