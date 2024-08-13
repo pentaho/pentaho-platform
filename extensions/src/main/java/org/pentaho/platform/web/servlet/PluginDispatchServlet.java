@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -152,17 +152,27 @@ public class PluginDispatchServlet implements Servlet {
    * I.e. if the PluginDispatchServlet is mapped to the "/plugin" context in web.xml, then this method will return
    * "myPlugin/myServlet" given a request to "http://localhost:8080/pentaho/plugin/myPlugin/myServlet".
    *
-   * @return the part of the request url used to dispatch the request
+   * @param request the HTTP servlet request containing the extra URL path information.
+   *
+   * @return the part of the request url used to dispatch the request without leading or trailing forward slashes, or
+   *         <code>null</code> if the URL does not have any extra path information.
    */
   public String getDispatchKey( HttpServletRequest request ) {
     // path info will give us what we want with
     String requestPathInfo = request.getPathInfo();
-    if ( requestPathInfo.startsWith( "/" ) ) { //$NON-NLS-1$
+
+    if ( StringUtils.isEmpty( requestPathInfo ) ) {
+      return null;
+    }
+
+    if ( requestPathInfo.startsWith( "/" ) ) {
       requestPathInfo = requestPathInfo.substring( 1 );
     }
-    if ( requestPathInfo.endsWith( "/" ) ) { //$NON-NLS-1$
-      requestPathInfo = requestPathInfo.substring( requestPathInfo.length() );
+
+    if ( requestPathInfo.endsWith( "/" ) ) {
+      requestPathInfo = requestPathInfo.substring( 0, requestPathInfo.length() - 1 );
     }
+
     return requestPathInfo;
   }
 
