@@ -450,12 +450,6 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>soap</groupId>
-      <artifactId>soap</artifactId>
-      <version>${soap.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>wsdl4j</groupId>
       <artifactId>wsdl4j</artifactId>
       <version>${wsdl4j.version}</version>
