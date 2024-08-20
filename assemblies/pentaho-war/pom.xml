@@ -20,7 +20,6 @@
     <datasource.resources.directory>${basedir}/src/main/resources/datasources</datasource.resources.directory>
     <hibernate-ehcache.version>5.4.24.Final</hibernate-ehcache.version>
     <maven-resources-plugin.version>3.0.1</maven-resources-plugin.version>
-    <c3p0.version>0.9.1.2</c3p0.version>
     <jcommon-xml.version>1.0.12</jcommon-xml.version>
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
     <replacer.version>1.5.2</replacer.version>
@@ -921,11 +920,6 @@
       <groupId>javax.xml.stream</groupId>
       <artifactId>stax-api</artifactId>
       <version>${stax-api.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>c3p0</groupId>
-      <artifactId>c3p0</artifactId>
-      <version>${c3p0.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
