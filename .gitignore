@@ -4,6 +4,7 @@ bin/
 .settings
 .metadata/
 .recommenders/
+.DS_Store
 
 out/
 build-utils/dist/
