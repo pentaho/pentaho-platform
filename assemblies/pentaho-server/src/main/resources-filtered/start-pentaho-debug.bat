@@ -20,11 +20,6 @@ REM ****************************************************************************
 
 setlocal
 cd /D %~dp0
-cscript promptuser.js //nologo //e:jscript
-rem errorlevel 0 means user chose "no"
-if %errorlevel%==0 goto quit
-echo WScript.Quit(1); > promptuser.js
-
 call set-pentaho-env.bat "%~dp0jre"
 
 cd tomcat\bin

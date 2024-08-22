@@ -550,7 +550,7 @@ define([
 
     updateData: function () {
       var myself = this;
-
+      const trashName = jQuery.i18n.prop('trash');
       const trashFolder = {
         "file": {
           "trash": "trash",
@@ -561,10 +561,11 @@ define([
           "objectId:": jQuery.i18n.prop('trash'),
           "locale": "en",
           "locked": "false",
-          "name": jQuery.i18n.prop('trash'),
+          "name": trashName,
+          "nameDecoded": trashName,
           "ownerType": "-1",
           "path": ".trash",
-          "title": jQuery.i18n.prop('trash'),
+          "title": trashName,
           "versioned": "false"
         }
       };
@@ -574,7 +575,7 @@ define([
 
         //Add the trash folder once to the first Repository folder
         myself.getRepositoryFolderChildren(response).push(trashFolder);
-        
+
         response.children = reformatResponse(response).children;
         myself.set("data", response);
       });
@@ -680,9 +681,10 @@ define([
         myself.set("deletedFiles", "");
         for (var i = 0; i < response.repositoryFileDto.length; i++) {
           var obj = {
-            file: Object
-          }
-          obj.file = response.repositoryFileDto[i];
+            file: response.repositoryFileDto[i]
+          };
+
+          obj.file.nameDecoded = obj.file.name;
           obj.file.trash = true;
           obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
 
@@ -691,7 +693,7 @@ define([
              - Convert "folder" from string to boolean
              - Convert "id" to "objectId"
            */
-          obj.file.folder = (obj.file.folder == "true");
+          obj.file.folder = (obj.file.folder === "true");
           obj.file.objectId = obj.file.id;
 
           if (obj.file.id) {
@@ -2013,7 +2015,12 @@ define([
         obj.file = response.children[i].file;
 
         if (obj.file.hasChildren){
-          obj.children = response.children[i].children;
+          const childFolderTree = {
+            file: obj.file,
+            children: response.children[i].children
+          }
+
+          obj.children = reformatResponse(childFolderTree).children;
         }
 
         obj.file.pathText = jQuery.i18n.prop('originText') + " " //i18n
@@ -2022,11 +2029,9 @@ define([
           obj.file.isProviderRootPath = true;
         }
 
-        //decode potentially encoded name and title attributes of PVFS paths
-        if( !isRepositoryPath(obj.file.path) && !obj.file.decoded ){
-          obj.file.name = decodePvfsFileAttribute(obj.file.name);
-          obj.file.title = obj.file.title === null ? obj.file.name : decodePvfsFileAttribute(obj.file.title);
-          obj.file.decoded = true;
+        // Default title to non-encoded name.
+        if (!obj.file.title) {
+          obj.file.title = obj.file.nameDecoded;
         }
 
         if(!obj.file.objectId){

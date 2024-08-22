@@ -150,7 +150,23 @@
 	  <test-on-borrow>true</test-on-borrow>
 	  <test-on-return>false</test-on-return>
 	  <pre-populate-pool>false</pre-populate-pool>
-   </dbcp-defaults>
+  </dbcp-defaults>
+
+  <!--
+    Allowed Datasource JNDI URL Schemes.
+
+    Comma separated list of schemes.
+
+    This property specifies the allowed schemes for datasource JNDI names with a scheme. Schemeless names are not affected.
+
+    Please, be advised that changing this property to include schemes other than `java` may pose a security risk, such
+    as enabling remote code execution attacks.
+
+    Examples (first is default value):
+    <allowed-datasource-jndi-schemes>java</allowed-datasource-jndi-schemes>
+    <allowed-datasource-jndi-schemes>java,other</allowed-datasource-jndi-schemes>
+  -->
+
    <file-upload-defaults>
    		<relative-path>/system/metadata/csvfiles/</relative-path>
 
@@ -184,4 +200,23 @@
       This is enabled by default, set the value to "false" to disable this access.
     -->
   <adminAccessAllUsersTrash>true</adminAccessAllUsersTrash>
+
+  <!--
+    System fallback scheduler output location.
+
+    When a schedule's output location is unavailable, the first available fallback location is used, in the order:
+    1. schedule owner user setting `default-scheduler-output-path`
+    2. system setting `default-scheduler-output-path` (this property)
+    3. schedule owner user home folder
+
+    A location is unavailable if:
+    1. Value is unspecified or empty.
+    2. Specified path has an invalid syntax.
+    3. Specified path does not exist.
+    4. Specified path is not a folder.
+    5. The schedule owner user does not have read/write access to the specified folder.
+
+    Example:
+    <default-scheduler-output-path>/public/output</default-scheduler-output-path>
+  -->
 </pentaho-system>

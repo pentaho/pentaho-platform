@@ -363,26 +363,14 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
       solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::showPluginError(Ljava/lang/String;)(filename);
     }
-    $wnd.mantle_showUnsupportedFiletypeError = function (filename, extension) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::showUnsupportedFiletypeError(Ljava/lang/String;Ljava/lang/String;)(filename, extension);
-    }
     $wnd.mantle_isSupportedExtension = function (extension) {
       //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
       return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isSupportedExtension(Ljava/lang/String;)(extension);
-    }
-    $wnd.mantle_isRepositoryPath = function (path) {
-      //CHECKSTYLE IGNORE LineLength FOR NEXT 1 LINES
-      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::isRepositoryPath(Ljava/lang/String;)(path);
     }
   }-*/;
 
   public void showPluginError( String filename ) {
     showError( Messages.getString( "error.NoPlugin" ), Messages.getString( "error.NoPluginText", filename ) );
-  }
-
-  public void showUnsupportedFiletypeError( String fileName, String extension ){
-    showError( "Unsupported File Type", "Cannot open file \"" + fileName + "\" with unsupported extension \"" + extension +"\".");
   }
 
   private void showError( String dialogTitle, String errorMessage ) {
