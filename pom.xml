@@ -64,7 +64,6 @@
     <syslog4j.version>0.9.46</syslog4j.version>
     <bean-matchers.version>0.9</bean-matchers.version>
     <json-simple.version>1.1</json-simple.version>
-    <axis2.version>1.5</axis2.version>
     <mimepull.version>1.9.3</mimepull.version>
     <shared.version>0.9.15</shared.version>
     <modelVersion>4.0.0</modelVersion>

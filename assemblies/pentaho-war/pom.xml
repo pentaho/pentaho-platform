@@ -864,12 +864,6 @@
       <groupId>org.mozilla</groupId>
       <artifactId>rhino</artifactId>
     </dependency>
-    <!-- commons-httpclient - Needed for axis2 1.5 version -->
-    <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>3.0.1</version>
-    </dependency>
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
