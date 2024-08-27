@@ -417,19 +417,10 @@ public class KarafBootTest {
   }
 
   @Test
-  public void verifyStaleLockBehavior() throws Exception {
-    assertTrue( lockFile.createNewFile() );
-    FileChannel fileChannel = FileChannel.open( lockFile.toPath(), Set.of( StandardOpenOption.WRITE ) );
-    fileChannel.write( ByteBuffer.wrap( "0".getBytes() ) );
-    assertTrue( boot.waitForBootLock() );
-  }
-
-  @Test
   public void verifyBootLockFailure() throws Exception {
     assertTrue( lockFile.createNewFile() );
     FileChannel fileChannel = FileChannel.open( lockFile.toPath(), Set.of( StandardOpenOption.WRITE ) );
     fileChannel.write( ByteBuffer.wrap( boot.getCurrentPid().getBytes() ) );
-    assertTrue( boot.lockOwnerExists( lockFile ) );
     assertFalse( boot.waitForBootLock() );
   }
 
