@@ -528,14 +528,6 @@ public class KarafBoot implements IPentahoSystemListener {
       long waitTimeUp = System.currentTimeMillis() + bootWaitTime;
       setLockFile( new File( Paths.get( tempDir, Const.KARAF_BOOT_LOCK_FILE ).toUri() ) );
 
-      // ensure lock file belongs to an active process, clean up otherwise
-      if ( lockFile.exists() && !lockOwnerExists( lockFile ) ) {
-        logger.info( "Removing stale lock file" );
-        if ( !lockFile.delete() ) {
-          logger.warn( "Unable to delete stale lock file; boot will be delayed" );
-        }
-      }
-
       // wait until the lock file is gone or we run out of time
       logger.debug( "Waiting for karaf boot lock..." );
       while ( lockFile.exists() && System.currentTimeMillis() < waitTimeUp ) {
@@ -574,30 +566,6 @@ public class KarafBoot implements IPentahoSystemListener {
   @VisibleForTesting
   String getCurrentPid() {
     return Long.toString( ProcessHandle.current().pid() );
-  }
-
-  @VisibleForTesting
-  boolean lockOwnerExists( File lockFile ) throws IOException {
-    if ( null != lockFile ) {
-      try ( FileInputStream fileInputStream = new FileInputStream( lockFile ) ) {
-        String lockFileText = new String( fileInputStream.readAllBytes() );
-        if ( lockFileText.length() > 0 ) {
-          long lockFilePid = Long.parseLong( lockFileText );
-          return ProcessHandle.allProcesses().anyMatch( p -> p.pid() == lockFilePid );
-        } else {
-          // owner hasn't written the PID to it yet; assume a live file
-          return true;
-        }
-      } catch ( IOException e ) {
-        logger.warn( "Error reading lock file", e );
-        return false;
-      } catch ( NumberFormatException e ) {
-        logger.warn( "Error parsing lock file PID; assuming active lock" );
-        return true;
-      }
-    } else {
-      return false;
-    }
   }
 
   public static File getLockFile() {
