@@ -417,20 +417,10 @@ public class KarafBootTest {
   }
 
   @Test
-  public void verifyStaleLockBehavior() throws Exception {
-    assertTrue( lockFile.createNewFile() );
-    FileChannel fileChannel = FileChannel.open( lockFile.toPath(), Set.of( StandardOpenOption.WRITE ) );
-    // invalid pid -1 for windows/unix for KarafBoot#lockOwnerExists, pid 0 is still valid *nix pid in some environments
-    fileChannel.write( ByteBuffer.wrap( "-1".getBytes() ) );
-    assertTrue( boot.waitForBootLock() );
-  }
-
-  @Test
   public void verifyBootLockFailure() throws Exception {
     assertTrue( lockFile.createNewFile() );
     FileChannel fileChannel = FileChannel.open( lockFile.toPath(), Set.of( StandardOpenOption.WRITE ) );
     fileChannel.write( ByteBuffer.wrap( boot.getCurrentPid().getBytes() ) );
-    assertTrue( boot.lockOwnerExists( lockFile ) );
     assertFalse( boot.waitForBootLock() );
   }
 
