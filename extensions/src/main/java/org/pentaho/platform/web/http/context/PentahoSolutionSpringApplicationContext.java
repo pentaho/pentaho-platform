@@ -23,7 +23,7 @@ package org.pentaho.platform.web.http.context;
 import com.google.common.annotations.VisibleForTesting;
 import org.pentaho.di.core.KettleClientEnvironment;
 import org.pentaho.di.core.KettleClientEnvironment.ClientType;
-import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
+import org.pentaho.di.core.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.web.http.PentahoHttpSessionHelper;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;

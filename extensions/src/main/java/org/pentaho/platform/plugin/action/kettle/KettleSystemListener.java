@@ -39,7 +39,7 @@ import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
-import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
+import org.pentaho.di.core.xml.XMLParserFactoryProducer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
