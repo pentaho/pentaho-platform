@@ -2,21 +2,29 @@
 -- note: this script assumes pg_hba.conf is configured correctly
 --
 
--- \connect postgres postgres
+\connect postgres postgres
+--Create pentaho_user if it does not exist
+DO
+$do$
+BEGIN
+    IF EXISTS (
+        SELECT FROM pg_catalog.pg_roles
+        WHERE  rolname = 'pentaho_user') THEN
 
-drop database if exists quartz;
-drop user if exists pentaho_user;
+      RAISE NOTICE 'Role "pentaho_user" already exists. Skipping.';
+    ELSE
+      CREATE ROLE pentaho_user LOGIN PASSWORD 'password';
+    END IF;
+END
+$do$;
 
-CREATE USER pentaho_user PASSWORD 'password';
-
-CREATE DATABASE quartz  WITH OWNER = pentaho_user  ENCODING = 'UTF8' TABLESPACE = pg_default;
-
+-- create quartz database if it does not exist
+SELECT 'CREATE DATABASE quartz WITH OWNER = pentaho_user ENCODING = ''UTF8'' TABLESPACE = pg_default;'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'quartz')\gexec
 GRANT ALL ON DATABASE quartz to pentaho_user;
-
---End--
---Begin Connect--
+-- Next psql line will prompt for quartz password.  There is no way to specify it without knowing the hostname
 \connect quartz pentaho_user
-
+-- We are now logged into the quartz database as pentaho_user
 begin;
 
 DROP TABLE IF EXISTS QRTZ6_FIRED_TRIGGERS;
