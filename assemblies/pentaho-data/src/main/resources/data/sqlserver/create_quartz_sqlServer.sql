@@ -1,8 +1,6 @@
 --Begin--
 USE master
-IF EXISTS(select * from sys.databases where name = N'quartz')
-DROP DATABASE quartz
-GO
+IF NOT EXISTS(select * from sys.databases where name = N'quartz')
 CREATE DATABASE quartz
 GO
 IF NOT EXISTS 
@@ -356,9 +354,10 @@ ALTER TABLE [dbo].[QRTZ6_TRIGGERS] ADD
   )
 GO
 
-INSERT INTO [dbo].[QRTZ5_LOCKS] VALUES('PentahoQuartzScheduler','TRIGGER_ACCESS');
-INSERT INTO [dbo].[QRTZ5_LOCKS] VALUES('PentahoQuartzScheduler','JOB_ACCESS');
-INSERT INTO [dbo].[QRTZ5_LOCKS] VALUES('PentahoQuartzScheduler','CALENDAR_ACCESS');
-INSERT INTO [dbo].[QRTZ5_LOCKS] VALUES('PentahoQuartzScheduler','STATE_ACCESS');
-INSERT INTO [dbo].[QRTZ5_LOCKS] VALUES('PentahoQuartzScheduler','MISFIRE_ACCESS');
+INSERT INTO [dbo].[QRTZ6_LOCKS] VALUES('PentahoQuartzScheduler','TRIGGER_ACCESS');
+INSERT INTO [dbo].[QRTZ6_LOCKS] VALUES('PentahoQuartzScheduler','JOB_ACCESS');
+INSERT INTO [dbo].[QRTZ6_LOCKS] VALUES('PentahoQuartzScheduler','CALENDAR_ACCESS');
+INSERT INTO [dbo].[QRTZ6_LOCKS] VALUES('PentahoQuartzScheduler','STATE_ACCESS');
+INSERT INTO [dbo].[QRTZ6_LOCKS] VALUES('PentahoQuartzScheduler','MISFIRE_ACCESS');
+GO
 --End Connect--
