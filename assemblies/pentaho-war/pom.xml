@@ -130,6 +130,10 @@
           <artifactId>hsqldb</artifactId>
           <groupId>org.hsqldb</groupId>
         </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 
