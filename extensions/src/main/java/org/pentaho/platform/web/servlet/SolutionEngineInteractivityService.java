@@ -41,7 +41,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.ActionSequenceJCRHelper;
 import org.pentaho.platform.engine.services.actionsequence.ActionParameterSource;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
-import org.pentaho.di.core.xml.XMLParserFactoryProducer;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.web.http.HttpOutputHandler;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 import org.w3c.dom.Document;
