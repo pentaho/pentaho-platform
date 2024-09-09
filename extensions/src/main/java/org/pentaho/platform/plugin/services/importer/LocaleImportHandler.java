@@ -45,7 +45,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.di.core.xml.XMLParserFactoryProducer;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 

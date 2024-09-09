@@ -33,7 +33,7 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetadata;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMondrian;
 import org.pentaho.platform.util.StringUtil;
-import org.pentaho.di.core.xml.XMLParserFactoryProducer;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

@@ -30,7 +30,7 @@ import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
-import org.pentaho.di.core.xml.XMLParserFactoryProducer;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 
 import java.io.File;
 import java.io.FileInputStream;

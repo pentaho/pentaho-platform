@@ -25,7 +25,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.Messages;
-import org.pentaho.di.core.xml.XMLParserFactoryProducer;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
