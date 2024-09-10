@@ -32,7 +32,7 @@ import org.pentaho.platform.api.ui.Theme;
 import org.pentaho.platform.api.ui.ThemeResource;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.di.core.xml.XMLParserFactoryProducer;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 
 import javax.servlet.ServletContext;
 import java.io.InputStream;

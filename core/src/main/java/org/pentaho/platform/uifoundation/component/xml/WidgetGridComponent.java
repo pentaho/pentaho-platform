@@ -46,7 +46,7 @@ import org.pentaho.platform.uifoundation.chart.JFreeChartEngine;
 import org.pentaho.platform.uifoundation.chart.WidgetDefinition;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.di.core.xml.XMLParserFactoryProducer;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 import java.io.File;

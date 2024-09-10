@@ -22,7 +22,7 @@ package org.pentaho.platform.web.servlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.di.core.xml.XMLParserFactoryProducer;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
