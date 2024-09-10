@@ -45,7 +45,7 @@ import org.pentaho.platform.engine.services.solution.ComponentBase;
 import org.pentaho.platform.engine.services.solution.StandardSettings;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.services.connections.xquery.XQConnection;
-import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
+import org.pentaho.di.core.xml.XMLParserFactoryProducer;
 
 import java.io.BufferedWriter;
 import java.io.File;

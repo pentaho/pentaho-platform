@@ -30,7 +30,7 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.util.messages.Messages;
-import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
+import org.pentaho.di.core.xml.XMLParserFactoryProducer;
 import org.xml.sax.EntityResolver;
 
 import javax.xml.transform.Source;
