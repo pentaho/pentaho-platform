@@ -1784,8 +1784,8 @@
     </dependency>
     <dependency>
       <groupId>org.drools</groupId>
-      <artifactId>knowledge-api</artifactId>
-      <version>${knowledge-api.version}</version>
+      <artifactId>drools-ruleunits-engine</artifactId>
+      <version>${drools.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
