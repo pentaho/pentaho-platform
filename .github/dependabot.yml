@@ -1,0 +1,12 @@
+version: 1
+updates:
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: daily
+  ignore:
+    - dependency-name: org.apache.maven:*
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    interval: "daily"
