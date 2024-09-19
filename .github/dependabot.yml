@@ -5,7 +5,7 @@ registries:
     url: https://one.hitachivantara.com/artifactory/pnt-mvn
     username: ${{secrets.DEPENDABOT_ONE_USER}}
     password: ${{secrets.DEPENDABOT_ONE_KEY}}
-    replace-base: true
+    replaces-base: true
 updates:
   - package-ecosystem: "maven"
     directory: "/"
