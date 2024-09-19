@@ -3,8 +3,8 @@ registries:
   one-artifactory:
     type: maven-repository
     url: https://one.hitachivantara.com
-    username: ${{secrets.PENTAHO_CICD_ONE_USER}}
-    password: ${{secrets.PENTAHO_CICD_ONE_KEY}}
+    username: ${{secrets.DEPENDABOT_ONE_USER}}
+    password: ${{secrets.DEPENDABOT_ONE_KEY}}
 updates:
 - package-ecosystem: maven
   directory: "/"
