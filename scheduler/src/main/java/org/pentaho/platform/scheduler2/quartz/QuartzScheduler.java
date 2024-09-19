@@ -429,40 +429,29 @@ public class QuartzScheduler implements IScheduler {
       Scheduler scheduler = getQuartzScheduler();
       String groupName = jobKey.getUserName();
       for ( Trigger trigger : scheduler.getTriggersOfJob( jobId, groupName ) ) {
-        //BISERVER-14971 - the error was that the trigger was not being replaced, as it was not considered a new trigger
-        // force the trigger to be updated with the previous fire time
-        Date nextIntendedFireDate = new Date( System.currentTimeMillis() + 1000 );
-        Date firstExecutionDate = null;
-        boolean scheduleAlreadyFired = false;
+        if ( "MANUAL_TRIGGER".equals( trigger.getGroup() ) ) {
+          continue;
+        }
+
+        // Cloning the Trigger: 'rescheduleJob' will only consider the change if a different instance is given
+        trigger = (Trigger) trigger.clone();
+
+        // Update trigger with the execution date
         if ( trigger instanceof SimpleTrigger ) {
-          SimpleTrigger t = (SimpleTrigger) trigger.clone();
-          scheduleAlreadyFired = t.getPreviousFireTime() != null;
-          t.setPreviousFireTime( new Date() );
-          //BISERVER-14971 - reschedulling job to one second after this trigger, so the listener picks it up and
-          // understands it is not the old trigger
-          t.setNextFireTime( nextIntendedFireDate );
-          firstExecutionDate = scheduler.rescheduleJob( jobId, groupName, t );
-
+          ( (SimpleTrigger) trigger ).setPreviousFireTime( new Date() );
         } else if ( trigger instanceof CronTrigger ) {
-          CronTrigger t = (CronTrigger) trigger.clone();
-          scheduleAlreadyFired = t.getPreviousFireTime() != null;
-          t.setPreviousFireTime( new Date() );
-          //BISERVER-14971 - reschedulling job to one second after this trigger, so the listener picks it up and
-          // understands it is not the old trigger
-          t.setNextFireTime( nextIntendedFireDate );
-          firstExecutionDate = scheduler.rescheduleJob( jobId, groupName, t );
+          ( (CronTrigger) trigger ).setPreviousFireTime( new Date() );
         }
-        //In the case the job is being executed before the originally scheduled job,
-        // it won't run because Quartz will set the next fire date to the trigger's
-        // originally configured fist execution date. Therefore, we trigger manually
-        if ( !scheduleAlreadyFired || nextIntendedFireDate.before( firstExecutionDate ) ) {
-          scheduler.triggerJob( jobId, jobKey.getUserName() );
-        }
-      }
 
+        // Replace the original trigger
+        scheduler.rescheduleJob( jobId, groupName, trigger );
+
+        // Execute the job
+        scheduler.triggerJob( jobId, groupName );
+      }
     } catch ( org.quartz.SchedulerException e ) {
       throw new SchedulerException( Messages.getInstance().getString(
-          "QuartzScheduler.ERROR_0007_FAILED_TO_GET_JOB", jobId ), e ); //$NON-NLS-1$
+        "QuartzScheduler.ERROR_0007_FAILED_TO_GET_JOB", jobId ), e );
     }
   }
 
