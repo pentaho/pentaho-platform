@@ -2,17 +2,19 @@ version: 2
 registries:
   one-artifactory:
     type: maven-repository
-    url: https://one.hitachivantara.com/artifactory/api/pnt-mvn
-    token: ${{secrets.DEPENDABOT_ONE_KEY}}
+    url: https://one.hitachivantara.com/artifactory/pnt-mvn
+    username: ${{secrets.DEPENDABOT_ONE_USER}}
+    password: ${{secrets.DEPENDABOT_ONE_KEY}}
 updates:
-- package-ecosystem: maven
-  directory: "/"
-  registries: "*"
-  schedule:
-    interval: daily
-  ignore:
-    - dependency-name: org.apache.maven:*
-- package-ecosystem: "github-actions"
-  directory: "/"
-  schedule:
-    interval: "daily"
+  - package-ecosystem: "maven"
+    directory: "/"
+    registries:
+      - one-artifactory
+    schedule:
+      interval: daily
+    ignore:
+      - dependency-name: org.apache.maven:*
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
