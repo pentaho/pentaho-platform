@@ -3,7 +3,7 @@ registries:
   one-artifactory:
     type: maven-repository
     url: https://one.hitachivantara.com/artifactory/api/pnt-mvn
-    key: ${{secrets.DEPENDABOT_ONE_KEY}}
+    token: ${{secrets.DEPENDABOT_ONE_KEY}}
 updates:
 - package-ecosystem: maven
   directory: "/"
