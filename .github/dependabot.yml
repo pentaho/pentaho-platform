@@ -4,7 +4,7 @@ registries:
     type: maven-repository
     url: https://one.hitachivantara.com
     username: ${{secrets.DEPENDABOT_ONE_USER}}
-    token: ${{secrets.DEPENDABOT_ONE_KEY}}
+    key: ${{secrets.DEPENDABOT_ONE_KEY}}
 updates:
 - package-ecosystem: maven
   directory: "/"
