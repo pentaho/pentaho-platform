@@ -221,19 +221,8 @@
     </dependency>
     <dependency>
       <groupId>javax.ws.rs</groupId>
-      <artifactId>jsr311-api</artifactId>
+      <artifactId>javax.ws.rs-api</artifactId>
       <version>${jsr311-api.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey.contribs</groupId>
-      <artifactId>jersey-multipart</artifactId>
-      <version>${jersey.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -245,50 +234,6 @@
       <groupId>org.jvnet.mimepull</groupId>
       <artifactId>mimepull</artifactId>
       <version>${mimepull.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey.contribs</groupId>
-      <artifactId>jersey-apache-client</artifactId>
-      <version>${jersey.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey.contribs</groupId>
-      <artifactId>jersey-spring</artifactId>
-      <version>${jersey.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-core</artifactId>
-      <version>${jersey.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-json</artifactId>
-      <version>${jersey.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -333,39 +278,6 @@
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
       <version>${activation.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-client</artifactId>
-      <version>${jersey.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-server</artifactId>
-      <version>${jersey.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-servlet</artifactId>
-      <version>${jersey.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -900,18 +812,6 @@
       <artifactId>simple-jndi</artifactId>
       <version>${simple-jndi.version}</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey.jersey-test-framework</groupId>
-      <artifactId>jersey-test-framework-core</artifactId>
-      <version>${jersey.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
