@@ -1,6 +1,6 @@
 -- Migrate data from old Quartz 1.7.2 tables to new 2.3.2 tables ----
 -- Quartz 1.x tables are prefixed with QRTZ5_ while 2.x tables are prefixed with QRTZ6_
--- Script will leave the old tables unmodified and populate the new tables built with the create_quartz-postgresql.sql
+-- Script will leave the old tables unmodified and populate the new tables built with the create_quartz-sqlserver.sql
 -- with the 1.X data.  Make sure you are connected to the quartz schema as pentaho_user.
 INSERT INTO QRTZ6_JOB_DETAILS
   (SCHED_NAME, JOB_NAME, JOB_GROUP, DESCRIPTION, JOB_CLASS_NAME, IS_DURABLE, IS_NONCONCURRENT, IS_UPDATE_DATA, REQUESTS_RECOVERY, JOB_DATA)
@@ -56,3 +56,4 @@ INSERT INTO QRTZ6_LOCKS
 SELECT
   'PentahoQuartzScheduler', LOCK_NAME
 FROM QRTZ5_LOCKS;
+GO
