@@ -272,6 +272,10 @@
   <servlet>
     <servlet-name>PluginDispatchServlet</servlet-name>
     <servlet-class>org.pentaho.platform.web.servlet.PluginDispatchServlet</servlet-class>
+    <init-param>
+      <param-name>javax.ws.rs.Application</param-name>
+      <param-value>org.pentaho.platform.web.servlet.JAXRSPluginApplication</param-value>
+    </init-param>
   </servlet>
 
   <servlet>
@@ -353,8 +357,12 @@
     <description>JAX-RS endpoint</description>
     <servlet-class>org.pentaho.platform.web.servlet.JAXRSServlet</servlet-class>
     <init-param>
-      <param-name>com.sun.jersey.config.property.WadlGeneratorConfig</param-name>
+      <param-name>jersey.config.server.wadl.generatorConfig</param-name>
       <param-value>org.pentaho.platform.web.servlet.PentahoWadlGeneratorConfig</param-value>
+    </init-param>
+    <init-param>
+      <param-name>javax.ws.rs.Application</param-name>
+      <param-value>org.pentaho.platform.web.servlet.JAXRSApplication</param-value>
     </init-param>
   </servlet>
 

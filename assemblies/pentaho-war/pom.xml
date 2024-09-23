@@ -134,7 +134,7 @@
     </dependency>
     <dependency>
       <groupId>com.hitachivantara.security.web</groupId>
-      <artifactId>csrf-token-service-client-java-jax-rs-v1</artifactId>
+      <artifactId>csrf-token-service-client-java-jax-rs-v2</artifactId>
       <scope>compile</scope>
     </dependency>
     <!-- endregion HV Web Security -->
