@@ -163,7 +163,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @Path( "/getAdminContent" )
   @Facet( name = "Unsupported" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
-  public List<Setting> getAdminContent() {
+  public SettingsWrapper getAdminContent() {
 
     ArrayList<Setting> settings = new ArrayList<Setting>();
     try {
@@ -198,7 +198,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     } catch ( Exception e ) {
       logger.error( e.getMessage(), e );
     }
-    return settings;
+    return new SettingsWrapper( settings );
   }
 
   /**
@@ -210,7 +210,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @Path( "/settings" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   @Facet( name = "Unsupported" )
-  public List<Setting> getMantleSettings() {
+  public SettingsWrapper getMantleSettings() {
     ArrayList<Setting> settings = new ArrayList<Setting>();
     settings
       .add( new Setting( "login-show-users-list",
@@ -285,7 +285,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
       }
     }
 
-    return settings;
+    return new SettingsWrapper( settings );
   }
 
   /**
@@ -297,7 +297,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @Path( "/cubes" )
   @Facet( name = "Unsupported" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
-  public List<Cube> getMondrianCatalogs() {
+  public CubesWrapper getMondrianCatalogs() {
     ArrayList<Cube> cubes = new ArrayList<Cube>();
 
     IMondrianCatalogService catalogService =
@@ -311,7 +311,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
         cubes.add( new Cube( cat.getName(), cube.getName(), cube.getId() ) );
       }
     }
-    return cubes;
+    return new CubesWrapper( cubes );
   }
 
   /**

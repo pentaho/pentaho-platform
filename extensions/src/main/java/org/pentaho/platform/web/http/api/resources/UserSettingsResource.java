@@ -66,7 +66,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
   @Path( "/list" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   @Facet ( name = "Unsupported" )
-  public ArrayList<Setting> getUserSettings() {
+  public SettingsWrapper getUserSettings() {
     try {
       IUserSettingService settingsService = getUserSettingService();
       List<IUserSetting> userSettings =  settingsService.getUserSettings();
@@ -76,7 +76,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
         settings.add( new Setting( userSetting.getSettingName(), userSetting.getSettingValue() ) );
       }
 
-      return settings;
+      return new SettingsWrapper( settings );
     } catch ( Exception e ) {
       e.printStackTrace();
     }
