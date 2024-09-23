@@ -55,7 +55,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadActi
 import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleDaoService.ValidationFailedException;
 
-import com.sun.jersey.api.NotFoundException;
+import javax.ws.rs.NotFoundException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 

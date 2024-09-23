@@ -24,7 +24,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.sun.jersey.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -42,8 +42,8 @@ import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 
 import java.util.Arrays;
