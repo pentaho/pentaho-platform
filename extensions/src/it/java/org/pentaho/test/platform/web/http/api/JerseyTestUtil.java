@@ -13,7 +13,7 @@
 
 package org.pentaho.test.platform.web.http.api;
 
-import com.sun.jersey.api.client.ClientResponse;
+import javax.ws.rs.core.Response;
 import junit.framework.AssertionFailedError;
 
 import javax.ws.rs.core.MediaType;
