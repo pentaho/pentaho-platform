@@ -12,7 +12,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import com.sun.jersey.core.header.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

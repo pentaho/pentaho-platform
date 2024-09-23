@@ -25,6 +25,7 @@ import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.IPluginOperation;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDtoWrapper;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -206,7 +207,7 @@ public class SystemResource extends AbstractJaxRSResource {
   @GET
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   @Facet ( name = "Unsupported" )
-  public Response getExecutableTypes() {
+  public ExecutableFileTypeDtoWrapper getExecutableTypes() {
     ArrayList<ExecutableFileTypeDto> executableTypes = new ArrayList<ExecutableFileTypeDto>();
     for ( String contentType : pluginManager.getContentTypes() ) {
       IContentInfo contentInfo = pluginManager.getContentTypeInfo( contentType );
@@ -222,7 +223,7 @@ public class SystemResource extends AbstractJaxRSResource {
     final GenericEntity<List<ExecutableFileTypeDto>> entity =
       new GenericEntity<List<ExecutableFileTypeDto>>( executableTypes ) {
       };
-    return Response.ok( entity ).build();
+    return new ExecutableFileTypeDtoWrapper( executableTypes );
   }
 
   private boolean hasOperationId( final List<IPluginOperation> operations, final String operationId ) {

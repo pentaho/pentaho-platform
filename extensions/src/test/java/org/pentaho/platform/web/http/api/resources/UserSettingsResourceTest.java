@@ -78,10 +78,10 @@ public class UserSettingsResourceTest {
     when( userSettingService.getUserSettings() ).thenReturn( userSettings );
 
     when( userSettingsResource.getUserSettings() ).thenCallRealMethod();
-    ArrayList<Setting> response = userSettingsResource.getUserSettings();
+    SettingsWrapper response = userSettingsResource.getUserSettings();
     assertNotNull( response );
-    assertTrue( !response.isEmpty() );
-    assertTrue( response.get( 0 ).getName().equals( USER_SETTING_NAME ) );
-    assertTrue( response.get( 0 ).getValue().equals( USER_SETTING_VALUE ) );
+    assertTrue( !response.getSettings().isEmpty() );
+    assertTrue( response.getSettings().get( 0 ).getName().equals( USER_SETTING_NAME ) );
+    assertTrue( response.getSettings().get( 0 ).getValue().equals( USER_SETTING_VALUE ) );
   }
 }

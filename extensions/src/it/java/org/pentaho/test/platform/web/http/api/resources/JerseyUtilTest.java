@@ -28,10 +28,10 @@ import javax.ws.rs.core.MultivaluedMap;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 public class JerseyUtilTest {
-  
+
   private final static String EXPECTED_VALUE = "EXPECTED_VALUE";
   private final static String KEY = "KEY";
-  
+
   @Test
   public void testDummy() {
     Map<String, String[]> parameterMap = new HashMap<String, String[]>();

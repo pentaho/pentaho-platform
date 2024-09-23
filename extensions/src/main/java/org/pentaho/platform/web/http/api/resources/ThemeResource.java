@@ -66,7 +66,7 @@ public class ThemeResource extends AbstractJaxRSResource {
   @Path( "/list" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   @Facet( name = "Unsupported" )
-  public List<Theme> getSystemThemes() {
+  public ThemeWrapper getSystemThemes() {
     ArrayList<Theme> themes = new ArrayList<Theme>();
     IThemeManager themeManager = PentahoSystem.get( IThemeManager.class );
     List<String> ids = themeManager.getSystemThemeIds();
@@ -76,7 +76,7 @@ public class ThemeResource extends AbstractJaxRSResource {
         themes.add( new Theme( id, theme.getName() ) );
       }
     }
-    return themes;
+    return new ThemeWrapper( themes );
   }
 
   /**

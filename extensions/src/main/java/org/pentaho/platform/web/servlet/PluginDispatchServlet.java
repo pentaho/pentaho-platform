@@ -24,6 +24,9 @@ import org.pentaho.platform.engine.core.audit.MDCUtil;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -46,6 +49,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.function.Predicate;
 
 /**
@@ -222,7 +227,23 @@ public class PluginDispatchServlet implements Servlet {
               + context ); //$NON-NLS-1$//$NON-NLS-2$
         }
         try {
-          pluginServlet.init( servletConfig );
+          if ( pluginServlet instanceof JAXRSPluginServlet ) {
+            GenericApplicationContext pluginContext = ( GenericApplicationContext ) ( ( JAXRSPluginServlet ) pluginServlet ).getContext();
+            servletConfig.getServletContext().setAttribute( "PLUGIN_CONTEXT", ( ( JAXRSPluginServlet ) pluginServlet).getContext() );
+            BeanDefinition beanDef =
+                    BeanDefinitionBuilder.rootBeanDefinition( JAXRSPluginApplication.class ).setScope( BeanDefinition.SCOPE_SINGLETON )
+                            .addConstructorArgValue( getPackagesOfBeans( pluginContext.getBeanFactory() ) ).getBeanDefinition();
+
+            pluginContext.registerBeanDefinition( "jerseyApplication", beanDef );
+
+            ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
+            try {
+              Thread.currentThread().setContextClassLoader( ( ( JAXRSPluginServlet ) pluginServlet ).getContext().getClassLoader() );
+              pluginServlet.init( servletConfig );
+            } finally {
+              Thread.currentThread().setContextClassLoader( originalClassLoader );
+            }
+          }
         } catch ( Throwable t ) {
           logger.error( "Could not load servlet '" + context + "'", t ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
@@ -236,6 +257,24 @@ public class PluginDispatchServlet implements Servlet {
     // that invocations of service() before this method has completed will not
     // cause NullPointerException
     initialized = true;
+  }
+
+  private String[] getPackagesOfBeans( ListableBeanFactory factory ) {
+    String[] beanNames = BeanFactoryUtils.beanNamesIncludingAncestors( factory );
+    Set<String> packageNames = new HashSet<>();
+    for ( String beanName : beanNames ) {
+      Object bean = factory.getBean( beanName );
+      if ( bean != null ) {
+        if ( beanName != null ) {
+          String beanClass = factory.getBean( beanName ).getClass().getName();
+          if ( beanClass.contains( "." ) ) {
+            packageNames.add( beanClass.substring( 0, beanClass.lastIndexOf( "." ) ) );
+          }
+        }
+      }
+    }
+
+    return packageNames.toArray( new String[ 0 ] );
   }
 
   public ServletConfig getServletConfig() {

@@ -12,7 +12,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import com.sun.jersey.core.header.QualitySourceMediaType;
+import org.glassfish.jersey.message.internal.QualitySourceMediaType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
