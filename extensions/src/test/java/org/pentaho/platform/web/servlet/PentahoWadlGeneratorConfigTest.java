@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -30,12 +30,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.jersey.api.wadl.config.WadlGeneratorConfig;
+import org.glassfish.jersey.server.wadl.config.WadlGeneratorConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.util.IWadlDocumentResource;
 
-import com.sun.jersey.api.wadl.config.WadlGeneratorDescription;
+import org.glassfish.jersey.server.wadl.config.WadlGeneratorDescription;
 
 public class PentahoWadlGeneratorConfigTest {
 

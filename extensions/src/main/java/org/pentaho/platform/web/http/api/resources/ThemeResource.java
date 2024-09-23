@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -74,7 +74,7 @@ public class ThemeResource extends AbstractJaxRSResource {
   @Path( "/list" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   @Facet( name = "Unsupported" )
-  public List<Theme> getSystemThemes() {
+  public ThemeWrapper getSystemThemes() {
     ArrayList<Theme> themes = new ArrayList<Theme>();
     IThemeManager themeManager = PentahoSystem.get( IThemeManager.class );
     List<String> ids = themeManager.getSystemThemeIds();
@@ -84,7 +84,7 @@ public class ThemeResource extends AbstractJaxRSResource {
         themes.add( new Theme( id, theme.getName() ) );
       }
     }
-    return themes;
+    return new ThemeWrapper( themes );
   }
 
   /**

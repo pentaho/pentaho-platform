@@ -14,17 +14,13 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2023 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.servlet;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.sun.jersey.api.core.ResourceConfig;
-import com.sun.jersey.spi.container.WebApplication;
-import com.sun.jersey.spi.container.servlet.WebConfig;
-import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -46,6 +42,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.regex.Pattern;
+import org.glassfish.jersey.servlet.ServletContainer;
 
 /**
  * This should only be used by a plugin in the plugin.spring.xml file to initialize a Jersey. The presence of this
@@ -53,7 +50,7 @@ import java.util.regex.Pattern;
  *
  * @author Aaron Phillips
  */
-public class JAXRSPluginServlet extends SpringServlet implements ApplicationContextAware {
+public class JAXRSPluginServlet extends ServletContainer implements ApplicationContextAware {
 
   private static final long serialVersionUID = 457538570048660945L;
   private static final String APPLICATION_WADL = "application.wadl";
@@ -75,9 +72,9 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
     this.applicationContext = applicationContext;
   }
 
-  @Override
+
   protected ConfigurableApplicationContext getContext() {
-    return (ConfigurableApplicationContext) applicationContext;
+    return ( ConfigurableApplicationContext ) applicationContext;
   }
 
   @Override
@@ -150,19 +147,5 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
   @Override
   public void service( ServletRequest req, ServletResponse res ) throws ServletException, IOException {
     super.service( req, res );
-  }
-
-  @Override
-  protected void initiate( ResourceConfig rc, WebApplication wa ) {
-    if ( logger.isDebugEnabled() ) {
-      rc.getFeatures().put( ResourceConfig.FEATURE_TRACE, true );
-      rc.getFeatures().put( ResourceConfig.FEATURE_TRACE_PER_REQUEST, true );
-    }
-    super.initiate( rc, wa );
-  }
-
-  protected ResourceConfig getDefaultResourceConfig( Map<String, Object> props, WebConfig webConfig ) throws ServletException {
-    props.put( "com.sun.jersey.config.property.WadlGeneratorConfig", "org.pentaho.platform.web.servlet.PentahoWadlGeneratorConfig" );
-    return super.getDefaultResourceConfig( props, webConfig );
   }
 }

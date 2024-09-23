@@ -21,18 +21,21 @@
 package org.pentaho.platform.plugin.services.importexport;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.hitachivantara.security.web.impl.client.csrf.jaxrsv1.CsrfTokenFilter;
-import com.hitachivantara.security.web.impl.client.csrf.jaxrsv1.util.SessionCookiesFilter;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.WebResource.Builder;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.jersey.api.json.JSONConfiguration;
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataMultiPart;
+import com.hitachivantara.security.web.impl.client.csrf.jaxrsv2.CsrfTokenFilter;
+import com.hitachivantara.security.web.impl.client.csrf.jaxrsv2.util.SessionCookiesFilter;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.client.Entity;
+import org.glassfish.jersey.client.ClientResponse;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -49,7 +52,7 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.util.RepositoryPathEncoder;
 
-import javax.ws.rs.core.MediaType;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -188,8 +191,8 @@ public class CommandLineProcessor {
 
   static {
     // For REST Jersey calls
-    clientConfig = new DefaultClientConfig();
-    clientConfig.getFeatures().put( JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE );
+    clientConfig = new ClientConfig();
+    clientConfig.register( MultiPartFeature.class );
 
     // create the Options
     options.addOption( INFO_OPTION_HELP_KEY, INFO_OPTION_HELP_NAME, false, Messages.getInstance()
@@ -350,11 +353,11 @@ public class CommandLineProcessor {
     }
 
     initRestService( contextURL );
-    WebResource resource = client.resource( exportURL );
+    WebTarget resource = client.target( exportURL );
 
     // Response response
-    Builder builder = resource.type( MediaType.APPLICATION_JSON ).type( MediaType.TEXT_XML_TYPE );
-    ClientResponse response = builder.put( ClientResponse.class );
+    Invocation.Builder builder = resource.request( MediaType.APPLICATION_JSON ).accept( MediaType.TEXT_XML_TYPE );
+    Response response = builder.get( Response.class );
     if ( response != null && response.getStatus() == 200 ) {
 
       String message = Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_COMPLETED" ).concat( "\n" );
@@ -393,10 +396,10 @@ public class CommandLineProcessor {
    */
   private void initRestService( String contextURL ) throws ParseException, KettleException, URISyntaxException {
 
-    client = Client.create( clientConfig );
-    client.addFilter( new HTTPBasicAuthFilter( getUsername(), getPassword() ) );
-    client.addFilter( new SessionCookiesFilter( new CookieManager() ) );
-    client.addFilter( new CsrfTokenFilter( new URI( contextURL + API_CSRF_TOKEN ) ) );
+    client = ClientBuilder.newClient( clientConfig );
+    client.register( HttpAuthenticationFeature.basic( getUsername(), getPassword() ) );
+    client.register( new SessionCookiesFilter( new CookieManager() ) );
+    client.register( new CsrfTokenFilter( new URI( contextURL + API_CSRF_TOKEN ) ) );
   }
 
   /**
@@ -470,7 +473,7 @@ public class CommandLineProcessor {
 
     String domainId = getOptionValue( INFO_OPTION_METADATA_DOMAIN_ID_NAME, true, false );
 
-    WebResource resource = client.resource( metadataImportURL );
+    WebTarget resource = client.target( metadataImportURL );
 
     FormDataMultiPart part = new FormDataMultiPart();
 
@@ -517,7 +520,7 @@ public class CommandLineProcessor {
             .fileName( metadataFileInZip.getName() ).build() );
 
         // Response response
-        ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
+        Response response = resource.request( MediaType.MULTIPART_FORM_DATA ).post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA_TYPE ) );
         if ( response != null ) {
           logResponseMessage( logFile, path, response, RequestType.IMPORT );
           response.close();
@@ -536,7 +539,7 @@ public class CommandLineProcessor {
           .fileName( metadataDatasourceFile.getName() ).build() );
 
         // Response response
-        ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
+       Response response = resource.request( MediaType.MULTIPART_FORM_DATA ).post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA ) );
         if ( response != null ) {
           logResponseMessage( logFile, path, response, RequestType.IMPORT );
           response.close();
@@ -570,7 +573,7 @@ public class CommandLineProcessor {
     String datasourceName = getOptionValue( INFO_OPTION_ANALYSIS_DATASOURCE_NAME, false, true );
     String xmlaEnabledFlag = getOptionValue( INFO_OPTION_ANALYSIS_XMLA_ENABLED_NAME, false, true );
 
-    WebResource resource = client.resource( analysisImportURL );
+    WebTarget resource = client.target( analysisImportURL );
     FileInputStream inputStream = new FileInputStream( analysisDatasourceFile );
     String parms = "Datasource=" + datasourceName + ";overwrite=" + overwrite;
 
@@ -594,9 +597,7 @@ public class CommandLineProcessor {
       .setContentDisposition( FormDataContentDisposition.name( MULTIPART_FIELD_UPLOAD_ANALYSIS )
         .fileName( analysisDatasourceFile.getName() ).build() );
 
-    WebResource.Builder resourceBuilder = resource.type( MediaType.MULTIPART_FORM_DATA );
-    ClientResponse response = resourceBuilder.post( ClientResponse.class, part );
-
+    Response response = resource.request( MediaType.MULTIPART_FORM_DATA ).post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA ) );
     if ( response != null ) {
       logResponseMessage( logFile, path, response, RequestType.IMPORT );
       response.close();
@@ -665,7 +666,7 @@ public class CommandLineProcessor {
       try {
         initRestService( contextURL );
 
-        WebResource resource = client.resource( importURL );
+        WebTarget resource = client.target( importURL );
 
         String overwrite = getOptionValue( INFO_OPTION_OVERWRITE_NAME, false, true );
         String retainOwnership = getOptionValue( INFO_OPTION_RETAIN_OWNERSHIP_NAME, false, true );
@@ -687,8 +688,7 @@ public class CommandLineProcessor {
           .setContentDisposition( FormDataContentDisposition.name( MULTIPART_FIELD_FILE_UPLOAD ).fileName(
             fileIS.getName() ).build() );
 
-        WebResource.Builder resourceBuilder = resource.type( MediaType.MULTIPART_FORM_DATA );
-        ClientResponse response = resourceBuilder.post( ClientResponse.class, part );
+        Response response = resource.request( MediaType.MULTIPART_FORM_DATA_TYPE ).post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA_TYPE ) );
         if ( response != null ) {
           logResponseMessage( logFile, path, response, RequestType.IMPORT );
           response.close();
@@ -699,19 +699,19 @@ public class CommandLineProcessor {
         writeToFile( e.getMessage(), logFile );
       } finally {
         // close input stream and cleanup the jersey resources
-        client.destroy();
+        client.close();
         part.cleanup();
         in.close();
       }
     }
   }
 
-  private void logResponseMessage( String logFile, String path, ClientResponse response, RequestType requestType ) {
-    if ( response.getStatus() == ClientResponse.Status.OK.getStatusCode() ) {
+  private void logResponseMessage( String logFile, String path, Response response, RequestType requestType ) {
+    if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
       errorMessage = Messages.getInstance().getString( "CommandLineProcessor.INFO_" + requestType.toString() + "_SUCCESSFUL" );
-    } else if ( response.getStatus() == ClientResponse.Status.FORBIDDEN.getStatusCode() ) {
+    } else if ( response.getStatus() == Response.Status.FORBIDDEN.getStatusCode() ) {
       errorMessage = Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0007_FORBIDDEN", path );
-    } else if ( response.getStatus() == ClientResponse.Status.NOT_FOUND.getStatusCode() ) {
+    } else if ( response.getStatus() == Response.Status.NOT_FOUND.getStatusCode() ) {
       errorMessage =
         Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE", path );
     }
@@ -719,7 +719,7 @@ public class CommandLineProcessor {
     message.append( System.getProperty( "line.separator" ) );
     if ( response.hasEntity() ) {
       message.append( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
-        response.getEntity( String.class ) ) );
+        response.getEntity() ) );
     }
     System.out.println( message );
     if ( StringUtils.isNotBlank( logFile ) ) {
@@ -756,11 +756,11 @@ public class CommandLineProcessor {
     // Build the complete URL to use
     String backupURL = buildURL( contextURL, API_REPO_FILES_BACKUP );
 
-    WebResource resource = client.resource( backupURL );
+    WebTarget resource = client.target( backupURL );
 
     // Response response
-    Builder builder = resource.type( MediaType.APPLICATION_FORM_URLENCODED ).accept( MediaType.TEXT_HTML_TYPE );
-    ClientResponse response = builder.get( ClientResponse.class );
+    Invocation.Builder builder = resource.request( MediaType.APPLICATION_FORM_URLENCODED ).accept( MediaType.TEXT_HTML_TYPE );
+    Response response = builder.get( Response.class );
     if ( response != null && response.getStatus() == 200 ) {
       writeEntityToFile( response, outputFile );
 
@@ -816,7 +816,7 @@ public class CommandLineProcessor {
       if ( !checkUserAuthorization( contextURL, AdministerSecurityAction.NAME ) ) {
         return;
       }
-      WebResource resource = client.resource( importURL );
+      WebTarget resource = client.target( importURL );
 
       part.field( MULTIPART_FIELD_FILE_UPLOAD, in, MediaType.MULTIPART_FORM_DATA_TYPE );
       String overwrite = getOptionValue( INFO_OPTION_OVERWRITE_NAME, true, false );
@@ -830,7 +830,7 @@ public class CommandLineProcessor {
         MediaType.MULTIPART_FORM_DATA_TYPE );
 
       // Response response
-      ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
+      Response response = resource.request( MediaType.MULTIPART_FORM_DATA ).post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA_TYPE ) );
       if ( response != null ) {
         logResponseMessage( logFile, filePath, response, RequestType.RESTORE );
         response.close();
@@ -841,7 +841,7 @@ public class CommandLineProcessor {
       writeToFile( e.getMessage(), logFile );
     } finally {
       // cleanup the jersey resources
-      client.destroy();
+      client.close();
     }
   }
 
@@ -875,11 +875,11 @@ public class CommandLineProcessor {
     }
 
     initRestService( contextURL );
-    WebResource resource = client.resource( exportURL );
+    WebTarget resource = client.target( exportURL );
 
     // Response response
-    Builder builder = resource.type( MediaType.MULTIPART_FORM_DATA ).accept( MediaType.TEXT_HTML_TYPE );
-    ClientResponse response = builder.get( ClientResponse.class );
+    Invocation.Builder builder = resource.request( MediaType.MULTIPART_FORM_DATA ).accept( MediaType.TEXT_HTML_TYPE );
+    Response response = builder.get( Response.class );
     if ( response != null && response.getStatus() == 200 ) {
       writeEntityToFile( response, outputFile );
       String message = Messages.getInstance().getString( "CommandLineProcessor.INFO_EXPORT_COMPLETED" ).concat( "\n" );
@@ -957,8 +957,8 @@ public class CommandLineProcessor {
    * @param response the response instance
    * @param pathName the path of the output file
    */
-  private void writeEntityToFile( ClientResponse response, String pathName ) {
-    try ( InputStream input = response.getEntityInputStream() ) {
+  private void writeEntityToFile( Response response, String pathName ) {
+    try ( InputStream input = ( InputStream ) response.getEntity() ) {
       writeToFile( input, new File( pathName ) );
     } catch ( IOException e ) {
       e.printStackTrace();
@@ -1008,10 +1008,10 @@ public class CommandLineProcessor {
    * @return <code>true</code> if the user has the given authorization, <code>false</code> if it does not
    */
   private static boolean checkUserAuthorization( String contextURL, String securityAction ) {
-    WebResource authResource =
-      client.resource( contextURL + API_AUTHORIZATION_ACTION_IS_AUTHORIZED + "?authAction="
+    WebTarget authResource =
+      client.target( contextURL + API_AUTHORIZATION_ACTION_IS_AUTHORIZED + "?authAction="
         + securityAction );
-    boolean isAuthorized = Boolean.parseBoolean( authResource.get( String.class ) );
+    boolean isAuthorized = Boolean.parseBoolean( authResource.request().get().getEntity().toString() );
     if ( !isAuthorized ) {
       System.err.println( Messages.getInstance().getString(
         "CommandLineProcessor.ERROR_0006_NON_ADMIN_CREDENTIALS" ) );
