@@ -33,7 +33,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDto;
+import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDtoWrapper;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
@@ -66,10 +66,10 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
@@ -624,7 +624,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
   @GET
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @Facet ( name = "Unsupported" )
-  public Response getExecutableTypes() {
+  public ExecutableFileTypeDtoWrapper getExecutableTypes() {
     ArrayList<ExecutableFileTypeDto> executableTypes = new ArrayList<ExecutableFileTypeDto>();
     for ( String contentType : pluginManager.getContentTypes() ) {
       IContentInfo contentInfo = pluginManager.getContentTypeInfo( contentType );
@@ -638,7 +638,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     }
 
     final GenericEntity<List<ExecutableFileTypeDto>> entity = new GenericEntity<List<ExecutableFileTypeDto>>( executableTypes ) { };
-    return Response.ok( entity ).build();
+    return new ExecutableFileTypeDtoWrapper( executableTypes );
   }
 
   private boolean hasOperationId( final List<IPluginOperation> operations, final String operationId ) {
