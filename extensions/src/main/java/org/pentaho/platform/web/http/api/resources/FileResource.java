@@ -15,7 +15,7 @@ package org.pentaho.platform.web.http.api.resources;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.sun.jersey.multipart.FormDataParam;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,7 +39,7 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
+import org.pentaho.platform.api.repository2.unified.webservices.*;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -53,11 +53,6 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.FileVersioningConfiguration;
-import org.pentaho.platform.api.repository2.unified.webservices.LocaleMapDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
-import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
@@ -1042,7 +1037,7 @@ public class FileResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 200, condition = "Successfully retrieved locale information." ),
       @ResponseCode ( code = 404, condition = "Failed to retrieve locales because the file was not found." ),
       @ResponseCode ( code = 500, condition = "Unable to retrieve locales due to some other error." ) } )
-  public List<LocaleMapDto> doGetFileLocales( @PathParam ( "pathId" ) String pathId ) {
+  public LocaleMapDtoWrapper doGetFileLocales( @PathParam ( "pathId" ) String pathId ) {
     List<LocaleMapDto> locales = new ArrayList<LocaleMapDto>();
     try {
       locales = fileService.doGetFileLocales( pathId );
@@ -1051,7 +1046,7 @@ public class FileResource extends AbstractJaxRSResource {
     } catch ( Throwable t ) {
       logger.error( getMessagesInstance().getString( "SystemResource.GENERAL_ERROR" ), t );
     }
-    return locales;
+    return new LocaleMapDtoWrapper( locales );
   }
 
   /**
@@ -1090,9 +1085,9 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved locale properties." ),
       @ResponseCode ( code = 500, condition = "Unable to retrieve locale properties due to some other error." ) } )
-  public List<StringKeyStringValueDto> doGetLocaleProperties( @PathParam ( "pathId" ) String pathId,
+  public StringKeyStringValueDtoWrapper doGetLocaleProperties( @PathParam ( "pathId" ) String pathId,
                                                               @QueryParam ( "locale" ) String locale ) {
-    return fileService.doGetLocaleProperties( pathId, locale );
+    return new StringKeyStringValueDtoWrapper( fileService.doGetLocaleProperties( pathId, locale ) );
   }
 
   /**
@@ -1231,9 +1226,9 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the permissions of the file." ),
       @ResponseCode ( code = 500, condition = "Unable to retrieve the permissions of the file due to some other error." ) } )
-  public List<Setting> doGetCanAccessList( @PathParam ( "pathId" ) String pathId,
+  public SettingsWrapper doGetCanAccessList( @PathParam ( "pathId" ) String pathId,
                                            @QueryParam ( "permissions" ) String permissions ) {
-    return fileService.doGetCanAccessList( pathId, permissions );
+    return new SettingsWrapper( fileService.doGetCanAccessList( pathId, permissions ) );
   }
 
   /**
@@ -1283,8 +1278,8 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes ( {
       @ResponseCode ( code = 200, condition = "Successfully retrieved the permissions of the given paths." ),
       @ResponseCode ( code = 500, condition = "Unable to retrieve the permissions of the given paths due to some other error." ) } )
-  public List<Setting> doGetPathsAccessList( StringListWrapper pathsWrapper ) {
-    return fileService.doGetPathsAccessList( pathsWrapper );
+  public SettingsWrapper doGetPathsAccessList( StringListWrapper pathsWrapper ) {
+    return new SettingsWrapper( fileService.doGetPathsAccessList( pathsWrapper ) );
   }
 
   /**
@@ -1622,7 +1617,7 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of RepositoryFileDto objects." ),
     @ResponseCode ( code = 200, condition = "Empty list of RepositoryFileDto objects." ) } )
-  public List<RepositoryFileDto> doGetGeneratedContent( @PathParam ( "pathId" ) String pathId ) {
+  public RepositoryFileDtoWrapper doGetGeneratedContent( @PathParam ( "pathId" ) String pathId ) {
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
     try {
       repositoryFileDtoList = fileService.doGetGeneratedContent( pathId );
@@ -1631,7 +1626,7 @@ public class FileResource extends AbstractJaxRSResource {
     } catch ( Throwable t ) {
       logger.error( getMessagesInstance().getString( "FileResource.GENERATED_CONTENT_FAILED", pathId ), t );
     }
-    return repositoryFileDtoList;
+    return new RepositoryFileDtoWrapper( repositoryFileDtoList );
   }
 
   /**
@@ -1699,7 +1694,7 @@ public class FileResource extends AbstractJaxRSResource {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of RepositoryFileDto objects." ),
     @ResponseCode ( code = 200, condition = "Empty list of RepositoryFileDto objects." ),
     @ResponseCode ( code = 500, condition = "Server Error." ) } )
-  public List<RepositoryFileDto> doGetGeneratedContentForUser( @PathParam ( "pathId" ) String pathId,
+  public RepositoryFileDtoWrapper doGetGeneratedContentForUser( @PathParam ( "pathId" ) String pathId,
                                                                @QueryParam ( "user" ) String user ) {
     List<RepositoryFileDto> repositoryFileDtoList = new ArrayList<RepositoryFileDto>();
     try {
@@ -1710,7 +1705,7 @@ public class FileResource extends AbstractJaxRSResource {
       logger
           .error( getMessagesInstance().getString( "FileResource.GENERATED_CONTENT_FOR_USER_FAILED", pathId, user ), t );
     }
-    return repositoryFileDtoList;
+    return new RepositoryFileDtoWrapper( repositoryFileDtoList );
   }
 
   /**
@@ -1835,10 +1830,10 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of child files from root of the repository." ),
     @ResponseCode ( code = 500, condition = "Server Error." ) } )
-  public List<RepositoryFileDto> doGetRootChildren( @QueryParam ( "filter" ) String filter,
+  public RepositoryFileDtoWrapper doGetRootChildren( @QueryParam ( "filter" ) String filter,
                                                     @QueryParam ( "showHidden" ) Boolean showHidden,
                                                     @DefaultValue ( "false" ) @QueryParam ( "includeAcls" ) Boolean includeAcls ) {
-    return fileService.doGetChildren( FileUtils.PATH_SEPARATOR, filter, showHidden, includeAcls );
+    return new RepositoryFileDtoWrapper( fileService.doGetChildren( FileUtils.PATH_SEPARATOR, filter, showHidden, includeAcls ) );
   }
 
   /**
@@ -1969,11 +1964,11 @@ public class FileResource extends AbstractJaxRSResource {
     @ResponseCode( code = 200,
       condition = "Successfully retrieved the list of child files from selected repository path of the repository." ),
     @ResponseCode( code = 500, condition = "Server Error." ) } )
-  public List<RepositoryFileDto> doGetChildren( @PathParam ( "pathId" ) String pathId,
+  public RepositoryFileDtoWrapper doGetChildren( @PathParam ( "pathId" ) String pathId,
                                                 @QueryParam ( "filter" ) String filter, @QueryParam ( "showHidden" ) Boolean showHidden,
                                                 @DefaultValue ( "false" ) @QueryParam ( "includeAcls" ) Boolean includeAcls ) {
 
-    return fileService.doGetChildren( pathId, filter, showHidden, includeAcls );
+    return new RepositoryFileDtoWrapper( fileService.doGetChildren( pathId, filter, showHidden, includeAcls ) );
   }
 
   /**
@@ -2034,8 +2029,8 @@ public class FileResource extends AbstractJaxRSResource {
   @StatusCodes ( {
     @ResponseCode ( code = 200, condition = "Successfully retrieved the list of files from trash folder of the repository." ),
     @ResponseCode ( code = 500, condition = "Server Error." ) } )
-  public List<RepositoryFileDto> doGetDeletedFiles() {
-    return fileService.doGetDeletedFiles();
+  public RepositoryFileDtoWrapper doGetDeletedFiles() {
+    return new RepositoryFileDtoWrapper( fileService.doGetDeletedFiles() );
   }
 
   /**
@@ -2068,9 +2063,9 @@ public class FileResource extends AbstractJaxRSResource {
     @ResponseCode( code = 200, condition = "Successfully retrieved metadata." ),
     @ResponseCode( code = 403, condition = "Invalid path." ),
     @ResponseCode( code = 500, condition = "Server Error." ) } )
-  public List<StringKeyStringValueDto> doGetMetadata( @PathParam ( "pathId" ) String pathId ) {
+  public StringKeyStringValueDtoWrapper doGetMetadata(@PathParam ( "pathId" ) String pathId ) {
     try {
-      return fileService.doGetMetadata( pathId );
+      return new StringKeyStringValueDtoWrapper( fileService.doGetMetadata( pathId ) );
     } catch ( FileNotFoundException e ) {
       logger.error( getMessagesInstance().getErrorString( "FileResource.FILE_UNKNOWN", pathId ), e );
       return null;
@@ -2159,9 +2154,9 @@ public class FileResource extends AbstractJaxRSResource {
     @ResponseCode ( code = 403, condition = "Invalid path." ),
     @ResponseCode ( code = 400, condition = "Invalid payload." ),
     @ResponseCode ( code = 500, condition = "Server Error." ) } )
-  public Response doSetMetadata( @PathParam ( "pathId" ) String pathId, List<StringKeyStringValueDto> metadata ) {
+  public Response doSetMetadata( @PathParam ( "pathId" ) String pathId, StringKeyStringValueDtoWrapper metadata ) {
     try {
-      fileService.doSetMetadata( pathId, metadata );
+      fileService.doSetMetadata( pathId, metadata.getStringKeyStringValueDtoes() );
       return buildOkResponse();
     } catch ( GeneralSecurityException e ) {
       return buildStatusResponse( Response.Status.UNAUTHORIZED );
