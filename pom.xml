@@ -46,7 +46,6 @@
     <kfs.version>0.3</kfs.version>
     <jersey.version>1.19.1</jersey.version>
     <LucidDbClient-minimal.version>0.9.4</LucidDbClient-minimal.version>
-    <knowledge-api.version>6.4.0.Final</knowledge-api.version>
     <wsdl4j.version>1.6.2</wsdl4j.version>
     <asm-attrs.version>2.2.3</asm-attrs.version>
     <mstor.version>0.9.13</mstor.version>
