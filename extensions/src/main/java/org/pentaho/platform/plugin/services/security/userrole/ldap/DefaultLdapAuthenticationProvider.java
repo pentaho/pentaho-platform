@@ -20,9 +20,9 @@
 
 package org.pentaho.platform.plugin.services.security.userrole.ldap;
 
+import org.pentaho.commons.util.encoding.Decoder;
 import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.repository2.userroledao.jackrabbit.security.DefaultPentahoPasswordEncoder;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,6 +34,7 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.authentication.LdapAuthenticator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -81,9 +82,12 @@ public class DefaultLdapAuthenticationProvider extends LdapAuthenticationProvide
   @Override
   public Authentication authenticate( Authentication authentication ) throws AuthenticationException {
     Authentication decodedAuth = new UsernamePasswordAuthenticationToken(
-       authentication.getPrincipal(),
-       DefaultPentahoPasswordEncoder.decodePassword( (String) authentication.getCredentials() ),
-       authentication.getAuthorities() );
+      authentication.getName() != null ? authentication.getName() : "",
+      authentication.getCredentials() instanceof String
+        ? Decoder.decodeIfEncoded( authentication.getCredentials().toString() )
+        : authentication.getCredentials(),
+      authentication.getAuthorities() != null ? authentication.getAuthorities() : new ArrayList<>()
+    );
     final Authentication authenticate = super.authenticate( decodedAuth );
     for ( GrantedAuthority authority : authenticate.getAuthorities() ) {
       if ( authority.getAuthority().equals( authenticatedRole ) ) {
