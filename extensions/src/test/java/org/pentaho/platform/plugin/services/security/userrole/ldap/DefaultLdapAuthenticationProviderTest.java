@@ -19,8 +19,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -60,11 +60,14 @@ public class DefaultLdapAuthenticationProviderTest {
   @Test
   public void testConstructors() {
     ldapAuthProvider = new DefaultLdapAuthenticationProvider( authenticator, roleMapper );
+    assertNotNull( ldapAuthProvider );
     ldapAuthProvider = new DefaultLdapAuthenticationProvider( authenticator, authoritiesPopulator, roleMapper );
+    assertNotNull( ldapAuthProvider );
     ldapAuthProvider = new DefaultLdapAuthenticationProvider( authenticator, authoritiesPopulator, roleMapper, "admin" );
+    assertNotNull( ldapAuthProvider );
   }
 
-  @Test( expected = IllegalArgumentException.class )
+  @Test( expected = BadCredentialsException.class )
   public void testAuthenticate_badArgs() {
     ldapAuthProvider = new DefaultLdapAuthenticationProvider( authenticator, roleMapper );
     ldapAuthProvider.authenticate( auth );
@@ -77,8 +80,33 @@ public class DefaultLdapAuthenticationProviderTest {
     when( usernamePasswordAuthenticationToken.getCredentials() ).thenReturn( "p@$$w0rd" );
 
     DirContextOperations dirContextOps = mock( DirContextOperations.class );
-    when( authenticator.authenticate( usernamePasswordAuthenticationToken ) ).thenReturn( dirContextOps );
-    Collection grantedAuthorities = Arrays.asList( new GrantedAuthority[]{ new SimpleGrantedAuthority( "admin" ) } );
+    when( authenticator.authenticate( any( Authentication.class ) ) ).thenReturn( dirContextOps );
+    Collection grantedAuthorities = Arrays.asList( new SimpleGrantedAuthority( "admin" ) );
+
+    when( authoritiesPopulator.getGrantedAuthorities( dirContextOps, "admin" ) ).thenReturn( grantedAuthorities );
+
+    UserDetailsContextMapper contextMapper = mock( UserDetailsContextMapper.class );
+    ldapAuthProvider.setUserDetailsContextMapper( contextMapper );
+    UserDetails userDetails = mock( UserDetails.class );
+    when( userDetails.getAuthorities() ).thenReturn( grantedAuthorities );
+    when( contextMapper.mapUserFromContext( any( DirContextOperations.class ), nullable( String.class ), any( grantedAuthorities.getClass() ) ) ).thenReturn( userDetails );
+    when( roleMapper.toPentahoRole( nullable( String.class ) ) ).thenReturn( "admin" );
+
+    Authentication result = ldapAuthProvider.authenticate( usernamePasswordAuthenticationToken );
+
+    assertNotNull( result );
+    assertEquals( "p@$$w0rd", result.getCredentials().toString() );
+  }
+
+  @Test
+  public void testEncodedAuthenticate() {
+    ldapAuthProvider = new DefaultLdapAuthenticationProvider( authenticator, authoritiesPopulator, roleMapper, "admin" );
+    when( usernamePasswordAuthenticationToken.getName() ).thenReturn( "admin" );
+    when( usernamePasswordAuthenticationToken.getCredentials() ).thenReturn( "ENC:cCU0MCUyNCUyNHcwcmQ=" );
+
+    DirContextOperations dirContextOps = mock( DirContextOperations.class );
+    when( authenticator.authenticate( any( Authentication.class ) ) ).thenReturn( dirContextOps );
+    Collection grantedAuthorities = Arrays.asList( new SimpleGrantedAuthority( "admin" ) );
 
     when( authoritiesPopulator.getGrantedAuthorities( dirContextOps, "admin" ) ).thenReturn( grantedAuthorities );
 
