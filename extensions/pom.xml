@@ -1874,18 +1874,6 @@
     </dependency>
     <dependency>
       <groupId>org.drools</groupId>
-      <artifactId>knowledge-api</artifactId>
-      <version>${knowledge-api.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.drools</groupId>
       <artifactId>drools-compiler</artifactId>
       <version>${drools.version}</version>
       <scope>compile</scope>
