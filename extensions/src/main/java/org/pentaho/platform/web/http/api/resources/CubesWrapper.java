@@ -14,26 +14,38 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2024 Hitachi Vantara. All rights reserved.
  *
  */
 
-package org.pentaho.platform.web.servlet.jaxrs;
+package org.pentaho.platform.web.http.api.resources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Provider;
+@XmlRootElement( name = "cubes" )
+@XmlAccessorType( XmlAccessType.FIELD )
+public class CubesWrapper {
 
-@Provider
-@Produces ( MediaType.APPLICATION_JSON )
-public class JacksonContextResolver implements ContextResolver<ObjectMapper> {
-  private final ObjectMapper mapper = new ObjectMapper();
+    @XmlElement( name = "cube" )
+    private List<Cube> cubes;
 
-  @Override
-  public ObjectMapper getContext( final Class<?> type ) {
-    return mapper;
-  }
+    public CubesWrapper() {
+
+    }
+
+    public CubesWrapper( List<Cube> cubes ) {
+        this.cubes = cubes;
+    }
+
+    public List<Cube> getCubes() {
+        return cubes;
+    }
+
+    public void setCubes( List<Cube> cubes ) {
+        this.cubes = cubes;
+    }
 }

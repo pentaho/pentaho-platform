@@ -14,13 +14,13 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
 package org.pentaho.platform.web.http.api.resources;
 
-import com.sun.jersey.core.header.QualitySourceMediaType;
+import org.glassfish.jersey.message.internal.QualitySourceMediaType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

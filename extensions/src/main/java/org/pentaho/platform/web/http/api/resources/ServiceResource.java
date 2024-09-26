@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -25,6 +25,7 @@ import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.pentaho.platform.settings.ServerPortRegistry;
 import org.pentaho.platform.settings.Service;
 import org.pentaho.platform.settings.ServiceDto;
+import org.pentaho.platform.settings.ServiceDtoWrapper;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -63,11 +64,11 @@ public class ServiceResource extends AbstractJaxRSResource {
   @Path( "/assignment" )
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   @StatusCodes( { @ResponseCode( code = 200, condition = "Successfully sent result." ), @ResponseCode( code = 500, condition = "Failed to get data." ) } )
-  public List<ServiceDto> doGetPortAssignment() {
+  public ServiceDtoWrapper doGetPortAssignment() {
     ArrayList<ServiceDto> list = new ArrayList<ServiceDto>();
     for ( Service service : ServerPortRegistry.getServices() ) {
       list.add( new ServiceDto( service ) );
     }
-    return list;
+    return new ServiceDtoWrapper( list );
   }
 }

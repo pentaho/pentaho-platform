@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -31,9 +31,9 @@ import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.util.IWadlDocumentResource;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import com.sun.jersey.api.wadl.config.WadlGeneratorConfig;
-import com.sun.jersey.api.wadl.config.WadlGeneratorDescription;
-import com.sun.jersey.server.wadl.generators.resourcedoc.WadlGeneratorResourceDocSupport;
+import org.glassfish.jersey.server.wadl.config.WadlGeneratorConfig;
+import org.glassfish.jersey.server.wadl.config.WadlGeneratorDescription;
+import org.glassfish.jersey.server.wadl.internal.generators.resourcedoc.WadlGeneratorResourceDocSupport;
 
 /**
  * The wadl configurator class that extends in run time the wadl pointing to a file that adds pre-computed information

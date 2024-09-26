@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -73,7 +73,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
   @Path( "/list" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   @Facet ( name = "Unsupported" )
-  public ArrayList<Setting> getUserSettings() {
+  public SettingsWrapper getUserSettings() {
     try {
       IUserSettingService settingsService = getUserSettingService();
       List<IUserSetting> userSettings =  settingsService.getUserSettings();
@@ -83,7 +83,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
         settings.add( new Setting( userSetting.getSettingName(), userSetting.getSettingValue() ) );
       }
 
-      return settings;
+      return new SettingsWrapper( settings );
     } catch ( Exception e ) {
       e.printStackTrace();
     }

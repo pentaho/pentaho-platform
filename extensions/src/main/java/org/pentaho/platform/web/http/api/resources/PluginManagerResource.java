@@ -14,7 +14,7 @@
  * See the GNU Lesser General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2024 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -65,7 +65,7 @@ public class PluginManagerResource {
   @Path( "/overlays" )
   @Produces( { APPLICATION_JSON } )
   @Facet( name = "Unsupported" )
-  public List<Overlay> getOverlays( @QueryParam( "id" ) @DefaultValue( "" ) String id ) {
+  public OverlayWrapper getOverlays( @QueryParam( "id" ) @DefaultValue( "" ) String id ) {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ); //$NON-NLS-1$
     List<XulOverlay> overlays = pluginManager.getOverlays();
     ArrayList<Overlay> result = new ArrayList<Overlay>();
@@ -78,7 +78,7 @@ public class PluginManagerResource {
               overlay.getPriority() );
       result.add( tempOverlay );
     }
-    return result;
+    return new OverlayWrapper( result );
   }
 
   /**
@@ -90,7 +90,7 @@ public class PluginManagerResource {
   @Path( "/perspectives" )
   @Produces( { APPLICATION_JSON } )
   @Facet ( name = "Unsupported" )
-  public ArrayList<PluginPerspective> getPluginPerpectives() {
+  public PluginPerspectiveWrapper getPluginPerpectives() {
     IPluginPerspectiveManager manager =
         PentahoSystem.get( IPluginPerspectiveManager.class, PentahoSessionHolder.getSession() ); //$NON-NLS-1$
 
@@ -117,7 +117,7 @@ public class PluginManagerResource {
       perspectives.add( pp );
     }
 
-    return perspectives;
+    return new PluginPerspectiveWrapper( perspectives );
   }
 
   /**
