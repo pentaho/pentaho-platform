@@ -74,7 +74,7 @@ public class DefaultPentahoPasswordEncoder implements PasswordEncoder {
       return false;
     }
     try {
-      char[] decodedPassword = decodePassword( rawPass ).toCharArray();
+      char[] decodedPassword = decodePassword( rawPass );
       CryptedSimpleCredentials credentials = new CryptedSimpleCredentials( "dummyUser", encPass );
       return credentials.matches( new SimpleCredentials( "dummyUser", decodedPassword ) );
     } catch ( Exception e ) {
@@ -82,12 +82,16 @@ public class DefaultPentahoPasswordEncoder implements PasswordEncoder {
     }
   }
 
-  public static String decodePassword( String rawPass ) {
-    if ( !StringUtils.isEmpty( rawPass ) && rawPass.startsWith( "ENC:" ) ) {
-      String password = new String( Base64Utils.fromBase64( rawPass.substring( 4 ) ), StandardCharsets.UTF_8 );
-      return URLDecoder.decode( password.replace( "+", "%2B" ), StandardCharsets.UTF_8 );
-    } else {
-      return rawPass;
+  private static char[] decodePassword( String rawPass ) {
+    try {
+      if ( !StringUtils.isEmpty( rawPass ) && rawPass.startsWith( "ENC:" ) ) {
+        String password = new String( Base64Utils.fromBase64( rawPass.substring( 4 ) ), StandardCharsets.UTF_8 );
+        return URLDecoder.decode( password.replace( "+", "%2B" ), StandardCharsets.UTF_8.name() ).toCharArray();
+      } else {
+        return rawPass.toCharArray();
+      }
+    } catch ( UnsupportedEncodingException e ) {
+      return rawPass.toCharArray();
     }
   }
 
