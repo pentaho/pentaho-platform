@@ -14,9 +14,7 @@ package org.pentaho.platform.plugin.services.security.userrole.ldap;
 
 import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.repository2.userroledao.jackrabbit.security.DefaultPentahoPasswordEncoder;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -72,11 +70,7 @@ public class DefaultLdapAuthenticationProvider extends LdapAuthenticationProvide
 
   @Override
   public Authentication authenticate( Authentication authentication ) throws AuthenticationException {
-    Authentication decodedAuth = new UsernamePasswordAuthenticationToken(
-       authentication.getPrincipal(),
-       DefaultPentahoPasswordEncoder.decodePassword( (String) authentication.getCredentials() ),
-       authentication.getAuthorities() );
-    final Authentication authenticate = super.authenticate( decodedAuth );
+    final Authentication authenticate = super.authenticate( authentication );
     for ( GrantedAuthority authority : authenticate.getAuthorities() ) {
       if ( authority.getAuthority().equals( authenticatedRole ) ) {
         return authenticate;
