@@ -8,13 +8,13 @@
     <version>10.2.0.0-222</version>
   </parent>
   <artifactId>pentaho-user-console-package</artifactId>
-  <version>10.2.0.0-222</version>
+  <version>10.2.0.0-C283</version>
   <packaging>pom</packaging>
   <dependencies>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-user-console</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-C283</version>
       <classifier>gwt</classifier>
     </dependency>
   </dependencies>

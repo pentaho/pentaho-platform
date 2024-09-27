@@ -8,7 +8,7 @@
     <version>10.2.0.0-222</version>
   </parent>
   <artifactId>pentaho-war</artifactId>
-  <version>10.2.0.0-222</version>
+  <version>10.2.0.0-C283</version>
   <packaging>war</packaging>
   <properties>
     <rdbms>hsqldb</rdbms>
@@ -52,7 +52,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-extensions</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-C283</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -160,7 +160,7 @@
     <dependency>
       <groupId>org.pentaho.reporting.plugin</groupId>
       <artifactId>classic-core-platform-plugin</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -172,19 +172,19 @@
     <dependency>
       <groupId>org.pentaho.reporting.engine</groupId>
       <artifactId>classic-core</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.pentaho.reporting.engine</groupId>
       <artifactId>classic-extensions</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.pentaho.reporting.library</groupId>
       <artifactId>libserializer</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -250,12 +250,12 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-mongodb-plugin</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-mongo-utils</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
     </dependency>
     <dependency>
       <groupId>org.mongodb</groupId>
@@ -271,7 +271,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-capability-manager</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -464,13 +464,13 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pdi-osgi-bridge-core</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-osgi-utils-api</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -481,13 +481,13 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-metaverse-api</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.pentaho</groupId>
       <artifactId>pdi-engine-api</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -544,12 +544,12 @@
     <dependency>
       <groupId>org.pentaho.di.plugins</groupId>
       <artifactId>pentaho-metastore-locator-api</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
     </dependency>
     <dependency>
       <groupId>org.pentaho.di.plugins</groupId>
       <artifactId>pentaho-kettle-repository-locator-api</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
     </dependency>
 
     <!-- OSGi Dependencies -->
@@ -568,7 +568,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-proxy-factory</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -803,12 +803,12 @@
     <dependency>
       <groupId>org.pentaho.reporting.library</groupId>
       <artifactId>libpixie</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
     </dependency>
     <dependency>
       <groupId>org.pentaho.reporting.library</groupId>
       <artifactId>libsparkline</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.0-222</version>
     </dependency>
     <dependency>
       <groupId>org.pentaho</groupId>
@@ -993,7 +993,7 @@
                 <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>pentaho-user-console-package</artifactId>
-                  <version>${project.version}</version>
+                  <version>10.2.0.0-C283</version>
                   <type>zip</type>
                   <overWrite>false</overWrite>
                   <outputDirectory>${prepared.war.directory}</outputDirectory>
