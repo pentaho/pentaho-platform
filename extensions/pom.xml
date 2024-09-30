@@ -874,12 +874,23 @@
           <artifactId>jersey-servlet</artifactId>
         </exclusion>
         <exclusion>
+          <groupId>org.codehaus.enunciate</groupId>
+          <artifactId>enunciate-core-rt</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>com.sun.jersey</groupId>
           <artifactId>jersey-server</artifactId>
         </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.enunciate</groupId>
+      <artifactId>enunciate-core-rt</artifactId>
+      <version>${enunciate-jersey-rt.version}</version>
+      <exclusions>
         <exclusion>
-          <groupId></groupId>
-          <artifactId></artifactId>
+          <groupId>javax.ws.rs</groupId>
+          <artifactId>jsr311-api</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
