@@ -233,7 +233,7 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.pentaho.di.plugins</groupId>
-                  <artifactId>kettle-drools5-plugin</artifactId>
+                  <artifactId>kettle-drools8-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
