@@ -20,8 +20,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.jcr.SimpleCredentials;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Default password encoder for the BI Server.
@@ -71,9 +69,8 @@ public class DefaultPentahoPasswordEncoder implements PasswordEncoder {
       return false;
     }
     try {
-      char[] decodedPassword = URLDecoder.decode( rawPass, StandardCharsets.UTF_8.name() ).toCharArray();
       CryptedSimpleCredentials credentials = new CryptedSimpleCredentials( "dummyUser", encPass );
-      return credentials.matches( new SimpleCredentials( "dummyUser", decodedPassword ) );
+      return credentials.matches( new SimpleCredentials( "dummyUser", rawPass.toCharArray() ) );
     } catch ( Exception e ) {
       throw new RuntimeException( e );
     }
