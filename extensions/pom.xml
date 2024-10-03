@@ -630,6 +630,11 @@
       <version>${javax.servlet-api.version}</version>
       <scope>compile</scope>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>jakarta.servlet</groupId>-->
+<!--      <artifactId>jakarta.servlet-api</artifactId>-->
+<!--      <version>4.0.4</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.glassfish.metro</groupId>
       <artifactId>webservices-api</artifactId>
@@ -2065,11 +2070,11 @@
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
+      <artifactId>osgi.core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.compendium</artifactId>
+      <artifactId>osgi.cmpn</artifactId>
     </dependency>
     <dependency>
       <groupId>org.openjdk.nashorn</groupId>
@@ -2737,6 +2742,14 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-crypto -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-crypto</artifactId>
+      <version>5.8.12</version>
+    </dependency>
+
   </dependencies>
   <build>
     <plugins>
