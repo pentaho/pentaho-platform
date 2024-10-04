@@ -12,8 +12,6 @@
 
 package org.pentaho.platform.repository2.userroledao.jackrabbit.security;
 
-import com.google.gwt.user.server.Base64Utils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.jackrabbit.core.security.authentication.CryptedSimpleCredentials;
 import org.pentaho.platform.engine.security.messages.Messages;
@@ -22,9 +20,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.jcr.SimpleCredentials;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Default password encoder for the BI Server.
@@ -74,24 +69,10 @@ public class DefaultPentahoPasswordEncoder implements PasswordEncoder {
       return false;
     }
     try {
-      char[] decodedPassword = decodePassword( rawPass );
       CryptedSimpleCredentials credentials = new CryptedSimpleCredentials( "dummyUser", encPass );
-      return credentials.matches( new SimpleCredentials( "dummyUser", decodedPassword ) );
+      return credentials.matches( new SimpleCredentials( "dummyUser", rawPass.toCharArray() ) );
     } catch ( Exception e ) {
       throw new RuntimeException( e );
-    }
-  }
-
-  private static char[] decodePassword( String rawPass ) {
-    try {
-      if ( !StringUtils.isEmpty( rawPass ) && rawPass.startsWith( "ENC:" ) ) {
-        String password = new String( Base64Utils.fromBase64( rawPass.substring( 4 ) ), StandardCharsets.UTF_8 );
-        return URLDecoder.decode( password.replace( "+", "%2B" ), StandardCharsets.UTF_8.name() ).toCharArray();
-      } else {
-        return rawPass.toCharArray();
-      }
-    } catch ( UnsupportedEncodingException e ) {
-      return rawPass.toCharArray();
     }
   }
 
