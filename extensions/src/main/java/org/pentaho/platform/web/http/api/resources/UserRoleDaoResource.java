@@ -20,8 +20,6 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -250,10 +248,9 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
     return Response.noContent().build();
   }
 
-  private String b64DecodePassword( String encodedPassword ) throws UnsupportedEncodingException {
+  private String b64DecodePassword( String encodedPassword ) {
     if ( !StringUtils.isEmpty( encodedPassword ) && encodedPassword.startsWith( "ENC:" ) ) {
-      String password = new String( Base64Utils.fromBase64( encodedPassword.substring( 4 ) ), StandardCharsets.UTF_8 );
-      return URLDecoder.decode( password, StandardCharsets.UTF_8.name() );
+      return new String( Base64Utils.fromBase64( encodedPassword.substring( 4 ) ), StandardCharsets.UTF_8 );
     } else {
       return encodedPassword;
     }
@@ -901,8 +898,6 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
       Response.ResponseBuilder response = Response.status( Response.Status.BAD_REQUEST );
       response.header( PUC_VALIDATION_ERROR_MESSAGE, e.getMessage() );
       throw new WebApplicationException( response.build() );
-    } catch ( Exception e ) {
-      throw new WebApplicationException( Response.Status.PRECONDITION_FAILED );
     }
     return Response.noContent().build();
   }
