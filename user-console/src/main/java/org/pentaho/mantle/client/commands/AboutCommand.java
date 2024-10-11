@@ -26,10 +26,18 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.messages.Messages;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.TextResource;
 
 import java.util.Date;
 
 public class AboutCommand extends AbstractCommand {
+
+  interface MyTextResource extends ClientBundle {
+    @Source("org/pentaho/mantle/public/license.txt")
+    TextResource myText();
+  }
 
   public AboutCommand() {
   }
@@ -64,18 +72,29 @@ public class AboutCommand extends AbstractCommand {
     }
   }
 
+  public String readTextFile() {
+    MyTextResource resource = GWT.create(MyTextResource.class);
+    String text = resource.myText().getText();
+    text = text.replace("\t", "&emsp;");
+    text = "<pre>" + text + "</pre>";
+    return text;
+  }
+
   private void showAboutDialog( String version ) {
     @SuppressWarnings( "deprecation" )
     String licenseInfo = Messages.getString( "licenseInfo", "" + ( ( new Date() ).getYear() + 1900 ) );
     String releaseLabel = Messages.getString( "release" );
     PromptDialogBox dialogBox =
-        new PromptDialogBox( Messages.getString( "aboutDialogTitle" ), Messages.getString( "ok" ), null, false, true ); //$NON-NLS-1$
+        new PromptDialogBox( null, Messages.getString( "ok" ), null, false, true ); //$NON-NLS-1$
 
     VerticalPanel aboutContent = new VerticalPanel();
+    aboutContent.setBorderWidth(0);
+    String licenseText = readTextFile();
+    aboutContent.setStyleName( "about-splash" );
     aboutContent.add( new Label( releaseLabel + " " + version ) );
-    aboutContent.add( new HTML( licenseInfo ) );
-
+    aboutContent.add( new HTML( licenseText ) );
     dialogBox.setContent( aboutContent );
+    dialogBox.setPixelSize(700, 400);
     dialogBox.center();
   }
 }
