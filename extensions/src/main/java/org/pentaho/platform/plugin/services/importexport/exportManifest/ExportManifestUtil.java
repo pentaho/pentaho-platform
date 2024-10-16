@@ -71,16 +71,6 @@ public class ExportManifestUtil {
       outgoingJobTrigger = new SimpleJobTrigger();
       outgoingJobTrigger.setRepeatCount( incomingJobTrigger.getRepeatCount() );
       outgoingJobTrigger.setRepeatInterval( incomingJobTrigger.getRepeatInterval() );
-      outgoingJobTrigger.setUiPassParam( incomingJobTrigger.getUiPassParam() );
-      outgoingJobTrigger.setStartTime( XmlGregorianCalendarConverter.asXMLGregorianCalendar( incomingJobTrigger.getStartTime() ) );
-      outgoingJobTrigger.setEndTime( XmlGregorianCalendarConverter.asXMLGregorianCalendar( incomingJobTrigger.getEndTime() ) );
-      outgoingJobTrigger.setStartHour( incomingJobTrigger.getStartHour() );
-      outgoingJobTrigger.setStartMin( incomingJobTrigger.getStartMin() );
-      outgoingJobTrigger.setStartYear( incomingJobTrigger.getStartYear() );
-      outgoingJobTrigger.setStartMonth( incomingJobTrigger.getStartMonth() );
-      outgoingJobTrigger.setStartDay( incomingJobTrigger.getStartDay() );
-      outgoingJobTrigger.setStartAmPm( incomingJobTrigger.getStartAmPm() );
-      outgoingJobTrigger.setTimeZone( incomingJobTrigger.getTimeZone() );
     }
     return outgoingJobTrigger;
   }
@@ -94,13 +84,6 @@ public class ExportManifestUtil {
       outgoingCronJobTrigger.setEndTime( XmlGregorianCalendarConverter.asXMLGregorianCalendar( incomingCronJobTrigger.getEndTime() ) );
       outgoingCronJobTrigger.setStartTime( XmlGregorianCalendarConverter.asXMLGregorianCalendar( incomingCronJobTrigger.getStartTime() ) );
       outgoingCronJobTrigger.setUiPassParam( incomingCronJobTrigger.getUiPassParam() );
-      outgoingCronJobTrigger.setStartHour( incomingCronJobTrigger.getStartHour() );
-      outgoingCronJobTrigger.setStartMin( incomingCronJobTrigger.getStartMin() );
-      outgoingCronJobTrigger.setStartYear( incomingCronJobTrigger.getStartYear() );
-      outgoingCronJobTrigger.setStartMonth( incomingCronJobTrigger.getStartMonth() );
-      outgoingCronJobTrigger.setStartDay( incomingCronJobTrigger.getStartDay() );
-      outgoingCronJobTrigger.setStartAmPm( incomingCronJobTrigger.getStartAmPm() );
-      outgoingCronJobTrigger.setTimeZone( incomingCronJobTrigger.getTimeZone() );
     }
     return outgoingCronJobTrigger;
   }
@@ -155,17 +138,6 @@ public class ExportManifestUtil {
               null,
               incomingSimpleJobTrigger.getRepeatCount(),
               incomingSimpleJobTrigger.getRepeatInterval() );
-      outgoingJobTrigger.setUiPassParam( incomingSimpleJobTrigger.getUiPassParam() );
-      outgoingJobTrigger.setStartTime( XmlGregorianCalendarConverter.asDate( incomingSimpleJobTrigger.getStartTime() ) );
-      outgoingJobTrigger.setEndTime( XmlGregorianCalendarConverter.asDate( incomingSimpleJobTrigger.getEndTime() ) );
-      outgoingJobTrigger.setUiPassParam( incomingSimpleJobTrigger.getUiPassParam() );
-      outgoingJobTrigger.setStartHour( incomingSimpleJobTrigger.getStartHour() );
-      outgoingJobTrigger.setStartMin( incomingSimpleJobTrigger.getStartMin() );
-      outgoingJobTrigger.setStartYear( incomingSimpleJobTrigger.getStartYear() );
-      outgoingJobTrigger.setStartMonth( incomingSimpleJobTrigger.getStartMonth() );
-      outgoingJobTrigger.setStartDay( incomingSimpleJobTrigger.getStartDay() );
-      outgoingJobTrigger.setStartAmPm( incomingSimpleJobTrigger.getStartAmPm() );
-      outgoingJobTrigger.setTimeZone( incomingSimpleJobTrigger.getTimeZone() );
     }
     return outgoingJobTrigger;
   }
@@ -180,13 +152,6 @@ public class ExportManifestUtil {
       outgoingCronJobTrigger.setEndTime( XmlGregorianCalendarConverter.asDate( incomingCronJobTrigger.getEndTime() ) );
       outgoingCronJobTrigger.setStartTime( XmlGregorianCalendarConverter.asDate( incomingCronJobTrigger.getStartTime() ) );
       outgoingCronJobTrigger.setUiPassParam( incomingCronJobTrigger.getUiPassParam() );
-      outgoingCronJobTrigger.setStartHour( incomingCronJobTrigger.getStartHour() );
-      outgoingCronJobTrigger.setStartMin( incomingCronJobTrigger.getStartMin() );
-      outgoingCronJobTrigger.setStartYear( incomingCronJobTrigger.getStartYear() );
-      outgoingCronJobTrigger.setStartMonth( incomingCronJobTrigger.getStartMonth() );
-      outgoingCronJobTrigger.setStartDay( incomingCronJobTrigger.getStartDay() );
-      outgoingCronJobTrigger.setStartAmPm( incomingCronJobTrigger.getStartAmPm() );
-      outgoingCronJobTrigger.setTimeZone( incomingCronJobTrigger.getTimeZone() );
     }
     return outgoingCronJobTrigger;
   }
