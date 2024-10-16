@@ -25,7 +25,7 @@ public interface IJobTrigger {
   /**
    * Sets the trigger start time.
    * 
-   * @param setStartTime
+   * @param startTime
    *          when to start the trigger. If null the trigger starts immediately.
    */
   void setStartTime( Date startTime );
@@ -86,89 +86,4 @@ public interface IJobTrigger {
    *          Sets the length of time in milliseconds that this trigger should be in effect.
    */
   void setDuration( long duration );
-
-  /**
-   * @return the start hour (0-23)
-   */
-  int getStartHour();
-
-  /**
-   * Set the start hour (0-23)
-   *
-   * @param startHour
-   */
-  void setStartHour( int startHour );
-
-  /**
-   * @return the start minute (0-59)
-   */
-  int getStartMin();
-
-  /**
-   * Set the start minute (0-59)
-   *
-   * @param startMin
-   */
-  void setStartMin( int startMin );
-
-  /**
-   * @return the start year (indexed from 1900 per java.util.Date)
-   */
-  int getStartYear();
-
-  /**
-   * Set the start year (indexed from 1900 per java.util.Date)
-   *
-   * @param startYear
-   */
-  void setStartYear( int startYear );
-
-  /**
-   * @return the start month (0-11)
-   */
-  int getStartMonth();
-
-  /**
-   * Set the start month (0-11)
-   *
-   * @param startMonth
-   */
-  void setStartMonth( int startMonth );
-
-  /**
-   * @return the start day (1-31)
-   */
-  int getStartDay();
-
-  /**
-   * Set the start day (1-31)
-   *
-   * @param startDay
-   */
-  void setStartDay( int startDay );
-
-  /**
-   * @return 0 - AM;  1 - PM
-   */
-  int getStartAmPm();
-
-  /**
-   * Set the AM/PM value; 0 - AM; 1 - PM
-   *
-   * @param startAmPm
-   */
-  void setStartAmPm( int startAmPm );
-
-  /**
-   * Set the time zone (see java.util.TimeZone for valid IDs)
-   * Expects a TimeZone.
-   *
-   * @param timeZone
-   */
-  void setTimeZone( String timeZone );
-
-  /**
-   * @return the time zone
-   */
-  String getTimeZone();
 }
