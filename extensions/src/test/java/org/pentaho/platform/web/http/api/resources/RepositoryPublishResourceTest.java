@@ -21,7 +21,7 @@ import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.web.http.api.resources.services.RepositoryPublishService;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.Properties;
 
-import static javax.ws.rs.core.Response.Status.*;
+import static jakarta.ws.rs.core.Response.Status.*;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 import static org.pentaho.platform.plugin.services.importer.PlatformImportException.PUBLISH_GENERAL_ERROR;

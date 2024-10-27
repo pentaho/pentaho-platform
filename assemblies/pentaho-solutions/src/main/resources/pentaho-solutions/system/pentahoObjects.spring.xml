@@ -13,12 +13,12 @@ default-lazy-init is set to true since some of these object make calls into
 PentahoSystem which is initialized after Spring
  -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
-
-       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
-       default-lazy-init="true">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true" >
 
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype"/>
   <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton"/>
@@ -175,19 +175,33 @@ not directly from the PentahoObjectFactory. -->
     </constructor-arg>
   </bean>
 
-  <bean id="ehCacheUserCache" class="org.pentaho.platform.plugin.services.security.userrole.PentahoEhCacheBasedUserCache">
-    <property name="cache">
-      <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-        <property name="cacheManager">
-          <bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-            <property name="shared" value="true"/>
-          </bean>
-        </property>
-        <property name="cacheName" value="userCache"/>
+  <bean id="cacheConfiguration" class="org.ehcache.config.CacheConfiguration" factory-bean="cacheConfigurationBuilder" factory-method="build"/>
+  <bean id="cacheConfigurationBuilder" class="org.ehcache.config.builders.CacheConfigurationBuilder"
+        factory-method="newCacheConfigurationBuilder">
+    <constructor-arg index="0" value="java.lang.String"/>
+    <constructor-arg index="1" value="org.springframework.security.core.userdetails.UserDetails"/>
+    <constructor-arg index="2">
+      <bean class="org.ehcache.config.builders.ResourcePoolsBuilder" factory-method="heap">
+        <constructor-arg value="10"/>
       </bean>
-    </property>
-    <property name="caseSensitive" value="true"></property>
+    </constructor-arg>
   </bean>
+
+  <bean id="cacheManagerBuilder" class="org.ehcache.config.builders.CacheManagerBuilder" factory-method="newCacheManagerBuilder"/>
+
+  <bean id="cacheManager" class="org.ehcache.CacheManager" factory-bean="cacheManagerBuilder" factory-method="build" init-method="init"/>
+
+  <bean id="userCache" class="org.ehcache.Cache" factory-bean="cacheManager" factory-method="createCache">
+    <constructor-arg index="0" value="userCache"/>
+    <constructor-arg index="1" ref="cacheConfiguration"/>
+  </bean>
+
+  <bean id="ehCacheUserCache" class="org.pentaho.platform.plugin.services.security.userrole.PentahoEhCacheBasedUserCache">
+    <constructor-arg index="0" value="true" />
+    <property name="cacheManager" ref="cacheManager"/>
+    <property name="userCache" ref="userCache"/>
+  </bean>
+
 
   <bean id="cachingUserDetailsService" class="org.pentaho.platform.plugin.services.security.userrole.PentahoCachingUserDetailsService">
     <constructor-arg>

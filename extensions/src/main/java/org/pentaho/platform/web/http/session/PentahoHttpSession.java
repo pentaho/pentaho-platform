@@ -24,7 +24,7 @@ import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider
 import org.pentaho.platform.engine.core.system.BaseSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import java.util.Iterator;
 import java.util.Locale;
 
