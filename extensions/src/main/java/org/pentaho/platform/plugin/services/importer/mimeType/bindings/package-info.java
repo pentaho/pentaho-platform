@@ -18,6 +18,6 @@
 // Generated on: 2015.03.31 at 02:27:39 PM EDT 
 //
 
-@javax.xml.bind.annotation.XmlSchema( namespace = "http://www.pentaho.com/schema/" )
+@jakarta.xml.bind.annotation.XmlSchema( namespace = "http://www.pentaho.com/schema/" )
 package org.pentaho.platform.plugin.services.importer.mimeType.bindings;
 
