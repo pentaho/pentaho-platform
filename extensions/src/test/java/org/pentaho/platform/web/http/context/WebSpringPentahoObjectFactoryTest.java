@@ -19,7 +19,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

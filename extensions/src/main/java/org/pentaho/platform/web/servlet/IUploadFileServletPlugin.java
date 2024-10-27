@@ -12,7 +12,7 @@
 
 package org.pentaho.platform.web.servlet;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Allows a platform plugin to provide it's own file uploading capability which is not currently supported in

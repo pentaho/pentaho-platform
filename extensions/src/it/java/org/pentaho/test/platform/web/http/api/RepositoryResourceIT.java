@@ -74,16 +74,16 @@
 //import org.springframework.test.context.ContextConfiguration;
 //import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 //
-//import javax.ws.rs.core.MediaType;
-//import javax.ws.rs.core.MultivaluedMap;
+//import jakarta.ws.rs.core.MediaType;
+//import jakarta.ws.rs.core.MultivaluedMap;
 //
 //import java.io.File;
 //import java.io.OutputStream;
 //import java.util.ArrayList;
 //import java.util.List;
 //
-//import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
-//import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+//import static jakarta.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
+//import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
 //import static org.junit.Assert.assertEquals;
 //import static org.mockito.ArgumentMatchers.nullable;
 //import static org.mockito.Mockito.mock;

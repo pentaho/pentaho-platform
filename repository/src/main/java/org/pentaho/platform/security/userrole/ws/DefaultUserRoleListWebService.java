@@ -17,7 +17,7 @@ import org.pentaho.platform.api.engine.security.userroledao.UserRoleInfo;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 import java.util.List;
 
 /**

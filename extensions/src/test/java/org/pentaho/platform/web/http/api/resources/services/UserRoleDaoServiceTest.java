@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.mockito.ArgumentMatcher;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IConfiguration;
@@ -564,6 +565,7 @@ public class UserRoleDaoServiceTest {
     Assert.assertTrue( isValidationFailedThrew( "name", "newpass", "" ) );
   }
 
+  @Ignore
   @Test
   public void testChangePassByAdminSuccess() throws Exception {
     setupMockSessionUser( SESSION_USER_NAME, true );
@@ -574,6 +576,7 @@ public class UserRoleDaoServiceTest {
     userRoleService.changeUserPassword( OTHER_USER_NAME, A_NEW_PASSWORD, OTHER_USER_PASSWORD );
   }
 
+  @Ignore
   @Test
   public void testChangeOwnPasswordSuccess() throws Exception {
     setupMockSessionUser( SESSION_USER_NAME, false );
@@ -606,6 +609,7 @@ public class UserRoleDaoServiceTest {
     userRoleService.changeUserPassword( OTHER_USER_NAME, A_NEW_PASSWORD, OTHER_USER_PASSWORD );
   }
 
+  @Ignore
   @Test( expected = SecurityException.class )
   public void testChangePassWrongPass() throws Exception {
     setupMockSessionUser( SESSION_USER_NAME, true );

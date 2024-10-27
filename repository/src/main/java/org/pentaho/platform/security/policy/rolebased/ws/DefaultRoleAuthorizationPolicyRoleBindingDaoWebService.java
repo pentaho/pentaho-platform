@@ -18,7 +18,7 @@ import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRo
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 import java.util.List;
 
 /**

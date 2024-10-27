@@ -12,7 +12,7 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.Map;
 
 /**

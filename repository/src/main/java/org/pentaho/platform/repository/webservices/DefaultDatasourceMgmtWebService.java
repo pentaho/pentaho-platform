@@ -19,7 +19,7 @@ import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository.datasource.NonExistingDatasourceException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 import java.util.ArrayList;
 import java.util.List;
 

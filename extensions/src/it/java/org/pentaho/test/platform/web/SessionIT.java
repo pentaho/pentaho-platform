@@ -23,8 +23,8 @@ import org.pentaho.platform.web.http.session.PentahoHttpSessionListener;
 import org.pentaho.test.platform.engine.core.BaseTest;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionEvent;
 import java.io.File;
 import java.util.Enumeration;
 import java.util.Locale;

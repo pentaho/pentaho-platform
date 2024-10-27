@@ -58,7 +58,7 @@ public class PentahoResourceDocletTest {
 
     annotationDescPath = mock( AnnotationDesc.class );
     when( annotationDescPath.annotationType() ).thenReturn( annotationTypeDeprecated );
-    when( annotationDescPath.toString() ).thenReturn( "@javax.ws.rs.Path" );
+    when( annotationDescPath.toString() ).thenReturn( "@jakarta.ws.rs.Path" );
 
     methodDoc = mock( MethodDoc.class );
     when( methodDoc.name() ).thenReturn( "methodName" );

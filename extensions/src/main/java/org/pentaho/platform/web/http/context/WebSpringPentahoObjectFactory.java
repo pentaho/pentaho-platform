@@ -17,7 +17,7 @@ import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 /**
  * This factory implementation can be used in a web environment in which a Spring {@link WebApplicationContext} has

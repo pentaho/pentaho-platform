@@ -12,11 +12,14 @@
 
 package org.pentaho.platform.plugin.services.cache;
 
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.management.CacheStatistics;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Element;
+import org.ehcache.config.ResourceType;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
+import org.ehcache.core.Ehcache;
 import org.hibernate.Cache;
 import org.hibernate.SessionFactory;
 import org.hibernate.cache.CacheException;
@@ -173,7 +176,8 @@ public class CacheManager implements ICacheManager {
     if ( null != obj ) {
       if ( obj instanceof RegionFactory ) {
         this.regionFactory = (RegionFactory) obj;  //cacheProvider changed to regionFactory for hibernate 5.3
-        regionFactory.start( HibernateUtil.getSessionFactory().getSessionFactoryOptions(), cacheProperties );
+        Map<String, Object> cachePropertiesMap = new HashMap<>( ( Map ) cacheProperties );
+        regionFactory.start( HibernateUtil.getSessionFactory().getSessionFactoryOptions(), cachePropertiesMap );
         regionCache = new HashMap<String, Cache>();
         ( (SessionFactoryImplementor) HibernateUtil.getSessionFactory() ).getServiceRegistry()
           .getService( EventListenerRegistry.class ).prependListeners(
@@ -356,8 +360,12 @@ public class CacheManager implements ICacheManager {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
       try ( SessionImpl session = (SessionImpl) hvcache.getSessionFactory().openSession() ) {
-        Ehcache ehcache = hvcache.getStorageAccess().getCache();
-        Map cacheMap = ehcache.getAll( ehcache.getKeys() );
+        Ehcache ehcache = ( Ehcache ) hvcache.getStorageAccess().getFromCache( session , null );
+        Map<Object, Object> cacheMap = new HashMap<>();
+        ehcache.forEach( entry -> {
+              Map.Entry<Object, Object> mapEntry = ( Map.Entry<Object, Object> ) entry;
+              cacheMap.put( mapEntry.getKey(), mapEntry.getValue() );
+          } );
         if ( cacheMap != null ) {
           Iterator it = cacheMap.entrySet().iterator();
           while ( it.hasNext() ) {
@@ -384,8 +392,13 @@ public class CacheManager implements ICacheManager {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
       try ( SessionImpl session = (SessionImpl) hvcache.getSessionFactory().openSession() ) {
-        Ehcache ehcache = hvcache.getStorageAccess().getCache();
-        return ehcache.getAll( ehcache.getKeys() ).values().stream().collect( Collectors.toSet() );
+        Ehcache ehcache = ( Ehcache ) hvcache.getStorageAccess().getFromCache( session , null );
+        Map<Object, Object> cacheMap = new HashMap<>();
+        ehcache.forEach( entry -> {
+           Map.Entry<Object, Object> mapEntry = ( Map.Entry<Object, Object> ) entry;
+           cacheMap.put( mapEntry.getKey(), mapEntry.getValue() );
+          } );
+        return cacheMap.values().stream().collect( Collectors.toSet() );
       }
     }
     return null;
@@ -434,8 +447,12 @@ public class CacheManager implements ICacheManager {
     if ( cacheEnabled ) {
       HvCache hvcache = (HvCache) regionCache.get( SESSION );
       if ( hvcache != null ) {
-        Ehcache ehcache = hvcache.getStorageAccess().getCache();
-        Map cacheMap = ehcache.getAll( ehcache.getKeys() );
+        Ehcache ehcache = ( Ehcache ) hvcache.getStorageAccess().getFromCache( session , null );
+        Map<Object, Object> cacheMap = new HashMap<>();
+        ehcache.forEach( entry -> {
+              Map.Entry<Object, Object> mapEntry = ( Map.Entry<Object, Object> ) entry;
+              cacheMap.put( mapEntry.getKey(), mapEntry.getValue() );
+          } );
         if ( cacheMap != null ) {
           Iterator it = cacheMap.keySet().iterator();
           while ( it.hasNext() ) {
@@ -502,11 +519,19 @@ public class CacheManager implements ICacheManager {
   public long getElementCountInRegionCache( String region ) {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );
-      Ehcache ehcache = hvcache.getStorageAccess().getCache();
+      Ehcache ehcache = (Ehcache) hvcache.getStorageAccess().getFromCache( null , null);
       if ( hvcache != null ) {
         try {
-          long memCnt = ehcache.getStatistics().getMemoryStoreObjectCount();
-          long discCnt = ehcache.getStatistics().getDiskStoreObjectCount();
+          org.ehcache.CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
+                  .withCache( "myCache",
+                          CacheConfigurationBuilder.newCacheConfigurationBuilder( Long.class, String.class,
+                                  ResourcePoolsBuilder.heap( 10 ) ) )
+                  .build( true );
+
+           org.ehcache.Cache<Long, String> cache = cacheManager.getCache( "myCache", Long.class, String.class );
+
+          long memCnt = cache.getRuntimeConfiguration().getResourcePools().getPoolForResource( ResourceType.Core.HEAP ).getSize();
+          long discCnt = 0;
           return memCnt + discCnt;
         } catch ( Exception ignored ) {
           return -1;

@@ -12,7 +12,7 @@
 
 package org.pentaho.platform.scheduler2.recur;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Used to specify incremental dates or times. For example an incremental recurrence with 1 as a starting value and 3 as

@@ -14,9 +14,9 @@ package org.pentaho.platform.settings;
 
 import java.util.HashSet;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement( name = "Service" )
 @XmlAccessorType( XmlAccessType.PROPERTY )

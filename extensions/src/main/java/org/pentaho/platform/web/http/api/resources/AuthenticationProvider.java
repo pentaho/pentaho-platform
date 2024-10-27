@@ -12,7 +12,7 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * POJO to simply represent authentication providers in SystemResource endpoints

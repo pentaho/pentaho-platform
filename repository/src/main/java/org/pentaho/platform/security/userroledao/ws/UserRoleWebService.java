@@ -25,7 +25,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAc
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.security.userroledao.messages.Messages;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;

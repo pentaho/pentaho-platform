@@ -21,8 +21,8 @@ import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Hitachi Vantara behavior that should be invoked when a web user logs out.

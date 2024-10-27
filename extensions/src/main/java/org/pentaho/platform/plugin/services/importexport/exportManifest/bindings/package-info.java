@@ -17,6 +17,6 @@
 // Generated on: 2013.07.25 at 11:25:28 AM EDT 
 //
 
-@javax.xml.bind.annotation.XmlSchema( namespace = "http://www.pentaho.com/schema/" )
+@jakarta.xml.bind.annotation.XmlSchema( namespace = "http://www.pentaho.com/schema/" )
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 

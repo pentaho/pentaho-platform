@@ -15,9 +15,9 @@ package org.pentaho.platform.web.http.api.resources;
 import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
 

@@ -21,7 +21,7 @@ import org.pentaho.platform.api.repository2.unified.webservices.DataNodeDto;
 import org.pentaho.platform.api.repository2.unified.webservices.DataPropertyDto;
 import org.pentaho.platform.api.repository2.unified.webservices.NodeRepositoryFileDataDto;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

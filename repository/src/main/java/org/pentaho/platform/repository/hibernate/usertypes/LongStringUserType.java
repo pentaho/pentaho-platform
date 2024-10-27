@@ -43,15 +43,16 @@ public class LongStringUserType implements UserType {
 
   private static final boolean debug = PentahoSystem.debug;
 
-  private static final int[] SQLTYPE = { Types.CLOB }; // Persists as CLOBs
+  private static final int SQLTYPE = Types.CLOB; // Persists as CLOBs
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.hibernate.usertype.UserType#sqlTypes()
+   * @see org.hibernate.usertype.UserType#getSqlType()
    */
-  public int[] sqlTypes() {
-    return LongStringUserType.SQLTYPE;
+  @Override
+  public int getSqlType() {
+    return java.sql.Types.CLOB;
   }
 
   /*
@@ -88,8 +89,7 @@ public class LongStringUserType implements UserType {
   }
 
   @Override
-  public Object nullSafeGet( ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner )
-    throws HibernateException, SQLException {
+  public Object nullSafeGet( ResultSet resultSet, int i, SharedSessionContractImplementor sharedSessionContractImplementor, Object o ) throws SQLException {
     return null;
   }
 
@@ -128,7 +128,7 @@ public class LongStringUserType implements UserType {
       int sLen = ( (StringBuffer) value ).length();
       st.setCharacterStream( index, rdr, sLen );
     } else {
-      st.setNull( index, LongStringUserType.SQLTYPE[0] );
+      st.setNull( index, LongStringUserType.SQLTYPE );
     }
   }
 

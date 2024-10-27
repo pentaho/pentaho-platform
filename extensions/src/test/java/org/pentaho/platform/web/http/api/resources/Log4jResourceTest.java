@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.util.LogUtil;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import java.util.Collection;
 import java.util.Enumeration;

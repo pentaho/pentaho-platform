@@ -16,15 +16,15 @@ import java.sql.Types;
 
 public class VarBinaryUserType extends BinaryUserType {
 
-  private static final int[] SQLTYPE = { Types.VARBINARY };
+  private static final int SQLTYPE =Types.VARBINARY;
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.hibernate.usertype.UserType#sqlTypes()
+   * @see org.hibernate.usertype.UserType#getSqlType()
    */
   @Override
-  public int[] sqlTypes() {
+  public int getSqlType() {
     return VarBinaryUserType.SQLTYPE;
   }
 

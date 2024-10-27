@@ -13,8 +13,8 @@
 package org.pentaho.platform.plugin.services.email;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.angus.mail.smtp.SMTPTransport;
 import com.google.gwt.user.server.Base64Utils;
-import com.sun.mail.smtp.SMTPTransport;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -43,11 +43,11 @@ import org.pentaho.platform.util.EmailConstants;
 import org.pentaho.platform.util.EncryptedPasswordAuthenticator;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
-import javax.mail.Message;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Message;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;

@@ -21,7 +21,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import javax.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextEvent;
 
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;

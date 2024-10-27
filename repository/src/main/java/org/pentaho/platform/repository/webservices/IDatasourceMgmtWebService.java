@@ -12,7 +12,7 @@
 
 package org.pentaho.platform.repository.webservices;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 import java.util.List;
 
 @WebService

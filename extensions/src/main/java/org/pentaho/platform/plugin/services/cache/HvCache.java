@@ -11,10 +11,10 @@
  ******************************************************************************/
 package org.pentaho.platform.plugin.services.cache;
 
-import net.sf.ehcache.Ehcache;
+import org.ehcache.core.Ehcache;
 import org.hibernate.Cache;
-import org.hibernate.cache.ehcache.internal.StorageAccessImpl;
 import org.hibernate.cache.spi.DirectAccessRegion;
+import org.hibernate.cache.spi.support.StorageAccess;
 
 import java.util.Set;
 
@@ -35,7 +35,7 @@ public interface HvCache extends Cache {
    * Return the object that allows direct storage access
    * @return
    */
-  StorageAccessImpl getStorageAccess();
+  StorageAccess getStorageAccess();
 
   /**
    * Exposes the underlaying EhCache associated with this HvCache

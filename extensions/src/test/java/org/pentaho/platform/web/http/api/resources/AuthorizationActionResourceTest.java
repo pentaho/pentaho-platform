@@ -27,7 +27,7 @@ import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.web.http.api.resources.services.AuthorizationActionService;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.List;
 

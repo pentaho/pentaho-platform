@@ -20,7 +20,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.util.KettlePasswordService;
 import org.pentaho.platform.util.PasswordHelper;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 public class PasswordResourceTest {
   @Test

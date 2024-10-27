@@ -55,7 +55,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;

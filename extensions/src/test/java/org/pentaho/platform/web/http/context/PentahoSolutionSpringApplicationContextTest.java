@@ -21,7 +21,7 @@ import org.pentaho.platform.util.XmlTestConstants;
 import org.springframework.core.io.Resource;
 import org.xml.sax.SAXException;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.File;

@@ -12,8 +12,8 @@
 
 package org.pentaho.platform.util;
 
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
+import jakarta.mail.Authenticator;
+import jakarta.mail.PasswordAuthentication;
 
 /**
  * Password Authenticator for Pentaho stored encrypted passwords.

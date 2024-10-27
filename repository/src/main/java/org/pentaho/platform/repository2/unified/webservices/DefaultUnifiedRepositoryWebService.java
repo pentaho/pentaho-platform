@@ -20,7 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;

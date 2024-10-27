@@ -36,7 +36,7 @@ import java.util.Map;
  * responsible for setting the {@link ApplicationContext}.
  * <p/>
  * A note on creation and management of objects: Object creation and scoping is handled by Spring with one exception: in
- * the case of a {@link StandaloneSession}. Spring's session scope relates a bean to an javax.servlet.http.HttpSession,
+ * the case of a {@link StandaloneSession}. Spring's session scope relates a bean to an jakarta.servlet.http.HttpSession,
  * and as such it does not know about custom sessions. The correct approach to solve this problem is to write a custom
  * Spring scope (called something like "pentahosession"). Unfortunately, we cannot implement a custom scope to handle
  * the {@link StandaloneSession} because the custom scope would not be able to access it. There is currently no way to

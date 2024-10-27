@@ -22,7 +22,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import static org.mockito.Mockito.mock;
 

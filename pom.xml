@@ -20,7 +20,6 @@
     <url>https://github.com/pentaho/pentaho-platform</url>
   </scm>
   <properties>
-    <ehcache-core.version>2.5.1</ehcache-core.version>
     <urlrewrite.version>3.2.0</urlrewrite.version>
     <jsr305.version>1.3.9</jsr305.version>
     <aopalliance.version>1.0</aopalliance.version>
@@ -51,7 +50,6 @@
     <hibernate-commons-annotations.version>5.1.2.Final</hibernate-commons-annotations.version>
     <mina-core.version>2.0.0-M6</mina-core.version>
     <hamcrest-all.version>1.3</hamcrest-all.version>
-    <javax.inject.version>1</javax.inject.version>
     <pentaho-vfs.version>1.0</pentaho-vfs.version>
     <wstx-asl.version>3.2.4</wstx-asl.version>
     <icu4j.version>63.1</icu4j.version>
@@ -83,7 +81,6 @@
     <servlet-api.version>2.5</servlet-api.version>
     <joda-time.version>2.10.2</joda-time.version>
     <hibernate-validator.version>5.4.3.Final</hibernate-validator.version>
-    <hibernate-ehcache.version>5.4.24.Final</hibernate-ehcache.version>
     <jaybird.version>2.1.6</jaybird.version>
     <resolver.version>20050927</resolver.version>
     <commons-collections.version>3.2.2</commons-collections.version>
@@ -131,7 +128,6 @@
     <quartz-oracle.version>1.7.2</quartz-oracle.version>
     <edtftpj.version>2.1.0</edtftpj.version>
     <jzlib.version>1.0.7</jzlib.version>
-    <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
     <junit.version>4.13.2</junit.version>
     <junit-jupiter.version>5.10.2</junit-jupiter.version>
     <mockrunner.version>0.3.1</mockrunner.version>
@@ -179,9 +175,7 @@
     <barbecue.version>1.5-beta1</barbecue.version>
     <jaxws-spring.version>1.8</jaxws-spring.version>
     <antlr-complete.version>3.5.2</antlr-complete.version>
-    <hibernate-core.version>5.4.24.Final</hibernate-core.version>
     <license.inception.year>2002</license.inception.year>
-    <jsr181-api.version>1.0-MR1</jsr181-api.version>
     <ascsapjco3wrp.version>20100529</ascsapjco3wrp.version>
     <testng.version>6.5.2</testng.version>
     <cglib.version>2.2</cglib.version>
@@ -198,7 +192,6 @@
     <com.github.spotbugs.annotations.version>4.2.3</com.github.spotbugs.annotations.version>
     <jboss-logging.version>3.4.3.Final</jboss-logging.version>
     <classmate.version>1.6.0</classmate.version>
-    <javax.persistence-api.version>2.2</javax.persistence-api.version>
     <byte-buddy.version>1.12.16</byte-buddy.version>
   </properties>
 

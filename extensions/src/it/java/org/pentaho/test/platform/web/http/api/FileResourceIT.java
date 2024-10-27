@@ -12,9 +12,9 @@
 
 //package org.pentaho.test.platform.web.http.api;
 //
-//import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
-//import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-//import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+//import static jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+//import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
+//import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
 //import static junit.framework.Assert.assertEquals;
 //import static junit.framework.Assert.assertNotNull;
 //import static junit.framework.Assert.assertTrue;
@@ -28,7 +28,7 @@
 //import java.util.Map;
 //
 //import javax.jcr.Repository;
-//import javax.ws.rs.core.MediaType;
+//import jakarta.ws.rs.core.MediaType;
 //
 //import junit.framework.Assert;
 //import junit.framework.TestCase;

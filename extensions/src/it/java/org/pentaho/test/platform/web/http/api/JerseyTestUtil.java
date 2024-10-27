@@ -12,10 +12,10 @@
 
 package org.pentaho.test.platform.web.http.api;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import junit.framework.AssertionFailedError;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.zip.ZipInputStream;
 

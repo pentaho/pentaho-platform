@@ -58,8 +58,8 @@ import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.platform.web.servlet.messages.Messages;
 import org.xml.sax.EntityResolver;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;

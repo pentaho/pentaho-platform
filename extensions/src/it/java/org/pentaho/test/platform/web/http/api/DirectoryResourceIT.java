@@ -12,8 +12,8 @@
 
 //package org.pentaho.test.platform.web.http.api;
 //
-//import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
-//import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+//import static jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+//import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
 //import static junit.framework.Assert.assertEquals;
 //import static junit.framework.Assert.fail;
 //import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
@@ -24,7 +24,7 @@
 //import java.util.List;
 //
 //import javax.jcr.Repository;
-//import javax.ws.rs.core.Response;
+//import jakarta.ws.rs.core.Response;
 //
 //import junit.framework.TestCase;
 //

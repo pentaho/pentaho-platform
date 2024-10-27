@@ -78,7 +78,7 @@ import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.pentaho.platform.web.servlet.HttpMimeTypeListener;
 
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;

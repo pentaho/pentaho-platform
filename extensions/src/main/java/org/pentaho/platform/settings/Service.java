@@ -14,7 +14,8 @@ package org.pentaho.platform.settings;
 
 import java.util.Set;
 
-import org.eclipse.jetty.util.ConcurrentHashSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;;
 
 /**
  * This serves to group {@link ServerPort} objects under an arbitrary name. It also allows a user friendly description
@@ -29,7 +30,7 @@ public class Service {
 
   private String serviceName;
   private String serviceDescription;
-  private ConcurrentHashSet<ServerPort> serverPorts = new ConcurrentHashSet<ServerPort>();
+  private Set<ServerPort> serverPorts = new ConcurrentHashMap().newKeySet();
 
   public Service( String serviceName, String serviceDescription ) {
     this.serviceName = serviceName;
