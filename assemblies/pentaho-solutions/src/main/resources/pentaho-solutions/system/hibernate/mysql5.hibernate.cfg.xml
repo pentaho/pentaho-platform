@@ -13,7 +13,7 @@
   
     <!--  MySQL Configuration -->
     <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
-    <property name="dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
+    <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
     <property name="hibernate.connection.datasource">java:comp/env/jdbc/Hibernate</property>
     <property name="connection.pool_size">10</property>
     <property name="show_sql">false</property>

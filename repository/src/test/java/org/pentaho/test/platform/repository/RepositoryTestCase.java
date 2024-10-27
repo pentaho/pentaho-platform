@@ -13,6 +13,7 @@
 
 package org.pentaho.test.platform.repository;
 
+import org.junit.Ignore;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.repository.hibernate.HibernateUtil;
@@ -68,7 +69,7 @@ public class RepositoryTestCase extends BaseTest {
 
   /**
    * Constructor for RepositoryTestCase.
-   * 
+   *
    * @param arg0
    */
   public RepositoryTestCase( String arg0 ) {

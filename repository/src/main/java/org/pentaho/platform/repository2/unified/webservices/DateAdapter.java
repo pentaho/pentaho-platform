@@ -16,7 +16,7 @@ package org.pentaho.platform.repository2.unified.webservices;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.Date;
 
 public class DateAdapter extends XmlAdapter<String, Date> {
