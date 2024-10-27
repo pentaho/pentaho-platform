@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.scheduler2.recur;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Used to specify a sequence of dates or times from first value through and including the last value. The sequence may

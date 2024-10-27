@@ -16,8 +16,8 @@ package org.pentaho.platform.security.policy.rolebased.ws;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 
-import javax.jws.WebService;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import jakarta.jws.WebService;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.List;
 
 /**
