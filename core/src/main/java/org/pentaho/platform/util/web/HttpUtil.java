@@ -177,7 +177,7 @@ public class HttpUtil {
   //
   // The code in the next two methods is based on the code in HttpUtils.java
   // from
-  // javax.servlet.http. HttpUtils is deprecated - so I updated the methods to
+  // jakarta.servlet.http. HttpUtils is deprecated - so I updated the methods to
   // be a bit smarter
   // and use Map instead of Hashtable
   //

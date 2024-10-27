@@ -12,6 +12,8 @@
   <version>10.3.0.0-SNAPSHOT</version>
   <properties>
     <asm-attrs.version>2.2.3</asm-attrs.version>
+    <javax.servlet.version>3.1.0</javax.servlet.version>
+    <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
     <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
@@ -113,9 +115,35 @@
       <version>${xmlbeans.version}</version>
     </dependency>
     <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-      <scope>compile</scope>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
+      <version>${commons-fileupload.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-fileupload2-core</artifactId>
+      <version>${commons-fileupload.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.jws</groupId>
+      <artifactId>jakarta.jws-api</artifactId>
+      <version>${jakarta.jws-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>${jakarta.xml.bind-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.xml.soap</groupId>
+      <artifactId>jakarta.xml.soap-api</artifactId>
+      <version>${jakarta.xml.soap-api.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>*</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
@@ -415,6 +443,11 @@
       </exclusions>
     </dependency>
     <dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-crypto</artifactId>
+    <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
       <scope>compile</scope>
@@ -452,9 +485,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.sun.mail</groupId>
-      <artifactId>javax.mail</artifactId>
-      <version>${mail.version}</version>
+      <groupId>jakarta.mail</groupId>
+      <artifactId>jakarta.mail-api</artifactId>
+      <version>${jakarta.mail.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -464,15 +497,15 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>javax.persistence-api</artifactId>
-      <version>${javax.persistence-api.version}</version>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+      <version>${jakarta.persistence-api.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>jakarta.validation</groupId>
       <artifactId>jakarta.validation-api</artifactId>
-      <version>2.0.2</version>
+      <version>${jakarta.validation.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -491,6 +524,11 @@
       <version>${jersey.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.glassfish.jersey.connectors</groupId>
+      <artifactId>jersey-apache-connector</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.glassfish.jersey.media</groupId>
       <artifactId>jersey-media-multipart</artifactId>
       <version>${jersey.version}</version>
@@ -503,7 +541,7 @@
     <dependency>
       <groupId>org.glassfish.jaxb</groupId>
       <artifactId>jaxb-runtime</artifactId>
-      <version>2.4.0-b180830.0438</version>
+      <version>${jakarta.xml.bind-api.version}</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.media</groupId>
@@ -527,7 +565,7 @@
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.ext</groupId>
-      <artifactId>jersey-spring5</artifactId>
+      <artifactId>jersey-spring6</artifactId>
       <version>${jersey.version}</version>
     </dependency>
     <dependency>
@@ -544,8 +582,8 @@
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-ehcache</artifactId>
-      <version>${hibernate-ehcache.version}</version>
+      <artifactId>hibernate-jcache</artifactId>
+      <version>${hibernate-jcache.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -590,9 +628,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.transaction</groupId>
-      <artifactId>jta</artifactId>
-      <version>${jta.version}</version>
+      <groupId>jakarta.transaction</groupId>
+      <artifactId>jakarta.transaction-api</artifactId>
+      <version>${jakarta.transaction.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -626,9 +664,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
-      <version>${validation-api.version}</version>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <version>${jakarta.validation.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -680,10 +718,10 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>${javax.servlet-api.version}</version>
-      <scope>compile</scope>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${jakarta.servlet.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.glassfish.metro</groupId>
@@ -700,7 +738,7 @@
     <dependency>
       <groupId>org.glassfish.metro</groupId>
       <artifactId>webservices-rt</artifactId>
-      <version>${webservices.version}</version>
+      <version>${webservices-rt.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -734,9 +772,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>javax.ws.rs-api</artifactId>
-      <version>${jsr311-api.version}</version>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+      <version>${jakarta.ws.rs-api.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -823,16 +861,14 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.taglibs</groupId>
-      <artifactId>taglibs-standard-impl</artifactId>
-      <version>${taglibs-standard-impl.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
+      <groupId>jakarta.servlet.jsp.jstl</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+      <version>${jakarta.servlet.jsp.jstl-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.web</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+      <version>${jakarta.servlet.jsp.jstl-api.version}</version>
     </dependency>
     <dependency>
       <groupId>javatar</groupId>
@@ -847,8 +883,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-servlet</artifactId>
+      <groupId>org.gwtproject</groupId>
+      <artifactId>gwt-servlet-jakarta</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -931,8 +967,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-core</artifactId>
+      <groupId>org.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
       <version>${ehcache-core.version}</version>
       <scope>compile</scope>
       <exclusions>
@@ -941,6 +977,17 @@
           <groupId>*</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <!-- These dependencies will be removed once the karaf related upgrade is done -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>${javax.servlet.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>javax.annotation-api</artifactId>
+      <version>${javax.annotation-api.version}</version>
     </dependency>
     <dependency>
       <groupId>org.pentaho.reporting.engine</groupId>
@@ -2580,9 +2627,15 @@
       <version>${fasterxml-jackson.non-osgi.version}</version>
     </dependency>
     <dependency>
-      <groupId>javax.websocket</groupId>
-      <artifactId>javax.websocket-api</artifactId>
-      <version>${websocket-api.version}</version>
+      <groupId>jakarta.websocket</groupId>
+      <artifactId>jakarta.websocket-api</artifactId>
+      <version>${jakarta.websocket-api.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.websocket</groupId>
+      <artifactId>jakarta.websocket-client-api</artifactId>
+      <version>${jakarta.websocket-api.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -2604,7 +2657,7 @@
     </dependency>
     <dependency>
       <groupId>com.hitachivantara.security.web</groupId>
-      <artifactId>csrf-token-service-client-java-jax-rs-v2</artifactId>
+      <artifactId>csrf-token-service-client-java-jax-rs-v3</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -2638,9 +2691,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>javax.persistence-api</artifactId>
-      <version>${javax.persistence-api.version}</version>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+      <version>${jakarta.persistence-api.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>

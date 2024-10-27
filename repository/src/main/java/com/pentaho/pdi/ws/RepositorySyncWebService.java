@@ -26,7 +26,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 import java.io.Serializable;
 import java.io.StringBufferInputStream;
 
