@@ -58,7 +58,7 @@
 //import org.pentaho.test.platform.utils.TestResourceLocation;
 //import org.tuckey.web.filters.urlrewrite.RequestProxy;
 //
-//import javax.ws.rs.core.MediaType;
+//import jakarta.ws.rs.core.MediaType;
 //import java.io.OutputStream;
 //import java.util.Arrays;
 //import java.util.List;

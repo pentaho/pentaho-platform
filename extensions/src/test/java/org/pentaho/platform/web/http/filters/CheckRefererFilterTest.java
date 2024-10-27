@@ -16,7 +16,7 @@ package org.pentaho.platform.web.http.filters;
 import org.junit.Test;
 import org.springframework.mock.web.MockFilterConfig;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 public class CheckRefererFilterTest {
 

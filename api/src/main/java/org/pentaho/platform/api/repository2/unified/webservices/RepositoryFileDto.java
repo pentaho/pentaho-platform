@@ -18,7 +18,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /*!
  * This program is free software; you can redistribute it and/or modify it under the

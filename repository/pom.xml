@@ -149,9 +149,14 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>${javax.servlet-api.version}</version>
+      <groupId>jakarta.jws</groupId>
+      <artifactId>jakarta.jws-api</artifactId>
+      <version>${jakarta.jws-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${jakarta.servlet.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -160,9 +165,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.sun.mail</groupId>
-      <artifactId>javax.mail</artifactId>
-      <version>${mail.version}</version>
+      <groupId>jakarta.mail</groupId>
+      <artifactId>jakarta.mail-api</artifactId>
+      <version>${jakarta.mail.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -220,9 +225,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>javax.ws.rs-api</artifactId>
-      <version>${javax.ws.rs-api.version}</version>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+      <version>${jakarta.ws.rs-api.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -275,9 +280,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
-      <version>${activation.version}</version>
+      <groupId>jakarta.activation</groupId>
+      <artifactId>jakarta.activation-api</artifactId>
+      <version>${jakarta.activation.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -308,8 +313,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-servlet</artifactId>
+      <groupId>org.gwtproject</groupId>
+      <artifactId>gwt-servlet-jakarta</artifactId>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -330,14 +335,19 @@
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-ehcache</artifactId>
-      <version>${hibernate-ehcache.version}</version>
+      <artifactId>hibernate-jcache</artifactId>
+      <version>${hibernate-jcache.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
           <groupId>*</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.antlr</groupId>
+      <artifactId>antlr4-runtime</artifactId>
+      <version>${antlr4-runtime.version}</version>
     </dependency>
     <dependency>
       <groupId>org.antlr</groupId>
@@ -373,9 +383,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.transaction</groupId>
-      <artifactId>jta</artifactId>
-      <version>${jta.version}</version>
+      <groupId>jakarta.transaction</groupId>
+      <artifactId>jakarta.transaction-api</artifactId>
+      <version>${jakarta.transaction.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -756,9 +766,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>persistence-api</artifactId>
-      <version>${persistence-api.version}</version>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+      <version>${jakarta.persistence-api.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -768,15 +778,15 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>javax.servlet.jsp</groupId>
-      <artifactId>jsp-api</artifactId>
-      <version>${jsp-api.version}</version>
+      <groupId>jakarta.servlet.jsp</groupId>
+      <artifactId>jakarta.servlet.jsp-api</artifactId>
+      <version>${jakarta.servlet.jsp.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${servlet-api.version}</version>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${jakarta.servlet.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -802,9 +812,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-      <version>${javax.inject.version}</version>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+      <version>${jakarta.inject.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -850,9 +860,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>javax.persistence-api</artifactId>
-      <version>${javax.persistence-api.version}</version>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+      <version>${jakarta.persistence-api.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>

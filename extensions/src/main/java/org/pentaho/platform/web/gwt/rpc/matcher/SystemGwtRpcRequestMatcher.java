@@ -19,7 +19,7 @@ import org.pentaho.platform.web.gwt.rpc.AbstractGwtRpc;
 import org.pentaho.platform.web.gwt.rpc.IGwtRpcSerializationPolicyCache;
 import org.pentaho.platform.web.gwt.rpc.SystemGwtRpc;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collection;
 
 /**

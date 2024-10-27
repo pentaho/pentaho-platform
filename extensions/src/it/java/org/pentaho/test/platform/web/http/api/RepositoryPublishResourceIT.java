@@ -43,13 +43,13 @@
 //import org.springframework.test.context.ContextConfiguration;
 //import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 //
-//import javax.ws.rs.core.MediaType;
+//import jakarta.ws.rs.core.MediaType;
 //
 //import java.io.ByteArrayInputStream;
 //import java.net.URLEncoder;
 //
-//import static javax.ws.rs.core.MediaType.MULTIPART_FORM_DATA_TYPE;
-//import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+//import static jakarta.ws.rs.core.MediaType.MULTIPART_FORM_DATA_TYPE;
+//import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
 //import static org.junit.Assert.assertEquals;
 //import static org.mockito.Mockito.mock;
 //import static org.mockito.Mockito.verify;

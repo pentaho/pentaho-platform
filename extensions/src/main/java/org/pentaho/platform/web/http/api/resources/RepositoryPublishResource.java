@@ -26,13 +26,13 @@ import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.services.RepositoryPublishService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -41,8 +41,8 @@ import java.net.URLDecoder;
 import java.util.Optional;
 import java.util.Properties;
 
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
-import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static jakarta.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 
 /**
  * Publishes a content file to the repository. Used for Analyzer and Report Writer publish

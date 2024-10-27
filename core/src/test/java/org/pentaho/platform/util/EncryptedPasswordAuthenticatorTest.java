@@ -16,7 +16,7 @@ package org.pentaho.platform.util;
 import junit.framework.TestCase;
 import org.pentaho.platform.api.util.PasswordServiceException;
 
-import javax.mail.PasswordAuthentication;
+import jakarta.mail.PasswordAuthentication;
 import java.util.Base64;
 
 import static org.mockito.ArgumentMatchers.anyString;

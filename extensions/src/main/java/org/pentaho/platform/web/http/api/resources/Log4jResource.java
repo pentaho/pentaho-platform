@@ -27,12 +27,12 @@ import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.owasp.encoder.Encode;
 import org.pentaho.platform.api.util.LogUtil;
 
-import javax.ws.rs.FormParam;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.Collection;
 

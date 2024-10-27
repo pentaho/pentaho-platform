@@ -15,7 +15,7 @@ package org.pentaho.platform.web.http.api.resources;
 
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

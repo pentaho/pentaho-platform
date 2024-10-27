@@ -19,7 +19,7 @@ import org.pentaho.platform.web.gwt.rpc.AbstractGwtRpc;
 import org.pentaho.platform.web.gwt.rpc.IGwtRpcSerializationPolicyCache;
 import org.pentaho.platform.web.gwt.rpc.PluginGwtRpc;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * This is the plugin variant of the GwtRpcProxyServlet. This servlet routes incoming GWT RPC requests to POJOs found in

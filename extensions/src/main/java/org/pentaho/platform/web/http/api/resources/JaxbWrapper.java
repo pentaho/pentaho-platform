@@ -20,13 +20,13 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 @XmlRootElement( name = "List" )
-@XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )
+@XmlAccessorType( jakarta.xml.bind.annotation.XmlAccessType.FIELD )
 public class JaxbWrapper {
 
     @XmlElement( name = "Item" )
