@@ -12,11 +12,11 @@
 
 package org.pentaho.platform.plugin.services.cache;
 
-import org.hibernate.cache.ehcache.internal.SingletonEhcacheRegionFactory;
+import org.hibernate.cache.jcache.internal.JCacheRegionFactory;
 import org.hibernate.cache.spi.TimestampsRegion;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 
-public class HvCacheRegionFactory extends SingletonEhcacheRegionFactory {
+public class HvCacheRegionFactory extends JCacheRegionFactory {
   @Override
   public TimestampsRegion buildTimestampsRegion(
     String regionName, SessionFactoryImplementor sessionFactory) {
