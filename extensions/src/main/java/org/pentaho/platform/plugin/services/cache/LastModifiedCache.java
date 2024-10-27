@@ -12,17 +12,20 @@
 
 package org.pentaho.platform.plugin.services.cache;
 
-import net.sf.ehcache.Ehcache;
+import org.ehcache.CacheManager;
+import org.ehcache.Cache;
+import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.core.Ehcache;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.MappingException;
 import org.hibernate.SessionFactory;
-import org.hibernate.cache.ehcache.internal.StorageAccessImpl;
 import org.hibernate.cache.spi.DirectAccessRegion;
 import org.hibernate.cache.spi.RegionFactory;
 import org.hibernate.cache.spi.access.EntityDataAccess;
 import org.hibernate.cache.spi.access.NaturalIdDataAccess;
+import org.hibernate.cache.spi.support.StorageAccess;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.metamodel.model.domain.NavigableRole;
 import org.hibernate.metamodel.spi.MetamodelImplementor;
@@ -30,7 +33,7 @@ import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.pretty.MessageHelper;
 import org.pentaho.platform.api.cache.ILastModifiedCacheItem;
-import javax.persistence.PersistenceException;
+import jakarta.persistence.PersistenceException;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -86,39 +89,55 @@ public class LastModifiedCache implements ILastModifiedCacheItem, HvCache {
     return sessionFactory;
   }
 
-  @Override public boolean containsEntity( Class entityClass, Serializable identifier ) {
-    return this.containsEntity(entityClass.getName(), identifier);
-  }
-
-  @Override public boolean containsEntity( String entityName, Serializable identifier ) {
-    EntityPersister entityDescriptor = this.sessionFactory.getMetamodel().entityPersister(entityName);
+  @Override
+  public boolean containsEntity(Class<?> aClass, Object o) {
+    EntityPersister entityDescriptor = this.sessionFactory.getMetamodel().entityPersister( aClass.getName() );
     EntityDataAccess cacheAccess = entityDescriptor.getCacheAccessStrategy();
-    if (cacheAccess == null) {
+    if ( cacheAccess == null ) {
       return false;
     } else {
-      Object key = cacheAccess.generateCacheKey(identifier, entityDescriptor, this.sessionFactory, (String) null);
-      return cacheAccess.contains(key);
+      Object key = cacheAccess.generateCacheKey( o, entityDescriptor, this.sessionFactory, null );
+      return cacheAccess.contains( key );
     }
   }
 
-  @Override public void evictEntityData( Class entityClass, Serializable identifier ) {
-    evictEntityData( entityClass.getName(), identifier );
+  @Override
+  public boolean containsEntity(String s, Object o) {
+    final EntityPersister entityDescriptor = sessionFactory.getMetamodel().entityPersister( s );
+    final EntityDataAccess cacheAccess = entityDescriptor.getCacheAccessStrategy();
+    if ( cacheAccess == null ) {
+      return false;
+    }
+    final Object key = cacheAccess.generateCacheKey( o, entityDescriptor, sessionFactory, null );
+    return cacheAccess.contains( key );
   }
 
-  @Override public void evictEntityData( String entityName, Serializable identifier ) {
-    final EntityPersister entityDescriptor = sessionFactory.getMetamodel().entityPersister( entityName );
+  @Override
+  public void evictEntityData(Class<?> aClass, Object o) {
+    final EntityPersister entityDescriptor = sessionFactory.getMetamodel().entityPersister( aClass.getName() );
     final EntityDataAccess cacheAccess = entityDescriptor.getCacheAccessStrategy();
     if ( cacheAccess == null ) {
       return;
     }
-
     if ( LOGGER.isDebugEnabled() ) {
       LOGGER.debug( String.format( "Evicting second-level cache: %s",
-        MessageHelper.infoString( entityDescriptor, identifier, sessionFactory ) ) );
+              MessageHelper.infoString( entityDescriptor, o, sessionFactory ) ) );
     }
-
-    final Object key = cacheAccess.generateCacheKey( identifier, entityDescriptor, sessionFactory, null );
+    final Object key = cacheAccess.generateCacheKey( o, entityDescriptor, sessionFactory, null );
     cacheAccess.evict( key );
+
+  }
+
+  @Override
+  public void evictEntityData(String s, Object o) {
+    final EntityPersister entityDescriptor = sessionFactory.getMetamodel().entityPersister( s );
+    final EntityDataAccess cacheAccess = entityDescriptor.getCacheAccessStrategy();
+    if (cacheAccess == null) {
+      return;
+    }
+    final Object key = cacheAccess.generateCacheKey( o, entityDescriptor, sessionFactory, null );
+    cacheAccess.evict( key );
+
   }
 
   @Override public void evictEntityData( Class entityClass ) {
@@ -152,20 +171,19 @@ public class LastModifiedCache implements ILastModifiedCacheItem, HvCache {
     throwNotImplemented();
   }
 
-  private void evictNaturalIdData(NavigableRole rootEntityRole, NaturalIdDataAccess cacheAccess) {
-    throwNotImplemented();
-  }
-
   @Override
-  public boolean containsCollection(String role, Serializable ownerIdentifier) {
-    throwNotImplemented();
+  public boolean containsCollection(String s, Object o) {
     return false;
   }
 
   @Override
-  public void evictCollectionData(String role, Serializable ownerIdentifier) {
+  public void evictCollectionData(String s, Object o) {
+
+  }
+
+  private void evictNaturalIdData(NavigableRole rootEntityRole, NaturalIdDataAccess cacheAccess) {
     throwNotImplemented();
-    }
+  }
 
   @Override
   public void evictCollectionData(String role) {
@@ -232,8 +250,17 @@ public class LastModifiedCache implements ILastModifiedCacheItem, HvCache {
   }
 
   @Override public Set getAllKeys() {
-    Ehcache ehcache = getStorageAccess().getCache();
-    return new HashSet( ehcache.getKeys() );
+    CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+    cacheManager.init();
+    Cache<Object, Object> cache = cacheManager.getCache( directAccessRegion.getName(), Object.class, Object.class );
+    Set<Object> keys = new HashSet<>();
+    if ( cache != null ) {
+    for ( Cache.Entry<Object, Object> entry : cache ) {
+         keys.add( entry.getKey() );
+     }
+     }
+    cacheManager.close();
+    return keys;
   }
 
   @Override public DirectAccessRegion getDirectAccessRegion() {
@@ -264,12 +291,12 @@ public class LastModifiedCache implements ILastModifiedCacheItem, HvCache {
     cacheAccess.evictAll();
   }
 
-  @Override public StorageAccessImpl getStorageAccess(){
+  @Override public StorageAccess getStorageAccess(){
     return ( (HvTimestampsRegion) directAccessRegion ).getStorageAccess();
   }
 
   @Override public Ehcache getCache() {
-    return getStorageAccess().getCache();
+      return (Ehcache) getStorageAccess();
   }
 
   private void throwNotImplemented(){
