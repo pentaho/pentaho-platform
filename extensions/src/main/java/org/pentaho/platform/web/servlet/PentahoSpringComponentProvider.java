@@ -37,8 +37,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.annotation.Priority;
-import javax.servlet.ServletContext;
+import jakarta.annotation.Priority;
+import jakarta.servlet.ServletContext;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -95,7 +97,17 @@ public class PentahoSpringComponentProvider extends SpringComponentProvider {
     SpringIntoHK2Bridge springBridge = injectionManager.getInstance( SpringIntoHK2Bridge.class );
     springBridge.bridgeSpringBeanFactory( ctx );
 
-    injectionManager.register( Bindings.injectionResolver( new AutowiredInjectResolver( ctx ) ) );
+    try {
+      // AutowiredInjectResolver  constructor can be used directly to instantiate it.
+      // Since jersey-spring6 is a multi-version release jar, during compile time it is choosing default version of AutowiredInjectResolver instead of JDK-17 version of the same.
+      // To get rid of this compiler error, we are using reflection to instantiate AutowiredInjectResolver.
+      // During runtime JDK-17 version of AutowiredInjectResolver will be used.
+      Class<?> autowiredInjector = Class.forName( "org.glassfish.jersey.server.spring.AutowiredInjectResolver" );
+      injectionManager.register( Bindings.injectionResolver( ( AutowiredInjectResolver ) autowiredInjector.getConstructor( ApplicationContext.class ).newInstance( ctx ) ) );
+    } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException |
+             ClassNotFoundException e ) {
+      throw new RuntimeException( e );
+    }
     injectionManager.register( Bindings.service( ctx ).to( ApplicationContext.class ).named( "SpringContext" ) );
   }
 

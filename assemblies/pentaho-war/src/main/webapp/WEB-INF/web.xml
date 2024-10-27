@@ -197,7 +197,7 @@
   </listener>
 
   <listener>
-    <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
+    <listener-class>org.pentaho.platform.web.http.context.CustomEhCacheShutdownListener</listener-class>
   </listener>
 
   <!-- insert additional listeners -->
@@ -273,7 +273,7 @@
     <servlet-name>PluginDispatchServlet</servlet-name>
     <servlet-class>org.pentaho.platform.web.servlet.PluginDispatchServlet</servlet-class>
     <init-param>
-      <param-name>javax.ws.rs.Application</param-name>
+      <param-name>jakarta.ws.rs.Application</param-name>
       <param-value>org.pentaho.platform.web.servlet.JAXRSPluginApplication</param-value>
     </init-param>
   </servlet>
@@ -361,7 +361,7 @@
       <param-value>org.pentaho.platform.web.servlet.PentahoWadlGeneratorConfig</param-value>
     </init-param>
     <init-param>
-      <param-name>javax.ws.rs.Application</param-name>
+      <param-name>jakarta.ws.rs.Application</param-name>
       <param-value>org.pentaho.platform.web.servlet.JAXRSApplication</param-value>
     </init-param>
   </servlet>

@@ -89,7 +89,7 @@ import org.pentaho.reporting.libraries.resourceloader.ResourceKey;
 import org.pentaho.reporting.libraries.resourceloader.ResourceManager;
 import org.xml.sax.InputSource;
 
-import javax.activation.DataSource;
+import jakarta.activation.DataSource;
 import javax.print.DocFlavor;
 import javax.print.PrintException;
 import javax.print.PrintService;
