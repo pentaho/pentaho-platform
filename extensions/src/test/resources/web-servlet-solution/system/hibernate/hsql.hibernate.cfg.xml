@@ -6,7 +6,7 @@
   <session-factory>
 
     <property name="cache.provider_class">org.hibernate.cache.EhCacheProvider</property>
-    <property name="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.internal.SingletonEhcacheRegionFactory
+    <property name="hibernate.cache.region.factory_class">org.hibernate.cache.jcache.internal.jCacheRegionFactory
     </property>
 
     <property name="hibernate.generate_statistics">true</property>

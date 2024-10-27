@@ -32,7 +32,7 @@ import org.pentaho.platform.plugin.action.jfreereport.helper.PentahoTableModel;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.reporting.engine.classic.core.MasterReport;
 
-import javax.activation.DataSource;
+import jakarta.activation.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

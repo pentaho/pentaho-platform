@@ -19,7 +19,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
