@@ -226,11 +226,12 @@ define([
   FileBrowser.openFolder = function (path) {
     //first select folder
     var $folder = $("[path='"+escapeCssSelector(path)+"']"),
-        $parentFolder = $folder.parent(".folders");
-    while(!$parentFolder.hasClass("body") && $parentFolder.length > 0){
-      $parentFolder.show();
-      $parentFolder.parent().addClass("open");
-      $parentFolder = $parentFolder.parent().parent();
+        $parentFolders = $folder.parent(".folders");
+    while(!$parentFolders.hasClass("body") && $parentFolders.length > 0){
+      $parentFolders.show();
+      $parentFolders.parent().addClass("open");
+      $parentFolders.parent().children(".element").attr("aria-expanded", true);
+      $parentFolders = $parentFolders.parent().parent();
     }
     $folder.find("> .element .name").trigger("click");
   };
@@ -1180,11 +1181,12 @@ define([
           $folder = myself.getFirstVisibleFolder();
         }
 
-        var $parentFolder = $folder.parent(".folders");
-        while (!$parentFolder.hasClass("body") && $parentFolder.length > 0) {
-          $parentFolder.show();
-          $parentFolder.parent().addClass("open");
-          $parentFolder = $parentFolder.parent().parent();
+        var $parentFolders = $folder.parent(".folders");
+        while (!$parentFolders.hasClass("body") && $parentFolders.length > 0) {
+          $parentFolders.show();
+          $parentFolders.parent().addClass("open");
+          $parentFolders.parent().children(".element").attr("aria-expanded", true);
+          $parentFolders = $parentFolders.parent().parent();
         }
         FileBrowser.fileBrowserModel.set("clickedFolder", {
           obj: $folder,
@@ -1203,6 +1205,7 @@ define([
           $clickedFile.addClass("selected");
         } else {
           $folder.children(".element").attr("aria-expanded", true);
+          $folder.addClass("open");
           $folder.addClass("selected");
           $folder.children(".element").attr("tabindex", 0).attr("aria-selected", true);
           $folder.find("> .folders").show();
