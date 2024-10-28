@@ -29,6 +29,15 @@ jobs:
     name: Analyze
     runs-on: k8s
 
+    container:
+      image: repo-cache.orl.eng.hitachivantara.com/docker/jenkins-build/maven/open-jdk/17
+      credentials:
+        username: ${{ secrets.PENTAHO_CICD_ONE_USER }}
+        password: ${{ secrets.PENTAHO_CICD_ONE_KEY }}
+      volumes:
+        - /home/runner/caches/pentaho/.m2:/maven-local-cache
+        - /home/runner/caches/pentaho/CodeQL-cache:/opt/hostedtoolcache/CodeQL
+
     strategy:
       fail-fast: false
       matrix:
@@ -40,12 +49,10 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
-    - name: Setup Java JDK
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'adopt'
+
+    - name: Set Maven cache location
+      run: |
+        echo "MAVEN_ARGS=-Dmaven.repo.local='/maven-local-cache'" >> $GITHUB_ENV
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
