@@ -36,7 +36,7 @@ jobs:
         password: ${{ secrets.PENTAHO_CICD_ONE_KEY }}
       volumes:
         - /home/runner/caches/pentaho/.m2:/maven-local-cache
-        - /home/runner/caches/pentaho/CodeQL-cache:/opt/hostedtoolcache/CodeQL
+        - /home/runner/caches/pentaho/CodeQL-cache:/opt/hostedtoolcache
 
     strategy:
       fail-fast: false
