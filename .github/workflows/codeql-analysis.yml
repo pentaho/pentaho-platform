@@ -31,12 +31,8 @@ jobs:
 
     container:
       image: repo-cache.orl.eng.hitachivantara.com/docker/jenkins-build/maven/open-jdk/17
-      credentials:
-        username: ${{ secrets.PENTAHO_CICD_ONE_USER }}
-        password: ${{ secrets.PENTAHO_CICD_ONE_KEY }}
       volumes:
         - /home/runner/caches/pentaho/.m2:/maven-local-cache
-        - /home/runner/caches/pentaho/CodeQL-cache:/opt/hostedtoolcache
 
     strategy:
       fail-fast: false
