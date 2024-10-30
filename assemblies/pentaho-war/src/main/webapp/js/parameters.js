@@ -13,6 +13,9 @@
 
 // used in getParameters and doClearIgnoreFields to ignore specific hidden fields
 
+define(['common-ui/util/xss'],
+	function(xssUtil) {
+
 var pentaho_ignoreFields = new Array();
 var pentaho_ignoreIndexOfFields = new Array();
 var pentaho_optionalParams = new Array();
@@ -361,7 +364,7 @@ function executeAction (target, submitUrl) {
 // convert characters from entities like &#305; to display characters (HTML)
 function convertHtmlEntitiesToCharacters(theStr) {
     var newDiv = document.createElement(newDiv);
-    newDiv.innerHTML = theStr;
+	xssUtil.setHtml(newDiv, theStr);
     return newDiv.innerHTML;
 }
 
@@ -489,3 +492,4 @@ function closeMantleTab(){
     alert("error closing tab: "+e);
   }
 }
+	});

@@ -14,8 +14,9 @@
 define([
   "common-ui/util/ContextProvider",
   "common-ui/util/BootstrappedTabLoader",
-  "common-ui/util/HandlebarsCompiler"
-], function (ContextProvider, BootstrappedTabLoader, HandlebarsCompiler) {
+  "common-ui/util/HandlebarsCompiler",
+  "common-ui/util/xss"
+], function (ContextProvider, BootstrappedTabLoader, HandlebarsCompiler, xssUtil) {
 
   var brightCoveVideoTemplate =
       '<iframe src="https://players.brightcove.net/4680021553001/default_default/index.html?videoId={{videoId}}&autoplay=true"' +
@@ -207,7 +208,9 @@ define([
 
     launchLink.unbind("click");
     launchLink.bind("click", function () {
-      window.open(href, "_blank");
+      /* noopener and noreferrer: These attributes mitigate the risk of tabnabbing and
+             prevent the new page from accessing the original window’s properties. */
+      window.open(xssUtil.sanitizeHtml(href), "_blank", 'noopener,noreferrer');
     });
   }
 

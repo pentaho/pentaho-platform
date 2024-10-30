@@ -70,6 +70,9 @@ over a cell (to make it easier to determine what cell you're over). Added commen
 in the style sheet, to make it more clear what the different style elements are for.
 */
 
+define(['common-ui/util/xss'],
+    function(xssUtil) {
+
 var datePickerDivID = "datepicker";
 var iFrameDivID = "datepickeriframe";
 
@@ -295,8 +298,8 @@ function refreshDatePicker(dateFieldName, year, month, day)
  
   // and finally, close the table
   html += xTABLE;
- 
-  document.getElementById(datePickerDivID).innerHTML = html;
+
+  xssUtil.setHtml(document.getElementById(datePickerDivID), html);
   // add an "iFrame shim" to allow the datepicker to display above selection lists
   adjustiFrame();
 }
@@ -532,3 +535,5 @@ function reservedCharListForDisplay( separatorString ) {
 	//ToDo: Fix this
 	return "/ \ :";
 }
+
+});

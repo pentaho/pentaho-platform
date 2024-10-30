@@ -13,6 +13,9 @@
 
 /* CCP Functions */
 
+define(['common-ui/util/xss'],
+	function(xssUtil) {
+
 var CCP = CCP || {};
 
 /* Utility function to get a method from a different window / frame */
@@ -51,7 +54,9 @@ CCP.liveChat = function(){
 		pucOpenTab( name, title, url );
 	}
 	else {
-		window.open( url );
+		/* noopener and noreferrer: These attributes mitigate the risk of tabnabbing and
+               prevent the new page from accessing the original window’s properties. */
+		window.open(xssUtil.sanitizeHtml(url),'noopener,noreferrer');
 	}
 }
 
@@ -69,3 +74,4 @@ CCP.getForumFeed = function(divId){
 			error: function() { throw new Error("jQuery RSS: url don't link to RSS-Feed") }
 		});
 }
+	});
