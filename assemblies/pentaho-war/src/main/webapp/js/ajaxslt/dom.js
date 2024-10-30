@@ -34,7 +34,11 @@
 // Spec. However, different browsers actually pass very different
 // values at the API.
 //
-function xmlResolveEntities(s) {
+
+define(['common-ui/util/xss'],
+    function(xssUtil) {
+
+  function xmlResolveEntities(s) {
 
   var parts = stringSplit(s, '&');
 
@@ -73,7 +77,7 @@ function xmlResolveEntities(s) {
         // through the W3C DOM. W3C DOM access is specified to resolve
         // entities. 
         var span = window.document.createElement('span');
-        span.innerHTML = '&' + rp[0] + '; ';
+        xssUtil.setHtml(span, '&' + rp[0] + '; ');
         ch = span.childNodes[0].nodeValue.charAt(0);
     }
     ret += ch + rp[1];
@@ -437,4 +441,4 @@ XNode.prototype.getElementsByTagName = function(name, list) {
   }
 
   return list;
-}
+} });

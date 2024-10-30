@@ -10,6 +10,9 @@
  * Change Date: 2028-08-13
  ******************************************************************************/
 
+define(['common-ui/util/xss'],
+	function(xssUtil) {
+
 function runInBackground( url, target )
 {
 	var response = confirm( "Info:  Reports that prompt for parameters are not supported with this feature."
@@ -20,11 +23,11 @@ function runInBackground( url, target )
 		url = url + "&background=true";
 		if ( target.toLowerCase().indexOf( 'new' ) >= 0 )
 		{
-			var targetWin = window.open( url );
+			var targetWin = window.open(xssUtil.sanitizeHtml(url), 'noopener,noreferrer');
 		}
 		else
 		{
-			window.location = url;
+			window.location = xssUtil.sanitizeHtml(url);
 		}
 	}
 	return undefined;	// forces current page to remain unchanged when target=new
@@ -113,4 +116,4 @@ function showShareDialog( event, solution, path, filename )
   var position = UIUtil.getScrollCoords( { left: event.clientX, top: event.clientY } );
   shareDialog.setPosition( { left: position.left+ "px", top: position.top + "px" } );
   shareDialog.show();
-}
+} });
