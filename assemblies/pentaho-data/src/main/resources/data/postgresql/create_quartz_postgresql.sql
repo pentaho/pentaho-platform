@@ -23,6 +23,9 @@ SELECT 'CREATE DATABASE quartz WITH OWNER = pentaho_user ENCODING = ''UTF8'' TAB
 WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'quartz')\gexec
 GRANT ALL ON DATABASE quartz to pentaho_user;
 -- Next psql line will prompt for quartz password.  There is no way to specify it without knowing the hostname
+
+--End--
+--Begin Connect--
 \connect quartz pentaho_user
 -- We are now logged into the quartz database as pentaho_user
 begin;
