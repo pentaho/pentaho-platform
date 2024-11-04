@@ -9,17 +9,24 @@
 
 alter session set "_ORACLE_SCRIPT"=true;
 
+declare tablespaceexists integer;
+begin
+select count(*) into tablespaceexists from dba_tablespaces where tablespace_name='PENTAHO_TABLESPACE';
+  if (tablespaceexists = 0) then
+    execute immediate 'create tablespace pentaho_tablespace logging datafile ''ptho_ts.dbf'' size 32m autoextend on next 32m maxsize 2048m extent management local';
+  end if;
+end;
+/
+
 declare userexist integer;
 begin
   select count(*) into userexist from dba_users where username='QUARTZ';
   if (userexist = 0) then
-    execute immediate 'create tablespace pentaho_tablespace logging datafile ''ptho_ts.dbf'' size 32m autoextend on next 32m maxsize 2048m extent management local';
     execute immediate 'create user quartz identified by "password" default tablespace pentaho_tablespace quota unlimited on pentaho_tablespace temporary tablespace temp quota 5M on system';
     execute immediate 'grant create session, create procedure, create table to quartz';
   end if;
 end;
 /
-
 
 --CREATE QUARTZ TABLES
 
