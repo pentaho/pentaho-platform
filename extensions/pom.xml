@@ -583,66 +583,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.axis2</groupId>
-      <artifactId>axis2-adb</artifactId>
-      <version>${axis2.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.axis2</groupId>
-      <artifactId>axis2-codegen</artifactId>
-      <version>${axis2.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.axis2</groupId>
-      <artifactId>axis2-java2wsdl</artifactId>
-      <version>${axis2.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho.axis2</groupId>
-      <artifactId>axis2-kernel</artifactId>
-      <version>${axis2.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.axis2</groupId>
-      <artifactId>axis2-transport-http</artifactId>
-      <version>${axis2.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.apache.ws.commons.axiom</groupId>
       <artifactId>axiom-api</artifactId>
       <version>${axiom.version}</version>
@@ -1807,9 +1747,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.hitachivantara</groupId>
-      <artifactId>safeyaml</artifactId>
-      <version>${safeyaml.version}</version>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>${snakeyaml.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -1844,8 +1784,8 @@
     </dependency>
     <dependency>
       <groupId>org.drools</groupId>
-      <artifactId>knowledge-api</artifactId>
-      <version>${knowledge-api.version}</version>
+      <artifactId>drools-ruleunits-engine</artifactId>
+      <version>${drools.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -2703,14 +2643,17 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
+      <version>${fasterxml-jackson.non-osgi.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
+      <version>${fasterxml-jackson.non-osgi.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
+      <version>${fasterxml-jackson.non-osgi.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.websocket</groupId>

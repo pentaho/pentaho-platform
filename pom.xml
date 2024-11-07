@@ -38,7 +38,7 @@
     <poi.version>5.2.5</poi.version>
     <commons-math3.version>3.6.1</commons-math3.version>
     <curvesapi.version>1.06</curvesapi.version>
-    <groovy-all.version>2.4.8</groovy-all.version>
+    <groovy-all.version>2.4.21</groovy-all.version>
     <license.current.year>2018</license.current.year>
     <jboss-modules.version>1.4.3.Final</jboss-modules.version>
     <jsp-api.version>2.1</jsp-api.version>
@@ -46,12 +46,11 @@
     <kfs.version>0.3</kfs.version>
     <jersey.version>1.19.1</jersey.version>
     <LucidDbClient-minimal.version>0.9.4</LucidDbClient-minimal.version>
-    <knowledge-api.version>6.4.0.Final</knowledge-api.version>
     <wsdl4j.version>1.6.2</wsdl4j.version>
     <asm-attrs.version>2.2.3</asm-attrs.version>
     <mstor.version>0.9.13</mstor.version>
     <hibernate-commons-annotations.version>5.1.2.Final</hibernate-commons-annotations.version>
-    <jettison.version>1.2</jettison.version>
+    <mina-core.version>2.0.0-M6</mina-core.version>
     <hamcrest-all.version>1.3</hamcrest-all.version>
     <javax.inject.version>1</javax.inject.version>
     <pentaho-vfs.version>1.0</pentaho-vfs.version>
@@ -63,7 +62,6 @@
     <syslog4j.version>0.9.46</syslog4j.version>
     <bean-matchers.version>0.9</bean-matchers.version>
     <json-simple.version>1.1</json-simple.version>
-    <axis2.version>1.5</axis2.version>
     <mimepull.version>1.9.3</mimepull.version>
     <shared.version>0.9.15</shared.version>
     <modelVersion>4.0.0</modelVersion>
@@ -148,7 +146,7 @@
     <mockito-core.version>5.10.0</mockito-core.version>
     <apacheds.version>1.5.5</apacheds.version>
     <jcommon.version>1.0.16</jcommon.version>
-    <drools.version>6.4.0.Final</drools.version>
+    <drools.version>8.44.0.Final</drools.version>
     <snmp4j.version>1.9.3d</snmp4j.version>
     <mondrian.version>10.3.0.0-SNAPSHOT</mondrian.version>
     <wsdl4j-qname.version>1.6.1</wsdl4j-qname.version>
@@ -213,6 +211,21 @@
         <artifactId>spotbugs-annotations</artifactId>
         <version>${com.github.spotbugs.annotations.version}</version>
         <optional>true</optional>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${fasterxml-jackson.non-osgi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${fasterxml-jackson.non-osgi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${fasterxml-jackson.non-osgi.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

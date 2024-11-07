@@ -1,22 +1,14 @@
-/*!
+/*! ******************************************************************************
  *
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
- * Foundation.
+ * Pentaho
  *
- * You should have received a copy of the GNU Lesser General Public License along with this
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
- * or from the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
+ * Use of this software is governed by the Business Source License included
+ * in the LICENSE.TXT file.
  *
- *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
- *
- */
+ * Change Date: 2028-08-13
+ ******************************************************************************/
 
 package org.pentaho.mantle.client.admin;
 
@@ -91,7 +83,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     try {
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       executableTypesRequestBuilder.setHeader( "Content-Type", "application/json" );
-      String json = "{\"userName\": \"" + encodeUri( name ) + "\", \"password\": \"ENC:" + b64encodePassword( password ) + "\"}";
+      String json = "{\"userName\": \"" + encodeUri( name ) + "\", \"password\": \"ENC:" + b64encode( password ) + "\"}";
       executableTypesRequestBuilder.sendRequest( json, new RequestCallback() {
         public void onError( Request request, Throwable exception ) {
           displayErrorInMessageBox( Messages.getString( "Error" ), exception.getLocalizedMessage() );
@@ -250,7 +242,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
       executableTypesRequestBuilder.setHeader( "Content-Type", "application/json" );
       String json =
-          "{\"userName\": \"" + encodeUri( userName ) + "\", \"password\": \"ENC:" + b64encodePassword( newPassword ) + "\", \"administratorPassword\": \"ENC:" + b64encodePassword( administratorPassword ) + "\"}";
+          "{\"userName\": \"" + encodeUri( userName ) + "\", \"password\": \"ENC:" + b64encode( newPassword ) + "\", \"administratorPassword\": \"ENC:" + b64encode( administratorPassword ) + "\"}";
       executableTypesRequestBuilder.sendRequest( json, new RequestCallback() {
         public void onError( Request request, Throwable exception ) {
           showXulErrorMessage( Messages.getString( "changePasswordErrorTitle" ), Messages.getString( "changePasswordErrorMessage" ) );
@@ -815,8 +807,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     return encodeURIComponent(URI);
   }-*/;
 
-  private static native String b64encodePassword( String a ) /*-{
-    return window.btoa( encodeURIComponent(a) );
+  private static native String b64encode( String a ) /*-{
+    return window.btoa(a);
   }-*/;
 
   /**

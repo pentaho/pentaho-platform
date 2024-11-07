@@ -1,22 +1,14 @@
-/*!
+/*! ******************************************************************************
  *
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
- * Foundation.
+ * Pentaho
  *
- * You should have received a copy of the GNU Lesser General Public License along with this
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
- * or from the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
+ * Use of this software is governed by the Business Source License included
+ * in the LICENSE.TXT file.
  *
- *
- * Copyright (c) 2002-2022 Hitachi Vantara. All rights reserved.
- *
- */
+ * Change Date: 2028-08-13
+ ******************************************************************************/
 
 package org.pentaho.platform.api.scheduler2;
 
@@ -33,7 +25,7 @@ public interface IJobTrigger {
   /**
    * Sets the trigger start time.
    * 
-   * @param startTime
+   * @param setStartTime
    *          when to start the trigger. If null the trigger starts immediately.
    */
   void setStartTime( Date startTime );
@@ -94,4 +86,89 @@ public interface IJobTrigger {
    *          Sets the length of time in milliseconds that this trigger should be in effect.
    */
   void setDuration( long duration );
+
+  /**
+   * @return the start hour (0-23)
+   */
+  int getStartHour();
+
+  /**
+   * Set the start hour (0-23)
+   *
+   * @param startHour
+   */
+  void setStartHour( int startHour );
+
+  /**
+   * @return the start minute (0-59)
+   */
+  int getStartMin();
+
+  /**
+   * Set the start minute (0-59)
+   *
+   * @param startMin
+   */
+  void setStartMin( int startMin );
+
+  /**
+   * @return the start year (indexed from 1900 per java.util.Date)
+   */
+  int getStartYear();
+
+  /**
+   * Set the start year (indexed from 1900 per java.util.Date)
+   *
+   * @param startYear
+   */
+  void setStartYear( int startYear );
+
+  /**
+   * @return the start month (0-11)
+   */
+  int getStartMonth();
+
+  /**
+   * Set the start month (0-11)
+   *
+   * @param startMonth
+   */
+  void setStartMonth( int startMonth );
+
+  /**
+   * @return the start day (1-31)
+   */
+  int getStartDay();
+
+  /**
+   * Set the start day (1-31)
+   *
+   * @param startDay
+   */
+  void setStartDay( int startDay );
+
+  /**
+   * @return 0 - AM;  1 - PM
+   */
+  int getStartAmPm();
+
+  /**
+   * Set the AM/PM value; 0 - AM; 1 - PM
+   *
+   * @param startAmPm
+   */
+  void setStartAmPm( int startAmPm );
+
+  /**
+   * Set the time zone (see java.util.TimeZone for valid IDs)
+   * Expects a TimeZone.
+   *
+   * @param timeZone
+   */
+  void setTimeZone( String timeZone );
+
+  /**
+   * @return the time zone
+   */
+  String getTimeZone();
 }

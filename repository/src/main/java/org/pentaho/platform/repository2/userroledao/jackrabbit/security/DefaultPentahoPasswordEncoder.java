@@ -1,27 +1,17 @@
-/*!
+/*! ******************************************************************************
  *
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License, version 2 as published by the Free Software
- * Foundation.
+ * Pentaho
  *
- * You should have received a copy of the GNU General Public License along with this
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
- * or from the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
+ * Use of this software is governed by the Business Source License included
+ * in the LICENSE.TXT file.
  *
- *
- * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
- *
- */
+ * Change Date: 2028-08-13
+ ******************************************************************************/
 
 package org.pentaho.platform.repository2.userroledao.jackrabbit.security;
 
-import com.google.gwt.user.server.Base64Utils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.jackrabbit.core.security.authentication.CryptedSimpleCredentials;
 import org.pentaho.platform.engine.security.messages.Messages;
@@ -30,9 +20,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.jcr.SimpleCredentials;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Default password encoder for the BI Server.
@@ -82,24 +69,10 @@ public class DefaultPentahoPasswordEncoder implements PasswordEncoder {
       return false;
     }
     try {
-      char[] decodedPassword = decodePassword( rawPass );
       CryptedSimpleCredentials credentials = new CryptedSimpleCredentials( "dummyUser", encPass );
-      return credentials.matches( new SimpleCredentials( "dummyUser", decodedPassword ) );
+      return credentials.matches( new SimpleCredentials( "dummyUser", rawPass.toCharArray() ) );
     } catch ( Exception e ) {
       throw new RuntimeException( e );
-    }
-  }
-
-  private static char[] decodePassword( String rawPass ) {
-    try {
-      if ( !StringUtils.isEmpty( rawPass ) && rawPass.startsWith( "ENC:" ) ) {
-        String password = new String( Base64Utils.fromBase64( rawPass.substring( 4 ) ), StandardCharsets.UTF_8 );
-        return URLDecoder.decode( password.replace( "+", "%2B" ), StandardCharsets.UTF_8.name() ).toCharArray();
-      } else {
-        return rawPass.toCharArray();
-      }
-    } catch ( UnsupportedEncodingException e ) {
-      return rawPass.toCharArray();
     }
   }
 

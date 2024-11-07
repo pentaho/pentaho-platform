@@ -1,19 +1,14 @@
-/*!
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
- * Foundation.
+/*! ******************************************************************************
  *
- * You should have received a copy of the GNU Lesser General Public License along with this
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
- * or from the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * Pentaho
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
+ * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
  *
- * Copyright (c) 2002-2023 Hitachi Vantara..  All rights reserved.
- */
+ * Use of this software is governed by the Business Source License included
+ * in the LICENSE.TXT file.
+ *
+ * Change Date: 2028-08-13
+ ******************************************************************************/
 define([
   "./browser.fileButtons",
   "./browser.folderButtons",
@@ -231,11 +226,12 @@ define([
   FileBrowser.openFolder = function (path) {
     //first select folder
     var $folder = $("[path='"+escapeCssSelector(path)+"']"),
-        $parentFolder = $folder.parent(".folders");
-    while(!$parentFolder.hasClass("body") && $parentFolder.length > 0){
-      $parentFolder.show();
-      $parentFolder.parent().addClass("open");
-      $parentFolder = $parentFolder.parent().parent();
+        $parentFolders = $folder.parent(".folders");
+    while(!$parentFolders.hasClass("body") && $parentFolders.length > 0){
+      $parentFolders.show();
+      $parentFolders.parent().addClass("open");
+      $parentFolders.parent().children(".element").attr("aria-expanded", true);
+      $parentFolders = $parentFolders.parent().parent();
     }
     $folder.find("> .element .name").trigger("click");
   };
@@ -1185,11 +1181,12 @@ define([
           $folder = myself.getFirstVisibleFolder();
         }
 
-        var $parentFolder = $folder.parent(".folders");
-        while (!$parentFolder.hasClass("body") && $parentFolder.length > 0) {
-          $parentFolder.show();
-          $parentFolder.parent().addClass("open");
-          $parentFolder = $parentFolder.parent().parent();
+        var $parentFolders = $folder.parent(".folders");
+        while (!$parentFolders.hasClass("body") && $parentFolders.length > 0) {
+          $parentFolders.show();
+          $parentFolders.parent().addClass("open");
+          $parentFolders.parent().children(".element").attr("aria-expanded", true);
+          $parentFolders = $parentFolders.parent().parent();
         }
         FileBrowser.fileBrowserModel.set("clickedFolder", {
           obj: $folder,
@@ -1208,6 +1205,7 @@ define([
           $clickedFile.addClass("selected");
         } else {
           $folder.children(".element").attr("aria-expanded", true);
+          $folder.addClass("open");
           $folder.addClass("selected");
           $folder.children(".element").attr("tabindex", 0).attr("aria-selected", true);
           $folder.find("> .folders").show();

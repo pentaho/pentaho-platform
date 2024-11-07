@@ -1,22 +1,14 @@
-/*!
+/*! ******************************************************************************
  *
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
- * Foundation.
+ * Pentaho
  *
- * You should have received a copy of the GNU Lesser General Public License along with this
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
- * or from the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
+ * Use of this software is governed by the Business Source License included
+ * in the LICENSE.TXT file.
  *
- *
- * Copyright (c) 2002 - 2024 Hitachi Vantara. All rights reserved.
- *
- */
+ * Change Date: 2028-08-13
+ ******************************************************************************/
 package org.pentaho.platform.osgi;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -528,14 +520,6 @@ public class KarafBoot implements IPentahoSystemListener {
       long waitTimeUp = System.currentTimeMillis() + bootWaitTime;
       setLockFile( new File( Paths.get( tempDir, Const.KARAF_BOOT_LOCK_FILE ).toUri() ) );
 
-      // ensure lock file belongs to an active process, clean up otherwise
-      if ( lockFile.exists() && !lockOwnerExists( lockFile ) ) {
-        logger.info( "Removing stale lock file" );
-        if ( !lockFile.delete() ) {
-          logger.warn( "Unable to delete stale lock file; boot will be delayed" );
-        }
-      }
-
       // wait until the lock file is gone or we run out of time
       logger.debug( "Waiting for karaf boot lock..." );
       while ( lockFile.exists() && System.currentTimeMillis() < waitTimeUp ) {
@@ -574,30 +558,6 @@ public class KarafBoot implements IPentahoSystemListener {
   @VisibleForTesting
   String getCurrentPid() {
     return Long.toString( ProcessHandle.current().pid() );
-  }
-
-  @VisibleForTesting
-  boolean lockOwnerExists( File lockFile ) throws IOException {
-    if ( null != lockFile ) {
-      try ( FileInputStream fileInputStream = new FileInputStream( lockFile ) ) {
-        String lockFileText = new String( fileInputStream.readAllBytes() );
-        if ( lockFileText.length() > 0 ) {
-          long lockFilePid = Long.parseLong( lockFileText );
-          return ProcessHandle.allProcesses().anyMatch( p -> p.pid() == lockFilePid );
-        } else {
-          // owner hasn't written the PID to it yet; assume a live file
-          return true;
-        }
-      } catch ( IOException e ) {
-        logger.warn( "Error reading lock file", e );
-        return false;
-      } catch ( NumberFormatException e ) {
-        logger.warn( "Error parsing lock file PID; assuming active lock" );
-        return true;
-      }
-    } else {
-      return false;
-    }
   }
 
   public static File getLockFile() {
