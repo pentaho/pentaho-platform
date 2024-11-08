@@ -609,17 +609,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.derby</groupId>
-      <artifactId>derby</artifactId>
-      <version>${derby.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.fontbox</groupId>
       <artifactId>fontbox</artifactId>
       <version>${fontbox.version}</version>
