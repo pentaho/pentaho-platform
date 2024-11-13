@@ -36,9 +36,6 @@
 // values at the API.
 //
 
-define(['common-ui/util/xss'],
-    function(xssUtil) {
-
   function xmlResolveEntities(s) {
 
   var parts = stringSplit(s, '&');
@@ -78,7 +75,7 @@ define(['common-ui/util/xss'],
         // through the W3C DOM. W3C DOM access is specified to resolve
         // entities. 
         var span = window.document.createElement('span');
-        xssUtil.setHtml(span, '&' + rp[0] + '; ');
+        pho.util.xss.setHtml(span, '&' + rp[0] + '; ');
         ch = span.childNodes[0].nodeValue.charAt(0);
     }
     ret += ch + rp[1];
@@ -442,4 +439,4 @@ XNode.prototype.getElementsByTagName = function(name, list) {
   }
 
   return list;
-} });
+}
