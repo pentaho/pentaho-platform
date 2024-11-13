@@ -8,9 +8,6 @@ modified BSD license. For more information on Dojo licensing, see:
 http://dojotoolkit.org/community/licensing.shtml
 */
 
-define(['common-ui/util/xss'],
-	function(xssUtil) {
-
 dojo.provide("dojo.html.util");
 dojo.require("dojo.html.layout");
 
@@ -213,7 +210,7 @@ dojo.html.createNodesFromText = function(/* string */txt, /* boolean? */trim){
 		txt = "<table>" + txt + "</table>";
 		tableType = "section";
 	}
-	xssUtil.setHtml(tn, txt);
+	pho.util.xss.setHtml(tn, txt);
 	if(tn["normalize"]){
 		tn.normalize();
 	}
@@ -484,4 +481,4 @@ dojo.html.scrollIntoView = function(/* HTMLElement */node){
 			parent.scrollTop -= (parent.scrollTop - node.offsetTop);
 		}
 	}
-} });
+}

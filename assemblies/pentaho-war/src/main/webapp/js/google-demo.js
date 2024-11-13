@@ -10,9 +10,6 @@
  * Change Date: 2028-08-13
  ******************************************************************************/
 
-define(['common-ui/util/xss'],
-	function(xssUtil) {
-
 var map;
 	var redicon;
 	var yellowicon;
@@ -89,7 +86,7 @@ greenicon = icon;
 
 	function updateProductMix( content ) {
 		document.getElementById( 'details-div' ).style.display='block';
-		xssUtil.setHtml(document.getElementById('details-cell1'), content);
+		pho.util.xss.setHtml(document.getElementById('details-cell1'), content);
 		pentahoAction( "steel-wheels", "google", "customer_details.xaction", 
 				new Array( new Array( "customer", currentRecord[7] ) ), 
 				 'updateHistory'
@@ -98,7 +95,7 @@ greenicon = icon;
 
 	function updateHistory( content ) {
 		document.getElementById( 'details-div' ).style.display='block';
-		xssUtil.setHtml(document.getElementById('details-cell2'), content);
+		pho.util.xss.setHtml(document.getElementById('details-cell2'), content);
 	}
 
 function showAddress(address, name, custNum, value, selected) {
@@ -194,6 +191,4 @@ function showAddress(address, name, custNum, value, selected) {
 				'updateInfoWindow'
 			);
 		}
-
-		
-	} });
+	}

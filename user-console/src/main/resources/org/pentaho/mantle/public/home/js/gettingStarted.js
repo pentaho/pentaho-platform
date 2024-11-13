@@ -207,9 +207,7 @@ define([
 
     launchLink.unbind("click");
     launchLink.bind("click", function () {
-      /* noopener and noreferrer: These attributes mitigate the risk of tabnabbing and
-             prevent the new page from accessing the original window’s properties. */
-      window.open(xssUtil.sanitizeHtml(href), "_blank", 'noopener,noreferrer');
+      window.open(xssUtil.sanitizeUrl(href), "_blank");
     });
   }
 
