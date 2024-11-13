@@ -86,7 +86,7 @@ greenicon = icon;
 
 	function updateProductMix( content ) {
 		document.getElementById( 'details-div' ).style.display='block';
-		document.getElementById( 'details-cell1' ).innerHTML=content;
+		pho.util.xss.setHtml(document.getElementById('details-cell1'), content);
 		pentahoAction( "steel-wheels", "google", "customer_details.xaction", 
 				new Array( new Array( "customer", currentRecord[7] ) ), 
 				 'updateHistory'
@@ -95,7 +95,7 @@ greenicon = icon;
 
 	function updateHistory( content ) {
 		document.getElementById( 'details-div' ).style.display='block';
-		document.getElementById( 'details-cell2' ).innerHTML=content;
+		pho.util.xss.setHtml(document.getElementById('details-cell2'), content);
 	}
 
 function showAddress(address, name, custNum, value, selected) {
@@ -191,6 +191,4 @@ function showAddress(address, name, custNum, value, selected) {
 				'updateInfoWindow'
 			);
 		}
-
-		
 	}

@@ -294,8 +294,8 @@ function refreshDatePicker(dateFieldName, year, month, day)
  
   // and finally, close the table
   html += xTABLE;
- 
-  document.getElementById(datePickerDivID).innerHTML = html;
+
+  pho.util.xss.setHtml(document.getElementById(datePickerDivID), html);
   // add an "iFrame shim" to allow the datepicker to display above selection lists
   adjustiFrame();
 }
