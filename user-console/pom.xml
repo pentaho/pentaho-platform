@@ -429,6 +429,18 @@
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
+            <id>copy-license-file</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <tasks>
+                <copy file="${project.basedir}/../LICENSE.TXT" tofile="${project.build.directory}/classes/org/pentaho/mantle/public/LICENSE.TXT"/>
+              </tasks>
+            </configuration>
+          </execution>
+          <execution>
             <id>copy-jquery-files</id>
             <phase>generate-resources</phase>
             <goals>
