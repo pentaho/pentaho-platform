@@ -15,7 +15,7 @@ package org.pentaho.platform.web.servlet;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.eclipse.jetty.webapp.WebAppClassLoader;
+import org.eclipse.jetty.ee10.webapp.WebAppClassLoader;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 import org.springframework.core.io.ClassPathResource;
 
