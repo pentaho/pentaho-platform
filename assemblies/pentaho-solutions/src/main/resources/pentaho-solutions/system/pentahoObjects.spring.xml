@@ -86,16 +86,12 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     <property name="serviceTypeManagers">
       <list>
         <ref bean="gwtServiceManager"/>
-        <ref bean="axisServiceManager"/>
       </list>
     </property>
   </bean>
   <bean id="ITempFileDeleter" class="org.pentaho.platform.web.http.session.SessionTempFileDeleter" scope="prototype"/>
   <bean id="gwtServiceManager" class="org.pentaho.platform.plugin.services.pluginmgr.servicemgr.GwtRpcServiceManager"
         scope="singleton"/>
-  <bean id="axisServiceManager" class="org.pentaho.platform.plugin.services.pluginmgr.servicemgr.AxisWebServiceManager"
-        scope="singleton"/>
-
   <bean id="IChartBeansGenerator" class="org.pentaho.platform.plugin.action.chartbeans.DefaultChartBeansGenerator"
         scope="singleton"/>
 
