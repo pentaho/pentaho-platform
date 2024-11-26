@@ -553,7 +553,7 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
    * 
    * @see org.pentaho.connection.IPentahoConnection#isReadOnly()
    * 
-   * Right now this archetecture only support selects (read only)
+   * Right now this architecture only support selects (read only)
    */
   public boolean isReadOnly() {
     return true;
@@ -572,9 +572,8 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
   }
 
   void initDataSource( IDatabaseConnection databaseConnection ) {
-    DataSource dataSource = null;
     try {
-      dataSource = PooledDatasourceHelper.setupPooledDataSource( databaseConnection );
+      DataSource dataSource = PooledDatasourceHelper.setupPooledDataSource( databaseConnection );
       nativeConnection = captureConnection( dataSource.getConnection() );
     } catch ( Exception e ) {
       logger.error( "Can't get connection from Pool", e );
@@ -584,11 +583,11 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
   public boolean connect( final Properties props ) {
     close();
     String jndiName = props.getProperty( IPentahoConnection.JNDI_NAME_KEY );
-    if ( ( jndiName != null ) && ( jndiName.length() > 0 ) ) {
+    if ( jndiName != null && !jndiName.isEmpty() ) {
       initWithJNDI( jndiName );
     } else {
       String connectionName = props.getProperty( IPentahoConnection.CONNECTION_NAME );
-      if ( ( connectionName != null ) && ( connectionName.length() > 0 ) ) {
+      if ( connectionName != null && !connectionName.isEmpty() ) {
         IDatabaseConnection databaseConnection = (IDatabaseConnection) props.get( IPentahoConnection.CONNECTION );
         initDataSource( databaseConnection );
       } else {
@@ -598,7 +597,7 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
         String password = props.getProperty( IPentahoConnection.PASSWORD_KEY );
         init( driver, provider, userName, password );
         String query = props.getProperty( IPentahoConnection.QUERY_KEY );
-        if ( ( query != null ) && ( query.length() > 0 ) ) {
+        if ( query != null && !query.isEmpty() ) {
           try {
             executeQuery( query );
           } catch ( Exception e ) {
@@ -607,7 +606,7 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
         }
       }
     }
-    return ( ( nativeConnection != null ) && !isClosed() );
+    return ( nativeConnection != null && !isClosed() );
   }
 
   public int execute( final String query ) throws SQLException {
