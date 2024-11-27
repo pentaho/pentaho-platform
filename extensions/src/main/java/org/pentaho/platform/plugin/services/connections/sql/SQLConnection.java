@@ -252,8 +252,8 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
 
   private static boolean isTestConnection( String connectionName ) {
     return connectionName.length() > 16
-     && connectionName.startsWith( "__TEST__" )
-     && connectionName.endsWith( "__TEST__" );
+       && connectionName.startsWith( "__TEST__" )
+       && connectionName.endsWith( "__TEST__" );
   }
 
   private static void handleTestConnection( Properties props, String connectionName ) {
