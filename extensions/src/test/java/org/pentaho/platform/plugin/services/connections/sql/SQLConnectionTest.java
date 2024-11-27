@@ -83,7 +83,7 @@ public class SQLConnectionTest {
   @Test
   public void testConnect() {
     SQLConnection sqlc = spy( new SQLConnection() );
-    Properties props = new Properties();
+    Properties props;
 
     props = new Properties();
     props.put( IPentahoConnection.JNDI_NAME_KEY, "test" );
@@ -94,7 +94,7 @@ public class SQLConnectionTest {
     doNothing().when( sqlc ).init( nullable( String.class ), nullable( String.class ), nullable( String.class ), nullable( String.class ) );
     assertTrue( "NonPool Test", sqlc.connect( props ) );
 
-    doNothing().when( sqlc ).initDataSource( nullable( IDatabaseConnection.class ) );
+    doNothing().when( sqlc ).initDataSource( nullable( IDatabaseConnection.class ), true );
 
     props.put( IPentahoConnection.CONNECTION_NAME, "test" );
     assertTrue( "Pool Test", sqlc.connect( props ) );
