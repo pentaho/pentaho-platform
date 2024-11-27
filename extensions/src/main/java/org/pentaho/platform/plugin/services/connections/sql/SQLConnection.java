@@ -266,7 +266,7 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
   /**
    * Allows the native SQL Connection to be enhanced in a subclass. Best used when a connection needs to be enhanced
    * with an "effective user"
-   * 
+   *
    * @param connection
    */
   protected void enhanceConnection( Connection connection ) throws SQLException {
@@ -275,7 +275,7 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
   /**
    * Allows enhancements to the native SQL Connection to be removed in a subclass. Best used when a connection needs to
    * be enhanced with an "effective user"
-   * 
+   *
    * @param connection
    */
   protected void unEnhanceConnection( Connection connection ) throws SQLException {
@@ -284,7 +284,7 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
   /**
    * Allow wrapping/proxying of the native SQL connection by a subclass. Best used when a connection needs to be be
    * enhanced or proxied for Single Signon or possibly tenanting.
-   * 
+   *
    * @param connection
    * @return
    */
@@ -295,7 +295,7 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
   /**
    * Allows the native SQL Statement to be enhanced by a subclass. Examples may be to allow additional information like
    * a user to be bound to the statement.
-   * 
+   *
    * @param statement
    */
   protected void enhanceStatement( Statement statement ) throws SQLException {
@@ -323,9 +323,7 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
    * iterate over and close all resultsets. Remove each result set from the list.
    */
   private void closeResultSets() {
-private static boolean isTestConnection( String connectionName ) {
-  return connectionName.length() > 12 && connectionName.startsWith( "__TEST__" ) && connectionName.endsWith( "__TEST__" );
-}    Iterator iter = resultSets.iterator();
+    Iterator iter = resultSets.iterator();
     while ( iter.hasNext() ) {
       IPentahoResultSet rset = (IPentahoResultSet) iter.next();
       if ( rset != null ) {
@@ -368,7 +366,7 @@ private static boolean isTestConnection( String connectionName ) {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.pentaho.connection.IPentahoConnection#getLastQuery()
    */
   public String getLastQuery() {
@@ -377,7 +375,7 @@ private static boolean isTestConnection( String connectionName ) {
 
   /**
    * Executes the specified query.
-   * 
+   *
    * @param query
    *          the query to execute
    * @return the resultset from the query
@@ -394,7 +392,7 @@ private static boolean isTestConnection( String connectionName ) {
 
   /**
    * Executes the specified query with the defined parameters
-   * 
+   *
    * @param query
    *          the query to be executed
    * @param scrollType
@@ -462,7 +460,7 @@ private static boolean isTestConnection( String connectionName ) {
    * The purpose of this method is to set limitations such as fetchSize and maxrows on the provided statement. If the
    * JDBC driver does not support the setting and throws an Exception, we will re-throw iff the limit was explicitly
    * set.
-   * 
+   *
    * @param stmt
    *          Either a Statement or PreparedStatement
    * @throws SQLException
@@ -577,7 +575,7 @@ private static boolean isTestConnection( String connectionName ) {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.pentaho.connection.IPentahoConnection#isClosed()
    */
   public boolean isClosed() {
@@ -592,9 +590,9 @@ private static boolean isTestConnection( String connectionName ) {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.pentaho.connection.IPentahoConnection#isReadOnly()
-   * 
+   *
    * Right now this architecture only support selects (read only)
    */
   public boolean isReadOnly() {
