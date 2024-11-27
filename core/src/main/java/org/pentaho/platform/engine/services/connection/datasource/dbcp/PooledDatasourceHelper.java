@@ -56,7 +56,11 @@ public class PooledDatasourceHelper {
 
   public static PoolingDataSource setupPooledDataSource( IDatabaseConnection databaseConnection )
     throws DBDatasourceServiceException {
+    return setupPooledDataSource( databaseConnection, true );
+  }
 
+  public static PoolingDataSource setupPooledDataSource( IDatabaseConnection databaseConnection, boolean useCache )
+    throws DBDatasourceServiceException {
     try {
       if ( databaseConnection.getAccessType().equals( DatabaseAccessType.JNDI ) ) {
         throwDBDatasourceServiceException( databaseConnection.getName(), "PooledDatasourceHelper.ERROR_0008_UNABLE_TO_POOL_DATASOURCE_IT_IS_JNDI" );
@@ -66,9 +70,10 @@ public class PooledDatasourceHelper {
       loadDriverClass( databaseConnection, dialect, driverClass );
 
       PoolingManagedDataSource poolingDataSource = new PoolingManagedDataSource( databaseConnection, dialect );
-
-      ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
-      cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, databaseConnection.getName(), poolingDataSource );
+      if ( useCache ) {
+        ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
+        cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, databaseConnection.getName(), poolingDataSource );
+      }
       return poolingDataSource;
     } catch ( Exception e ) {
       throw new DBDatasourceServiceException( e );
