@@ -223,7 +223,7 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
     }
   }
 
-  private void initOther( Properties props ) {
+  void initOther( Properties props ) {
     String connectionName = props.getProperty( IPentahoConnection.CONNECTION_NAME );
     if ( connectionName != null && !connectionName.isEmpty() ) {
       boolean isTestConnection = isTestConnection( connectionName );
