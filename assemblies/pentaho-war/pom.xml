@@ -62,10 +62,6 @@
           <groupId>javax.servlet</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>javax.servlet-api</artifactId>
-          <groupId>javax.servlet</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>jug-lgpl</artifactId>
           <groupId>org.safehaus.jug</groupId>
         </exclusion>
@@ -82,11 +78,11 @@
           <groupId>org.apache.xmlgraphics</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>org.osgi.core</artifactId>
+          <artifactId>osgi.core</artifactId>
           <groupId>org.osgi</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>org.osgi.core</artifactId>
+          <artifactId>osgi.core</artifactId>
           <groupId>org.osgi</groupId>
         </exclusion>
         <exclusion>
@@ -415,7 +411,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
+      <artifactId>log4j-slf4j2-impl</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -549,13 +545,18 @@
     <!-- pentaho-platform-core (PentahoSystem) and pdi-osgi-bridge-core (KarafLifecycleListener and OSGIPluginRegistryExtension) -->
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
+      <artifactId>osgi.core</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.compendium</artifactId>
+      <artifactId>osgi.cmpn</artifactId>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.service.log</artifactId>
+      <version>1.5.0</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
@@ -885,6 +886,11 @@
       <version>${mail.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>javax.json</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
       <version>${log4j.version}</version>
@@ -912,6 +918,17 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>*</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
       <version>${slf4j.version}</version>
       <exclusions>
         <exclusion>

@@ -61,8 +61,8 @@ public class SystemPackageExtrapolatorTest {
     assertTrue( "org.apache package should have been added", processedPackages
         .contains( "org.apache" ) );
 
-    assertTrue( "pentaho package should have been added with versioning", processedPackages
-        .contains( "org.slf4j.impl; version=\"1.7.7\"" ) );
+    assertTrue( "org.slf4j package should have been added with versioning", processedPackages
+        .contains( "org.slf4j; version=\"1.7.7\"" ) );
 
   }
 
