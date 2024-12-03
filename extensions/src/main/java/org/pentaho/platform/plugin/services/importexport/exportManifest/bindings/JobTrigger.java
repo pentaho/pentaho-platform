@@ -53,7 +53,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  */
 @XmlAccessorType( XmlAccessType.FIELD )
-@XmlType( name = "jobTrigger", propOrder = { "cronString", "duration", "endTime", "startTime", "uiPassParam" } )
+@XmlType( name = "jobTrigger", propOrder = { "cronString", "duration", "endTime", "startTime", "uiPassParam", "startHour", "startMin", "startAmPm", "startYear", "startMonth", "startDay", "timeZone" } )
 @XmlSeeAlso( { SimpleJobTrigger.class, CronJobTrigger.class, ComplexJobTrigger.class } )
 public abstract class JobTrigger {
 
@@ -64,6 +64,14 @@ public abstract class JobTrigger {
   @XmlSchemaType( name = "dateTime" )
   protected XMLGregorianCalendar startTime;
   protected String uiPassParam;
+
+  protected int startMin = -1;
+  protected int startHour = -1;
+  protected int startYear = -1;
+  protected int startMonth = -1;
+  protected int startDay = -1;
+  protected int startAmPm = -1;
+  protected String timeZone;
 
   /**
    * Gets the value of the cronString property.
@@ -163,6 +171,62 @@ public abstract class JobTrigger {
    */
   public void setUiPassParam( String value ) {
     this.uiPassParam = value;
+  }
+
+  public int getStartHour() {
+    return startHour;
+  }
+
+  public void setStartHour( int startHour ) {
+    this.startHour = startHour;
+  }
+
+  public int getStartMin() {
+    return startMin;
+  }
+
+  public void setStartMin( int startMin ) {
+    this.startMin = startMin;
+  }
+
+  public int getStartYear() {
+    return startYear;
+  }
+
+  public void setStartYear( int startYear ) {
+    this.startYear = startYear;
+  }
+
+  public int getStartMonth() {
+    return startMonth;
+  }
+
+  public void setStartMonth( int startMonth ) {
+    this.startMonth = startMonth;
+  }
+
+  public int getStartDay() {
+    return startDay;
+  }
+
+  public void setStartDay( int startDay ) {
+    this.startDay = startDay;
+  }
+
+  public int getStartAmPm() {
+    return startAmPm;
+  }
+
+  public void setStartAmPm( int startAmPm ) {
+    this.startAmPm = startAmPm;
+  }
+
+  public String getTimeZone() {
+    return timeZone;
+  }
+
+  public void setTimeZone( String timeZone ) {
+    this.timeZone = timeZone;
   }
 
 }
