@@ -83,4 +83,12 @@ public class ImportHandlerMimeTypeDefinitionsDto {
     return this.importHandler;
   }
 
+  /**
+   * Register a list of import handlers
+   * @param importHandlers
+   */
+  public void registerImportHandler( List<ImportHandlerDto> importHandlers ) {
+    getImportHandler().addAll( importHandlers );
+  }
+
 }
