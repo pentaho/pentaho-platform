@@ -22,12 +22,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class NodeRepositoryFileDataDtoTest {
   @Test
-  public void testDto() {
+  public void testDtoNode() {
 
     NodeRepositoryFileDataDto dto = new NodeRepositoryFileDataDto();
     DataNodeDto nodeMock = new DataNodeDto();
     dto.setNode( nodeMock );
-    assertEquals( dto.getNode(), nodeMock );
+    assertEquals( nodeMock, dto.getNode() );
+
+  }
+
+  @Test
+  public void testDtoDataSize() {
+
+    NodeRepositoryFileDataDto dto = new NodeRepositoryFileDataDto();
+    int dataSize = 100;
+    dto.setDataSize( dataSize );
+    assertEquals( dataSize, dto.getDataSize() );
 
   }
 }
