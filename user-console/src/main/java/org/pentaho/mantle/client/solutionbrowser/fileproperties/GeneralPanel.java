@@ -218,7 +218,7 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
     locationLabel
         .setText( isInTrash
             ? Messages.getString( "recycleBin" ) : fileSummary.getPath().substring( 0, fileSummary.getPath().lastIndexOf( "/" ) ) ); //$NON-NLS-1$//$NON-NLS-2$
-    sizeLabel.setText( NumberFormat.getDecimalFormat().format( fileSummary.getFileSize() / 1000.00 )
+    sizeLabel.setText( NumberFormat.getDecimalFormat().format( fileSummary.getFileSize() / 1024.00 )
         + " " + Messages.getString( "kiloBytes" ) ); //$NON-NLS-1$ //$NON-NLS-2$\
     DateTimeFormat df = DateTimeFormat.getFormat( DateTimeFormat.PredefinedFormat.DATE_TIME_FULL );
     createdLabel.setText( df.format( fileSummary.getCreatedDate() ) );
