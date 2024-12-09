@@ -116,8 +116,7 @@ public class PentahoConnectionFactory {
     IPentahoConnection connection = null;
     try {
       //Validate if properties connection name is system DB and do not allow connection
-      if ( isSystemConnection( properties ) &&
-        !hasSystemDataSourcePermission( session ) ) {
+      if ( isSystemConnection( properties ) && !hasSystemDataSourcePermission( session ) ) {
         throw new ObjectFactoryException( "Missing required permissions to make connection" );
       }
       connection = PentahoSystem.getObjectFactory().get( IPentahoConnection.class, key, session );
