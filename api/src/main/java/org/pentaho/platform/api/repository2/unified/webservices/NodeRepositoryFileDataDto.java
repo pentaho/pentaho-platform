@@ -23,6 +23,7 @@ public class NodeRepositoryFileDataDto implements Serializable {
   }
 
   private DataNodeDto node;
+  private long dataSize = 0;
 
   public DataNodeDto getNode() {
     return node;
@@ -30,6 +31,14 @@ public class NodeRepositoryFileDataDto implements Serializable {
 
   public void setNode( DataNodeDto node ) {
     this.node = node;
+  }
+
+  public long getDataSize() {
+    return dataSize;
+  }
+
+  public void setDataSize( long dataSize ) {
+    this.dataSize = dataSize;
   }
 
   @SuppressWarnings( "nls" )
