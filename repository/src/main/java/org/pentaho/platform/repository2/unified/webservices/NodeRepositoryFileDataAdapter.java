@@ -34,6 +34,7 @@ public class NodeRepositoryFileDataAdapter extends XmlAdapter<NodeRepositoryFile
     NodeRepositoryFileDataDto d = new NodeRepositoryFileDataDto();
     DataNodeDto node = new DataNodeDto();
     d.setNode( node );
+    d.setDataSize( v.getDataSize() );
     toDataNodeDto( node, v.getNode() );
     return d;
   }
@@ -73,8 +74,7 @@ public class NodeRepositoryFileDataAdapter extends XmlAdapter<NodeRepositoryFile
   @Override
   public NodeRepositoryFileData unmarshal( final NodeRepositoryFileDataDto v ) {
     DataNode node = toDataNode( v.getNode() );
-    NodeRepositoryFileData data = new NodeRepositoryFileData( node );
-    return data;
+    return new NodeRepositoryFileData( node, v.getDataSize() );
   }
 
   protected DataNode toDataNode( final DataNodeDto nodeDto ) {
