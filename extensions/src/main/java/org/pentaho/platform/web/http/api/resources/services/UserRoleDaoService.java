@@ -178,7 +178,7 @@ public class UserRoleDaoService {
     if ( canAdminister() ) {
       if ( userValid( user ) ) {
 
-        String userName = decode( user.getUserName() );
+        String userName = decode( user.getUserName() ).trim();
         String password = user.getPassword();
 
         ValidationFailedException exception = validatePasswordFormat( password );
