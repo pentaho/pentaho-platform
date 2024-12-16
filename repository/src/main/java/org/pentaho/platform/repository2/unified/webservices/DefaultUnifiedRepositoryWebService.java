@@ -134,6 +134,10 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return data;
   }
 
+  public void doesFileExist( final String destAbsPath ) throws Exception {
+    repo.doesFileExist( destAbsPath );
+  }
+
   public RepositoryFileDto getFile( String path ) {
     validateEtcReadAccess( path );
     RepositoryFile file = repo.getFile( path );

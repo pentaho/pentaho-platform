@@ -844,6 +844,23 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     } );
   }
 
+  public void doesFileExist( final String destRelPath ) throws Exception {
+    jcrTemplate.execute( new JcrCallback() {
+      @Override
+      public Void doInJcr( Session session ) throws IOException, RepositoryException {
+
+        String destAbsPath = pathConversionHelper.relToAbs(destRelPath);
+        String cleanDestAbsPath = destAbsPath;
+        if (cleanDestAbsPath.endsWith(RepositoryFile.SEPARATOR)) {
+          cleanDestAbsPath.substring(0, cleanDestAbsPath.length() - 1);
+        }
+
+        session.getItem( JcrStringHelper.pathEncode( cleanDestAbsPath ) );
+        return null;
+      }
+    });
+  }
+
   private void internalCopyOrMove( final Serializable fileId, final String destRelPath, final String versionMessage,
       final boolean copy ) {
     if ( isKioskEnabled() ) {

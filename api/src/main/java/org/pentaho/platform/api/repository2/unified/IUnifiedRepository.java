@@ -426,6 +426,10 @@ public interface IUnifiedRepository {
    */
   void moveFile( final Serializable fileId, final String destAbsPath, final String versionMessage );
 
+  default void doesFileExist( String path) throws Exception {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * Copies file. Folders are recursive. Throws exception on collision (merging does not occur).
    * 

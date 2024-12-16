@@ -433,6 +433,15 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     }, Messages.getInstance().getString( "ExceptionLoggingDecorator.unlockFile", fileId ) ); //$NON-NLS-1$
   }
 
+  public void doesFileExist( final String destAbsPath ) throws Exception {
+    callLogThrow( new Callable<Void>() {
+      public Void call() throws Exception {
+        delegatee.doesFileExist( destAbsPath );
+        return null;
+      }
+    }, Messages.getInstance().getString( "ExceptionLoggingDecorator.doesFileExist", destAbsPath ) ); //$NON-NLS-1$
+  }
+
   public RepositoryFileAcl updateAcl( final RepositoryFileAcl acl ) {
     return callLogThrow( new Callable<RepositoryFileAcl>() {
       public RepositoryFileAcl call() throws Exception {

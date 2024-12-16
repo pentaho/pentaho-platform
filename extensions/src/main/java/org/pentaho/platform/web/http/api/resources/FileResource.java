@@ -102,6 +102,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
@@ -1478,6 +1479,16 @@ public class FileResource extends AbstractJaxRSResource {
       @ResponseCode ( code = 500, condition = "File failed to be retrieved. This could be caused by an invalid path, or the file does not exist." ) } )
   public RepositoryFileAclDto doGetFileAcl( @PathParam ( "pathId" ) String pathId ) {
     return fileService.doGetFileAcl( pathId );
+  }
+
+  @GET
+  @Path( "/does-file-exists" )
+  @StatusCodes( {
+          @ResponseCode( code = 204, condition = "Successfully finds the file." ),
+          @ResponseCode( code = 500, condition = "Failed to find the file." )
+  } )
+  public void doesFileExists( @QueryParam ( "pathId" ) String pathId ) throws Exception {
+    fileService.doesFileExists( URLDecoder.decode( pathId, "UTF-8" ) );
   }
 
   /**

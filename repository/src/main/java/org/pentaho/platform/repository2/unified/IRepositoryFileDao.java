@@ -93,6 +93,10 @@ public interface IRepositoryFileDao {
     return getDeletedFiles();
   }
 
+  default void doesFileExist( String path ) throws Exception {
+    throw new UnsupportedOperationException();
+  }
+
   boolean canUnlockFile( final Serializable fileId );
 
   void lockFile( final Serializable fileId, final String message );

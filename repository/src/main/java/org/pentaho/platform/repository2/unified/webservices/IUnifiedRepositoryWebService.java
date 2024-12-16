@@ -67,6 +67,10 @@ public interface IUnifiedRepositoryWebService {
   @Deprecated
   List<RepositoryFileDto> getChildren( final String folderId );
 
+  default void doesFileExist( String path ) throws Exception {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * @Deprecated Construct a RepositoryRequest and use that, instead
    */

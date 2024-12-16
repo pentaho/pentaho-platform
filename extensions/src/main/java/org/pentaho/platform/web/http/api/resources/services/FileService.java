@@ -289,6 +289,15 @@ public class FileService {
     return pathsPermissonsSettings;
   }
 
+  public void doesFileExists( String destPathId ) throws Exception {
+    String idToPath = idToPath( destPathId );
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath );
+    if ( repositoryFileDto == null ) {
+      throw new FileNotFoundException( idToPath );
+    }
+    getRepoWs().doesFileExist( repositoryFileDto.getPath() );
+  }
+
   /**
    * Creates a new file with the provided contents at a given path
    *

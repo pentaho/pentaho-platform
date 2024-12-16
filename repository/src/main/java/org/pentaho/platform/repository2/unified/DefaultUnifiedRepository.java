@@ -449,6 +449,10 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     repositoryFileDao.moveFile( fileId, destAbsPath, versionMessage );
   }
 
+  public void doesFileExist( final String destAbsPath ) throws Exception {
+    repositoryFileDao.doesFileExist( destAbsPath );
+  }
+
   /**
    * {@inheritDoc}
    */
