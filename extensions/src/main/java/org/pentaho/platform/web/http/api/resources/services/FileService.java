@@ -95,19 +95,7 @@ import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class FileService {
 
@@ -775,6 +763,13 @@ public class FileService {
     wrapper.setMimetype( is.getMimeType() );
 
     return wrapper;
+  }
+
+  public void doesFileExists( String destPathId ) throws FileNotFoundException {
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( destPathId ) );
+    if ( Objects.isNull( repositoryFileDto ) ) {
+      throw new FileNotFoundException( "File not found at " + destPathId );
+    }
   }
 
   /**

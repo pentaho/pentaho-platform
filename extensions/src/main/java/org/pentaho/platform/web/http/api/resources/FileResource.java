@@ -102,6 +102,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
@@ -489,6 +490,27 @@ public class FileResource extends AbstractJaxRSResource {
     } catch ( IllegalArgumentException illegalArgument ) {
       return buildStatusResponse( Response.Status.FORBIDDEN );
     }
+  }
+
+  @GET
+  @Path( "/does-file-exists" )
+  @StatusCodes( {
+          @ResponseCode( code = 204, condition = "Successfully finds the file." ),
+          @ResponseCode( code = 404, condition = "Invalid Input." ),
+          @ResponseCode( code = 404, condition = "Failed to find the file." ),
+          @ResponseCode( code = 500, condition = "For any other exceptions." )
+  } )
+  public Response doesFileExists( @QueryParam ( "pathId" ) String pathId ) {
+    try {
+      fileService.doesFileExists( URLDecoder.decode( pathId, "UTF-8" ) );
+    } catch ( UnsupportedEncodingException e ) {
+      return buildStatusResponse( Response.Status.BAD_REQUEST );
+    } catch ( FileNotFoundException e ) {
+      return buildStatusResponse( Response.Status.NOT_FOUND );
+    } catch ( Exception e ) {
+      return buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
+    }
+    return buildOkResponse();
   }
 
   // Overloaded this method to try and minimize calls to the repo
