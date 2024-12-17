@@ -92,6 +92,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.channels.IllegalSelectorException;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.text.Collator;
@@ -1437,7 +1438,11 @@ public class FileService {
       logger.error( e.getCause() );
     }
 
-    //translating /home and /public folders titles
+    if ( tree == null ) {
+      return null;
+    }
+
+    // translating /home and /public folders titles
     for ( RepositoryFileTreeDto dto : tree.getChildren() ) {
       if ( dto.getFile().getName().equals( ClientRepositoryPaths.getHomeFolderName() ) && dto.getFile().getPath().equals( ClientRepositoryPaths.getHomeFolderPath() ) ) {
         dto.getFile().setTitle( Messages.getInstance().getString( "FileResource.HOME_FOLDER_DISPLAY_TITLE" ) );
@@ -1446,7 +1451,7 @@ public class FileService {
       }
     }
     // BISERVER-9599 - Use special sort order
-    if ( tree != null && isShowingTitle( repositoryRequest ) ) {
+    if ( isShowingTitle( repositoryRequest ) ) {
       Collator collator = getCollatorInstance();
       collator.setStrength( Collator.PRIMARY ); // ignore case
       sortByLocaleTitle( collator, tree );
@@ -1931,7 +1936,7 @@ public class FileService {
   protected String decode( String folder ) {
     String decodeName = folder;
     try {
-      decodeName = URLDecoder.decode( folder, "UTF-8" );
+      decodeName = URLDecoder.decode( folder, StandardCharsets.UTF_8 );
     } catch ( Exception ex ) {
       logger.error( ex );
     }
