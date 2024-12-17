@@ -92,6 +92,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.channels.IllegalSelectorException;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.text.Collator;
@@ -138,7 +139,7 @@ public class FileService {
       originalFileName = "SystemBackup.zip";
       encodedFileName = makeEncodedFileName( originalFileName );
       StreamingOutput streamingOutput = getBackupStream();
-      final String attachment = HttpMimeTypeListener.buildContentDispositionValue( originalFileName,  true );
+      final String attachment = HttpMimeTypeListener.buildContentDispositionValue( originalFileName, true );
 
       return new DownloadFileWrapper( streamingOutput, attachment, encodedFileName );
     } else {
@@ -208,7 +209,7 @@ public class FileService {
     String[] sourceFileIds = FileUtils.convertCommaSeparatedStringToArray( params );
     try {
       for ( int i = 0; i < sourceFileIds.length; i++ ) {
-        getRepoWs().deleteFile( sourceFileIds[i], null );
+        getRepoWs().deleteFile( sourceFileIds[ i ], null );
       }
     } catch ( Exception e ) {
       throw e;
@@ -259,7 +260,7 @@ public class FileService {
     ArrayList<Setting> permMap = new ArrayList<Setting>();
     while ( tokenizer.hasMoreTokens() ) {
       Integer perm = Integer.valueOf( tokenizer.nextToken() );
-      EnumSet<RepositoryFilePermission> permission = EnumSet.of( RepositoryFilePermission.values()[perm] );
+      EnumSet<RepositoryFilePermission> permission = EnumSet.of( RepositoryFilePermission.values()[ perm ] );
       permMap.add( new Setting( perm.toString(), new Boolean( getRepository()
         .hasAccess( idToPath( pathId ), permission ) ).toString() ) );
     }
@@ -379,13 +380,12 @@ public class FileService {
   }
 
   /**
-   *
    * Restores a list of files from the trash folder to user's home folder,
    * ignoring files previous locations (with no change of file owner)
-   * @param  params Comma separated list of files to be restored
-   * @param overwriteMode  Default is RENAME (2) which adds a number to the end of the file name. MODE_OVERWRITE (1)
-   *                       will just replace existing or MODE_NO_OVERWRITE (3) will not copy if file exist.
    *
+   * @param params        Comma separated list of files to be restored
+   * @param overwriteMode Default is RENAME (2) which adds a number to the end of the file name. MODE_OVERWRITE (1)
+   *                      will just replace existing or MODE_NO_OVERWRITE (3) will not copy if file exist.
    */
   public boolean doRestoreFilesInHomeDir( String params, int overwriteMode ) {
     if ( overwriteMode < 1 || overwriteMode > 3 ) {
@@ -473,14 +473,9 @@ public class FileService {
    * Conflict occurs if one of source files has the same
    * name with any of folder files.
    *
-   * @param params
-   *            String with file ids, separated by comma
-   * @param pathToFolder
-   *            path to folder
-   *
-   * @return String
-   *            with file ids of not conflict files, separated by comma
-   *
+   * @param params       String with file ids, separated by comma
+   * @param pathToFolder path to folder
+   * @return String with file ids of not conflict files, separated by comma
    */
   protected String getSourceFileIdsThatNotConflictWithFolderFiles( String pathToFolder, String params ) {
     String[] sourceFileIds = FileUtils.convertCommaSeparatedStringToArray( params );
@@ -511,8 +506,7 @@ public class FileService {
 
   /**
    *
-   * @param fileIdsList
-   *          List with file ids.
+   * @param fileIdsList List with file ids.
    * @return
    *      - String of file ids, separated by comma
    *      - Empty String if {@code fileIdList} is null or empty
@@ -567,7 +561,7 @@ public class FileService {
     // change file id to path
     String path = idToPath( pathId );
     validateDownloadAccess( path );
-    IAuthorizationPolicy  policy = getPolicy();
+    IAuthorizationPolicy policy = getPolicy();
 
     String originalFileName, encodedFileName = null;
 
@@ -810,6 +804,7 @@ public class FileService {
     }
     getRepoWs().updateAcl( acl );
   }
+
   /**
    * Check whether the selected repository folder is visible to the current user
    *
@@ -817,8 +812,8 @@ public class FileService {
    * @return true or false
    */
   public String doGetIsVisible( String pathId ) {
-    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
-    return repositoryFileDto != null && repositoryFileDto.isHidden() ?  "false" : "true";
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( pathId ) );
+    return repositoryFileDto != null && repositoryFileDto.isHidden() ? "false" : "true";
   }
 
   /**
@@ -828,7 +823,7 @@ public class FileService {
    * @return true or false
    */
   public boolean isFolder( String pathId ) {
-    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( pathId ) );
     return repositoryFileDto != null && repositoryFileDto.isFolder();
   }
 
@@ -839,7 +834,7 @@ public class FileService {
    * @return true or false
    */
   public boolean doesExist( String pathId ) {
-    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( pathId ) );
     return repositoryFileDto != null && repositoryFileDto.getId() != null;
   }
 
@@ -859,13 +854,14 @@ public class FileService {
     }
     return isInsideOfAnyHiddenFolder( getRepoWs().getFile( idToPath( parentPathId ) ) );
   }
+
   /**
    *
    * @param pathId
    * @return default path to where user can save or open the artifact
    */
   public String doGetDefaultLocation( String pathId ) {
-    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( pathId ) );
     if ( repositoryFileDto == null ) {
       return ClientRepositoryPaths.getRootFolderPath();
     } else if ( isInsideOfAnyHiddenFolder( repositoryFileDto ) ) {
@@ -876,21 +872,21 @@ public class FileService {
         if ( repositoryFileDto == null ) {
           return ClientRepositoryPaths.getRootFolderPath();
         } else if ( isInsideOfAnyHiddenFolder( repositoryFileDto ) ) {
-          repositoryFileDto = getRepoWs().getFile(  ClientRepositoryPaths.getPublicFolderPath() );
+          repositoryFileDto = getRepoWs().getFile( ClientRepositoryPaths.getPublicFolderPath() );
           if ( isInsideOfAnyHiddenFolder( repositoryFileDto ) ) {
             return ClientRepositoryPaths.getRootFolderPath();
           } else {
-            return  ClientRepositoryPaths.getPublicFolderPath();
+            return ClientRepositoryPaths.getPublicFolderPath();
           }
         } else {
           return defaultFolder;
         }
       } else {
-        repositoryFileDto = getRepoWs().getFile(  ClientRepositoryPaths.getPublicFolderPath() );
+        repositoryFileDto = getRepoWs().getFile( ClientRepositoryPaths.getPublicFolderPath() );
         if ( isInsideOfAnyHiddenFolder( repositoryFileDto ) ) {
           return ClientRepositoryPaths.getRootFolderPath();
         } else {
-          return  ClientRepositoryPaths.getPublicFolderPath();
+          return ClientRepositoryPaths.getPublicFolderPath();
         }
       }
     } else {
@@ -987,6 +983,7 @@ public class FileService {
     }
     return file;
   }
+
   /**
    * Gets the permission for whether or not a user can edit files
    *
@@ -994,7 +991,7 @@ public class FileService {
    */
   public String doGetCanEdit() {
     String editPermission = PentahoSystem.getSystemSetting( "edit-permission", "" );
-    if( editPermission != null && editPermission.length() > 0 ) {
+    if ( editPermission != null && editPermission.length() > 0 ) {
       return getPolicy().isAllowed( editPermission ) ? "true" : "false";
     } else {
       return "true";
@@ -1203,10 +1200,7 @@ public class FileService {
   }
 
   /**
-   *
-   * @param params
-   *            id of files, separated by ','
-   *
+   * @param params id of files, separated by ','
    * @return false if homeFolder has files
    *               with names and extension equal to passed files
    *         true otherwise
@@ -1444,8 +1438,12 @@ public class FileService {
       logger.error( e.getCause() );
     }
 
-    //translating /home and /public folders titles
-    for ( RepositoryFileTreeDto dto : tree.getChildren( ) ) {
+    if ( tree == null ) {
+      return null;
+    }
+
+    // translating /home and /public folders titles
+    for ( RepositoryFileTreeDto dto : tree.getChildren() ) {
       if ( dto.getFile().getName().equals( ClientRepositoryPaths.getHomeFolderName() ) && dto.getFile().getPath().equals( ClientRepositoryPaths.getHomeFolderPath() ) ) {
         dto.getFile().setTitle( Messages.getInstance().getString( "FileResource.HOME_FOLDER_DISPLAY_TITLE" ) );
       } else if ( dto.getFile().getName().equals( ClientRepositoryPaths.getPublicFolderName() ) && dto.getFile().getPath().equals( ClientRepositoryPaths.getPublicFolderPath() ) ) {
@@ -1453,7 +1451,7 @@ public class FileService {
       }
     }
     // BISERVER-9599 - Use special sort order
-    if ( tree != null && isShowingTitle( repositoryRequest ) ) {
+    if ( isShowingTitle( repositoryRequest ) ) {
       Collator collator = getCollatorInstance();
       collator.setStrength( Collator.PRIMARY ); // ignore case
       sortByLocaleTitle( collator, tree );
@@ -1735,7 +1733,7 @@ public class FileService {
       !name.trim().equals( name ) || !decode( name ).trim().equals( decode( name ) ) || // no leading or trailing whitespace
       FileUtils.containsReservedCharacter( name, doGetReservedChars().toString().toCharArray() ) || // no reserved characters
       FileUtils.containsControlCharacters( name ) || FileUtils.containsControlCharacters( decode( name ) ) // control characters
-      );
+    );
   }
 
   private String getParentPath( final String path ) {
@@ -1823,7 +1821,7 @@ public class FileService {
     };
   }
 
-  protected RepositoryRequest getRepositoryRequest( String  path, Boolean showHidden, Integer depth, String filter ) {
+  protected RepositoryRequest getRepositoryRequest( String path, Boolean showHidden, Integer depth, String filter ) {
     return new RepositoryRequest( path, showHidden, depth, filter );
   }
 
@@ -1938,7 +1936,7 @@ public class FileService {
   protected String decode( String folder ) {
     String decodeName = folder;
     try {
-      decodeName = URLDecoder.decode( folder, "UTF-8" );
+      decodeName = URLDecoder.decode( folder, StandardCharsets.UTF_8 );
     } catch ( Exception ex ) {
       logger.error( ex );
     }
