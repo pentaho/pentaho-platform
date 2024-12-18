@@ -69,6 +69,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLDecoder;
 import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
@@ -713,6 +714,33 @@ public class FileResourceTest {
     verify( mockElement, times( 3 ) ).attributeValue( "name" );
     verify( mockElement, times( 3 ) ).attributeValue( "is-mandatory" );
     verify( mockAttribElement, times( 1 ) ).attributeValue( "value" );
+  }
+
+  @Test
+  public void testDoesFileExists() throws Exception {
+    // Test Case 1: File exists, expect 200 (OK)
+    String validPathId = "validPathId";
+    doReturn( true ).when( fileResource.fileService ).doesExist( URLDecoder.decode(
+            validPathId, "UTF-8" ) );
+
+    Response response = fileResource.doesFileExists( validPathId );
+    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+
+    // Test Case 2: File does not exist, expect 404 ( not found)
+    String invalidPathId = "invalidPathId";
+    doReturn( false ).when( fileResource.fileService ).doesExist( URLDecoder.decode(
+            invalidPathId, "UTF-8" ) );
+
+    response = fileResource.doesFileExists( invalidPathId );
+    assertEquals( Response.Status.NOT_FOUND.getStatusCode(), response.getStatus() );
+
+    // Test Case 3: Unexpected exception occurs, expect 500 (internal server error)
+    String pathIdForError = "pathForError";
+    doThrow( new RuntimeException( "Unexpected error" ) ).when( fileResource.fileService ).doesExist( URLDecoder.decode(
+            pathIdForError, "UTF-8" ) );
+
+    response = fileResource.doesFileExists( pathIdForError );
+    assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus( ) );
   }
 
   @Test
