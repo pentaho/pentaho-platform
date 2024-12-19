@@ -13,6 +13,10 @@
 
 package org.pentaho.platform.api.util;
 
+import org.pentaho.platform.api.importexport.IExportHelper;
+
 public interface IPentahoPlatformExporter {
   void addExportHelper( IExportHelper helper );
+  IRepositoryExportLogger getRepositoryExportLogger();
+
 }
