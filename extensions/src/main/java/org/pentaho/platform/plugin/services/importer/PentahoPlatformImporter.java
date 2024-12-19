@@ -179,7 +179,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
     // If doing a mondrian publish then there will be no active logger
     if ( repositoryImportLogger.hasLogger() && repositoryFilePath != null && repositoryFilePath.length() > 0 ) {
       repositoryImportLogger.setCurrentFilePath( repositoryFilePath );
-      repositoryImportLogger.warn( file.getName() );
+      repositoryImportLogger.debug( "Starting import of file " + file.getName() );
     }
   }
 

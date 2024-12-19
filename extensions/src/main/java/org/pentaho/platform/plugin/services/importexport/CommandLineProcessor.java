@@ -25,6 +25,7 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -43,6 +44,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.util.RepositoryPathEncoder;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -91,6 +93,9 @@ public class CommandLineProcessor {
   private static final String MULTIPART_FIELD_OVERWRITE_FILE = "overwriteFile";
   private static final String MULTIPART_FIELD_APPLY_ACL_SETTINGS = "applyAclSettings";
   private static final String MULTIPART_FIELD_OVERWRITE_ACL_SETTINGS = "overwriteAclSettings";
+  private static final String MULTIVALUE_FIELD_LOG_FILE = "logFile";
+  private static final String MULTIVALUE_FIELD_LOG_LEVEL = "logLevel";
+  private static final String MULTIVALUE_FIELD_OUTPUT_FILE_NAME_LEVEL = "outputFile";
 
   private static final String METADATA_DATASOURCE_EXT = "xmi";
 
@@ -107,7 +112,7 @@ public class CommandLineProcessor {
   private final CommandLine commandLine;
 
   private final RequestType requestType;
-
+  private static final String DEFAULT_LOG_LEVEL = "INFO";
   private static final String INFO_OPTION_HELP_KEY = "h";
   private static final String INFO_OPTION_HELP_NAME = "help";
   private static final String INFO_OPTION_IMPORT_KEY = "i";
@@ -130,6 +135,8 @@ public class CommandLineProcessor {
   private static final String INFO_OPTION_CHARSET_NAME = "charset";
   private static final String INFO_OPTION_LOGFILE_KEY = "l";
   private static final String INFO_OPTION_LOGFILE_NAME = "logfile";
+  private static final String INFO_OPTION_LOGLEVEL_NAME = "logLevel";
+  private static final String INFO_OPTION_LOGLEVEL_KEY = "lL";
   private static final String INFO_OPTION_PATH_KEY = "f";
   private static final String INFO_OPTION_PATH_NAME = "path";
   private static final String INFO_OPTION_OVERWRITE_KEY = "o";
@@ -211,6 +218,9 @@ public class CommandLineProcessor {
 
     options.addOption( INFO_OPTION_LOGFILE_KEY, INFO_OPTION_LOGFILE_NAME, true, Messages.getInstance()
       .getString( "CommandLineProcessor.INFO_OPTION_LOGFILE_DESCRIPTION" ) );
+
+    options.addOption( INFO_OPTION_LOGLEVEL_KEY, INFO_OPTION_LOGLEVEL_NAME, true, Messages.getInstance()
+            .getString( "CommandLineProcessor.INFO_OPTION_LOGLEVEL_DESCRIPTION" ) );
 
     options.addOption( INFO_OPTION_PATH_KEY, INFO_OPTION_PATH_NAME, true, Messages.getInstance()
       .getString( "CommandLineProcessor.INFO_OPTION_PATH_DESCRIPTION" ) );
@@ -730,7 +740,7 @@ public class CommandLineProcessor {
   private void performBackup() throws ParseException, KettleException, URISyntaxException {
     String contextURL = getOptionValue( INFO_OPTION_URL_NAME, true, false );
     String logFile = getOptionValue( INFO_OPTION_LOGFILE_NAME, false, true );
-
+    String logLevel = getOptionValue( INFO_OPTION_LOGLEVEL_NAME, false, true );
     // Output file is validated before executing
     String outputFile = getOptionValue( INFO_OPTION_FILEPATH_NAME, true, false );
 
@@ -748,12 +758,16 @@ public class CommandLineProcessor {
 
     // Build the complete URL to use
     String backupURL = buildURL( contextURL, API_REPO_FILES_BACKUP );
-
+    FormDataMultiPart part = new FormDataMultiPart();
     WebResource resource = client.resource( backupURL );
 
     // Response response
-    Builder builder = resource.type( MediaType.APPLICATION_FORM_URLENCODED ).accept( MediaType.TEXT_HTML_TYPE );
-    ClientResponse response = builder.get( ClientResponse.class );
+    MultivaluedMap<String, String> postBody = new MultivaluedMapImpl();
+    postBody.add( MULTIVALUE_FIELD_LOG_FILE, logFile );
+    postBody.add( MULTIVALUE_FIELD_LOG_LEVEL, logLevel != null && logLevel.length() > 0 ? logLevel : DEFAULT_LOG_LEVEL );
+    postBody.add( MULTIVALUE_FIELD_OUTPUT_FILE_NAME_LEVEL, outputFile );
+
+    ClientResponse response = resource.type( MediaType.APPLICATION_FORM_URLENCODED_TYPE ).post( ClientResponse.class, postBody );
     if ( response != null && response.getStatus() == 200 ) {
       writeEntityToFile( response, outputFile );
 
@@ -799,6 +813,7 @@ public class CommandLineProcessor {
     String contextURL = getOptionValue( INFO_OPTION_URL_NAME, true, false );
     String filePath = getOptionValue( INFO_OPTION_FILEPATH_NAME, true, false );
     String logFile = getOptionValue( INFO_OPTION_LOGFILE_NAME, false, true );
+    String logLevel = getOptionValue( INFO_OPTION_LOGLEVEL_NAME, false, true );
 
     String importURL = contextURL + API_REPO_FILES_SYSTEM_RESTORE;
     File fileIS = new File( filePath );
@@ -821,11 +836,12 @@ public class CommandLineProcessor {
       String overwriteAclSettings = getOptionValue( INFO_OPTION_OVERWRITE_ACL_SETTINGS_NAME, false, true );
       part.field( MULTIPART_FIELD_OVERWRITE_ACL_SETTINGS, "true".equals( overwriteAclSettings ) ? "true" : "false",
         MediaType.MULTIPART_FORM_DATA_TYPE );
-
+      part.field( MULTIVALUE_FIELD_LOG_FILE, logFile, MediaType.MULTIPART_FORM_DATA_TYPE );
+      part.field( MULTIVALUE_FIELD_LOG_LEVEL, logLevel != null && logLevel.length() > 0 ? logLevel : DEFAULT_LOG_LEVEL, MediaType.MULTIPART_FORM_DATA_TYPE );
       // Response response
       ClientResponse response = resource.type( MediaType.MULTIPART_FORM_DATA ).post( ClientResponse.class, part );
       if ( response != null ) {
-        logResponseMessage( logFile, filePath, response, RequestType.RESTORE );
+        //logResponseMessage( logFile, filePath, response, RequestType.RESTORE );
         response.close();
       }
     } catch ( Exception e ) {
@@ -981,7 +997,7 @@ public class CommandLineProcessor {
    * @see #writeToFile(String, String)
    */
   private static void writeToFile( InputStream inputStream, File file ) throws IOException {
-    try ( FileOutputStream fos = new FileOutputStream( file ) ) {
+    try ( FileOutputStream fos = new FileOutputStream( file, true ) ) {
       IOUtils.copy( inputStream, fos );
     }
   }
