@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.importexport.ExportException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -53,9 +54,8 @@ public class SimpleExportProcessor extends BaseExportProcessor {
 
   /**
    * Performs the export process, returns a File object
-   * 
-   * @throws ExportException
-   *           indicates an error in import processing
+   *
+   * @throws ExportException indicates an error in import processing
    */
   public File performExport( RepositoryFile exportRepositoryFile ) throws ExportException, IOException {
     OutputStream os;
@@ -63,10 +63,10 @@ public class SimpleExportProcessor extends BaseExportProcessor {
 
     // create temp file
     exportFile = File.createTempFile( EXPORT_TEMP_FILENAME_PREFIX, EXPORT_TEMP_FILENAME_EXT );
-    exportFile.deleteOnExit();
+    exportFile.deleteOnExit( );
 
     // get the file path
-    String filePath = new File( this.path ).getParent();
+    String filePath = new File( this.path ).getParent( );
 
     // send a response right away if not found
     if ( exportRepositoryFile == null ) {
@@ -79,11 +79,11 @@ public class SimpleExportProcessor extends BaseExportProcessor {
     try {
       exportFile( exportRepositoryFile, os, filePath );
     } catch ( Exception e ) {
-      log.error( e.getMessage() );
-      throw ( new ExportException() );
+      log.error( e.getMessage( ) );
+      throw ( new ExportException( ) );
     } finally {
       // make sure to close output stream
-      os.close();
+      os.close( );
     }
 
     // clean up
@@ -98,18 +98,17 @@ public class SimpleExportProcessor extends BaseExportProcessor {
    */
   @Override
   public void exportDirectory( RepositoryFile repositoryDir, OutputStream outputStream, String filePath )
-    throws ExportException, IOException {
-    throw new UnsupportedOperationException();
+      throws ExportException, IOException {
+    throw new UnsupportedOperationException( );
   }
 
   /**
-   * 
    * @param repositoryFile
    * @param outputStream
    */
   @Override
   public void exportFile( RepositoryFile repositoryFile, OutputStream outputStream, String filePath )
-    throws ExportException, IOException {
+      throws ExportException, IOException {
     // iterate through handlers to perform export
     for ( ExportHandler exportHandler : exportHandlerList ) {
 
@@ -120,7 +119,7 @@ public class SimpleExportProcessor extends BaseExportProcessor {
 
         IOUtils.copy( is, outputStream );
 
-        is.close();
+        is.close( );
       }
     }
   }
