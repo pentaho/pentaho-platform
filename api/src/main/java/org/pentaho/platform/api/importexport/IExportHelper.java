@@ -11,8 +11,11 @@
  ******************************************************************************/
 
 
-package org.pentaho.platform.api.util;
+package org.pentaho.platform.api.importexport;
+
+
 
 public interface IExportHelper {
-  public void doExport( Object exportArg );
+  public void doExport( Object exportArg ) throws ExportException;
+  public String getName();
 }

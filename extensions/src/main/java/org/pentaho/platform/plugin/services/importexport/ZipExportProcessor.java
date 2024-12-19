@@ -23,6 +23,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
+import org.pentaho.platform.api.importexport.ExportException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
@@ -76,29 +77,29 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
     setUnifiedRepository( repository );
 
-    this.exportHandlerList = new ArrayList<>();
+    this.exportHandlerList = new ArrayList<>( );
 
-    initManifest();
+    initManifest( );
   }
 
-  protected void initManifest() {
-    this.exportManifest = new ExportManifest();
+  protected void initManifest( ) {
+    this.exportManifest = new ExportManifest( );
 
     // set created by and create date in manifest information
-    IPentahoSession session = getSession();
+    IPentahoSession session = getSession( );
 
-    Date todaysDate = new Date();
+    Date todaysDate = new Date( );
     SimpleDateFormat dateFormat = new SimpleDateFormat( EXPORT_INFO_DATE_FORMAT );
     SimpleDateFormat timeFormat = new SimpleDateFormat( EXPORT_INFO_TIME_FORMAT );
 
-    exportManifest.getManifestInformation().setExportBy( session.getName() );
-    exportManifest.getManifestInformation().setExportDate(
-            dateFormat.format( todaysDate ) + " " + timeFormat.format( todaysDate ) );
-    exportManifest.getManifestInformation().setManifestVersion( "2" );
+    exportManifest.getManifestInformation( ).setExportBy( session.getName( ) );
+    exportManifest.getManifestInformation( ).setExportDate(
+        dateFormat.format( todaysDate ) + " " + timeFormat.format( todaysDate ) );
+    exportManifest.getManifestInformation( ).setManifestVersion( "2" );
   }
 
-  protected IPentahoSession getSession() {
-    return PentahoSessionHolder.getSession();
+  protected IPentahoSession getSession( ) {
+    return PentahoSessionHolder.getSession( );
   }
 
   /**
@@ -111,10 +112,10 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
     // create temp file
     exportFile = File.createTempFile( EXPORT_TEMP_FILENAME_PREFIX, EXPORT_TEMP_FILENAME_EXT );
-    exportFile.deleteOnExit();
+    exportFile.deleteOnExit( );
 
     // get the file path
-    String filePath = new File( this.path ).getParent();
+    String filePath = new File( this.path ).getParent( );
     if ( filePath == null ) {
       filePath = "/";
     }
@@ -126,17 +127,17 @@ public class ZipExportProcessor extends BaseExportProcessor {
     }
 
     try ( ZipOutputStream zos = new ZipOutputStream( new FileOutputStream( exportFile ) ) ) {
-      if ( exportRepositoryFile.isFolder() ) { // Handle recursive export
-        exportManifest.getManifestInformation().setRootFolder( path.substring( 0, path.lastIndexOf( "/" ) + 1 ) );
+      if ( exportRepositoryFile.isFolder( ) ) { // Handle recursive export
+        exportManifest.getManifestInformation( ).setRootFolder( path.substring( 0, path.lastIndexOf( "/" ) + 1 ) );
 
         // don't zip root folder without name
-        if ( !ClientRepositoryPaths.getRootFolderPath().equals( exportRepositoryFile.getPath() ) ) {
+        if ( !ClientRepositoryPaths.getRootFolderPath( ).equals( exportRepositoryFile.getPath( ) ) ) {
           zos.putNextEntry( new ZipEntry( getFixedZipEntryName( exportRepositoryFile, filePath ) ) );
         }
         exportDirectory( exportRepositoryFile, zos, filePath );
 
       } else {
-        exportManifest.getManifestInformation().setRootFolder( path.substring( 0, path.lastIndexOf( "/" ) + 1 ) );
+        exportManifest.getManifestInformation( ).setRootFolder( path.substring( 0, path.lastIndexOf( "/" ) + 1 ) );
         exportFile( exportRepositoryFile, zos, filePath );
       }
 
@@ -153,7 +154,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
           log.error( "Error generating export XML" );
         }
 
-        zos.closeEntry();
+        zos.closeEntry( );
       }
     }
 
@@ -180,13 +181,18 @@ public class ZipExportProcessor extends BaseExportProcessor {
       try ( InputStream is = exportHandler.doExport( repositoryFile, filePath ) ) {
         // if we don't get a valid input stream back, skip it
         if ( is != null ) {
+          getRepositoryExportLogger( ).debug( "Adding repository object [ " + repositoryFile.getName( ) + " ] to the manifest" );
           addToManifest( repositoryFile );
+          getRepositoryExportLogger( ).debug( "Starting to add repository object [ " + repositoryFile.getName( ) + " ] to the export bundle" );
           String zipEntryName = getFixedZipEntryName( repositoryFile, filePath );
           ZipEntry entry = new ZipEntry( zipEntryName );
           zos.putNextEntry( entry );
           IOUtils.copy( is, outputStream );
-          zos.closeEntry();
-          createLocales( repositoryFile, filePath, repositoryFile.isFolder(), outputStream );
+          zos.closeEntry( );
+          getRepositoryExportLogger( ).debug( "Successfully added repository object [ " + repositoryFile.getName( ) + " ] to the export bundle" );
+          getRepositoryExportLogger( ).trace( "Starting to create locale entry for repository object [ " + ( ( repositoryFile != null ) ? repositoryFile.getName( ) : "" ) + " ] " );
+          createLocales( repositoryFile, filePath, repositoryFile.isFolder( ), outputStream );
+          getRepositoryExportLogger( ).trace( "Finished creating locale entry for repository object [ " + ( ( repositoryFile != null ) ? repositoryFile.getName( ) : "" ) + " ] " );
         }
       }
     }
@@ -201,11 +207,11 @@ public class ZipExportProcessor extends BaseExportProcessor {
   protected void addToManifest( RepositoryFile repositoryFile ) throws ExportException {
     if ( this.withManifest ) {
       // add this entity to the manifest
-      RepositoryFileAcl fileAcl = getUnifiedRepository().getAcl( repositoryFile.getId() );
+      RepositoryFileAcl fileAcl = getUnifiedRepository( ).getAcl( repositoryFile.getId( ) );
       try {
-        getExportManifest().add( repositoryFile, fileAcl );
+        getExportManifest( ).add( repositoryFile, fileAcl );
       } catch ( ExportManifestFormatException e ) {
-        throw new ExportException( e.getMessage() );
+        throw new ExportException( e.getMessage( ) );
       }
     }
   }
@@ -217,35 +223,45 @@ public class ZipExportProcessor extends BaseExportProcessor {
   @Override
   public void exportDirectory( RepositoryFile repositoryDir, OutputStream outputStream, String filePath ) throws
       ExportException, IOException {
+    getRepositoryExportLogger( ).debug( "Adding repository object [ " + repositoryDir.getName( ) + " ] to the manifest" );
     addToManifest( repositoryDir );
-    List<RepositoryFile> children = getUnifiedRepository().getChildren( new RepositoryRequest(
-        String.valueOf( repositoryDir.getId() ), true, 1, null ) );
+    List<RepositoryFile> children = getUnifiedRepository( ).getChildren( new RepositoryRequest(
+        String.valueOf( repositoryDir.getId( ) ), true, 1, null ) );
+    getRepositoryExportLogger( ).debug( "Found  [ " + children.size( ) + " ] children in folder [ " + repositoryDir.getName( ) + " ]" );
     for ( RepositoryFile repositoryFile : children ) {
       // exclude 'etc' folder - datasources and etc.
-      if ( isExportCandidate( repositoryFile.getPath() ) ) {
-        if ( repositoryFile.isFolder() ) {
-          if ( outputStream.getClass().isAssignableFrom( ZipOutputStream.class ) ) {
+      if ( isExportCandidate( repositoryFile.getPath( ) ) ) {
+        getRepositoryExportLogger( ).trace( "Repository object is a candidate for export [ " + repositoryFile.getName( ) + " ]" );
+        if ( repositoryFile.isFolder( ) ) {
+          getRepositoryExportLogger( ).debug( "Repository Object [ " + repositoryFile.getName( ) + " ] is a folder. Adding it to the export bundle" );
+          if ( outputStream.getClass( ).isAssignableFrom( ZipOutputStream.class ) ) {
             ZipOutputStream zos = (ZipOutputStream) outputStream;
             String zipEntryName = getFixedZipEntryName( repositoryFile, filePath );
             ZipEntry entry = new ZipEntry( zipEntryName );
             zos.putNextEntry( entry );
+            getRepositoryExportLogger( ).debug( "Successfully added repository Object [ " + repositoryFile.getName( ) + " ] to the export bundle" );
           }
           exportDirectory( repositoryFile, outputStream, filePath );
         } else {
           try {
+            getRepositoryExportLogger( ).debug( "Repository Object [ " + repositoryFile.getName( ) + " ] is a file. Adding it to the export bundle" );
             exportFile( repositoryFile, outputStream, filePath );
           } catch ( ZipException e ) {
             // possible duplicate entry, log it and continue on with the other files in the directory
-            log.debug( e.getMessage(), e );
+            log.debug( e.getMessage( ), e );
           }
         }
+      } else {
+        getRepositoryExportLogger( ).trace( "Repository object is a candidate for export [ " + repositoryFile.getName( ) + " ] skipping it" );
       }
     }
-    createLocales( repositoryDir, filePath, repositoryDir.isFolder(), outputStream );
+    getRepositoryExportLogger( ).trace( "Starting to create locale entry for repository object [ " + repositoryDir.getName( ) + " ] " );
+    createLocales( repositoryDir, filePath, repositoryDir.isFolder( ), outputStream );
+    getRepositoryExportLogger( ).trace( "Finished creating locale entry for repository object [ " + repositoryDir.getName( ) + " ] " );
   }
 
   protected boolean isExportCandidate( String path ) {
-    return !ClientRepositoryPaths.getEtcFolderPath().equals( path );
+    return !ClientRepositoryPaths.getEtcFolderPath( ).equals( path );
   }
 
   /**
@@ -270,15 +286,15 @@ public class ZipExportProcessor extends BaseExportProcessor {
     int filePathLength = 0;
 
     if ( filePath.equals( "/" ) || filePath.equals( "\\" ) ) {
-      filePathLength = filePath.length();
+      filePathLength = filePath.length( );
     } else {
-      filePathLength = filePath.length() + 1;
+      filePathLength = filePath.length( ) + 1;
     }
 
-    result = repositoryFile.getPath().substring( filePathLength );
+    result = repositoryFile.getPath( ).substring( filePathLength );
 
     // add trailing slash for folders
-    if ( repositoryFile.isFolder() ) {
+    if ( repositoryFile.isFolder( ) ) {
       result += "/";
     }
     return FilenameUtils.normalize( result, true );
@@ -294,7 +310,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
    * @throws IOException
    */
   protected void createLocales( RepositoryFile repositoryFile, String filePath, boolean isFolder,
-                              OutputStream outputStream ) throws IOException {
+                                OutputStream outputStream ) throws IOException {
     ZipEntry entry;
     String zipEntryName;
     String name;
@@ -303,26 +319,26 @@ public class ZipExportProcessor extends BaseExportProcessor {
     ZipOutputStream zos = (ZipOutputStream) outputStream;
     // only process files and folders that we know will have locale settings
     if ( supportedLocaleFileExt( repositoryFile ) ) {
-      List<LocaleMapDto> locales = getAvailableLocales( repositoryFile.getId() );
+      List<LocaleMapDto> locales = getAvailableLocales( repositoryFile.getId( ) );
       zipEntryName = getFixedZipEntryName( repositoryFile, filePath );
-      name = repositoryFile.getName();
+      name = repositoryFile.getName( );
       for ( LocaleMapDto locale : locales ) {
-        localeName = locale.getLocale().equalsIgnoreCase( "default" ) ? "" : "_" + locale.getLocale();
+        localeName = locale.getLocale( ).equalsIgnoreCase( "default" ) ? "" : "_" + locale.getLocale( );
         if ( isFolder ) {
           zipEntryName = getFixedZipEntryName( repositoryFile, filePath ) + "index";
           name = "index";
         }
 
-        properties = getUnifiedRepository().getLocalePropertiesForFileById( repositoryFile.getId(), locale.getLocale() );
+        properties = getUnifiedRepository( ).getLocalePropertiesForFileById( repositoryFile.getId( ), locale.getLocale( ) );
         if ( properties != null ) {
           properties.remove( "jcr:primaryType" ); // Pentaho Type
 
-          try ( InputStream is = createLocaleFile( name + localeName, properties, locale.getLocale() ) ) {
+          try ( InputStream is = createLocaleFile( name + localeName, properties, locale.getLocale( ) ) ) {
             if ( is != null ) {
               entry = new ZipEntry( zipEntryName + localeName + LOCALE_EXT );
               zos.putNextEntry( entry );
               IOUtils.copy( is, outputStream );
-              zos.closeEntry();
+              zos.closeEntry( );
             }
           }
         }
@@ -339,13 +355,13 @@ public class ZipExportProcessor extends BaseExportProcessor {
    */
   private boolean supportedLocaleFileExt( RepositoryFile repositoryFile ) {
     boolean ans = true;
-    String ext = repositoryFile.getName();
-    if ( !repositoryFile.isFolder() ) {
+    String ext = repositoryFile.getName( );
+    if ( !repositoryFile.isFolder( ) ) {
       int idx = ext.lastIndexOf( "." );
       if ( idx > 0 ) {
-        ext = ext.substring( idx, ext.length() );
+        ext = ext.substring( idx, ext.length( ) );
       }
-      List<String> exportList = getLocaleExportList();
+      List<String> exportList = getLocaleExportList( );
       if ( exportList != null ) {
         ans = exportList.contains( ext );
       }
@@ -361,11 +377,11 @@ public class ZipExportProcessor extends BaseExportProcessor {
    * @return
    */
   private List<LocaleMapDto> getAvailableLocales( Serializable fileId ) {
-    List<LocaleMapDto> availableLocales = new ArrayList<LocaleMapDto>();
-    List<Locale> locales = getUnifiedRepository().getAvailableLocalesForFileById( fileId );
-    if ( locales != null && !locales.isEmpty() ) {
+    List<LocaleMapDto> availableLocales = new ArrayList<LocaleMapDto>( );
+    List<Locale> locales = getUnifiedRepository( ).getAvailableLocalesForFileById( fileId );
+    if ( locales != null && !locales.isEmpty( ) ) {
       for ( Locale locale : locales ) {
-        availableLocales.add( new LocaleMapDto( locale.toString(), null ) );
+        availableLocales.add( new LocaleMapDto( locale.toString( ), null ) );
       }
     }
     return availableLocales;
@@ -386,7 +402,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
       try {
         localeFile = PentahoSystem
-          .getApplicationContext().createTempFile( getSession(), ExportFileNameEncoder.encodeZipFileName( name ), LOCALE_EXT, true );
+            .getApplicationContext( ).createTempFile( getSession( ), ExportFileNameEncoder.encodeZipFileName( name ), LOCALE_EXT, true );
       } catch ( IOException e ) {
         // BISERVER-14140 - Retry when temp file name exceeds the limit of OS
         // Retry inside a catch because there isn't an accurate mechanism to determine the effective temp file max length
@@ -394,10 +410,10 @@ public class ZipExportProcessor extends BaseExportProcessor {
         String smallerName = ExportFileNameEncoder.encodeZipFileName( name ).substring( 0, SAFETY_TMP_FILE_SIZE );
         log.debug( "Error with original name file. Retrying with a smaller temp file name - " + smallerName );
         localeFile = PentahoSystem
-          .getApplicationContext().createTempFile( getSession(), smallerName, LOCALE_EXT, true );
+            .getApplicationContext( ).createTempFile( getSession( ), smallerName, LOCALE_EXT, true );
       } finally {
         if ( localeFile != null ) {
-          localeFile.deleteOnExit();
+          localeFile.deleteOnExit( );
         }
       }
 
@@ -414,10 +430,10 @@ public class ZipExportProcessor extends BaseExportProcessor {
    *
    * @return
    */
-  public List<String> getLocaleExportList() {
-    if ( this.localeExportList == null || this.localeExportList.isEmpty() ) {
+  public List<String> getLocaleExportList( ) {
+    if ( this.localeExportList == null || this.localeExportList.isEmpty( ) ) {
       for ( ExportHandler exportHandler : exportHandlerList ) {
-        this.localeExportList = ( (DefaultExportHandler) exportHandler ).getLocaleExportList();
+        this.localeExportList = ( (DefaultExportHandler) exportHandler ).getLocaleExportList( );
         break;
       }
     }
@@ -428,7 +444,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
     this.localeExportList = localeExportList;
   }
 
-  public ExportManifest getExportManifest() {
+  public ExportManifest getExportManifest( ) {
     return exportManifest;
   }
 

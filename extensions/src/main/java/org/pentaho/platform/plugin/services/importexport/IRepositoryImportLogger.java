@@ -15,6 +15,7 @@ package org.pentaho.platform.plugin.services.importexport;
 
 import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.StringLayout;
 
 import java.io.OutputStream;
 
@@ -48,6 +49,22 @@ import java.io.OutputStream;
  * 
  */
 public interface IRepositoryImportLogger extends Log {
+
+
+  /**
+   * Initiates an import job. Each call creates a new log associated with the current thread.
+   *
+   * @param outputStream
+   *          Will receive the html content of the log
+   * @param importRootPath
+   *          The root import dir receiving the import
+   * @param logLevel
+   *          The log level to be logged.
+   * @param layout
+   *          The layout to be use.
+   *
+   */
+  void startJob( OutputStream outputStream, String importRootPath, Level logLevel, StringLayout layout );
 
   /**
    * Initiates an import job. Each call creates a new log associated with the current thread.

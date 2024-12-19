@@ -40,7 +40,9 @@ import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAc
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.api.importexport.ExportException;
 import org.pentaho.platform.api.util.IPentahoPlatformExporter;
+import org.pentaho.platform.api.util.IRepositoryExportLogger;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.exporter.PentahoPlatformExporter;
@@ -49,7 +51,7 @@ import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
-import org.pentaho.platform.plugin.services.importexport.ExportException;
+import org.pentaho.platform.plugin.services.importexport.RepositoryTextLayout;
 import org.pentaho.platform.plugin.services.importexport.ExportHandler;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
@@ -82,6 +84,7 @@ import org.pentaho.platform.web.servlet.HttpMimeTypeListener;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -95,6 +98,8 @@ import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.text.Collator;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -131,29 +136,76 @@ public class FileService {
 
   private PentahoPlatformExporter backupExporter;
 
-  public DownloadFileWrapper systemBackup( String userAgent ) throws IOException, ExportException {
+  private void validateFilePath( String logFile ) throws IllegalArgumentException {
+    if ( logFile.contains( ".." ) || logFile.contains( "//" ) || logFile.contains( "\\\\" ) || ( !logFile.endsWith( ".txt" ) && !logFile.endsWith( ".log" ) ) ) {
+      throw new IllegalArgumentException( Messages.getInstance().getString( "FileService.ERROR_INVALID_LOG_FILENAME", logFile ) );
+    }
+  }
+  public DownloadFileWrapper systemBackup( String userAgent, String logFile, String logLevel, String outputFile ) throws IllegalArgumentException, IOException, ExportException {
     if ( doCanAdminister() ) {
-      String originalFileName;
       String encodedFileName;
-      originalFileName = "SystemBackup.zip";
-      encodedFileName = makeEncodedFileName( originalFileName );
-      StreamingOutput streamingOutput = getBackupStream();
-      final String attachment = HttpMimeTypeListener.buildContentDispositionValue( originalFileName,  true );
-
+      encodedFileName = makeEncodedFileName( outputFile );
+      IRepositoryExportLogger exportLogger;
+      Level level = Level.valueOf( logLevel );
+      FileOutputStream fileOutputStream = null;
+      try {
+        validateFilePath( logFile );
+        fileOutputStream = new FileOutputStream( logFile );
+      } catch ( FileNotFoundException e ) {
+        try {
+          fileOutputStream = retrieveFallbackLogFileLocation( "backup" );
+        } catch ( FileNotFoundException fileNotFoundException ) {
+          throw new ExportException( fileNotFoundException );
+        }
+      }
+      ByteArrayOutputStream exportLoggerSream = new ByteArrayOutputStream();
+      IPentahoPlatformExporter exporter = PentahoSystem.get( IPentahoPlatformExporter.class );
+      exportLogger = exporter.getRepositoryExportLogger();
+      RepositoryTextLayout stringLayout = new RepositoryTextLayout( level );
+      exportLogger.startJob( exportLoggerSream, level, stringLayout );
+      StreamingOutput streamingOutput = getBackupStream( );
+      exportLogger.endJob( );
+      try {
+        exportLoggerSream.writeTo( fileOutputStream );
+      } catch ( IOException e ) {
+        e.printStackTrace();
+      }
+      final String attachment = HttpMimeTypeListener.buildContentDispositionValue( outputFile,  true );
       return new DownloadFileWrapper( streamingOutput, attachment, encodedFileName );
     } else {
       throw new SecurityException();
     }
   }
 
+  public FileOutputStream retrieveFallbackLogFileLocation( String filePrefix ) throws FileNotFoundException {
+    String defaultBaseDir = System.getProperty( "java.io.tmpdir" );
+    // Get the current timestamp
+    SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyyMMdd_HHmmss" );
+    String timestamp = dateFormat.format( new Date() );
+    String fallbacklogFilePath = defaultBaseDir + File.pathSeparator + filePrefix + "_" + timestamp + ".log";
+    return new FileOutputStream( fallbacklogFilePath );
+  }
+
   public void systemRestore( final InputStream fileUpload, String overwriteFile,
-                             String applyAclSettings, String overwriteAclSettings ) throws PlatformImportException, SecurityException {
+                             String applyAclSettings, String overwriteAclSettings, String logFile, String logLevel ) throws IllegalArgumentException, PlatformImportException, SecurityException {
     if ( doCanAdminister() ) {
       boolean overwriteFileFlag = !"false".equals( overwriteFile );
       boolean applyAclSettingsFlag = !"false".equals( applyAclSettings );
       boolean overwriteAclSettingsFlag = "true".equals( overwriteAclSettings );
       IRepositoryImportLogger importLogger;
-      Level level = Level.ERROR;
+      Level level = Level.valueOf( logLevel );
+
+      FileOutputStream fileOutputStream = null;
+      try {
+        validateFilePath( logFile );
+        fileOutputStream = new FileOutputStream( logFile );
+      } catch ( FileNotFoundException e ) {
+        try {
+          fileOutputStream = retrieveFallbackLogFileLocation( "restore" );
+        } catch ( FileNotFoundException fileNotFoundException ) {
+          throw new PlatformImportException( fileNotFoundException.getLocalizedMessage() );
+        }
+      }
       ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
       String importDirectory = "/";
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
@@ -173,19 +225,25 @@ public class FileService {
 
       IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
       importLogger = importer.getRepositoryImportLogger();
-      importLogger.startJob( importLoggerStream, importDirectory, level );
+      RepositoryTextLayout stringLayout = new RepositoryTextLayout( level );
+      importLogger.startJob( importLoggerStream, importDirectory, level, stringLayout );
       try {
         importer.importFile( bundleBuilder.build() );
       } finally {
         importLogger.endJob();
+        try {
+          importLoggerStream.writeTo( fileOutputStream );
+        } catch ( IOException e ) {
+          e.printStackTrace();
+        }
       }
     } else {
       throw new SecurityException();
     }
   }
 
-  private StreamingOutput getBackupStream() throws IOException, ExportException {
-    File zipFile = getBackupExporter().performExport();
+  private StreamingOutput getBackupStream( ) throws IOException, ExportException {
+    File zipFile = getBackupExporter().performExport( );
     final FileInputStream inputStream = new FileInputStream( zipFile );
 
     return new StreamingOutput() {
@@ -994,7 +1052,7 @@ public class FileService {
    */
   public String doGetCanEdit() {
     String editPermission = PentahoSystem.getSystemSetting( "edit-permission", "" );
-    if( editPermission != null && editPermission.length() > 0 ) {
+    if ( editPermission != null && editPermission.length() > 0 ) {
       return getPolicy().isAllowed( editPermission ) ? "true" : "false";
     } else {
       return "true";

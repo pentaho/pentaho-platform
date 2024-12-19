@@ -23,11 +23,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +36,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -63,6 +60,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.util.IRepositoryExportLogger;
 import org.pentaho.platform.core.mimetype.MimeType;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -300,8 +298,13 @@ public class ZipExportProcessorTest {
     RepositoryFile expFolder = repo.getFile( expFolderPath );
     assertNotNull( expFolder );
 
+    // mock logger to prevent npe
+    IRepositoryExportLogger exportLogger = new Log4JRepositoryExportLogger();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    exportLogger.startJob( outputStream, Level.INFO, new RepositoryTextLayout( Level.INFO ) );
+    zipNoMF.setRepositoryExportLogger( exportLogger );
     File result = zipNoMF.performExport( repo.getFile( expFolderPath ) );
-
+    exportLogger.endJob();
     Set<String> zipEntriesFiles = extractZipEntries( result );
     final String[] expectedEntries =
         new String[] { "two words/eval (+)%.prpt", "two words/eval (+)%.prpt_en.locale", "two words/index_en.locale" };
@@ -321,7 +324,12 @@ public class ZipExportProcessorTest {
 
     RepositoryFile expFolder = repo.getFile( expFolderPath );
     assertNotNull( expFolder );
-
+    // mock logger to prevent npe
+    IRepositoryExportLogger exportLogger = new Log4JRepositoryExportLogger();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    exportLogger.startJob( outputStream, Level.INFO, new RepositoryTextLayout( Level.INFO ) );
+    zipMF.setRepositoryExportLogger( exportLogger );
+    exportLogger.endJob();
     File result = zipMF.performExport( repo.getFile( expFolderPath ) );
 
     Set<String> zipEntriesFiles = extractZipEntries( result );
