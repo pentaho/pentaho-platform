@@ -102,6 +102,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
@@ -489,6 +490,39 @@ public class FileResource extends AbstractJaxRSResource {
     } catch ( IllegalArgumentException illegalArgument ) {
       return buildStatusResponse( Response.Status.FORBIDDEN );
     }
+  }
+  /**
+   * Checks if a file exists at the specified path in the repository.
+   *
+   * <p><b>Example Request:</b><br />
+   *    GET pentaho/api/repo/exists?pathId=%2Fhome%2Fuser%2Ftest_file.wtr
+   * </p>
+   *
+   * @param pathId Encoded path of the repository file to check. Must be URL-encoded.
+   *
+   * @return A jax-rs Response object with the appropriate status code
+   */
+
+  @GET
+  @Path( "/exists" )
+  @StatusCodes( {
+          @ResponseCode( code = 200, condition = "Successfully finds the file." ),
+          @ResponseCode( code = 404, condition = "Invalid Input." ),
+          @ResponseCode( code = 404, condition = "Failed to find the file." ),
+          @ResponseCode( code = 500, condition = "For any other exceptions." )
+  } )
+  public Response doesFileExists( @QueryParam ( "pathId" ) String pathId ) {
+    try {
+      boolean fileExists = fileService.doesExist( URLDecoder.decode( pathId, "UTF-8" ) );
+      if ( !fileExists ) {
+        return buildStatusResponse( Response.Status.NOT_FOUND );
+      }
+    } catch ( UnsupportedEncodingException e ) {
+      return buildStatusResponse( Response.Status.BAD_REQUEST );
+    } catch ( Exception e ) {
+      return buildStatusResponse( Response.Status.INTERNAL_SERVER_ERROR );
+    }
+    return buildOkResponse();
   }
 
   // Overloaded this method to try and minimize calls to the repo
