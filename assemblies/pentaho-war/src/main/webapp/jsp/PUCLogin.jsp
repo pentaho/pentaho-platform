@@ -350,6 +350,8 @@
     var userState = '';
     <% } %>
 
+    $("#j_username").val($("#j_username").val().trim());
+
     jQuery.ajax({
       type: "POST",
       url: "j_spring_security_check",
