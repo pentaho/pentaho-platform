@@ -350,8 +350,7 @@
     var userState = '';
     <% } %>
 
-    let trimmedValue = $("#login #j_username").val().trim();
-    $("#login #j_username").val(trimmedValue);
+    $("#j_username").val($("#j_username").val().trim());
 
     jQuery.ajax({
       type: "POST",
