@@ -209,6 +209,9 @@
 
 	<bean id="IPentahoPlatformExporter" class="org.pentaho.platform.plugin.services.exporter.PentahoPlatformExporter">
 		<constructor-arg ref="unifiedRepository"/>
+		<property name="repositoryExportLogger">
+			<bean class="org.pentaho.platform.plugin.services.importexport.Log4JRepositoryExportLogger" />
+		</property>
 	</bean>
 	
 	<bean id="IRepositoryVersionManager" class="org.pentaho.platform.repository2.unified.DefaultRepositoryVersionManager" scope="singleton">
