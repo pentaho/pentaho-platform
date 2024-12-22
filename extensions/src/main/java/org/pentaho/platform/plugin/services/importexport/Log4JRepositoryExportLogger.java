@@ -16,6 +16,7 @@ package org.pentaho.platform.plugin.services.importexport;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.StringLayout;
+import org.pentaho.platform.api.util.IRepositoryExportLogger;
 
 import java.io.OutputStream;
 
@@ -24,41 +25,27 @@ import java.io.OutputStream;
  *
  * @author TKafalas
  */
-public class Log4JRepositoryImportLogger implements IRepositoryImportLogger {
+public class Log4JRepositoryExportLogger implements IRepositoryExportLogger {
 
-  private ThreadLocal<Log4JRepositoryImportLog> repositoryImportLog = new ThreadLocal<Log4JRepositoryImportLog>();
+  private ThreadLocal<Log4JRepositoryExportLog> repositoryExportLog = new ThreadLocal<Log4JRepositoryExportLog>();
 
-  private boolean isPerformingRestore = false;
-
-  public Log4JRepositoryImportLogger() {
+  public Log4JRepositoryExportLogger() {
   }
 
-  public void startJob( OutputStream outputStream, String importRootPath, Level logLevel, StringLayout layout ) {
-    repositoryImportLog.set( new Log4JRepositoryImportLog( outputStream, importRootPath, logLevel, layout ) );
-    getLog4JRepositoryImportLog().setCurrentFilePath( getLog4JRepositoryImportLog().getImportRootPath() );
-    if ( !isPerformingRestore ) {
-      getLogger().info( "Start Import Job" );
-    }
+  public void remove() {
+    repositoryExportLog.remove();
   }
 
-  public void startJob( OutputStream outputStream, String importRootPath, Level logLevel ) {
-    repositoryImportLog.set( new Log4JRepositoryImportLog( outputStream, importRootPath, logLevel ) );
-    getLog4JRepositoryImportLog().setCurrentFilePath( getLog4JRepositoryImportLog().getImportRootPath() );
-    if ( !isPerformingRestore ) {
-      getLogger().info( "Start Import Job" );
-    }
+  public void startJob( OutputStream outputStream, Level logLevel, StringLayout layout ) {
+    repositoryExportLog.set( new Log4JRepositoryExportLog( outputStream, logLevel, layout ) );
+  }
+
+  public void startJob( OutputStream outputStream, Level logLevel ) {
+    repositoryExportLog.set( new Log4JRepositoryExportLog( outputStream, logLevel ) );
   }
 
   public void endJob() {
-    getLog4JRepositoryImportLog().setCurrentFilePath( getLog4JRepositoryImportLog().getImportRootPath() );
     getLog4JRepositoryImportLog().endJob();
-    if ( !isPerformingRestore ) {
-      getLogger().info( "End Import Job" );
-    }
-  }
-
-  public void setCurrentFilePath( String currentFilePath ) {
-    getLog4JRepositoryImportLog().setCurrentFilePath( currentFilePath );
   }
 
   public void info( String s ) {
@@ -83,8 +70,8 @@ public class Log4JRepositoryImportLogger implements IRepositoryImportLogger {
 
   }
 
-  private Log4JRepositoryImportLog getLog4JRepositoryImportLog() {
-    Log4JRepositoryImportLog currentLog = repositoryImportLog.get();
+  private Log4JRepositoryExportLog getLog4JRepositoryImportLog() {
+    Log4JRepositoryExportLog currentLog = repositoryExportLog.get();
     if ( currentLog == null ) {
       throw new IllegalStateException( "No job started for current Thread" );
     }
@@ -96,17 +83,7 @@ public class Log4JRepositoryImportLogger implements IRepositoryImportLogger {
   }
 
   public boolean hasLogger() {
-    return ( repositoryImportLog.get() == null ) ? false : true;
-  }
-
-  @Override
-  public boolean isPerformingRestore() {
-    return isPerformingRestore;
-  }
-
-  @Override
-  public void setPerformingRestore( boolean value ) {
-    this.isPerformingRestore = value;
+    return ( repositoryExportLog.get() == null ) ? false : true;
   }
 
   @Override

@@ -35,6 +35,8 @@ package org.pentaho.platform.plugin.services.importexport;
 
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.importexport.ExportException;
+import org.pentaho.platform.api.util.IRepositoryExportLogger;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,6 +56,9 @@ public abstract class BaseExportProcessor {
   List<ExportHandler> exportHandlerList = new ArrayList();
 
   IUnifiedRepository unifiedRepository;
+
+  IRepositoryExportLogger repositoryExportLogger;
+
 
   protected static final String EXPORT_MANIFEST_FILENAME = "exportManifest.xml";
   protected static final String EXPORT_INFO_DATE_FORMAT = "dd-MM-yyyy";
@@ -106,6 +111,14 @@ public abstract class BaseExportProcessor {
     this.unifiedRepository = unifiedRepository;
   }
 
+  public IRepositoryExportLogger getRepositoryExportLogger() {
+    return repositoryExportLogger;
+  }
+
+  public void setRepositoryExportLogger( IRepositoryExportLogger repositoryExportLogger ) {
+    this.repositoryExportLogger = repositoryExportLogger;
+  }
+
   /**
    * Performs the export process, returns a zip File object
    *
@@ -119,13 +132,13 @@ public abstract class BaseExportProcessor {
    */
 
   public abstract void exportDirectory( RepositoryFile repositoryDir, OutputStream outputStream, String filePath )
-    throws ExportException, IOException;
+      throws ExportException, IOException;
 
   /**
    * @param repositoryFile
    * @param outputStream
    */
   public abstract void exportFile( RepositoryFile repositoryFile, OutputStream outputStream, String filePath )
-    throws ExportException, IOException;
+      throws ExportException, IOException;
 
 }
