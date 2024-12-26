@@ -7,9 +7,8 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2029-07-20
+ * Change Date: 2028-08-13
  ******************************************************************************/
-
 
 function runInBackground( url, target )
 {
@@ -21,11 +20,11 @@ function runInBackground( url, target )
 		url = url + "&background=true";
 		if ( target.toLowerCase().indexOf( 'new' ) >= 0 )
 		{
-			var targetWin = window.open( url );
+			var targetWin = pho.util.xss.open( url );
 		}
 		else
 		{
-			window.location = url;
+			pho.util.xss.setLocation(window, url);
 		}
 	}
 	return undefined;	// forces current page to remain unchanged when target=new
