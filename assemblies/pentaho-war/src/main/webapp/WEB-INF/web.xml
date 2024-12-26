@@ -196,10 +196,6 @@
     <listener-class>org.pentaho.platform.web.http.session.PentahoCacheSessionListener</listener-class>
   </listener>
 
-  <listener>
-    <listener-class>org.pentaho.platform.web.http.context.CustomEhCacheShutdownListener</listener-class>
-  </listener>
-
   <!-- insert additional listeners -->
 
   <!-- Last listener: PentahoSystemReadyListener, performs notification to plugins that the system

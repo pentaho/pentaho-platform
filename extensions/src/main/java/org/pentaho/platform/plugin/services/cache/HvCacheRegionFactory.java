@@ -14,6 +14,7 @@ package org.pentaho.platform.plugin.services.cache;
 
 import org.hibernate.cache.jcache.internal.JCacheRegionFactory;
 import org.hibernate.cache.spi.TimestampsRegion;
+import org.hibernate.cache.spi.support.TimestampsRegionTemplate;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 
 public class HvCacheRegionFactory extends JCacheRegionFactory {
@@ -21,7 +22,7 @@ public class HvCacheRegionFactory extends JCacheRegionFactory {
   public TimestampsRegion buildTimestampsRegion(
     String regionName, SessionFactoryImplementor sessionFactory) {
     verifyStarted();
-    return new HvTimestampsRegion(
+    return new TimestampsRegionTemplate(
       regionName, this, createTimestampsRegionStorageAccess( regionName, sessionFactory ) );
   }
 }
