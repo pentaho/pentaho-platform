@@ -207,7 +207,7 @@ define([
 
     launchLink.unbind("click");
     launchLink.bind("click", function () {
-      window.open(xssUtil.sanitizeUrl(href), "_blank");
+      xssUtil.open(href, "_blank");
     });
   }
 

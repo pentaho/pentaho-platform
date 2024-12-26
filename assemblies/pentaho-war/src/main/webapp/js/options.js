@@ -20,11 +20,11 @@ function runInBackground( url, target )
 		url = url + "&background=true";
 		if ( target.toLowerCase().indexOf( 'new' ) >= 0 )
 		{
-			var targetWin = window.open(pho.util.xss.sanitizeUrl(url));
+			var targetWin = pho.util.xss.open( url );
 		}
 		else
 		{
-			window.location = pho.util.xss.sanitizeUrl(url);
+			pho.util.xss.setLocation(window, url);
 		}
 	}
 	return undefined;	// forces current page to remain unchanged when target=new

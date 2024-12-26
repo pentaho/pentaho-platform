@@ -295,7 +295,7 @@ function refreshDatePicker(dateFieldName, year, month, day)
   // and finally, close the table
   html += xTABLE;
 
-  pho.util.xss.setHtml(document.getElementById(datePickerDivID), html);
+  pho.util.xss.setHtmlUnsafe(document.getElementById(datePickerDivID), html);
   // add an "iFrame shim" to allow the datepicker to display above selection lists
   adjustiFrame();
 }
@@ -307,6 +307,7 @@ a month.
 */
 function getButtonCode(dateFieldName, dateVal, adjust, label)
 {
+  var newDateField = pho.util.xss.encodeForJavaScript(dateFieldName);
   var newMonth = (dateVal.getMonth () + adjust) % 12;
   var newYear = dateVal.getFullYear() + parseInt((dateVal.getMonth() + adjust) / 12);
   if (newMonth < 0) {
@@ -314,7 +315,7 @@ function getButtonCode(dateFieldName, dateVal, adjust, label)
     newYear += -1;
   }
  
-  return "<button class='dpButton' onClick='refreshDatePicker(\"" + dateFieldName + "\", " + newYear + ", " + newMonth + ");'>" + label + "</button>";
+  return "<button class='dpButton' onClick='refreshDatePicker(\"" + newDateField + "\", " + newYear + ", " + newMonth + ");'>" + label + "</button>";
 }
 
 
