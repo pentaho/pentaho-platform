@@ -225,28 +225,7 @@ public interface ICacheManager extends ILogoutListener {
 
   public void removeFromRegionCache( String region, Object key );
 
-  /**
-   * Counts the items in the region cache
-   * 
-   * @param region
-   * @return Number of elements in the region cache
-   */
-  public long getElementCountInRegionCache( String region );
-
-  /**
-   * Counts the items in the session cache
-   * 
-   * @param region
-   * @return Number of elements in the session cache
-   */
-  public long getElementCountInSessionCache();
-
-  /**
-   * Counts the items in the global cache
-   * 
-   * @param region
-   * @return Number of elements in the global cache
-   */
-  public long getElementCountInGlobalCache();
-
+  // Removing the Cache entries count methods because
+  //      1. These methods not being used
+  //      2. Hibernate + JCache doesn't have a straight forward way to get the number
 }
