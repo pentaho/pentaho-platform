@@ -316,7 +316,7 @@
     <constructor-arg ref="defaultAclHandler" />
     <constructor-arg ref="singleTenantSystemAuthorities"/>
     <constructor-arg ref="extraRoles"/>
-    <constructor-arg ref="ehCacheUserCache"/>
+    <constructor-arg ref="jCacheUserCache"/>
   </bean>
 
   <!-- 
