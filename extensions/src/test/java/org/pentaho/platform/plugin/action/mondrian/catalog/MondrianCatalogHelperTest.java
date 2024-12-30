@@ -338,18 +338,6 @@ public class MondrianCatalogHelperTest {
     @Override public void removeFromRegionCache( String region, Object key ) {
 
     }
-
-    @Override public long getElementCountInRegionCache( String region ) {
-      return 0;
-    }
-
-    @Override public long getElementCountInSessionCache() {
-      return 0;
-    }
-
-    @Override public long getElementCountInGlobalCache() {
-      return 0;
-    }
   }
 
 }
