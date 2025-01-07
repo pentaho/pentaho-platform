@@ -28,7 +28,7 @@ explicitly covering such access.
 
     <property name="hibernate.javax.cache.provider">org.ehcache.jsr107.EhcacheCachingProvider</property>
     <property name="hibernate.javax.cache.uri">ehcache.xml</property>
-    <property name="hibernate.cache.region.factory_class">org.pentaho.platform.plugin.services.cache.HvCacheRegionFactory</property>
+    <property name="hibernate.cache.region.factory_class">org.hibernate.cache.jcache.internal.JCacheRegionFactory</property>
 
     <property name="hibernate.generate_statistics">true</property>
     <property name="hibernate.cache.use_query_cache">true</property>

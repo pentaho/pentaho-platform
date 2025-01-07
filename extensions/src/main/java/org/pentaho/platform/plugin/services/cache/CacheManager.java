@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024-2025 by Hitachi Vantara, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -163,7 +163,7 @@ public class CacheManager implements ICacheManager {
   }
 
   protected void setupRegionProvider( Properties cacheProperties ) {
-    regionFactory = PentahoSystem.get( HvCacheRegionFactory.class );
+    regionFactory = PentahoSystem.get( HvCacheRegionFactory.class, "RegionFactory", null );
     cacheExpirationRegistry = PentahoSystem.get( ICacheExpirationRegistry.class );
 
     if ( null != regionFactory ) {
