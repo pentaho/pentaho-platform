@@ -175,7 +175,7 @@ not directly from the PentahoObjectFactory. -->
     </constructor-arg>
   </bean>
 
-  <bean id="hvCacheRegionFactory" class="org.pentaho.platform.plugin.services.cache.HvCacheRegionFactory"/>
+  <bean id="RegionFactory" class="org.pentaho.platform.plugin.services.cache.HvCacheRegionFactory"/>
 
   <bean id="jCacheUserCache" class="org.pentaho.platform.plugin.services.security.userrole.PentahoJCacheBasedUserCache">
     <constructor-arg index="0" value="true" />
