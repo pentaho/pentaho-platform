@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024-2025 by Hitachi Vantara, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -36,7 +36,9 @@ public class PentahoJCacheBasedUserCache implements UserCache {
     }
 
     this.caseSensitive = caseSensitive;
-    userCache = Caching.getCachingProvider().getCacheManager().createCache ( "userCache", new MutableConfiguration<>() );
+    MutableConfiguration<String, UserDetails> configuration= new MutableConfiguration<>();
+    configuration.setStoreByValue( false );
+    userCache = Caching.getCachingProvider().getCacheManager().createCache ( "userCache", configuration );
   }
 
   public void setCaseSensitive ( boolean caseSensitive ) {
