@@ -51,9 +51,4 @@ public interface IPdiContentProvider {
    * @return list of variables' name
    */
   Map<String, String> getVariables( String kettleFilePath );
-
-  /**
-   * Pentaho Hide internal variable is to show/hide internal variables.
-   */
-  String getHideInternalVariable();
 }
