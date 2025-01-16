@@ -423,7 +423,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor implements IPent
       }
       getRepositoryExportLogger().debug( "Finished backup of global user settings" );
     }
-    getRepositoryExportLogger().info( Messages.getInstance().getString( "PentahoPlatformExporter.INFO_SUCCESSFUL_ROLE_EXPORT_COUNT", successfulExportUsers, usersSize ) );
+    getRepositoryExportLogger().info( Messages.getInstance().getString( "PentahoPlatformExporter.INFO_SUCCESSFUL_USER_EXPORT_COUNT", successfulExportUsers, usersSize ) );
 
     getRepositoryExportLogger().info( Messages.getInstance().getString( "PentahoPlatformExporter.INFO_END_EXPORT_USER" ) );
 
