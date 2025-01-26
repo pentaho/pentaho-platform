@@ -464,150 +464,107 @@ public class SolutionImportHandlerTest {
 
   }
 
-  @Test
-  @Ignore
-  public void testImportSchedules() throws Exception {
-    List<IJobScheduleRequest> schedules = new ArrayList<>();
-    IJobScheduleRequest scheduleRequest = Mockito.spy( new FakeJobSchedluerRequest() );
-    schedules.add( scheduleRequest );
+//  @Test
+//  @Ignore
+//  public void testImportSchedules() throws Exception {
+//    List<IJobScheduleRequest> schedules = new ArrayList<>();
+//    IJobScheduleRequest scheduleRequest = Mockito.spy( new FakeJobSchedluerRequest() );
+//    schedules.add( scheduleRequest );
+//
+//    Response response = mock( Response.class );
+//    when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
+//    when( response.getEntity() ).thenReturn( "job id" );
+//
+//    doReturn( response ).when( importHandler )
+//      .createSchedulerJob( ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.eq( scheduleRequest ) );
+//
+//    try ( MockedStatic<PentahoSystem> pentahoSystemMockedStatic = Mockito.mockStatic( PentahoSystem.class );
+//          MockedStatic<PentahoSessionHolder> pentahoSessionHolderMockedStatic = Mockito.mockStatic( PentahoSessionHolder.class ) ) {
+//      IAuthorizationPolicy iAuthorizationPolicyMock = mock( IAuthorizationPolicy.class );
+//      IScheduler iSchedulerMock = mock( IScheduler.class );
+//      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IAuthorizationPolicy.class ) ) )
+//        .thenReturn( iAuthorizationPolicyMock );
+//      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IScheduler.class ), ArgumentMatchers.anyString(), ArgumentMatchers.eq( null ) ) )
+//        .thenReturn( iSchedulerMock );
+//      when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
+//      pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession )
+//        .thenReturn( mock( IPentahoSession.class ) );
+//
+//      importHandler.importSchedules( schedules );
+//
+//      verify( importHandler )
+//        .createSchedulerJob( ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.eq( scheduleRequest ) );
+//      Assert.assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
+//    }
+//  }
 
-    Response response = mock( Response.class );
-    when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
-    when( response.getEntity() ).thenReturn( "job id" );
+//  @Test
+//  @Ignore
+//  public void testImportSchedules_FailsToCreateSchedule() throws Exception {
+//    List<IJobScheduleRequest> schedules = new ArrayList<>();
+//    IJobScheduleRequest scheduleRequest = Mockito.spy( new FakeJobSchedluerRequest() );
+//    scheduleRequest.setInputFile( "/home/admin/scheduledTransform.ktr" );
+//    scheduleRequest.setOutputFile( "/home/admin/scheduledTransform*" );
+//    schedules.add( scheduleRequest );
+//
+//    Mockito.doThrow( new IOException( "error creating schedule" ) ).when( importHandler ).createSchedulerJob(
+//      ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.eq( scheduleRequest ) );
+//
+//    try ( MockedStatic<PentahoSystem> pentahoSystemMockedStatic = Mockito.mockStatic( PentahoSystem.class );
+//          MockedStatic<PentahoSessionHolder> pentahoSessionHolderMockedStatic = Mockito.mockStatic( PentahoSessionHolder.class ) ) {
+//      IAuthorizationPolicy iAuthorizationPolicyMock = mock( IAuthorizationPolicy.class );
+//      IScheduler iSchedulerMock = mock( IScheduler.class );
+//      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IAuthorizationPolicy.class ) ) )
+//        .thenReturn( iAuthorizationPolicyMock );
+//      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IScheduler.class ), ArgumentMatchers.anyString(), ArgumentMatchers.eq( null ) ) )
+//        .thenReturn( iSchedulerMock );
+//      when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
+//      pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession )
+//        .thenReturn( mock( IPentahoSession.class ) );
+//
+//      importHandler.importSchedules( schedules );
+//      Assert.assertEquals( 0, ImportSession.getSession().getImportedScheduleJobIds().size() );
+//    }
+//  }
 
-    doReturn( response ).when( importHandler )
-      .createSchedulerJob( ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.eq( scheduleRequest ) );
+//  @Test
+//  @Ignore
+//  public void testImportSchedules_FailsToCreateScheduleWithSpace() throws Exception {
+//    List<IJobScheduleRequest> schedules = new ArrayList<>();
+//    IJobScheduleRequest scheduleRequest = Mockito.spy( new FakeJobSchedluerRequest() );
+//    scheduleRequest.setInputFile( "/home/admin/scheduled Transform.ktr" );
+//    scheduleRequest.setOutputFile( "/home/admin/scheduled Transform*" );
+//    schedules.add( scheduleRequest );
+//
+//    ScheduleRequestMatcher throwMatcher =
+//      new ScheduleRequestMatcher( "/home/admin/scheduled Transform.ktr", "/home/admin/scheduled Transform*" );
+//    Mockito.doThrow( new IOException( "error creating schedule" ) ).when( importHandler ).createSchedulerJob(
+//      ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.argThat( throwMatcher ) );
+//
+//    Response response = mock( Response.class );
+//    when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
+//    when( response.getEntity() ).thenReturn( "job id" );
+//    ScheduleRequestMatcher goodMatcher =
+//      new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
+//    doReturn( response ).when( importHandler ).createSchedulerJob( ArgumentMatchers.any( ISchedulerResource.class ),
+//      ArgumentMatchers.argThat( goodMatcher ) );
+//
+//    try ( MockedStatic<PentahoSystem> pentahoSystemMockedStatic = Mockito.mockStatic( PentahoSystem.class );
+//    MockedStatic<PentahoSessionHolder> pentahoSessionHolderMockedStatic = Mockito.mockStatic( PentahoSessionHolder.class ) ) {
+//      IAuthorizationPolicy iAuthorizationPolicyMock = mock( IAuthorizationPolicy.class );
+//      IScheduler iSchedulerMock = mock( IScheduler.class );
+//      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IAuthorizationPolicy.class ) ) ).thenReturn( iAuthorizationPolicyMock );
+//      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IScheduler.class ), ArgumentMatchers.anyString(), ArgumentMatchers.eq( null ) ) )
+//        .thenReturn( iSchedulerMock );
+//      when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
+//      pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession ).thenReturn( mock( IPentahoSession.class ) );
+//      importHandler.importSchedules( schedules );
+//      verify( importHandler, times( 2 ) ).createSchedulerJob(
+//        ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.any( IJobScheduleRequest.class ) );
+//      Assert.assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
+//    }
+//  }
 
-    try ( MockedStatic<PentahoSystem> pentahoSystemMockedStatic = Mockito.mockStatic( PentahoSystem.class );
-          MockedStatic<PentahoSessionHolder> pentahoSessionHolderMockedStatic = Mockito.mockStatic( PentahoSessionHolder.class ) ) {
-      IAuthorizationPolicy iAuthorizationPolicyMock = mock( IAuthorizationPolicy.class );
-      IScheduler iSchedulerMock = mock( IScheduler.class );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IAuthorizationPolicy.class ) ) )
-        .thenReturn( iAuthorizationPolicyMock );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IScheduler.class ), ArgumentMatchers.anyString(), ArgumentMatchers.eq( null ) ) )
-        .thenReturn( iSchedulerMock );
-      when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
-      pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession )
-        .thenReturn( mock( IPentahoSession.class ) );
-
-      importHandler.importSchedules( schedules );
-
-      verify( importHandler )
-        .createSchedulerJob( ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.eq( scheduleRequest ) );
-      Assert.assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
-    }
-  }
-
-  @Test
-  @Ignore
-  public void testImportSchedules_FailsToCreateSchedule() throws Exception {
-    List<IJobScheduleRequest> schedules = new ArrayList<>();
-    IJobScheduleRequest scheduleRequest = Mockito.spy( new FakeJobSchedluerRequest() );
-    scheduleRequest.setInputFile( "/home/admin/scheduledTransform.ktr" );
-    scheduleRequest.setOutputFile( "/home/admin/scheduledTransform*" );
-    schedules.add( scheduleRequest );
-
-    Mockito.doThrow( new IOException( "error creating schedule" ) ).when( importHandler ).createSchedulerJob(
-      ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.eq( scheduleRequest ) );
-
-    try ( MockedStatic<PentahoSystem> pentahoSystemMockedStatic = Mockito.mockStatic( PentahoSystem.class );
-          MockedStatic<PentahoSessionHolder> pentahoSessionHolderMockedStatic = Mockito.mockStatic( PentahoSessionHolder.class ) ) {
-      IAuthorizationPolicy iAuthorizationPolicyMock = mock( IAuthorizationPolicy.class );
-      IScheduler iSchedulerMock = mock( IScheduler.class );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IAuthorizationPolicy.class ) ) )
-        .thenReturn( iAuthorizationPolicyMock );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IScheduler.class ), ArgumentMatchers.anyString(), ArgumentMatchers.eq( null ) ) )
-        .thenReturn( iSchedulerMock );
-      when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
-      pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession )
-        .thenReturn( mock( IPentahoSession.class ) );
-
-      importHandler.importSchedules( schedules );
-      Assert.assertEquals( 0, ImportSession.getSession().getImportedScheduleJobIds().size() );
-    }
-  }
-
-  @Test
-  @Ignore
-  public void testImportSchedules_FailsToCreateScheduleWithSpace() throws Exception {
-    List<IJobScheduleRequest> schedules = new ArrayList<>();
-    IJobScheduleRequest scheduleRequest = Mockito.spy( new FakeJobSchedluerRequest() );
-    scheduleRequest.setInputFile( "/home/admin/scheduled Transform.ktr" );
-    scheduleRequest.setOutputFile( "/home/admin/scheduled Transform*" );
-    schedules.add( scheduleRequest );
-
-    ScheduleRequestMatcher throwMatcher =
-      new ScheduleRequestMatcher( "/home/admin/scheduled Transform.ktr", "/home/admin/scheduled Transform*" );
-    Mockito.doThrow( new IOException( "error creating schedule" ) ).when( importHandler ).createSchedulerJob(
-      ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.argThat( throwMatcher ) );
-
-    Response response = mock( Response.class );
-    when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
-    when( response.getEntity() ).thenReturn( "job id" );
-    ScheduleRequestMatcher goodMatcher =
-      new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
-    doReturn( response ).when( importHandler ).createSchedulerJob( ArgumentMatchers.any( ISchedulerResource.class ),
-      ArgumentMatchers.argThat( goodMatcher ) );
-
-    try ( MockedStatic<PentahoSystem> pentahoSystemMockedStatic = Mockito.mockStatic( PentahoSystem.class );
-    MockedStatic<PentahoSessionHolder> pentahoSessionHolderMockedStatic = Mockito.mockStatic( PentahoSessionHolder.class ) ) {
-      IAuthorizationPolicy iAuthorizationPolicyMock = mock( IAuthorizationPolicy.class );
-      IScheduler iSchedulerMock = mock( IScheduler.class );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IAuthorizationPolicy.class ) ) ).thenReturn( iAuthorizationPolicyMock );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IScheduler.class ), ArgumentMatchers.anyString(), ArgumentMatchers.eq( null ) ) )
-        .thenReturn( iSchedulerMock );
-      when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
-      pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession ).thenReturn( mock( IPentahoSession.class ) );
-      importHandler.importSchedules( schedules );
-      verify( importHandler, times( 2 ) ).createSchedulerJob(
-        ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.any( IJobScheduleRequest.class ) );
-      Assert.assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
-    }
-  }
-
-  @Test
-  @Ignore
-  public void testImportSchedules_FailsToCreateScheduleWithSpaceOnWindows() throws Exception {
-    String sep = File.separator;
-    System.setProperty( "file.separator", "\\" );
-    List<IJobScheduleRequest> schedules = new ArrayList<>();
-    IJobScheduleRequest scheduleRequest = Mockito.spy( new FakeJobSchedluerRequest() );
-    scheduleRequest.setInputFile( "/home/admin/scheduled Transform.ktr" );
-    scheduleRequest.setOutputFile( "/home/admin/scheduled Transform*" );
-    schedules.add( scheduleRequest );
-
-    ScheduleRequestMatcher throwMatcher =
-      new ScheduleRequestMatcher( "/home/admin/scheduled Transform.ktr", "/home/admin/scheduled Transform*" );
-    Mockito.doThrow( new IOException( "error creating schedule" ) ).when( importHandler ).createSchedulerJob(
-      ArgumentMatchers.nullable( ISchedulerResource.class ), ArgumentMatchers.argThat( throwMatcher ) );
-
-    Response response = mock( Response.class );
-    when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
-    when( response.getEntity() ).thenReturn( "job id" );
-    ScheduleRequestMatcher goodMatcher =
-      new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
-    doReturn( response ).when( importHandler ).createSchedulerJob( ArgumentMatchers.nullable( ISchedulerResource.class ),
-      ArgumentMatchers.argThat( goodMatcher ) );
-
-    try ( MockedStatic<PentahoSystem> pentahoSystemMockedStatic = Mockito.mockStatic( PentahoSystem.class );
-          MockedStatic<PentahoSessionHolder> pentahoSessionHolderMockedStatic = Mockito.mockStatic( PentahoSessionHolder.class ) ) {
-      IAuthorizationPolicy iAuthorizationPolicyMock = mock( IAuthorizationPolicy.class );
-      IScheduler iSchedulerMock = mock( IScheduler.class );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IAuthorizationPolicy.class ) ) )
-        .thenReturn( iAuthorizationPolicyMock );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IScheduler.class ), ArgumentMatchers.anyString(), ArgumentMatchers.eq( null ) ) )
-        .thenReturn( iSchedulerMock );
-      when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
-      pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession )
-        .thenReturn( mock( IPentahoSession.class ) );
-
-      importHandler.importSchedules( schedules );
-      verify( importHandler, times( 2 ) )
-        .createSchedulerJob( ArgumentMatchers.nullable( ISchedulerResource.class ), ArgumentMatchers.nullable( IJobScheduleRequest.class ) );
-      Assert.assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
-      System.setProperty( "file.separator", sep );
-    }
-  }
 
   private static class ScheduleRequestMatcher implements ArgumentMatcher<IJobScheduleRequest> {
     private final String input;
