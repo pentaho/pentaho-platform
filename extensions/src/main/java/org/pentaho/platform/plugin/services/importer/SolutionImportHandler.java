@@ -1058,16 +1058,16 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
   // handlers that extend this class may override this method and perform operations
   // over the job prior to its creation at scheduler.createJob()
-  public Response createSchedulerJob( ISchedulerResource scheduler, IJobScheduleRequest jobScheduleRequest )
-      throws IOException {
-    Response rs = scheduler != null ? (Response) scheduler.createJob( jobScheduleRequest ) : null;
-    if ( jobScheduleRequest.getJobState() != JobState.NORMAL ) {
-      IJobRequest jobRequest = PentahoSystem.get( IScheduler.class, "IScheduler2", null ).createJobRequest();
-      jobRequest.setJobId( rs.getEntity().toString() );
-      scheduler.pauseJob( jobRequest );
-    }
-    return rs;
-  }
+//  public Response createSchedulerJob( ISchedulerResource scheduler, IJobScheduleRequest jobScheduleRequest )
+//      throws IOException {
+//    Response rs = scheduler != null ? (Response) scheduler.createJob( jobScheduleRequest ) : null;
+//    if ( jobScheduleRequest.getJobState() != JobState.NORMAL ) {
+//      IJobRequest jobRequest = PentahoSystem.get( IScheduler.class, "IScheduler2", null ).createJobRequest();
+//      jobRequest.setJobId( rs.getEntity().toString() );
+//      scheduler.pauseJob( jobRequest );
+//    }
+//    return rs;
+//  }
 
   public boolean isOverwriteFile() {
     return overwriteFile;
