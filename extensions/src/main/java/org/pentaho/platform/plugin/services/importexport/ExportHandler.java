@@ -34,6 +34,7 @@ package org.pentaho.platform.plugin.services.importexport;
  */
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.importexport.ExportException;
 
 import java.io.IOException;
 import java.io.InputStream;
