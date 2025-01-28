@@ -11,7 +11,7 @@
  ******************************************************************************/
 
 
-package org.pentaho.platform.plugin.services.importexport;
+package org.pentaho.platform.api.importexport;
 
 /*
  * This program is free software; you can redistribute it and/or modify it under the
@@ -34,7 +34,7 @@ package org.pentaho.platform.plugin.services.importexport;
  * Exception that indicates an error during import processing User: dkincade
  */
 public class ExportException extends Exception {
-  public ExportException() {
+  public ExportException( ) {
   }
 
   public ExportException( final String message ) {
