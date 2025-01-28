@@ -20,8 +20,10 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.client.Entity;
 import org.glassfish.jersey.client.ClientResponse;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -724,7 +726,7 @@ public class CommandLineProcessor {
     } else if ( response.getStatus() == Response.Status.NOT_FOUND.getStatusCode() ) {
       errorMessage =
         Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE", path );
-    } else if ( response.getStatus() == ClientResponse.Status.BAD_REQUEST.getStatusCode() ) {
+    } else if ( response.getStatus() == Response.Status.BAD_REQUEST.getStatusCode() ) {
       errorMessage =
               Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0009_INVALID_LOG_FILE_PATH", logFile );
       badLogFilePath = true;
@@ -777,14 +779,12 @@ public class CommandLineProcessor {
     WebTarget resource = client.target( backupURL );
 
     // Response response
-//    Invocation.Builder builder = resource.request( MediaType.APPLICATION_FORM_URLENCODED ).accept( MediaType.TEXT_HTML_TYPE );
-//    Response response = builder.get( Response.class );
-    MultivaluedMap<String, String> postBody = new MultivaluedMapImpl();
+    MultivaluedMap<String, String> postBody = new MultivaluedHashMap<>();
     postBody.add( MULTIVALUE_FIELD_LOG_FILE, logFile );
     postBody.add( MULTIVALUE_FIELD_LOG_LEVEL, logLevel != null && logLevel.length() > 0 ? logLevel : DEFAULT_LOG_LEVEL );
     postBody.add( MULTIVALUE_FIELD_OUTPUT_FILE_NAME_LEVEL, outputFile );
 
-    ClientResponse response = resource.type( MediaType.APPLICATION_FORM_URLENCODED_TYPE ).post( ClientResponse.class, postBody );
+    Response response = resource.request( MediaType.APPLICATION_FORM_URLENCODED ).post( Entity.entity( postBody, MediaType.APPLICATION_FORM_URLENCODED), Response.class );
     if ( response != null && response.getStatus() == 200 ) {
       writeEntityToFile( response, outputFile );
 
@@ -860,7 +860,7 @@ public class CommandLineProcessor {
       part.field( MULTIVALUE_FIELD_BACKUP_BUNDLE_PATH, filePath, MediaType.MULTIPART_FORM_DATA_TYPE );
       // Response response
       Response response = resource.request( MediaType.MULTIPART_FORM_DATA ).post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA_TYPE ) );
-      if ( response != null && response.getStatus() == Response.BAD ) {
+      if ( response != null && response.getStatus() == Response.Status.BAD_REQUEST.getStatusCode() ) {
         errorMessage = Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0009_INVALID_LOG_FILE_PATH", logFile );
         System.out.println( errorMessage );
       } else if ( response != null ) {
