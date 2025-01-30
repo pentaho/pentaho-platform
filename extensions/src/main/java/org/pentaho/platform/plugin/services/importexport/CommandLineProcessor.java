@@ -57,6 +57,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -863,13 +864,20 @@ public class CommandLineProcessor {
         logResponseMessage( logFile, filePath, response, RequestType.RESTORE );
         response.close();
       }
+    } catch ( NoSuchFileException nsfe ) {
+      String message = Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0010_FILE_DOES_NOT_EXIST", nsfe.getMessage() );
+      System.err.println( message );
+      log.error( message );
+      writeToFile( message, logFile );
     } catch ( Exception e ) {
       System.err.println( e.getMessage() );
       log.error( e.getMessage() );
       writeToFile( e.getMessage(), logFile );
     } finally {
       // cleanup the jersey resources
-      client.destroy();
+      if( client != null ) {
+        client.destroy();
+      }
     }
   }
 
