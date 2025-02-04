@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024-2025 by Hitachi Vantara, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -15,6 +15,7 @@ package org.pentaho.platform.plugin.services.cache;
 import jakarta.persistence.PersistenceException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.MappingException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cache.internal.EnabledCaching;
 import org.hibernate.cache.jcache.internal.JCacheAccessImpl;
@@ -94,4 +95,11 @@ public class LastModifiedCache extends EnabledCaching implements ILastModifiedCa
     return ( ( TimestampsRegionTemplate ) directAccessRegion ).getStorageAccess();
   }
 
+  @Override public void evictEntityData( String entityName ) {
+    try {
+       super.evictEntityData( entityName );
+    } catch ( MappingException e ) {
+      //Nothing to do if the entry is not there.
+    }
+  }
 }
