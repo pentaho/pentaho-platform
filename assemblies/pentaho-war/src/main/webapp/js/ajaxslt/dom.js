@@ -34,7 +34,8 @@
 // Spec. However, different browsers actually pass very different
 // values at the API.
 //
-function xmlResolveEntities(s) {
+
+  function xmlResolveEntities(s) {
 
   var parts = stringSplit(s, '&');
 
@@ -73,7 +74,7 @@ function xmlResolveEntities(s) {
         // through the W3C DOM. W3C DOM access is specified to resolve
         // entities. 
         var span = window.document.createElement('span');
-        span.innerHTML = '&' + rp[0] + '; ';
+        pho.util.xss.setHtml(span, '&' + rp[0] + '; ');
         ch = span.childNodes[0].nodeValue.charAt(0);
     }
     ret += ch + rp[1];
