@@ -51,7 +51,7 @@ CCP.liveChat = function(){
 		pucOpenTab( name, title, url );
 	}
 	else {
-		window.open( url );
+		pho.util.xss.open(url);
 	}
 }
 
