@@ -361,7 +361,7 @@ function executeAction (target, submitUrl) {
 // convert characters from entities like &#305; to display characters (HTML)
 function convertHtmlEntitiesToCharacters(theStr) {
     var newDiv = document.createElement(newDiv);
-    newDiv.innerHTML = theStr;
+	pho.util.xss.setHtml(newDiv, theStr);
     return newDiv.innerHTML;
 }
 
