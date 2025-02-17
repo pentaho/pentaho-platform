@@ -17,6 +17,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -30,6 +31,7 @@ import org.pentaho.gwt.widgets.client.panel.VerticalFlexPanel;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.ui.xul.gwt.tags.GwtDialog;
+import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 
 public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
 
@@ -40,6 +42,8 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
   private Button acceptBtn = new Button( Messages.getString( "ok" ) );
   private Button cancelBtn = new Button( Messages.getString( "cancel" ) );
   private boolean acceptBtnEnabled = false;
+  private final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
+  private final RegExp ALLOWED_CHARS_REGEXP = RegExp.compile( ALLOWED_CHARS );
 
   public ChangePasswordDialog( UpdatePasswordController controller ) {
     setWidth( 260 );
@@ -152,9 +156,30 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
         cancelBtn.setEnabled( false );
         String newPassword = newPasswordTextBox.getText();
         String administratorPassword = administratorPasswordTextBox.getText();
+
+        String allowedChars = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ]";
+
+        if ( !isValidPassword( newPassword ) ) {
+          showErrorMessage( newPassword, allowedChars );
+          return;
+        }
+
         controller.updatePassword( newPassword, administratorPassword, ChangePasswordDialog.this );
       }
     }
+  }
+
+  private boolean isValidPassword( String password ) {
+    return ALLOWED_CHARS_REGEXP.test( password );
+  }
+
+  private void showErrorMessage( String userName, String reservedCharacters ) {
+    GwtMessageBox messageBox = new GwtMessageBox();
+    messageBox.setTitle( Messages.getString( "error" ) );
+    messageBox.setMessage( Messages.getString( "allowedNameCharacters", userName, reservedCharacters ) );
+    messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
+    messageBox.setWidth( 300 );
+    messageBox.show();
   }
 
   class CancelListener implements ClickHandler {
