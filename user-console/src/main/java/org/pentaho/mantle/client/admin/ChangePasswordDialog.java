@@ -156,7 +156,6 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
         cancelBtn.setEnabled( false );
         String newPassword = newPasswordTextBox.getText();
         String administratorPassword = administratorPasswordTextBox.getText();
-
         String allowedChars = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ]";
 
         if ( !isValidPassword( newPassword ) ) {
