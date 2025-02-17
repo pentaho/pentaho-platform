@@ -23,6 +23,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -48,6 +49,8 @@ public class UserDialog extends GwtDialog {
   private PasswordTextBox reTypePasswordTextBox;
   private Button acceptBtn = new Button( Messages.getString( "ok" ) );
   private Button cancelBtn = new Button( Messages.getString( "cancel" ) );
+  private final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
+  private final RegExp ALLOWED_CHARS_REGEXP = RegExp.compile( ALLOWED_CHARS );
 
   public UserDialog( UserRolesAdminPanelController controller ) {
     setWidth( 260 );
@@ -132,7 +135,7 @@ public class UserDialog extends GwtDialog {
   private void showErrorMessage( String userName, String reservedCharacters ) {
     GwtMessageBox messageBox = new GwtMessageBox();
     messageBox.setTitle( Messages.getString( "error" ) );
-    messageBox.setMessage( Messages.getString( "prohibitedNameSymbols", userName, reservedCharacters ) );
+    messageBox.setMessage( Messages.getString( "allowedNameCharacters", userName, reservedCharacters ) );
     messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
     messageBox.setWidth( 300 );
     messageBox.show();
@@ -148,13 +151,28 @@ public class UserDialog extends GwtDialog {
         String userName = nameTextBox.getText();
         String password = passwordTextBox.getText();
         String reservedCharacters = response.getText();
+        String allowedChars = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ]";
 
-        if ( isValidName( userName, reservedCharacters ) ) {
-          controller.saveUser( userName, password );
-          hide();
-        } else {
-          showErrorMessage( userName, reservedCharacters );
+        if ( !isValidUsername( userName, reservedCharacters )) {
+          showErrorMessage( userName, allowedChars );
+          return;
         }
+
+        if ( !isValidPassword( password ) ) {
+          showErrorMessage( password, allowedChars );
+          return;
+        }
+
+        controller.saveUser( userName, password );
+        hide();
+      }
+
+      private boolean isValidPassword( String password ) {
+        return ALLOWED_CHARS_REGEXP.test( password );
+      }
+
+      private boolean isValidUsername( String userName, String reservedCharacters ) {
+        return isValidName( userName, reservedCharacters ) && ALLOWED_CHARS_REGEXP.test( userName );
       }
 
       @Override

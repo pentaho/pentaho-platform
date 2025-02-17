@@ -58,6 +58,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class UserRoleDaoService {
   private IUserRoleDao roleDao;
@@ -222,6 +224,9 @@ public class UserRoleDaoService {
       return new ValidationFailedException( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_ReadingSecProperties" ) );
     }
     final String PASSWORD_SPEC_CHAR_PATTERN = "((?=.*[@#$%!]).{0,100})";
+    final String PASSWORD_ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
+    Pattern pattern = Pattern.compile( PASSWORD_ALLOWED_CHARS);
+    Matcher matcher = pattern.matcher( password );
     String errorMsg = "New password must: ";
     ValidationFailedException exception;
     ArrayList<String> validationCriteria = new ArrayList<>();
@@ -233,9 +238,13 @@ public class UserRoleDaoService {
       validationCriteria.add( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_SpecChar" ) );
     }
 
+    if ( !matcher.matches() ) {
+      validationCriteria.add( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_PermittedChars" ) );
+    }
+
     errorMsg = errorMsg + String.join( ", ", validationCriteria ) + ".";
 
-    if ( ( password.length() < reqPassLength ) || ( isSpecCharReq && !password.matches( PASSWORD_SPEC_CHAR_PATTERN ) ) ) {
+    if ( ( password.length() < reqPassLength ) || ( isSpecCharReq && !password.matches( PASSWORD_SPEC_CHAR_PATTERN ) ) || !matcher.matches() ) {
       exception = new ValidationFailedException( errorMsg );
       return exception;
     } else {
