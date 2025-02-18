@@ -49,8 +49,9 @@ public class UserDialog extends GwtDialog {
   private PasswordTextBox reTypePasswordTextBox;
   private Button acceptBtn = new Button( Messages.getString( "ok" ) );
   private Button cancelBtn = new Button( Messages.getString( "cancel" ) );
-  private final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
-  private final RegExp ALLOWED_CHARS_REGEXP = RegExp.compile( ALLOWED_CHARS );
+  private static final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
+  private static final RegExp ALLOWED_CHARS_REGEXP = RegExp.compile( ALLOWED_CHARS );
+  private static final String ALLOWED_CHARS_LIST = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ]";
 
   public UserDialog( UserRolesAdminPanelController controller ) {
     setWidth( 260 );
@@ -151,15 +152,14 @@ public class UserDialog extends GwtDialog {
         String userName = nameTextBox.getText();
         String password = passwordTextBox.getText();
         String reservedCharacters = response.getText();
-        String allowedChars = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ]";
 
         if ( !isValidUsername( userName, reservedCharacters )) {
-          showErrorMessage( userName, allowedChars );
+          showErrorMessage( userName, ALLOWED_CHARS_LIST );
           return;
         }
 
         if ( !isValidPassword( password ) ) {
-          showErrorMessage( password, allowedChars );
+          showErrorMessage( password, ALLOWED_CHARS_LIST );
           return;
         }
 

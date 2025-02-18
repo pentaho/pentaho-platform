@@ -247,9 +247,9 @@ public class UserRoleDaoService {
     if ( ( password.length() < reqPassLength ) || ( isSpecCharReq && !password.matches( PASSWORD_SPEC_CHAR_PATTERN ) ) || !matcher.matches() ) {
       exception = new ValidationFailedException( errorMsg );
       return exception;
-    } else {
-      return null;
     }
+
+    return null;
   }
 
   private boolean credentialValid( IPentahoUser pentahoUser, String oldPass ) {

@@ -42,8 +42,9 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
   private Button acceptBtn = new Button( Messages.getString( "ok" ) );
   private Button cancelBtn = new Button( Messages.getString( "cancel" ) );
   private boolean acceptBtnEnabled = false;
-  private final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
-  private final RegExp ALLOWED_CHARS_REGEXP = RegExp.compile( ALLOWED_CHARS );
+  private static final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
+  private static final RegExp ALLOWED_CHARS_REGEXP = RegExp.compile( ALLOWED_CHARS );
+  private static final String ALLOWED_CHARS_LIST = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ]";
 
   public ChangePasswordDialog( UpdatePasswordController controller ) {
     setWidth( 260 );
@@ -156,10 +157,9 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
         cancelBtn.setEnabled( false );
         String newPassword = newPasswordTextBox.getText();
         String administratorPassword = administratorPasswordTextBox.getText();
-        String allowedChars = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ]";
 
         if ( !isValidPassword( newPassword ) ) {
-          showErrorMessage( newPassword, allowedChars );
+          showErrorMessage( newPassword, ALLOWED_CHARS_LIST );
           return;
         }
 
@@ -172,10 +172,10 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     return ALLOWED_CHARS_REGEXP.test( password );
   }
 
-  private void showErrorMessage( String userName, String reservedCharacters ) {
+  private void showErrorMessage( String userName, String allowedCharacters ) {
     GwtMessageBox messageBox = new GwtMessageBox();
     messageBox.setTitle( Messages.getString( "error" ) );
-    messageBox.setMessage( Messages.getString( "allowedNameCharacters", userName, reservedCharacters ) );
+    messageBox.setMessage( Messages.getString( "allowedNameCharacters", userName, allowedCharacters ) );
     messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
     messageBox.setWidth( 300 );
     messageBox.show();

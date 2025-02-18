@@ -47,8 +47,9 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
   private static final String TEXT_BOX_WIDTH = "260px";
   private static final String SPACER_STYLE_NAME = "spacer";
   private boolean acceptBtnEnabled = false;
-  private final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
-  private final RegExp ALLOWED_CHARS_REGEXP = RegExp.compile( ALLOWED_CHARS );
+  private static final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
+  private static final RegExp ALLOWED_CHARS_REGEXP = RegExp.compile( ALLOWED_CHARS );
+  private static final String ALLOWED_CHARS_LIST = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ]";
 
   public ChangePasswordByUserDialog( MantleController controller ) {
     setWidth( 260 );
@@ -159,10 +160,9 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
         disableAcceptBtn();
         String newPassword = newPasswordTextBox.getText();
         String oldPassword = oldPasswordTextBox.getText();
-        String allowedChars = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ]";
 
         if ( !isValidPassword( newPassword ) ) {
-          showErrorMessage( newPassword, allowedChars );
+          showErrorMessage( newPassword, ALLOWED_CHARS_LIST );
           return;
         }
 
@@ -174,10 +174,10 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
       return ALLOWED_CHARS_REGEXP.test( password );
     }
 
-    private void showErrorMessage( String userName, String reservedCharacters ) {
+    private void showErrorMessage( String userName, String allowedCharacters ) {
       GwtMessageBox messageBox = new GwtMessageBox();
       messageBox.setTitle( Messages.getString( "error" ) );
-      messageBox.setMessage( Messages.getString( "allowedNameCharacters", userName, reservedCharacters ) );
+      messageBox.setMessage( Messages.getString( "allowedNameCharacters", userName, allowedCharacters ) );
       messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
       messageBox.setWidth( 300 );
       messageBox.show();
