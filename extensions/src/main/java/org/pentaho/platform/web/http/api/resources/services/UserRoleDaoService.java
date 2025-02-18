@@ -66,9 +66,9 @@ public class UserRoleDaoService {
   public static final String PUC_USER_PASSWORD_LENGTH = "PUC_USER_PASSWORD_LENGTH";
   public static final String PUC_USER_PASSWORD_REQUIRE_SPECIAL_CHARACTER = "PUC_USER_PASSWORD_REQUIRE_SPECIAL_CHARACTER";
   private static final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
-  private final Pattern ALLOWED_CHARS_PATTERN = Pattern.compile( ALLOWED_CHARS );
   private static final String SPEC_CHARS = "((?=.*[@#$%!]).{0,100})";
-  private final Pattern SPEC_CHARS_PATTERN = Pattern.compile( SPEC_CHARS );
+  private final Pattern allowedCharsPattern = Pattern.compile( ALLOWED_CHARS );
+  private final Pattern specCharsPattern = Pattern.compile( SPEC_CHARS );
 
   private IUserRoleDao roleDao;
   private IAuthorizationPolicy policy;
@@ -229,8 +229,8 @@ public class UserRoleDaoService {
       return new ValidationFailedException( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_ReadingSecProperties" ) );
     }
 
-    Matcher specCharsMatcher = SPEC_CHARS_PATTERN.matcher( password );
-    Matcher allowedCharsMatcher = ALLOWED_CHARS_PATTERN.matcher( password );
+    Matcher specCharsMatcher = specCharsPattern.matcher( password );
+    Matcher allowedCharsMatcher = allowedCharsPattern.matcher( password );
     String errorMsg = "New password must: ";
     ValidationFailedException exception;
     ArrayList<String> validationCriteria = new ArrayList<>();
