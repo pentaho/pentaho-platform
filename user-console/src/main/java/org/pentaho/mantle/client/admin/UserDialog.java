@@ -137,7 +137,7 @@ public class UserDialog extends GwtDialog {
     GwtMessageBox messageBox = new GwtMessageBox();
     messageBox.setTitle( Messages.getString( "error" ) );
     messageBox.setMessage( Messages.getString( "allowedNameCharacters", userName, reservedCharacters ) );
-    messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
+    messageBox.setButtons( new Object[ACCEPT] );
     messageBox.setWidth( 300 );
     messageBox.show();
   }

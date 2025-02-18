@@ -62,12 +62,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UserRoleDaoService {
-  private IUserRoleDao roleDao;
-  private IAuthorizationPolicy policy;
-  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
   private static final String PASS_VALIDATION_ERROR_WRONG_PASS = "UserRoleDaoService.PassValidationError_WrongPass";
   public static final String PUC_USER_PASSWORD_LENGTH = "PUC_USER_PASSWORD_LENGTH";
   public static final String PUC_USER_PASSWORD_REQUIRE_SPECIAL_CHARACTER = "PUC_USER_PASSWORD_REQUIRE_SPECIAL_CHARACTER";
+  private static final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
+  private final Pattern ALLOWED_CHARS_PATTERN = Pattern.compile( ALLOWED_CHARS );
+  private static final String SPEC_CHARS = "((?=.*[@#$%!]).{0,100})";
+  private final Pattern SPEC_CHARS_PATTERN = Pattern.compile( SPEC_CHARS );
+
+  private IUserRoleDao roleDao;
+  private IAuthorizationPolicy policy;
+  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
   private ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
 
   public UserListWrapper getUsers() throws Exception {
@@ -223,10 +228,9 @@ public class UserRoleDaoService {
     } catch ( IOException e ) {
       return new ValidationFailedException( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_ReadingSecProperties" ) );
     }
-    final String PASSWORD_SPEC_CHAR_PATTERN = "((?=.*[@#$%!]).{0,100})";
-    final String PASSWORD_ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
-    Pattern pattern = Pattern.compile( PASSWORD_ALLOWED_CHARS);
-    Matcher matcher = pattern.matcher( password );
+
+    Matcher specCharsMatcher = SPEC_CHARS_PATTERN.matcher( password );
+    Matcher allowedCharsMatcher = ALLOWED_CHARS_PATTERN.matcher( password );
     String errorMsg = "New password must: ";
     ValidationFailedException exception;
     ArrayList<String> validationCriteria = new ArrayList<>();
@@ -238,18 +242,21 @@ public class UserRoleDaoService {
       validationCriteria.add( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_SpecChar" ) );
     }
 
-    if ( !matcher.matches() ) {
+    if ( !allowedCharsMatcher.matches() ) {
       validationCriteria.add( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_PermittedChars" ) );
     }
 
     errorMsg = errorMsg + String.join( ", ", validationCriteria ) + ".";
 
-    if ( ( password.length() < reqPassLength ) || ( isSpecCharReq && !password.matches( PASSWORD_SPEC_CHAR_PATTERN ) ) || !matcher.matches() ) {
-      exception = new ValidationFailedException( errorMsg );
-      return exception;
+    if ( ( password.length() >= reqPassLength )
+      && allowedCharsMatcher.matches()
+      && ( isSpecCharReq && specCharsMatcher.matches() ) ) {
+
+      return null;
     }
 
-    return null;
+    exception = new ValidationFailedException( errorMsg );
+    return exception;
   }
 
   private boolean credentialValid( IPentahoUser pentahoUser, String oldPass ) {

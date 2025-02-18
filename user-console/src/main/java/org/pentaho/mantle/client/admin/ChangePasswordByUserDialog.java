@@ -178,7 +178,7 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
       GwtMessageBox messageBox = new GwtMessageBox();
       messageBox.setTitle( Messages.getString( "error" ) );
       messageBox.setMessage( Messages.getString( "allowedNameCharacters", userName, allowedCharacters ) );
-      messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
+      messageBox.setButtons( new Object[ACCEPT] );
       messageBox.setWidth( 300 );
       messageBox.show();
     }
