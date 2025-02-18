@@ -154,7 +154,6 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     public void onClick( ClickEvent event ) {
       if ( acceptBtnEnabled ) {
         disableAcceptBtn();
-        cancelBtn.setEnabled( false );
         String newPassword = newPasswordTextBox.getText();
         String administratorPassword = administratorPasswordTextBox.getText();
 
@@ -166,19 +165,19 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
         controller.updatePassword( newPassword, administratorPassword, ChangePasswordDialog.this );
       }
     }
-  }
 
-  private boolean isValidPassword( String password ) {
-    return ALLOWED_CHARS_REGEXP.test( password );
-  }
+    private boolean isValidPassword( String password ) {
+      return ALLOWED_CHARS_REGEXP.test( password );
+    }
 
-  private void showErrorMessage( String userName, String allowedCharacters ) {
-    GwtMessageBox messageBox = new GwtMessageBox();
-    messageBox.setTitle( Messages.getString( "error" ) );
-    messageBox.setMessage( Messages.getString( "allowedNameCharacters", userName, allowedCharacters ) );
-    messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
-    messageBox.setWidth( 300 );
-    messageBox.show();
+    private void showErrorMessage( String userName, String allowedCharacters ) {
+      GwtMessageBox messageBox = new GwtMessageBox();
+      messageBox.setTitle( Messages.getString( "error" ) );
+      messageBox.setMessage( Messages.getString( "allowedNameCharacters", userName, allowedCharacters ) );
+      messageBox.setButtons( new Object[GwtMessageBox.ACCEPT] );
+      messageBox.setWidth( 300 );
+      messageBox.show();
+    }
   }
 
   class CancelListener implements ClickHandler {
