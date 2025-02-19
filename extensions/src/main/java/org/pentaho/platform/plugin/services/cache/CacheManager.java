@@ -317,6 +317,9 @@ public class CacheManager implements ICacheManager {
 
   public void putInRegionCache( String region, Object key, Object value ) {
     if ( checkRegionEnabled( region ) ) {
+      if ( key == null || value == null ) {
+        return;
+      }
       HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
       hvcache.getDirectAccessRegion().putIntoCache( key, value, null );
     }

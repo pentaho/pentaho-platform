@@ -13,6 +13,7 @@
 
 package org.pentaho.platform.plugin.services.email;
 
+import jakarta.xml.bind.annotation.XmlTransient;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -181,6 +182,7 @@ public class EmailConfigurationXml extends EmailConfiguration {
     element.setText( value );
   }
 
+  @XmlTransient
   public Document getDocument() {
     return EmailConfigurationXml.getDocument( this );
   }
