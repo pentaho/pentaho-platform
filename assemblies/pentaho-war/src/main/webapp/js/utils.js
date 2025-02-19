@@ -263,8 +263,9 @@ function refreshDatePicker(dateFieldName, year, month, day)
   // now, the days of the month
   do {
     dayNum = thisDay.getDate();
-    TD_onclick = " onclick=\"updateDateField('" + dateFieldName + "', '" + getDateString(thisDay) + "');\">";
-    
+    TD_onclick = " onclick=\"updateDateField('" + pho.util.xss.encodeForJavaScript(dateFieldName) +
+        "', '" + getDateString(thisDay) + "');\">";
+
     if (dayNum == day)
       html += TD_selected + TD_onclick + DIV_selected + dayNum + xDIV + xTD;
     else
@@ -295,8 +296,8 @@ function refreshDatePicker(dateFieldName, year, month, day)
  
   // and finally, close the table
   html += xTABLE;
- 
-  document.getElementById(datePickerDivID).innerHTML = html;
+
+  pho.util.xss.setHtmlUnsafe(document.getElementById(datePickerDivID), html);
   // add an "iFrame shim" to allow the datepicker to display above selection lists
   adjustiFrame();
 }
@@ -314,8 +315,9 @@ function getButtonCode(dateFieldName, dateVal, adjust, label)
     newMonth += 12;
     newYear += -1;
   }
- 
-  return "<button class='dpButton' onClick='refreshDatePicker(\"" + dateFieldName + "\", " + newYear + ", " + newMonth + ");'>" + label + "</button>";
+
+  return "<button class='dpButton' onClick='refreshDatePicker(\"" + pho.util.xss.encodeForJavaScript(dateFieldName) +
+      "\", " + newYear + ", " + newMonth + ");'>" + label + "</button>";
 }
 
 
