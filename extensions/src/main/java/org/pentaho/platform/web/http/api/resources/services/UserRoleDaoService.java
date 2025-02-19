@@ -250,7 +250,7 @@ public class UserRoleDaoService {
 
     if ( ( password.length() >= reqPassLength )
       && allowedCharsMatcher.matches()
-      && ( isSpecCharReq && specCharsMatcher.matches() ) ) {
+      && ( !isSpecCharReq || specCharsMatcher.matches() ) ) {
 
       return null;
     }
