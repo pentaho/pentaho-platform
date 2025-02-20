@@ -210,7 +210,7 @@ dojo.html.createNodesFromText = function(/* string */txt, /* boolean? */trim){
 		txt = "<table>" + txt + "</table>";
 		tableType = "section";
 	}
-	tn.innerHTML = txt;
+	pho.util.xss.setHtml(tn, txt);
 	if(tn["normalize"]){
 		tn.normalize();
 	}
