@@ -14,12 +14,12 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import org.codehaus.enunciate.Facet;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.util.PasswordHelper;
 
-import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -42,7 +42,7 @@ public class PasswordResource {
   @Path( "/encrypt" )
   @Produces( MediaType.TEXT_HTML )
   @Facet( name = "Unsupported" )
-  public Response encryptPassword( @FormParam( "password" ) String password ) {
+  public Response encryptPassword( @FormDataParam( "password" ) String password ) {
     if ( isAllowed() ) {
       String encPwd = "";
       if ( password != null ) {
