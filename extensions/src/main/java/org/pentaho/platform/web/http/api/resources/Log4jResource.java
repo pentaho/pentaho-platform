@@ -24,10 +24,10 @@ import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 import org.apache.logging.log4j.core.util.Loader;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.owasp.encoder.Encode;
 import org.pentaho.platform.api.util.LogUtil;
 
-import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -67,7 +67,7 @@ public class Log4jResource {
     @ResponseCode( code = 304, condition = "Log level is not modified." )
     } )
   @Produces( { MediaType.TEXT_PLAIN } )
-  public Response updateLogLevel( @FormParam(  "level" ) String targetLevel, @FormParam( "category" ) String category ) throws Exception {
+  public Response updateLogLevel(@FormDataParam(  "level" ) String targetLevel, @FormDataParam( "category" ) String category ) {
     LogUtil.setLevel(LOGGER, Level.INFO);
     if ( StringUtils.isBlank( targetLevel ) && StringUtils.isBlank( category ) ) {
       return Response.notModified( "No parameter provided, log level not modified." ).build();
@@ -93,9 +93,7 @@ public class Log4jResource {
 
       LoggerContext logContext = (LoggerContext) LogManager.getContext(false);
       Collection<org.apache.logging.log4j.core.Logger> allLoggers = logContext.getLoggers();
-      allLoggers.forEach(logger -> {
-        LogUtil.setLevel(logger, Level.toLevel( targetLevel, root.getLevel() ));
-      });
+      allLoggers.forEach(logger -> LogUtil.setLevel(logger, Level.toLevel( targetLevel, root.getLevel() )));
     }
 
     return Response.ok( "Log level updated." ).build();
