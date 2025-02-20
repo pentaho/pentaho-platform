@@ -263,7 +263,7 @@ function refreshDatePicker(dateFieldName, year, month, day)
   // now, the days of the month
   do {
     dayNum = thisDay.getDate();
-    TD_onclick = " onclick=\"updateDateField('" + pho.util.xss.encodeForJavaScript(dateFieldName) +
+    var TD_onclick = " onclick=\"updateDateField('" + pho.util.xss.encodeForJavaScript(dateFieldName) +
  "', '" + getDateString(thisDay) + "');\">";
     
     if (dayNum == day)

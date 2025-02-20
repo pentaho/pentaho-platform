@@ -21,7 +21,7 @@ function runInBackground( url, target )
 		url = url + "&background=true";
 		if ( target.toLowerCase().indexOf( 'new' ) >= 0 )
 		{
-			var targetWin = pho.util.xss.open( url );
+			pho.util.xss.open( url );
 		}
 		else
 		{
