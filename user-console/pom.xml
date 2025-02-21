@@ -19,6 +19,9 @@
     <commons-xul.version>10.3.0.0-SNAPSHOT</commons-xul.version>
     <common-ui.version>10.3.0.0-SNAPSHOT</common-ui.version>
     <commons-gwt.version>10.3.0.0-SNAPSHOT</commons-gwt.version>
+
+    <webjars.target.directory>${build.dependenciesDirectory}/META-INF/resources/webjars</webjars.target.directory>
+    <js.project.list>jquery,underscore</js.project.list>
   </properties>
   <dependencies>
     <dependency>
@@ -351,13 +354,16 @@
       <groupId>org.webjars.npm</groupId>
       <artifactId>jquery</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>underscore</artifactId>
+    </dependency>
 
     <!-- Endorsed Standards Excluded from Java 11+ -->
     <dependency>
       <groupId>jakarta.xml.bind</groupId>
       <artifactId>jakarta.xml.bind-api</artifactId>
     </dependency>
-
   </dependencies>
   <build>
     <plugins>
@@ -402,56 +408,70 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
+        <groupId>com.coderplus.maven.plugins</groupId>
+        <artifactId>copy-rename-maven-plugin</artifactId>
+        <version>1.0</version>
         <executions>
           <execution>
-            <id>unpack</id>
+            <id>copy-jquery-files</id>
             <phase>generate-resources</phase>
             <goals>
-              <goal>unpack</goal>
+              <goal>copy</goal>
             </goals>
             <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.webjars.npm</groupId>
-                  <artifactId>jquery</artifactId>
-                  <type>jar</type>
-                  <includes>**/jquery.js,**/jquery.min.js</includes>
-                  <outputDirectory>${project.build.directory}/webjars</outputDirectory>
-                </artifactItem>
-              </artifactItems>
+              <fileSets>
+                <set>
+                  <sourceFile>${webjars.target.directory}/jquery/${jquery.version}/dist/jquery.js</sourceFile>
+                  <destinationFile>${project.build.directory}/classes/org/pentaho/mantle/public/browser/lib/jquery/jquery-${jquery.version}.js</destinationFile>
+                </set>
+                <set>
+                  <sourceFile>${webjars.target.directory}/jquery/${jquery.version}/dist/jquery.min.js</sourceFile>
+                  <destinationFile>${project.build.directory}/classes/org/pentaho/mantle/public/browser/lib/jquery/jquery-${jquery.version}.min.js</destinationFile>
+                </set>
+              </fileSets>
             </configuration>
           </execution>
         </executions>
       </plugin>
       <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
             <id>copy-license-file</id>
             <phase>generate-resources</phase>
             <goals>
-              <goal>run</goal>
+              <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <tasks>
-                <copy file="${project.basedir}/../LICENSE.TXT" tofile="${project.build.directory}/classes/org/pentaho/mantle/public/LICENSE.TXT"/>
-              </tasks>
+              <outputDirectory>${project.build.directory}/classes/org/pentaho/mantle/public</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/..</directory>
+                  <includes>
+                    <include>LICENSE.TXT</include>
+                  </includes>
+                </resource>
+              </resources>
             </configuration>
           </execution>
           <execution>
-            <id>copy-jquery-files</id>
+            <id>copy-underscore</id>
             <phase>generate-resources</phase>
             <goals>
-              <goal>run</goal>
+              <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <target>
-                <mkdir dir="${project.build.directory}/classes/org/pentaho/mantle/public/browser/lib/jquery/"/>
-                <copy file="${project.build.directory}/webjars/META-INF/resources/webjars/jquery/${jquery.version}/dist/jquery.js" tofile="${project.build.directory}/classes/org/pentaho/mantle/public/browser/lib/jquery/jquery-${jquery.version}.js" />
-                <copy file="${project.build.directory}/webjars/META-INF/resources/webjars/jquery/${jquery.version}/dist/jquery.min.js" tofile="${project.build.directory}/classes/org/pentaho/mantle/public/browser/lib/jquery/jquery-${jquery.version}.min.js" />
-              </target>
+              <outputDirectory>${project.build.directory}/classes/org/pentaho/mantle/public/browser/lib/underscore</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${webjars.target.directory}/underscore/${underscore.version}</directory>
+                  <includes>
+                    <include>underscore.js</include>
+                    <include>underscore-min.js</include>
+                  </includes>
+                </resource>
+              </resources>
             </configuration>
           </execution>
         </executions>
