@@ -21,11 +21,11 @@ function runInBackground( url, target )
 		url = url + "&background=true";
 		if ( target.toLowerCase().indexOf( 'new' ) >= 0 )
 		{
-			var targetWin = window.open( url );
+			pho.util.xss.open( url );
 		}
 		else
 		{
-			window.location = url;
+			pho.util.xss.setLocation(window, url);
 		}
 	}
 	return undefined;	// forces current page to remain unchanged when target=new
