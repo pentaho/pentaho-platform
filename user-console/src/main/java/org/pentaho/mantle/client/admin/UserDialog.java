@@ -49,6 +49,9 @@ public class UserDialog extends GwtDialog {
   private PasswordTextBox reTypePasswordTextBox;
   private Button acceptBtn = new Button( Messages.getString( "ok" ) );
   private Button cancelBtn = new Button( Messages.getString( "cancel" ) );
+  private static final String USER_ALLOWED_CHARS = "^[a-zA-Z0-9_.,;<>|!@#$%^&*()\\[\\]]+$";
+  private static final RegExp USER_ALLOWED_CHARS_REGEXP = RegExp.compile( USER_ALLOWED_CHARS );
+  private static final String USER_ALLOWED_CHARS_LIST = "a-z A-Z 0-9 _ . , ; < > | ! @ # $ % ^ & * ( ) [ ]";
   private static final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
   private static final RegExp ALLOWED_CHARS_REGEXP = RegExp.compile( ALLOWED_CHARS );
   private static final String ALLOWED_CHARS_LIST = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ]";
@@ -154,7 +157,7 @@ public class UserDialog extends GwtDialog {
         String reservedCharacters = response.getText();
 
         if ( !isValidUsername( userName, reservedCharacters )) {
-          showErrorMessage( userName, ALLOWED_CHARS_LIST );
+          showErrorMessage( userName, USER_ALLOWED_CHARS_LIST );
           return;
         }
 
@@ -172,7 +175,7 @@ public class UserDialog extends GwtDialog {
       }
 
       private boolean isValidUsername( String userName, String reservedCharacters ) {
-        return isValidName( userName, reservedCharacters ) && ALLOWED_CHARS_REGEXP.test( userName );
+        return isValidName( userName, reservedCharacters ) && USER_ALLOWED_CHARS_REGEXP.test( userName );
       }
 
       @Override
