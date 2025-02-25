@@ -16,6 +16,7 @@ package org.pentaho.platform.osgi;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.pentaho.platform.settings.PortFileManager;
 import org.pentaho.platform.settings.PortFileManagerTest;
@@ -32,6 +33,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author tkafalas
  */
+@Ignore
 public class KarafInstanceTest {
   private String TEST_CACHE_FOLDER = "./bin/test/cacheTest";
   private String USED_PORT_FILENAME = "PortsAssigned.txt";

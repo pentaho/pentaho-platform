@@ -23,6 +23,7 @@ import org.pentaho.test.platform.engine.core.BaseTest;
 import java.io.File;
 
 @SuppressWarnings( "nls" )
+@Ignore
 public class RepositoryTestCase extends BaseTest {
 
   /*

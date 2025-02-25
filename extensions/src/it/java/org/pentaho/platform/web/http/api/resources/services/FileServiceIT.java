@@ -26,7 +26,6 @@ import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -37,7 +36,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.mockito.Mockito.mockStatic;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -63,7 +62,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
@@ -111,13 +109,7 @@ import org.pentaho.platform.web.http.api.resources.SessionResource;
 import org.pentaho.platform.web.http.api.resources.Setting;
 import org.pentaho.platform.web.http.api.resources.StringListWrapper;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith( PowerMockRunner.class )
-@PowerMockIgnore( "jdk.internal.reflect.*" )
-@PrepareForTest( FileUtils.class )
 public class FileServiceIT {
 
   private static FileService fileService;
@@ -226,7 +218,7 @@ public class FileServiceIT {
 
     when( fileService.getSourceFileIdsThatNotConflictWithFolderFiles( PATH_USER_HOME_FOLDER, PARAMS ) )
       .thenCallRealMethod();
-    when( fileService.getCommaSeparatedFileIds( anyListOf( String.class ) ) ).thenCallRealMethod();
+    when( fileService.getCommaSeparatedFileIds( anyList() ) ).thenCallRealMethod();
 
     boolean result = fileService.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_NO_OVERWRITE );
 
@@ -243,7 +235,7 @@ public class FileServiceIT {
 
     when( fileService.getFolderFileIdsThatConflictWithSource( PATH_USER_HOME_FOLDER, filesToRestore ) )
       .thenCallRealMethod();
-    when( fileService.getCommaSeparatedFileIds( anyListOf( String.class ) ) ).thenCallRealMethod();
+    when( fileService.getCommaSeparatedFileIds( anyList() ) ).thenCallRealMethod();
 
     boolean result = fileService.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_OVERWRITE );
 
@@ -623,7 +615,8 @@ public class FileServiceIT {
 
     doReturn( iRepositoryImportLogger ).when( platformImporter ).getRepositoryImportLogger();
 
-    fileService.systemRestore( inputStreamMock, "true", "false", "true" );
+    fileService.systemRestore(inputStreamMock, "true", "false", "true",
+            "UTF-8", "/", "SystemBackup.zip");
 
     verify( fileService ).doCanAdminister();
     verify( iRepositoryImportLogger ).startJob( any(), nullable( String.class ), any() );
@@ -2039,7 +2032,7 @@ public class FileServiceIT {
     doNothing().when( fileService ).sortByLocaleTitle( mockCollator, mockTreeDto );
 
     Map<String, Serializable> fileMeta = new HashMap<String, Serializable>();
-    fileMeta.put( IUnifiedRepository.SYSTEM_FOLDER, new Boolean( false ) );
+    fileMeta.put( IUnifiedRepository.SYSTEM_FOLDER, Boolean.valueOf( false ) );
 
     doReturn( fileMeta ).when( fileService.repository ).getFileMetadata( nullable( String.class ) );
 
