@@ -476,6 +476,35 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>com.soebes.maven.plugins</groupId>
+        <artifactId>iterator-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>javascript-dependencies_unpack-dependencies</id>
+            <phase>${javascript_unpack-dependencies-phase}</phase>
+            <goals>
+              <goal>iterator</goal>
+            </goals>
+            <configuration>
+              <content>${js.project.list}</content>
+              <pluginExecutors>
+                <pluginExecutor>
+                  <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                  </plugin>
+                  <goal>unpack-dependencies</goal>
+                  <configuration>
+                    <includeArtifactIds>${item}</includeArtifactIds>
+                    <includes>**/**</includes>
+                  </configuration>
+                </pluginExecutor>
+              </pluginExecutors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 </project>
