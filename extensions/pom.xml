@@ -20,6 +20,7 @@
     <hamcrest-library.version>1.3</hamcrest-library.version>
     <commons-xul.version>10.3.0.0-SNAPSHOT</commons-xul.version>
     <pdi.version>10.3.0.0-SNAPSHOT</pdi.version>
+    <pentaho-scheduler-plugin.version>10.3.0.0-SNAPSHOT</pentaho-scheduler-plugin.version>
     <pentaho-reporting.version>10.3.0.0-SNAPSHOT</pentaho-reporting.version>
     <pdi-dataservice-client-plugin.version>10.3.0.0-SNAPSHOT</pdi-dataservice-client-plugin.version>
     <pentaho-connections.version>10.3.0.0-SNAPSHOT</pentaho-connections.version>
@@ -2647,6 +2648,11 @@
       <version>${project.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-scheduler-core</artifactId>
+      <version>${pentaho-scheduler-plugin.version}</version>
     </dependency>
     <dependency>
       <groupId>com.hitachivantara.security.web</groupId>

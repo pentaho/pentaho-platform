@@ -13,14 +13,14 @@
 
 package org.pentaho.test.platform.security.userrole.ws;
 
+import jakarta.xml.ws.BindingProvider;
+import jakarta.xml.ws.Endpoint;
+import jakarta.xml.ws.Service;
 import org.junit.Before;
 import org.pentaho.platform.security.userrole.ws.DefaultUserRoleListWebService;
 import org.pentaho.platform.security.userrole.ws.IUserRoleListWebService;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Endpoint;
-import javax.xml.ws.Service;
 import java.net.URL;
 
 /**
