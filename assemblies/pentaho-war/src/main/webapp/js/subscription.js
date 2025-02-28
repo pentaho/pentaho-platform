@@ -339,7 +339,7 @@ function doSubscribed(id, actionUrl, displayUrl ) {
 		if( target == '' ) {
 			document.location.href=submitUrl;
 		} else {
-			window.open( submitUrl, target, options );
+			pho.util.xss.open( submitUrl, target, options );
 		}
 		return false;
 	} else {
@@ -407,7 +407,7 @@ function doSubscribedArchive( id, actionUrl ) {
 		if( target == '' ) {
 			document.location.href=submitUrl;
 		} else {
-			window.open( submitUrl, target, '' );
+			pho.util.xss.open( submitUrl, target, '' );
 		}
 		 return false;
 	} else {

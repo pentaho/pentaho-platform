@@ -13,8 +13,9 @@
 
 define([
   "common-ui/handlebars",
-  "pentaho/shim/css.escape"
-], function () {
+  "pentaho/shim/css.escape",
+  "common-ui/util/xss"
+], function (xssUtil) {
   var templates = {};
 
   Handlebars.registerHelper('stringifyFunc', function (fn) {
@@ -146,6 +147,10 @@ define([
       predicate: (this.id == "separator"),
       optional: (this.id == "optional-separator")
     }));
+  });
+
+  Handlebars.registerHelper('html', function(html) {
+    return new Handlebars.Safestring(xssUtil.sanitizeHtml(html));
   });
 
   Handlebars.registerHelper('i18n',
