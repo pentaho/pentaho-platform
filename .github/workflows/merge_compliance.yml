@@ -12,5 +12,6 @@ jobs:
   run-merge-compliance:
     name: Run Merge Compliance Checks
     uses: pentaho/actions-common/.github/workflows/merge_compliance.yml@compliance
-    scpId: 3ef4b1f1-778b-4204-94ae-5c7e360f13ab
+    with:
+      scpId: 3ef4b1f1-778b-4204-94ae-5c7e360f13ab
     secrets: inherit
