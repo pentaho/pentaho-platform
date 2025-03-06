@@ -12,9 +12,9 @@
 
 
 define([
+  "common-ui/util/xss",
   "common-ui/handlebars",
-  "pentaho/shim/css.escape",
-  "common-ui/util/xss"
+  "pentaho/shim/css.escape"
 ], function (xssUtil) {
   var templates = {};
 
@@ -150,7 +150,7 @@ define([
   });
 
   Handlebars.registerHelper('html', function(html) {
-    return new Handlebars.Safestring(xssUtil.sanitizeHtml(html));
+    return new Handlebars.SafeString(xssUtil.sanitizeHtml(html));
   });
 
   Handlebars.registerHelper('i18n',
