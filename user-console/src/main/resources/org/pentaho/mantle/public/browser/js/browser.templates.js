@@ -12,9 +12,10 @@
 
 
 define([
+  "common-ui/util/xss",
   "common-ui/handlebars",
   "pentaho/shim/css.escape"
-], function () {
+], function (xssUtil) {
   var templates = {};
 
   Handlebars.registerHelper('stringifyFunc', function (fn) {
@@ -147,6 +148,10 @@ define([
       optional: (this.id == "optional-separator")
     }));
   });
+
+  Handlebars.registerHelper('html', function(html) {
+      return new Handlebars.SafeString(xssUtil.sanitizeHtml(html));
+    });
 
   Handlebars.registerHelper('i18n',
       function (str) {
