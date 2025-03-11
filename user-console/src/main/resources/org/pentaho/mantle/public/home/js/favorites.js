@@ -16,8 +16,8 @@ define([
   "common-ui/util/spin",
   "pentaho/csrf/service",
   "common-ui/util/_a11y",
-  "pentaho/shim/css.escape",
   "common-ui/util/xss",
+  "pentaho/shim/css.escape"
 ], function(spinner, Spinner, csrfService, a11yUtil, xssUtil) {
 
   var local = {
