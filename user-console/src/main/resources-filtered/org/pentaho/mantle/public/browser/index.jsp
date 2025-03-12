@@ -53,13 +53,26 @@
   }
 </script>
 
-<!-- libs -->
-<script type="text/javascript" src="lib/jquery/jquery-${jquery.version}.js"></script>
-<script type="text/javascript" src="lib/underscore/underscore-min.js"></script>
-<script type="text/javascript" src="lib/backbone/backbone.js"></script>
-
 <!-- Require File Browser -->
 <script type="text/javascript">
+  require.config({
+    paths: {
+      'backbone': 'lib/backbone/backbone'
+    },
+    shim: {
+      'backbone': {
+        deps: ['common-ui/underscore', 'common-ui/jquery'],
+        exports: 'Backbone'
+      }
+    },
+    map: {
+      "backbone": {
+        "underscore": "common-ui/underscore",
+        "jquery": "common-ui/jquery"
+      }
+    }
+  });
+
   function openRepositoryFile(path, mode) {
     if (!path) {
       return;
