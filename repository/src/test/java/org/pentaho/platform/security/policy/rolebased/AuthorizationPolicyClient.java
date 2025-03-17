@@ -23,8 +23,8 @@ import org.pentaho.platform.security.policy.rolebased.ws.IAuthorizationPolicyWeb
 import org.pentaho.platform.security.policy.rolebased.ws.IRoleAuthorizationPolicyRoleBindingDaoWebService;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Service;
+import jakarta.xml.ws.BindingProvider;
+import jakarta.xml.ws.Service;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
