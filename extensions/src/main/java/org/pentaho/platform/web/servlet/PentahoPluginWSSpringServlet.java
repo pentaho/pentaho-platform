@@ -14,11 +14,11 @@
 package org.pentaho.platform.web.servlet;
 
 import com.sun.xml.ws.transport.http.servlet.ServletAdapterList;
-import com.sun.xml.ws.transport.http.servlet.SpringBinding;
 import com.sun.xml.ws.transport.http.servlet.WSServletDelegate;
 import org.pentaho.platform.api.engine.IPlatformPlugin;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.pluginmgr.PentahoSystemPluginManager;
+import org.pentaho.platform.web.jaxws.spring.SpringBinding;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
