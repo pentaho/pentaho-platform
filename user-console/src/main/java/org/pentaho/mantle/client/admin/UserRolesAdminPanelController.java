@@ -462,7 +462,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
   }
 
   private void processLDAPOrJDBCmode() {
-    final String url = GWT.getHostPageBaseURL() + "api/system/authentication-provider";
+    final String url = GWT.getHostPageBaseURL() + "api/system/is-enabled?feature=process";
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     executableTypesRequestBuilder.setHeader( "accept", "application/json" );
@@ -473,8 +473,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          String resText = response.getText();
-          usingPentahoSecurity = resText.contains( "\"jackrabbit\"" ) || resText.contains( "\"super\"" );
+          usingPentahoSecurity = "true".equals( response.getText() );
           userRolePermissions( usingPentahoSecurity );
         }
       } );
@@ -544,7 +543,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     initializeActionBaseSecurityElements();
     initializeAvailableUsers( null );
 
-    final String url = GWT.getHostPageBaseURL() + "api/system/authentication-provider";
+    final String url = GWT.getHostPageBaseURL() + "api/system/is-enabled?feature=activate";
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     executableTypesRequestBuilder.setHeader( "accept", "application/json" );
@@ -555,8 +554,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          boolean usingPentahoSecurity = response.getText().contains( "jackrabbit" );
-          if ( !usingPentahoSecurity ) {
+          boolean isSecurityProviderOAuthOrJackrabbit = "true".equals( response.getText() );
+          if ( !isSecurityProviderOAuthOrJackrabbit ) {
             initializeRoles( null, "api/userrolelist/roles?addExtraRoles=false", rolesListBox );
           } else {
             initializeRoles( null, "api/userroledao/roles", rolesListBox );

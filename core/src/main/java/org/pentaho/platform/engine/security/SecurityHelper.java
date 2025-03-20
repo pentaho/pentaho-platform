@@ -29,6 +29,7 @@ import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.api.scheduler2.PentahoUserSync;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
@@ -42,6 +43,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.util.Objects;
 import java.util.concurrent.Callable;
 
 /**
@@ -127,6 +129,12 @@ public class SecurityHelper implements ISecurityHelper {
     }
 
     PentahoSessionHolder.setSession( session );
+
+    final PentahoUserSync pentahoUserSync = PentahoSystem.get( PentahoUserSync.class, "pentahoOAuthUserSync",
+      PentahoSessionHolder.getSession() );
+    if ( Objects.nonNull( pentahoUserSync ) ) {
+      pentahoUserSync.performSyncForUser( principalName );
+    }
 
     Authentication auth = createAuthentication( principalName );
     // TODO We need to figure out how to inject this
