@@ -25,7 +25,7 @@ import java.io.IOException;
 public class PreventBruteForceSavedRequestAwareAuthenticationSuccessHandler extends
   SavedRequestAwareAuthenticationSuccessHandler {
 
-  private ILoginAttemptService loginAttemptService;
+  protected ILoginAttemptService loginAttemptService;
 
   public PreventBruteForceSavedRequestAwareAuthenticationSuccessHandler( ILoginAttemptService loginAttemptService ) {
     super();
@@ -38,7 +38,7 @@ public class PreventBruteForceSavedRequestAwareAuthenticationSuccessHandler exte
     super.onAuthenticationSuccess( request, response, authentication );
   }
 
-  private String getClientIp( HttpServletRequest request ) {
+  protected String getClientIp( HttpServletRequest request ) {
     String xfHeader = request.getHeader( "X-Forwarded-For" );
     if ( xfHeader == null ) {
       return request.getRemoteAddr();

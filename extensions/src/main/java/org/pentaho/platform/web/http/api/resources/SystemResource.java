@@ -34,6 +34,7 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.web.http.api.resources.services.FeatureValidationService;
 import org.pentaho.platform.web.http.api.resources.services.SystemService;
 import org.pentaho.platform.web.http.messages.Messages;
 
@@ -41,10 +42,12 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +61,7 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 /**
  * This api provides methods for discovering information about the system
- * 
+ *
  * @author pminutillo
  */
 @Path( "/system/" )
@@ -69,7 +72,7 @@ public class SystemResource extends AbstractJaxRSResource {
   private static final Log logger = LogFactory.getLog( SystemResource.class );
   private ISystemConfig systemConfig;
   private IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
-
+  private FeatureValidationService featureValidationService;
 
   public SystemResource() {
     this( PentahoSystem.get( ISystemConfig.class ) );
@@ -81,10 +84,10 @@ public class SystemResource extends AbstractJaxRSResource {
 
   /**
    * Returns all users, roles, and ACLs in an XML document. Moved here from now removed SystemAllResource class
-   * 
+   *
    * Response Sample: <content> <users> <user>joe</user> </users> <roles> <role>Admin</role> </roles> <acls> <acl>
    * <name>Update</name> <mask>8</mask> </acl> </acls> </content>
-   * 
+   *
    * @return Response containing roles, users, and acls
    * @throws Exception
    */
@@ -105,9 +108,9 @@ public class SystemResource extends AbstractJaxRSResource {
 
   /**
    * Return JSON string reporting which authentication provider is currently in use
-   * 
+   *
    * Response sample: { "authenticationType": "JCR_BASED_AUTHENTICATION" }
-   * 
+   *
    * @return AuthenticationProvider represented as JSON response
    * @throws Exception
    */
@@ -127,8 +130,28 @@ public class SystemResource extends AbstractJaxRSResource {
   }
 
   /**
+   * This function is intended to check whether a feature is enabled or not for a authentication provider.
+   *
+   * @param feature - feature name
+   * @return true if the feature is enabled, false otherwise in the Response
+   */
+  @GET
+  @Path( "/is-enabled" )
+  @Produces( { MediaType.APPLICATION_JSON } )
+  @Facet( name = "Unsupported" )
+  public Response isEnabled( @QueryParam( "feature" ) final String feature ) {
+    try {
+      return Response.ok( featureValidationService.isFeatureEnabled( feature ) ).type( MediaType.APPLICATION_JSON )
+        .build();
+    } catch ( IOException e ) {
+      logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), e ); //$NON-NLS-1$
+      return Response.ok( false ).type( MediaType.APPLICATION_JSON ).build();
+    }
+  }
+
+  /**
    * Returns a list of TimeZones ensuring that the server (default) timezone is at the top of the list (0th element)
-   * 
+   *
    * @return a list of TimeZones ensuring that the server (default) timezone is at the top of the list (0th element)
    */
   @GET
@@ -244,4 +267,9 @@ public class SystemResource extends AbstractJaxRSResource {
     return policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
         && ( policy.isAllowed( AdministerSecurityAction.NAME ) );
   }
+
+  public void setFeatureValidationService( FeatureValidationService featureValidationService ) {
+    this.featureValidationService = featureValidationService;
+  }
+
 }
