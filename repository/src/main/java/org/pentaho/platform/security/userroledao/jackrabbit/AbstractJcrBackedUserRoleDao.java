@@ -28,9 +28,9 @@ import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.NameFactory;
 import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
 import org.pentaho.platform.api.engine.ISystemConfig;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
@@ -81,6 +81,9 @@ import java.util.Set;
 
 public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
+  public static final String ABSTRACT_JCR_BACKED_USER_ROLE_DAO_ERROR_0003_USER_NOT_FOUND =
+    "AbstractJcrBackedUserRoleDao.ERROR_0003_USER_NOT_FOUND";
+
   static NameFactory NF = NameFactoryImpl.getInstance();
 
   static Name P_PRINCIPAL_NAME = NF.create( Name.NS_REP_URI, "principalName" ); //$NON-NLS-1$
@@ -89,7 +92,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
   protected ITenantedPrincipleNameResolver tenantedRoleNameUtils;
 
-  String pPrincipalName = "rep:principalName"; //$NON-NLS-1$
+  protected String pPrincipalName = "rep:principalName"; //$NON-NLS-1$
 
   IRepositoryFileAclDao repositoryFileAclDao;
 
@@ -228,7 +231,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         || !TenantUtils.isAccessibleTenant( theTenant == null ? tenantedUserNameUtils
         .getTenant( jackrabbitUser.getID() ) : theTenant ) ) {
       throw new NotFoundException( Messages.getInstance().getString(
-          "AbstractJcrBackedUserRoleDao.ERROR_0003_USER_NOT_FOUND" ) );
+        ABSTRACT_JCR_BACKED_USER_ROLE_DAO_ERROR_0003_USER_NOT_FOUND ) );
     }
 
     HashMap<String, Group> finalCollectionOfAssignedGroups = new HashMap<String, Group>();
@@ -297,6 +300,11 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
           "AbstractJcrBackedUserRoleDao.ERROR_0005_YOURSELF_OR_DEFAULT_ADMIN_USER" ) );
     }
 
+    updateUserRoles( session, theTenant, userName, roles );
+  }
+
+  protected void updateUserRoles( Session session, ITenant theTenant, String userName, String[] roles )
+          throws RepositoryException {
     Set<String> roleSet = new HashSet<String>();
     if ( roles != null ) {
       roleSet.addAll( Arrays.asList( roles ) );
@@ -309,7 +317,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         || !TenantUtils.isAccessibleTenant( theTenant == null ? tenantedUserNameUtils
         .getTenant( jackrabbitUser.getID() ) : theTenant ) ) {
       throw new NotFoundException( Messages.getInstance().getString(
-          "AbstractJcrBackedUserRoleDao.ERROR_0003_USER_NOT_FOUND" ) );
+        ABSTRACT_JCR_BACKED_USER_ROLE_DAO_ERROR_0003_USER_NOT_FOUND ) );
     }
     HashMap<String, Group> currentlyAssignedGroups = new HashMap<String, Group>();
     Iterator<Group> currentGroups = jackrabbitUser.memberOf();
@@ -462,7 +470,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
   }
 
   @VisibleForTesting
-  IPentahoUser convertToPentahoUser( User jackrabbitUser ) throws RepositoryException {
+  protected IPentahoUser convertToPentahoUser( User jackrabbitUser ) throws RepositoryException {
     if ( getUserCache().containsKey( jackrabbitUser.getID() ) ) {
       return (IPentahoUser) getUserCache().get( jackrabbitUser.getID() );
     }
@@ -541,7 +549,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         || !TenantUtils.isAccessibleTenant( theTenant == null ? tenantedUserNameUtils
         .getTenant( jackrabbitUser.getID() ) : theTenant ) ) {
       throw new NotFoundException( Messages.getInstance().getString(
-          "AbstractJcrBackedUserRoleDao.ERROR_0003_USER_NOT_FOUND" ) );
+        ABSTRACT_JCR_BACKED_USER_ROLE_DAO_ERROR_0003_USER_NOT_FOUND ) );
     }
     if ( description == null ) {
       jackrabbitUser.removeProperty( "description" ); //$NON-NLS-1$
@@ -557,7 +565,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         || !TenantUtils.isAccessibleTenant( theTenant == null ? tenantedUserNameUtils
         .getTenant( jackrabbitUser.getID() ) : theTenant ) ) {
       throw new NotFoundException( Messages.getInstance().getString(
-          "AbstractJcrBackedUserRoleDao.ERROR_0003_USER_NOT_FOUND" ) );
+        ABSTRACT_JCR_BACKED_USER_ROLE_DAO_ERROR_0003_USER_NOT_FOUND ) );
     }
     jackrabbitUser.changePassword( password );
 
@@ -645,7 +653,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
   }
 
 
-  private static String getJcrName( Session session ) throws NamespaceException {
+  protected static String getJcrName( Session session ) throws NamespaceException {
     return getSessionImpl( session ).getJCRName( P_PRINCIPAL_NAME );
   }
 
@@ -685,7 +693,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         : tenant ) ? convertToPentahoRole( jackrabbitGroup ) : null;
   }
 
-  private PentahoUserManagerImpl getUserManager( ITenant theTenant, Session session ) throws RepositoryException {
+  protected PentahoUserManagerImpl getUserManager( ITenant theTenant, Session session ) throws RepositoryException {
     Properties tenantProperties = new Properties();
     tenantProperties.put( PentahoUserManagerImpl.PARAM_USERS_PATH, PentahoUserManagerImpl.USERS_PATH
         + theTenant.getRootFolderAbsolutePath() );
@@ -727,7 +735,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     return jackrabbitGroup;
   }
 
-  private User getJackrabbitUser( ITenant theTenant, String name, Session session ) throws RepositoryException {
+  protected User getJackrabbitUser( ITenant theTenant, String name, Session session ) throws RepositoryException {
     User jackrabbitUser = null;
     String userId = name;
     String userName = name;

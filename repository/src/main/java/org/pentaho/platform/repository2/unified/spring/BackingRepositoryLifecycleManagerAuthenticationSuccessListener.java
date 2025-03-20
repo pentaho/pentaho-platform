@@ -71,62 +71,70 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
       final AbstractAuthenticationEvent aEvent = (AbstractAuthenticationEvent) event;
       final String principalName = aEvent.getAuthentication().getName();
 
-      try {
-        getSecurityHelper().runAsSystem( new Callable<Void>() {
-          @Override
-          public Void call() throws Exception {
-            // Execute new tenant with the tenant id from the logged in user
-            lifecycleManager.newTenant( JcrTenantUtils.getTenant( principalName, true ) );
-            return null;
-          }
-        } );
-      } catch ( Exception e ) {
-        logger.error( e.getLocalizedMessage(), e );
-      }
+      initiateRunAsSystem( lifecycleManager, principalName );
+      initiateRunAsUser( principalName, lifecycleManager );
 
-      try {
-        getSecurityHelper().runAsSystem( new Callable<Void>() {
-          @Override
-          public Void call() throws Exception {
-            // Execute new tenant with the tenant id from the logged in user
-            lifecycleManager.newUser( JcrTenantUtils.getTenant( principalName, true ), JcrTenantUtils.getPrincipalName(
-                principalName, true ) );
-            return null;
-          }
-        } );
-      } catch ( Exception e ) {
-        logger.error( e.getLocalizedMessage(), e );
-      }
-
-      try {
-        // The newTenant() call should be executed as the system (or more correctly the tenantAdmin)
-        getSecurityHelper().runAsSystem( new Callable<Void>() {
-          @Override
-          public Void call() throws Exception {
-            lifecycleManager.newTenant();
-            return null;
-          }
-        } );
-      } catch ( Exception e ) {
-        logger.error( e.getLocalizedMessage(), e );
-      }
-
-      try {
-        // run as user to populate SecurityContextHolder and PentahoSessionHolder since Spring Security events are
-        // fired
-        // before SecurityContextHolder is set
-        getSecurityHelper().runAsUser( principalName, new Callable<Void>() {
-          @Override
-          public Void call() throws Exception {
-            lifecycleManager.newUser();
-            return null;
-          }
-        } );
-
-      } catch ( Exception e ) {
-        logger.error( e.getLocalizedMessage(), e );
-      }
       logger.info( "The user \"" + principalName +"\"" + " connected to repository" );
+    }
+  }
+
+  protected void initiateRunAsUser( String principalName, IBackingRepositoryLifecycleManager lifecycleManager ) {
+    try {
+      // run as user to populate SecurityContextHolder and PentahoSessionHolder since Spring Security events are
+      // fired
+      // before SecurityContextHolder is set
+      getSecurityHelper().runAsUser( principalName, new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          lifecycleManager.newUser();
+          return null;
+        }
+      } );
+
+    } catch ( Exception e ) {
+      logger.error( e.getLocalizedMessage(), e );
+    }
+  }
+
+  protected void initiateRunAsSystem( IBackingRepositoryLifecycleManager lifecycleManager, String principalName ) {
+    try {
+      getSecurityHelper().runAsSystem( new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          // Execute new tenant with the tenant id from the logged in user
+          lifecycleManager.newTenant( JcrTenantUtils.getTenant( principalName, true ) );
+          return null;
+        }
+      } );
+    } catch ( Exception e ) {
+      logger.error( e.getLocalizedMessage(), e );
+    }
+
+    try {
+      getSecurityHelper().runAsSystem( new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          // Execute new tenant with the tenant id from the logged in user
+          lifecycleManager.newUser( JcrTenantUtils.getTenant( principalName, true ), JcrTenantUtils.getPrincipalName(
+            principalName, true ) );
+          return null;
+        }
+      } );
+    } catch ( Exception e ) {
+      logger.error( e.getLocalizedMessage(), e );
+    }
+
+    try {
+      // The newTenant() call should be executed as the system (or more correctly the tenantAdmin)
+      getSecurityHelper().runAsSystem( new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          lifecycleManager.newTenant();
+          return null;
+        }
+      } );
+    } catch ( Exception e ) {
+      logger.error( e.getLocalizedMessage(), e );
     }
   }
 

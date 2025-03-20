@@ -132,6 +132,10 @@ public class AbstractJcrBackedUserRoleDaoTest {
     doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock ).initUserCache();
     doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock ).initUserDetailsCache();
     doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock ).getUserCache();
+    doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock )
+      .getUserManager( nullable( ITenant.class ), nullable( Session.class ) );
+    doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock )
+      .getJackrabbitUser( nullable( ITenant.class ), nullable( String.class ), nullable( Session.class ) );
     doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock ).setUseJackrabbitUserCache( nullable( boolean.class ) );
     doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock ).isUseJackrabbitUserCache();
     when( abstractJcrBackedUserRoleDaoMock.createUserHomeFolder( nullable( ITenant.class ), nullable( String.class ), nullable( Session.class ) ) ).thenReturn( null );
