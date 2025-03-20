@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
+       default-lazy-init="true">
+
+  <bean id="oauthUserRoleListService"
+        class="org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoOAuthUserRoleService">
+    <constructor-arg ref="userRoleDaoTxn" />
+    <constructor-arg name="roleMapper" ref="oauthRoleMapper"/>
+    <constructor-arg ref="singleTenantSystemAuthorities" />
+    <constructor-arg ref="extraRoles" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="providerName" value="oauth"/>
+      </pen:attributes>
+    </pen:publish>
+
+  </bean>
+
+</beans>

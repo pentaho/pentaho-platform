@@ -22,8 +22,11 @@
             org.pentaho.platform.web.http.security.PreventBruteForceException,
             org.pentaho.platform.engine.core.system.PentahoSystem,
             org.pentaho.platform.util.messages.LocaleHelper,
+            org.pentaho.platform.api.engine.IConfiguration,
             org.pentaho.platform.api.engine.IPentahoSession,
             org.pentaho.platform.api.engine.IPluginManager,
+            org.pentaho.platform.api.engine.ISystemConfig,
+            org.pentaho.platform.util.oauth.PentahoOAuthUtility,
             org.pentaho.platform.web.jsp.messages.Messages,
             java.util.ArrayList,
             java.util.Iterator,
@@ -85,6 +88,12 @@
   int year = (new java.util.Date()).getYear() + 1900;
 
   boolean showUsers = Boolean.parseBoolean(PentahoSystem.getSystemSetting("login-show-sample-users-hint", "true"));
+
+  boolean isProviderOAuth = PentahoOAuthUtility.isOAuthEnabled();
+
+  IConfiguration securityConfig = PentahoSystem.get( ISystemConfig.class ).getConfiguration( "security" );
+
+  boolean isDualAuthProvider = "dualauth".equals(securityConfig.getProperties().getProperty( "provider" ));
 %>
 <%!
   public boolean isUserBlocked(HttpSession session) {
@@ -217,6 +226,30 @@
         <div id="login-form-container" class="lang_<%=cleanedLang%>">
           <div id="animate-wrapper">
             <h1><%=Messages.getInstance().getString("UI.PUC.LOGIN.TITLE")%></h1>
+
+            <%
+              if (isDualAuthProvider) {
+            %>
+            <div style="display:flex;justify-content:center;">
+            <button style="margin-top:10px;" onClick="redirectToOAuth()" id="microsoft-auth-button" class="css-1bthe7p" tabindex="0" type="button"><span class="css-1ti50tg"><img src="https://id-frontend.prod-east.frontend.public.atl-paas.net/assets/microsoft-logo.c73d8dca.svg" alt=""></span><span class="css-178ag6o">&nbsp;&nbsp;Sign-in with Microsoft</span></button>
+            </div>
+            <div style="display:flex;justify-content:center;">
+            <h5 style="padding-top:50px;"><b>(OR)</b></h5>
+            </div>
+            <%
+              } else if (isProviderOAuth) {
+            %>
+            <div style="display:flex;justify-content:center;">
+            <button style="margin-top:150px;" onClick="redirectToOAuth()" id="microsoft-auth-button" class="css-1bthe7p" tabindex="0" type="button"><span class="css-1ti50tg"><img src="https://id-frontend.prod-east.frontend.public.atl-paas.net/assets/microsoft-logo.c73d8dca.svg" alt=""></span><span class="css-178ag6o">&nbsp;&nbsp;Sign-in with Microsoft</span></button>
+            </div>
+            <%
+              }
+            %>
+
+            <%
+              if (!isProviderOAuth || isDualAuthProvider) {
+            %>
+
             <form name="login" id="login" action="j_spring_security_check" method="POST">
               <div class="row-fluid nowrap">
                 <div class="space-10"></div>
@@ -256,6 +289,9 @@
                 %>
               </div>
             </form>
+            <%
+              }
+            %>
           </div>
 
           <div class="row-fluid">
@@ -320,6 +356,12 @@
   <%
   }
   %>
+
+  var oauthProvider = '<%= System.getProperty("oauth.provider", "azure") %>';
+
+  function redirectToOAuth() {
+    window.location.href = "oauth2/authorization/" + oauthProvider;
+  }
 
   function bounceToReturnLocation() {
     var returnLocation = '<%=Encode.forJavaScript(requestedURL)%>';

@@ -30,6 +30,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.security.userroledao.PentahoOAuthUser;
 import org.pentaho.platform.security.userroledao.PentahoRole;
 import org.pentaho.platform.security.userroledao.PentahoUser;
 import org.pentaho.platform.security.userroledao.ws.IUserRoleWebService;
@@ -137,6 +138,20 @@ public class UserRoleWebServiceBase {
     }
 
     @Override
+    public IPentahoUser createOAuthUser( ITenant tenant, String username, String password, String description, String[] roles, String registrationId, String userId ) throws AlreadyExistsException, UncategorizedUserRoleDaoException {
+      if ( tenant == null ) {
+        tenant = getDefaultTenant();
+      }
+      IPentahoUser user = getUser( tenant, username );
+      if ( user == null ) {
+        user = new PentahoOAuthUser( new PentahoUser( tenant, username, password, description, true ), registrationId, userId );
+        users.add( user );
+        setUserRoles( tenant, username, roles );
+      }
+      return user;
+    }
+
+    @Override
     public List<IPentahoUser> getRoleMembers( ITenant tenant, String roleName )
       throws UncategorizedUserRoleDaoException {
       if ( tenant == null ) {
@@ -162,6 +177,11 @@ public class UserRoleWebServiceBase {
         roles = userRolesMap.get( pentahoUser );
       }
       return roles == null ? new ArrayList<IPentahoRole>() : new ArrayList<IPentahoRole>( roles );
+    }
+
+    @Override
+    public void changeUserStatus( IPentahoUser pentahoUser ) {
+      return;
     }
 
     @Override
@@ -302,6 +322,11 @@ public class UserRoleWebServiceBase {
     }
 
     @Override
+    public void setUserRolesNoValidation( ITenant tenant, String userName, String[] roles ) throws NotFoundException, UncategorizedUserRoleDaoException {
+      setUserRoles( tenant, userName, roles );
+    }
+
+    @Override
     public void deleteRole( IPentahoRole role ) throws NotFoundException, UncategorizedUserRoleDaoException {
       IPentahoRole realRole = getRole( role.getTenant(), role.getName() );
       if ( realRole != null ) {
@@ -380,6 +405,11 @@ public class UserRoleWebServiceBase {
     }
 
     @Override
+    public IPentahoUser getPentahoOAuthUser(ITenant tenant, String name) throws UncategorizedUserRoleDaoException {
+      return null;
+    }
+
+    @Override
     public List<IPentahoUser> getUsers() throws UncategorizedUserRoleDaoException {
       return getUsers( getDefaultTenant() );
     }
@@ -388,6 +418,11 @@ public class UserRoleWebServiceBase {
     public List<IPentahoUser> getUsers( ITenant tenant, boolean includeSubtenants )
       throws UncategorizedUserRoleDaoException {
       return getUsers( tenant );
+    }
+
+    @Override
+    public List<IPentahoUser> getAllOAuthUsers() throws UncategorizedUserRoleDaoException {
+      return null;
     }
 
     @Override
