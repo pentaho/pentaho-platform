@@ -124,6 +124,10 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
         ACCOUNT_NON_LOCKED, dbAuths );
   }
 
+  public IPentahoUser getPentahoOAuthUser( ITenant tenant, String username ) {
+    return userRoleDao.getPentahoOAuthUser( tenant, username );
+  }
+
   /**
    * Allows subclasses to add their own granted authorities to the list to be returned in the <code>User</code>.
    * 

@@ -10,7 +10,6 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-
 package org.pentaho.platform.api.engine.security.userroledao;
 
 import org.pentaho.platform.api.mt.ITenant;
@@ -39,6 +38,22 @@ public interface IUserRoleDao {
    */
   IPentahoUser createUser( ITenant tenant, String username, String password, String description, String[] roles )
     throws AlreadyExistsException, UncategorizedUserRoleDaoException;
+
+  /**
+   * Creates user under a specified tenant. If the tenant is null then it will create the user under a default
+   * tenant.
+   *
+   * @param tenant
+   * @param username
+   * @param password
+   * @param description
+   * @param roles
+   * @return pentaho user
+   * @throws AlreadyExistsException
+   * @throws UncategorizedUserRoleDaoException
+   */
+  IPentahoUser createOAuthUser( ITenant tenant, String username, String password, String description, String[] roles, String registrationId, String userId )
+          throws AlreadyExistsException, UncategorizedUserRoleDaoException;
 
   /**
    * Update the password of an existing user under a specified tenant. If the tenant is null then it will try to
@@ -86,6 +101,8 @@ public interface IUserRoleDao {
    */
   IPentahoUser getUser( ITenant tenant, String name ) throws UncategorizedUserRoleDaoException;
 
+  IPentahoUser getPentahoOAuthUser( ITenant tenant, String name ) throws UncategorizedUserRoleDaoException;
+
   /**
    * Retrieve all the users from the default tenant of a repository.
    * 
@@ -93,6 +110,14 @@ public interface IUserRoleDao {
    * @throws UncategorizedUserRoleDaoException
    */
   List<IPentahoUser> getUsers() throws UncategorizedUserRoleDaoException;
+
+  /**
+   * Retrieve all the OAuth users from the default tenant of a repository.
+   *
+   * @return list of pentaho user
+   * @throws UncategorizedUserRoleDaoException
+   */
+  List<IPentahoUser> getAllOAuthUsers() throws UncategorizedUserRoleDaoException;
 
   /**
    * Retrieve all the users from the specified tenant of a repository. If the tenant is null then it will try to
@@ -220,6 +245,21 @@ public interface IUserRoleDao {
     UncategorizedUserRoleDaoException;
 
   /**
+   * Assign a list of roles to a particular user in a specified tenant.
+   * If the tenant is null, then it will search for this user in a default tenant.
+   *
+   * Please note that this method performs updates without any user validation.
+   *
+   * @param tenant
+   * @param userName
+   * @param roles
+   * @throws NotFoundException
+   * @throws UncategorizedUserRoleDaoException
+   */
+  void setUserRolesNoValidation( ITenant tenant, String userName, String[] roles )
+          throws NotFoundException, UncategorizedUserRoleDaoException;
+
+  /**
    * Retrieves the list of users associated to a particular role in a given tenant. If the tenant is null, then it
    * will get role members in a default tenant
    * 
@@ -240,4 +280,6 @@ public interface IUserRoleDao {
    * @throws UncategorizedUserRoleDaoException
    */
   List<IPentahoRole> getUserRoles( ITenant tenant, String userName ) throws UncategorizedUserRoleDaoException;
+
+  void changeUserStatus( IPentahoUser pentahoUser );
 }

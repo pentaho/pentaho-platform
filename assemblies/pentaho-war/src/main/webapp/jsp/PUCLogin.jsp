@@ -22,8 +22,11 @@
             org.pentaho.platform.web.http.security.PreventBruteForceException,
             org.pentaho.platform.engine.core.system.PentahoSystem,
             org.pentaho.platform.util.messages.LocaleHelper,
+            org.pentaho.platform.api.engine.IConfiguration,
             org.pentaho.platform.api.engine.IPentahoSession,
             org.pentaho.platform.api.engine.IPluginManager,
+			org.pentaho.platform.api.engine.ISystemConfig,
+            org.pentaho.platform.util.oauth.PentahoOAuthUtility,
             org.pentaho.platform.web.jsp.messages.Messages,
             java.util.ArrayList,
             java.util.Iterator,
@@ -85,6 +88,13 @@
   int year = (new java.util.Date()).getYear() + 1900;
 
   boolean showUsers = Boolean.parseBoolean(PentahoSystem.getSystemSetting("login-show-sample-users-hint", "true"));
+
+  boolean isProviderOAuth = PentahoOAuthUtility.isOAuthEnabled();
+
+  IConfiguration securityConfig = PentahoSystem.get( ISystemConfig.class ).getConfiguration( "security" );
+
+  boolean isDualAuthProvider = "dualauth".equals(securityConfig.getProperties().getProperty( "provider" ));
+
 %>
 <%!
   public boolean isUserBlocked(HttpSession session) {
@@ -217,6 +227,9 @@
         <div id="login-form-container" class="lang_<%=cleanedLang%>">
           <div id="animate-wrapper">
             <h1><%=Messages.getInstance().getString("UI.PUC.LOGIN.TITLE")%></h1>
+            <%
+              if (!isProviderOAuth || isDualAuthProvider) {
+            %>
             <form name="login" id="login" action="j_spring_security_check" method="POST">
               <div class="row-fluid nowrap">
                 <div class="space-10"></div>
@@ -233,20 +246,32 @@
                 </div>
                 <div class="space-60"></div>
                 <div class="input-container">
-                  <button type="submit" id="loginbtn" class="btn"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
+                  <button type="submit" id="loginbtn" class="btn" style="margin-right:80px;"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
                 </div>
                 <div class="space-60"></div>
+                <%
+                  }
+                  if (isDualAuthProvider) {
+                %>
+                <h5 style="margin-left:140px;padding-top:50px;"><b>(OR)</b></h5>
+                <button style="margin-left:70px;margin-top:10px;" onClick="redirectToOAuth()" id="microsoft-auth-button" class="css-1bthe7p" tabindex="0" type="button"><span class="css-1ti50tg"><img src="https://id-frontend.prod-east.frontend.public.atl-paas.net/assets/microsoft-logo.c73d8dca.svg" alt=""></span><span class="css-178ag6o">&nbsp;&nbsp;Sign-in with Microsoft</span></button>
+                <%
+                } else if (isProviderOAuth) {
+                %>
+                <button style="margin-left:70px;margin-top:150px;" onClick="redirectToOAuth()" id="microsoft-auth-button" class="css-1bthe7p" tabindex="0" type="button"><span class="css-1ti50tg"><img src="https://id-frontend.prod-east.frontend.public.atl-paas.net/assets/microsoft-logo.c73d8dca.svg" alt=""></span><span class="css-178ag6o">&nbsp;&nbsp;Sign-in with Microsoft</span></button>
+                <%
+                  }
+                %>
               </div>
               <div class="space-60"></div>
               <div id="eval-users-toggle-container">
                 <%
-                  if (showUsers) {
+                  if ((!isProviderOAuth || isProviderOAuth) && showUsers) {
                 %>
-                <div id="eval-users-toggle" onClick="toggleEvalPanel()" tabindex="0" role="button">
-                    <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.EVAL_LOGIN")%></div>
-                    <div id="eval-arrow" class="closed"></div>
-                  </div>
-
+                <div id="eval-users-toggle" onClick="toggleEvalPanel()" tabindex="0" role="button" style="margin-left:30px;">
+                  <div><%=Messages.getInstance().getString("UI.PUC.LOGIN.EVAL_LOGIN")%></div>
+                  <div id="eval-arrow" class="closed"></div>
+                </div>
                 <%
                 } else {
                 %>
@@ -271,21 +296,21 @@
                   <div class="span6 login-value">password</div>
                 </div>
                 <button type="submit" class="btn" aria-label="Login As Administrator" onClick="loginAs('Admin', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
-            </div>
-            <div id="role-business-user-panel" class="span6 well">
-              <div class="login-role"><%=Messages.getInstance().getString("UI.PUC.LOGIN.BUSINESS_USER")%></div>
-              <div class="row-fluid">
-                <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%></div>
-                <div class="span6 login-value">Suzy</div>
               </div>
-              <div class="row-fluid">
-                <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></div>
-                <div class="span6 login-value">password</div>
+              <div id="role-business-user-panel" class="span6 well">
+                <div class="login-role"><%=Messages.getInstance().getString("UI.PUC.LOGIN.BUSINESS_USER")%></div>
+                <div class="row-fluid">
+                  <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%></div>
+                  <div class="span6 login-value">Suzy</div>
+                </div>
+                <div class="row-fluid">
+                  <div class="span6 login-label"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></div>
+                  <div class="span6 login-value">password</div>
+                </div>
+                <button type="submit" class="btn" aria-label="Login As Business User" onClick="loginAs('Suzy', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
               </div>
-              <button type="submit" class="btn" aria-label="Login As Business User" onClick="loginAs('Suzy', 'password');"><%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%></button>
             </div>
           </div>
-        </div>
 
           <div class="space-30"></div>
 
@@ -300,6 +325,10 @@
 </div>
 
 <script type="text/javascript">
+
+  function redirectToOAuth() {
+    window.location.href = "oauth2/authorization/azure";
+  }
 
   <%
   if (showUsers) {
