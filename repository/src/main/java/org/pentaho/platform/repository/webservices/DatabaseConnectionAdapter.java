@@ -19,7 +19,7 @@ import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.database.util.DatabaseTypeHelper;
 import org.pentaho.di.core.encryption.Encr;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 public class DatabaseConnectionAdapter extends XmlAdapter<DatabaseConnectionDto, DatabaseConnection> {
 

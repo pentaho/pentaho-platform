@@ -29,7 +29,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.XmlTestConstants;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
+import jakarta.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringBufferInputStream;
 import java.io.StringWriter;

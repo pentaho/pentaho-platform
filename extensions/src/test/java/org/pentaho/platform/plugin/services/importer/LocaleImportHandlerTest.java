@@ -37,7 +37,7 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
+import jakarta.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;

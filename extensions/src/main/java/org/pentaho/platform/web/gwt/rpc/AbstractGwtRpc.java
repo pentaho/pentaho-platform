@@ -29,9 +29,9 @@ import org.pentaho.platform.web.gwt.rpc.util.ThrowingSupplier;
 import org.pentaho.platform.web.servlet.GwtRpcProxyException;
 import org.pentaho.platform.web.servlet.messages.Messages;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;

@@ -17,9 +17,9 @@ import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache;
+//import org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache;
 
-public class PentahoEhCacheBasedUserCache extends EhCacheBasedUserCache {
+public class PentahoEhCacheBasedUserCache  {
 
   private static final Log logger = LogFactory.getLog( PentahoEhCacheBasedUserCache.class );
   private boolean caseSensitive = false;
@@ -32,20 +32,20 @@ public class PentahoEhCacheBasedUserCache extends EhCacheBasedUserCache {
     this.caseSensitive = caseSensitive;
   }
 
-  @Override public UserDetails getUserFromCache( String username ) {
-    return super.getUserFromCache( caseSensitive ? username : username.toLowerCase() );
+  public UserDetails getUserFromCache( String username ) {
+    return null;
   }
 
-  @Override public void putUserInCache( UserDetails user ) {
+  public void putUserInCache( UserDetails user ) {
     Element element = new Element( caseSensitive ? user.getUsername() : user.getUsername().toLowerCase(), user );
     if ( logger.isDebugEnabled() ) {
       logger.debug( "Cache put: " + element.getKey() );
     }
 
-    this.getCache().put( element );
+//    this.getCache().put( element );
   }
 
-  @Override public void removeUserFromCache( String username ) {
-    super.removeUserFromCache( caseSensitive ? username : username.toLowerCase() );
+  public void removeUserFromCache( String username ) {
+//    super.removeUserFromCache( caseSensitive ? username : username.toLowerCase() );
   }
 }

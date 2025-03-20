@@ -17,8 +17,8 @@ import org.pentaho.platform.api.engine.IDocumentResourceLoader;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
+import jakarta.xml.transform.Source;
+import jakarta.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.io.InputStream;
 

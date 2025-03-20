@@ -15,7 +15,7 @@ package org.pentaho.platform.util.xml.dom4j;
 
 import org.junit.Test;
 
-import javax.xml.transform.TransformerFactoryConfigurationError;
+import jakarta.xml.transform.TransformerFactoryConfigurationError;
 
 import static org.mockito.Mockito.mock;
 

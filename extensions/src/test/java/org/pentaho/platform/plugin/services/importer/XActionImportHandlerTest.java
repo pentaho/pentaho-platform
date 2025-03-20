@@ -24,7 +24,7 @@ import java.io.StringBufferInputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.xml.parsers.ParserConfigurationException;
+import jakarta.xml.parsers.ParserConfigurationException;
 
 import org.junit.After;
 import org.junit.Before;

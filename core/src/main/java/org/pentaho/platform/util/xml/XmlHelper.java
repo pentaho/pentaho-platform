@@ -33,13 +33,13 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
+import jakarta.xml.transform.Transformer;
+import jakarta.xml.transform.TransformerConfigurationException;
+import jakarta.xml.transform.TransformerException;
+import jakarta.xml.transform.TransformerFactory;
+import jakarta.xml.transform.URIResolver;
+import jakarta.xml.transform.stream.StreamResult;
+import jakarta.xml.transform.stream.StreamSource;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;

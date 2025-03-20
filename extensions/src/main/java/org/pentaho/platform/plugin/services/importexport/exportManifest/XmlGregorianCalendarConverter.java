@@ -13,9 +13,9 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
+import jakarta.xml.datatype.DatatypeConfigurationException;
+import jakarta.xml.datatype.DatatypeFactory;
+import jakarta.xml.datatype.XMLGregorianCalendar;
 import java.util.GregorianCalendar;
 
 /**

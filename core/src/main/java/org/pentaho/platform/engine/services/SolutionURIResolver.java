@@ -22,9 +22,9 @@ import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.xml.sax.InputSource;
 
-import javax.xml.transform.Source;
-import javax.xml.transform.URIResolver;
-import javax.xml.transform.stream.StreamSource;
+import jakarta.xml.transform.Source;
+import jakarta.xml.transform.URIResolver;
+import jakarta.xml.transform.stream.StreamSource;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;

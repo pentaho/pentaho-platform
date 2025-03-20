@@ -443,10 +443,10 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    */
   public void permanentlyDeleteFile( final Session session, final PentahoJcrConstants pentahoJcrConstants,
                                      final Serializable fileId ) throws RepositoryException {
-    Assert.notNull( fileId );
+    Assert.notNull( fileId, "" );
     Node fileNode = session.getNodeByIdentifier( fileId.toString() );
     // guard against using a file retrieved from a more lenient session inside a more strict session
-    Assert.notNull( fileNode );
+    Assert.notNull( fileNode, "" );
 
     // see if anything is referencing this node; if yes, then we cannot delete it as a
     // ReferentialIntegrityException will result

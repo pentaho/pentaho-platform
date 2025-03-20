@@ -36,7 +36,7 @@ import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogR
 import org.pentaho.platform.util.XmlTestConstants;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
+import jakarta.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringBufferInputStream;

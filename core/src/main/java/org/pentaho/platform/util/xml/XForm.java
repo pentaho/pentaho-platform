@@ -18,7 +18,7 @@ import org.pentaho.platform.api.engine.IDocumentResourceLoader;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
-import javax.xml.transform.TransformerException;
+import jakarta.xml.transform.TransformerException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;

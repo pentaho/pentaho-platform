@@ -21,11 +21,11 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
+import jakarta.xml.parsers.DocumentBuilder;
+import jakarta.xml.parsers.DocumentBuilderFactory;
+import jakarta.xml.parsers.ParserConfigurationException;
+import jakarta.xml.xpath.XPath;
+import jakarta.xml.xpath.XPathFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FilenameUtils;

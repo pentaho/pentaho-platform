@@ -19,7 +19,7 @@ import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepository
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
-import javax.xml.bind.annotation.XmlMimeType;
+import jakarta.xml.bind.annotation.XmlMimeType;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;

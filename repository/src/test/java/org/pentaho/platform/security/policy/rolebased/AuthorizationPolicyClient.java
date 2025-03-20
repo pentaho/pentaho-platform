@@ -22,9 +22,9 @@ import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.security.policy.rolebased.ws.IAuthorizationPolicyWebService;
 import org.pentaho.platform.security.policy.rolebased.ws.IRoleAuthorizationPolicyRoleBindingDaoWebService;
 
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Service;
+import jakarta.xml.namespace.QName;
+import jakarta.xml.ws.BindingProvider;
+import jakarta.xml.ws.Service;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;

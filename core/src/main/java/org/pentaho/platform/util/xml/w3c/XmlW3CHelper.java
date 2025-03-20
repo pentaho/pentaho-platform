@@ -13,8 +13,8 @@
 
 package org.pentaho.platform.util.xml.w3c;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import jakarta.xml.parsers.DocumentBuilder;
+import jakarta.xml.parsers.DocumentBuilderFactory;
 
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.Messages;

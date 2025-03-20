@@ -22,10 +22,10 @@ package org.pentaho.platform.plugin.services.importexport.exportManifest.binding
 
 import org.pentaho.platform.api.scheduler.JobScheduleParam;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlElementDecl;
-import javax.xml.bind.annotation.XmlRegistry;
-import javax.xml.namespace.QName;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.annotation.XmlElementDecl;
+import jakarta.xml.bind.annotation.XmlRegistry;
+import jakarta.xml.namespace.QName;
 
 /**
  * This object contains factory methods for each Java content interface and Java element interface generated in the

@@ -35,19 +35,19 @@ import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Iterator;
 
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import jakarta.xml.namespace.NamespaceContext;
+import jakarta.xml.namespace.QName;
+import jakarta.xml.parsers.DocumentBuilder;
+import jakarta.xml.parsers.DocumentBuilderFactory;
+import jakarta.xml.parsers.ParserConfigurationException;
+import jakarta.xml.transform.Transformer;
+import jakarta.xml.transform.TransformerFactory;
+import jakarta.xml.transform.dom.DOMSource;
+import jakarta.xml.transform.stream.StreamResult;
+import jakarta.xml.xpath.XPath;
+import jakarta.xml.xpath.XPathConstants;
+import jakarta.xml.xpath.XPathExpressionException;
+import jakarta.xml.xpath.XPathFactory;
 
 /**
  * Overrides <code>getResourceByPath</code> so that relative paths are relative to the Hitachi Vantara solution repository's

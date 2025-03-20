@@ -22,8 +22,8 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
+import jakarta.xml.transform.TransformerConfigurationException;
+import jakarta.xml.transform.TransformerException;
 
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;

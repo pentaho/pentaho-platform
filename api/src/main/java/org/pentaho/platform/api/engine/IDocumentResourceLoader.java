@@ -15,7 +15,7 @@ package org.pentaho.platform.api.engine;
 
 import org.xml.sax.EntityResolver;
 
-import javax.xml.transform.URIResolver;
+import jakarta.xml.transform.URIResolver;
 import java.io.InputStream;
 
 public interface IDocumentResourceLoader extends URIResolver, EntityResolver {

@@ -53,8 +53,8 @@ public class ConstantCredentialsStrategy implements CredentialsStrategy {
   }
 
   public ConstantCredentialsStrategy( final String userID, final String preAuthenticationToken ) {
-    Assert.hasText( userID );
-    Assert.hasText( preAuthenticationToken );
+    Assert.hasText( userID, "" );
+    Assert.hasText( preAuthenticationToken, "" );
     SimpleCredentials creds = new SimpleCredentials( userID, PASSWORD );
     creds.setAttribute( ATTR_PRE_AUTHENTICATION_TOKEN, preAuthenticationToken );
     this.credentials = creds;

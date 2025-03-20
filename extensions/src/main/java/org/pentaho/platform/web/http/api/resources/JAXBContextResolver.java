@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.xml.parsers.ParserConfigurationException;
+import jakarta.xml.parsers.ParserConfigurationException;
 
 import mondrian.util.Pair;
 
