@@ -14,11 +14,17 @@
 package org.pentaho.platform.web.http.security;
 
 import org.pentaho.platform.api.security.ILoginAttemptService;
+import org.pentaho.platform.util.oauth.PentahoOAuthUtility;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class PreventBruteForceUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -44,4 +50,17 @@ public class PreventBruteForceUsernamePasswordAuthenticationFilter extends Usern
     }
     return xfHeader.split( "," )[0];
   }
+
+  @Override
+  public void doFilter( ServletRequest request, ServletResponse response, FilterChain chain )
+          throws IOException, ServletException {
+
+    if ( PentahoOAuthUtility.isOAuthEnabled()
+            && !PentahoOAuthUtility.isUserNamePasswordAuthentication( (HttpServletRequest) request ) ) {
+      chain.doFilter( request, response );
+    } else {
+      super.doFilter( request, response, chain );
+    }
+  }
+
 }
