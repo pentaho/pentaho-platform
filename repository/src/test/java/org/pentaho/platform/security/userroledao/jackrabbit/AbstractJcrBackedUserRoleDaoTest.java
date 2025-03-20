@@ -31,6 +31,8 @@ import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory;
+import org.pentaho.platform.security.userroledao.PentahoOAuthUser;
+import org.pentaho.platform.security.userroledao.PentahoUser;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 import javax.jcr.Credentials;
@@ -48,6 +50,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -134,6 +138,26 @@ public class AbstractJcrBackedUserRoleDaoTest {
     doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock ).getUserCache();
     doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock ).setUseJackrabbitUserCache( nullable( boolean.class ) );
     doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock ).isUseJackrabbitUserCache();
+
+    doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock )
+      .setUserRolesNoValidation( nullable( Session.class ), nullable( ITenant.class ), nullable( String.class ),
+        nullable( String[].class ) );
+    doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock )
+      .createOAuthUser( nullable( Session.class ), nullable( ITenant.class ), nullable( String[].class ),
+        nullable( PentahoOAuthUser.class ) );
+    doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock )
+      .setOAuthUserRegistrationId( nullable( Session.class ), nullable( ITenant.class ), nullable( String.class ),
+        nullable( String.class ) );
+    doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock )
+      .setOAuthUserId( nullable( Session.class ), nullable( ITenant.class ), nullable( String.class ),
+        nullable( String.class ) );
+    doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock )
+      .getAllOAuthUsers( nullable( Session.class ), nullable( ITenant.class ), nullable( boolean.class ) );
+    doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock )
+      .getPentahoOAuthUser( nullable( Session.class ), nullable( ITenant.class ), nullable( String.class ) );
+    doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock )
+      .changeUserStatus( nullable( Session.class ), nullable( PentahoOAuthUser.class ) );
+
     when( abstractJcrBackedUserRoleDaoMock.createUserHomeFolder( nullable( ITenant.class ), nullable( String.class ), nullable( Session.class ) ) ).thenReturn( null );
     when( abstractJcrBackedUserRoleDaoMock.getTenantedUserNameUtils() ).thenReturn( nameResolverMock );
 
@@ -145,7 +169,6 @@ public class AbstractJcrBackedUserRoleDaoTest {
     abstractJcrBackedUserRoleDaoMock.setUseJackrabbitUserCache( true );
   }
 
-  @Test
   public void testCreateUser() throws Exception {
 
     String testUser = TEST_USER_NAME + "_create";
@@ -235,6 +258,93 @@ public class AbstractJcrBackedUserRoleDaoTest {
     verify( cacheMock, never() ).put( any(), anyString() );
   }
 
+  @Test
+  public void testSetUserRolesNoValidation() throws Exception {
+    try ( MockedStatic<TenantUtils> tenantUtils = mockStatic( TenantUtils.class ) ) {
+      tenantUtils.when( () -> TenantUtils.isAccessibleTenant( any() ) ).thenReturn( true );
+      abstractJcrBackedUserRoleDaoMock.setUserRolesNoValidation( adminSession, tenantMock, TEST_USER_NAME, newRoles );
+      assertTrue( TenantUtils.isAccessibleTenant( any() ) );
+    }
+  }
+
+  @Test
+  public void testGetAllOAuthUsers() throws Exception {
+    try ( MockedStatic<TenantUtils> tenantUtils = mockStatic( TenantUtils.class ) ) {
+      tenantUtils.when( () -> TenantUtils.isAccessibleTenant( any() ) ).thenReturn( true );
+      assertNotNull( abstractJcrBackedUserRoleDaoMock.getAllOAuthUsers( adminSession, tenantMock, true ) );
+    }
+  }
+
+  @Test
+  public void testChangeUserStatus() throws Exception {
+    try ( MockedStatic<TenantUtils> tenantUtils = mockStatic( TenantUtils.class ) ) {
+      tenantUtils.when( () -> TenantUtils.isAccessibleTenant( any() ) ).thenReturn( true );
+      String testUser = TEST_USER_NAME + "_create";
+      String password = "password";
+      PentahoUser pentahoUser = new PentahoUser( testUser, password, "", true );
+      PentahoOAuthUser pentahoOAuthUser = new PentahoOAuthUser( pentahoUser, "", "" );
+      abstractJcrBackedUserRoleDaoMock.changeUserStatus( adminSession, pentahoOAuthUser );
+      assertTrue( pentahoUser.isEnabled() );
+    }
+  }
+
+  @Test
+  public void testCreateOAuthUser() throws Exception {
+    String testUser = TEST_USER_NAME + "_create";
+    String password = "password";
+
+    try ( MockedStatic<TenantUtils> tenantUtils = mockStatic( TenantUtils.class ) ) {
+      tenantUtils.when( () -> TenantUtils.isAccessibleTenant( any() ) ).thenReturn( true );
+      when( nameResolverMock.getPrincipleId( nullable( ITenant.class ), nullable( String.class ) ) ).thenReturn( testUser );
+      when( nameResolverMock.getTenant( nullable( String.class ) ) ).thenReturn( tenantMock );
+      when( nameResolverMock.getPrincipleName( nullable( String.class ) ) ).thenReturn( testUser );
+      when( roleResolverMock.getPrincipleId( nullable( ITenant.class ), nullable( String.class ) ) ).thenReturn( "Authenticated_" + PENTAHO_TENANT );
+
+      PentahoUser pentahoUser = new PentahoUser( testUser, password, "", true );
+      PentahoOAuthUser pentahoOAuthUser = new PentahoOAuthUser( pentahoUser, "", "" );
+
+      //test user creation
+      IPentahoUser newUser = abstractJcrBackedUserRoleDaoMock
+        .createOAuthUser( adminSession, tenantMock, newRoles, pentahoOAuthUser );
+      IPentahoUser existingUser = abstractJcrBackedUserRoleDaoMock.getPentahoOAuthUser( adminSession, tenantMock, TEST_USER_NAME );
+      assertThat( existingUser, is( newUser ) );
+    }
+  }
+
+  @Test
+  public void testConvertToPentahoOAuthUserEnableCache() throws RepositoryException {
+    AbstractJcrBackedUserRoleDao abstractJcrDaoMock = mock( AbstractJcrBackedUserRoleDao.class );
+    User userMock = mock( User.class );
+    PentahoUser pentahoUser = new PentahoUser( tenantMock, TEST_USER_NAME, "", TEST_USER_DEC, true );
+    when( abstractJcrDaoMock.convertToPentahoUser( userMock ) ).thenReturn( pentahoUser );
+    doCallRealMethod().when( abstractJcrDaoMock ).convertToPentahoOAuthUser( nullable( User.class ) );
+
+    when( abstractJcrDaoMock.isUseJackrabbitUserCache() ).thenReturn( true );
+
+    //Cache mocking
+    LRUMap cacheMock = mock( LRUMap.class );
+    when( abstractJcrDaoMock.getUserCache() ).thenReturn( cacheMock );
+
+    abstractJcrDaoMock.convertToPentahoOAuthUser( userMock );
+
+    verify( cacheMock ).put( any(), any() );
+  }
+
+  @Test
+  public void testConvertToPentahoOAuthUserDisableCache() throws RepositoryException {
+    AbstractJcrBackedUserRoleDao mockAbstractJcrDao = mock( AbstractJcrBackedUserRoleDao.class );
+    User userMock = mock( User.class );
+    PentahoUser pentahoUser = new PentahoUser( tenantMock, TEST_USER_NAME, "", TEST_USER_DEC, true );
+    when( mockAbstractJcrDao.convertToPentahoUser( userMock ) ).thenReturn( pentahoUser );
+    doCallRealMethod().when( mockAbstractJcrDao ).convertToPentahoOAuthUser( nullable( User.class ) );
+
+    //Cache mocking
+    LRUMap cacheMock = mock( LRUMap.class );
+
+    mockAbstractJcrDao.convertToPentahoOAuthUser( userMock );
+
+    verify( cacheMock, never() ).put( any(), anyString() );
+  }
 
   @Test
   public void getSessionImplTest() {

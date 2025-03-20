@@ -122,6 +122,11 @@ public class MockUserRoleDao implements IUserRoleDao {
     return user;
   }
 
+  @Override
+  public IPentahoUser createOAuthUser(ITenant tenant, String username, String password, String description, String[] roles, String registrationId, String userId) throws AlreadyExistsException, UncategorizedUserRoleDaoException {
+    return null;
+  }
+
   public RepositoryFile createUserHomeFolder( ITenant tenant, String arg1 ) {
     throw new UnsupportedOperationException();
   }
@@ -223,6 +228,11 @@ public class MockUserRoleDao implements IUserRoleDao {
     return null;
   }
 
+  @Override
+  public IPentahoUser getPentahoOAuthUser(ITenant tenant, String name) throws UncategorizedUserRoleDaoException {
+    return null;
+  }
+
   public List<IPentahoRole> getUserRoles( ITenant tenant, String userName ) throws UncategorizedUserRoleDaoException {
     if ( tenant == null ) {
       tenant = getTenant( userName, true );
@@ -236,8 +246,17 @@ public class MockUserRoleDao implements IUserRoleDao {
     return Collections.list( Collections.enumeration( userRoles.get( user ) ) );
   }
 
+  @Override
+  public void changeUserStatus( IPentahoUser pentahoUser ) {
+    return;
+  }
+
   public List<IPentahoUser> getUsers() throws UncategorizedUserRoleDaoException {
     return getUsers( getCurrentTenant() );
+  }
+
+  public List<IPentahoUser> getAllOAuthUsers() throws UncategorizedUserRoleDaoException {
+    return null;
   }
 
   public List<IPentahoUser> getUsers( ITenant tenant, boolean includeSubTenants )
@@ -343,6 +362,11 @@ public class MockUserRoleDao implements IUserRoleDao {
       }
       
     }
+  }
+
+  @Override
+  public void setUserRolesNoValidation( ITenant tenant, String userName, String[] roles ) throws NotFoundException, UncategorizedUserRoleDaoException {
+    setUserRoles( tenant, userName, roles );
   }
 
   protected ITenant getCurrentTenant() {

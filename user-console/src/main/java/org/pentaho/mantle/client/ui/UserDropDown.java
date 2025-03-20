@@ -41,6 +41,7 @@ public class UserDropDown extends CustomDropDown implements RequestCallback {
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     executableTypesRequestBuilder.setHeader( "accept", "application/json" );
+    executableTypesRequestBuilder.setHeader( "caller", "gwt" );
     try {
       executableTypesRequestBuilder.sendRequest( null, this );
     } catch ( RequestException e ) {
@@ -57,7 +58,7 @@ public class UserDropDown extends CustomDropDown implements RequestCallback {
 
   public void onResponseReceived( Request request, Response response ) {
     String responseText = response.getText();
-    if ( responseText.contains( "\"jackrabbit\"" ) || responseText.contains( "\"super\"" ) ) {
+    if ( responseText.contains( "\"oauth\"" ) || responseText.contains( "\"jackrabbit\"" ) || responseText.contains( "\"super\"" ) ) {
       menuBar.addItem( new MenuItem( Messages.getString( "changePassword" ), new ChangePasswordCommand() ) );
     }
   }

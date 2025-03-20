@@ -18,10 +18,12 @@ import org.junit.Test;
 import org.pentaho.platform.api.security.ILoginAttemptService;
 import org.pentaho.platform.engine.security.LoginAttemptService;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 import static org.mockito.Mockito.mock;
@@ -57,4 +59,16 @@ public class PreventBruteForceSavedRequestAwareAuthenticationSuccessHandlerTest 
     handler.onAuthenticationSuccess( mockRequest, mockResponse, mockAuthentication );
     verify( mockLoginAttemptService, times( 1 ) ).loginSucceeded( ip );
   }
+
+  @Test
+  public void testOnAuthenticationSuccessForOAuth() throws ServletException, IOException {
+    PreventBruteForceSavedRequestAwareAuthenticationSuccessHandler handler =
+      new PreventBruteForceSavedRequestAwareAuthenticationSuccessHandler( mockLoginAttemptService );
+    mockAuthentication = mock( OAuth2AuthenticationToken.class );
+    when( mockRequest.getSession() ).thenReturn( mock( HttpSession.class ) );
+    when( mockRequest.getHeader( "X-Forwarded-For" ) ).thenReturn( "Test,Best" );
+    handler.onAuthenticationSuccess( mockRequest, mockResponse, mockAuthentication );
+    verify( mockLoginAttemptService, times( 1 ) ).loginSucceeded( "Test" );
+  }
+
 }

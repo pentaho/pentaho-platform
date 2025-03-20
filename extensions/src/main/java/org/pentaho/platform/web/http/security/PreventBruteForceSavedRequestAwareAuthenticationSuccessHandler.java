@@ -15,6 +15,7 @@ package org.pentaho.platform.web.http.security;
 
 import org.pentaho.platform.api.security.ILoginAttemptService;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
 import javax.servlet.ServletException;
@@ -35,6 +36,12 @@ public class PreventBruteForceSavedRequestAwareAuthenticationSuccessHandler exte
   @Override public void onAuthenticationSuccess( HttpServletRequest request, HttpServletResponse response,
                                                  Authentication authentication ) throws ServletException, IOException {
     this.loginAttemptService.loginSucceeded( getClientIp( request ) );
+
+    // While OAuth login it's not removing the saved request and not redirecting to the default target URL - home page.
+    if ( authentication instanceof OAuth2AuthenticationToken ) {
+      request.getSession().removeAttribute( "SPRING_SECURITY_SAVED_REQUEST" );
+    }
+
     super.onAuthenticationSuccess( request, response, authentication );
   }
 

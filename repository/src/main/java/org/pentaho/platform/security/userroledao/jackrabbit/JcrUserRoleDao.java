@@ -30,6 +30,8 @@ import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.jcr.ILockHelper;
 import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+import org.pentaho.platform.security.userroledao.PentahoOAuthUser;
+import org.pentaho.platform.security.userroledao.PentahoUser;
 import org.pentaho.platform.security.userroledao.messages.Messages;
 import org.springframework.dao.DataAccessException;
 import org.springframework.extensions.jcr.JcrCallback;
@@ -44,6 +46,11 @@ import java.io.IOException;
 import java.util.List;
 
 public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
+
+  public static final String JCR_USER_ROLE_DAO_ERROR_0008_LISTING_ROLES = "JcrUserRoleDao.ERROR_0008_LISTING_ROLES";
+  public static final String JCR_USER_ROLE_DAO_ERROR_0006_UPDATING_USER = "JcrUserRoleDao.ERROR_0006_UPDATING_USER";
+  public static final String JCR_USER_ROLE_DAO_ERROR_0010_GETTING_ROLE = "JcrUserRoleDao.ERROR_0010_GETTING_ROLE";
+  public static final String JCR_USER_ROLE_DAO_ERROR_0001_UPDATING_ROLE = "JcrUserRoleDao.ERROR_0001_UPDATING_ROLE";
 
   NameFactory NF = NameFactoryImpl.getInstance();
 
@@ -79,7 +86,7 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       }
 
       throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
-          "JcrUserRoleDao.ERROR_0001_UPDATING_ROLE", e.getLocalizedMessage() ), e );
+        JCR_USER_ROLE_DAO_ERROR_0001_UPDATING_ROLE, e.getLocalizedMessage() ), e );
     }
   }
 
@@ -99,7 +106,31 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
         throw (NotFoundException) e.getCause();
       }
       throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
-          "JcrUserRoleDao.ERROR_0001_UPDATING_ROLE", e.getLocalizedMessage() ), e );
+        JCR_USER_ROLE_DAO_ERROR_0001_UPDATING_ROLE, e.getLocalizedMessage() ), e );
+    }
+  }
+
+  @Override
+  public void setUserRolesNoValidation(final ITenant tenant, final String userName, final String[] roles )
+          throws NotFoundException, UncategorizedUserRoleDaoException {
+    boolean allowCreateBackup = adminJcrTemplate.isAllowCreate();
+    try {
+      adminJcrTemplate.setAllowCreate( true );
+      adminJcrTemplate.execute( new JcrCallback() {
+        @Override
+        public Object doInJcr( Session session ) throws IOException, RepositoryException {
+          setUserRolesNoValidation( session, tenant, userName, roles );
+          return null;
+        }
+      } );
+    } catch ( DataAccessException e ) {
+      if ( ( e instanceof JcrSystemException ) && ( e.getCause() instanceof NotFoundException ) ) {
+        throw (NotFoundException) e.getCause();
+      }
+      throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
+        JCR_USER_ROLE_DAO_ERROR_0001_UPDATING_ROLE, e.getLocalizedMessage() ), e );
+    } finally {
+      adminJcrTemplate.setAllowCreate( allowCreateBackup );
     }
   }
 
@@ -142,6 +173,40 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       }
       throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
           "JcrUserRoleDao.ERROR_0003_CREATING_USER", e.getLocalizedMessage() ), e );
+    }
+    return user;
+  }
+
+  @Override
+  public IPentahoUser createOAuthUser( final ITenant tenant,
+                                       final String userName,
+                                       final String password,
+                                       final String description,
+                                       final String[] roles,
+                                       String registrationId,
+                                       String userId )
+          throws AlreadyExistsException, UncategorizedUserRoleDaoException {
+    final IPentahoUser user;
+    boolean allowCreateBackup = adminJcrTemplate.isAllowCreate();
+    try {
+      adminJcrTemplate.setAllowCreate( true );
+      user = (IPentahoUser) adminJcrTemplate.execute( new JcrCallback() {
+        @Override
+        public Object doInJcr( Session session ) throws IOException, RepositoryException {
+          PentahoUser pentahoUser = new PentahoUser( tenant, userName, password, description, false );
+          PentahoOAuthUser pentahoOAuthUser = new PentahoOAuthUser( pentahoUser, registrationId, userId );
+          return createOAuthUser( session, tenant, roles, pentahoOAuthUser );
+        }
+      } );
+    } catch ( DataAccessException e ) {
+      if ( ( e instanceof JcrSystemException ) && ( e.getCause() instanceof AuthorizableExistsException ) ) {
+        throw new AlreadyExistsException( Messages.getInstance().getString(
+                "JcrUserRoleDao.User.Already.Exists" ) );
+      }
+      throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
+              "JcrUserRoleDao.ERROR_0003_CREATING_USER", e.getLocalizedMessage() ), e );
+    } finally {
+      adminJcrTemplate.setAllowCreate( allowCreateBackup );
     }
     return user;
   }
@@ -210,7 +275,7 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
         throw (NotFoundException) e.getCause();
       }
       throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
-          "JcrUserRoleDao.ERROR_0001_UPDATING_ROLE", e.getLocalizedMessage() ), e );
+        JCR_USER_ROLE_DAO_ERROR_0001_UPDATING_ROLE, e.getLocalizedMessage() ), e );
     }
   }
 
@@ -230,7 +295,7 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
         throw (NotFoundException) e.getCause();
       }
       throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
-          "JcrUserRoleDao.ERROR_0006_UPDATING_USER", e.getLocalizedMessage() ), e );
+        JCR_USER_ROLE_DAO_ERROR_0006_UPDATING_USER, e.getLocalizedMessage() ), e );
     }
   }
 
@@ -271,7 +336,7 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       } );
     } catch ( DataAccessException e ) {
       throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
-          "JcrUserRoleDao.ERROR_0008_LISTING_ROLES", e.getLocalizedMessage() ), e );
+        JCR_USER_ROLE_DAO_ERROR_0008_LISTING_ROLES, e.getLocalizedMessage() ), e );
     }
   }
 
@@ -297,6 +362,25 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
   }
 
   @Override
+  public List<IPentahoUser> getAllOAuthUsers() throws UncategorizedUserRoleDaoException {
+    boolean allowCreateBackup = adminJcrTemplate.isAllowCreate();
+    try {
+      adminJcrTemplate.setAllowCreate( true );
+      return (List<IPentahoUser>) adminJcrTemplate.execute( new JcrCallback() {
+        @Override
+        public Object doInJcr( Session session ) throws RepositoryException {
+          return getAllOAuthUsers( session, JcrTenantUtils.getTenant(), true );
+        }
+      } );
+    } catch ( DataAccessException e ) {
+      throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
+              "JcrUserRoleDao.ERROR_0009_LISTING_USERS", e.getLocalizedMessage() ), e );
+    } finally {
+      adminJcrTemplate.setAllowCreate( allowCreateBackup );
+    }
+  }
+
+  @Override
   public IPentahoRole getRole( final ITenant tenant, final String name ) throws UncategorizedUserRoleDaoException {
     try {
       return (IPentahoRole) adminJcrTemplate.execute( new JcrCallback() {
@@ -307,7 +391,7 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       } );
     } catch ( DataAccessException e ) {
       throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
-          "JcrUserRoleDao.ERROR_0010_GETTING_ROLE", e.getLocalizedMessage() ), e );
+        JCR_USER_ROLE_DAO_ERROR_0010_GETTING_ROLE, e.getLocalizedMessage() ), e );
     }
   }
 
@@ -322,7 +406,26 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       } );
     } catch ( DataAccessException e ) {
       throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
-          "JcrUserRoleDao.ERROR_0010_GETTING_ROLE", e.getLocalizedMessage() ), e );
+        JCR_USER_ROLE_DAO_ERROR_0010_GETTING_ROLE, e.getLocalizedMessage() ), e );
+    }
+  }
+
+  @Override
+  public IPentahoUser getPentahoOAuthUser( final ITenant tenant, final String name ) throws UncategorizedUserRoleDaoException {
+    boolean allowCreateBackup = adminJcrTemplate.isAllowCreate();
+    try {
+      adminJcrTemplate.setAllowCreate( true );
+      return (IPentahoUser) adminJcrTemplate.execute( new JcrCallback() {
+        @Override
+        public Object doInJcr( Session session ) throws IOException, RepositoryException {
+          return getPentahoOAuthUser( session, tenant, name );
+        }
+      } );
+    } catch ( DataAccessException e ) {
+      throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
+        JCR_USER_ROLE_DAO_ERROR_0010_GETTING_ROLE, e.getLocalizedMessage() ), e );
+    } finally {
+      adminJcrTemplate.setAllowCreate( allowCreateBackup );
     }
   }
 
@@ -354,7 +457,28 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
       } );
     } catch ( DataAccessException e ) {
       throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
-          "JcrUserRoleDao.ERROR_0011_LISTING_ROLE_MEMBERS", e.getLocalizedMessage() ), e );
+        JCR_USER_ROLE_DAO_ERROR_0008_LISTING_ROLES, e.getLocalizedMessage() ), e );
+    }
+  }
+
+  @Override
+  public void changeUserStatus( IPentahoUser pentahoUser )
+          throws UncategorizedUserRoleDaoException {
+    boolean allowCreateBackup = adminJcrTemplate.isAllowCreate();
+    try {
+      adminJcrTemplate.setAllowCreate( true );
+      adminJcrTemplate.execute( new JcrCallback() {
+        @Override
+        public Void doInJcr( Session session ) throws IOException, RepositoryException {
+          changeUserStatus( session, pentahoUser );
+          return null;
+        }
+      } );
+    } catch ( DataAccessException e ) {
+      throw new UncategorizedUserRoleDaoException( Messages.getInstance().getString(
+        JCR_USER_ROLE_DAO_ERROR_0006_UPDATING_USER, e.getLocalizedMessage() ), e );
+    } finally {
+      adminJcrTemplate.setAllowCreate( allowCreateBackup );
     }
   }
 }

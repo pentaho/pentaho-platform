@@ -20,12 +20,18 @@ import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleM
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+import org.pentaho.platform.util.oauth.PentahoOAuthUtility;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 
 import java.util.concurrent.Callable;
 
@@ -109,6 +115,13 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
         } );
       } catch ( Exception e ) {
         logger.error( e.getLocalizedMessage(), e );
+      }
+
+      // For Successful OAuth login, set the authentication in the SecurityContextHolder.
+      if ( PentahoOAuthUtility.isOAuthEnabled() && ( event.getSource() instanceof OAuth2LoginAuthenticationToken
+        || event.getSource() instanceof OAuth2AuthenticationToken )
+        && ( (AbstractAuthenticationToken) event.getSource() ).isAuthenticated() ) {
+        SecurityContextHolder.getContext().setAuthentication( (Authentication) event.getSource() );
       }
 
       try {

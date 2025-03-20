@@ -30,6 +30,7 @@ import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDto;
+import org.pentaho.platform.util.oauth.PentahoOAuthUtility;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
@@ -70,7 +71,6 @@ public class SystemResource extends AbstractJaxRSResource {
   private ISystemConfig systemConfig;
   private IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
 
-
   public SystemResource() {
     this( PentahoSystem.get( ISystemConfig.class ) );
   }
@@ -105,9 +105,9 @@ public class SystemResource extends AbstractJaxRSResource {
 
   /**
    * Return JSON string reporting which authentication provider is currently in use
-   * 
+   *
    * Response sample: { "authenticationType": "JCR_BASED_AUTHENTICATION" }
-   * 
+   *
    * @return AuthenticationProvider represented as JSON response
    * @throws Exception
    */
@@ -119,6 +119,11 @@ public class SystemResource extends AbstractJaxRSResource {
     try {
       IConfiguration config = this.systemConfig.getConfiguration( "security" );
       String provider = config.getProperties().getProperty( "provider" );
+
+      if ( StringUtils.equals( "gwt", httpServletRequest.getHeader( "caller" ) ) ) {
+        provider = PentahoOAuthUtility.isOAuthEnabled() ? "oauth" : provider;
+      }
+
       return Response.ok( new AuthenticationProvider( provider ) ).type( MediaType.APPLICATION_JSON ).build();
     } catch ( Throwable t ) {
       logger.error( Messages.getInstance().getString( "SystemResource.GENERAL_ERROR" ), t ); //$NON-NLS-1$

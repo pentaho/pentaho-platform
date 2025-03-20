@@ -14,21 +14,29 @@
 package org.pentaho.platform.repository2.unified.spring;
 
 import junit.framework.TestCase;
+import org.mockito.MockedStatic;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
+import org.pentaho.platform.util.oauth.PentahoOAuthUtility;
 import org.pentaho.test.platform.MethodTrackingData;
 import org.pentaho.test.platform.engine.security.MockSecurityHelper;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 /**
  * Test cases for the {@link BackingRepositoryLifecycleManagerAuthenticationSuccessListener}
@@ -66,20 +74,24 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListenerTest 
 
     // Test that the "newTenant() method is executed as the system currentUser and the
     String principleName = usernamePrincipleUtils.getPrincipleId( new Tenant( CURRENT_TENANT, true ), CURRENT_USER );
-    listener.onApplicationEvent( new MockAbstractAuthenticationEvent( new MockAuthentication( principleName ) ) );
-    final List<MethodTrackingData> methodTrackerHistory1 = mockLifecycleManager.getMethodTrackerHistory();
-    assertEquals( 4, methodTrackerHistory1.size() );
-    assertEquals( "newTenant", methodTrackerHistory1.get( 0 ).getMethodName() );
-    assertEquals( 2, methodTrackerHistory1.get( 0 ).getParameters().size() );
-    assertEquals( principleName, methodTrackerHistory1.get( 3 ).getParameters().get( USER_PARAMETER ) );
-    assertEquals( CURRENT_TENANT, usernamePrincipleUtils.getTenant(
-        (String) methodTrackerHistory1.get( 3 ).getParameters().get( USER_PARAMETER ) ).getId() );
-    assertEquals( "newUser", methodTrackerHistory1.get( 1 ).getMethodName() );
-    assertEquals( 3, methodTrackerHistory1.get( 1 ).getParameters().size() );
-    // Make sure both methods get called when exceptions are thrown
-    mockLifecycleManager.resetCallHistory();
-    mockLifecycleManager.setThrowException( true );
-    listener.onApplicationEvent( new MockAbstractAuthenticationEvent( new MockAuthentication( principleName ) ) );
+    try ( MockedStatic<PentahoOAuthUtility> pentahoOAuthUtility = mockStatic( PentahoOAuthUtility.class ) ) {
+      pentahoOAuthUtility.when( PentahoOAuthUtility::isOAuthEnabled ).thenReturn( true );
+      ApplicationEvent event = new MockAbstractAuthenticationEvent( new MockAuthentication( principleName ) );
+      listener.onApplicationEvent( event );
+      final List<MethodTrackingData> methodTrackerHistory1 = mockLifecycleManager.getMethodTrackerHistory();
+      assertEquals( 4, methodTrackerHistory1.size() );
+      assertEquals( "newTenant", methodTrackerHistory1.get( 0 ).getMethodName() );
+      assertEquals( 2, methodTrackerHistory1.get( 0 ).getParameters().size() );
+      assertEquals( principleName, methodTrackerHistory1.get( 3 ).getParameters().get( USER_PARAMETER ) );
+      assertEquals( CURRENT_TENANT, usernamePrincipleUtils.getTenant(
+          (String) methodTrackerHistory1.get( 3 ).getParameters().get( USER_PARAMETER ) ).getId() );
+      assertEquals( "newUser", methodTrackerHistory1.get( 1 ).getMethodName() );
+      assertEquals( 3, methodTrackerHistory1.get( 1 ).getParameters().size() );
+      // Make sure both methods get called when exceptions are thrown
+      mockLifecycleManager.resetCallHistory();
+      mockLifecycleManager.setThrowException( true );
+      listener.onApplicationEvent( new MockAbstractAuthenticationEvent( new MockAuthentication( principleName ) ) );
+    }
   }
 
   /**
@@ -217,6 +229,13 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListenerTest 
   private class MockAbstractAuthenticationEvent extends AuthenticationSuccessEvent {
     public MockAbstractAuthenticationEvent( final MockAuthentication mockAuthentication ) {
       super( mockAuthentication );
+    }
+
+    @Override
+    public Object getSource() {
+      OAuth2AuthenticationToken oAuth2AuthenticationToken = mock( OAuth2AuthenticationToken.class );
+      when( oAuth2AuthenticationToken.isAuthenticated() ).thenReturn( true );
+      return mock( OAuth2AuthenticationToken.class );
     }
   }
 }
