@@ -13,11 +13,14 @@
 
 package org.pentaho.platform.util.web;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.pentaho.di.core.util.HttpClientManager;
+import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.Messages;
 
@@ -39,6 +42,8 @@ public class HttpUtil {
   public static final int PAGE_TIMEOUT = 7_000;
   //3 seconds
   public static final int CONNECTION_TIMEOUT = 3_000;
+
+  private static final String INVALID_URL = "Invalid URL";
 
   private static HttpClientManager httpClientManager = HttpClientManager.getInstance();
   private static HttpClientManager.HttpClientBuilderFacade clientBuilder = httpClientManager.createBuilder();
@@ -104,7 +109,6 @@ public class HttpUtil {
 
   public static void getURLContent_old( final String uri, final StringBuffer content ) throws MalformedURLException,
     IOException {
-
     URL url = new URL( uri );
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.connect();
@@ -121,7 +125,9 @@ public class HttpUtil {
   }
 
   public static String getURLContent( final String uri ) {
-
+    if ( !isValidURL(uri) ) {
+      throw new IllegalArgumentException( INVALID_URL );
+    }
     try {
       StringBuffer content = new StringBuffer();
       HttpUtil.getURLContent( uri, content );
@@ -138,7 +144,9 @@ public class HttpUtil {
   }
 
   public static InputStream getURLInputStream( final String uri ) {
-
+      if ( !isValidURL(uri) ) {
+        throw new IllegalArgumentException( INVALID_URL );
+      }
     try {
       URL url = new URL( uri );
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -158,7 +166,9 @@ public class HttpUtil {
   }
 
   public static Reader getURLReader( final String uri ) {
-
+    if ( !isValidURL(uri) ) {
+      throw new IllegalArgumentException( INVALID_URL );
+    }
     try {
       URL url = new URL( uri );
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -244,6 +254,46 @@ public class HttpUtil {
       }
     }
     return sb.toString();
+  }
+
+  /**
+   * This method first checks system.property file ssrf-protection-enabled property. If it is set to false (default),
+   * the system will allow all URLs. If the system.property ssrf-protection-enabled is set to true, the system will
+   * only allow URLs that match the allowed URLs list. The allowed URLs is a comma-separated list defined in the
+   * alternative-fully-qualified-server-urls property in the server.properties file.
+   *
+   * @param urlString the URL to be checked
+   * @return true if the URL is allowed to be accessed, false otherwise
+   * @throws SecurityException
+   */
+
+  @VisibleForTesting
+  protected static boolean isValidURL(String urlString) throws SecurityException {
+    boolean allowedUrl = false;
+    boolean checkSSRFProtectionEnable = "true".equals(PentahoSystem.get(ISystemConfig.class)
+      .getProperty("system.ssrf-protection-enabled", "false"));
+    if (!checkSSRFProtectionEnable) {
+      return true;
+    }
+    String allowedHosts = PentahoSystem.get(ISystemConfig.class)
+      .getProperty("server.alternative-fully-qualified-server-urls");
+    if (allowedHosts != null) {
+      String[] hosts = StringUtils.stripAll(allowedHosts.split(","));
+      try {
+        URL url = new URL(urlString);
+        for (String host : hosts) {
+          if (url.getHost().equals(new URL(host).getHost())) {
+            allowedUrl = true;
+            break;
+          }
+        }
+      } catch (MalformedURLException e) {
+        //Either no legal protocol could be found in the provided string or the string could not be parsed.
+        Logger.error(HttpUtil.class.getName(), Messages.getInstance().getErrorString(
+          "Malformed URL:", e.getMessage()), e); //$NON-NLS-1$
+      }
+    }
+    return allowedUrl;
   }
 
 }
