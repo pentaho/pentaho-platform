@@ -143,7 +143,12 @@ public class SystemResource extends AbstractJaxRSResource {
         timeZones.put( tzId, formatTimezoneIdToDisplayName( tzId ) );
       }
     }
-    return new TimeZoneWrapper( timeZones, TimeZone.getDefault().getID() );
+    List<TimeZoneEntry> entries = new ArrayList<>();
+    timeZones.keySet().stream().forEach( tzId -> {
+      entries.add( new TimeZoneEntry( tzId, timeZones.get( tzId ) ) );
+    } );
+
+    return new TimeZoneWrapper( new TimeZoneWrapper.TimeZonesEntries( entries ), TimeZone.getDefault().getID() );
   }
 
   private String formatTimezoneIdToDisplayName( String tzId ) {
