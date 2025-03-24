@@ -239,7 +239,7 @@ public class SystemSettings extends PentahoBase implements ISystemSettings {
       return false;
     }
 
-    // We definitely need to allow "/" and "-", "." is also reasonable
+    // We need to allow "/", "-", "*", and "."
     return settingName.contains( "'" ) ||
       settingName.contains( "\"" ) ||
       settingName.contains( "<" ) ||
@@ -262,7 +262,6 @@ public class SystemSettings extends PentahoBase implements ISystemSettings {
       settingName.contains( "@" ) ||
       settingName.contains( "$" ) ||
       settingName.contains( "&" ) ||
-      settingName.contains( "*" ) ||
       settingName.contains( "+" ) ||
       settingName.contains( "=" ) ||
       settingName.contains( "~" );
