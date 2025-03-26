@@ -13,12 +13,11 @@
 
 package org.pentaho.platform.web.http.filters;
 
-import com.mockrunner.mock.web.MockFilterChain;
+import org.springframework.mock.web.MockFilterChain;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -57,7 +56,6 @@ public class PentahoAwareCharacterEncodingFilterTest {
   }
 
 
-  @Ignore
   @Test
   public void doFilter_ignoreFlagIsSet() throws Exception {
     filterConfig.addInitParameter( "ignore", Boolean.TRUE.toString() );
@@ -68,7 +66,6 @@ public class PentahoAwareCharacterEncodingFilterTest {
     assertEquals( NEW_ENCODING, request.getCharacterEncoding() );
   }
 
-  @Ignore
   @Test
   public void doFilter_ignoreFlagIsCleared_requestEncodingIsNull() throws Exception {
     filterConfig.addInitParameter( "ignore", Boolean.FALSE.toString() );
@@ -81,8 +78,6 @@ public class PentahoAwareCharacterEncodingFilterTest {
     assertEquals( NEW_ENCODING, request.getCharacterEncoding() );
   }
 
-
-  @Ignore
   @Test
   public void doFilter_ignoreFlagIsCleared_requestEncodingNotNull() throws Exception {
     filterConfig.addInitParameter( "ignore", Boolean.FALSE.toString() );
@@ -95,8 +90,6 @@ public class PentahoAwareCharacterEncodingFilterTest {
     assertEquals( NEW_ENCODING, request.getCharacterEncoding() );
   }
 
-
-  @Ignore
   @Test
   public void doFilter_noEncodingIsProvided() throws Exception {
     filterConfig.addInitParameter( "ignore", Boolean.FALSE.toString() );

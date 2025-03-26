@@ -13,7 +13,6 @@
 
 package org.pentaho.test.platform.engine.core;
 
-import org.junit.Ignore;
 import org.pentaho.platform.api.engine.IActionCompleteListener;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IOutputHandler;
@@ -350,7 +349,6 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
     messages.add( Messages.getInstance().getString( "Message.USER_ERROR", message, getClass().getName() ) ); //$NON-NLS-1$
   }
 
-  @Ignore
   public void testNothing() {
     // test will be failed without it
     assertTrue( true );
