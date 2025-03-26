@@ -13,10 +13,9 @@
 
 package org.pentaho.platform.web.http.security;
 
-import com.mockrunner.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +34,6 @@ public class UsernameSubstringPreAuthenticatedProcessingFilterTest {
   public void tearDown() throws Exception {
   }
 
-  @Ignore
   @Test
   public void testGetPreAuthenticatedPrincipal() {
     UsernameSubstringPreAuthenticatedProcessingFilter filter = new UsernameSubstringPreAuthenticatedProcessingFilter();
@@ -96,7 +94,7 @@ public class UsernameSubstringPreAuthenticatedProcessingFilterTest {
         return aUserName;
       }
     } );
-    return null;
+    return req;
   }
 
 }
