@@ -16,11 +16,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -150,15 +152,14 @@ public class CommandLineProcessorTest extends Assert {
     }
   }
 
-  @Ignore
   @Test
   public void get003WriteFiletest() throws Exception {
     String exception = "Throw exception on purpose to test the writeFile() method.";
 
-    try ( MockedStatic<Client> clientMock = mockStatic( Client.class ) ) {
+    try ( MockedStatic<ClientBuilder> clientMock = mockStatic( ClientBuilder.class ) ) {
       Client mockClient = mock( Client.class );
       WebTarget mockWebResource = mock( WebTarget.class );
-      when( mockWebResource.request( nullable( String.class ) ) ).thenThrow( new RuntimeException( exception ) );
+      when( mockWebResource.request( any( MediaType.class ) ) ).thenThrow( new RuntimeException( exception ) );
       when( mockClient.target( nullable( String.class ) ) ).thenReturn( mockWebResource );
       clientMock.when( () -> ClientBuilder.newClient( any() ) ).thenReturn( mockClient );
 
@@ -176,7 +177,7 @@ public class CommandLineProcessorTest extends Assert {
       //When an unknown host URL is used with an import, the private method writeFile() is called.
       CommandLineProcessor.main( unknownHostUrl );
       try {
-        assertEquals( exception, FileUtils.readFileToString( file ) );
+        assertEquals( exception, FileUtils.readFileToString( file, StandardCharsets.UTF_8 ) );
       } finally {
         file.delete();
       }

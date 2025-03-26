@@ -11,6 +11,7 @@
   <artifactId>pentaho-platform-repository</artifactId>
   <version>11.0.0.0-SNAPSHOT</version>
   <properties>
+    <javax.transaction-api.version>1.2</javax.transaction-api.version>
     <license.header.file>${basedir}/../license/templates/GPL-2.0.txt</license.header.file>
     <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
     <commons-lang.version>2.6</commons-lang.version>
@@ -258,15 +259,25 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>${ehcache-core.version}</version>
+    </dependency>
+    <dependency>
       <groupId>jakarta.xml.bind</groupId>
       <artifactId>jakarta.xml.bind-api</artifactId>
-      <version>${jakarta.xml.bind-api.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
+      <version>${jakarta.xml.bind-osgi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.transaction</groupId>
+      <artifactId>javax.transaction-api</artifactId>
+      <version>${javax.transaction-api.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>${jakarta.xml.bind-osgi.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.xml.stream</groupId>
@@ -386,12 +397,6 @@
       <groupId>jakarta.transaction</groupId>
       <artifactId>jakarta.transaction-api</artifactId>
       <version>${jakarta.transaction.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>cglib</groupId>
@@ -764,6 +769,11 @@
       <artifactId>jakarta.persistence-api</artifactId>
       <version>${jakarta.persistence-api.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
+      <version>${cache-api.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.portlet</groupId>
