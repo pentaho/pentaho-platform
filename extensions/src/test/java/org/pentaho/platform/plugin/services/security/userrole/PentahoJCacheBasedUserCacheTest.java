@@ -15,9 +15,8 @@ package org.pentaho.platform.plugin.services.security.userrole;
 
 
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.cache.Cache;
@@ -25,24 +24,38 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.spi.CachingProvider;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 public class PentahoJCacheBasedUserCacheTest {
 
-  @Mock
   private Cache jcache;
   private PentahoJCacheBasedUserCache userCache;
 
+  @BeforeClass
+  public static void setup() {
+    mockStatic( Caching.class );
+  }
+
   @Before
   public void setUp() {
-    mockStatic( Caching.class );
+    jcache = mock( Cache.class );
     CachingProvider provider = mock( CachingProvider.class );
     CacheManager cacheManager = mock( CacheManager.class );
 
-    doReturn( provider ).when( Caching.getCachingProvider() );
+    when( Caching.getCachingProvider() ).thenReturn( provider );
     when( provider.getCacheManager() ).thenReturn( cacheManager );
-    when( cacheManager.getCache( anyString(), any(), any() ) ).thenReturn( jcache );
+    when( cacheManager.createCache( anyString(), any() ) ).thenReturn( jcache );
     userCache = new PentahoJCacheBasedUserCache( true );
   }
 
@@ -58,10 +71,30 @@ public class PentahoJCacheBasedUserCacheTest {
   @Test
   public void testGetUserFromCacheCaseInsensitive() {
     String username = "USERNAME";
-    userCache.setCaseSensitive( false );
+    UserDetails userDetails = mock( UserDetails.class );
+    Cache.Entry<String, UserDetails> cacheEntry = new Cache.Entry<String, UserDetails>() {
+      @Override
+      public String getKey() {
+        return username;
+      }
 
-    assertNull(userCache.getUserFromCache(username));
-    verify( jcache, times( 1 ) ).get( username.toLowerCase() );
+      @Override
+      public UserDetails getValue() {
+        return userDetails;
+      }
+
+      @Override
+      public <T> T unwrap(Class<T> aClass) {
+        return null;
+      }
+    };
+    List<Cache.Entry<String, UserDetails>> cacheEntries = new ArrayList<>();
+    cacheEntries.add( cacheEntry );
+
+    userCache.setCaseSensitive( false );
+    when( jcache.iterator() ).thenReturn( cacheEntries.iterator() );
+
+    assertEquals( userDetails, userCache.getUserFromCache( username ) );
   }
 
   @Test
@@ -74,7 +107,7 @@ public class PentahoJCacheBasedUserCacheTest {
     when( userDetails.getUsername() ).thenReturn( username );
 
     userCache.putUserInCache( userDetails );
-      verify( jcache, times( 1 ) ).put( username.toLowerCase(), userDetails );
+    verify( jcache, times( 1 ) ).put( username, userDetails );
   }
 
   @Test
@@ -100,7 +133,6 @@ public class PentahoJCacheBasedUserCacheTest {
     verify( jcache, times( 1 ) ).remove( username );
   }
 
-  @Ignore
   @Test
   public void testRemoveUserFromCacheCaseInsensitive() {
     String username = "USERNAME";
