@@ -48,7 +48,7 @@ public class MondrianUserSessionUserRoleListMapper extends MondrianAbstractPlatf
   private String sessionProperty;
 
   public void afterPropertiesSet() throws Exception {
-    Assert.notNull( sessionProperty );
+    Assert.notNull( sessionProperty, "" );
   }
 
   //

@@ -62,7 +62,7 @@ public class UserRoleListEnhancedUserMapFactoryBeanTests extends AbstractUserMap
   }
 
   protected boolean isRolePresent( final String[] roles, final String role ) {
-    Assert.hasLength( role );
+    Assert.hasLength( role, "" );
     for ( int i = 0; i < roles.length; i++ ) {
       if ( null != roles[i] && roles[i].equals( role ) ) {
         return true;
@@ -72,7 +72,7 @@ public class UserRoleListEnhancedUserMapFactoryBeanTests extends AbstractUserMap
   }
 
   protected boolean isUserPresent( final String[] users, final String user ) {
-    Assert.hasLength( user );
+    Assert.hasLength( user, "" );
     for ( int i = 0; i < users.length; i++ ) {
       if ( user.equals( users[i] ) ) {
         return true;
