@@ -15,6 +15,7 @@ package org.pentaho.platform.security.userroledao.jackrabbit;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.collections.map.LRUMap;
+import org.apache.commons.lang.StringUtils;
 import org.apache.jackrabbit.api.security.user.Authorizable;
 import org.apache.jackrabbit.api.security.user.AuthorizableExistsException;
 import org.apache.jackrabbit.api.security.user.Group;
@@ -28,9 +29,9 @@ import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.NameFactory;
 import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
 import org.pentaho.platform.api.engine.ISystemConfig;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
@@ -54,9 +55,11 @@ import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory;
+import org.pentaho.platform.security.userroledao.PentahoOAuthUser;
 import org.pentaho.platform.security.userroledao.PentahoRole;
 import org.pentaho.platform.security.userroledao.PentahoUser;
 import org.pentaho.platform.security.userroledao.messages.Messages;
+import org.pentaho.platform.util.oauth.PentahoOAuthUtility;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 
@@ -76,6 +79,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
@@ -297,6 +301,16 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
           "AbstractJcrBackedUserRoleDao.ERROR_0005_YOURSELF_OR_DEFAULT_ADMIN_USER" ) );
     }
 
+    updateUserRoles( session, theTenant, userName, roles );
+  }
+
+  public void setUserRolesNoValidation( Session session, final ITenant theTenant, final String userName, final String[] roles )
+          throws RepositoryException, NotFoundException {
+    updateUserRoles( session, theTenant, userName, roles );
+  }
+
+  private void updateUserRoles( Session session, ITenant theTenant, String userName, String[] roles )
+          throws RepositoryException {
     Set<String> roleSet = new HashSet<String>();
     if ( roles != null ) {
       roleSet.addAll( Arrays.asList( roles ) );
@@ -411,6 +425,25 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     return getUser( session, tenant, userName );
   }
 
+  public PentahoOAuthUser createOAuthUser( Session session,
+                                           final ITenant tenant,
+                                           final String[] roles,
+                                           final PentahoOAuthUser pentahoOAuthUser )
+          throws RepositoryException {
+    String userName = pentahoOAuthUser.getUsername();
+    String password = pentahoOAuthUser.getPassword();
+    String description = pentahoOAuthUser.getDescription();
+    String registrationId = pentahoOAuthUser.getRegistrationId();
+    String idpUserId = pentahoOAuthUser.getUserId();
+
+    createUser( session, tenant, userName, password, description, roles );
+    setOAuthUserRegistrationId( session, tenant, userName, registrationId );
+    session.save();
+    setOAuthUserId( session, tenant, userName, idpUserId );
+    session.save();
+    return getPentahoOAuthUser( session, tenant, userName );
+  }
+
   public void deleteRole( Session session, final IPentahoRole role ) throws NotFoundException, RepositoryException {
     if ( canDeleteRole( session, role ) ) {
       final List<IPentahoUser> roleMembers = this.getRoleMembers( session, role.getTenant(), role.getName() );
@@ -494,6 +527,37 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     return pentahoUser;
   }
 
+  @VisibleForTesting
+  PentahoOAuthUser convertToPentahoOAuthUser( User jackrabbitUser ) throws RepositoryException {
+
+    IPentahoUser pentahoUser = convertToPentahoUser( jackrabbitUser );
+    Value[] propertyValues = null;
+
+    String registrationId = null;
+    try {
+      propertyValues = jackrabbitUser.getProperty( PentahoOAuthUtility.REGISTRATION_ID ); //$NON-NLS-1$
+      registrationId = propertyValues.length > 0 ? propertyValues[ 0 ].getString() : null;
+    } catch ( Exception ex ) {
+      // CHECKSTYLES IGNORE
+    }
+
+    String userId = null;
+    try {
+      propertyValues = jackrabbitUser.getProperty( PentahoOAuthUtility.USER_ID ); //$NON-NLS-1$
+      userId = propertyValues.length > 0 ? propertyValues[ 0 ].getString() : null;
+    } catch ( Exception ex ) {
+      // CHECKSTYLES IGNORE
+    }
+
+    pentahoUser = new PentahoOAuthUser( (PentahoUser) pentahoUser, registrationId, userId );
+
+    if ( isUseJackrabbitUserCache() ) {
+      getUserCache().put( jackrabbitUser.getID(), pentahoUser );
+    }
+
+    return (PentahoOAuthUser) pentahoUser;
+  }
+
   private IPentahoRole convertToPentahoRole( Group jackrabbitGroup ) throws RepositoryException {
     IPentahoRole role = null;
     Value[] propertyValues = null;
@@ -547,6 +611,38 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       jackrabbitUser.removeProperty( "description" ); //$NON-NLS-1$
     } else {
       jackrabbitUser.setProperty( "description", session.getValueFactory().createValue( description ) ); //$NON-NLS-1$
+    }
+  }
+
+  public void setOAuthUserRegistrationId( Session session, final ITenant theTenant, final String userName,
+                                  final String registrationId ) throws NotFoundException, RepositoryException {
+    User jackrabbitUser = getJackrabbitUser( theTenant, userName, session );
+    if ( ( jackrabbitUser == null )
+            || !TenantUtils.isAccessibleTenant( theTenant == null ? tenantedUserNameUtils
+            .getTenant( jackrabbitUser.getID() ) : theTenant ) ) {
+      throw new NotFoundException( Messages.getInstance().getString(
+              "AbstractJcrBackedUserRoleDao.ERROR_0003_USER_NOT_FOUND" ) );
+    }
+    if ( registrationId == null ) {
+      jackrabbitUser.removeProperty( "registrationId" ); //$NON-NLS-1$
+    } else {
+      jackrabbitUser.setProperty( "registrationId", session.getValueFactory().createValue( registrationId ) ); //$NON-NLS-1$
+    }
+  }
+
+  public void setOAuthUserId( Session session, final ITenant theTenant, final String userName,
+                                  final String userId ) throws NotFoundException, RepositoryException {
+    User jackrabbitUser = getJackrabbitUser( theTenant, userName, session );
+    if ( ( jackrabbitUser == null )
+            || !TenantUtils.isAccessibleTenant( theTenant == null ? tenantedUserNameUtils
+            .getTenant( jackrabbitUser.getID() ) : theTenant ) ) {
+      throw new NotFoundException( Messages.getInstance().getString(
+              "AbstractJcrBackedUserRoleDao.ERROR_0003_USER_NOT_FOUND" ) );
+    }
+    if ( userId == null ) {
+      jackrabbitUser.removeProperty( PentahoOAuthUtility.USER_ID ); //$NON-NLS-1$
+    } else {
+      jackrabbitUser.setProperty( PentahoOAuthUtility.USER_ID, session.getValueFactory().createValue( userId ) ); //$NON-NLS-1$
     }
   }
 
@@ -678,6 +774,30 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     return users;
   }
 
+  public List<PentahoOAuthUser> getAllOAuthUsers( Session session, ITenant theTenant, boolean includeSubtenants )
+          throws RepositoryException {
+    List<PentahoOAuthUser> users = new ArrayList<>();
+    if ( theTenant == null || theTenant.getId() == null ) {
+      theTenant = JcrTenantUtils.getTenant();
+    }
+    if ( TenantUtils.isAccessibleTenant( theTenant ) ) {
+      UserManager userMgr = getUserManager( theTenant, session );
+      pPrincipalName = getJcrName( session );
+      Iterator<Authorizable> it = userMgr.findAuthorizables( pPrincipalName, null, UserManager.SEARCH_TYPE_USER );
+      while ( it.hasNext() ) {
+        User user = (User) it.next();
+        PentahoOAuthUser pentahoUser = convertToPentahoOAuthUser( user );
+        if ( ( StringUtils.isNotBlank( pentahoUser.getUserId() )
+                && StringUtils.isNotBlank( pentahoUser.getRegistrationId() ) )
+                && ( includeSubtenants
+                || ( pentahoUser.getTenant() != null && pentahoUser.getTenant().equals( theTenant ) ) ) ) {
+          users.add( pentahoUser );
+        }
+      }
+    }
+    return users;
+  }
+
   public IPentahoRole getRole( Session session, final ITenant tenant, final String name ) throws RepositoryException {
     Group jackrabbitGroup = getJackrabbitGroup( tenant, name, session );
     return jackrabbitGroup != null
@@ -699,6 +819,19 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     return jackrabbitUser != null
         && TenantUtils.isAccessibleTenant( tenant == null ? tenantedUserNameUtils.getTenant( jackrabbitUser.getID() )
         : tenant ) ? convertToPentahoUser( jackrabbitUser ) : null;
+  }
+
+  public PentahoOAuthUser getPentahoOAuthUser( Session session, final ITenant tenant, final String name )
+          throws RepositoryException {
+    User jackrabbitUser = getJackrabbitUser( tenant, name, session );
+
+    if ( Objects.isNull( jackrabbitUser ) ) {
+      return null;
+    }
+
+    boolean isAccessibleTenant = TenantUtils.isAccessibleTenant( tenant == null ? tenantedUserNameUtils.getTenant( jackrabbitUser.getID() )
+            : tenant );
+    return isAccessibleTenant ? convertToPentahoOAuthUser( jackrabbitUser ) : null;
   }
 
   private Group getJackrabbitGroup( ITenant theTenant, String name, Session session ) throws RepositoryException {
@@ -794,6 +927,17 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       }
     }
     return roles;
+  }
+
+  public void changeUserStatus( Session session, IPentahoUser pentahoUser ) throws RepositoryException {
+    User jackrabbitUser = getJackrabbitUser( pentahoUser.getTenant(), pentahoUser.getUsername(), session );
+    if ( Objects.nonNull( jackrabbitUser ) ) {
+      if ( pentahoUser.isEnabled() ) {
+        jackrabbitUser.removeProperty( "disabled" );
+      } else {
+        jackrabbitUser.setProperty( "disabled", session.getValueFactory().createValue( "true" ) );
+      }
+    }
   }
 
   @VisibleForTesting

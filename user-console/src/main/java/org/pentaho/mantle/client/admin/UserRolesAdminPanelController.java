@@ -466,6 +466,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     executableTypesRequestBuilder.setHeader( "accept", "application/json" );
+    executableTypesRequestBuilder.setHeader( "caller", "gwt" );
     try {
       executableTypesRequestBuilder.sendRequest( null, new RequestCallback() {
 
@@ -474,7 +475,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
         public void onResponseReceived( Request request, Response response ) {
           String resText = response.getText();
-          usingPentahoSecurity = resText.contains( "\"jackrabbit\"" ) || resText.contains( "\"super\"" );
+          usingPentahoSecurity = resText.contains( "\"oauth\"" ) || resText.contains( "\"jackrabbit\"" ) || resText.contains( "\"super\"" );
           userRolePermissions( usingPentahoSecurity );
         }
       } );
@@ -548,6 +549,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     executableTypesRequestBuilder.setHeader( "accept", "application/json" );
+    executableTypesRequestBuilder.setHeader( "caller", "gwt" );
     try {
       executableTypesRequestBuilder.sendRequest( null, new RequestCallback() {
 
@@ -555,7 +557,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          boolean usingPentahoSecurity = response.getText().contains( "jackrabbit" );
+          boolean usingPentahoSecurity = response.getText().contains( "oauth" ) || response.getText().contains( "jackrabbit" );
           if ( !usingPentahoSecurity ) {
             initializeRoles( null, "api/userrolelist/roles?addExtraRoles=false", rolesListBox );
           } else {

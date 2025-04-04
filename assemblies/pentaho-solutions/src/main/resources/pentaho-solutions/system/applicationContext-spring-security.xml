@@ -113,12 +113,15 @@
                                    httpSessionReuseDetectionFilter,
                                    logoutFilter,
                                    authenticationProcessingFilter,
+                                   oauthLoginAuthenticationFilter,
+                                   oauthAuthorizationRequestRedirectFilter,
                                    basicProcessingFilter,
                                    requestParameterProcessingFilter,
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
                                    mdcFilter,
                                    exceptionTranslationFilter,
+                                   oauthUserCreationFilter,
                                    filterInvocationInterceptor" />
       </util:list>
     </constructor-arg>
@@ -162,6 +165,15 @@
   <bean id="applicationEventMulticaster" class="org.pentaho.platform.engine.security.event.OrderedApplicationEventMulticaster">
     <property name="taskExecutor">
       <bean class="org.springframework.core.task.SyncTaskExecutor" />
+    </property>
+  </bean>
+
+  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="locations">
+      <list>
+        <value>applicationContext-spring-security-jdbc.properties</value>
+        <value>applicationContext-spring-security-oauth.properties</value>
+      </list>
     </property>
   </bean>
 
@@ -340,6 +352,9 @@
         <sec:intercept-url pattern="\A/login.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/ping/alive.gif.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/j_spring_security_check.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/login/oauth2/.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/login/oauth2/code/azure.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/oauth2/.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/getimage.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/getresource.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/admin.*\Z" access="Admin" />

@@ -16,6 +16,7 @@ package org.pentaho.platform.plugin.services.security.userrole;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+import org.pentaho.platform.util.oauth.PentahoOAuthUtility;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
@@ -64,7 +65,7 @@ public class PentahoCachingUserDetailsService implements UserDetailsService {
 
     UserDetails user = userCache.getUserFromCache( principleName );
 
-    if ( user == null ) {
+    if ( user == null || PentahoOAuthUtility.shouldPerformLiveUpdate()) {
       String principleId = tenanted ? username : getPrincipleId( username );
       try {
         user = delegate.loadUserByUsername( principleId );
