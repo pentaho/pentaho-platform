@@ -201,7 +201,9 @@ define([
       config.color = "#BBB";
       this.spinner = new Spinner(config);
       var s = this.spinner.spin();
-      xssUtil.setHtml($("#" + this.contentPanelId), s.el);
+      var $container = $("#" + this.contentPanelId);
+      $container.empty();
+      $container.append(s.el);
     },
 
     showList: function (items, context) {
@@ -239,7 +241,7 @@ define([
       // make sure the spinner is visible long enough for the user to see it
       setTimeout(function () {
         that.spinner.stop();
-        xssUtil.setHtml($("#" + that.displayContainerId), html);
+        xssUtil.setHtmlUnsafe($("#" + that.displayContainerId), html);
         $("#"+that.contentPanelId).find("a").first().attr("tabindex",0);
 
         $("#"+that.contentPanelId).find("a").keydown(function(event) {
