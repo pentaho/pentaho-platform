@@ -81,12 +81,12 @@ public class ExtraRolesUserRoleListServiceDecorator implements IUserRoleListServ
   }
 
   public void setExtraRoles( final List<String> extraRoles ) {
-    Assert.notNull( extraRoles );
+    Assert.notNull( extraRoles, "" );
     this.extraRoles = new ArrayList<String>( extraRoles );
   }
 
   public void setSystemRoles( final Set<String> systemRoles ) {
-    Assert.notNull( systemRoles );
+    Assert.notNull( systemRoles, "" );
   }
 
   @Override

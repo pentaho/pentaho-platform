@@ -146,7 +146,7 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
       final Node fileNode ) throws RepositoryException {
     Node unstructuredNode = fileNode.getNode( pentahoJcrConstants.getJCR_CONTENT() );
     final String pattern = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS ) + ":" + "*"; //$NON-NLS-1$ //$NON-NLS-2$
-    Assert.isTrue( unstructuredNode.getNodes( pattern ).getSize() == 1 );
+    Assert.isTrue( unstructuredNode.getNodes( pattern ).getSize() == 1, "" );
     Node jcrNode = unstructuredNode.getNodes( pattern ).nextNode();
     return new NodeRepositoryFileData( internalRead( session, pentahoJcrConstants, jcrNode, null ) );
   }
