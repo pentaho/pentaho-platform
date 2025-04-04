@@ -35,7 +35,7 @@ public class AccessVoterToLegacyAcl implements IRepositoryAccessVoter {
   private IAclVoter aclVoter;
 
   public AccessVoterToLegacyAcl( IAclVoter aclVoter ) {
-    Assert.notNull( aclVoter );
+    Assert.notNull( aclVoter, "" );
     this.aclVoter = aclVoter;
   }
 
@@ -43,16 +43,16 @@ public class AccessVoterToLegacyAcl implements IRepositoryAccessVoter {
   public boolean hasAccess( RepositoryFile file, RepositoryFilePermission operation, RepositoryFileAcl acl,
                             IPentahoSession session ) {
 
-    Assert.notNull( file );
-    Assert.notNull( operation );
-    Assert.notNull( acl );
+    Assert.notNull( file, "" );
+    Assert.notNull( operation, "" );
+    Assert.notNull( acl, "" );
 
     return aclVoter.hasAccess( session, convert( file, acl ), mask( operation ) );
   }
 
   private int mask( RepositoryFilePermission permission ) {
 
-    Assert.notNull( permission );
+    Assert.notNull( permission, "" );
 
     if ( RepositoryFilePermission.READ == permission ) {
       return IPentahoAclEntry.PERM_EXECUTE;
