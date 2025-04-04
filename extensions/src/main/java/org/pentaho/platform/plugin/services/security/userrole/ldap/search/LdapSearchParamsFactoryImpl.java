@@ -51,8 +51,8 @@ public class LdapSearchParamsFactoryImpl implements LdapSearchParamsFactory, Ini
   }
 
   public void afterPropertiesSet() throws Exception {
-    Assert.notNull( base );
-    Assert.hasLength( filter );
+    Assert.notNull( base, "" );
+    Assert.hasLength( filter, "" );
   }
 
   /**

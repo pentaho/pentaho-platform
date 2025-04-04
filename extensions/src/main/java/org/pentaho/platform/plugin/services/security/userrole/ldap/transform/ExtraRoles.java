@@ -75,6 +75,6 @@ public class ExtraRoles implements Transformer, InitializingBean {
   }
 
   public void afterPropertiesSet() throws Exception {
-    Assert.notNull( extraRoles );
+    Assert.notNull( extraRoles, "" );
   }
 }

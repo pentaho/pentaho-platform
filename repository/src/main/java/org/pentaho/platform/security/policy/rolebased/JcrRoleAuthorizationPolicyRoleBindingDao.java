@@ -75,7 +75,7 @@ public class JcrRoleAuthorizationPolicyRoleBindingDao extends AbstractJcrBackedR
       final ITenantedPrincipleNameResolver tenantedRoleNameUtils, final List<IAuthorizationAction> authorizationActions ) {
     super(immutableRoleBindings, bootstrapRoleBindings, superAdminRoleName, tenantedRoleNameUtils,
         authorizationActions );
-    Assert.notNull( jcrTemplate );
+    Assert.notNull( jcrTemplate, "" );
     this.jcrTemplate = jcrTemplate;
   }
 
@@ -126,7 +126,7 @@ public class JcrRoleAuthorizationPolicyRoleBindingDao extends AbstractJcrBackedR
     if ( !TenantUtils.isAccessibleTenant( tempTenant ) ) {
       throw new NotFoundException( "Tenant " + tenant.getId() + " not found" );
     }
-    Assert.notNull( logicalRoleNames );
+    Assert.notNull( logicalRoleNames, "" );
     jcrTemplate.execute( new JcrCallback() {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {

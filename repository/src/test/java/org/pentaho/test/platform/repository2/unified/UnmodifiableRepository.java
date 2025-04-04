@@ -47,7 +47,7 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @param mockUnifiedRepository
    */
   public UnmodifiableRepository( final IUnifiedRepository repository ) {
-    Assert.notNull( repository );
+    Assert.notNull( repository, "" );
     this.repository = repository;
   }
 
@@ -760,78 +760,78 @@ public class UnmodifiableRepository implements IUnifiedRepository {
 
   @Override
   public List<Locale> getAvailableLocalesForFileById( Serializable fileId ) {
-    Assert.notNull( fileId );
+    Assert.notNull( fileId, "" );
     return repository.getAvailableLocalesForFileById( fileId );
   }
 
   @Override
   public List<Locale> getAvailableLocalesForFileByPath( String relPath ) {
-    Assert.notNull( relPath );
+    Assert.notNull( relPath, "" );
     return repository.getAvailableLocalesForFileByPath( relPath );
   }
 
   @Override
   public List<Locale> getAvailableLocalesForFile( RepositoryFile repositoryFile ) {
-    Assert.notNull( repositoryFile );
+    Assert.notNull( repositoryFile, "" );
     return repository.getAvailableLocalesForFile( repositoryFile );
   }
 
   @Override
   public Properties getLocalePropertiesForFileById( Serializable fileId, String locale ) {
-    Assert.notNull( fileId );
-    Assert.notNull( locale );
+    Assert.notNull( fileId, "" );
+    Assert.notNull( locale, "" );
     return repository.getLocalePropertiesForFileById( fileId, locale );
   }
 
   @Override
   public Properties getLocalePropertiesForFileByPath( String relPath, String locale ) {
-    Assert.notNull( relPath );
-    Assert.notNull( locale );
+    Assert.notNull( relPath, "" );
+    Assert.notNull( locale, "" );
     return repository.getLocalePropertiesForFileByPath( relPath, locale );
   }
 
   @Override
   public Properties getLocalePropertiesForFile( RepositoryFile repositoryFile, String locale ) {
-    Assert.notNull( repositoryFile );
-    Assert.notNull( locale );
+    Assert.notNull( repositoryFile, "" );
+    Assert.notNull( locale, "" );
     return repository.getLocalePropertiesForFile( repositoryFile, locale );
   }
 
   @Override
   public void setLocalePropertiesForFileById( Serializable fileId, String locale, Properties properties ) {
-    Assert.notNull( fileId );
-    Assert.notNull( locale );
-    Assert.notNull( properties );
+    Assert.notNull( fileId, "" );
+    Assert.notNull( locale, "" );
+    Assert.notNull( properties, "" );
     repository.setLocalePropertiesForFileById( fileId, locale, properties );
   }
 
   @Override
   public void setLocalePropertiesForFileByPath( String relPath, String locale, Properties properties ) {
-    Assert.notNull( relPath );
-    Assert.notNull( locale );
-    Assert.notNull( properties );
+    Assert.notNull( relPath, "" );
+    Assert.notNull( locale, "" );
+    Assert.notNull( properties, "" );
     repository.setLocalePropertiesForFileByPath( relPath, locale, properties );
   }
 
   @Override
   public void setLocalePropertiesForFile( RepositoryFile repositoryFile, String locale, Properties properties ) {
-    Assert.notNull( repositoryFile );
-    Assert.notNull( locale );
-    Assert.notNull( properties );
+    Assert.notNull( repositoryFile, "" );
+    Assert.notNull( locale, "" );
+    Assert.notNull( properties, "" );
     repository.setLocalePropertiesForFile( repositoryFile, locale, properties );
   }
 
   @Override
   public void deleteLocalePropertiesForFile( RepositoryFile repositoryFile, String locale ) {
-    Assert.notNull( repositoryFile );
-    Assert.notNull( locale );
+    Assert.notNull( repositoryFile, "" );
+    Assert.notNull( locale, "" );
     repository.deleteLocalePropertiesForFile( repositoryFile, locale );
   }
 
   @Override
   public RepositoryFile updateFolder( RepositoryFile folder, String versionMessage ) {
-    Assert.notNull( folder );
-    Assert.isTrue( folder.isFolder() );
+    Assert.notNull( folder, "" );
+    Assert.isTrue( folder.isFolder(), "" );
     return repository.updateFolder( folder, versionMessage );
   }
 

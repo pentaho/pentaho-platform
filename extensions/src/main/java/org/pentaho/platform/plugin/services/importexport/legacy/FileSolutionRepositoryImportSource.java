@@ -42,9 +42,9 @@ public class FileSolutionRepositoryImportSource extends AbstractImportSource {
   }
 
   public FileSolutionRepositoryImportSource( final File sourceFile, final String filename, final String charSet ) {
-    Assert.notNull( sourceFile );
-    Assert.hasText( filename );
-    Assert.hasText( charSet );
+    Assert.notNull( sourceFile, "" );
+    Assert.hasText( filename, "" );
+    Assert.hasText( charSet, "" );
     this.filename = filename;
     this.charSet = charSet;
     this.recursive = sourceFile.isDirectory();
