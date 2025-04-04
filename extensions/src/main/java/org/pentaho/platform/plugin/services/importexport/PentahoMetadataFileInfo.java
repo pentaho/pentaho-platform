@@ -126,8 +126,8 @@ public class PentahoMetadataFileInfo {
   }
 
   protected void initialize( final FileType fileType, final String domainId, final String locale ) {
-    Assert.hasText( domainId );
-    Assert.isTrue( locale == null || !StringUtils.isEmpty( locale ) );
+    Assert.hasText( domainId, "" );
+    Assert.isTrue( locale == null || !StringUtils.isEmpty( locale ), "" );
     this.fileType = fileType;
     this.domainId = domainId;
     this.locale = locale;

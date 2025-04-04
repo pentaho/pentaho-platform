@@ -66,10 +66,10 @@ public class MondrianBackingRepositoryLifecycleManager extends AbstractBackingRe
       final ITenantedPrincipleNameResolver userNameUtils, final JcrTemplate adminJcrTemplate,
       final IPathConversionHelper pathConversionHelper ) {
     super( txnTemplate, adminJcrTemplate, pathConversionHelper );
-    Assert.notNull( contentDao );
-    Assert.notNull( repositoryFileAclDao );
-    Assert.hasText( repositoryAdminUsername );
-    Assert.hasText( tenantAuthenticatedAuthorityNamePattern );
+    Assert.notNull( contentDao, "" );
+    Assert.notNull( repositoryFileAclDao, "" );
+    Assert.hasText( repositoryAdminUsername, "" );
+    Assert.hasText( tenantAuthenticatedAuthorityNamePattern, "" );
     this.repositoryFileDao = contentDao;
     this.repositoryFileAclDao = repositoryFileAclDao;
     this.repositoryAdminUsername = repositoryAdminUsername;
@@ -88,7 +88,7 @@ public class MondrianBackingRepositoryLifecycleManager extends AbstractBackingRe
             new RepositoryFileSid( userNameUtils.getPrincipleId( tenant, repositoryAdminUsername ) );
         RepositoryFile tenantEtcFolder =
             repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantEtcFolderPath( tenant ) );
-        Assert.notNull( tenantEtcFolder );
+        Assert.notNull( tenantEtcFolder, "" );
 
         if ( repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantEtcFolderPath( tenant )
             + RepositoryFile.SEPARATOR + FOLDER_MONDRIAN ) == null ) {
@@ -141,7 +141,7 @@ public class MondrianBackingRepositoryLifecycleManager extends AbstractBackingRe
 
   protected RepositoryFile internalCreateFolder( final Serializable parentFolderId, final RepositoryFile file,
       final boolean inheritAces, final RepositoryFileSid ownerSid, final String versionMessage ) {
-    Assert.notNull( file );
+    Assert.notNull( file, "" );
 
     return repositoryFileDao.createFolder( parentFolderId, file, makeAcl( inheritAces, ownerSid ), versionMessage );
   }
