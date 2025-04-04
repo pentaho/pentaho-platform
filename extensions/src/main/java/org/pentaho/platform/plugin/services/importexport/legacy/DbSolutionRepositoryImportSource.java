@@ -84,9 +84,9 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
   public DbSolutionRepositoryImportSource( final DataSource dataSource, final String srcCharset,
       final String requiredCharset, final String ownerName ) {
     super();
-    Assert.notNull( dataSource );
+    Assert.notNull( dataSource, "" );
     this.jdbcTemplate = new JdbcTemplate( dataSource );
-    Assert.hasLength( srcCharset );
+    Assert.hasLength( srcCharset, "" );
     this.srcCharset = srcCharset;
     this.requiredCharset = requiredCharset;
     this.ownerName = ownerName;
@@ -106,7 +106,7 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
    * @return
    */
   public Iterable<IRepositoryFileBundle> getFiles() {
-    Assert.hasLength( requiredCharset );
+    Assert.hasLength( requiredCharset, "" );
     return new Iterable<IRepositoryFileBundle>() {
       public Iterator<IRepositoryFileBundle> iterator() {
         return new RepositoryFileBundleIterator();
@@ -365,7 +365,7 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
       }
 
       private String getExtension( final String name ) {
-        Assert.notNull( name );
+        Assert.notNull( name, "" );
         int lastDot = name.lastIndexOf( '.' );
         if ( lastDot > -1 ) {
           return name.substring( lastDot + 1 ).toLowerCase();
