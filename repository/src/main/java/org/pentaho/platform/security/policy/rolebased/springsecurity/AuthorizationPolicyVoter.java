@@ -44,8 +44,8 @@ public class AuthorizationPolicyVoter implements AccessDecisionVoter {
 
   public AuthorizationPolicyVoter( final IAuthorizationPolicy policy, final String prefix ) {
     super();
-    Assert.notNull( policy );
-    Assert.notNull( prefix );
+    Assert.notNull( policy, "" );
+    Assert.notNull( prefix, "" );
     this.policy = policy;
     this.prefix = prefix;
   }
