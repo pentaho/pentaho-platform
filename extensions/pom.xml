@@ -11,7 +11,6 @@
   <artifactId>pentaho-platform-extensions</artifactId>
   <version>11.0.0.0-SNAPSHOT</version>
   <properties>
-    <cache.version>1.1.1</cache.version>
     <asm-attrs.version>2.2.3</asm-attrs.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
     <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
@@ -46,7 +45,7 @@
     <dependency>
       <groupId>javax.cache</groupId>
       <artifactId>cache-api</artifactId>
-      <version>${cache.version}</version>
+      <version>${cache-api.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-collections</groupId>
@@ -136,7 +135,7 @@
     <dependency>
       <groupId>org.glassfish.jaxb</groupId>
       <artifactId>jaxb-runtime</artifactId>
-      <version>${jakarta.xml.bind-api.version}</version>
+      <version>${jaxb-runtime.version}</version>
     </dependency>
     <dependency>
       <groupId>jakarta.xml.soap</groupId>
@@ -552,11 +551,6 @@
       <version>${jersey.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.glassfish.jaxb</groupId>
-      <artifactId>jaxb-runtime</artifactId>
-      <version>${jakarta.xml.bind-api.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.glassfish.jersey.media</groupId>
       <artifactId>jersey-media-json-processing</artifactId>
       <version>${jersey.version}</version>
@@ -869,7 +863,7 @@
     <dependency>
       <groupId>org.glassfish.web</groupId>
       <artifactId>jakarta.servlet.jsp.jstl</artifactId>
-      <version>${jakarta.servlet.jsp.jstl-api.version}</version>
+      <version>${jakarta.servlet.jsp.jstl.version}</version>
     </dependency>
     <dependency>
       <groupId>javatar</groupId>
@@ -972,6 +966,7 @@
       <artifactId>ehcache</artifactId>
       <version>${ehcache-core.version}</version>
       <scope>compile</scope>
+      <classifier>jakarta</classifier>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>

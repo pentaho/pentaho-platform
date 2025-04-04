@@ -43,7 +43,7 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
 
   public RoleAuthorizationPolicy( final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao ) {
     super();
-    Assert.notNull( roleBindingDao );
+    Assert.notNull( roleBindingDao, "" );
     this.roleBindingDao = roleBindingDao;
   }
 
@@ -79,7 +79,7 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
 
   protected List<String> getRuntimeRoleNames() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    Assert.state( authentication != null );
+    Assert.state( authentication != null, "" );
     Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
     List<String> runtimeRoles = new ArrayList<String>( authorities.size() );
     for ( GrantedAuthority authority : authorities ) {

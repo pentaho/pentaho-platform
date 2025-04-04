@@ -29,8 +29,8 @@ public class DefaultPathConversionHelper implements IPathConversionHelper {
    */
   @Override
   public String absToRel( final String absPath ) {
-    Assert.hasLength( absPath );
-    Assert.isTrue( absPath.startsWith( RepositoryFile.SEPARATOR ) );
+    Assert.hasLength( absPath, "" );
+    Assert.isTrue( absPath.startsWith( RepositoryFile.SEPARATOR ), "" );
     String convertedAbsPath = convertPathSlashes( absPath );
     if ( ( ServerRepositoryPaths.getTenantRootFolderPath() != null )
         && convertedAbsPath.startsWith( ServerRepositoryPaths.getTenantRootFolderPath() ) ) {
@@ -51,8 +51,8 @@ public class DefaultPathConversionHelper implements IPathConversionHelper {
    */
   @Override
   public String relToAbs( final String relPath ) {
-    Assert.hasLength( relPath );
-    Assert.isTrue( relPath.startsWith( RepositoryFile.SEPARATOR ) );
+    Assert.hasLength( relPath, "" );
+    Assert.isTrue( relPath.startsWith( RepositoryFile.SEPARATOR ), "" );
     String convertedRelPath = convertPathSlashes( relPath );
     return ServerRepositoryPaths.getTenantRootFolderPath()
         + ( RepositoryFile.SEPARATOR.equals( convertedRelPath ) ? "" : convertedRelPath ); //$NON-NLS-1$

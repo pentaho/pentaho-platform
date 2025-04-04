@@ -83,11 +83,11 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
       final ITenantedPrincipleNameResolver tenantedUserNameResolver,
       final ITenantedPrincipleNameResolver tenantedRoleNameResolver, final String tenantAdminRoleName,
       final List<String> singleTenantAuthenticatedAuthorityRoleBindingList ) {
-    Assert.notNull( contentDao );
-    Assert.notNull( repositoryFileAclDao );
-    Assert.notNull( roleBindingDao );
-    Assert.hasText( repositoryAdminUsername );
-    Assert.hasText( tenantAuthenticatedAuthorityNamePattern );
+    Assert.notNull( contentDao, "" );
+    Assert.notNull( repositoryFileAclDao, "" );
+    Assert.notNull( roleBindingDao, "" );
+    Assert.hasText( repositoryAdminUsername, "" );
+    Assert.hasText( tenantAuthenticatedAuthorityNamePattern, "" );
     this.repositoryFileDao = contentDao;
     this.repositoryFileAclDao = repositoryFileAclDao;
     this.userRoleDao = userRoleDao;
