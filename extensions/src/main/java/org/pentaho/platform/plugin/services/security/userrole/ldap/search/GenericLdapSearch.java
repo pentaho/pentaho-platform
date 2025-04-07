@@ -125,7 +125,7 @@ public class GenericLdapSearch implements LdapSearch, InitializingBean {
   }
 
   public void afterPropertiesSet() throws Exception {
-    Assert.notNull( contextSource );
-    Assert.notNull( paramsFactory );
+    Assert.notNull( contextSource, "" );
+    Assert.notNull( paramsFactory, "" );
   }
 }

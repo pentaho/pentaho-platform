@@ -104,10 +104,10 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
       final IPasswordService passwordService, final JcrTemplate adminJcrTemplate,
       final IPathConversionHelper pathConversionHelper ) {
     super( txnTemplate, adminJcrTemplate, pathConversionHelper );
-    Assert.notNull( contentDao );
-    Assert.notNull( repositoryFileAclDao );
-    Assert.hasText( repositoryAdminUsername );
-    Assert.hasText( tenantAuthenticatedRoleName );
+    Assert.notNull( contentDao, "" );
+    Assert.notNull( repositoryFileAclDao, "" );
+    Assert.hasText( repositoryAdminUsername, "" );
+    Assert.hasText( tenantAuthenticatedRoleName, "" );
     this.repositoryFileDao = contentDao;
     this.repositoryFileAclDao = repositoryFileAclDao;
     this.repositoryAdminUsername = repositoryAdminUsername;
