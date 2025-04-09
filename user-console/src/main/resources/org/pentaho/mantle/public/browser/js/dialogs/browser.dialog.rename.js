@@ -18,11 +18,12 @@ define([
   "../browser.utils",
   "common-ui/util/URLEncoder",
   "dojox/html/entities",
+  "backbone",
   "common-ui/bootstrap",
   "common-ui/jquery-pentaho-i18n",
   "common-ui/jquery",
   "pentaho/utils"
-], function (Dialog, DialogTemplates, RenameTemplates, Utils, Encoder, Entities) {
+], function (Dialog, DialogTemplates, RenameTemplates, Utils, Encoder, Entities, Backbone) {
 
   var BrowserUtils = new Utils();
 
