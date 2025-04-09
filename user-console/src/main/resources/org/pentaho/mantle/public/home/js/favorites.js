@@ -16,8 +16,9 @@ define([
   "common-ui/util/spin",
   "pentaho/csrf/service",
   "common-ui/util/_a11y",
+  "common-ui/util/xss",
   "pentaho/shim/css.escape"
-], function(spinner, Spinner, csrfService, a11yUtil) {
+], function(spinner, Spinner, csrfService, a11yUtil, xssUtil) {
 
   var local = {
     name: "favorites",
@@ -200,7 +201,9 @@ define([
       config.color = "#BBB";
       this.spinner = new Spinner(config);
       var s = this.spinner.spin();
-      $("#" + this.contentPanelId).html(s.el);
+      var $container = $("#" + this.contentPanelId);
+      $container.empty();
+      $container.append(s.el);
     },
 
     showList: function (items, context) {
@@ -238,7 +241,7 @@ define([
       // make sure the spinner is visible long enough for the user to see it
       setTimeout(function () {
         that.spinner.stop();
-        $("#" + that.displayContainerId).html(html);
+        xssUtil.setHtmlUnsafe($("#" + that.displayContainerId), html);
         $("#"+that.contentPanelId).find("a").first().attr("tabindex",0);
 
         $("#"+that.contentPanelId).find("a").keydown(function(event) {

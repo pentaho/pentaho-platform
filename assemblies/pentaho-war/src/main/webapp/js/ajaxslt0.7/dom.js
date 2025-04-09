@@ -70,7 +70,7 @@ function xmlResolveEntities(s) {
         // through the W3C DOM. W3C DOM access is specified to resolve
         // entities.
         var span = domCreateElement(window.document, 'span');
-        span.innerHTML = '&' + entityName + '; ';
+        pho.util.xss.setHtml(span, '&' + entityName + '; ');
         ch = span.childNodes[0].nodeValue.charAt(0);
     }
     ret += ch + remainderText;
