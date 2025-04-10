@@ -23,11 +23,13 @@ define([
   "./browser.templates",
   "common-ui/util/URLEncoder",
   "common-ui/util/_a11y",
+  "backbone",
+  "common-ui/underscore",
   "common-ui/bootstrap",
   "common-ui/handlebars",
   "common-ui/jquery-pentaho-i18n",
   "common-ui/jquery"
-], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder, a11yUtil) {
+], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder, a11yUtil, Backbone, _) {
 
   const REPOSITORY_ROOT_PATH = "/";
 
