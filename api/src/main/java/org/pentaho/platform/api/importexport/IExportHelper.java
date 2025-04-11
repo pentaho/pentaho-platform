@@ -7,11 +7,15 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
 
-package org.pentaho.platform.api.util;
+
+package org.pentaho.platform.api.importexport;
+
 
 public interface IExportHelper {
-  public void doExport( Object exportArg );
+  public void doExport( Object exportArg ) throws ExportException;
+
+  public String getName();
 }
