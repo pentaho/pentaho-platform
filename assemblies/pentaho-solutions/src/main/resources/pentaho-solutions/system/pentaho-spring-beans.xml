@@ -80,6 +80,9 @@ http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/penta
   <import resource="applicationContext-spring-security-ldap.xml" />
   <import resource="applicationContext-pentaho-security-ldap.xml" />
 
+  <import resource="applicationContext-spring-security-oauth.xml" />
+  <import resource="applicationContext-pentaho-security-oauth.xml" />
+
   <import resource="applicationContext-pentaho-security-jackrabbit.xml" />
   <import resource="applicationContext-spring-security-jackrabbit.xml" />
   <import resource="applicationContext-pentaho-security-jdbc.xml" />

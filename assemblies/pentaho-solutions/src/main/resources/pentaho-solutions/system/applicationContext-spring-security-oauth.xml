@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--+
+	| Application context containing JDBC AuthenticationProvider 
+	| implementation.
+	+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:oauth2="http://www.springframework.org/schema/security/oauth2"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd
+	     http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-5.8.xsd
+       http://www.springframework.org/schema/security/oauth2 classpath:spring-security-oauth2.xsd"
+       default-lazy-init="true">
+
+  <!-- Define OAuth2AccessTokenResponseClient -->
+  <bean id="accessTokenResponseClient"
+        class="org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient"/>
+
+  <!-- Define OAuth2UserService -->
+  <bean id="oidcUserService"
+        class="org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService"/>
+
+  <bean id="oauthAuthenticationProvider"
+        class="org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider">
+    <constructor-arg ref="accessTokenResponseClient"/>
+    <constructor-arg ref="oidcUserService"/>
+  </bean>
+
+  <bean id="oauthAuthenticationProviderProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.springframework.security.authentication.AuthenticationProvider"/>
+    <property name="target" ref="oauthAuthenticationProvider"/>
+    <property name="interceptorNames">
+      <list>
+        <value>classloaderSwitcherInterceptor</value>
+      </list>
+    </property>
+    <pen:publish as-type="org.springframework.security.authentication.AuthenticationProvider">
+      <pen:attributes>
+        <pen:attr key="providerName" value="oauth"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <bean id="classloaderSwitcherInterceptor"
+        class="org.pentaho.platform.plugin.services.security.userrole.ClassloaderSwitcherInterceptor">
+  </bean>
+
+  <bean id="oauthUserDetailsService0"
+        class="org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoOAuthUserDetailsService">
+    <constructor-arg ref="oauthUserRoleListService"/>
+  </bean>
+
+  <!--
+    This proxy bean is used to change the thread context classloader in order to escape ClassCastException in
+    org.springframework.ldap.odm.typeconversion.impl.ConversionServiceConverterManager
+  -->
+  <bean id="oauthUserDetailsServiceProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.springframework.security.core.userdetails.UserDetailsService"/>
+    <property name="target" ref="oauthUserDetailsService0"/>
+    <property name="interceptorNames">
+      <list>
+        <value>classloaderSwitcherInterceptor</value>
+      </list>
+    </property>
+  </bean>
+
+  <!-- map ldap role to pentaho security role -->
+  <util:map id="oauthRoleMap">
+    <entry key="Admin" value="Administrator"/>
+    <entry key="Developer" value="Power User"/>
+    <entry key="Analyst" value="Business Analyst"/>
+    <entry key="Tester" value="Report Author"/>
+    <entry key="Manager" value="Schedule Power User"/>
+  </util:map>
+
+  <bean id="oauthRoleMapper"
+        class="org.pentaho.platform.engine.security.DefaultOAuthRoleMapper">
+    <constructor-arg>
+      <ref bean="oauthRoleMap"/>
+    </constructor-arg>
+  </bean>
+
+  <bean id="oauthUserDetailsService" class="org.pentaho.platform.engine.security.DefaultRoleUserDetailsServiceDecorator">
+    <property name="userDetailsService" ref="oauthUserDetailsServiceProxy" />
+    <property name="defaultRole" ref="defaultRole" />
+    <property name="roleMapper" ref="oauthRoleMapper" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="providerName" value="oauth"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <util:map id="oauthServerDetailsMap">
+    <entry key="registrationId" value="${azure.id}"/>
+    <entry key="clientName" value="${azure.client-name}"/>
+    <entry key="clientId" value="${azure.client-id}"/>
+    <entry key="clientSecret" value="${azure.client-secret}"/>
+    <entry key="scope" value="${azure.scope}"/>
+    <entry key="redirectUri" value="${azure.redirect-uri}"/>
+    <entry key="tokenUri" value="${azure.token-uri}"/>
+    <entry key="authorizationUri" value="${azure.authorization-uri}"/>
+    <entry key="jwkSetUri" value="${azure.jwk-set-uri}"/>
+    <entry key="userInfoUri" value="${azure.user-info-uri}"/>
+    <entry key="authorizationGrantType" value="${azure.authorization-grant-type}"/>
+    <entry key="userNameAttributeName" value="${azure.user-name-attribute}"/>
+  </util:map>
+
+  <bean id="pentahoClientRegistrationFactory" class="org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoClientRegistrationFactory">
+    <constructor-arg ref="oauthServerDetailsMap"/>
+  </bean>
+
+  <bean id="clientRegistrationRepository" class="org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository">
+    <constructor-arg>
+      <list>
+        <ref bean="pentahoClientRegistrationFactory"/>
+      </list>
+    </constructor-arg>
+  </bean>
+
+
+  <bean id="oauthAuthorizationRequestRedirectFilter" class="org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoOAuthAuthorizationRequestRedirectFilter">
+    <constructor-arg ref="clientRegistrationRepository"/>
+  </bean>
+
+  <bean id="inMemoryOAuth2AuthorizedClientService" class="org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService">
+    <constructor-arg ref="clientRegistrationRepository"/>
+  </bean>
+
+  <bean id="inheritableThreadHolderStrategy" class="org.springframework.security.core.context.InheritableThreadLocalSecurityContextHolderStrategy"/>
+
+  <bean id="oauthLoginAuthenticationFilter" class="org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoOAuthLoginAuthenticationFilter">
+    <constructor-arg ref="clientRegistrationRepository"/>
+    <constructor-arg ref="inMemoryOAuth2AuthorizedClientService"/>
+    <property name="authenticationManager" ref="authenticationManager"/>
+    <property name="sessionAuthenticationStrategy" ref="sas" />
+    <property name="authenticationSuccessHandler">
+      <bean class="org.pentaho.platform.web.http.security.PreventBruteForceSavedRequestAwareAuthenticationSuccessHandler">
+        <constructor-arg ref="loginAttemptService"/>
+        <property name="defaultTargetUrl" value="/Home" />
+      </bean>
+    </property>
+    <property name="securityContextRepository" ref="httpSessionSecurityContextRepository"/>
+    <property name="securityContextHolderStrategy" ref="inheritableThreadHolderStrategy"/>
+    <constructor-arg ref="oauthRoleMapper"/>
+  </bean>
+
+  <bean id="oauthUserCreationFilter" class="org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoOAuthUserCreationFilter">
+    <constructor-arg ref="oauthUserRoleListService"/>
+  </bean>
+
+
+  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate"/>
+
+  <bean id="pentahoOAuthProperties" class="org.pentaho.platform.util.oauth.PentahoOAuthProperties"/>
+
+  <bean id="pentahoOAuthAzureHandler" class="org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoOAuthAzureHandler">
+    <constructor-arg ref="userRoleDaoTxn"/>
+    <constructor-arg ref="restTemplate"/>
+    <constructor-arg ref="oauthRoleMapper"/>
+    <constructor-arg ref="pentahoOAuthProperties"/>
+  </bean>
+
+
+  <bean id="pentahoOAuthOktaHandler" class="org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoOAuthOktaHandler">
+    <constructor-arg ref="userRoleDaoTxn"/>
+    <constructor-arg ref="restTemplate"/>
+    <constructor-arg ref="oauthRoleMapper"/>
+    <constructor-arg ref="pentahoOAuthProperties"/>
+  </bean>
+
+  <bean id="pentahoOAuthProviderFactory" class="org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoOAuthProviderFactory">
+    <property name="pentahoOAuthAzureHandler" ref="pentahoOAuthAzureHandler"/>
+    <property name="pentahoOAuthOktaHandler" ref="pentahoOAuthOktaHandler"/>
+  </bean>
+
+  <bean id="pentahoOAuthUserSync" class="org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoOAuthUserSync">
+    <constructor-arg ref="userRoleDaoTxn"/>
+    <constructor-arg ref="pentahoOAuthProviderFactory"/>
+  </bean>
+
+  <bean class="org.pentaho.platform.config.SolutionPropertiesFileConfiguration">
+    <constructor-arg value="oauth"/>
+    <constructor-arg value="applicationContext-spring-security-oauth.properties"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+</beans>

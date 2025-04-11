@@ -64,10 +64,6 @@
 		<property name="minIdle" value="${datasource.min.idle}" />
 	</bean>
 	
-	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="location" value="applicationContext-spring-security-jdbc.properties" />
-	</bean>
-	
   <bean id="jdbcPasswordEncoder"
     class="org.springframework.security.crypto.password.NoOpPasswordEncoder" />
  
