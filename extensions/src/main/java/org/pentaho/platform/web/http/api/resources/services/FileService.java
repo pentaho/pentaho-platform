@@ -1501,8 +1501,8 @@ public class FileService {
       logger.error( e.getCause() );
     }
 
-    if ( tree == null ) {
-      return null;
+    if ( tree == null || tree.getChildren() == null || tree.getChildren().isEmpty() ) {
+      return tree;
     }
 
     // translating /home and /public folders titles
@@ -1513,6 +1513,7 @@ public class FileService {
         dto.getFile().setTitle( Messages.getInstance().getString( "FileResource.PUBLIC_FOLDER_DISPLAY_TITLE" ) );
       }
     }
+
     // BISERVER-9599 - Use special sort order
     if ( isShowingTitle( repositoryRequest ) ) {
       Collator collator = getCollatorInstance();
@@ -1525,7 +1526,7 @@ public class FileService {
 
   public void sortByLocaleTitle( final Collator collator, final RepositoryFileTreeDto tree ) {
 
-    if ( tree == null || tree.getChildren() == null || tree.getChildren().size() <= 0 ) {
+    if ( tree == null || tree.getChildren() == null || tree.getChildren().isEmpty() ) {
       return;
     }
 
@@ -1955,7 +1956,7 @@ public class FileService {
 
   public void sortByLocaleTitle( final Collator collator, final List<RepositoryFileDto> repositoryFileDtoList ) {
 
-    if ( repositoryFileDtoList == null || repositoryFileDtoList.size() <= 0 ) {
+    if ( repositoryFileDtoList == null || repositoryFileDtoList.isEmpty() ) {
       return;
     }
 
