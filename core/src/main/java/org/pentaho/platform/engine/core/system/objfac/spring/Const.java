@@ -15,17 +15,17 @@ package org.pentaho.platform.engine.core.system.objfac.spring;
 
 /**
  * Constants used by Hitachi Vantara Spring extensions
- * 
+ *
  * User: nbaker Date: 3/6/13
  */
 public interface Const {
-  public static final String ATTRIBUTES = "attributes";
-  public static final String ATTR = "attr";
-  public static final String KEY = "key";
-  public static final String VALUE = "value";
-  public static final String SCHEMA_TAG_ATTRIBUTES = "attributes";
-  public static final String SCHEMA_TAG_LIST = "list";
-  public static final String SCHEMA_TAG_BEAN = "bean";
-  public static final String SCHEMA_PUBLISH = "publish";
-  public static final String FACTORY_MARKER = "PublishedBeanRegistryMarker";
+  String ATTRIBUTES = "attributes";
+  String ATTR = "attr";
+  String KEY = "key";
+  String VALUE = "value";
+  String SCHEMA_TAG_ATTRIBUTES = "attributes";
+  String SCHEMA_TAG_LIST = "list";
+  String SCHEMA_TAG_BEAN = "bean";
+  String SCHEMA_PUBLISH = "publish";
+  String FACTORY_MARKER = "PublishedBeanRegistryMarker";
 }
