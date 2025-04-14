@@ -28,16 +28,14 @@ import java.util.Map;
 
 /**
  * This factory implementation creates and uses a self-contained Spring {@link ApplicationContext} which is not tied to
- * or accesible by any other parts of the application.
+ * or accessible by any other parts of the application.
  *
  * @author Aaron Phillips
  * @see AbstractSpringPentahoObjectFactory
  */
 public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoObjectFactory {
 
-  private static Map<ApplicationContext, StandaloneSpringPentahoObjectFactory> factoryMap =
-    new HashMap<ApplicationContext, StandaloneSpringPentahoObjectFactory>();
-
+  private static Map<ApplicationContext, StandaloneSpringPentahoObjectFactory> factoryMap = new HashMap<>();
 
   public StandaloneSpringPentahoObjectFactory() {
   }

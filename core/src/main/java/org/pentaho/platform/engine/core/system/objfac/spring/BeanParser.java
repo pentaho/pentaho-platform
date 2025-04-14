@@ -10,7 +10,6 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -28,9 +27,9 @@ import java.util.Map;
 
 /**
  * Parses a bean from Spring XML
- * 
+ *
  * {@code} <pen:bean class="com.foo.Clazz"/> {@code}
- * 
+ *
  * User: nbaker Date: 3/2/13
  */
 public class BeanParser extends AbstractBeanDefinitionParser {
@@ -51,7 +50,7 @@ public class BeanParser extends AbstractBeanDefinitionParser {
     // BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(BeanBuilder.class.getName());
     definition.getPropertyValues().addPropertyValue( "type", originalClassName );
 
-    Map<String, String> propMap = new HashMap<String, String>();
+    Map<String, String> propMap = new HashMap<>();
     Element objectproperties = DomUtils.getChildElementByTagName( element, Const.ATTRIBUTES );
     if ( objectproperties != null ) {
       List props = DomUtils.getChildElementsByTagName( objectproperties, Const.ATTR );
@@ -64,6 +63,7 @@ public class BeanParser extends AbstractBeanDefinitionParser {
         }
       }
     }
+
     definition.getPropertyValues().addPropertyValue( Const.ATTRIBUTES, propMap );
 
     // AbstractBeanDefinition definition = builder.getRawBeanDefinition();
@@ -74,7 +74,7 @@ public class BeanParser extends AbstractBeanDefinitionParser {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.springframework.beans.factory.xml.AbstractBeanDefinitionParser#shouldGenerateIdAsFallback()
    */
   @Override

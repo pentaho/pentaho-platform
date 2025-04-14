@@ -19,11 +19,13 @@ import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.util.StringUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Spring implementation of {@link IPentahoObjectReference}
@@ -34,17 +36,17 @@ import java.util.Map;
  */
 public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<T> {
 
-  private ConfigurableApplicationContext context;
+  private final ConfigurableApplicationContext context;
 
-  private String name;
+  private final String name;
 
   private final Class<T> clazz;
 
-  private IPentahoSession session;
+  private final IPentahoSession session;
 
   private final SpringBeanAttributes attributes;
 
-  private static String PRIORITY = "priority";
+  private static final String PRIORITY = "priority";
 
   public SpringPentahoObjectReference( ConfigurableApplicationContext context, String name, Class<T> clazz,
                                        IPentahoSession session, BeanDefinition beanDef ) {
@@ -90,22 +92,27 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
     if ( this == o ) {
       return true;
     }
+
     if ( o == null || getClass() != o.getClass() ) {
       return false;
     }
 
+    @SuppressWarnings( "rawtypes" )
     SpringPentahoObjectReference that = (SpringPentahoObjectReference) o;
 
     if ( !clazz.equals( that.clazz ) ) {
       return false;
     }
+
     if ( !name.equals( that.name ) ) {
       return false;
     }
-    if ( attributes != null ? !attributes.equals( that.attributes ) : that.attributes != null ) {
+
+    if ( !attributes.equals( that.attributes ) ) {
       return false;
     }
-    if ( session != null ? !session.equals( that.session ) : that.session != null ) {
+
+    if ( !Objects.equals( session, that.session ) ) {
       return false;
     }
 
@@ -117,7 +124,7 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
     int result = name.hashCode();
     result = 31 * result + clazz.hashCode();
     result = 31 * result + ( session != null ? session.hashCode() : 0 );
-    result = 31 * result + ( attributes != null ? attributes.hashCode() : 0 );
+    result = 31 * result + attributes.hashCode();
     return result;
   }
 
@@ -126,33 +133,27 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
     if ( o == null ) {
       return 1;
     }
+
     if ( o == this ) {
       return 0;
     }
-    int pri1 = this.getRanking();
-    int pri2 = o.getRanking();
-    if ( pri1 == pri2 ) {
-      return 0;
-    } else if ( pri1 > pri2 ) {
-      return 1;
-    } else {
-      return -1;
-    }
+
+    return Integer.compare( this.getRanking(), o.getRanking() );
   }
 
   @Override
   public Integer getRanking() {
-    return extractPriority( this );
+    return getPriority();
   }
 
-  private int extractPriority( IPentahoObjectReference ref ) {
-    if ( ref == null || ref.getAttributes() == null || !ref.getAttributes().containsKey( PRIORITY ) ) {
+  private int getPriority() {
+    if ( !this.getAttributes().containsKey( PRIORITY ) ) {
       // return default
       return IPentahoObjectFactory.DEFAULT_PRIORTIY;
     }
 
     try {
-      return Integer.parseInt( ref.getAttributes().get( PRIORITY ).toString() );
+      return Integer.parseInt( this.getAttributes().get( PRIORITY ).toString() );
     } catch ( NumberFormatException e ) {
       // return default
       return IPentahoObjectFactory.DEFAULT_PRIORTIY;
@@ -164,16 +165,14 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
    */
   private static class SpringBeanAttributes extends HashMap<String, Object> {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -5790844158879001752L;
 
     public SpringBeanAttributes( final BeanDefinition definition ) {
       for ( String s : definition.attributeNames() ) {
         this.put( s, definition.getAttribute( s ) );
       }
-      this.put("scope", StringUtils.defaultIfEmpty( definition.getScope(), "singleton") );
+
+      this.put( "scope", StringUtils.defaultIfEmpty( definition.getScope(), "singleton" ) );
     }
 
   }
