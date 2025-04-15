@@ -288,15 +288,16 @@ public class RepositoryImportResource {
         bundleBuilder.retainOwnership( retainOwnershipFlag );
         bundleBuilder.name( fileName );
 
-        IPlatformImportBundle bundle = bundleBuilder.build();
         String mimeTypeFromFile = mimeResolver.resolveMimeForFileName( fileName );
 
         if ( mimeTypeFromFile == null ) {
-          return Response.ok( "INVALID_MIME_TYPE", MediaType.TEXT_HTML ).build();
+          // fallback
+          mimeTypeFromFile = "application/octet-stream";
         }
 
         bundleBuilder.mime( mimeTypeFromFile );
         importer.getRepositoryImportLogger().setPerformingRestore( false );
+        IPlatformImportBundle bundle = bundleBuilder.build();
         importer.importFile( bundle );
       }
 

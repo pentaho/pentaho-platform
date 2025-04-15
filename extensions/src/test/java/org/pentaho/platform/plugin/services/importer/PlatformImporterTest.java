@@ -75,7 +75,7 @@ public class PlatformImporterTest {
       importer.importFile( bundle1 );
       String result = new String( outputStream.toByteArray() );
       assertTrue( result.contains( "Start Import Job" ) ); // Logged at INFO level
-      assertTrue( result.contains( "Error computing or retrieving mime-type" ) ); // Logged at ERROR level
+      assertTrue( result.contains( "Starting import of file steel-wheels.xmi" ) ); // Logged at ERROR level
     } catch ( PlatformImportException e ) {
       e.printStackTrace();
       return;

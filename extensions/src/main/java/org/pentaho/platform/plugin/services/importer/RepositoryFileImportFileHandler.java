@@ -202,10 +202,6 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     // Compute the file extension
     final String name = bundle.getName();
     final String ext = RepositoryFilenameUtils.getExtension( name );
-    if ( StringUtils.isEmpty( ext ) ) {
-      getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.SkippingFileWithoutExtension", name ) );
-      return false;
-    }
 
     // Check the mime type
     final String mimeType = bundle.getMimeType();
@@ -395,23 +391,18 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    */
   protected RepositoryFile createFile( final RepositoryFileImportBundle bundle, final String repositoryPath,
       final IRepositoryFileData data ) throws PlatformImportException {
-    if ( solutionHelper.isInApprovedExtensionList( repositoryPath ) ) {
-      final RepositoryFile file =
-          new RepositoryFile.Builder( bundle.getName() ).hidden( isHiddenBundle( bundle ) ).schedulable( bundle
-              .isSchedulable() ).title(
-              RepositoryFile.DEFAULT_LOCALE,
-              getTitle( bundle.getTitle() != null ? bundle.getTitle() : bundle.getName() ) ).versioned( true ).build();
-      final Serializable parentId = checkAndCreatePath( repositoryPath, getImportSession().getCurrentManifestKey() );
+    final RepositoryFile file =
+      new RepositoryFile.Builder( bundle.getName() ).hidden( isHiddenBundle( bundle ) ).schedulable( bundle
+        .isSchedulable() ).title(
+          RepositoryFile.DEFAULT_LOCALE,
+          getTitle( bundle.getTitle() != null ? bundle.getTitle() : bundle.getName() ) ).versioned( true ).build();
+    final Serializable parentId = checkAndCreatePath( repositoryPath, getImportSession().getCurrentManifestKey() );
 
-      final RepositoryFileAcl acl = bundle.getAcl();
-      if ( null == acl ) {
-        return repository.createFile( parentId, file, data, bundle.getComment() );
-      } else {
-        return repository.createFile( parentId, file, data, acl, bundle.getComment() );
-      }
+    final RepositoryFileAcl acl = bundle.getAcl();
+    if ( null == acl ) {
+      return repository.createFile( parentId, file, data, bundle.getComment() );
     } else {
-      getLogger().trace( messages.getString( "RepositoryFileImportFileHandler.ExtensionNotApproved", repositoryPath ) );
-      return null;
+      return repository.createFile( parentId, file, data, acl, bundle.getComment() );
     }
   }
 

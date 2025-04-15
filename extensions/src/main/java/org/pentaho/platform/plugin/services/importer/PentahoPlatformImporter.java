@@ -100,12 +100,6 @@ public class PentahoPlatformImporter implements IPlatformImporter {
   public void importFile( IPlatformImportBundle file ) throws PlatformImportException {
     String mime = file.getMimeType() != null ? file.getMimeType() : mimeResolver.resolveMimeForBundle( file );
     try {
-      if ( mime == null ) {
-        log.trace( messages.getString( "PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE" ) + file.getName() );
-        repositoryImportLogger.error( messages.getString( "PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE" )
-            + file.getName() );
-        return;
-      }
       IPlatformImportHandler handler =
           ( importHandlers.containsKey( mime ) == false ) ? defaultHandler : importHandlers.get( mime );
       if ( handler == null ) {

@@ -56,6 +56,9 @@
 				<value>.xcdf</value>
 			</list>
 		</property>
+                <property name="defaultConverter">
+                        <ref bean="streamConverter" />
+                </property>
 	</bean>
 
     <util:list id="extensions" value-type="java.lang.String">

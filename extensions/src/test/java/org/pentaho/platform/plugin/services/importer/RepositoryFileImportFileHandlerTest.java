@@ -131,7 +131,7 @@ public class RepositoryFileImportFileHandlerTest {
     importTesterBuilder.targetName( TARGET_RESOURCE_NAME_NOEXT ).build().initialSetup().execute();
 
     RepositoryFile repositoryFile = mockRepository.getFile( PATH + "/" + TARGET_RESOURCE_NAME_NOEXT );
-    assertNull( repositoryFile );
+    assertNotNull( repositoryFile );
   }
 
   @Test

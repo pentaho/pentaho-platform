@@ -54,6 +54,8 @@ public class DefaultExportHandler implements ExportHandler {
 
   private Map<String, Converter> converters;
 
+  private Converter defaultConverter;
+
   private IUnifiedRepository repository;
 
   private List<String> localeExportList;
@@ -68,19 +70,20 @@ public class DefaultExportHandler implements ExportHandler {
     // Compute the file extension
     final String name = repositoryFile.getName();
     final String ext = RepositoryFilenameUtils.getExtension( name );
-    if ( StringUtils.isEmpty( ext ) ) {
-      log.debug( "Skipping file without extension: " + name );
-    }
 
     // Find the converter - defined in spring xml by import handlers
     if ( converters == null ) {
       IRepositoryContentConverterHandler converterHandler = PentahoSystem.get( IRepositoryContentConverterHandler.class );
       converters = converterHandler.getConverters();
     }
-    final Converter converter = converters.get( ext );
+    Converter converter = converters.get( ext );
     if ( converter == null ) {
-      log.debug( "Skipping file without converter: " + name );
-      return null;
+      if ( defaultConverter != null ) {
+        converter = defaultConverter;
+      } else {
+        log.debug( "Skipping file without converter: " + name );
+        return null;
+      }
     }
 
     // just send the converter the file id and let it decide which type to get
@@ -102,6 +105,14 @@ public class DefaultExportHandler implements ExportHandler {
 
   public void setLocaleExportList( List<String> localeExportList ) {
     this.localeExportList = localeExportList;
+  }
+
+  public Converter getDefaultConverter() {
+    return defaultConverter;
+  }
+
+  public void setDefaultConverter( Converter defaultConverter ) {
+    this.defaultConverter = defaultConverter;
   }
 
 }
