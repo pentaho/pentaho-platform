@@ -54,6 +54,7 @@ import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObj
 import org.pentaho.platform.engine.core.system.objfac.references.AbstractPentahoObjectReference;
 import org.pentaho.platform.engine.core.system.objfac.references.PrototypePentahoObjectReference;
 import org.pentaho.platform.engine.core.system.objfac.references.SingletonPentahoObjectReference;
+import org.pentaho.platform.engine.core.system.objfac.spring.Const;
 import org.pentaho.platform.engine.core.system.objfac.spring.PentahoBeanScopeValidatorPostProcessor;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.ServiceConfig;
@@ -603,6 +604,16 @@ public class PentahoSystemPluginManager implements IPluginManager {
     }
 
     beanFactory.addBeanFactoryPostProcessor( new PentahoBeanScopeValidatorPostProcessor() );
+
+    // Register the special owner plugin marker bean.
+    // This information is later used to annotate beans of this context that are published to the PentahoSystem with an
+    // attribute named {@link Const#PUBLISHER_PLUGIN_ID_ATTRIBUTE} with the plugin id as a value.
+    beanFactory.registerBeanDefinition(
+      Const.OWNER_PLUGIN_ID_BEAN,
+      BeanDefinitionBuilder.genericBeanDefinition( String.class )
+        .setScope( BeanDefinition.SCOPE_SINGLETON )
+        .addConstructorArgValue( plugin.getId() )
+        .getBeanDefinition() );
 
     //
     // Register any beans defined via the pluginProvider
