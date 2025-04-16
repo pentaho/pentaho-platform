@@ -13,6 +13,7 @@
 
 package org.pentaho.platform.api.repository2.unified.webservices;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * 
  * @author mlowery
  */
+@JsonInclude( JsonInclude.Include.NON_NULL )
 @XmlRootElement
 public class RepositoryFileDto implements Serializable {
   private static final long serialVersionUID = 3578911355440278525L;
