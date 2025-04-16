@@ -20,6 +20,7 @@ import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.util.StringUtil;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -54,7 +55,7 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
     this.name = name;
     this.clazz = clazz;
     this.session = session;
-    this.attributes = new SpringBeanAttributes( beanDef );
+    this.attributes = new SpringBeanAttributes( beanDef, getContextOwnerPluginId( context ) );
   }
 
   @Override
@@ -161,6 +162,15 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
     }
   }
 
+  private static String getContextOwnerPluginId( ConfigurableApplicationContext context ) {
+    try {
+      return context.getBean( Const.OWNER_PLUGIN_ID_BEAN, String.class );
+    } catch ( BeansException ignored ) {
+      // Bean does not exist, or is not a String as expected.
+      return null;
+    }
+  }
+
   /**
    * Hashmap backed by a Spring BeanDefinition
    */
@@ -168,14 +178,16 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
 
     private static final long serialVersionUID = -5790844158879001752L;
 
-    public SpringBeanAttributes( final BeanDefinition definition ) {
-      for ( String s : definition.attributeNames() ) {
-        this.put( s, definition.getAttribute( s ) );
+    public SpringBeanAttributes( final BeanDefinition beanDef, final String ownerPluginId ) {
+      for ( String s : beanDef.attributeNames() ) {
+        this.put( s, beanDef.getAttribute( s ) );
       }
 
-      this.put( "scope", StringUtils.defaultIfEmpty( definition.getScope(), "singleton" ) );
+      this.put( "scope", StringUtils.defaultIfEmpty( beanDef.getScope(), "singleton" ) );
+
+      if ( !StringUtil.isEmpty( ownerPluginId ) ) {
+        this.put( Const.PUBLISHER_PLUGIN_ID_ATTRIBUTE, ownerPluginId );
+      }
     }
-
   }
-
 }
