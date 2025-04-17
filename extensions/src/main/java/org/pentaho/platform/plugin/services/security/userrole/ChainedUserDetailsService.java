@@ -13,7 +13,14 @@
 
 package org.pentaho.platform.plugin.services.security.userrole;
 
+import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoOAuthUserSync;
+import org.pentaho.platform.util.oauth.PentahoOAuthUtility;
+import org.pentaho.platform.security.userroledao.PentahoOAuthUser;
 import org.pentaho.platform.security.userroledao.messages.Messages;
+import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -24,6 +31,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This class contains a list of UserDetailsService objects. Requests to load UserDetails will be delegated down to the
@@ -45,6 +53,7 @@ public class ChainedUserDetailsService implements UserDetailsService {
   @Override public UserDetails loadUserByUsername( String s ) throws UsernameNotFoundException, DataAccessException {
     for ( UserDetailsService delegate : delegates ) {
       try {
+        performOAuthUserSync( s, delegate );
         UserDetails details = delegate.loadUserByUsername( s );
         if ( details != null ) {
           return details;
@@ -57,4 +66,21 @@ public class ChainedUserDetailsService implements UserDetailsService {
     throw new UsernameNotFoundException( Messages.getInstance().getString(
       "UserRoleDaoUserDetailsService.ERROR_0001_USER_NOT_FOUND" ) );
   }
+
+  private static void performOAuthUserSync( String username, UserDetailsService delegate ) {
+    if ( delegate instanceof UserRoleDaoUserDetailsService
+            && PentahoOAuthUtility.isOAuthEnabledWithDualAuth()
+            && PentahoOAuthUtility.shouldPerformLiveUpdate()) {
+      PentahoOAuthUserSync pentahoOAuthUserSync =
+              PentahoSystem.get( PentahoOAuthUserSync.class, "pentahoOAuthUserSync", PentahoSessionHolder.getSession() );
+      if ( Objects.nonNull( pentahoOAuthUserSync ) ) {
+        PentahoOAuthUser pentahoOAuthUser = (PentahoOAuthUser) ( (UserRoleDaoUserDetailsService) delegate).getPentahoOAuthUser( null, username );
+        if ( StringUtils.isNotBlank( pentahoOAuthUser.getUserId() )
+                && StringUtils.isNotBlank( pentahoOAuthUser.getRegistrationId() ) ) {
+          pentahoOAuthUserSync.performSyncForUser(  pentahoOAuthUser );
+        }
+      }
+    }
+  }
+
 }
