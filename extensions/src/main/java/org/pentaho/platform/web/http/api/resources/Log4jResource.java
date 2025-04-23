@@ -24,7 +24,6 @@ import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 import org.apache.logging.log4j.core.util.Loader;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.owasp.encoder.Encode;
 import org.pentaho.platform.api.util.LogUtil;
 
@@ -33,6 +32,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
 import java.io.InputStream;
 import java.util.Collection;
 
@@ -67,7 +68,8 @@ public class Log4jResource {
     @ResponseCode( code = 304, condition = "Log level is not modified." )
     } )
   @Produces( { MediaType.TEXT_PLAIN } )
-  public Response updateLogLevel(@FormDataParam(  "level" ) String targetLevel, @FormDataParam( "category" ) String category ) {
+  @Consumes( MediaType.APPLICATION_FORM_URLENCODED )
+  public Response updateLogLevel(@FormParam(  "level" ) String targetLevel, @FormParam( "category" ) String category ) {
     LogUtil.setLevel(LOGGER, Level.INFO);
     if ( StringUtils.isBlank( targetLevel ) && StringUtils.isBlank( category ) ) {
       return Response.notModified( "No parameter provided, log level not modified." ).build();

@@ -14,7 +14,6 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import org.codehaus.enunciate.Facet;
-import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
@@ -26,6 +25,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.Consumes;
 
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 
@@ -41,8 +42,9 @@ public class PasswordResource {
   @POST
   @Path( "/encrypt" )
   @Produces( MediaType.TEXT_HTML )
+  @Consumes( MediaType.APPLICATION_FORM_URLENCODED )
   @Facet( name = "Unsupported" )
-  public Response encryptPassword( @FormDataParam( "password" ) String password ) {
+  public Response encryptPassword( @FormParam( "password" ) String password ) {
     if ( isAllowed() ) {
       String encPwd = "";
       if ( password != null ) {
