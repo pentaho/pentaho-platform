@@ -48,8 +48,8 @@ public class PentahoOAuthProviderFactoryTest {
     PentahoOAuthProviderFactory pentahoOAuthProviderFactory = new PentahoOAuthProviderFactory();
     pentahoOAuthProviderFactory.setOktaPentahoOAuthHandler( oktaPentahoOAuthHandler );
 
-    Assert.assertNull( pentahoOAuthProviderFactory.getInstance( "" ) );
-    Assert.assertNull( pentahoOAuthProviderFactory.getInstance( "random" ) );
+    Assert.assertThrows( IllegalArgumentException.class, () -> pentahoOAuthProviderFactory.getInstance( "" ) );
+    Assert.assertThrows( IllegalArgumentException.class, () -> pentahoOAuthProviderFactory.getInstance( "random" ) );
   }
 
 }
