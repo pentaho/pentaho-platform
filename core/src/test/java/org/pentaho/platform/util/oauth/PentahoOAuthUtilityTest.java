@@ -176,16 +176,6 @@ public class PentahoOAuthUtilityTest {
     }
   }
 
-  @Test( expected = RuntimeException.class )
-  public void getResponseEntity_shouldThrowExceptionWhenRetryEnabled() {
-    String key = "testKey";
-    String clientCredentialsToken = "testToken";
-    String userId = "testUser";
-
-    PentahoOAuthUtility.getInstance()
-      .getResponseEntity( key, clientCredentialsToken, userId, true, String.class );
-  }
-
   @Test
   public void isOAuthEnabledWithDualAuth_shouldReturnTrueWhenDualAuthAndOAuthProvidersExist() throws IOException {
     try ( MockedStatic<PentahoSystem> pentahoSystem = Mockito.mockStatic( PentahoSystem.class ) ) {

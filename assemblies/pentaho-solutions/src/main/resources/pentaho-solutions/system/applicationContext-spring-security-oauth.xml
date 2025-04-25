@@ -167,7 +167,7 @@
 
   <bean id="pentahoOAuthProperties" class="org.pentaho.platform.util.oauth.PentahoOAuthProperties"/>
 
-  <bean id="pentahoOAuthAzureHandler" class="org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoOAuthAzureHandler">
+  <bean id="azurePentahoOAuthHandler" class="org.pentaho.platform.plugin.services.security.userrole.oauth.AzurePentahoOAuthHandler">
     <constructor-arg ref="userRoleDaoTxn"/>
     <constructor-arg ref="restTemplate"/>
     <constructor-arg ref="oauthRoleMapper"/>
@@ -175,7 +175,7 @@
   </bean>
 
 
-  <bean id="pentahoOAuthOktaHandler" class="org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoOAuthOktaHandler">
+  <bean id="oktaPentahoOAuthHandler" class="org.pentaho.platform.plugin.services.security.userrole.oauth.OktaPentahoOAuthHandler">
     <constructor-arg ref="userRoleDaoTxn"/>
     <constructor-arg ref="restTemplate"/>
     <constructor-arg ref="oauthRoleMapper"/>
@@ -183,8 +183,8 @@
   </bean>
 
   <bean id="pentahoOAuthProviderFactory" class="org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoOAuthProviderFactory">
-    <property name="pentahoOAuthAzureHandler" ref="pentahoOAuthAzureHandler"/>
-    <property name="pentahoOAuthOktaHandler" ref="pentahoOAuthOktaHandler"/>
+    <property name="azurePentahoOAuthHandler" ref="azurePentahoOAuthHandler"/>
+    <property name="oktaPentahoOAuthHandler" ref="oktaPentahoOAuthHandler"/>
   </bean>
 
   <bean id="pentahoOAuthUserSync" class="org.pentaho.platform.plugin.services.security.userrole.oauth.PentahoOAuthUserSync">

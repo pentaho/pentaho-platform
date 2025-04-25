@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
@@ -39,64 +38,96 @@ public class PentahoClientRegistrationFactoryTest {
 
   @Test
   public void testGetObject() {
-    Map<String, String> propertiesMap = new HashMap<>();
-    propertiesMap.put( "registrationId", "azure" );
-    propertiesMap.put( "clientId", "A" );
-    propertiesMap.put( "clientSecret", "B" );
-    propertiesMap.put( "authorizationUri", "C" );
-    propertiesMap.put( "jwkSetUri", "D" );
-    propertiesMap.put( "tokenUri", "E" );
-    propertiesMap.put( "userInfoUri", "F" );
-    propertiesMap.put( "clientName", "G" );
-    propertiesMap.put( "redirectUri", "H" );
-    propertiesMap.put( "authorizationGrantType", "authorization_code" );
-    propertiesMap.put( "clientAuthenticationMethod", "I" );
-    propertiesMap.put( "userInfoAuthenticationMethod", "J" );
-    propertiesMap.put( "userNameAttributeName", "K" );
-    propertiesMap.put( "scope", "L" );
-
-    PentahoClientRegistrationFactory pentahoClientRegistrationFactory =
-      new PentahoClientRegistrationFactory( propertiesMap );
-
     try ( MockedStatic<Encr> mockedEncr = mockStatic( Encr.class ) ) {
-      mockedEncr.when( () -> Encr.decryptPassword( anyString() ) ).thenReturn( anyString() );
+      mockedEncr.when( () -> Encr.decryptPassword( "@B%" ) ).thenReturn( "B" );
+      Map<String, String> propertiesMap = new HashMap<>();
+      propertiesMap.put( "registrationId", "azure" );
+      propertiesMap.put( "clientId", "A" );
+      propertiesMap.put( "clientSecret", "@B%" );
+      propertiesMap.put( "authorizationUri", "C" );
+      propertiesMap.put( "jwkSetUri", "D" );
+      propertiesMap.put( "tokenUri", "E" );
+      propertiesMap.put( "userInfoUri", "F" );
+      propertiesMap.put( "clientName", "G" );
+      propertiesMap.put( "redirectUri", "H" );
+      propertiesMap.put( "authorizationGrantType", "authorization_code" );
+      propertiesMap.put( "clientAuthenticationMethod", "I" );
+      propertiesMap.put( "userInfoAuthenticationMethod", "J" );
+      propertiesMap.put( "userNameAttributeName", "K" );
+      propertiesMap.put( "scope", "L" );
+
+      PentahoClientRegistrationFactory pentahoClientRegistrationFactory =
+        new PentahoClientRegistrationFactory( propertiesMap );
+
       ClientRegistration clientRegistration = pentahoClientRegistrationFactory.getObject();
       assertNotNull( clientRegistration );
       assertEquals( ClientRegistration.class, pentahoClientRegistrationFactory.getObjectType() );
       assertTrue( pentahoClientRegistrationFactory.isSingleton() );
+      assertEquals( "azure", clientRegistration.getRegistrationId() );
+      assertEquals( "A", clientRegistration.getClientId() );
+      assertEquals( "B", clientRegistration.getClientSecret() );
+      assertEquals( "C", clientRegistration.getProviderDetails().getAuthorizationUri() );
+      assertEquals( "D", clientRegistration.getProviderDetails().getJwkSetUri() );
+      assertEquals( "E", clientRegistration.getProviderDetails().getTokenUri() );
+      assertEquals( "F", clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri() );
+      assertEquals( "G", clientRegistration.getClientName() );
+      assertEquals( "H", clientRegistration.getRedirectUri() );
+      assertEquals( "authorization_code", clientRegistration.getAuthorizationGrantType().getValue() );
+      assertEquals( "I", clientRegistration.getClientAuthenticationMethod().getValue() );
+      assertEquals( "J",
+        clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod().getValue() );
+      assertEquals( "K", clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName() );
+      assertTrue( clientRegistration.getScopes().contains( "L" ) );
     }
   }
 
   @Test
   public void testGetObjectWithConfigMetadata() {
-    Map<String, String> propertiesMap = new HashMap<>();
-    propertiesMap.put( "registrationId", "azure" );
-    propertiesMap.put( "clientId", "A" );
-    propertiesMap.put( "clientSecret", "B" );
-    propertiesMap.put( "authorizationUri", "C" );
-    propertiesMap.put( "jwkSetUri", "D" );
-    propertiesMap.put( "tokenUri", "E" );
-    propertiesMap.put( "userInfoUri", "F" );
-    propertiesMap.put( "clientName", "G" );
-    propertiesMap.put( "redirectUri", "H" );
-    propertiesMap.put( "authorizationGrantType", "authorization_code" );
-    propertiesMap.put( "clientAuthenticationMethod", "I" );
-    propertiesMap.put( "userInfoAuthenticationMethod", "J" );
-    propertiesMap.put( "userNameAttributeName", "K" );
-    propertiesMap.put( "scope", "L" );
-
-    Map<String, Object> configurationMetadata = new HashMap<>();
-    configurationMetadata.put( "configurationMetadata", "yes" );
-
-    PentahoClientRegistrationFactory pentahoClientRegistrationFactory =
-      new PentahoClientRegistrationFactory( propertiesMap, configurationMetadata );
-
     try ( MockedStatic<Encr> mockedEncr = mockStatic( Encr.class ) ) {
-      mockedEncr.when( () -> Encr.decryptPassword( anyString() ) ).thenReturn( anyString() );
+      mockedEncr.when( () -> Encr.decryptPassword( "@B%" ) ).thenReturn( "B" );
+      Map<String, String> propertiesMap = new HashMap<>();
+      propertiesMap.put( "registrationId", "azure" );
+      propertiesMap.put( "clientId", "A" );
+      propertiesMap.put( "clientSecret", "@B%" );
+      propertiesMap.put( "authorizationUri", "C" );
+      propertiesMap.put( "jwkSetUri", "D" );
+      propertiesMap.put( "tokenUri", "E" );
+      propertiesMap.put( "userInfoUri", "F" );
+      propertiesMap.put( "clientName", "G" );
+      propertiesMap.put( "redirectUri", "H" );
+      propertiesMap.put( "authorizationGrantType", "authorization_code" );
+      propertiesMap.put( "clientAuthenticationMethod", "I" );
+      propertiesMap.put( "userInfoAuthenticationMethod", "J" );
+      propertiesMap.put( "userNameAttributeName", "K" );
+      propertiesMap.put( "scope", "L" );
+
+      Map<String, Object> configurationMetadata = new HashMap<>();
+      configurationMetadata.put( "configurationMetadata", "yes" );
+
+      PentahoClientRegistrationFactory pentahoClientRegistrationFactory =
+        new PentahoClientRegistrationFactory( propertiesMap, configurationMetadata );
+
       ClientRegistration clientRegistration = pentahoClientRegistrationFactory.getObject();
       assertNotNull( clientRegistration );
       assertEquals( ClientRegistration.class, pentahoClientRegistrationFactory.getObjectType() );
       assertTrue( pentahoClientRegistrationFactory.isSingleton() );
+      assertEquals( "azure", clientRegistration.getRegistrationId() );
+      assertEquals( "A", clientRegistration.getClientId() );
+      assertEquals( "B", clientRegistration.getClientSecret() );
+      assertEquals( "C", clientRegistration.getProviderDetails().getAuthorizationUri() );
+      assertEquals( "D", clientRegistration.getProviderDetails().getJwkSetUri() );
+      assertEquals( "E", clientRegistration.getProviderDetails().getTokenUri() );
+      assertEquals( "F", clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri() );
+      assertEquals( "G", clientRegistration.getClientName() );
+      assertEquals( "H", clientRegistration.getRedirectUri() );
+      assertEquals( "authorization_code", clientRegistration.getAuthorizationGrantType().getValue() );
+      assertEquals( "I", clientRegistration.getClientAuthenticationMethod().getValue() );
+      assertEquals( "J",
+        clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod().getValue() );
+      assertEquals( "K", clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName() );
+      assertTrue( clientRegistration.getScopes().contains( "L" ) );
+      assertEquals( "yes",
+        clientRegistration.getProviderDetails().getConfigurationMetadata().get( "configurationMetadata" ) );
     }
   }
 

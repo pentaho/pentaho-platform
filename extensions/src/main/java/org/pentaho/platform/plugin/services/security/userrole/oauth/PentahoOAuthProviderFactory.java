@@ -16,36 +16,38 @@ import org.apache.tika.utils.StringUtils;
 
 public class PentahoOAuthProviderFactory {
 
-  PentahoOAuthAzureHandler pentahoOAuthAzureHandler;
+  AzurePentahoOAuthHandler azurePentahoOAuthHandler;
 
-  PentahoOAuthOktaHandler pentahoOAuthOktaHandler;
+  OktaPentahoOAuthHandler oktaPentahoOAuthHandler;
 
-  public void setPentahoOAuthAzureHandler( PentahoOAuthAzureHandler pentahoOAuthAzureHandler ) {
-    this.pentahoOAuthAzureHandler = pentahoOAuthAzureHandler;
+  public void setAzurePentahoOAuthHandler( AzurePentahoOAuthHandler azurePentahoOAuthHandler ) {
+    this.azurePentahoOAuthHandler = azurePentahoOAuthHandler;
   }
 
-  public void setPentahoOAuthOktaHandler( PentahoOAuthOktaHandler pentahoOAuthOktaHandler ) {
-    this.pentahoOAuthOktaHandler = pentahoOAuthOktaHandler;
+  public void setOktaPentahoOAuthHandler( OktaPentahoOAuthHandler oktaPentahoOAuthHandler ) {
+    this.oktaPentahoOAuthHandler = oktaPentahoOAuthHandler;
   }
 
   /**
-   * Returns the appropriate IPentahoOAuthHandler instance based on the registrationId.
+   * Returns the appropriate PentahoOAuthHandler instance based on the registrationId.
    *
    * @param registrationId The registration ID to determine which handler to return.
-   * @return The corresponding IPentahoOAuthHandler instance, or null if no match is found.
+   * @return The corresponding PentahoOAuthHandler instance, or null if no match is found.
    */
-  public IPentahoOAuthHandler getInstance( String registrationId ) {
+  public PentahoOAuthHandler getInstance( String registrationId ) {
     if ( StringUtils.isBlank( registrationId ) ) {
-      return null;
+      throw new IllegalArgumentException( "Provider is null" );
     }
 
-    switch ( registrationId ) {
-      case "azure":
-        return pentahoOAuthAzureHandler;
-      case "okta":
-        return pentahoOAuthOktaHandler;
+    PentahoOAuthProvider pentahoOAuthProvider = PentahoOAuthProvider.valueOf( registrationId.toUpperCase() );
+
+    switch ( pentahoOAuthProvider ) {
+      case AZURE:
+        return azurePentahoOAuthHandler;
+      case OKTA:
+        return oktaPentahoOAuthHandler;
       default:
-        return null;
+        throw new IllegalArgumentException( "Unknown Provider: " + registrationId );
     }
   }
 

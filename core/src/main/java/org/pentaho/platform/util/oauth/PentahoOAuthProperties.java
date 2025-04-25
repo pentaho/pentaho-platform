@@ -34,7 +34,7 @@ public class PentahoOAuthProperties {
 
   private static ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
 
-  
+
   public String getValue( String key ) {
 
     if ( Objects.isNull( properties ) ) {
@@ -49,6 +49,46 @@ public class PentahoOAuthProperties {
     }
 
     return properties.getProperty( key );
+  }
+
+  public String getClientId( String registrationId ) {
+    return getValue( registrationId + ".client-id" );
+  }
+
+  public String getClientSecret( String registrationId ) {
+    return getValue( registrationId + ".client-secret" );
+  }
+
+  public String getClientCredentialsGrantType( String registrationId ) {
+    return getValue( registrationId + ".client-credentials-grant-type" );
+  }
+
+  public String getClientCredentialsScope( String registrationId ) {
+    return getValue( registrationId + ".client-credentials-scope" );
+  }
+
+  public String getRedirectUri( String registrationId ) {
+    return getValue( registrationId + ".redirect-uri" );
+  }
+
+  public String getScope( String registrationId ) {
+    return getValue( registrationId + ".scope" );
+  }
+
+  public String getTokenUri( String registrationId ) {
+    return getValue( registrationId + ".token-uri" );
+  }
+
+  public String getAppRoles( String registrationId ) {
+    return getValue( registrationId + ".app-roles" );
+  }
+
+  public String getAppRoleAssignment( String registrationId ) {
+    return getValue( registrationId + ".app-role-assignment" );
+  }
+
+  public String getAccountEnabled( String registrationId ) {
+    return getValue( registrationId + ".account-enabled" );
   }
 
 }

@@ -51,6 +51,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith( MockitoJUnitRunner.class )
@@ -117,7 +118,7 @@ public class PentahoOAuthLoginAuthenticationFilterTest {
     try ( MockedStatic<PentahoOAuthUtility> pentahoOAuthUtility = mockStatic( PentahoOAuthUtility.class ) ) {
       pentahoOAuthUtility.when( PentahoOAuthUtility::isOAuthEnabled ).thenReturn( false );
       filter.doFilter( request, response, filterChain );
-
+      verify( filterChain ).doFilter( request, response );
     }
   }
 
@@ -152,6 +153,9 @@ public class PentahoOAuthLoginAuthenticationFilterTest {
       pentahoOAuthUtility.when( PentahoOAuthUtility::isOAuthEnabled ).thenReturn( true );
 
       filter.doFilter( (ServletRequest) servletRequest, servletResponse, filterChain );
+
+      verify( filterChain ).doFilter( servletRequest, servletResponse );
+
     }
   }
 

@@ -57,7 +57,7 @@ public class PentahoOAuthUserSync {
    * @param pentahoOAuthUser the user to synchronize
    */
   public void performSyncForUser( PentahoOAuthUser pentahoOAuthUser ) {
-    IPentahoOAuthHandler pentahoOAuthHandler =
+    PentahoOAuthHandler pentahoOAuthHandler =
       pentahoOAuthProviderFactory.getInstance( pentahoOAuthUser.getRegistrationId() );
     pentahoOAuthHandler.performSyncForUser( pentahoOAuthUser );
   }

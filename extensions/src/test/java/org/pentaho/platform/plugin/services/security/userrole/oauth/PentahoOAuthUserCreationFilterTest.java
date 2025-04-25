@@ -28,77 +28,82 @@ import javax.servlet.ServletResponse;
 
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith( MockitoJUnitRunner.class )
 public class PentahoOAuthUserCreationFilterTest {
 
-    @Mock
-    private PentahoOAuthUserRoleService userRoleListService;
+  @Mock
+  private PentahoOAuthUserRoleService userRoleListService;
 
-    @Mock
-    private FilterChain filterChain;
+  @Mock
+  private FilterChain filterChain;
 
-    @Mock
-    private ServletRequest request;
+  @Mock
+  private ServletRequest request;
 
-    @Mock
-    private ServletResponse response;
+  @Mock
+  private ServletResponse response;
 
-    @Test
-    public void createsUserWhenOAuthEnabledAndAuthenticationIsOAuth2Token() throws Exception {
-        Authentication authentication = mock(OAuth2AuthenticationToken.class);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+  @Test
+  public void createsUserWhenOAuthEnabledAndAuthenticationIsOAuth2Token() throws Exception {
+    Authentication authentication = mock( OAuth2AuthenticationToken.class );
+    SecurityContextHolder.getContext().setAuthentication( authentication );
 
-        PentahoOAuthUserCreationFilter pentahoOAuthUserCreationFilter = new PentahoOAuthUserCreationFilter(userRoleListService);
-        try (MockedStatic<PentahoOAuthUtility> pentahoOAuthUtility = mockStatic(PentahoOAuthUtility.class)) {
-            pentahoOAuthUtility.when(PentahoOAuthUtility::isOAuthEnabled).thenReturn(true);
-            pentahoOAuthUserCreationFilter.doFilter(request, response, filterChain);
+    PentahoOAuthUserCreationFilter pentahoOAuthUserCreationFilter =
+      new PentahoOAuthUserCreationFilter( userRoleListService );
+    try ( MockedStatic<PentahoOAuthUtility> pentahoOAuthUtility = mockStatic( PentahoOAuthUtility.class ) ) {
+      pentahoOAuthUtility.when( PentahoOAuthUtility::isOAuthEnabled ).thenReturn( true );
+      pentahoOAuthUserCreationFilter.doFilter( request, response, filterChain );
 
-            verify(userRoleListService).createUser((OAuth2AuthenticationToken) authentication);
-            verify(filterChain).doFilter(request, response);
-        }
+      verify( userRoleListService ).createUser( (OAuth2AuthenticationToken) authentication );
+      verify( filterChain ).doFilter( request, response );
     }
+  }
 
-    @Test
-    public void doesNotCreateUserWhenOAuthDisabled() throws Exception {
-        Authentication authentication = mock(OAuth2AuthenticationToken.class);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+  @Test
+  public void doesNotCreateUserWhenOAuthDisabled() throws Exception {
+    Authentication authentication = mock( OAuth2AuthenticationToken.class );
+    SecurityContextHolder.getContext().setAuthentication( authentication );
 
-        PentahoOAuthUserCreationFilter pentahoOAuthUserCreationFilter = new PentahoOAuthUserCreationFilter(userRoleListService);
-        try (MockedStatic<PentahoOAuthUtility> pentahoOAuthUtility = mockStatic(PentahoOAuthUtility.class)) {
-            pentahoOAuthUtility.when(PentahoOAuthUtility::isOAuthEnabled).thenReturn(false);
-            pentahoOAuthUserCreationFilter.doFilter(request, response, filterChain);
+    PentahoOAuthUserCreationFilter pentahoOAuthUserCreationFilter =
+      new PentahoOAuthUserCreationFilter( userRoleListService );
+    try ( MockedStatic<PentahoOAuthUtility> pentahoOAuthUtility = mockStatic( PentahoOAuthUtility.class ) ) {
+      pentahoOAuthUtility.when( PentahoOAuthUtility::isOAuthEnabled ).thenReturn( false );
+      pentahoOAuthUserCreationFilter.doFilter( request, response, filterChain );
 
-            verifyNoInteractions(userRoleListService);
-            verify(filterChain).doFilter(request, response);
-        }
+      verifyNoInteractions( userRoleListService );
+      verify( filterChain ).doFilter( request, response );
     }
+  }
 
-    @Test
-    public void doesNotCreateUserWhenAuthenticationIsNotOAuth2Token() throws Exception {
-        Authentication authentication = mock(Authentication.class);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+  @Test
+  public void doesNotCreateUserWhenAuthenticationIsNotOAuth2Token() throws Exception {
+    Authentication authentication = mock( Authentication.class );
+    SecurityContextHolder.getContext().setAuthentication( authentication );
 
-        PentahoOAuthUserCreationFilter pentahoOAuthUserCreationFilter = new PentahoOAuthUserCreationFilter(userRoleListService);
-        try (MockedStatic<PentahoOAuthUtility> pentahoOAuthUtility = mockStatic(PentahoOAuthUtility.class)) {
-            pentahoOAuthUtility.when(PentahoOAuthUtility::isOAuthEnabled).thenReturn(true);
-            pentahoOAuthUserCreationFilter.doFilter(request, response, filterChain);
+    PentahoOAuthUserCreationFilter pentahoOAuthUserCreationFilter =
+      new PentahoOAuthUserCreationFilter( userRoleListService );
+    try ( MockedStatic<PentahoOAuthUtility> pentahoOAuthUtility = mockStatic( PentahoOAuthUtility.class ) ) {
+      pentahoOAuthUtility.when( PentahoOAuthUtility::isOAuthEnabled ).thenReturn( true );
+      pentahoOAuthUserCreationFilter.doFilter( request, response, filterChain );
 
-            verifyNoInteractions(userRoleListService);
-            verify(filterChain).doFilter(request, response);
-        }
+      verifyNoInteractions( userRoleListService );
+      verify( filterChain ).doFilter( request, response );
     }
+  }
 
-    @Test
-    public void proceedsWithFilterChainWhenNoAuthenticationPresent() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(null);
+  @Test
+  public void proceedsWithFilterChainWhenNoAuthenticationPresent() throws Exception {
+    SecurityContextHolder.getContext().setAuthentication( null );
 
-        PentahoOAuthUserCreationFilter pentahoOAuthUserCreationFilter = new PentahoOAuthUserCreationFilter(userRoleListService);
-        try (MockedStatic<PentahoOAuthUtility> pentahoOAuthUtility = mockStatic(PentahoOAuthUtility.class)) {
-            pentahoOAuthUtility.when(PentahoOAuthUtility::isOAuthEnabled).thenReturn(true);
-            pentahoOAuthUserCreationFilter.doFilter(request, response, filterChain);
+    PentahoOAuthUserCreationFilter pentahoOAuthUserCreationFilter =
+      new PentahoOAuthUserCreationFilter( userRoleListService );
+    try ( MockedStatic<PentahoOAuthUtility> pentahoOAuthUtility = mockStatic( PentahoOAuthUtility.class ) ) {
+      pentahoOAuthUtility.when( PentahoOAuthUtility::isOAuthEnabled ).thenReturn( true );
+      pentahoOAuthUserCreationFilter.doFilter( request, response, filterChain );
 
-            verifyNoInteractions(userRoleListService);
-            verify(filterChain).doFilter(request, response);
-        }
+      verifyNoInteractions( userRoleListService );
+      verify( filterChain ).doFilter( request, response );
     }
+  }
+
 }

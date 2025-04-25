@@ -14,29 +14,42 @@ package org.pentaho.platform.plugin.services.security.userrole.oauth;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.pentaho.di.core.encryption.Encr;
 import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.security.userroledao.PentahoOAuthUser;
 import org.pentaho.platform.util.oauth.PentahoOAuthProperties;
 import org.pentaho.platform.util.oauth.PentahoOAuthUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * PentahoOAuthAzureHandler is responsible for handling Azure specific OAuth operations.
+ * AzurePentahoOAuthHandler is responsible for handling Azure specific OAuth operations.
  * It retrieves client credentials tokens, app roles, and user account status from Azure.
  * <p>
  * These information is used to sync user roles in jackrabbit and to change the user status as active or inactive
  */
-public class PentahoOAuthAzureHandler implements IPentahoOAuthHandler {
+public class AzurePentahoOAuthHandler implements PentahoOAuthHandler {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger( AzurePentahoOAuthHandler.class );
+
+  private static final String ID = "id";
 
   private static final String VALUE = "value";
 
@@ -53,7 +66,7 @@ public class PentahoOAuthAzureHandler implements IPentahoOAuthHandler {
   Map<String, Map<String, String>> registrationToAppRoles = new HashMap<>();
 
 
-  public PentahoOAuthAzureHandler( IUserRoleDao userRoleDao,
+  public AzurePentahoOAuthHandler( IUserRoleDao userRoleDao,
                                    RestTemplate restTemplate,
                                    IAuthenticationRoleMapper oauthRoleMapper,
                                    PentahoOAuthProperties pentahoOAuthProperties ) {
@@ -81,20 +94,21 @@ public class PentahoOAuthAzureHandler implements IPentahoOAuthHandler {
       headers.setContentType( MediaType.APPLICATION_FORM_URLENCODED );
 
       MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-      map.add( "client_id", pentahoOAuthProperties.getValue( registrationId + ".client-id" ) );
-      map.add( "client_secret", pentahoOAuthProperties.getValue( registrationId + ".client-secret" ) );
-      map.add( "grant_type", "client_credentials" );
-      map.add( "redirect_uri", pentahoOAuthProperties.getValue( registrationId + ".redirect-uri" ) );
-      map.add( "scope", "https://graph.microsoft.com/.default" );
+      map.add( PentahoOAuthUtility.CLIENT_ID, pentahoOAuthProperties.getClientId( registrationId ) );
+      map.add( PentahoOAuthUtility.CLIENT_SECRET,
+        Encr.decryptPassword( pentahoOAuthProperties.getClientSecret( registrationId ) ) );
+      map.add( PentahoOAuthUtility.GRANT_TYPE, pentahoOAuthProperties.getClientCredentialsGrantType( registrationId ) );
+      map.add( PentahoOAuthUtility.REDIRECT_URI, pentahoOAuthProperties.getRedirectUri( registrationId ) );
+      map.add( PentahoOAuthUtility.SCOPE, pentahoOAuthProperties.getClientCredentialsScope( registrationId ) );
 
       HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>( map, headers );
 
-      String url = pentahoOAuthProperties.getValue( registrationId + ".token-uri" );
+      String url = pentahoOAuthProperties.getTokenUri( registrationId );
       var responseEntity = restTemplate.postForEntity( url, request, Map.class );
       var responseEntityBody = responseEntity.getBody();
 
       if ( Objects.nonNull( responseEntityBody ) ) {
-        clientCredentialsToken = (String) responseEntityBody.get( "access_token" );
+        clientCredentialsToken = (String) responseEntityBody.get( PentahoOAuthUtility.ACCESS_TOKEN );
         registrationToClientCredentialsToken.put( registrationId, clientCredentialsToken );
       }
 
@@ -120,11 +134,13 @@ public class PentahoOAuthAzureHandler implements IPentahoOAuthHandler {
     var appRoles = registrationToAppRoles.get( registrationId );
     if ( MapUtils.isEmpty( appRoles ) ) {
       try {
-        var responseEntity = PentahoOAuthUtility.getInstance().getResponseEntity( registrationId + ".app-roles",
-          clientCredentialsToken,
-          "",
-          retry,
-          Map.class );
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth( clientCredentialsToken );
+        HttpEntity<String> request = new HttpEntity<>( headers );
+
+        var responseEntity =
+          restTemplate.exchange( pentahoOAuthProperties.getAppRoles( registrationId ), HttpMethod.GET, request,
+            Map.class );
         var responseEntityBody = responseEntity.getBody();
 
         if ( Objects.isNull( responseEntityBody ) ) {
@@ -136,12 +152,13 @@ public class PentahoOAuthAzureHandler implements IPentahoOAuthHandler {
 
         // Map each item in the 'value' array to an Item object containing only id and desc
         appRoles = valueList.stream()
-          .collect( Collectors.toMap( item -> (String) item.get( "id" ), item -> (String) item.get( VALUE ) ) );
+          .collect( Collectors.toMap( item -> (String) item.get( ID ), item -> (String) item.get( VALUE ) ) );
         registrationToAppRoles.put( registrationId, appRoles );
       } catch ( Exception e ) {
         if ( retry ) {
           return getAppRolesInIdp( registrationId, getClientCredentialsToken( registrationId, true ), false );
         }
+        LOGGER.error( "Exception Occurred in getAppRolesInIdp ", e );
       }
     }
 
@@ -164,11 +181,15 @@ public class PentahoOAuthAzureHandler implements IPentahoOAuthHandler {
   public boolean isUserAccountEnabled( String registrationId, String clientCredentialsToken, String userId,
                                        boolean retry ) {
     try {
-      var responseEntity = PentahoOAuthUtility.getInstance().getResponseEntity( registrationId + ".account-enabled",
-        clientCredentialsToken,
-        userId,
-        retry,
-        Map.class );
+      HttpHeaders headers = new HttpHeaders();
+      headers.setBearerAuth( clientCredentialsToken );
+      HttpEntity<String> request = new HttpEntity<>( headers );
+
+      var url = pentahoOAuthProperties.getAccountEnabled( registrationId );
+      url = url.replace( "{userId}", userId );
+
+      var responseEntity =
+        restTemplate.exchange( url, HttpMethod.GET, request, Map.class );
       var responseEntityBody = responseEntity.getBody();
 
       if ( Objects.isNull( responseEntityBody ) ) {
@@ -180,6 +201,7 @@ public class PentahoOAuthAzureHandler implements IPentahoOAuthHandler {
       if ( retry ) {
         return isUserAccountEnabled( registrationId, getClientCredentialsToken( registrationId, true ), userId, false );
       }
+      LOGGER.error( "Exception Occurred in isUserAccountEnabled ", e );
     }
 
     return false;
@@ -206,12 +228,15 @@ public class PentahoOAuthAzureHandler implements IPentahoOAuthHandler {
     List<String> roles = new ArrayList<>();
 
     try {
-      var responseEntity =
-        PentahoOAuthUtility.getInstance().getResponseEntity( registrationId + ".app-role-assignments",
-          clientCredentialsToken,
-          userId,
-          retry,
-          Map.class );
+      HttpHeaders headers = new HttpHeaders();
+      headers.setBearerAuth( clientCredentialsToken );
+      HttpEntity<String> request = new HttpEntity<>( headers );
+
+      var url = pentahoOAuthProperties.getAppRoleAssignment( registrationId );
+      url = url.replace( "{userId}", userId );
+
+      var responseEntity = restTemplate.exchange( url, HttpMethod.GET, request, Map.class );
+
       var responseEntityBody = responseEntity.getBody();
 
       if ( Objects.isNull( responseEntityBody ) ) {
@@ -228,6 +253,7 @@ public class PentahoOAuthAzureHandler implements IPentahoOAuthHandler {
         return getAppRoleAssignmentsForUser( registrationId, getClientCredentialsToken( registrationId, true ), userId,
           false );
       }
+      LOGGER.error( "Exception Occurred in getAppRoleAssignmentsForUser ", e );
     }
     return roles;
   }

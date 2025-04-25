@@ -16,22 +16,13 @@ import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 public class PentahoOAuthUtility {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger( PentahoOAuthUtility.class );
 
   public static final String OAUTH = "oauth";
 
@@ -41,9 +32,17 @@ public class PentahoOAuthUtility {
 
   public static final String USER_ID = "userId";
 
-  RestTemplate restTemplate = new RestTemplate();
+  public static final String CLIENT_ID = "client_id";
 
-  PentahoOAuthProperties pentahoOAuthProperties = new PentahoOAuthProperties();
+  public static final String CLIENT_SECRET = "client_secret";
+
+  public static final String GRANT_TYPE = "grant_type";
+
+  public static final String REDIRECT_URI = "redirect_uri";
+
+  public static final String SCOPE = "scope";
+
+  public static final String ACCESS_TOKEN = "access_token";
 
   private static ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
 
@@ -51,18 +50,8 @@ public class PentahoOAuthUtility {
 
   private static boolean isProviderDualAuth = false;
 
-  private static PentahoOAuthUtility instance;
-
-  // Private constructor to prevent instantiation from outside
   private PentahoOAuthUtility() {
-  }
-
-  // Public method to provide access to the single instance
-  public static PentahoOAuthUtility getInstance() {
-    if ( instance == null ) {
-      instance = new PentahoOAuthUtility();
-    }
-    return instance;
+    // Prevent instantiation
   }
 
   /**
@@ -175,40 +164,6 @@ public class PentahoOAuthUtility {
     } catch ( IOException e ) {
       return null;
     }
-  }
-
-  /**
-   * This is common function to handle all GET requests to the OAuth provider.
-   * The GET request is sent to the URL specified in the properties file - applicationContext-spring-security-oauth
-   * .properties
-   *
-   * @param key
-   * @param clientCredentialsToken
-   * @param userId
-   * @param retry
-   * @param responseType
-   * @param <T>
-   * @return
-   */
-  public <T> ResponseEntity<T> getResponseEntity( String key,
-                                                  String clientCredentialsToken,
-                                                  String userId,
-                                                  boolean retry,
-                                                  Class<T> responseType ) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.setBearerAuth( clientCredentialsToken );
-    HttpEntity<String> request = new HttpEntity<>( headers );
-    String url = pentahoOAuthProperties.getValue( key ).replace( "{userId}", userId );
-
-    try {
-      return restTemplate.exchange( url, HttpMethod.GET, request, responseType );
-    } catch ( Exception e ) {
-      LOGGER.error( "Exception occurred while fetching data from OAuth", e );
-      if ( retry ) {
-        throw e;
-      }
-    }
-    return null;
   }
 
 }

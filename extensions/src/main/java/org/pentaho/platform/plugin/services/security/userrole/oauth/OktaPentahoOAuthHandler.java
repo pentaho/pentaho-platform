@@ -19,8 +19,11 @@ import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.security.userroledao.PentahoOAuthUser;
 import org.pentaho.platform.util.oauth.PentahoOAuthProperties;
 import org.pentaho.platform.util.oauth.PentahoOAuthUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -32,7 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class PentahoOAuthOktaHandler implements IPentahoOAuthHandler {
+public class OktaPentahoOAuthHandler implements PentahoOAuthHandler {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger( OktaPentahoOAuthHandler.class );
 
   IUserRoleDao userRoleDao;
 
@@ -44,7 +49,7 @@ public class PentahoOAuthOktaHandler implements IPentahoOAuthHandler {
 
   Map<String, String> registrationToClientCredentialsToken = new HashMap<>();
 
-  public PentahoOAuthOktaHandler( IUserRoleDao userRoleDao,
+  public OktaPentahoOAuthHandler( IUserRoleDao userRoleDao,
                                   RestTemplate restTemplate,
                                   IAuthenticationRoleMapper oauthRoleMapper,
                                   PentahoOAuthProperties pentahoOAuthProperties ) {
@@ -60,21 +65,21 @@ public class PentahoOAuthOktaHandler implements IPentahoOAuthHandler {
     if ( renewToken || StringUtils.isBlank( clientCredentialsToken ) ) {
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType( MediaType.APPLICATION_FORM_URLENCODED );
-      headers.setBasicAuth( pentahoOAuthProperties.getValue( registrationId + ".client-id" ),
-              pentahoOAuthProperties.getValue( registrationId + ".client-secret" ) );
+      headers.setBasicAuth( pentahoOAuthProperties.getClientId( registrationId ),
+        pentahoOAuthProperties.getClientSecret( registrationId ) );
 
       MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-      map.add( "grant_type", "client_credentials" );
-      map.add( "scope", "api.read" );
+      map.add( PentahoOAuthUtility.GRANT_TYPE, pentahoOAuthProperties.getClientCredentialsGrantType( registrationId ) );
+      map.add( PentahoOAuthUtility.SCOPE, pentahoOAuthProperties.getClientCredentialsScope( registrationId ) );
 
-      HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+      HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>( map, headers );
 
-      String url = pentahoOAuthProperties.getValue( registrationId + ".token-uri" );
+      String url = pentahoOAuthProperties.getTokenUri( registrationId );
       var responseEntity = restTemplate.postForEntity( url, request, Map.class );
       var responseEntityBody = responseEntity.getBody();
 
       if ( Objects.nonNull( responseEntityBody ) ) {
-        clientCredentialsToken = (String) responseEntityBody.get( "access_token" );
+        clientCredentialsToken = (String) responseEntityBody.get( PentahoOAuthUtility.ACCESS_TOKEN );
         registrationToClientCredentialsToken.put( registrationId, clientCredentialsToken );
       }
 
@@ -88,11 +93,15 @@ public class PentahoOAuthOktaHandler implements IPentahoOAuthHandler {
                                        String userId,
                                        boolean retry ) {
     try {
-      var responseEntity = PentahoOAuthUtility.getInstance().getResponseEntity( registrationId + ".account-enabled",
-              clientCredentialsToken,
-              userId,
-              retry,
-              Map.class );
+      HttpHeaders headers = new HttpHeaders();
+      headers.setBearerAuth( clientCredentialsToken );
+      HttpEntity<String> request = new HttpEntity<>( headers );
+
+      var url = pentahoOAuthProperties.getAccountEnabled( registrationId );
+      url = url.replace( "{userId}", userId );
+
+      var responseEntity = restTemplate.exchange( url, HttpMethod.GET, request, Map.class );
+
       var responseEntityBody = responseEntity.getBody();
 
       if ( Objects.isNull( responseEntityBody ) ) {
@@ -104,6 +113,7 @@ public class PentahoOAuthOktaHandler implements IPentahoOAuthHandler {
       if ( retry ) {
         return isUserAccountEnabled( registrationId, getClientCredentialsToken( registrationId, true ), userId, false );
       }
+      LOGGER.error( "Exception Occurred in isUserAccountEnabled ", e );
     }
 
     return false;
@@ -116,7 +126,14 @@ public class PentahoOAuthOktaHandler implements IPentahoOAuthHandler {
                                                     boolean retry ) {
     List<String> roles = new ArrayList<>();
     try {
-      var responseEntity = PentahoOAuthUtility.getInstance().getResponseEntity( registrationId + ".app-role-assignments", clientCredentialsToken, userId, retry, List.class );
+      HttpHeaders headers = new HttpHeaders();
+      headers.setBearerAuth( clientCredentialsToken );
+      HttpEntity<String> request = new HttpEntity<>( headers );
+
+      var url = pentahoOAuthProperties.getAppRoleAssignment( registrationId );
+      url = url.replace( "{userId}", userId );
+
+      var responseEntity = restTemplate.exchange( url, HttpMethod.GET, request, List.class );
 
       // Parse the JSON string into a JsonNode array
       List<Map<String, Object>> dataList = responseEntity.getBody();
@@ -131,8 +148,10 @@ public class PentahoOAuthOktaHandler implements IPentahoOAuthHandler {
 
     } catch ( Exception e ) {
       if ( retry ) {
-        return this.getAppRoleAssignmentsForUser( registrationId, this.getClientCredentialsToken( registrationId, true ), userId, false );
+        return this.getAppRoleAssignmentsForUser( registrationId,
+          this.getClientCredentialsToken( registrationId, true ), userId, false );
       }
+      LOGGER.error( "Exception Occurred in getAppRoleAssignmentsForUser ", e );
     }
 
     // Map each item in the 'value' array to an Item object containing only id and desc
@@ -140,7 +159,7 @@ public class PentahoOAuthOktaHandler implements IPentahoOAuthHandler {
   }
 
   @Override
-  public void setUserRoles(ITenant tenant, String userName, String[] roles ) {
+  public void setUserRoles( ITenant tenant, String userName, String[] roles ) {
     userRoleDao.setUserRoles( tenant, userName, roles );
   }
 
@@ -150,7 +169,8 @@ public class PentahoOAuthOktaHandler implements IPentahoOAuthHandler {
 
     String clientCredentialsToken = this.getClientCredentialsToken( registrationId, false );
 
-    boolean isUserAccountEnabled = this.isUserAccountEnabled( registrationId, clientCredentialsToken, pentahoUser.getUserId(), true );
+    boolean isUserAccountEnabled =
+      this.isUserAccountEnabled( registrationId, clientCredentialsToken, pentahoUser.getUserId(), true );
 
     if ( pentahoUser.isEnabled() != isUserAccountEnabled ) {
       userRoleDao.changeUserStatus( pentahoUser );
@@ -160,14 +180,15 @@ public class PentahoOAuthOktaHandler implements IPentahoOAuthHandler {
       return;
     }
 
-    List<String> oauthRoleIds = this.getAppRoleAssignmentsForUser( registrationId, clientCredentialsToken, pentahoUser.getUserId(), true );
+    List<String> oauthRoleIds =
+      this.getAppRoleAssignmentsForUser( registrationId, clientCredentialsToken, pentahoUser.getUserId(), true );
 
     String[] pentahoRoles = oauthRoleIds.stream()
-            .filter( Objects::nonNull )
-            .map( oauthRoleMapper::toPentahoRole )
-            .toArray( String[]::new );
+      .filter( Objects::nonNull )
+      .map( oauthRoleMapper::toPentahoRole )
+      .toArray( String[]::new );
 
-    userRoleDao.setUserRoles( pentahoUser.getTenant(), pentahoUser.getUsername(), pentahoRoles );
+    setUserRoles( pentahoUser.getTenant(), pentahoUser.getUsername(), pentahoRoles );
   }
 
 }

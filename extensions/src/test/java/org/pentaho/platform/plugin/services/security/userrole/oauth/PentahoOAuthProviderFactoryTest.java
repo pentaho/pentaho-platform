@@ -22,31 +22,31 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class PentahoOAuthProviderFactoryTest {
 
   @Mock
-  PentahoOAuthAzureHandler pentahoOAuthAzureHandler;
+  AzurePentahoOAuthHandler azurePentahoOAuthHandler;
 
   @Mock
-  PentahoOAuthOktaHandler pentahoOAuthOktaHandler;
+  OktaPentahoOAuthHandler oktaPentahoOAuthHandler;
 
   @Test
   public void testGetInstanceForAzure() {
     PentahoOAuthProviderFactory pentahoOAuthProviderFactory = new PentahoOAuthProviderFactory();
-    pentahoOAuthProviderFactory.setPentahoOAuthAzureHandler( pentahoOAuthAzureHandler );
+    pentahoOAuthProviderFactory.setAzurePentahoOAuthHandler( azurePentahoOAuthHandler );
 
-    Assert.assertEquals( pentahoOAuthProviderFactory.getInstance( "azure" ), pentahoOAuthAzureHandler );
+    Assert.assertEquals( pentahoOAuthProviderFactory.getInstance( "azure" ), azurePentahoOAuthHandler );
   }
 
   @Test
   public void testGetInstanceForOkta() {
     PentahoOAuthProviderFactory pentahoOAuthProviderFactory = new PentahoOAuthProviderFactory();
-    pentahoOAuthProviderFactory.setPentahoOAuthOktaHandler( pentahoOAuthOktaHandler );
+    pentahoOAuthProviderFactory.setOktaPentahoOAuthHandler( oktaPentahoOAuthHandler );
 
-    Assert.assertEquals( pentahoOAuthProviderFactory.getInstance( "okta" ), pentahoOAuthOktaHandler );
+    Assert.assertEquals( pentahoOAuthProviderFactory.getInstance( "okta" ), oktaPentahoOAuthHandler );
   }
 
   @Test
   public void testGetInstanceForRandomIdp() {
     PentahoOAuthProviderFactory pentahoOAuthProviderFactory = new PentahoOAuthProviderFactory();
-    pentahoOAuthProviderFactory.setPentahoOAuthOktaHandler( pentahoOAuthOktaHandler );
+    pentahoOAuthProviderFactory.setOktaPentahoOAuthHandler( oktaPentahoOAuthHandler );
 
     Assert.assertNull( pentahoOAuthProviderFactory.getInstance( "" ) );
     Assert.assertNull( pentahoOAuthProviderFactory.getInstance( "random" ) );

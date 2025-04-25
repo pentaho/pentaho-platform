@@ -36,7 +36,7 @@ public class PentahoOAuthUserSyncTest {
   PentahoOAuthProviderFactory pentahoOAuthProviderFactory;
 
   @Mock
-  PentahoOAuthAzureHandler pentahoOAuthAzureHandler;
+  AzurePentahoOAuthHandler azurePentahoOAuthHandler;
 
   @Test
   public void testReadAllUsers() {
@@ -53,7 +53,7 @@ public class PentahoOAuthUserSyncTest {
       spy( new PentahoOAuthUserSync( userRoleDao, pentahoOAuthProviderFactory ) );
     pentahoOAuthUserSync.performSync();
 
-    verify( pentahoOAuthAzureHandler, times( 0 ) ).performSyncForUser( any() );
+    verify( azurePentahoOAuthHandler, times( 0 ) ).performSyncForUser( any() );
   }
 
   @Test
@@ -62,10 +62,10 @@ public class PentahoOAuthUserSyncTest {
       spy( new PentahoOAuthUserSync( userRoleDao, pentahoOAuthProviderFactory ) );
     PentahoOAuthUser pentahoOAuthUser =
       new PentahoOAuthUser( new PentahoUser( "admin", "password", "", true ), "azure", "" );
-    when( pentahoOAuthProviderFactory.getInstance( "azure" ) ).thenReturn( pentahoOAuthAzureHandler );
+    when( pentahoOAuthProviderFactory.getInstance( "azure" ) ).thenReturn( azurePentahoOAuthHandler );
     pentahoOAuthUserSync.performSyncForUser( pentahoOAuthUser );
 
-    verify( pentahoOAuthAzureHandler, times( 1 ) ).performSyncForUser( any() );
+    verify( azurePentahoOAuthHandler, times( 1 ) ).performSyncForUser( any() );
   }
 
 }
