@@ -415,9 +415,9 @@
               <goal>run</goal>
             </goals>
             <configuration>
-              <tasks>
+              <target>
                 <copy file="${project.basedir}/../LICENSE.TXT" tofile="${project.build.directory}/classes/org/pentaho/mantle/public/LICENSE.TXT"/>
-              </tasks>
+              </target>
             </configuration>
           </execution>
         </executions>
