@@ -23,7 +23,7 @@
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
     <replacer.version>1.5.2</replacer.version>
     <rxjava.version>2.2.3</rxjava.version>
-    <google-http-client.version>1.42.3</google-http-client.version>
+    <google-http-client.version>1.44.2</google-http-client.version>
     <big-data-plugin.version>10.3.0.0-SNAPSHOT</big-data-plugin.version>
   </properties>
   <dependencies>
@@ -1057,7 +1057,7 @@
             </goals>
             <configuration>
               <target>
-                <copy file="${project.build.directory}/webjars/META-INF/resources/webjars/jquery/${jquery.version}/dist/jquery.min.js" todir="${project.build.directory}/pentaho-server/tomcat/webapps/pentaho/docs/" />
+                <copy file="${project.build.directory}/webjars/META-INF/resources/webjars/jquery/${jquery.version}/dist/jquery.min.js" todir="${project.build.directory}/pentaho-server/tomcat/webapps/pentaho/docs/"/>
               </target>
             </configuration>
           </execution>
