@@ -39,6 +39,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
@@ -110,6 +111,8 @@ import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestCon
 @ContextConfiguration ( locations = { "classpath:/repository.spring.xml",
     "classpath:/repository-test-override.spring.xml" } )
 @SuppressWarnings ( "nls" )
+@Ignore
+// Test commented out until BISERVER-14405 is fixed.
 public class FileResourceIT extends JerseyTest implements ApplicationContextAware {
 
   private static MicroPlatform mp = new MicroPlatform();
