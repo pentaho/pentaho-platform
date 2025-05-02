@@ -22,14 +22,9 @@ import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
 import org.apache.logging.log4j.LogManager;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.pentaho.platform.api.util.LogUtil;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import javax.servlet.ServletConfig;
@@ -47,24 +42,24 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * Created by Dmitriy Stepanov on 28.03.18.
  */
-@RunWith( PowerMockRunner.class )
-@PowerMockIgnore( "jdk.internal.reflect.*" )
-@PrepareForTest( { SpringServlet.class, ServletContainer.class, JAXRSServlet.class } )
 public class JAXRSServletTest {
 
   protected static final String URL = "/url";
@@ -87,7 +82,7 @@ public class JAXRSServletTest {
   @Before
   public void setUp() throws Exception {
     callSuperIterate.set( false );
-    jaxrsServlet = PowerMockito.spy( new JAXRSServletT() );
+    jaxrsServlet = spy( new JAXRSServletT() );
   }
 
   @Test
@@ -103,7 +98,7 @@ public class JAXRSServletTest {
     HttpServletResponse response = mock( HttpServletResponse.class );
     when( request.getMethod() ).thenReturn( "POST" );
     try {
-      Mockito.doNothing().when( (SpringServlet) jaxrsServlet ).service( request, response );
+      doNothing().when( (SpringServlet) jaxrsServlet ).service( request, response );
       jaxrsServlet.service( request, response );
       verify( (SpringServlet) jaxrsServlet ).service( eq( request ), eq( response ) );
 
@@ -226,7 +221,7 @@ public class JAXRSServletTest {
     doReturn( messageBodyWorkers ).when( wa ).getMessageBodyWorkers();
     doReturn( null ).when( messageBodyWorkers ).getWriters( MediaType.WILDCARD_TYPE );
     doReturn( mock( ConfigurableApplicationContext.class ) ).when( jaxrsServlet ).getAppContext();
-    PowerMockito.doNothing().when( jaxrsServlet, "callSuperInitiate", any(), any() );
+    doNothing().when( jaxrsServlet ).callSuperInitiate( any(), any() );
     setDebugLogLevel();
     jaxrsServlet.initiate( rc, wa );
     verify( wa ).getMessageBodyWorkers();
