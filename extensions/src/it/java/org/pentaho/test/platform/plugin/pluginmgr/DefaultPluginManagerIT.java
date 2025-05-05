@@ -13,6 +13,7 @@
 
 package org.pentaho.test.platform.plugin.pluginmgr;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IComponent;
@@ -64,12 +65,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @SuppressWarnings( "nls" )
 public class DefaultPluginManagerIT {
@@ -98,8 +99,13 @@ public class DefaultPluginManagerIT {
     pluginManager = new DefaultPluginManager();
   }
 
+  @After
+  public void tearDown() {
+    PentahoSystem.shutdown();
+  }
+
   @Test
-  public void INTEGRATION_test1_Reload() throws PluginBeanException, PlatformInitializationException {
+  public void INTEGRATION_test1_Reload() throws PlatformInitializationException {
     microPlatform.start();
 
     pluginManager.reload();
@@ -161,20 +167,20 @@ public class DefaultPluginManagerIT {
     XulOverlay overlay = overlays.get( 0 );
     assertEquals( "Wrong overlay id", "overlay1", overlay.getId() ); //$NON-NLS-1$ //$NON-NLS-2$
     assertEquals( "Wrong overlay resource uri", "uri1", overlay.getResourceBundleUri() ); //$NON-NLS-1$ //$NON-NLS-2$
-    assertTrue( "Wrong overlay content", overlay.getSource().indexOf( "<node1" ) != -1 ); //$NON-NLS-1$ //$NON-NLS-2$
-    assertTrue( "Wrong overlay content", overlay.getSource().indexOf( "<node2" ) != -1 ); //$NON-NLS-1$ //$NON-NLS-2$
-    assertTrue( "Wrong overlay content", overlay.getSource().indexOf( "<node3" ) == -1 ); //$NON-NLS-1$ //$NON-NLS-2$
-    assertTrue( "Wrong overlay content", overlay.getSource().indexOf( "<node4" ) == -1 ); //$NON-NLS-1$ //$NON-NLS-2$
+    assertTrue( "Wrong overlay content", overlay.getSource().contains( "<node1" ) ); //$NON-NLS-1$ //$NON-NLS-2$
+    assertTrue( "Wrong overlay content", overlay.getSource().contains( "<node2" ) ); //$NON-NLS-1$ //$NON-NLS-2$
+    assertEquals( "Wrong overlay content", -1, overlay.getSource().indexOf( "<node3" ) ); //$NON-NLS-1$ //$NON-NLS-2$
+    assertEquals( "Wrong overlay content", -1, overlay.getSource().indexOf( "<node4" ) ); //$NON-NLS-1$ //$NON-NLS-2$
     assertNull( "Overlay URI should be null", overlay.getOverlayUri() ); //$NON-NLS-1$
 
     overlay = overlays.get( 1 );
 
     assertEquals( "Wrong overlay id", "overlay2", overlay.getId() ); //$NON-NLS-1$ //$NON-NLS-2$
     assertEquals( "Wrong overlay resource uri", "uri2", overlay.getResourceBundleUri() ); //$NON-NLS-1$ //$NON-NLS-2$
-    assertTrue( "Wrong overlay content", overlay.getSource().indexOf( "<node1" ) == -1 ); //$NON-NLS-1$ //$NON-NLS-2$
-    assertTrue( "Wrong overlay content", overlay.getSource().indexOf( "<node2" ) == -1 ); //$NON-NLS-1$ //$NON-NLS-2$
-    assertTrue( "Wrong overlay content", overlay.getSource().indexOf( "<node3" ) != -1 ); //$NON-NLS-1$ //$NON-NLS-2$
-    assertTrue( "Wrong overlay content", overlay.getSource().indexOf( "<node4" ) != -1 ); //$NON-NLS-1$ //$NON-NLS-2$
+    assertEquals( "Wrong overlay content", -1, overlay.getSource().indexOf( "<node1" ) ); //$NON-NLS-1$ //$NON-NLS-2$
+    assertEquals( "Wrong overlay content", -1, overlay.getSource().indexOf( "<node2" ) ); //$NON-NLS-1$ //$NON-NLS-2$
+    assertTrue( "Wrong overlay content", overlay.getSource().contains( "<node3" ) ); //$NON-NLS-1$ //$NON-NLS-2$
+    assertTrue( "Wrong overlay content", overlay.getSource().contains( "<node4" ) ); //$NON-NLS-1$ //$NON-NLS-2$
     assertNull( "Overlay URI should be null", overlay.getOverlayUri() ); //$NON-NLS-1$
   }
 
@@ -197,7 +203,7 @@ public class DefaultPluginManagerIT {
   }
 
   @Test
-  public void testGetClassloader() throws PluginBeanException, PlatformInitializationException {
+  public void testGetClassloader() throws PlatformInitializationException {
     microPlatform.define( IPluginProvider.class, Tst5PluginProvider.class ).start();
 
     // reload should register the beans
@@ -220,7 +226,7 @@ public class DefaultPluginManagerIT {
   }
 
   @Test()
-  public void test5c_getBeanBadClassname() throws PluginBeanException, PlatformInitializationException {
+  public void test5c_getBeanBadClassname() throws PlatformInitializationException {
     microPlatform.define( IPluginProvider.class, Tst5DefaultPluginProviderBadClass.class ).start();
 
     // reload should register the beans
@@ -465,7 +471,7 @@ public class DefaultPluginManagerIT {
     // register the gwt service handler
     IServiceTypeManager gwtHandler = new GwtRpcServiceManager();
     DefaultServiceManager sm = (DefaultServiceManager) PentahoSystem.get( IServiceManager.class );
-    sm.setServiceTypeManagers( Arrays.asList( gwtHandler ) );
+    sm.setServiceTypeManagers( List.of( gwtHandler ) );
 
     PluginMessageLogger.clear();
 
@@ -507,29 +513,27 @@ public class DefaultPluginManagerIT {
   }
 
   @Test
-  public void test17_getPluginIdForType() throws PlatformInitializationException, PluginBeanException {
-    IPluginProvider provider = new IPluginProvider() {
-      public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
-        PlatformPlugin p = new PlatformPlugin( new DefaultListableBeanFactory() );
-        p.setId( "testPlugin" );
+  public void test17_getPluginIdForType() throws PlatformInitializationException {
+    IPluginProvider provider = session -> {
+      PlatformPlugin p = new PlatformPlugin( new DefaultListableBeanFactory() );
+      p.setId( "testPlugin" );
 
-        ContentGeneratorInfo cg1 = new ContentGeneratorInfo();
-        cg1.setDescription( "test 9 plugin description" );
-        cg1.setId( "oldworldCGid" );
-        cg1.setType( "oldworldCGtype" );
-        cg1.setTitle( "test" );
-        cg1.setClassname( "org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1" );
-        // cg1.setFileInfoGeneratorClassname("org.pentaho.test.platform.plugin.pluginmgr.FileInfoGenerator");
-        p.addContentGenerator( cg1 );
+      ContentGeneratorInfo cg1 = new ContentGeneratorInfo();
+      cg1.setDescription( "test 9 plugin description" );
+      cg1.setId( "oldworldCGid" );
+      cg1.setType( "oldworldCGtype" );
+      cg1.setTitle( "test" );
+      cg1.setClassname( "org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1" );
+      // cg1.setFileInfoGeneratorClassname("org.pentaho.test.platform.plugin.pluginmgr.FileInfoGenerator");
+      p.addContentGenerator( cg1 );
 
-        BeanDefinition beanDef =
-          BeanDefinitionBuilder.rootBeanDefinition( "org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1" )
-            .setScope( BeanDefinition.SCOPE_PROTOTYPE ).getBeanDefinition();
-        p.getBeanFactory().registerBeanDefinition( "springDefinedCGid", beanDef );
-        p.getBeanFactory().registerAlias( "springDefinedCGid", "springDefinedCGtype" );
+      BeanDefinition beanDef =
+        BeanDefinitionBuilder.rootBeanDefinition( "org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1" )
+          .setScope( BeanDefinition.SCOPE_PROTOTYPE ).getBeanDefinition();
+      p.getBeanFactory().registerBeanDefinition( "springDefinedCGid", beanDef );
+      p.getBeanFactory().registerAlias( "springDefinedCGid", "springDefinedCGtype" );
 
-        return Arrays.asList( (IPlatformPlugin) p );
-      }
+      return List.of( (IPlatformPlugin) p );
     };
 
     microPlatform.defineInstance( IPluginProvider.class, provider ).start();
@@ -572,34 +576,6 @@ public class DefaultPluginManagerIT {
     }
   }
 
-  public static class AnotherCheckingLifecycleListener implements IPluginLifecycleListener {
-    public static boolean initCalled, loadedCalled, unloadedCalled;
-
-    public static void clearFlags() {
-      initCalled = false;
-      loadedCalled = false;
-      unloadedCalled = false;
-    }
-
-    public void init() {
-      initCalled = true;
-      loadedCalled = false;
-    }
-
-    public void loaded() {
-      if ( !initCalled ) {
-        throw new IllegalStateException( "init() should have been called prior to loaded()" );
-      }
-      loadedCalled = true;
-    }
-
-    public void unLoaded() {
-      unloadedCalled = true;
-      loadedCalled = false;
-      initCalled = false;
-    }
-  }
-
   @SuppressWarnings( "deprecation" )
   @Test
   public void test16_pluginExternalResources() {
@@ -615,25 +591,25 @@ public class DefaultPluginManagerIT {
   }
 
   public static class Tst3PluginProvider implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) {
       PlatformPlugin p = new PlatformPlugin();
       p.setId( "Plugin 3" );
       p.addLifecycleListenerClassname( "bogus.classname" );
-      return Arrays.asList( (IPlatformPlugin) p );
+      return List.of( p );
     }
   }
 
   public static class Tst2PluginProvider implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) {
       PlatformPlugin p = new PlatformPlugin();
       p.setId( "test2Plugin" );
       p.addLifecycleListenerClassname( CheckingLifecycleListener.class.getName() );
-      return Arrays.asList( (IPlatformPlugin) p );
+      return List.of( p );
     }
   }
 
   public static class Tst5PluginProvider implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) {
       PlatformPlugin p = new PlatformPlugin();
       // need to set source description - classloader needs it
       p.setId( "good-plugin1" );
@@ -641,12 +617,12 @@ public class DefaultPluginManagerIT {
       p.addBean( new PluginBeanDefinition( "TestMockComponent",
         "org.pentaho.test.platform.engine.core.MockComponent" ) );
       p.addBean( new PluginBeanDefinition( "TestPojo", "java.lang.String" ) );
-      return Arrays.asList( (IPlatformPlugin) p );
+      return List.of( p );
     }
   }
 
   public static class Tst5DefaultPluginProviderBadClass implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) {
       PlatformPlugin p = new PlatformPlugin();
       // need to set source description - classloader needs it
       p.setId( "good-plugin1" );
@@ -655,22 +631,22 @@ public class DefaultPluginManagerIT {
         "org.pentaho.test.platform.engine.core.MockComponent" ) );
       p.addBean( new PluginBeanDefinition( "TestPojo", "java.lang.String" ) );
       p.addBean( new PluginBeanDefinition( "TestDefaultClassNotFoundComponent", "org.pentaho.test.NotThere" ) );
-      return Arrays.asList( (IPlatformPlugin) p );
+      return List.of( p );
     }
   }
 
   public static class Tst6PluginProvider implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) {
       PlatformPlugin p = new PlatformPlugin();
       p.setId( "test6Plugin" );
       p.addBean( new PluginBeanDefinition( "bean1", "java.lang.String" ) );
       p.addBean( new PluginBeanDefinition( "bean1", "java.lang.Object" ) );
-      return Arrays.asList( (IPlatformPlugin) p );
+      return List.of( p );
     }
   }
 
   public static class Tst8PluginProvider implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) {
       PlatformPlugin p = new PlatformPlugin( new DefaultListableBeanFactory() );
       p.setId( "test8Plugin" );
       // need to set source description - classloader needs it
@@ -681,12 +657,12 @@ public class DefaultPluginManagerIT {
         BeanDefinitionBuilder.rootBeanDefinition( "org.pentaho.nowhere.PluginOnlyClass" ).setScope(
           BeanDefinition.SCOPE_PROTOTYPE ).getBeanDefinition();
       p.getBeanFactory().registerBeanDefinition( "PluginOnlyClassSpringFile", beanDef );
-      return Arrays.asList( (IPlatformPlugin) p );
+      return List.of( p );
     }
   }
 
   public static class Tst9PluginProvider implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) {
       PlatformPlugin p = new PlatformPlugin( new DefaultListableBeanFactory() );
       p.setId( "test9Plugin" );
 
@@ -706,12 +682,12 @@ public class DefaultPluginManagerIT {
       p.getBeanFactory().registerBeanDefinition( "test9bid", beanDef );
       p.getBeanFactory().registerAlias( "test9bid", "test9btype" );
 
-      return Arrays.asList( (IPlatformPlugin) p );
+      return List.of( p );
     }
   }
 
   public static class Tst10PluginProvider implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) {
       PlatformPlugin p = new PlatformPlugin();
       p.setId( "test10Plugin" );
 
@@ -748,37 +724,12 @@ public class DefaultPluginManagerIT {
       //
       // //////////////////
 
-      return Arrays.asList( (IPlatformPlugin) p );
-    }
-  }
-
-  public static class Tst11PluginProvider implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
-      PlatformPlugin p = new PlatformPlugin();
-      p.setId( "test11Plugin" );
-      PluginServiceDefinition pws = new PluginServiceDefinition();
-      pws.setTitle( "ws11title" );
-      pws.setDescription( "ws11description" );
-      pws.setServiceBeanId( "org.pentaho.test.platform.engine.core.EchoServiceBean" );
-      p.addWebservice( pws );
-
-      // defining bean with null id, the classname will be used as the id
-      p.addBean( new PluginBeanDefinition( null, "org.pentaho.test.platform.engine.core.EchoServiceBean" ) );
-
-      return Arrays.asList( (IPlatformPlugin) p );
-    }
-  }
-
-  public static class Tst12PluginProvider implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
-      PlatformPlugin p = new PlatformPlugin();
-      p.setId( "test12Plugin" );
-      return Arrays.asList( (IPlatformPlugin) p );
+      return List.of( p );
     }
   }
 
   public static class Tst13PluginProvider implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) {
       PlatformPlugin p = new PlatformPlugin();
 
       p.setId( "test13Plugin" );
@@ -799,12 +750,12 @@ public class DefaultPluginManagerIT {
       pExt.setId( "test13Plugin-ext" );
       pExt.addStaticResourcePath( "/test-ext/13/static/url", "/tmp" );
 
-      return Arrays.asList( (IPlatformPlugin) p, (IPlatformPlugin) pExt );
+      return List.of( p, pExt );
     }
   }
 
   public static class Tst14PluginProvider implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) {
       PlatformPlugin p = new PlatformPlugin();
       p.setId( "test14Plugin" );
       PluginServiceDefinition pws = new PluginServiceDefinition();
@@ -814,13 +765,13 @@ public class DefaultPluginManagerIT {
       pws.setServiceClass( "org.pentaho.test.platform.engine.core.EchoServiceBean" );
       p.addWebservice( pws );
 
-      return Arrays.asList( (IPlatformPlugin) p );
+      return List.of( p );
     }
   }
 
   public static class Tst15PluginProvider_DistinctNames implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
-      List<IPlatformPlugin> plugins = new ArrayList<IPlatformPlugin>();
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) {
+      List<IPlatformPlugin> plugins = new ArrayList<>();
 
       PlatformPlugin p = new PlatformPlugin();
       p.setId( "distinctTest15Plugin1" );
@@ -835,8 +786,8 @@ public class DefaultPluginManagerIT {
   }
 
   public static class Tst15PluginProvider_DupNames implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
-      List<IPlatformPlugin> plugins = new ArrayList<IPlatformPlugin>();
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) {
+      List<IPlatformPlugin> plugins = new ArrayList<>();
 
       PlatformPlugin p = new PlatformPlugin();
       p.setId( "dupTest15Plugin" );
@@ -851,7 +802,7 @@ public class DefaultPluginManagerIT {
   }
 
   public static class Tst16PluginProvider implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) {
       PlatformPlugin p = new PlatformPlugin( new DefaultListableBeanFactory() );
       BeanDefinition def =
         BeanDefinitionBuilder.rootBeanDefinition( "org.pentaho.nowhere.PluginOnlyClass" ).getBeanDefinition();
@@ -860,13 +811,13 @@ public class DefaultPluginManagerIT {
       // need to set source description - classloader needs it
       p.setSourceDescription( "good-plugin1" );
 
-      return Arrays.asList( (IPlatformPlugin) p );
+      return List.of( p );
     }
   }
 
   public static class Tst16Plugin implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
-      List<IPlatformPlugin> plugins = new ArrayList<IPlatformPlugin>();
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) {
+      List<IPlatformPlugin> plugins = new ArrayList<>();
 
       PlatformPlugin p = new PlatformPlugin();
       p.setId( "externalPlugin" );
@@ -874,16 +825,6 @@ public class DefaultPluginManagerIT {
       plugins.add( p );
 
       return plugins;
-    }
-  }
-
-  public static class Tst17PluginProvider implements IPluginProvider {
-    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
-      PlatformPlugin p = new PlatformPlugin();
-      p.setId( "test17Plugin" );
-      p.addLifecycleListenerClassname( CheckingLifecycleListener.class.getName() );
-      p.addLifecycleListenerClassname( AnotherCheckingLifecycleListener.class.getName() );
-      return Arrays.asList( (IPlatformPlugin) p );
     }
   }
 }
