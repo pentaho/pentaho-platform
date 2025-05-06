@@ -170,7 +170,7 @@ public interface ICacheManager extends ILogoutListener {
    *          The data to store in the cache.
    * 
    */
-  public void putInRegionCache( String reqion, Object key, Object value );
+  public void putInRegionCache( String region, Object key, Object value );
 
   /**
    * Gets an object from the cache within a specific region
