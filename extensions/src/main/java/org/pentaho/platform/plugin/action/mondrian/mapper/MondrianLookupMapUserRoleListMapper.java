@@ -100,7 +100,7 @@ public class MondrianLookupMapUserRoleListMapper extends MondrianAbstractPlatfor
   }
 
   public void afterPropertiesSet() throws Exception {
-    Assert.notNull( this.lookupMap, "" );
+    Assert.notNull( this.lookupMap, "Lookup map must not be null" );
   }
 
   public void setFailOnEmptyRoleList( boolean failOnEmptyRoleList ) {

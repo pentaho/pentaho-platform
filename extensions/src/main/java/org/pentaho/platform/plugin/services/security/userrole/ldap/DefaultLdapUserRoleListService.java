@@ -187,7 +187,7 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
   }
 
   public void setUsernameComparator( final Comparator<String> usernameComparator ) {
-    Assert.notNull( usernameComparator, "" );
+    Assert.notNull( usernameComparator, "Username comparator must not be null" );
     this.usernameComparator = usernameComparator;
   }
 
