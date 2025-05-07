@@ -258,7 +258,14 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   // ~ Methods =========================================================================================================
 
-  protected synchronized void init( final IPentahoSession pentahoSession ) {
+  /**
+   * This method will conditionally load the catalogs into the cache, depending on the internal flag to check if it
+   * is fully loaded,
+   * It is synchronized to prevent multiple threads from trying to load the catalogs
+   *
+   * @param pentahoSession the pentaho session where the cache is stored
+   */
+  private synchronized void initIfNotFullyLoaded( final IPentahoSession pentahoSession ) {
     // First check if the catalogs are initialized and fully loaded for the current locale
     MondrianCatalogCache mondrianCatalogCache = getCacheForRegion( pentahoSession );
     if ( mondrianCatalogCache.getMondrianCatalogCacheState().isFullyLoaded() ) {
@@ -279,7 +286,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     if ( cacheMgr.cacheEnabled( MONDRIAN_CATALOG_CACHE_REGION ) ) {
       cacheMgr.clearRegionCache( MONDRIAN_CATALOG_CACHE_REGION );
     }
-    init( pentahoSession );
+    initIfNotFullyLoaded( pentahoSession );
   }
 
   private static Locale getLocale() {
@@ -555,7 +562,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     if ( MondrianCatalogHelper.logger.isDebugEnabled() ) {
       MondrianCatalogHelper.logger.debug( "listCatalogs" ); //$NON-NLS-1$
     }
-    init( pentahoSession );
+    initIfNotFullyLoaded( pentahoSession );
 
     // defensive copy
     return Collections.unmodifiableList( filter( getCatalogs( pentahoSession ), pentahoSession, jndiOnly ) );
@@ -601,7 +608,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     }
 
     // if cache was not initialized, do so now
-    init( pentahoSession );
+    initIfNotFullyLoaded( pentahoSession );
 
     // check for existing dataSourceInfo+catalog
     final boolean catalogExistsWithSameDatasource = catalogExists( catalog, pentahoSession );
@@ -649,7 +656,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
           Reason.valueOf( e.getMessage() ) );
     }
 
-    // load into cache with the new info
+    // Load the catalog into the cache. The overload with the 'overwrite' flag is used here
+    // to ensure that existing cache entries are replaced if 'overwrite' is true.
     loadCatalogIntoCache( catalog.getName(), pentahoSession, overwrite );
 
     try {
@@ -1218,7 +1226,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     if ( mondrianCatalogCache.getCatalog( catalogName ) == null && !mondrianCatalogCache.getMondrianCatalogCacheState()
       .isFullyLoaded() && isCatalogDefinitionString( catalogName ) ) {
       //We could not find quickly by name, but if its a definition string perhaps we can find it with a full load
-      init( pentahoSession );
+      initIfNotFullyLoaded( pentahoSession );
     }
   }
 
