@@ -13,8 +13,6 @@
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
-import java.io.File;
-
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.springframework.beans.BeansException;
@@ -26,9 +24,11 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 
+import java.io.File;
+
 /**
  * When added as a bean to a Spring context this class will register the ApplicationContext as a
- * StandalongSpringPentahoObjectFactory with the PentahoSystem
+ * StandaloneSpringPentahoObjectFactory with the PentahoSystem.
  * <p/>
  * User: nbaker Date: 3/31/13
  */

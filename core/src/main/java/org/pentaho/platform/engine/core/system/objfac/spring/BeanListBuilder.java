@@ -10,7 +10,6 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -22,9 +21,9 @@ import java.util.Map;
 
 /**
  * Obtains references registered in the PentahoSystem for the given class, exposed as an ordered list by priority
- * 
+ *
  * {@code} <pen:list class="com.foo.Clazz"/> {@code}
- * 
+ *
  * User: nbaker Date: 3/2/13
  */
 public class BeanListBuilder implements FactoryBean {
@@ -34,11 +33,10 @@ public class BeanListBuilder implements FactoryBean {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.springframework.beans.factory.FactoryBean#getObject()
    */
   public List getObject() {
-
     try {
       Class cls = getClass().getClassLoader().loadClass( type.trim() );
       List<?> vals = PentahoSystem.getAll( cls, PentahoSessionHolder.getSession(), attributes );
@@ -46,12 +44,11 @@ public class BeanListBuilder implements FactoryBean {
     } catch ( ClassNotFoundException e ) {
       throw new RuntimeException( e );
     }
-
   }
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.springframework.beans.factory.FactoryBean#getObjectType()
    */
   public Class<?> getObjectType() {
@@ -60,7 +57,7 @@ public class BeanListBuilder implements FactoryBean {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.springframework.beans.factory.FactoryBean#isSingleton()
    */
   public boolean isSingleton() {

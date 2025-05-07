@@ -41,6 +41,7 @@ import org.pentaho.platform.engine.core.solution.PluginOperation;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
+import org.pentaho.platform.engine.core.system.objfac.spring.Const;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
 import org.pentaho.platform.plugin.services.pluginmgr.PlatformPlugin;
@@ -55,6 +56,7 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 import org.pentaho.ui.xul.XulOverlay;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -542,6 +544,21 @@ public class DefaultPluginManagerIT {
 
     assertEquals( "testPlugin", pluginManager.getPluginIdForType( "oldworldCGtype" ) );
     assertEquals( "testPlugin", pluginManager.getPluginIdForType( "springDefinedCGtype" ) );
+  }
+
+  @Test
+  public void test18_registersOwnerPluginIdBeanInPluginBeanFactory() throws PlatformInitializationException {
+
+    microPlatform.define( IPluginProvider.class, Tst18PluginProvider.class ).start();
+
+    // reload should register the beans
+    pluginManager.reload();
+
+    ListableBeanFactory pluginBeanFactory = pluginManager.getBeanFactory( "test18Plugin" );
+
+    String ownerPluginId = pluginBeanFactory.getBean( Const.OWNER_PLUGIN_ID_BEAN, String.class );
+
+    assertEquals( "test18Plugin", ownerPluginId );
   }
 
   public String getSolutionPath() {
