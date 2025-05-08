@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 define(["common-ui/handlebars"],
     function () {
@@ -21,15 +22,15 @@ define(["common-ui/handlebars"],
               "<div>" +
               "<div class='header Caption'>" +
               "<div id='{{dialog.id}}-header' class='header-content'>" +
-              "{{{dialog.content.header}}}" +
+              "{{html dialog.content.header}}" +
               "</div>" +
               "<div class='dialog-close-button pentaho-closebutton-big'></div>" +
               "</div>" +
               "<div class='body'>" +
-              "<div id='{{dialog.id}}-body' class='dialog-content'>{{{dialog.content.body}}}</div>" +
+              "<div id='{{dialog.id}}-body' class='dialog-content'>{{html dialog.content.body}}</div>" +
               "</div>" +
               "<div class='footer'>" +
-              "{{{dialog.content.footer}}}" +
+              "{{html dialog.content.footer}}" +
               "</div>" +
               "</div>" +
               "</div>");

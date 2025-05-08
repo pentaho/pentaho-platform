@@ -58,11 +58,6 @@
 <!--      <classifier>jdk8</classifier>-->
     </dependency>
     <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>${mysql-connector-java.version}</version>
-    </dependency>
-    <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <version>${h2.version}</version>
@@ -147,15 +142,6 @@
                     **/webapps/host-manager/**,
                     **/webapps/manager/**,
                     **/webapps/ROOT/**</excludes>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>pentaho</groupId>
-                  <artifactId>oss-licenses</artifactId>
-                  <version>${project.version}</version>
-                  <type>zip</type>
-                  <overWrite>false</overWrite>
-                  <outputDirectory>${pentaho-server.directory}/licenses</outputDirectory>
-                  <includes>PentahoServer_OSS_Licenses.html</includes>
                 </artifactItem>
                 <artifactItem>
                   <groupId>pentaho</groupId>
