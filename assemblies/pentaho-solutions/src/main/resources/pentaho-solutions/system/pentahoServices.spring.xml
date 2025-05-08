@@ -123,6 +123,12 @@
     <pen:publish as-type="CLASSES"/>
   </bean>
 
+  <bean id="featureValidationService" class="org.pentaho.platform.web.http.api.resources.services.FeatureValidationService">
+    <constructor-arg>
+      <pen:bean class="org.pentaho.platform.api.engine.ISystemConfig"/>
+    </constructor-arg>
+  </bean>
+
   <bean class="org.pentaho.platform.web.http.api.resources.FileResource" scope="request">
     <property name="whitelist" ref="RepositoryDownloadWhitelist"/>
   </bean>
@@ -141,6 +147,7 @@
     <constructor-arg>
       <pen:bean class="org.pentaho.platform.api.engine.ISystemConfig"/>
     </constructor-arg>
+    <property name="featureValidationService" ref="featureValidationService"/>
   </bean>
   <bean class="org.pentaho.platform.web.http.api.resources.GeneratorStreamingOutputProvider" scope="singleton"/>
   <bean class="org.pentaho.platform.web.http.api.resources.ThemeResource" scope="request"/>
