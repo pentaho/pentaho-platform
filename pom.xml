@@ -35,7 +35,7 @@
     <activation.version>1.1</activation.version>
     <enunciate-jersey-rt.version>1.27</enunciate-jersey-rt.version>
     <pentaho-json.version>10.3.0.0-SNAPSHOT</pentaho-json.version>
-    <poi.version>5.2.5</poi.version>
+    <poi.version>5.4.0</poi.version>
     <commons-math3.version>3.6.1</commons-math3.version>
     <curvesapi.version>1.06</curvesapi.version>
     <groovy-all.version>2.4.21</groovy-all.version>
