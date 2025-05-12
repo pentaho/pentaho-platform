@@ -844,4 +844,14 @@ public class DefaultPluginManagerIT {
       return plugins;
     }
   }
+
+  public static class Tst18PluginProvider implements IPluginProvider {
+    public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
+      PlatformPlugin p = new PlatformPlugin();
+      // need to set source description - classloader needs it
+      p.setId( "test18Plugin" );
+      p.addBean( new PluginBeanDefinition( "TestMockComponent", "org.pentaho.test.platform.engine.core.MockComponent" ) );
+      return List.of( p );
+    }
+  }
 }
