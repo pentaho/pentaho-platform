@@ -41,6 +41,7 @@ explicitly covering such access.
     <property name="show_sql">false</property>
     <!-- replaces DefinitionVersionManager -->
     <property name="hibernate.hbm2ddl.auto">update</property>
+    <property name="hibernate.id.db_structure_naming_strategy">legacy</property>
     <!-- load resource from classpath -->
     <mapping resource="hibernate/sqlserver.hbm.xml" />
     <!-- mapping resource above is from CE; below is from EE -->
