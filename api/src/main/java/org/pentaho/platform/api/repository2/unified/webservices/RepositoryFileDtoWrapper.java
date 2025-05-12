@@ -26,11 +26,11 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import jakarta.xml.bind.annotation.XmlAccessType;
 
-@XmlRootElement( name = "repositoryFileTreeDto" )
+@XmlRootElement( name = "repositoryFileDtoes" )
 @XmlAccessorType( XmlAccessType.FIELD )
 public class RepositoryFileDtoWrapper {
 
-    @XmlElement( name = "children" )
+    @XmlElement( name = "repositoryFileDto" )
     private List<RepositoryFileDto> repositoryFileDto;
 
     public RepositoryFileDtoWrapper() {
