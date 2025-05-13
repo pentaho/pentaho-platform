@@ -37,7 +37,7 @@ public class UserDropDown extends CustomDropDown implements RequestCallback {
     menuBar = new MenuBar( true );
     menuBar.addItem( new MenuItem( Messages.getString( "logout" ), new LogoutCommand() ) );
 
-    final String url = GWT.getHostPageBaseURL() + "api/system/authentication-provider";
+    final String url = GWT.getHostPageBaseURL() + "api/system/is-enabled?feature=change_password";
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder( RequestBuilder.GET, url );
     executableTypesRequestBuilder.setHeader( "If-Modified-Since", "01 Jan 1970 00:00:00 GMT" );
     executableTypesRequestBuilder.setHeader( "accept", "application/json" );
@@ -56,8 +56,7 @@ public class UserDropDown extends CustomDropDown implements RequestCallback {
   }
 
   public void onResponseReceived( Request request, Response response ) {
-    String responseText = response.getText();
-    if ( responseText.contains( "\"jackrabbit\"" ) || responseText.contains( "\"super\"" ) ) {
+    if ( "true".equals( response.getText() ) ) {
       menuBar.addItem( new MenuItem( Messages.getString( "changePassword" ), new ChangePasswordCommand() ) );
     }
   }
