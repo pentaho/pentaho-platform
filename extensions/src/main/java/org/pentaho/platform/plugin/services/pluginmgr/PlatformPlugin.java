@@ -23,6 +23,7 @@ import org.pentaho.platform.api.engine.PluginBeanDefinition;
 import org.pentaho.platform.api.engine.PluginLifecycleException;
 import org.pentaho.platform.api.engine.PluginServiceDefinition;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
+import org.pentaho.platform.util.StringUtil;
 import org.pentaho.ui.xul.XulOverlay;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
@@ -31,7 +32,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * Default bean implementation of {@link IPlatformPlugin}
@@ -72,6 +75,27 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
 
   private Map<String, List<String>> externalResources = new HashMap<String, List<String>>();
 
+  /**
+   * The resource bundle base name, a fully qualified class name.
+   * Default value is "messages" and the resources should be in the plugin root folder.
+   */
+  private String resourceBundleClassname = "messages";
+
+  /**
+   * The default resource bundle for this plugin. This is used for localization.
+   */
+  private ResourceBundle resourceBundle;
+
+  /**
+   * The title of the plugin. Can be the localized value or a key used by the resource bundle.
+   */
+  private String title;
+
+  /**
+   * The description of the plugin. Can be the localized value or a key used by the resource bundle.
+   */
+  private String description;
+
   public PlatformPlugin() {
   }
 
@@ -108,6 +132,74 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
 
   public String getId() {
     return id;
+  }
+
+  @Override
+  public String getTitle( Locale locale ) {
+    return getLocalizedString( title, locale );
+  }
+
+  @Override
+  public void setTitle( String title ) {
+    this.title = title;
+  }
+
+  @Override
+  public String getDescription( Locale locale ) {
+    return getLocalizedString( description, locale );
+  }
+
+  @Override
+  public void setDescription( String description ) {
+    this.description = description;
+  }
+
+  private String getLocalizedString( String key, Locale locale ) {
+    if ( resourceBundle == null || StringUtil.isEmpty( key ) ) {
+      return key;
+    }
+
+    // parse key pattern ${key}
+    String parsedKey = key.startsWith( "${" ) && key.endsWith( "}" )
+      ? key.substring( 2, key.length() - 1 )
+      : key;
+
+    if ( StringUtil.isEmpty( parsedKey ) ) {
+      return key;
+    }
+
+    try {
+      ResourceBundle localeResourceBundle = locale == null
+        ? resourceBundle
+        : ResourceBundle.getBundle( resourceBundleClassname, locale, resourceBundle.getClass().getClassLoader() );
+
+      return localeResourceBundle.getString( parsedKey );
+    } catch ( Exception e ) {
+      return key;
+    }
+  }
+
+  @Override
+  public String getResourceBundleClassname() {
+    return resourceBundleClassname;
+  }
+
+  @Override
+  public void setResourceBundleClassname( String classLoaderPath ) {
+    this.resourceBundleClassname = classLoaderPath;
+  }
+
+  @Override
+  public void setResourceBundle( ClassLoader classLoader ) {
+    if ( resourceBundleClassname == null || classLoader == null ) {
+      return;
+    }
+
+    try {
+      this.resourceBundle = ResourceBundle.getBundle( resourceBundleClassname, Locale.getDefault(), classLoader );
+    } catch ( Exception e ) {
+      // ignored
+    }
   }
 
   public List<XulOverlay> getOverlays() {
