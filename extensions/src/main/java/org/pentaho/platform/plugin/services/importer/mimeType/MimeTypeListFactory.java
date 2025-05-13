@@ -7,13 +7,15 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importer.mimeType;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -118,4 +120,32 @@ public class MimeTypeListFactory {
     }
     return mimeTypeList;
   }
+
+  public ImportHandlerMimeTypeDefinitionsDto getImportHandlerMimeTypeDefinitions() {
+    return importHandlerMimeTypeDefinitions;
+  }
+
+  /**
+   * Register a mime type definition file with the ImportHandlerMimeTypeDefinitions from plugins
+   * @param pathToMimeTypeDefinitionFile
+   * @param importHandlerClass
+   * @return list of mime types that were registered
+   */
+  public List<IMimeType> registerMimeTypeDefinition( String pathToMimeTypeDefinitionFile, String importHandlerClass ) {
+    try ( FileInputStream inputStream = new FileInputStream(
+        PentahoSystem.getApplicationContext().getSolutionPath( "" ) + pathToMimeTypeDefinitionFile ) ) {
+      ImportHandlerMimeTypeDefinitionsDto pluginMimeTypeDefinitionDto = fromXml( inputStream );
+      getImportHandlerMimeTypeDefinitions().registerImportHandler( pluginMimeTypeDefinitionDto.getImportHandler() );
+      log.info( "Successfully registered mime type definition " + pathToMimeTypeDefinitionFile );
+      return createMimeTypeList( importHandlerClass );
+    } catch ( FileNotFoundException e ) {
+      log.error( "ImportHandlerMimeTypeDefinition File \"" + pathToMimeTypeDefinitionFile + "\" not found", e );
+    } catch ( JAXBException e ) {
+      log.error( "Could not marshal the ImportHandlerMimeTypeDefinition file \"" + pathToMimeTypeDefinitionFile + "\"", e );
+    } catch ( IOException e ) {
+      log.error( "Could not close the FileInputStream for the ImportHandlerMimeTypeDefinition file \"" + pathToMimeTypeDefinitionFile + "\"", e );
+    }
+    return Collections.emptyList();
+  }
+
 }
