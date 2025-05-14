@@ -13,9 +13,11 @@
 
 package org.pentaho.platform.api.repository2.unified.webservices;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.List;
 
+@JsonIgnoreProperties( ignoreUnknown = true )
 public class RepositoryFileAclAceDto implements Serializable {
   private static final long serialVersionUID = 3274897756057989184L;
   private String recipient;
