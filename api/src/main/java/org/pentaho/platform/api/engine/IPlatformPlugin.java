@@ -19,6 +19,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -41,6 +42,65 @@ public interface IPlatformPlugin extends IPluginLifecycleListener {
    * @return the plugin id
    */
   public String getId();
+
+  /**
+   * Returns the localized title of this plugin
+   *
+   * @return the plugin title
+   */
+  default String getTitle() {
+    return getTitle( null );
+  }
+
+  /**
+   * Returns the localized title of this plugin
+   *
+   * @param locale the locale to use
+   * @return the plugin title
+   */
+  String getTitle( Locale locale );
+
+  void setTitle( String title );
+
+  /**
+   * Returns the localized description of this plugin
+   *
+   * @return the plugin localized description
+   */
+  default String getDescription() {
+    return getDescription( null );
+  }
+
+  /**
+   * Returns the localized description of this plugin
+   *
+   * @param locale the locale to use
+   * @return the plugin localized description
+   */
+  String getDescription( Locale locale );
+
+  void setDescription( String description );
+
+  /**
+   * Returns the resource bundle location for this plugin.
+   *
+   * @return the classloader path
+   */
+  String getResourceBundleClassname();
+
+  /**
+   * Sets the resource bundle location for this plugin.
+   *
+   * @param classLoaderPath the classloader path
+   */
+  void setResourceBundleClassname( String classLoaderPath );
+
+  /**
+   * Sets the resource bundle for this plugin using the location, the default locale and the given classloader.
+   *
+   * @param classLoader the class loader of the plugin
+   */
+  void setResourceBundle( ClassLoader classLoader );
 
   /**
    * A short description of where this plugin came from, e.g. "biserver/solutions/pluginA"

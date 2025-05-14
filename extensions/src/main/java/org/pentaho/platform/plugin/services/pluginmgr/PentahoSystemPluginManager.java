@@ -332,6 +332,9 @@ public class PentahoSystemPluginManager implements IPluginManager {
 
     createAndRegisterLifecycleListeners( plugin, loader );
 
+    // set the resource bundle for translation files using the default locale
+    plugin.setResourceBundle( loader );
+
     plugin.init();
 
     registerContentTypes( plugin, loader, beanFactory );
