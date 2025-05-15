@@ -44,6 +44,8 @@ import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFile
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.repository.solution.filebased.MondrianFileObject;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils;
 import org.pentaho.platform.util.FileHelper;
 import org.pentaho.platform.util.XmlTestConstants;
 import org.xml.sax.SAXException;
@@ -274,6 +276,33 @@ public class MondrianCatalogHelperTest {
       assertEquals( 3, originalCatalog.getSchema().getCubes().size() );
     } catch ( Exception e ) {
       throw new RuntimeException( e );
+    }
+  }
+
+  @Test
+  public void testGetCatalogAsString() throws Exception {
+    var schemaName = "dummySchemaName";
+    var schemaXML =
+      String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><cube name=\"cube2\"/></schema>", schemaName );
+    var dataSourceInfo = "dummyDataSourceInfo";
+
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class );
+      MockedStatic<ClientRepositoryPaths> clientRepoPaths = mockStatic( ClientRepositoryPaths.class ) ) {
+      pentahoSystem.when( () -> PentahoSystem.getCacheManager( eq( null ) ) ).thenReturn( new TestICacheManager() );
+      clientRepoPaths.when( ClientRepositoryPaths::getEtcFolderPath ).thenReturn( "etc" );
+      pentahoSystem.when( () -> PentahoSystem.get( any(), eq( null ) ) ).thenReturn( unifiedRepository );
+
+      var file = UnifiedRepositoryTestUtils.makeFileObject( "etc/mondrian", true );
+      doReturn( file ).when( unifiedRepository ).getFile( any() );
+
+      setupRepository( pentahoSystem, schemaName, dataSourceInfo );
+      setupMondrianCatalogHelperMock( schemaName, schemaXML );
+
+      String catStr = mch.getCatalogAsString( schemaName, null );
+
+      verify( unifiedRepository, times( 1 ) ).getChildren( any( Serializable.class ) );
+      assertNotNull( catStr );
+      assertEquals( schemaXML, catStr );
     }
   }
 
