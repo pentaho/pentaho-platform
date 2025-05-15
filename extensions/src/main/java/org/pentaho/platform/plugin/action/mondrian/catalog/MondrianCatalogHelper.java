@@ -68,9 +68,11 @@ import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
+import org.pentaho.platform.repository.solution.filebased.MondrianFileObject;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclNodeHelper;
+import org.pentaho.platform.util.FileHelper;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
@@ -867,6 +869,26 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
             "MondrianCatalogHelper.ERROR_0006_IO_PROBLEM" ), e
         );
       }
+    }
+  }
+
+  @Override
+  public String getCatalogAnnotationsAsString( String catalogName ) throws MondrianCatalogServiceException {
+    try {
+      FileSystemManager fsManager = VFS.getManager();
+      FileObject catalogFile = fsManager.resolveFile( MONDRIAN_URI_START + catalogName );
+      // If the FileObject is an instance of MondrianFileObject, it will have an annotations.xml file
+      if ( catalogFile instanceof MondrianFileObject ) {
+        return FileHelper.getStringFromInputStream(
+          ( (MondrianFileObject) catalogFile ).getAnnotationsFile().getContent().getInputStream() );
+      } else {
+        return null;
+      }
+    } catch ( FileSystemException e ) {
+      throw new MondrianCatalogServiceException(
+        Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0012_FILESYSTEM_PROBLEM" ), e
+      );
     }
   }
 

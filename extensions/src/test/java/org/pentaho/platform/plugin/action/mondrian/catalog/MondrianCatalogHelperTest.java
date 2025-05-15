@@ -18,6 +18,11 @@ import mondrian.xmla.DataSourcesConfig;
 import mondrian.xmla.DataSourcesConfig.Catalog;
 import mondrian.xmla.DataSourcesConfig.Catalogs;
 import mondrian.xmla.DataSourcesConfig.DataSource;
+import org.apache.commons.vfs2.FileContent;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileSystemManager;
+import org.apache.commons.vfs2.VFS;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +43,8 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
+import org.pentaho.platform.repository.solution.filebased.MondrianFileObject;
+import org.pentaho.platform.util.FileHelper;
 import org.pentaho.platform.util.XmlTestConstants;
 import org.xml.sax.SAXException;
 
@@ -63,6 +70,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -72,6 +80,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -289,6 +298,54 @@ public class MondrianCatalogHelperTest {
       verify( unifiedRepository, times( 1 ) ).getChildren( any( Serializable.class ) );
       assertNotNull( catStr );
       assertEquals( schemaXML, catStr );
+    }
+  }
+
+  @Test
+  public void testGetCatalogAnnotationsAsString() throws FileSystemException {
+    var schemaName = "dummySchemaName";
+    var annotationsXml = "<annotations> <annotation>  <name>annotation name</name> </annotation> </annotations>";
+    var annotationsStream = new ByteArrayInputStream( annotationsXml.getBytes() );
+    var annotationsFile = mock( FileObject.class );
+    var annotationsContent = mock( FileContent.class );
+    doReturn( annotationsContent ).when( annotationsFile ).getContent();
+    doReturn( annotationsStream ).when( annotationsContent ).getInputStream();
+
+    var catalogFile = new MondrianFileObject( mock( FileObject.class ), annotationsFile, null );
+
+    var fsManager = mock( FileSystemManager.class );
+    doReturn( catalogFile ).when( fsManager ).resolveFile( "mondrian:/" + schemaName );
+
+    try ( MockedStatic<VFS> vfs = mockStatic( VFS.class );
+      MockedStatic<FileHelper> fileHelper = mockStatic( FileHelper.class ) ) {
+      vfs.when( VFS::getManager ).thenReturn( fsManager );
+      fileHelper.when( () -> FileHelper.getStringFromInputStream( annotationsStream ) ).thenReturn( annotationsXml );
+
+      String annotationsStr = mch.getCatalogAnnotationsAsString( schemaName );
+
+      fileHelper.verify( () -> FileHelper.getStringFromInputStream( any() ), times( 1 ) );
+      assertNotNull( annotationsStr );
+      assertEquals( annotationsXml, annotationsStr );
+    }
+  }
+
+  @Test
+  public void testGetCatalogAnnotationsAsStringWithNoAnnotations() throws FileSystemException {
+    var schemaName = "dummySchemaName";
+
+    var catalogFile = mock( FileObject.class );
+
+    var fsManager = mock( FileSystemManager.class );
+    doReturn( catalogFile ).when( fsManager ).resolveFile( "mondrian:/" + schemaName );
+
+    try ( MockedStatic<VFS> vfs = mockStatic( VFS.class );
+      MockedStatic<FileHelper> fileHelper = mockStatic( FileHelper.class ) ) {
+      vfs.when( VFS::getManager ).thenReturn( fsManager );
+
+      String annotationsStr = mch.getCatalogAnnotationsAsString( schemaName );
+
+      fileHelper.verify( () -> FileHelper.getStringFromInputStream( any() ), never() );
+      assertNull( annotationsStr );
     }
   }
 
