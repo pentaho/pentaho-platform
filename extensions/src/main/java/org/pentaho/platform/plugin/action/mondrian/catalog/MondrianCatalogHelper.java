@@ -119,6 +119,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   private static final Log logger = LogFactory.getLog( MondrianCatalogHelper.class );
 
+  private static final String MONDRIAN_URI_START = "mondrian:/";
+
   // ~ Instance fields =================================================================================================
 
   private String dataSourcesConfig;
@@ -646,7 +648,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
           fileLocationCatalogTest != null
               && definitionEquals(
               fileLocationCatalogTest.getDefinition(),
-              "mondrian:/"
+              MONDRIAN_URI_START
                   + URLEncoder.encode( catalog.getName(), "UTF-8" ) );
     } catch ( UnsupportedEncodingException e ) {
       throw new MondrianCatalogServiceException( e );
@@ -848,7 +850,24 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       }
       return null;
     }
+  }
 
+  @Override
+  public String getCatalogAsStringWithoutDSPChanges( String catalogName, final IPentahoSession pentahoSession )
+    throws MondrianCatalogServiceException {
+    var catalog = getCatalog( catalogName, pentahoSession );
+    if ( catalog == null ) {
+      return null;
+    } else {
+      try {
+        return Util.readVirtualFileAsString( MONDRIAN_URI_START + catalogName );
+      } catch ( IOException e ) {
+        throw new MondrianCatalogServiceException(
+          Messages.getInstance().getErrorString(
+            "MondrianCatalogHelper.ERROR_0006_IO_PROBLEM" ), e
+        );
+      }
+    }
   }
 
   protected void loadCatalogsIntoCache( final DataSourcesConfig.DataSources dataSources,

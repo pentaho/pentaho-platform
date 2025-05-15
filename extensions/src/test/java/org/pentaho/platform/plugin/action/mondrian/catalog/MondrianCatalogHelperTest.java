@@ -13,6 +13,7 @@
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
+import mondrian.olap.Util;
 import mondrian.xmla.DataSourcesConfig;
 import mondrian.xmla.DataSourcesConfig.Catalog;
 import mondrian.xmla.DataSourcesConfig.Catalogs;
@@ -264,6 +265,30 @@ public class MondrianCatalogHelperTest {
       assertEquals( 3, originalCatalog.getSchema().getCubes().size() );
     } catch ( Exception e ) {
       throw new RuntimeException( e );
+    }
+  }
+
+  @Test
+  public void testGetCatalogAsStringWithoutDSPChanges() throws Exception {
+    var schemaName = "dummySchemaName";
+    var schemaXML =
+      String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><cube name=\"cube2\"/></schema>", schemaName );
+    var dataSourceInfo = "dummyDataSourceInfo";
+
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class );
+      MockedStatic<Util> util = mockStatic( Util.class ) ) {
+      pentahoSystem.when( () -> PentahoSystem.getCacheManager( eq( null ) ) ).thenReturn( new TestICacheManager() );
+
+      setupRepository( pentahoSystem, schemaName, dataSourceInfo );
+      setupMondrianCatalogHelperMock( schemaName, schemaXML );
+
+      util.when( () -> Util.readVirtualFileAsString( "mondrian:/dummySchemaName" ) ).thenReturn( schemaXML );
+
+      String catStr = mch.getCatalogAsStringWithoutDSPChanges( schemaName, null );
+
+      verify( unifiedRepository, times( 1 ) ).getChildren( any( Serializable.class ) );
+      assertNotNull( catStr );
+      assertEquals( schemaXML, catStr );
     }
   }
 
