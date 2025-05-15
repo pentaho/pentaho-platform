@@ -58,6 +58,19 @@ public interface IMondrianCatalogService {
   MondrianCatalog getCatalog( String context, final IPentahoSession pentahoSession );
 
   /**
+   * Returns the String corresponding to the content of the catalog with the given name. Returns <code>null</code> if
+   * name is not found.
+   *
+   * @param catalogName
+   *   The name of the catalog to fetch
+   * @param pentahoSession
+   *   current session object
+   * @return String corresponding to the catalog
+   */
+  String getCatalogAsString( String catalogName, final IPentahoSession pentahoSession )
+    throws MondrianCatalogServiceException;
+
+  /**
    * Returns the String corresponding to the content of the catalog with the given name without applying any DSP.
    * Returns <code>null</code> if name is not found.
    *

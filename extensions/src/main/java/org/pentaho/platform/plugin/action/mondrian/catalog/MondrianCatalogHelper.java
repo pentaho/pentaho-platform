@@ -855,6 +855,38 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   }
 
   @Override
+  public String getCatalogAsString( String catalogName, final IPentahoSession pentahoSession )
+    throws MondrianCatalogServiceException {
+    IUnifiedRepository unifiedRepository = PentahoSystem.get( IUnifiedRepository.class, pentahoSession );
+
+    String etcMondrian =
+      ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + MONDRIAN_DATASOURCE_FOLDER;
+    RepositoryFile etcMondrianFolder = unifiedRepository.getFile( etcMondrian );
+
+    if ( etcMondrianFolder == null ) {
+      return null;
+    }
+
+    DataSourcesConfig.Catalog catalog =
+      getCatalogFromRepo( catalogName, unifiedRepository, etcMondrian, etcMondrianFolder );
+    if ( catalog == null ) {
+      return null;
+    } else {
+      try {
+        return getCatalogAsString( pentahoSession, catalog );
+      } catch ( IOException e ) {
+        throw new MondrianCatalogServiceException(
+          Messages.getInstance().getErrorString( "MondrianCatalogHelper.ERROR_0006_IO_PROBLEM" ), e
+        );
+      } catch ( Exception e ) {
+        throw new MondrianCatalogServiceException(
+          Messages.getInstance().getErrorString( "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED" ), e
+        );
+      }
+    }
+  }
+
+  @Override
   public String getCatalogAsStringWithoutDSPChanges( String catalogName, final IPentahoSession pentahoSession )
     throws MondrianCatalogServiceException {
     var catalog = getCatalog( catalogName, pentahoSession );
