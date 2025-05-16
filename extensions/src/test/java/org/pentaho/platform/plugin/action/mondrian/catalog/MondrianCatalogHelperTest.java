@@ -81,12 +81,12 @@ public class MondrianCatalogHelperTest {
 
   private static final String DEFINITION = "mondrian:";
 
-  private IUnifiedRepository unifiedRepository = mock( IUnifiedRepository.class );
+  private final IUnifiedRepository unifiedRepository = mock( IUnifiedRepository.class );
 
-  private MondrianCatalogRepositoryHelper mcrh = mock( MondrianCatalogRepositoryHelper.class );
+  private final MondrianCatalogRepositoryHelper mcrh = mock( MondrianCatalogRepositoryHelper.class );
 
 
-  private MondrianCatalogHelper mch = Mockito.spy( new MondrianCatalogHelper() {
+  private final MondrianCatalogHelper mch = Mockito.spy( new MondrianCatalogHelper() {
     protected boolean hasAccess( MondrianCatalog cat, RepositoryFilePermission permission ) {
       return true;
     }
@@ -103,9 +103,7 @@ public class MondrianCatalogHelperTest {
 
   //  private Object cacheValue = null;
 
-  private ArrayMap<Object, Object> catalogs = new ArrayMap<>();
-
-  ICacheManager cm;
+  private final ArrayMap<Object, Object> catalogs = new ArrayMap<>();
 
   DataSourcesConfig.DataSources dsList;
 
@@ -119,8 +117,6 @@ public class MondrianCatalogHelperTest {
   DataNode metadataNode;
   @Mock
   NodeRepositoryFileData mockIRepositoryFileData;
-  @Mock
-  MondrianCatalogRepositoryHelper mockMondrianCatalogRepositoryHelper;
 
   @Test
   public void testLoadCatalogsIntoCache() {
@@ -135,11 +131,11 @@ public class MondrianCatalogHelperTest {
       Object cacheValue =
         testCacheManager.getFromRegionCache( MONDRIAN_CATALOG_CACHE_REGION, Locale.getDefault().toString() );
 
-      Assert.assertTrue( MondrianCatalogCache.class.isInstance( cacheValue ) );
+      Assert.assertTrue( cacheValue instanceof MondrianCatalogCache );
       Map<?, ?> map = ( (MondrianCatalogCache) cacheValue ).getCatalogs();
 
       for ( Object item : map.values() ) {
-        Assert.assertTrue( MondrianCatalog.class.isInstance( item ) );
+        Assert.assertTrue( item instanceof MondrianCatalog );
         MondrianCatalog catalog = (MondrianCatalog) item;
         assertEquals( DEFINITION, catalog.getDefinition() );
       }
