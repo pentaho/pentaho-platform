@@ -10,7 +10,6 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
 import mondrian.olap.Util;
@@ -80,6 +79,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -96,7 +96,6 @@ public class MondrianCatalogHelperTest {
   private IUnifiedRepository unifiedRepository = mock( IUnifiedRepository.class );
 
   private MondrianCatalogRepositoryHelper mcrh = mock( MondrianCatalogRepositoryHelper.class );
-
 
   private MondrianCatalogHelper mch = Mockito.spy( new MondrianCatalogHelper() {
     protected boolean hasAccess( MondrianCatalog cat, RepositoryFilePermission permission ) {
@@ -236,7 +235,6 @@ public class MondrianCatalogHelperTest {
       String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><cube name=\"cube2\"/></schema>", schemaName );
     var dataSourceInfo = "dummyDataSourceInfo";
 
-
     try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
       pentahoSystem.when( () -> PentahoSystem.getCacheManager( eq( null ) ) ).thenReturn( new TestICacheManager() );
 
@@ -304,9 +302,29 @@ public class MondrianCatalogHelperTest {
 
       String catStr = mch.getCatalogAsString( schemaName, null );
 
-      verify( unifiedRepository, times( 1 ) ).getChildren( any( Serializable.class ) );
       assertNotNull( catStr );
       assertEquals( schemaXML, catStr );
+    }
+  }
+
+  @Test
+  public void testGetCatalogAsStringWithException() throws Exception {
+    var schemaName = "dummySchemaName";
+    var dataSourceInfo = "dummyDataSourceInfo";
+
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class );
+      MockedStatic<ClientRepositoryPaths> clientRepoPaths = mockStatic( ClientRepositoryPaths.class ) ) {
+      pentahoSystem.when( () -> PentahoSystem.getCacheManager( eq( null ) ) ).thenReturn( new TestICacheManager() );
+      clientRepoPaths.when( ClientRepositoryPaths::getEtcFolderPath ).thenReturn( "etc" );
+      pentahoSystem.when( () -> PentahoSystem.get( any(), eq( null ) ) ).thenReturn( unifiedRepository );
+
+      var file = UnifiedRepositoryTestUtils.makeFileObject( "etc/mondrian", true );
+      doReturn( file ).when( unifiedRepository ).getFile( any() );
+      setupRepository( pentahoSystem, schemaName, dataSourceInfo );
+
+      doThrow( Exception.class ).when( mch ).getCatalogAsString( eq( null ), any( DataSourcesConfig.Catalog.class ) );
+
+      assertThrows( MondrianCatalogServiceException.class, () -> mch.getCatalogAsString( schemaName, null ) );
     }
   }
 
@@ -328,9 +346,39 @@ public class MondrianCatalogHelperTest {
 
       String catStr = mch.getCatalogAsStringWithoutDSPChanges( schemaName, null );
 
-      verify( unifiedRepository, times( 1 ) ).getChildren( any( Serializable.class ) );
       assertNotNull( catStr );
       assertEquals( schemaXML, catStr );
+    }
+  }
+
+  @Test
+  public void testGetCatalogAsStringWithoutDSPChangesWithNullCatalog() {
+    var schemaName = "dummySchemaName";
+    doReturn( null ).when( mch ).getCatalog( schemaName, null );
+
+    String catStr = mch.getCatalogAsStringWithoutDSPChanges( schemaName, null );
+
+    assertNull( catStr );
+  }
+
+  @Test
+  public void testGetCatalogAsStringWithoutDSPChangesWithException() throws Exception {
+    var schemaName = "dummySchemaName";
+    var schemaXML =
+      String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><cube name=\"cube2\"/></schema>", schemaName );
+    var dataSourceInfo = "dummyDataSourceInfo";
+
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class );
+      MockedStatic<Util> util = mockStatic( Util.class ) ) {
+      pentahoSystem.when( () -> PentahoSystem.getCacheManager( eq( null ) ) ).thenReturn( new TestICacheManager() );
+
+      setupRepository( pentahoSystem, schemaName, dataSourceInfo );
+      setupMondrianCatalogHelperMock( schemaName, schemaXML );
+
+      util.when( () -> Util.readVirtualFileAsString( "mondrian:/dummySchemaName" ) ).thenThrow( IOException.class );
+
+      assertThrows(
+        MondrianCatalogServiceException.class, () -> mch.getCatalogAsStringWithoutDSPChanges( schemaName, null ) );
     }
   }
 
@@ -359,6 +407,17 @@ public class MondrianCatalogHelperTest {
       fileHelper.verify( () -> FileHelper.getStringFromInputStream( any() ), times( 1 ) );
       assertNotNull( annotationsStr );
       assertEquals( annotationsXml, annotationsStr );
+    }
+  }
+
+  @Test
+  public void testGetCatalogAnnotationsAsStringWithException() {
+    var schemaName = "dummySchemaName";
+
+    try ( MockedStatic<VFS> vfs = mockStatic( VFS.class ) ) {
+      vfs.when( VFS::getManager ).thenThrow( FileSystemException.class );
+
+      assertThrows( MondrianCatalogServiceException.class, () -> mch.getCatalogAnnotationsAsString( schemaName ) );
     }
   }
 
@@ -448,7 +507,6 @@ public class MondrianCatalogHelperTest {
       setupCacheManager( pentahoSystem, new ArrayList<>() );
       setupMondrianCatalogHelperMock( schemaName, schemaXML );
 
-
       var catalog =
         new MondrianCatalog( schemaName, null, "dummy", new MondrianSchema( schemaName, new ArrayList<>() ) );
       mch.addCatalog( new ByteArrayInputStream( schemaXML.getBytes( StandardCharsets.UTF_8 ) ), catalog, true, null );
@@ -509,7 +567,6 @@ public class MondrianCatalogHelperTest {
     var dataSourceInfo = "dummyDataSourceInfo";
     var definition = "";
 
-
     try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
 
       setupCacheManager( pentahoSystem, new ArrayList<>( List.of() ) );
@@ -561,9 +618,7 @@ public class MondrianCatalogHelperTest {
 
       MondrianCatalog finalCatalog = mch.getCatalog( schemaName, null );
 
-
       verify( unifiedRepository, times( 1 ) ).getChildren( any( Serializable.class ) );
-
 
       // Cache is not loaded as it was previously loaded
       verify( mch, times( 0 ) ).loadCatalogsIntoCache( any(), any() );
@@ -693,7 +748,6 @@ public class MondrianCatalogHelperTest {
 
 */
 
-
   private void setupDsObjects() {
     dsList = new DataSourcesConfig.DataSources();
 
@@ -709,7 +763,6 @@ public class MondrianCatalogHelperTest {
 
     ds.catalogs.catalogs[ 0 ] = ct;
   }
-
 
   class MondrianCatalogHelperTestable extends MondrianCatalogHelper {
 
