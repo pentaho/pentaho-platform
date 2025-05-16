@@ -13,8 +13,10 @@
 
 package org.pentaho.platform.api.repository2.unified.webservices;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RepositoryFileAclAceDto implements Serializable {
   private static final long serialVersionUID = 3274897756057989184L;
@@ -67,6 +69,16 @@ public class RepositoryFileAclAceDto implements Serializable {
 
   public void setPermissions( List<Integer> permissions ) {
     this.permissions = permissions;
+  }
+
+  @JsonProperty( "permissions" )
+  public Object getPermissionsAsStrings() {
+    if ( permissions.size() == 1 ) {
+      return String.valueOf( permissions.get( 0 ) );
+    }
+    return permissions.stream()
+      .map( String::valueOf )
+      .collect( Collectors.toList() );
   }
 
   public boolean isModifiable() {
