@@ -58,6 +58,7 @@ import org.pentaho.platform.engine.core.system.objfac.spring.Const;
 import org.pentaho.platform.engine.core.system.objfac.spring.PentahoBeanScopeValidatorPostProcessor;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.ServiceConfig;
+import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.ui.xul.XulOverlay;
 import org.slf4j.Logger;
@@ -83,8 +84,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 /**
@@ -329,6 +333,15 @@ public class PentahoSystemPluginManager implements IPluginManager {
 
     GenericApplicationContext beanFactory = getPluginObject( GenericApplicationContext.class, plugin.getId() );
     assert beanFactory != null;
+
+    var resourceBundleBaseName = plugin.getResourceBundleClassName();
+    // set the provider that will be used to load the plugin's resource bundles for localization
+    if ( !StringUtil.isEmpty( resourceBundleBaseName ) ) {
+      plugin.setResourceBundleProvider( new CachingResourceBundleProvider(
+        ( Locale locale ) ->
+          ResourceBundle.getBundle( resourceBundleBaseName, Objects.requireNonNull( locale ), loader )
+      ) );
+    }
 
     createAndRegisterLifecycleListeners( plugin, loader );
 
