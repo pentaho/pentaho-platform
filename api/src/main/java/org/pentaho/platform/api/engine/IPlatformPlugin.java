@@ -13,12 +13,15 @@
 
 package org.pentaho.platform.api.engine;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
+import org.pentaho.platform.api.locale.IResourceBundleProvider;
 import org.pentaho.ui.xul.XulOverlay;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -41,6 +44,64 @@ public interface IPlatformPlugin extends IPluginLifecycleListener {
    * @return the plugin id
    */
   public String getId();
+
+  /**
+   * Gets the localized title of this plugin for the current locale
+   * or the default value if no translation is found.
+   *
+   * @return the plugin title
+   */
+  @Nullable
+  default String getTitle() {
+    return getTitle( null );
+  }
+
+  /**
+   * Gets the localized title of this plugin for a specific locale
+   * or the default value if no translation is found.
+   * If the locale is invalid, then the current locale will be used.
+   *
+   * @param locale the locale to use
+   * @return the plugin title
+   */
+  @Nullable
+  String getTitle( @Nullable Locale locale );
+
+  /**
+   * Gets the localized description of this plugin for the current locale
+   * or the default value if no translation is found.
+   *
+   * @return the plugin description
+   */
+  @Nullable
+  default String getDescription() {
+    return getDescription( null );
+  }
+
+  /**
+   * Gets the localized description of this plugin for a specific locale
+   * or the default value if no translation is found.
+   * If the locale is invalid, then the current locale will be used.
+   *
+   * @param locale the locale to use
+   * @return the plugin description
+   */
+  @Nullable
+  String getDescription( @Nullable Locale locale );
+
+  /**
+   * Gets the fully qualified class name used as the resource bundle base name.
+   */
+  @Nullable
+  String getResourceBundleClassName();
+
+  /**
+   * Sets the resource bundle provider for this plugin. This is used to
+   * provide the resource bundle for this plugin for localization.
+   *
+   * @param provider the resource bundle provider
+   */
+  void setResourceBundleProvider( @Nullable IResourceBundleProvider provider );
 
   /**
    * A short description of where this plugin came from, e.g. "biserver/solutions/pluginA"
