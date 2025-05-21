@@ -127,10 +127,10 @@ public interface IMondrianCatalogService {
    * 
    * @param inputStream
    * @param catalog
-   * @param overwriteInRepossitory
+   * @param overwriteInRepository
    * @param session
    */
-  void addCatalog( InputStream inputStream, MondrianCatalog catalog, boolean overwriteInRepossitory,
+  void addCatalog( InputStream inputStream, MondrianCatalog catalog, boolean overwriteInRepository,
       IPentahoSession session );
 
 }
