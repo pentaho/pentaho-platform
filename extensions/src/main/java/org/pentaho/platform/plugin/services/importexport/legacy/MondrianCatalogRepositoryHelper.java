@@ -436,7 +436,7 @@ public class MondrianCatalogRepositoryHelper {
     }
   }
 
-  public Map<String, InputStream> getModrianSchemaFiles( String catalogName ) {
+  public Map<String, InputStream> getMondrianSchemaFiles( String catalogName ) {
     Map<String, InputStream> values = new HashMap<String, InputStream>();
 
     RepositoryFile catalogFolder =

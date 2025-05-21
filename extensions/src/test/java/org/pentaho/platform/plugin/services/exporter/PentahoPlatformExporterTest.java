@@ -277,7 +277,7 @@ public class PentahoPlatformExporterTest {
     exporterSpy.exportMondrianSchemas();
     exportLogger.endJob();
     verify( exportManifest, never() ).addMondrian( ArgumentMatchers.any( ExportManifestMondrian.class ) );
-    verify( mondrianCatalogRepositoryHelper, never() ).getModrianSchemaFiles( nullable( String.class ) );
+    verify( mondrianCatalogRepositoryHelper, never() ).getMondrianSchemaFiles( nullable( String.class ) );
   }
 
   @Test
@@ -288,7 +288,7 @@ public class PentahoPlatformExporterTest {
     executeExportMondrianSchemasForDataSourceInfo( catalogName, dataSourceInfo );
 
     verify( exportManifest ).addMondrian( ArgumentMatchers.any( ExportManifestMondrian.class ) );
-    verify( mondrianCatalogRepositoryHelper ).getModrianSchemaFiles( nullable( String.class ) );
+    verify( mondrianCatalogRepositoryHelper ).getMondrianSchemaFiles( nullable( String.class ) );
     assertEquals( catalogName, exportManifest.getMondrianList().get( 0 ).getCatalogName() );
     assertTrue( exportManifest.getMondrianList().get( 0 ).isXmlaEnabled() );
     verify( exporterSpy.zos ).putNextEntry( ArgumentMatchers.any( ZipEntry.class ) );
@@ -343,7 +343,7 @@ public class PentahoPlatformExporterTest {
     InputStream is = mock( InputStream.class );
     when( is.read( ArgumentMatchers.any( byte[].class ) ) ).thenReturn( -1 );
     inputMap.put( catalogName, is );
-    when( mondrianCatalogRepositoryHelper.getModrianSchemaFiles( catalogName ) ).thenReturn( inputMap );
+    when( mondrianCatalogRepositoryHelper.getMondrianSchemaFiles( catalogName ) ).thenReturn( inputMap );
     exporterSpy.zos = mock( ZipOutputStream.class );
     // mock logger to prevent npe
     IRepositoryExportLogger exportLogger = new Log4JRepositoryExportLogger();

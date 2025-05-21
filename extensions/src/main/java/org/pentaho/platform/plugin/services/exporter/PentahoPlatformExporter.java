@@ -280,7 +280,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor implements IPent
     for ( MondrianCatalog catalog : catalogs ) {
       getRepositoryExportLogger().debug( "Starting to perform backup mondrian datasource [ " + catalog.getName() + " ]" );
       // get the files for this catalog
-      Map<String, InputStream> files = getMondrianCatalogRepositoryHelper().getModrianSchemaFiles( catalog.getName() );
+      Map<String, InputStream> files = getMondrianCatalogRepositoryHelper().getMondrianSchemaFiles( catalog.getName() );
 
       ExportManifestMondrian mondrian = new ExportManifestMondrian();
       for ( String fileName : files.keySet() ) {
