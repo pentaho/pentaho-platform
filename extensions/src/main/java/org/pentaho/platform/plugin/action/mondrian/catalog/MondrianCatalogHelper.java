@@ -881,7 +881,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   }
 
   @Override
-  public String getCatalogAsString( String catalogName, final IPentahoSession pentahoSession )
+  public String getCatalogSchemaAsString( String catalogName, final IPentahoSession pentahoSession, boolean applyDSP )
     throws MondrianCatalogServiceException {
     IUnifiedRepository unifiedRepository = PentahoSystem.get( IUnifiedRepository.class, pentahoSession );
 
@@ -898,23 +898,15 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     if ( catalog == null ) {
       return null;
     } else {
-      try {
-        return getCatalogAsString( pentahoSession, catalog );
-      } catch ( Exception e ) {
-        throw new MondrianCatalogServiceException(
-          Messages.getInstance().getErrorString( ERROR_MESSAGE_ERROR_OCCURRED ), e
-        );
+      if ( applyDSP ) {
+        try {
+          return getCatalogAsString( pentahoSession, catalog );
+        } catch ( Exception e ) {
+          throw new MondrianCatalogServiceException(
+            Messages.getInstance().getErrorString( ERROR_MESSAGE_ERROR_OCCURRED ), e
+          );
+        }
       }
-    }
-  }
-
-  @Override
-  public String getCatalogAsStringWithoutDSPChanges( String catalogName, final IPentahoSession pentahoSession )
-    throws MondrianCatalogServiceException {
-    var catalog = getCatalog( catalogName, pentahoSession );
-    if ( catalog == null ) {
-      return null;
-    } else {
       try {
         return Util.readVirtualFileAsString( MONDRIAN_URI_START + catalogName );
       } catch ( IOException e ) {
