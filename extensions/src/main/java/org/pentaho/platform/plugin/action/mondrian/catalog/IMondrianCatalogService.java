@@ -58,29 +58,18 @@ public interface IMondrianCatalogService {
   MondrianCatalog getCatalog( String context, final IPentahoSession pentahoSession );
 
   /**
-   * Returns the String corresponding to the content of the catalog with the given name. Returns <code>null</code> if
-   * name is not found.
+   * Returns the String corresponding to the content of the catalog's schema with the given name. Returns
+   * <code>null</code> if name is not found.
    *
    * @param catalogName
    *   The name of the catalog to fetch
    * @param pentahoSession
-   *   current session object
-   * @return String corresponding to the catalog
+   *   Current session object
+   * @param applyDSP
+   *   Whether the schema should pass through DSP
+   * @return String corresponding to the catalog's schema
    */
-  String getCatalogAsString( String catalogName, final IPentahoSession pentahoSession )
-    throws MondrianCatalogServiceException;
-
-  /**
-   * Returns the String corresponding to the content of the catalog with the given name without applying any DSP.
-   * Returns <code>null</code> if name is not found.
-   *
-   * @param catalogName
-   *   The name of the catalog to fetch
-   * @param pentahoSession
-   *   current session object
-   * @return String corresponding to the catalog
-   */
-  String getCatalogAsStringWithoutDSPChanges( String catalogName, final IPentahoSession pentahoSession )
+  String getCatalogSchemaAsString( String catalogName, final IPentahoSession pentahoSession, boolean applyDSP )
     throws MondrianCatalogServiceException;
 
   /**
