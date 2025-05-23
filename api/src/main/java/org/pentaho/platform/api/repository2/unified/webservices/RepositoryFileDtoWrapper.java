@@ -37,7 +37,7 @@ public class RepositoryFileDtoWrapper {
     }
 
     public RepositoryFileDtoWrapper( List<RepositoryFileDto> repositoryFileDto ) {
-        this.repositoryFileDto = repositoryFileDto;
+        setRepositoryFileDto( repositoryFileDto );
     }
 
     public List<RepositoryFileDto> getRepositoryFileDto() {
@@ -45,6 +45,11 @@ public class RepositoryFileDtoWrapper {
     }
 
     public void setRepositoryFileDto( List<RepositoryFileDto> repositoryFileDto ) {
+        // If the list is empty, set it to null to support old API responses
+        if ( repositoryFileDto != null && repositoryFileDto.isEmpty() ) {
+            repositoryFileDto = null;
+        }
+
         this.repositoryFileDto = repositoryFileDto;
     }
 }
