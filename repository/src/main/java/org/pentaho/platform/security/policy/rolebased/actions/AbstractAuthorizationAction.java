@@ -14,6 +14,7 @@ package org.pentaho.platform.security.policy.rolebased.actions;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
+
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
 import org.pentaho.platform.util.StringUtil;
@@ -31,7 +32,7 @@ public abstract class AbstractAuthorizationAction implements IAuthorizationActio
 
   protected ResourceBundle getResourceBundle( Locale locale ) {
     if ( locale == null ) {
-      return Messages.getInstance().getBundle( LocaleHelper.getLocale( ) );
+      return Messages.getInstance().getBundle( LocaleHelper.getLocale() );
     }
 
     return Messages.getInstance().getBundle( locale );
@@ -46,11 +47,11 @@ public abstract class AbstractAuthorizationAction implements IAuthorizationActio
 
     String[] tokens = localeString.split( UNDERSCORE );
     if ( tokens.length == 3 ) {
-      return new Locale( tokens[0], tokens[1], tokens[2] );
+      return new Locale( tokens[ 0 ], tokens[ 1 ], tokens[ 2 ] );
     } else if ( tokens.length == 2 ) {
-      return new Locale( tokens[0], tokens[1] );
+      return new Locale( tokens[ 0 ], tokens[ 1 ] );
     } else {
-      return new Locale( tokens[0] );
+      return new Locale( tokens[ 0 ] );
     }
   }
 
