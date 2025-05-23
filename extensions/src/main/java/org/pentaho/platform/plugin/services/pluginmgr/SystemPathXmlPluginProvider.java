@@ -266,30 +266,38 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
   protected void processPluginInfo( PlatformPlugin plugin, Document doc, String folder, IPentahoSession session ) {
     Element node = (Element) doc.selectSingleNode( "/plugin" ); //$NON-NLS-1$
 
+    if ( node == null ) {
+      return;
+    }
+
+    String title = node.attributeValue( "title" );
+    plugin.setTitle( title );
+
     // "name" is the attribute that unique identifies a plugin. It acts as the plugin ID. For backwards compatibility,
     // if name is not provided, name is set to the value of the "title" attribute
     //
-    if ( node != null ) {
-      String name =
-          ( node.attributeValue( "name" ) != null ) ? node.attributeValue( "name" ) : node.attributeValue( "title" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      if ( StringUtils.isEmpty( name ) ) {
-        String msg =
-            Messages.getInstance().getErrorString( "SystemPathXmlPluginProvider.ERROR_0002_PLUGIN_INVALID", folder ); //$NON-NLS-1$
-        PluginMessageLogger.add( msg );
-        Logger.error( getClass().toString(), msg );
-      }
-
-      plugin.setId( name );
-      PluginMessageLogger.add( Messages.getInstance().getString(
-        "SystemPathXmlPluginProvider.DISCOVERED_PLUGIN", name, folder ) ); //$NON-NLS-1$
-
-      IPlatformPlugin.ClassLoaderType loaderType = IPlatformPlugin.ClassLoaderType.DEFAULT;
-      String loader = node.attributeValue( "loader" ); //$NON-NLS-1$
-      if ( !StringUtils.isEmpty( loader ) ) {
-        loaderType = IPlatformPlugin.ClassLoaderType.valueOf( loader.toUpperCase() );
-      }
-      plugin.setLoadertype( loaderType );
+    String name = ( node.attributeValue( "name" ) != null ) ? node.attributeValue( "name" ) : title;
+    if ( StringUtils.isEmpty( name ) ) {
+      String msg =
+          Messages.getInstance().getErrorString( "SystemPathXmlPluginProvider.ERROR_0002_PLUGIN_INVALID", folder );
+      PluginMessageLogger.add( msg );
+      Logger.error( getClass().toString(), msg );
     }
+
+    plugin.setId( name );
+    PluginMessageLogger.add( Messages.getInstance().getString(
+      "SystemPathXmlPluginProvider.DISCOVERED_PLUGIN", name, folder ) );
+
+    plugin.setDescription( node.attributeValue( "description" ) );
+
+    plugin.setResourceBundleClassName( node.attributeValue( "resourcebundle" ) );
+
+    IPlatformPlugin.ClassLoaderType loaderType = IPlatformPlugin.ClassLoaderType.DEFAULT;
+    String loader = node.attributeValue( "loader" );
+    if ( !StringUtils.isEmpty( loader ) ) {
+      loaderType = IPlatformPlugin.ClassLoaderType.valueOf( loader.toUpperCase() );
+    }
+    plugin.setLoadertype( loaderType );
   }
 
   protected void processOverlays( PlatformPlugin plugin, Document doc, IPentahoSession session ) {
