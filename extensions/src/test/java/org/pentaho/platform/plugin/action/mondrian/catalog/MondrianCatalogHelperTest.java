@@ -75,6 +75,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
@@ -279,7 +280,7 @@ public class MondrianCatalogHelperTest {
   }
 
   @Test
-  public void testGetCatalogSchemaAsStringWithApplyDSP() throws Exception {
+  public void testGetCatalogSchemaAsString() throws Exception {
     var schemaName = "dummySchemaName";
     var schemaXML =
       String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><cube name=\"cube2\"/></schema>", schemaName );
@@ -297,31 +298,9 @@ public class MondrianCatalogHelperTest {
       setupRepository( pentahoSystem, schemaName, dataSourceInfo );
       setupMondrianCatalogHelperMock( schemaName, schemaXML );
 
-      String catStr = mch.getCatalogSchemaAsString( schemaName, null, true );
+      String catStr = mch.getCatalogSchemaAsString( schemaName, null, true, true );
 
-      assertNotNull( catStr );
-      assertEquals( schemaXML, catStr );
-    }
-  }
-
-  @Test
-  public void testGetCatalogSchemaAsStringWithoutApplyDSP() throws Exception {
-    var schemaName = "dummySchemaName";
-    var schemaXML =
-      String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><cube name=\"cube2\"/></schema>", schemaName );
-    var dataSourceInfo = "dummyDataSourceInfo";
-
-    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class );
-      MockedStatic<Util> util = mockStatic( Util.class ) ) {
-      pentahoSystem.when( () -> PentahoSystem.getCacheManager( eq( null ) ) ).thenReturn( new TestICacheManager() );
-
-      setupRepository( pentahoSystem, schemaName, dataSourceInfo );
-      setupMondrianCatalogHelperMock( schemaName, schemaXML );
-
-      util.when( () -> Util.readVirtualFileAsString( "mondrian:/dummySchemaName" ) ).thenReturn( schemaXML );
-
-      String catStr = mch.getCatalogSchemaAsString( schemaName, null , false);
-
+      verify( mch, times(1)).getCatalogAsString( eq( null ), any(), eq( true ));
       assertNotNull( catStr );
       assertEquals( schemaXML, catStr );
     }
@@ -342,9 +321,9 @@ public class MondrianCatalogHelperTest {
       doReturn( file ).when( unifiedRepository ).getFile( any() );
       setupRepository( pentahoSystem, schemaName, dataSourceInfo );
 
-      doThrow( Exception.class ).when( mch ).getCatalogAsString( eq( null ), any( DataSourcesConfig.Catalog.class ) );
+      doThrow( Exception.class ).when( mch ).getCatalogAsString( eq( null ), any( DataSourcesConfig.Catalog.class ), eq(true) );
 
-      assertThrows( MondrianCatalogServiceException.class, () -> mch.getCatalogSchemaAsString( schemaName, null, true ) );
+      assertThrows( MondrianCatalogServiceException.class, () -> mch.getCatalogSchemaAsString( schemaName, null, true, true ) );
     }
   }
 
@@ -446,7 +425,7 @@ public class MondrianCatalogHelperTest {
   }
 
   private void setupMondrianCatalogHelperMock( String schemaName, String schemaXML ) throws Exception {
-    doReturn( schemaXML ).when( mch ).docAtUrlToString( eq( String.format( "mondrian:/%s", schemaName ) ), any() );
+    doReturn( schemaXML ).when( mch ).docAtUrlToString( eq( String.format( "mondrian:/%s", schemaName ) ), anyBoolean() );
 
     ArgumentCaptor<InputStream> captor = ArgumentCaptor.forClass( InputStream.class );
 

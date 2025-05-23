@@ -48,4 +48,8 @@ public class MondrianFileObject extends DecoratedFileObject {
   public FileObject getAnnotationsFile() {
     return this.annotationsFile;
   }
+
+  public InputStream getSchemaContentInputStream() throws FileSystemException {
+    return this.getDecoratedFileObject().getContent().getInputStream();
+  }
 }

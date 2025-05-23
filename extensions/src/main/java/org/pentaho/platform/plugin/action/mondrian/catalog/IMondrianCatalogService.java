@@ -67,9 +67,11 @@ public interface IMondrianCatalogService {
    *   Current session object
    * @param applyDSP
    *   Whether the schema should pass through DSP
+   * @param applyAnnotations
+   *   Whether the schema should contain annotations
    * @return String corresponding to the catalog's schema
    */
-  String getCatalogSchemaAsString( String catalogName, final IPentahoSession pentahoSession, boolean applyDSP )
+  String getCatalogSchemaAsString( String catalogName, final IPentahoSession pentahoSession, boolean applyDSP, boolean applyAnnotations )
     throws MondrianCatalogServiceException;
 
   /**
