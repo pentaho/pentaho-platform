@@ -270,7 +270,7 @@
     <servlet-class>org.pentaho.platform.web.servlet.PluginDispatchServlet</servlet-class>
     <init-param>
       <param-name>jakarta.ws.rs.Application</param-name>
-      <param-value>org.pentaho.platform.web.servlet.JAXRSPluginApplication</param-value>
+      <param-value>org.pentaho.platform.web.servlet.jersey.JAXRSPluginApplication</param-value>
     </init-param>
   </servlet>
 
@@ -358,7 +358,7 @@
     </init-param>
     <init-param>
       <param-name>jakarta.ws.rs.Application</param-name>
-      <param-value>org.pentaho.platform.web.servlet.JAXRSApplication</param-value>
+      <param-value>org.pentaho.platform.web.servlet.jersey.JAXRSApplication</param-value>
     </init-param>
   </servlet>
 

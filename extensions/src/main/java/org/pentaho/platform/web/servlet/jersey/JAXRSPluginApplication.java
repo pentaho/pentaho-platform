@@ -18,11 +18,14 @@
  *
  */
 
-package org.pentaho.platform.web.servlet;
+package org.pentaho.platform.web.servlet.jersey;
 
 import com.fasterxml.jackson.core.util.JacksonFeature;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.pentaho.platform.web.servlet.PluginDispatchServlet;
 
 /**
  * JAXRSPluginApplication is a class that extends ResourceConfig.
@@ -31,6 +34,8 @@ import org.glassfish.jersey.server.ResourceConfig;
  * This class will be configured as an initialization parameter for the Pentaho-platform's {@link PluginDispatchServlet} in the web.xml file.
  */
 public class JAXRSPluginApplication extends ResourceConfig {
+
+  private static final Log logger = LogFactory.getLog( JAXRSPluginApplication.class );
 
   /**
    * <p>The constructor for the JAXRSPluginApplication class.
@@ -45,5 +50,10 @@ public class JAXRSPluginApplication extends ResourceConfig {
     packages( packages );
     register( MultiPartFeature.class );
     register( JacksonFeature.class );
+
+    if ( logger.isDebugEnabled() ) {
+      property( "jersey.config.server.tracing", "ALL" );
+      property( "jersey.config.server.tracing.threshold", "VERBOSE" );
+    }
   }
 }
