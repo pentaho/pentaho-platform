@@ -10,26 +10,22 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-
 package org.pentaho.platform.api.engine;
 
 /**
- * 
  * Represents a Logical Role name used by some IAuthorizationPolicy implementations. Also known as Action-Based Security
- * 
- * User: nbaker Date: 3/19/13
  */
 public interface IAuthorizationAction {
   /**
    * Get the name of the action
-   * 
+   *
    * @return action name
    */
   String getName();
 
   /**
    * Get the localized display name of the action for the default locale.
-
+   *
    * @return The localized name
    */
   default String getLocalizedDisplayName() {
@@ -39,7 +35,7 @@ public interface IAuthorizationAction {
   /**
    * Get the localized display name of the action for a specific locale.
    * If `locale` is invalid, then the default locale will be used.
-   * 
+   *
    * @param locale The locale to use for localization
    * @return The localized name
    */
@@ -47,7 +43,7 @@ public interface IAuthorizationAction {
 
   /**
    * Get the localized description of the action for the default locale.
-
+   *
    * @return The localized description
    */
   default String getLocalizedDescription() {

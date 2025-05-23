@@ -10,12 +10,8 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-
 package org.pentaho.platform.security.policy.rolebased.actions;
 
-/**
- * User: nbaker Date: 3/19/13
- */
 public class AdministerSecurityAction extends AbstractAuthorizationAction {
   public static final String NAME = "org.pentaho.security.administerSecurity";
 

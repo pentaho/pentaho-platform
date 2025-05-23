@@ -10,12 +10,8 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-
 package org.pentaho.platform.security.policy.rolebased.actions;
 
-/**
- * User: nbaker Date: 3/30/13
- */
 public class PublishAction extends AbstractAuthorizationAction {
   public static final String NAME = "org.pentaho.security.publish";
 

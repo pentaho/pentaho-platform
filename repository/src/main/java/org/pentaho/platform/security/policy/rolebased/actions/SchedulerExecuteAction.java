@@ -10,7 +10,6 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-
 package org.pentaho.platform.security.policy.rolebased.actions;
 
 public class SchedulerExecuteAction extends AbstractAuthorizationAction {
