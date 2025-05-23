@@ -742,7 +742,7 @@ public class PentahoSystemPluginManager implements IPluginManager {
     if ( !pluginDir.exists() || !pluginDir.isDirectory() || !pluginDir.canRead() ) {
       throw new PlatformPluginRegistrationException(
         Messages.getInstance().getErrorString(
-        "PluginManager.ERROR_0027_PLUGIN_DIR_UNAVAILABLE",
+          "PluginManager.ERROR_0027_PLUGIN_DIR_UNAVAILABLE",
           pluginDir.getAbsolutePath() ) );
     }
 
