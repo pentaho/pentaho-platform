@@ -51,22 +51,22 @@ import java.util.List;
 /**
  * An implementation of {@link IPluginProvider} that searches for plugin.xml files in the Pentaho system path and
  * instantiates {@link IPlatformPlugin}s from the information in those files.
- * 
+ *
  * @author aphillips
  */
 public class SystemPathXmlPluginProvider implements IPluginProvider {
 
   public static final String CLASS_PROPERRTY = "class";
+
   /**
    * Gets the list of plugins that this provider class has discovered.
-   * 
+   *
    * @return an read-only list of plugins
-   * @see IPluginProvider#getPlugins()
-   * @throws PlatformPluginRegistrationException
-   *           if there is a problem preventing the impl from looking for plugins
+   * @throws PlatformPluginRegistrationException if there is a problem preventing the impl from looking for plugins
+   * @see IPluginProvider#getPlugins(IPentahoSession)
    */
   public List<IPlatformPlugin> getPlugins( IPentahoSession session ) throws PlatformPluginRegistrationException {
-    List<IPlatformPlugin> plugins = new ArrayList<IPlatformPlugin>();
+    List<IPlatformPlugin> plugins = new ArrayList<>();
 
     // look in each of the system setting folders looking for plugin.xml files
     String systemPath = PentahoSystem.getApplicationContext().getSolutionPath( "system" ); //$NON-NLS-1$
@@ -84,8 +84,8 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
         } catch ( Throwable t ) {
           // don't throw an exception. we need to continue to process any remaining good plugins
           String msg =
-              Messages.getInstance().getErrorString(
-                  "SystemPathXmlPluginProvider.ERROR_0001_FAILED_TO_PROCESS_PLUGIN", kid.getAbsolutePath() ); //$NON-NLS-1$
+            Messages.getInstance().getErrorString(
+              "SystemPathXmlPluginProvider.ERROR_0001_FAILED_TO_PROCESS_PLUGIN", kid.getAbsolutePath() ); //$NON-NLS-1$
           Logger.error( getClass().toString(), msg, t );
           PluginMessageLogger.add( msg );
         }
@@ -107,7 +107,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     filter = new NameFileFilter( "lib", IOCase.SENSITIVE ); //$NON-NLS-1$
     kids = folder.listFiles( filter );
     if ( kids != null && kids.length > 0 ) {
-      hasLib = kids[0].exists() && kids[0].isDirectory();
+      hasLib = kids[ 0 ].exists() && kids[ 0 ].isDirectory();
     }
     // we have found a plugin.xml file
     // get the file from the repository
@@ -125,11 +125,11 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
       }
     } catch ( Exception e ) {
       throw new PlatformPluginRegistrationException( Messages.getInstance().getErrorString(
-          "PluginManager.ERROR_0005_CANNOT_PROCESS_PLUGIN_XML", path ), e ); //$NON-NLS-1$
+        "PluginManager.ERROR_0005_CANNOT_PROCESS_PLUGIN_XML", path ), e ); //$NON-NLS-1$
     }
     if ( doc == null ) {
       throw new PlatformPluginRegistrationException( Messages.getInstance().getErrorString(
-          "PluginManager.ERROR_0005_CANNOT_PROCESS_PLUGIN_XML", path ) ); //$NON-NLS-1$
+        "PluginManager.ERROR_0005_CANNOT_PROCESS_PLUGIN_XML", path ) ); //$NON-NLS-1$
     }
   }
 
@@ -147,14 +147,14 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     processExternalResources( plugin, doc );
     processPerspectives( plugin, doc );
 
-    int listenerCount = plugin.getLifecycleListenerClassnames() != null ? plugin.getLifecycleListenerClassnames().size()  : 0;
+    int listenerCount = plugin.getLifecycleListenerClassnames() != null ? plugin.getLifecycleListenerClassnames().size() : 0;
     String msg =
-        Messages.getInstance().getString(
-            "SystemPathXmlPluginProvider.PLUGIN_PROVIDES", //$NON-NLS-1$
-            Integer.toString( plugin.getContentInfos().size() ),
-            Integer.toString( plugin.getContentGenerators().size() ),
-            Integer.toString( plugin.getOverlays().size() ),
-            Integer.toString( listenerCount) );
+      Messages.getInstance().getString(
+        "SystemPathXmlPluginProvider.PLUGIN_PROVIDES", //$NON-NLS-1$
+        Integer.toString( plugin.getContentInfos().size() ),
+        Integer.toString( plugin.getContentGenerators().size() ),
+        Integer.toString( plugin.getOverlays().size() ),
+        Integer.toString( listenerCount ) );
     PluginMessageLogger.add( msg );
 
     plugin.setSourceDescription( folder );
@@ -208,8 +208,8 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
   protected void processLifecycleListeners( PlatformPlugin plugin, Document doc ) {
     List<Node> nodes = doc.selectNodes( "//lifecycle-listener" ); //$NON-NLS-1$
     if ( nodes != null && !nodes.isEmpty() ) {
-      for(Node node: nodes) {
-        String classname = ((Element) node).attributeValue( CLASS_PROPERRTY );
+      for ( Node node : nodes ) {
+        String classname = ( (Element) node ).attributeValue( CLASS_PROPERRTY );
         plugin.addLifecycleListenerClassname( classname );
       }
     }
@@ -244,7 +244,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
       pws.setServiceBeanId( getProperty( node, "ref" ) ); //$NON-NLS-1$
       pws.setServiceClass( getProperty( node, CLASS_PROPERRTY ) );
 
-      Collection<String> extraClasses = new ArrayList<String>();
+      Collection<String> extraClasses = new ArrayList<>();
       List<?> extraNodes = node.selectNodes( "extra" ); //$NON-NLS-1$
       for ( Object extra : extraNodes ) {
         Element extraElement = (Element) extra;
@@ -279,7 +279,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     String name = ( node.attributeValue( "name" ) != null ) ? node.attributeValue( "name" ) : title;
     if ( StringUtils.isEmpty( name ) ) {
       String msg =
-          Messages.getInstance().getErrorString( "SystemPathXmlPluginProvider.ERROR_0002_PLUGIN_INVALID", folder );
+        Messages.getInstance().getErrorString( "SystemPathXmlPluginProvider.ERROR_0002_PLUGIN_INVALID", folder );
       PluginMessageLogger.add( msg );
       Logger.error( getClass().toString(), msg );
     }
@@ -399,7 +399,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
   }
 
   protected void processContentGenerators( PlatformPlugin plugin, Document doc, IPentahoSession session, String folder,
-      boolean hasLib ) {
+                                           boolean hasLib ) {
     // look for content generators
     List<?> nodes = doc.selectNodes( "//content-generator" ); //$NON-NLS-1$
     for ( Object obj : nodes ) {
@@ -418,11 +418,11 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
         if ( id != null && type != null && className != null && title != null ) {
           try {
             IContentGeneratorInfo info =
-                createContentGenerator( plugin, id, title, description, type, url, className, session, folder );
+              createContentGenerator( plugin, id, title, description, type, url, className, session, folder );
             plugin.addContentGenerator( info );
           } catch ( Exception e ) {
             PluginMessageLogger.add( Messages.getInstance().getString(
-                "PluginManager.USER_CONTENT_GENERATOR_NOT_REGISTERED", id, folder ) ); //$NON-NLS-1$
+              "PluginManager.USER_CONTENT_GENERATOR_NOT_REGISTERED", id, folder ) ); //$NON-NLS-1$
           }
         } else {
           PluginMessageLogger.add( Messages.getInstance().getString(
@@ -432,15 +432,15 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
         PluginMessageLogger.add( Messages.getInstance().getString(
           "PluginManager.USER_CONTENT_GENERATOR_NOT_REGISTERED", id, folder ) ); //$NON-NLS-1$
         Logger.error( getClass().toString(), Messages.getInstance().getErrorString(
-            "PluginManager.ERROR_0006_CANNOT_CREATE_CONTENT_GENERATOR_FACTORY", folder ), e ); //$NON-NLS-1$
+          "PluginManager.ERROR_0006_CANNOT_CREATE_CONTENT_GENERATOR_FACTORY", folder ), e ); //$NON-NLS-1$
       }
     }
   }
 
   private static IContentGeneratorInfo createContentGenerator( PlatformPlugin plugin, String id, String title,
-      String description, String type, String url, String className, IPentahoSession session, String location )
-    throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-
+                                                               String description, String type, String url,
+                                                               String className, IPentahoSession session,
+                                                               String location ) {
     ContentGeneratorInfo info = new ContentGeneratorInfo();
     info.setId( id );
     info.setTitle( title );

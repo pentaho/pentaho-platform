@@ -29,7 +29,7 @@ import java.util.Map;
  * responsible for serving these to requesting clients, such as the {@link IPluginManager}. The presence of an
  * instance of an {@link IPlatformPlugin} does not necessarily mean that the plugin is loaded. An implementations
  * of this interface represents merely a plugin configuration.
- * 
+ *
  * @author jdixon
  */
 public interface IPlatformPlugin extends IPluginLifecycleListener {
@@ -40,7 +40,7 @@ public interface IPlatformPlugin extends IPluginLifecycleListener {
 
   /**
    * Returns the unique ID of this plugin
-   * 
+   *
    * @return the plugin id
    */
   public String getId();
@@ -105,35 +105,35 @@ public interface IPlatformPlugin extends IPluginLifecycleListener {
 
   /**
    * A short description of where this plugin came from, e.g. "biserver/solutions/pluginA"
-   * 
+   *
    * @return
    */
   public String getSourceDescription();
 
   /**
    * Returns the list of content generators for this plug-in
-   * 
+   *
    * @return
    */
   public List<IContentGeneratorInfo> getContentGenerators();
 
   /**
    * Returns a list of overlays for this plug-in
-   * 
+   *
    * @return
    */
   public List<XulOverlay> getOverlays();
 
   /**
    * Returns a list of content info objects for this plug-in
-   * 
+   *
    * @return
    */
   public List<IContentInfo> getContentInfos();
 
   /**
    * Returns a list of perspective objects for this plug-in
-   * 
+   *
    * @return plugin perspectives
    */
   public List<IPluginPerspective> getPluginPerspectives();
@@ -160,32 +160,32 @@ public interface IPlatformPlugin extends IPluginLifecycleListener {
    * @return lifecycle listener class name
    */
   public List<String> getLifecycleListenerClassnames();
+
   /**
    * Registers a lifecycle listener with this plugin. This listener will be notified when lifecycle events occur on
    * this plugin.
-   * 
-   * @param listener
-   *          a lifecycle listener
+   *
+   * @param listener a lifecycle listener
    */
   public void addLifecycleListener( IPluginLifecycleListener listener );
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.pentaho.platform.api.engine.IPluginLifecycleListener#init()
    */
   public void init() throws PluginLifecycleException;
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.pentaho.platform.api.engine.IPluginLifecycleListener#loaded()
    */
   public void loaded() throws PluginLifecycleException;
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.pentaho.platform.api.engine.IPluginLifecycleListener#unLoaded()
    */
   public void unLoaded() throws PluginLifecycleException;
@@ -193,15 +193,15 @@ public interface IPlatformPlugin extends IPluginLifecycleListener {
   /**
    * The storage mechanism for a plugin to know what ISolutionFileMetaProvider class should be used for a
    * particular content type.
-   * 
+   *
    * @return a map of content types (extensions) keys and ISolutionFileMetaProvider (or deprecated
-   *         IFileInfoGenerator) classnames for values
+   * IFileInfoGenerator) classnames for values
    */
   public Map<String, String> getMetaProviderMap();
 
   /**
    * Returns the list of the webservices defined by this plugin.
-   * 
+   *
    * @return the definitions of the webservices for this plugin
    */
   public Collection<PluginServiceDefinition> getServices();
@@ -209,17 +209,16 @@ public interface IPlatformPlugin extends IPluginLifecycleListener {
   /**
    * Indicates what kind of classloader should be used to load classes and resources from this plugin. The default
    * classloader type is no more than an extension of {@link java.net.URLClassLoader}.
-   * 
-   * @see IPlatformPlugin.ClassLoaderType
+   *
    * @return the type of classloader to use for this plugin
+   * @see IPlatformPlugin.ClassLoaderType
    */
   public ClassLoaderType getLoaderType();
 
   /**
    * Return a List of scripts registered for a given context.
-   * 
-   * @param context
-   *          named area in the platform
+   *
+   * @param context named area in the platform
    * @return list of registered scripts
    */
   List<String> getExternalResourcesForContext( String context );

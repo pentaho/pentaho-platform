@@ -61,11 +61,11 @@ public class PentahoSystemPluginManagerIT extends DefaultPluginManagerIT {
     microPlatform.define( IPluginProvider.class, SystemPathXmlPluginProvider.class );
     microPlatform.define( IPluginResourceLoader.class, PluginResourceLoader.class );
     microPlatform
-        .define( IServiceManager.class, DefaultServiceManager.class, IPentahoDefinableObjectFactory.Scope.GLOBAL );
+      .define( IServiceManager.class, DefaultServiceManager.class, IPentahoDefinableObjectFactory.Scope.GLOBAL );
     microPlatform.define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class,
-        IPentahoDefinableObjectFactory.Scope.GLOBAL );
+      IPentahoDefinableObjectFactory.Scope.GLOBAL );
     FileSystemBackedUnifiedRepository repo =
-        (FileSystemBackedUnifiedRepository) PentahoSystem.get( IUnifiedRepository.class );
+      (FileSystemBackedUnifiedRepository) PentahoSystem.get( IUnifiedRepository.class );
     repo.setRootDir( new File( TestResourceLocation.TEST_RESOURCES + "/PluginManagerTest" ) );
 
     session = new StandaloneSession();

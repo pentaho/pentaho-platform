@@ -183,7 +183,7 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
    * If the key is not found or no resource bundle is found for the specified locale,
    * then `value` is returned.
    *
-   * @param value the value string to be localized
+   * @param value  the value string to be localized
    * @param locale the locale to use for localization
    * @return the localized string or `value` if not found
    */
@@ -270,7 +270,7 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
 
   /**
    * Sets the unique id for this plug-in
-   * 
+   *
    * @param id
    */
   public void setId( String id ) {
@@ -279,7 +279,7 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
 
   /**
    * Adds an initializer to this plug-in
-   * 
+   *
    * @param initializer
    */
   public void addInitializer( IPentahoInitializer initializer ) {
@@ -288,7 +288,7 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
 
   /**
    * Adds a content generator to this plug-in
-   * 
+   *
    * @param contentGenerator
    */
   public void addContentGenerator( IContentGeneratorInfo contentGenerator ) {
@@ -297,7 +297,7 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
 
   /**
    * Adds a content info type to this plug-in
-   * 
+   *
    * @param contentInfo
    */
   public void addContentInfo( IContentInfo contentInfo ) {
@@ -306,7 +306,7 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
 
   /**
    * Adds an overlay to this plug-in
-   * 
+   *
    * @param overlay
    */
   public void addOverlay( XulOverlay overlay ) {
@@ -351,7 +351,7 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
 
   public void init() throws PluginLifecycleException {
     if ( lifecycleListeners != null && !lifecycleListeners.isEmpty() ) {
-      for(IPluginLifecycleListener lifecycleListener:lifecycleListeners) {
+      for ( IPluginLifecycleListener lifecycleListener : lifecycleListeners ) {
         lifecycleListener.init();
       }
     }
@@ -359,7 +359,7 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
 
   public void loaded() throws PluginLifecycleException {
     if ( lifecycleListeners != null && !lifecycleListeners.isEmpty() ) {
-      for(IPluginLifecycleListener lifecycleListener:lifecycleListeners) {
+      for ( IPluginLifecycleListener lifecycleListener : lifecycleListeners ) {
         lifecycleListener.loaded();
       }
     }
@@ -367,14 +367,14 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
 
   public void unLoaded() throws PluginLifecycleException {
     if ( lifecycleListeners != null && !lifecycleListeners.isEmpty() ) {
-      for(IPluginLifecycleListener lifecycleListener:lifecycleListeners) {
+      for ( IPluginLifecycleListener lifecycleListener : lifecycleListeners ) {
         lifecycleListener.unLoaded();
       }
     }
   }
 
   public void addLifecycleListener( IPluginLifecycleListener listener ) {
-    this.lifecycleListeners.add(listener);
+    this.lifecycleListeners.add( listener );
   }
 
   public Map<String, String> getMetaProviderMap() {
