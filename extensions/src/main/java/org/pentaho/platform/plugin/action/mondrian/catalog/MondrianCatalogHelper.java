@@ -116,12 +116,15 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   public static final String SOLUTION_PREFIX = "solution:"; //$NON-NLS-1$
   public static final String MONDRIAN_CATALOG_CACHE_REGION = "mondrian-catalog-cache"; //$NON-NLS-1$
   private static final String MONDRIAN_FILE_PROVIDER_IDENTIFIER = "mondrian"; //$NON-NLS-1$
+  private static final String MONDRIAN_URI_START = "mondrian:/";
+  private static final String ANNOTATED_SCHEMA_FILE = "schema.annotated.xml";
+  private static final String ANNOTATIONS_FILE = "annotations.xml";
+  private static final String SCHEMA_FILE = "schema.xml";
 
   // ~ Static fields/initializers ======================================================================================
 
   private static final Log logger = LogFactory.getLog( MondrianCatalogHelper.class );
 
-  private static final String MONDRIAN_URI_START = "mondrian:/";
 
   // ~ Error and warning messages ======================================================================================
 
@@ -909,10 +912,10 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
         );
       }
     }
-    if ( applyAnnotations && catalogFiles.containsKey( "annotations.xml" )) {
-      return FileHelper.getStringFromInputStream( catalogFiles.get( "schema.annotated.xml" ) );
+    if ( applyAnnotations && catalogFiles.containsKey( ANNOTATIONS_FILE )) {
+      return FileHelper.getStringFromInputStream( catalogFiles.get( ANNOTATED_SCHEMA_FILE ) );
     } else {
-      return FileHelper.getStringFromInputStream( catalogFiles.get( "schema.xml" ) );
+      return FileHelper.getStringFromInputStream( catalogFiles.get( SCHEMA_FILE ) );
     }
   }
 
@@ -920,8 +923,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   public String getCatalogAnnotationsAsString( String catalogName ) throws MondrianCatalogServiceException {
     var helper = getMondrianCatalogRepositoryHelper();
     var catalogFiles = helper.getMondrianSchemaFiles( catalogName );
-    if ( catalogFiles.containsKey( "annotations.xml" ) ) {
-      return FileHelper.getStringFromInputStream( catalogFiles.get( "annotations.xml" ) );
+    if ( catalogFiles.containsKey( ANNOTATIONS_FILE ) ) {
+      return FileHelper.getStringFromInputStream( catalogFiles.get( ANNOTATIONS_FILE ) );
     }
     return null;
   }
@@ -945,7 +948,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     mondrianCatalogCache.getMondrianCatalogCacheState( ).setFullyLoaded( );
   }
 
-  protected String applyDSP( IPentahoSession ps, String catalogDsInfo, String catalogDefinition, boolean applyAnnotations ) throws Exception {
+  protected String applyDSP( String catalogDsInfo, String catalogDefinition, boolean applyAnnotations ) throws Exception {
 
     PropertyList pl = Util.parseConnectString( catalogDsInfo );
     String dsp = pl.get( RolapConnectionProperties.DynamicSchemaProcessor.name() );
@@ -963,7 +966,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   protected String getCatalogAsString( IPentahoSession ps, DataSourcesConfig.Catalog catalog, boolean applyAnnotations ) throws Exception {
     if ( catalog.dataSourceInfo != null ) {
-      return applyDSP( ps, catalog.dataSourceInfo, catalog.definition, applyAnnotations );
+      return applyDSP( catalog.dataSourceInfo, catalog.definition, applyAnnotations );
     } else {
       MondrianCatalogHelper.logger.warn( Messages.getInstance().getString(
           "MondrianCatalogHelper.WARN_NO_CATALOG_DATASOURCE_INFO", catalog.name ) );
