@@ -918,22 +918,12 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   @Override
   public String getCatalogAnnotationsAsString( String catalogName ) throws MondrianCatalogServiceException {
-    try {
-      FileSystemManager fsManager = VFS.getManager();
-      FileObject catalogFile = fsManager.resolveFile( MONDRIAN_URI_START + catalogName );
-      // If the FileObject is an instance of MondrianFileObject, it will have an annotations.xml file
-      if ( catalogFile instanceof MondrianFileObject ) {
-        return FileHelper.getStringFromInputStream(
-          ( (MondrianFileObject) catalogFile ).getAnnotationsFile().getContent().getInputStream() );
-      } else {
-        return null;
-      }
-    } catch ( FileSystemException e ) {
-      throw new MondrianCatalogServiceException(
-        Messages.getInstance().getErrorString(
-          ERROR_MESSAGE_FILE_SYSTEM_PROBLEM ), e
-      );
+    var helper = getMondrianCatalogRepositoryHelper();
+    var catalogFiles = helper.getMondrianSchemaFiles( catalogName );
+    if ( catalogFiles.containsKey( "annotations.xml" ) ) {
+      return FileHelper.getStringFromInputStream( catalogFiles.get( "annotations.xml" ) );
     }
+    return null;
   }
 
   protected void loadCatalogsIntoCache( final DataSourcesConfig.DataSources dataSources,

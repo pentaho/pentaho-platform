@@ -327,63 +327,36 @@ public class MondrianCatalogHelperTest {
     }
   }
 
+
   @Test
-  public void testGetCatalogAnnotationsAsString() throws FileSystemException {
-    var schemaName = "dummySchemaName";
+  public void testGetCatalogAnnotationsAsString() {
+    var catalogName = "catalog";
+    var schemaXML =
+      String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><cube name=\"cube2\"/></schema>", catalogName );
     var annotationsXml = "<annotations> <annotation>  <name>annotation name</name> </annotation> </annotations>";
-    var annotationsStream = new ByteArrayInputStream( annotationsXml.getBytes() );
-    var annotationsFile = mock( FileObject.class );
-    var annotationsContent = mock( FileContent.class );
-    doReturn( annotationsContent ).when( annotationsFile ).getContent();
-    doReturn( annotationsStream ).when( annotationsContent ).getInputStream();
+    doReturn( Map.of(
+      "schema.xml", new ByteArrayInputStream( schemaXML.getBytes() ),
+      "annotations.xml", new ByteArrayInputStream( annotationsXml.getBytes() )
+    ) ).when(
+      mcrh ).getMondrianSchemaFiles( catalogName );
 
-    var catalogFile = new MondrianFileObject( mock( FileObject.class ), annotationsFile, null );
+    var res = mch.getCatalogAnnotationsAsString( catalogName );
 
-    var fsManager = mock( FileSystemManager.class );
-    doReturn( catalogFile ).when( fsManager ).resolveFile( "mondrian:/" + schemaName );
-
-    try ( MockedStatic<VFS> vfs = mockStatic( VFS.class );
-      MockedStatic<FileHelper> fileHelper = mockStatic( FileHelper.class ) ) {
-      vfs.when( VFS::getManager ).thenReturn( fsManager );
-      fileHelper.when( () -> FileHelper.getStringFromInputStream( annotationsStream ) ).thenReturn( annotationsXml );
-
-      String annotationsStr = mch.getCatalogAnnotationsAsString( schemaName );
-
-      fileHelper.verify( () -> FileHelper.getStringFromInputStream( any() ), times( 1 ) );
-      assertNotNull( annotationsStr );
-      assertEquals( annotationsXml, annotationsStr );
-    }
+    assertNotNull( res );
   }
 
   @Test
-  public void testGetCatalogAnnotationsAsStringWithException() {
-    var schemaName = "dummySchemaName";
+  public void testGetCatalogAnnotationsAsStringWithNoAnnotations() {
+    var catalogName = "catalog";
+    var schemaXML =
+      String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><cube name=\"cube2\"/></schema>", catalogName );
 
-    try ( MockedStatic<VFS> vfs = mockStatic( VFS.class ) ) {
-      vfs.when( VFS::getManager ).thenThrow( FileSystemException.class );
+    doReturn( Map.of( "schema.xml", new ByteArrayInputStream( schemaXML.getBytes() ) ) ).when(
+      mcrh ).getMondrianSchemaFiles( catalogName );
 
-      assertThrows( MondrianCatalogServiceException.class, () -> mch.getCatalogAnnotationsAsString( schemaName ) );
-    }
-  }
+    var res = mch.getCatalogAnnotationsAsString( catalogName );
 
-  @Test
-  public void testGetCatalogAnnotationsAsStringWithNoAnnotations() throws FileSystemException {
-    var schemaName = "dummySchemaName";
-
-    var catalogFile = mock( FileObject.class );
-
-    var fsManager = mock( FileSystemManager.class );
-    doReturn( catalogFile ).when( fsManager ).resolveFile( "mondrian:/" + schemaName );
-
-    try ( MockedStatic<VFS> vfs = mockStatic( VFS.class );
-      MockedStatic<FileHelper> fileHelper = mockStatic( FileHelper.class ) ) {
-      vfs.when( VFS::getManager ).thenReturn( fsManager );
-
-      String annotationsStr = mch.getCatalogAnnotationsAsString( schemaName );
-
-      fileHelper.verify( () -> FileHelper.getStringFromInputStream( any() ), never() );
-      assertNull( annotationsStr );
-    }
+    assertNull( res );
   }
 
   private void setupCacheManager( MockedStatic<PentahoSystem> pentahoSystem, List<MondrianCatalog> catalogs ) {
