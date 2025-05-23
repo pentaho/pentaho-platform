@@ -265,18 +265,24 @@ public class PluginDispatchServlet implements Servlet {
     String[] beanNames = BeanFactoryUtils.beanNamesIncludingAncestors( factory );
     Set<String> packageNames = new HashSet<>();
     for ( String beanName : beanNames ) {
-      Object bean = factory.getBean( beanName );
-      if ( bean != null ) {
-        if ( beanName != null ) {
-          String beanClass = factory.getBean( beanName ).getClass().getName();
-          if ( beanClass.contains( "." ) ) {
-            packageNames.add( beanClass.substring( 0, beanClass.lastIndexOf( "." ) ) );
-          }
+      Object bean;
+      if ( !BeanFactoryUtils.isGeneratedBeanName( beanName ) ) {
+        bean = factory.getBean( beanName );
+        if ( bean != null ) {
+          addPackageFromClassName( bean.getClass().getName(), packageNames );
         }
+      } else {
+        addPackageFromClassName( BeanFactoryUtils.originalBeanName( beanName ), packageNames );
       }
     }
 
     return packageNames.toArray( new String[ 0 ] );
+  }
+
+  private void addPackageFromClassName( String fullyQualifiedClassName, Set<String> packageNames ) {
+    if ( fullyQualifiedClassName != null && fullyQualifiedClassName.contains( "." ) ) {
+      packageNames.add( fullyQualifiedClassName.substring( 0, fullyQualifiedClassName.lastIndexOf( "." ) ) );
+    }
   }
 
   public ServletConfig getServletConfig() {
