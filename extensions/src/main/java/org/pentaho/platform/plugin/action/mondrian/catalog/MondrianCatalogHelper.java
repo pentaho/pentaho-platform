@@ -908,7 +908,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
         return getCatalogAsString( pentahoSession, catalog, applyAnnotations );
       } catch ( Exception e ) {
         throw new MondrianCatalogServiceException(
-          Messages.getInstance().getErrorString( "ERROR" ), e
+          Messages.getInstance().getErrorString( ERROR_MESSAGE_ERROR_OCCURRED ), e
         );
       }
     }
