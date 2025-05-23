@@ -23,6 +23,7 @@ import org.pentaho.platform.api.engine.IPluginManagerListener;
 import org.pentaho.platform.api.websocket.IWebsocketEndpointConfig;
 import org.pentaho.platform.engine.core.audit.MDCUtil;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.web.servlet.jersey.JAXRSPluginApplication;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
