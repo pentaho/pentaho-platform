@@ -13,14 +13,15 @@
 
 package org.pentaho.platform.web.servlet;
 
+import jakarta.inject.Provider;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.ext.Providers;
 import com.google.common.annotations.VisibleForTesting;
-import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.message.MessageBodyWorkers;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.glassfish.jersey.servlet.WebConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.objfac.spring.PentahoBeanScopeValidatorPostProcessor;
 import org.springframework.context.ApplicationContext;
@@ -37,14 +38,12 @@ import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This should only be used by a plugin in the plugin.spring.xml file to initialize a Jersey. The presence of this
@@ -65,7 +64,7 @@ public class JAXRSServlet extends ServletContainer {
   protected boolean SendEmptyEntityForServicesFlag;
 
   @Context
-  private Providers providers;
+  private Provider<MessageBodyWorkers> provider;
 
   protected ConfigurableApplicationContext getContext() {
     return (ConfigurableApplicationContext) getAppContext();
@@ -117,19 +116,13 @@ public class JAXRSServlet extends ServletContainer {
     super.service( req, res );
   }
 
-  @SuppressWarnings( "unchecked" )
-  protected void initiate( ResourceConfig rc ) throws ServletException {
+  @Override
+  protected void init(WebConfig webConfig) throws ServletException {
+    super.init(webConfig);
     if ( logger.isDebugEnabled() ) {
-      rc.property( "jersey.config.server.tracing", "ALL" );
-      rc.property( "jersey.config.server.tracing.threshold", "VERBOSE" );
-    }
-    super.init();
-    if ( logger.isDebugEnabled() ) {
-      MediaType mediaType = MediaType.WILDCARD_TYPE;
-      Class<?> type = String.class;
-      Type genericType = type;
-      Annotation[] annotations = new Annotation[ 0 ];
-      List<MessageBodyWriter<?>> writers = Collections.singletonList( providers.getMessageBodyWriter( type, genericType, annotations, mediaType ) );
+      MessageBodyWorkers messageBodyWorkers = provider.get();
+      Map<MediaType, List<MessageBodyWriter>> writers = messageBodyWorkers == null ? null
+              : messageBodyWorkers.getWriters( MediaType.WILDCARD_TYPE );
       logger.debug( "Writers: " + writers );
     }
   }
