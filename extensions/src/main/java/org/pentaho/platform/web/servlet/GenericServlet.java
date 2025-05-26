@@ -13,6 +13,7 @@
 
 package org.pentaho.platform.web.servlet;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -51,6 +52,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GenericServlet extends ServletBase {
 
@@ -59,6 +62,13 @@ public class GenericServlet extends ServletBase {
   private static final Log logger = LogFactory.getLog( GenericServlet.class );
   private static final String CACHE_FILE = "file"; //$NON-NLS-1$
   private static ICacheManager cache = PentahoSystem.getCacheManager( null );
+
+  /**
+   * This pattern is used to match the path in the format of "/content/<static-resource-url>".
+   * It assumes the REST resource is being served via its default URL, {@code /content}.
+   * Used by {@link #isStaticResource(HttpServletRequest)}.
+   */
+  private static final Pattern PATH_PATTERN = Pattern.compile( "\\A/content/(.+)\\Z" );
 
   private boolean showDeprecationMessage;
 
@@ -79,6 +89,51 @@ public class GenericServlet extends ServletBase {
     super.init();
     String value = getServletConfig().getInitParameter( "showDeprecationMessage" );
     showDeprecationMessage = Boolean.parseBoolean( value );
+  }
+
+  /**
+   * Determines if the request is for a static resource handled by this content generator handler
+   * assuming it's being served via its default URL, {@code /content}.
+   * <p>
+   * This particular method can be used without performing servlet initialization, via {@link #init()}.
+   * <p>
+   * The implementation of this method uses the exact same rules used by
+   * {@link #doGet(HttpServletRequest, HttpServletResponse)} to identify static resources. The two must be kept in sync.
+   *
+   * @param request The request.
+   * @return {@code true} if the request is for a static resource; {@code false}, otherwise.
+   */
+  public boolean isStaticResource( @NonNull final HttpServletRequest request ) {
+    if ( StringUtils.isEmpty( request.getPathInfo() ) ) {
+      return false;
+    }
+
+    String fullPath = request.getServletPath() + request.getPathInfo();
+
+    Matcher matcher = PATH_PATTERN.matcher( fullPath );
+    if ( !matcher.matches() ) {
+      return false;
+    }
+
+    // Assume it is a static resource, but then check the hypothesis.
+    String staticResourceUrl = matcher.group( 1 );
+
+    IPluginManager pluginManager = getPluginManager( request );
+    if ( pluginManager == null ) {
+      return false;
+    }
+
+    // Determine the plugin from the static resource URL, and then double check it is a static resource.
+    // Must use the deprecated methods to have the exact same behavior as the doGet() method.
+    @SuppressWarnings( {"deprecation"} )
+    String pluginId = pluginManager.getServicePlugin( staticResourceUrl );
+    if ( pluginId == null ) {
+      return false;
+    }
+
+    @SuppressWarnings( "deprecation" )
+    boolean isStaticResource = pluginManager.isStaticResource( staticResourceUrl );
+    return isStaticResource;
   }
 
   @Override
@@ -148,8 +203,9 @@ public class GenericServlet extends ServletBase {
         debug( "GenericServlet contentGeneratorId=" + contentGeneratorId ); //$NON-NLS-1$
         debug( "GenericServlet urlPath=" + urlPath ); //$NON-NLS-1$
       }
+
       IPentahoSession session = getPentahoSession( request );
-      IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, session );
+      IPluginManager pluginManager = getPluginManager( request );
       if ( pluginManager == null ) {
         OutputStream out = response.getOutputStream();
         String message =
@@ -332,5 +388,10 @@ public class GenericServlet extends ServletBase {
     OutputStream out = response.getOutputStream();
     HttpOutputHandler handler = new HttpOutputHandler( response, out, allowFeedback );
     return handler;
+  }
+
+  protected IPluginManager getPluginManager( final HttpServletRequest request ) {
+    IPentahoSession session = getPentahoSession( request );
+    return PentahoSystem.get( IPluginManager.class, session );
   }
 }
