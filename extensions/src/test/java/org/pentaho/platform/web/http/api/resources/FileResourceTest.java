@@ -1545,14 +1545,14 @@ public class FileResourceTest {
 
     // Test 1
     RepositoryFileDtoWrapper testList = fileResource.doGetGeneratedContent( PATH_ID );
-    assertEquals( 0, testList.getRepositoryFileDto().size() );
+    assertNull( testList.getRepositoryFileDto() );
 
     // Test 2
     Throwable mockThrowable = mock( RuntimeException.class );
     doThrow( mockThrowable ).when( fileResource.fileService ).doGetGeneratedContent( PATH_ID );
 
     testList = fileResource.doGetGeneratedContent( PATH_ID );
-    assertEquals( 0, testList.getRepositoryFileDto().size() );
+    assertNull( testList.getRepositoryFileDto() );
 
     verify( fileResource.fileService, times( 2 ) ).doGetGeneratedContent( PATH_ID );
     verify( fileResource, times( 1 ) ).getMessagesInstance();
@@ -1586,14 +1586,14 @@ public class FileResourceTest {
 
     // Test 1
    RepositoryFileDtoWrapper testList = fileResource.doGetGeneratedContentForUser( PATH_ID, user );
-    assertEquals( 0, testList.getRepositoryFileDto().size() );
+    assertNull( testList.getRepositoryFileDto() );
 
     // Test 2
     Throwable mockThrowable = mock( RuntimeException.class );
     doThrow( mockThrowable ).when( fileResource.fileService ).doGetGeneratedContent( PATH_ID, user );
 
     testList = fileResource.doGetGeneratedContentForUser( PATH_ID, user );
-    assertEquals( 0, testList.getRepositoryFileDto().size() );
+    assertNull( testList.getRepositoryFileDto() );
 
     verify( fileResource.fileService, times( 2 ) ).doGetGeneratedContent( PATH_ID, user );
     verify( fileResource, times( 1 ) ).getMessagesInstance();
@@ -1629,7 +1629,7 @@ public class FileResourceTest {
       .doGetChildren( FileUtils.PATH_SEPARATOR, filter, showHidden, includeAcls );
 
     RepositoryFileDtoWrapper testList = fileResource.doGetRootChildren( filter, showHidden, includeAcls );
-    assertEquals( mockList, testList.getRepositoryFileDto() );
+    assertNull( testList.getRepositoryFileDto() );
 
     verify( fileResource.fileService, times( 1 ) ).doGetChildren( FileUtils.PATH_SEPARATOR, filter, showHidden,
       includeAcls );
