@@ -177,4 +177,27 @@ public class PentahoSystemPluginManagerIT extends DefaultPluginManagerIT {
       assertTrue( ex instanceof PluginBeanException );
     }
   }
+
+  @Test
+  public void testPluginResourceBundleProvider() throws Exception {
+    init0();
+    microPlatform.start();
+
+    PluginMessageLogger.clear();
+    pluginManager.reload();
+
+    List<IPlatformPlugin> plugins = PentahoSystem.getAll( IPlatformPlugin.class );
+    assertEquals( "Invalid plugin count", 1, plugins.size() );
+
+    IPlatformPlugin plugin = plugins.get( 0 );
+
+    // valid resource bundle class name
+    assertEquals( "Invalid plugin resource bundle classname", "messages",
+      plugin.getResourceBundleClassName() );
+
+    // validly translated and interpolated title and description
+    assertEquals( "Invalid plugin title", "Plugin 1 Title", plugin.getTitle() );
+    assertEquals( "Invalid plugin description", "Plugin 1 Description - Plugin 1 Description",
+      plugin.getDescription() );
+  }
 }
