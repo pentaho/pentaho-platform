@@ -13,6 +13,7 @@
 
 package org.pentaho.platform.plugin.services.pluginmgr;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -334,14 +335,7 @@ public class PentahoSystemPluginManager implements IPluginManager {
     GenericApplicationContext beanFactory = getPluginObject( GenericApplicationContext.class, plugin.getId() );
     assert beanFactory != null;
 
-    var resourceBundleBaseName = plugin.getResourceBundleClassName();
-    // set the provider that will be used to load the plugin's resource bundles for localization
-    if ( !StringUtil.isEmpty( resourceBundleBaseName ) ) {
-      plugin.setResourceBundleProvider( new CachingResourceBundleProvider(
-        ( Locale locale ) ->
-          ResourceBundle.getBundle( resourceBundleBaseName, Objects.requireNonNull( locale ), loader )
-      ) );
-    }
+    setResourceBundleProvider( plugin, loader );
 
     createAndRegisterLifecycleListeners( plugin, loader );
 
@@ -372,6 +366,25 @@ public class PentahoSystemPluginManager implements IPluginManager {
         plugin.getId() );
       org.pentaho.platform.util.logging.Logger.error( getClass().toString(), msg, t );
       PluginMessageLogger.add( msg );
+    }
+  }
+
+  /**
+   * Sets the resource bundle provider for the plugin.
+   * This is used to load the plugin's resource bundles for localization.
+   *
+   * @param plugin the plugin for which to set the resource bundle provider
+   * @param loader the class loader to use for loading the resource bundles
+   */
+  @VisibleForTesting
+  protected void setResourceBundleProvider( final IPlatformPlugin plugin, final ClassLoader loader ) {
+    var resourceBundleBaseName = plugin.getResourceBundleClassName();
+    // set the provider that will be used to load the plugin's resource bundles for localization
+    if ( !StringUtil.isEmpty( resourceBundleBaseName ) ) {
+      plugin.setResourceBundleProvider( new CachingResourceBundleProvider(
+        ( Locale locale ) ->
+          ResourceBundle.getBundle( resourceBundleBaseName, Objects.requireNonNull( locale ), loader )
+      ) );
     }
   }
 

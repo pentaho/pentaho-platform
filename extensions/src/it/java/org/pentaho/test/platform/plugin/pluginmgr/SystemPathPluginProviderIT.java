@@ -66,8 +66,16 @@ public class SystemPathPluginProviderIT {
 
     // should successfully load good-plugin1 and good-plugin2 and not load bad-plugin. The fact
     // that bad-plugin does not load should not prevent the good ones from being loaded
-    assertTrue( "plugin1 was not found", CollectionUtils.exists( plugins,
-      new PluginNameMatcherPredicate( "Plugin 1" ) ) );
+    IPlatformPlugin plugin1 = (IPlatformPlugin) CollectionUtils.find( plugins,
+      new PluginNameMatcherPredicate( "Plugin 1" ) );
+    // plugin1 has the valid resource bundle class name
+    assertEquals( "Invalid plugin resource bundle classname", "messages",
+      plugin1.getResourceBundleClassName() );
+    // plugin1 has the valid title and description for translation and interpolation
+    assertEquals( "Invalid plugin title", "${pluginTitle}", plugin1.getTitle() );
+    assertEquals( "Invalid plugin description", "${pluginDescription} - ${pluginDescription}",
+      plugin1.getDescription() );
+
     assertTrue( "plugin2 was not found", CollectionUtils.exists( plugins,
       new PluginNameMatcherPredicate( "Plugin 2" ) ) );
 

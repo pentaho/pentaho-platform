@@ -13,6 +13,7 @@
 
 package org.pentaho.platform.plugin.services.pluginmgr;
 
+import com.google.common.annotations.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.pentaho.platform.api.engine.IContentGeneratorInfo;
@@ -187,7 +188,8 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
    * @return the localized string or `value` if not found
    */
   @Nullable
-  private String localizeInterpolatedString( @Nullable String value, @Nullable Locale locale ) {
+  @VisibleForTesting
+  protected String localizeInterpolatedString( @Nullable String value, @Nullable Locale locale ) {
     if ( resourceBundleProvider == null || StringUtil.isEmpty( value ) ) {
       return value;
     }
