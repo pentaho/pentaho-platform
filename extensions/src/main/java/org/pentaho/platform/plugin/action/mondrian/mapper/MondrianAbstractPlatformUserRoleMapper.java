@@ -13,17 +13,9 @@
 
 package org.pentaho.platform.plugin.action.mondrian.mapper;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 import mondrian.olap.Util;
 import mondrian.olap.Util.PropertyList;
 import mondrian.rolap.RolapConnectionProperties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.olap4j.OlapConnection;
@@ -42,6 +34,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author mbatchelor
@@ -72,7 +71,7 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
    * 
    * @param userSession
    *          Users' session
-   * @param catalogName
+   * @param context
    *          The name of the catalog
    * @return Array of role names from the schema file
    */

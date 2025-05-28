@@ -34,11 +34,11 @@ public class MondrianCatalogRepositoryHelperTest {
     repository = mock( IUnifiedRepository.class );
     RepositoryFile repositoryFile = mock( RepositoryFile.class );
     when( repository.getFile( nullable( String.class ) ) ).thenReturn( repositoryFile );
-    mondrianCatalogRepositoryHelper = new MondrianCatalogRepositoryHelper( repository );
+    mondrianCatalogRepositoryHelper = new MondrianCatalogRepositoryHelper( repository, null );
   }
 
   @Test( expected = RepositoryException.class )
-  public void testGetModrianSchemaFilesInvalidCatalogName() {
+  public void testGetMondrianSchemaFilesInvalidCatalogName() {
     String testCatalogName = "testCatalogName";
     when( repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + testCatalogName ) ).thenReturn( null );
     mondrianCatalogRepositoryHelper.getModrianSchemaFiles( testCatalogName );

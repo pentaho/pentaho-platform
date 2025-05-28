@@ -22,6 +22,8 @@ import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.metastore.stores.xml.XmlMetaStore;
 import org.pentaho.metastore.util.MetaStoreUtil;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.importexport.ExportException;
+import org.pentaho.platform.api.importexport.IExportHelper;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
@@ -31,8 +33,6 @@ import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
-import org.pentaho.platform.api.importexport.ExportException;
-import org.pentaho.platform.api.importexport.IExportHelper;
 import org.pentaho.platform.api.util.IPentahoPlatformExporter;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
@@ -83,7 +83,6 @@ public class PentahoPlatformExporter extends ZipExportProcessor implements IPent
   public static final String DATA_SOURCES_PATH_IN_ZIP = "_datasources/";
   public static final String METADATA_PATH_IN_ZIP = DATA_SOURCES_PATH_IN_ZIP + "metadata/";
   public static final String ANALYSIS_PATH_IN_ZIP = DATA_SOURCES_PATH_IN_ZIP + "analysis/";
-  public static final String CONNECTIONS_PATH_IN_ZIP = DATA_SOURCES_PATH_IN_ZIP + "connections/";
   public static final String METASTORE = "metastore";
   public static final String METASTORE_BACKUP_EXT = ".mzip";
 
@@ -97,7 +96,7 @@ public class PentahoPlatformExporter extends ZipExportProcessor implements IPent
   private IMetaStore metastore;
   private IUserSettingService userSettingService;
 
-  private List<IExportHelper> exportHelpers = new ArrayList<>();
+  private final List<IExportHelper> exportHelpers = new ArrayList<>();
 
   public PentahoPlatformExporter( IUnifiedRepository repository ) {
     super( ROOT, repository, true );
