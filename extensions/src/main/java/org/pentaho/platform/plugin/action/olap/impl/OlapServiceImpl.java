@@ -38,6 +38,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -106,6 +107,7 @@ public class OlapServiceImpl implements IOlapService {
    */
   private IUnifiedRepository repository;
   private MondrianCatalogRepositoryHelper helper;
+  private IPasswordService passwordService;
 
   private MondrianServer server;
   private final List<IOlapConnectionFilter> filters;
@@ -121,14 +123,15 @@ public class OlapServiceImpl implements IOlapService {
    * at runtime.
    */
   public OlapServiceImpl() {
-    this( null, null );
+    this( null, null, null );
   }
 
   /**
    * Constructor for testing purposes. Takes a repository as a parameter.
    */
-  public OlapServiceImpl( IUnifiedRepository repo, final MondrianServer server ) {
+  public OlapServiceImpl( IUnifiedRepository repo, final MondrianServer server, IPasswordService passwordService ) {
     this.repository = repo;
+    this.passwordService = passwordService;
     this.filters = new CopyOnWriteArrayList<>();
     this.server = server;
 
@@ -152,11 +155,7 @@ public class OlapServiceImpl implements IOlapService {
 
     try {
       UserDetailsService uds = PentahoSystem.get( UserDetailsService.class );
-      if ( uds != null ) {
-        isSec = true;
-      } else {
-        isSec = false;
-      }
+      isSec = uds != null;
     } catch ( Exception e ) {
       // no op.
       isSec = false;
@@ -171,11 +170,18 @@ public class OlapServiceImpl implements IOlapService {
     return repository;
   }
 
+  synchronized IPasswordService getPasswordService() {
+    if ( passwordService == null ) {
+      passwordService = PentahoSystem.get( IPasswordService.class );
+    }
+    return passwordService;
+  }
+
   synchronized MondrianCatalogRepositoryHelper getHelper() {
     if ( helper == null ) {
       helper =
         new MondrianCatalogRepositoryHelper(
-          getRepository() );
+          getRepository(), getPasswordService() );
     }
     return helper;
   }
@@ -413,9 +419,7 @@ public class OlapServiceImpl implements IOlapService {
     }
 
     try {
-      MondrianCatalogRepositoryHelper helper =
-        new MondrianCatalogRepositoryHelper( getRepository() );
-      helper.addHostedCatalog( inputStream, name, dataSourceInfo );
+      getHelper().addHostedCatalog( inputStream, name, dataSourceInfo );
     } catch ( Exception e ) {
       throw new IOlapServiceException(
         e,
@@ -456,11 +460,7 @@ public class OlapServiceImpl implements IOlapService {
           "OlapServiceImpl.ERROR_0004_ALREADY_EXISTS" ), //$NON-NLS-1$
         IOlapServiceException.Reason.ALREADY_EXISTS );
     }
-
-    MondrianCatalogRepositoryHelper helper =
-        new MondrianCatalogRepositoryHelper( getRepository() );
-
-    helper.addOlap4jServer( name, className, URL, user, password, props );
+    getHelper().addOlap4jServer( name, className, URL, user, password, props );
   }
 
   public void removeCatalog( String name, IPentahoSession session ) {
@@ -525,7 +525,7 @@ public class OlapServiceImpl implements IOlapService {
   /**
    * Flushes all hosted catalogs.
    */
-  private void flushHostedCatalogs() throws SQLException {
+  private void flushHostedCatalogs() {
     // we don't want to create a new MondrianServer instance to clear the cache when server is null
     // in this case, just clear the cache of the static server
     if ( server != null ) {
@@ -572,7 +572,7 @@ public class OlapServiceImpl implements IOlapService {
     // This is the quick implementation to obtain a list of catalogs
     // without having to open connections. IT can be used by UI tools
     // and tests.
-    final List<String> names = new ArrayList<String>();
+    final List<String> names = new ArrayList<>();
 
     names.addAll( getHostedCatalogNames( pentahoSession ) );
     names.addAll( getRemoteCatalogNames( pentahoSession ) );
@@ -584,7 +584,7 @@ public class OlapServiceImpl implements IOlapService {
   }
 
   private Collection<String> getHostedCatalogNames( final IPentahoSession pentahoSession ) {
-    return Collections2.filter( getHelper().getHostedCatalogs(), new Predicate<String>() {
+    return Collections2.filter( getHelper().getHostedCatalogs(), new Predicate<>() {
       @Override public boolean apply( String name ) {
         return hasAccess( name, EnumSet.of( RepositoryFilePermission.READ ), pentahoSession );
       }
@@ -592,7 +592,7 @@ public class OlapServiceImpl implements IOlapService {
   }
 
   private Collection<String> getRemoteCatalogNames( final IPentahoSession pentahoSession ) {
-    return Collections2.filter( getHelper().getOlap4jServers(), new Predicate<String>() {
+    return Collections2.filter( getHelper().getOlap4jServers(), new Predicate<>() {
       @Override public boolean apply( String name ) {
         return hasAccess( name, EnumSet.of( RepositoryFilePermission.READ ), pentahoSession );
       }
@@ -622,7 +622,7 @@ public class OlapServiceImpl implements IOlapService {
   public List<IOlapService.Schema> getSchemas(
     String parentCatalog,
     IPentahoSession session ) {
-    final List<IOlapService.Schema> schemas = new ArrayList<IOlapService.Schema>();
+    final List<IOlapService.Schema> schemas = new ArrayList<>();
     for ( IOlapService.Catalog catalog : getCatalogs( session ) ) {
       if ( parentCatalog == null
         || catalog.name.equals( parentCatalog ) ) {
@@ -636,7 +636,7 @@ public class OlapServiceImpl implements IOlapService {
     String parentCatalog,
     String parentSchema,
     IPentahoSession pentahoSession ) {
-    final List<IOlapService.Cube> cubes = new ArrayList<IOlapService.Cube>();
+    final List<IOlapService.Cube> cubes = new ArrayList<>();
     for ( IOlapService.Schema schema : getSchemas( parentCatalog, pentahoSession ) ) {
       if ( parentSchema == null
         || schema.name.equals( parentSchema ) ) {
