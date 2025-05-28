@@ -67,6 +67,9 @@ public class MondrianCatalogRepositoryHelper {
     ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
   public static final String ETC_OLAP_SERVERS_JCR_FOLDER =
     ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
+
+  static final String ENCRYPTED_DATASOURCEINFO_PROPERTY = "encrypted";
+
   private boolean isSecured = false;
 
   private static final Log logger = LogFactory.getLog( MondrianCatalogRepositoryHelper.class );
@@ -448,7 +451,7 @@ public class MondrianCatalogRepositoryHelper {
     DataNode node = new DataNode( "catalog" );
     node.setProperty( "definition", encodeUrl( definition ) );
     node.setProperty( "datasourceInfo", passwordService.encrypt( datasourceInfo ) );
-    node.setProperty( "encrypted", true );
+    node.setProperty( ENCRYPTED_DATASOURCEINFO_PROPERTY, true );
     NodeRepositoryFileData data = new NodeRepositoryFileData( node );
 
     logger.debug( "Saving [%s] catalog metadata encrypted" );
@@ -658,7 +661,8 @@ public class MondrianCatalogRepositoryHelper {
 
       try {
         var catalogEncrypted =
-          ( data.getNode().getProperty( "encrypted" ) != null ) && data.getNode().getProperty( "encrypted" )
+          ( data.getNode().getProperty( ENCRYPTED_DATASOURCEINFO_PROPERTY ) != null ) && data.getNode()
+            .getProperty( ENCRYPTED_DATASOURCEINFO_PROPERTY )
             .getBoolean();
         logger.debug( String.format( "Catalog [%s] encrypted:%b", name, catalogEncrypted ) );
         dataSourceInfo =
