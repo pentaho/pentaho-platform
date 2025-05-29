@@ -379,7 +379,7 @@ public class MondrianCatalogHelperTest {
 
   private void setupMondrianCatalogHelperMock( String schemaName, String schemaXML ) throws Exception {
     doReturn( schemaXML ).when( mch )
-      .docAtUrlToString( eq( String.format( "mondrian:/%s", schemaName ) ) );
+      .docAtUrlToString( String.format( "mondrian:/%s", schemaName ) );
 
     ArgumentCaptor<InputStream> captor = ArgumentCaptor.forClass( InputStream.class );
 
