@@ -71,7 +71,6 @@ import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogR
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclNodeHelper;
-import org.pentaho.platform.util.FileHelper;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
@@ -81,7 +80,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import javax.wsdl.Input;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -887,8 +885,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   }
 
   @Override
-  public InputStream getCatalogSchemaAsStream( String catalogName, boolean applyAnnotations )
-    throws MondrianCatalogServiceException {
+  public InputStream getCatalogSchemaAsStream( String catalogName, boolean applyAnnotations ) {
 
     var helper = getMondrianCatalogRepositoryHelper();
     var catalogFiles = helper.getMondrianSchemaFiles( catalogName );
@@ -903,7 +900,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   }
 
   @Override
-  public InputStream getCatalogAnnotationsAsStream( String catalogName ) throws MondrianCatalogServiceException {
+  public InputStream getCatalogAnnotationsAsStream( String catalogName ) {
     var helper = getMondrianCatalogRepositoryHelper();
     var catalogFiles = helper.getMondrianSchemaFiles( catalogName );
     if ( catalogFiles.containsKey( ANNOTATIONS_FILE ) ) {

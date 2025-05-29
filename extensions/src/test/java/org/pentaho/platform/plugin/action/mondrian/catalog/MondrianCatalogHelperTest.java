@@ -12,21 +12,14 @@
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
-import mondrian.olap.Util;
 import mondrian.xmla.DataSourcesConfig;
 import mondrian.xmla.DataSourcesConfig.Catalog;
 import mondrian.xmla.DataSourcesConfig.Catalogs;
 import mondrian.xmla.DataSourcesConfig.DataSource;
-import org.apache.commons.vfs2.FileContent;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.FileSystemManager;
-import org.apache.commons.vfs2.VFS;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -43,8 +36,6 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
-import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils;
 import org.pentaho.platform.util.FileHelper;
 import org.pentaho.platform.util.XmlTestConstants;
 import org.xml.sax.SAXException;
@@ -75,15 +66,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -279,7 +267,7 @@ public class MondrianCatalogHelperTest {
   }
 
   @Test
-  public void testGetCatalogSchemaAsStreamWithNoAnnotations() {
+  public void testGetCatalogSchemaAsStreamWithoutApplyingAnnotations() {
     var catalogName = "catalog";
     var schemaXML =
       String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><cube name=\"cube2\"/></schema>", catalogName );
@@ -301,7 +289,7 @@ public class MondrianCatalogHelperTest {
   }
 
   @Test
-  public void testGetCatalogSchemaAsStreamWithAnnotations() {
+  public void testGetCatalogSchemaAsStreamApplyingAnnotations() {
     var catalogName = "catalog";
     var schemaXML =
       String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><cube name=\"cube2\"/></schema>", catalogName );
