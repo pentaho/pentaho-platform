@@ -26,6 +26,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -42,7 +43,6 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
-import org.pentaho.platform.repository.solution.filebased.MondrianFileObject;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils;
 import org.pentaho.platform.util.FileHelper;
@@ -98,8 +98,7 @@ public class MondrianCatalogHelperTest {
 
   private final MondrianCatalogRepositoryHelper mcrh = mock( MondrianCatalogRepositoryHelper.class );
 
-
-  private final MondrianCatalogHelper mch = Mockito.spy( new MondrianCatalogHelper() {
+  private final MondrianCatalogHelper mch = Mockito.spy( new MondrianCatalogHelper(unifiedRepository ) {
     protected boolean hasAccess( MondrianCatalog cat, RepositoryFilePermission permission ) {
       return true;
     }
@@ -236,7 +235,7 @@ public class MondrianCatalogHelperTest {
     try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
       pentahoSystem.when( () -> PentahoSystem.getCacheManager( eq( null ) ) ).thenReturn( new TestICacheManager() );
 
-      setupRepository( pentahoSystem, schemaName, dataSourceInfo );
+      setupRepository( schemaName, dataSourceInfo );
       setupMondrianCatalogHelperMock( schemaName, schemaXML );
 
       MondrianCatalog cat = mch.getCatalog( schemaName, null );
@@ -265,7 +264,7 @@ public class MondrianCatalogHelperTest {
           List.of( new MondrianCube( "cube1", "cube1" ), new MondrianCube( "cube2", "cube2" ),
             new MondrianCube( "cube3", "cube3" ) ) ) )
       ) ) );
-      setupRepository( pentahoSystem, schemaName, dataSourceInfo );
+      setupRepository( schemaName, dataSourceInfo );
       setupMondrianCatalogHelperMock( schemaName, schemaXML );
 
       MondrianCatalog originalCatalog = mch.getCatalog( schemaName, null );
@@ -287,20 +286,19 @@ public class MondrianCatalogHelperTest {
     var dataSourceInfo = "dummyDataSourceInfo";
 
     try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class );
-      MockedStatic<ClientRepositoryPaths> clientRepoPaths = mockStatic( ClientRepositoryPaths.class ) ) {
+          MockedStatic<ClientRepositoryPaths> clientRepoPaths = mockStatic( ClientRepositoryPaths.class ) ) {
       pentahoSystem.when( () -> PentahoSystem.getCacheManager( eq( null ) ) ).thenReturn( new TestICacheManager() );
       clientRepoPaths.when( ClientRepositoryPaths::getEtcFolderPath ).thenReturn( "etc" );
-      pentahoSystem.when( () -> PentahoSystem.get( any(), eq( null ) ) ).thenReturn( unifiedRepository );
 
       var file = UnifiedRepositoryTestUtils.makeFileObject( "etc/mondrian", true );
       doReturn( file ).when( unifiedRepository ).getFile( any() );
 
-      setupRepository( pentahoSystem, schemaName, dataSourceInfo );
+      setupRepository(schemaName, dataSourceInfo );
       setupMondrianCatalogHelperMock( schemaName, schemaXML );
 
       String catStr = mch.getCatalogSchemaAsString( schemaName, null, true, true );
 
-      verify( mch, times(1)).getCatalogAsString( eq( null ), any(), eq( true ));
+      verify( mch, times( 1 ) ).getCatalogAsString( eq( null ), any(), eq( true ) );
       assertNotNull( catStr );
       assertEquals( schemaXML, catStr );
     }
@@ -312,18 +310,19 @@ public class MondrianCatalogHelperTest {
     var dataSourceInfo = "dummyDataSourceInfo";
 
     try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class );
-      MockedStatic<ClientRepositoryPaths> clientRepoPaths = mockStatic( ClientRepositoryPaths.class ) ) {
+          MockedStatic<ClientRepositoryPaths> clientRepoPaths = mockStatic( ClientRepositoryPaths.class ) ) {
       pentahoSystem.when( () -> PentahoSystem.getCacheManager( eq( null ) ) ).thenReturn( new TestICacheManager() );
       clientRepoPaths.when( ClientRepositoryPaths::getEtcFolderPath ).thenReturn( "etc" );
-      pentahoSystem.when( () -> PentahoSystem.get( any(), eq( null ) ) ).thenReturn( unifiedRepository );
 
       var file = UnifiedRepositoryTestUtils.makeFileObject( "etc/mondrian", true );
       doReturn( file ).when( unifiedRepository ).getFile( any() );
-      setupRepository( pentahoSystem, schemaName, dataSourceInfo );
+      setupRepository( schemaName, dataSourceInfo );
 
-      doThrow( Exception.class ).when( mch ).getCatalogAsString( eq( null ), any( DataSourcesConfig.Catalog.class ), eq(true) );
+      doThrow( Exception.class ).when( mch )
+        .getCatalogAsString( eq( null ), any( DataSourcesConfig.Catalog.class ), eq( true ) );
 
-      assertThrows( MondrianCatalogServiceException.class, () -> mch.getCatalogSchemaAsString( schemaName, null, true, true ) );
+      assertThrows( MondrianCatalogServiceException.class,
+        () -> mch.getCatalogSchemaAsString( schemaName, null, true, true ) );
     }
   }
 
@@ -374,7 +373,7 @@ public class MondrianCatalogHelperTest {
     pentahoSystem.when( () -> PentahoSystem.getCacheManager( eq( null ) ) ).thenReturn( cacheMgr );
   }
 
-  private void setupRepository( MockedStatic<PentahoSystem> pentahoSystem, String schemaName, String dataSourceInfo ) {
+  private void setupRepository( String schemaName, String dataSourceInfo ) {
     when( unifiedRepository.getFile( "/etc/mondrian" ) ).thenReturn( mockRepositoryFolder );
     when( unifiedRepository.getFile( String.format( "/etc/mondrian/%s/metadata", schemaName ) ) ).thenReturn(
       mockMetatdataFolder );
@@ -382,8 +381,6 @@ public class MondrianCatalogHelperTest {
     when( unifiedRepository.getDataForRead( any(), any() ) ).thenReturn( mockIRepositoryFileData );
     when( unifiedRepository.getChildren( any( Serializable.class ) ) ).thenReturn(
       singletonList( mockRepositoryFile ) );
-
-    pentahoSystem.when( () -> PentahoSystem.get( any(), eq( null ) ) ).thenReturn( unifiedRepository );
 
     when( mockRepositoryFolder.getId() ).thenReturn( 1 );
     when( mockRepositoryFile.getName() ).thenReturn( schemaName );
@@ -398,7 +395,8 @@ public class MondrianCatalogHelperTest {
   }
 
   private void setupMondrianCatalogHelperMock( String schemaName, String schemaXML ) throws Exception {
-    doReturn( schemaXML ).when( mch ).docAtUrlToString( eq( String.format( "mondrian:/%s", schemaName ) ), anyBoolean() );
+    doReturn( schemaXML ).when( mch )
+      .docAtUrlToString( eq( String.format( "mondrian:/%s", schemaName ) ), anyBoolean() );
 
     ArgumentCaptor<InputStream> captor = ArgumentCaptor.forClass( InputStream.class );
 
@@ -421,7 +419,7 @@ public class MondrianCatalogHelperTest {
 
     try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
 
-      setupRepository( pentahoSystem, schemaName, dataSourceInfo );
+      setupRepository( schemaName, dataSourceInfo );
       setupCacheManager( pentahoSystem, new ArrayList<>() );
       setupMondrianCatalogHelperMock( schemaName, schemaXML );
 
@@ -458,7 +456,7 @@ public class MondrianCatalogHelperTest {
       setupCacheManager( pentahoSystem, new ArrayList<>( List.of(
         new MondrianCatalog( schemaName, dataSourceInfo, definition, null )
       ) ) );
-      setupRepository( pentahoSystem, schemaName, dataSourceInfo );
+      setupRepository( schemaName, dataSourceInfo );
       setupMondrianCatalogHelperMock( schemaName, schemaXML );
 
       var catalog =
@@ -488,7 +486,7 @@ public class MondrianCatalogHelperTest {
     try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
 
       setupCacheManager( pentahoSystem, new ArrayList<>( List.of() ) );
-      setupRepository( pentahoSystem, schemaName, dataSourceInfo );
+      setupRepository( schemaName, dataSourceInfo );
       setupMondrianCatalogHelperMock( schemaName, schemaXML );
 
       var catalog =
@@ -525,7 +523,7 @@ public class MondrianCatalogHelperTest {
           List.of( new MondrianCube( "cube1", "cube1" ), new MondrianCube( "cube2", "cube2" ),
             new MondrianCube( "cube3", "cube3" ) ) ) )
       ) ) );
-      setupRepository( pentahoSystem, schemaName, dataSourceInfo );
+      setupRepository( schemaName, dataSourceInfo );
       setupMondrianCatalogHelperMock( schemaName, schemaXML );
 
       MondrianCatalog originalCatalog = mch.getCatalog( schemaName, null );

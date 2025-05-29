@@ -68,7 +68,6 @@ import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
-import org.pentaho.platform.repository.solution.filebased.MondrianFileObject;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclNodeHelper;
@@ -178,11 +177,17 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   @VisibleForTesting
   MondrianCatalogRepositoryHelper catalogRepositoryHelper;
   private final LocalizingDynamicSchemaProcessor localizingDynamicSchemaProcessor;
+  private IUnifiedRepository unifiedRepository;
 
   // ~ Constructors ====================================================================================================
 
   public MondrianCatalogHelper( boolean useLegacyDbName ) {
     this( useLegacyDbName, null, null );
+  }
+
+  public MondrianCatalogHelper(IUnifiedRepository unifiedRepository) {
+    this();
+    this.unifiedRepository = unifiedRepository;
   }
 
   /**
@@ -280,6 +285,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       localizingDynamicSchemaProcessor != null ? localizingDynamicSchemaProcessor
         : new LocalizingDynamicSchemaProcessor();
 
+    this.unifiedRepository = PentahoSystem.get( IUnifiedRepository.class );
+
   }
 
   @SuppressWarnings( "unchecked" )
@@ -352,8 +359,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
       if ( dataSourcesConfig == null ) {
         String datasourcesXML =
-            generateInMemoryDatasourcesXml( PentahoSystem.get( IUnifiedRepository.class, PentahoSessionHolder
-                .getSession() ) );
+            generateInMemoryDatasourcesXml( unifiedRepository );
         return parseDataSources( datasourcesXML );
       } else if ( dataSourcesConfig.startsWith( "file:" ) ) { //$NON-NLS-1$
         dataSourcesConfigUrl = new URL( dataSourcesConfig ); // dataSourcesConfigResource.getURL();
@@ -738,20 +744,16 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     removeHelpGeneratorCache( catalogName, pentahoSession );
   }
 
-  protected IUnifiedRepository getRepository() {
-    return PentahoSystem.get( IUnifiedRepository.class );
-  }
-
   protected synchronized MondrianCatalogRepositoryHelper getMondrianCatalogRepositoryHelper() {
     if ( catalogRepositoryHelper == null ) {
-      catalogRepositoryHelper = new MondrianCatalogRepositoryHelper( PentahoSystem.get( IUnifiedRepository.class ) );
+      catalogRepositoryHelper = new MondrianCatalogRepositoryHelper( unifiedRepository );
     }
     return catalogRepositoryHelper;
   }
 
   protected synchronized IAclNodeHelper getAclHelper() {
     if ( aclHelper == null ) {
-      aclHelper = new JcrAclNodeHelper( PentahoSystem.get( IUnifiedRepository.class ) );
+      aclHelper = new JcrAclNodeHelper( unifiedRepository );
     }
     return aclHelper;
   }
@@ -886,7 +888,6 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   @Override
   public String getCatalogSchemaAsString( String catalogName, final IPentahoSession pentahoSession, boolean applyDSP, boolean applyAnnotations )
     throws MondrianCatalogServiceException {
-    IUnifiedRepository unifiedRepository = PentahoSystem.get( IUnifiedRepository.class, pentahoSession );
 
     String etcMondrian =
       ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + MONDRIAN_DATASOURCE_FOLDER;
@@ -1278,10 +1279,9 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
     getAclHelper().removeAclFor( getMondrianCatalogRepositoryHelper().getMondrianCatalogFile( catalog.getName() ) );
 
-    IUnifiedRepository solutionRepository = getRepository();
-    RepositoryFile deletingFile = solutionRepository.getFile( RepositoryFile.SEPARATOR + "etc" //$NON-NLS-1$
+    RepositoryFile deletingFile = unifiedRepository.getFile( RepositoryFile.SEPARATOR + "etc" //$NON-NLS-1$
         + RepositoryFile.SEPARATOR + "mondrian" + RepositoryFile.SEPARATOR + catalog.getName() ); //$NON-NLS-1$
-    solutionRepository.deleteFile( deletingFile.getId(), true, "" ); //$NON-NLS-1$
+    unifiedRepository.deleteFile( deletingFile.getId(), true, "" ); //$NON-NLS-1$
     MondrianCatalogCache mondrianCatalogCache =
       (MondrianCatalogCache) PentahoSystem.getCacheManager( pentahoSession ).getFromRegionCache(
         MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString() );
@@ -1382,8 +1382,6 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   private void generateInMemoryCatalog( String catalogName, MondrianCatalogCache mondrianCatalogCache,
                                         IPentahoSession pentahoSession ) {
-    IUnifiedRepository unifiedRepository = PentahoSystem.get( IUnifiedRepository.class, pentahoSession );
-
     String etcMondrian =
       ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + MONDRIAN_DATASOURCE_FOLDER;
     RepositoryFile etcMondrianFolder = unifiedRepository.getFile( etcMondrian );
