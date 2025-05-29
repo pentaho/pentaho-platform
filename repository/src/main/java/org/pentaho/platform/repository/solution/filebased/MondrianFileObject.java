@@ -24,7 +24,7 @@ import java.io.InputStream;
 /**
  * FileObject that applies Mondrian schema annotations to the InputStream
  */
-public class MondrianFileObject extends DecoratedFileObject {
+class MondrianFileObject extends DecoratedFileObject {
 
   private final FileObject annotationsFile;
   private final MondrianSchemaAnnotator annotator;
@@ -43,13 +43,5 @@ public class MondrianFileObject extends DecoratedFileObject {
         return annotator.getInputStream( super.getInputStream(), annotationsFile.getContent().getInputStream() );
       }
     };
-  }
-
-  public FileObject getAnnotationsFile() {
-    return this.annotationsFile;
-  }
-
-  public InputStream getSchemaContentInputStream() throws FileSystemException {
-    return this.getDecoratedFileObject().getContent().getInputStream();
   }
 }

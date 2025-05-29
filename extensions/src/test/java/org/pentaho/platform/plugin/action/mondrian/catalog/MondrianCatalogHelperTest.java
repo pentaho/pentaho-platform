@@ -279,56 +279,51 @@ public class MondrianCatalogHelperTest {
   }
 
   @Test
-  public void testGetCatalogSchemaAsString() throws Exception {
-    var schemaName = "dummySchemaName";
+  public void testGetCatalogSchemaAsStreamWithNoAnnotations() {
+    var catalogName = "catalog";
     var schemaXML =
-      String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><cube name=\"cube2\"/></schema>", schemaName );
-    var dataSourceInfo = "dummyDataSourceInfo";
+      String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><cube name=\"cube2\"/></schema>", catalogName );
+    var annotatedSchemaXML =
+      String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><annotation/><cube name=\"cube2\"/></schema>",
+        catalogName );
+    var annotationsXml = "<annotations> <annotation>  <name>annotation name</name> </annotation> </annotations>";
+    doReturn( Map.of(
+      "schema.xml", new ByteArrayInputStream( schemaXML.getBytes() ),
+      "schema.annotated.xml", new ByteArrayInputStream( annotatedSchemaXML.getBytes() ),
+      "annotations.xml", new ByteArrayInputStream( annotationsXml.getBytes() )
+    ) ).when(
+      mcrh ).getMondrianSchemaFiles( catalogName );
 
-    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class );
-          MockedStatic<ClientRepositoryPaths> clientRepoPaths = mockStatic( ClientRepositoryPaths.class ) ) {
-      pentahoSystem.when( () -> PentahoSystem.getCacheManager( eq( null ) ) ).thenReturn( new TestICacheManager() );
-      clientRepoPaths.when( ClientRepositoryPaths::getEtcFolderPath ).thenReturn( "etc" );
+    var res = mch.getCatalogSchemaAsStream( catalogName, false );
 
-      var file = UnifiedRepositoryTestUtils.makeFileObject( "etc/mondrian", true );
-      doReturn( file ).when( unifiedRepository ).getFile( any() );
-
-      setupRepository(schemaName, dataSourceInfo );
-      setupMondrianCatalogHelperMock( schemaName, schemaXML );
-
-      String catStr = mch.getCatalogSchemaAsString( schemaName, null, true, true );
-
-      verify( mch, times( 1 ) ).getCatalogAsString( eq( null ), any(), eq( true ) );
-      assertNotNull( catStr );
-      assertEquals( schemaXML, catStr );
-    }
+    assertNotNull( res );
+    assertEquals( schemaXML, FileHelper.getStringFromInputStream( res ) );
   }
 
   @Test
-  public void testGetCatalogSchemaAsStringWithException() throws Exception {
-    var schemaName = "dummySchemaName";
-    var dataSourceInfo = "dummyDataSourceInfo";
+  public void testGetCatalogSchemaAsStreamWithAnnotations() {
+    var catalogName = "catalog";
+    var schemaXML =
+      String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><cube name=\"cube2\"/></schema>", catalogName );
+    var annotatedSchemaXML =
+      String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><annotation/><cube name=\"cube2\"/></schema>",
+        catalogName );
+    var annotationsXml = "<annotations> <annotation>  <name>annotation name</name> </annotation> </annotations>";
+    doReturn( Map.of(
+      "schema.xml", new ByteArrayInputStream( schemaXML.getBytes() ),
+      "schema.annotated.xml", new ByteArrayInputStream( annotatedSchemaXML.getBytes() ),
+      "annotations.xml", new ByteArrayInputStream( annotationsXml.getBytes() )
+    ) ).when(
+      mcrh ).getMondrianSchemaFiles( catalogName );
 
-    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class );
-          MockedStatic<ClientRepositoryPaths> clientRepoPaths = mockStatic( ClientRepositoryPaths.class ) ) {
-      pentahoSystem.when( () -> PentahoSystem.getCacheManager( eq( null ) ) ).thenReturn( new TestICacheManager() );
-      clientRepoPaths.when( ClientRepositoryPaths::getEtcFolderPath ).thenReturn( "etc" );
+    var res = mch.getCatalogSchemaAsStream( catalogName, true );
 
-      var file = UnifiedRepositoryTestUtils.makeFileObject( "etc/mondrian", true );
-      doReturn( file ).when( unifiedRepository ).getFile( any() );
-      setupRepository( schemaName, dataSourceInfo );
-
-      doThrow( Exception.class ).when( mch )
-        .getCatalogAsString( eq( null ), any( DataSourcesConfig.Catalog.class ), eq( true ) );
-
-      assertThrows( MondrianCatalogServiceException.class,
-        () -> mch.getCatalogSchemaAsString( schemaName, null, true, true ) );
-    }
+    assertNotNull( res );
+    assertEquals( annotatedSchemaXML, FileHelper.getStringFromInputStream( res ) );
   }
 
-
   @Test
-  public void testGetCatalogAnnotationsAsString() {
+  public void testGetCatalogAnnotationsAsStream() {
     var catalogName = "catalog";
     var schemaXML =
       String.format( "<schema name=\"%s\"><cube name=\"cube1\"/><cube name=\"cube2\"/></schema>", catalogName );
@@ -339,7 +334,7 @@ public class MondrianCatalogHelperTest {
     ) ).when(
       mcrh ).getMondrianSchemaFiles( catalogName );
 
-    var res = mch.getCatalogAnnotationsAsString( catalogName );
+    var res = mch.getCatalogAnnotationsAsStream( catalogName );
 
     assertNotNull( res );
   }
@@ -353,7 +348,7 @@ public class MondrianCatalogHelperTest {
     doReturn( Map.of( "schema.xml", new ByteArrayInputStream( schemaXML.getBytes() ) ) ).when(
       mcrh ).getMondrianSchemaFiles( catalogName );
 
-    var res = mch.getCatalogAnnotationsAsString( catalogName );
+    var res = mch.getCatalogAnnotationsAsStream( catalogName );
 
     assertNull( res );
   }
@@ -396,7 +391,7 @@ public class MondrianCatalogHelperTest {
 
   private void setupMondrianCatalogHelperMock( String schemaName, String schemaXML ) throws Exception {
     doReturn( schemaXML ).when( mch )
-      .docAtUrlToString( eq( String.format( "mondrian:/%s", schemaName ) ), anyBoolean() );
+      .docAtUrlToString( eq( String.format( "mondrian:/%s", schemaName ) ) );
 
     ArgumentCaptor<InputStream> captor = ArgumentCaptor.forClass( InputStream.class );
 
