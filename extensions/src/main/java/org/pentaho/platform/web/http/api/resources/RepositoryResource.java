@@ -31,6 +31,7 @@ import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -684,8 +685,27 @@ public class RepositoryResource extends AbstractJaxRSResource {
   private String getPluginIdFromContextId( String contextId ) {
     // Is the context id a repository file name (A)?
     if ( isEncodedRepositoryFilePath( contextId ) ) {
-      final RepositoryFile file = repository.getFile( FileResource.idToPath( contextId ) );
-      if ( file == null ) {
+      // File must exist and the user must have access to it.
+      final RepositoryFile file;
+      try {
+        file = repository.getFile( FileResource.idToPath( contextId ) );
+        if ( file == null ) {
+          return null;
+        }
+      } catch ( UnifiedRepositoryException ex ) {
+        // Can be access denied, invalid path, etc.
+        //
+        // If access is denied because the user does not have Read Content permission, as would be the case for an
+        // Anonymous user, calling this from RequireJsConfigRequestMatcher, then they will not be able to use a
+        // require-js-cfg.js file pattern to determine whether certain repository files exist or not. Attempting
+        // to resolve a resource id in the context of a repository file, will always be rejected.
+        //
+        // If access is denied because the user does not have Read ACL permission on the file, then just like with other
+        // APIs, they will still not be able to distinguish between the repository file existing or them not having
+        // access to it.
+        //
+        // Whatever the repository exception, return a null plugin id.
+        logger.error( MessageFormat.format( "Repository file [{0}] not found or not accessible", contextId ), ex );
         return null;
       }
 
