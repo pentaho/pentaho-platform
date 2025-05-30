@@ -20,7 +20,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -63,7 +62,7 @@ public class MondrianCatalogHelper_Mondrian_2229_Test {
     doReturn( contextPathStub ).when( helperSpy ).contextPathFromRequestContextHolder();
 
     doNothing().when( helperSpy )
-      .appendCatalogsSection( any( IUnifiedRepository.class ), nullable( String.class ), any( RepositoryFile.class ),
+      .appendCatalogsSection( any( IUnifiedRepository.class ), any( RepositoryFile.class ),
         any( StringBuffer.class ) );
 
     return helperSpy.generateInMemoryDatasourcesXml( unifiedRepositoryMock );

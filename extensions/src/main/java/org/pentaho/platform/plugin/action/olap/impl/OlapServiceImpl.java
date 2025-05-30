@@ -38,6 +38,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -89,8 +90,6 @@ public class OlapServiceImpl implements IOlapService {
 
   public static String CATALOG_CACHE_REGION = "iolapservice-catalog-cache"; //$NON-NLS-1$
 
-  static final String MONDRIAN_DATASOURCE_FOLDER = "mondrian"; //$NON-NLS-1$
-
   final ReadWriteLock cacheLock = new ReentrantReadWriteLock();
 
   /**
@@ -108,6 +107,7 @@ public class OlapServiceImpl implements IOlapService {
    */
   private IUnifiedRepository repository;
   private MondrianCatalogRepositoryHelper helper;
+  private IPasswordService passwordService;
 
   private MondrianServer server = null;
   private final List<IOlapConnectionFilter> filters;
@@ -123,15 +123,16 @@ public class OlapServiceImpl implements IOlapService {
    * at runtime.
    */
   public OlapServiceImpl() {
-    this( null, null );
+    this( null, null, null );
   }
 
   /**
    * Constructor for testing purposes. Takes a repository as a parameter.
    */
-  public OlapServiceImpl( IUnifiedRepository repo, final MondrianServer server ) {
+  public OlapServiceImpl( IUnifiedRepository repo, final MondrianServer server, IPasswordService passwordService ) {
     this.repository = repo;
-    this.filters = new CopyOnWriteArrayList<IOlapConnectionFilter>();
+    this.passwordService = passwordService;
+    this.filters = new CopyOnWriteArrayList<>();
     this.server = server;
 
     try {
@@ -177,7 +178,8 @@ public class OlapServiceImpl implements IOlapService {
     if ( helper == null ) {
       helper =
         new MondrianCatalogRepositoryHelper(
-          getRepository() );
+          getRepository(), PentahoSystem
+          .get( IPasswordService.class ) );
     }
     return helper;
   }
@@ -420,7 +422,7 @@ public class OlapServiceImpl implements IOlapService {
 
     try {
       MondrianCatalogRepositoryHelper helper =
-        new MondrianCatalogRepositoryHelper( getRepository() );
+        new MondrianCatalogRepositoryHelper( getRepository(), passwordService );
       helper.addHostedCatalog( inputStream, name, dataSourceInfo );
     } catch ( Exception e ) {
       throw new IOlapServiceException(
@@ -464,7 +466,7 @@ public class OlapServiceImpl implements IOlapService {
     }
 
     MondrianCatalogRepositoryHelper helper =
-        new MondrianCatalogRepositoryHelper( getRepository() );
+      new MondrianCatalogRepositoryHelper( getRepository(), passwordService );
 
     helper.addOlap4jServer( name, className, URL, user, password, props );
   }
