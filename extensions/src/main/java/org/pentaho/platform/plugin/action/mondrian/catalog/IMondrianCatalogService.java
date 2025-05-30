@@ -63,7 +63,7 @@ public interface IMondrianCatalogService {
    * Returns   * <code>null</code> if name is not found.
    *
    * @param catalogName      The name of the catalog to fetch
-   * @param applyAnnotations Whether the schema should contain annotations
+   * @param applyAnnotations Whether the returned schema should be the result of applying any existing annotations
    * @return String corresponding to the catalog's schema
    */
   InputStream getCatalogSchemaAsStream( String catalogName, boolean applyAnnotations );

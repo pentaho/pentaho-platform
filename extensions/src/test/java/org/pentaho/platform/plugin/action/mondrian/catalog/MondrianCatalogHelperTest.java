@@ -86,20 +86,21 @@ public class MondrianCatalogHelperTest {
 
   private final MondrianCatalogRepositoryHelper mcrh = mock( MondrianCatalogRepositoryHelper.class );
 
-  private final MondrianCatalogHelper mch = Mockito.spy( new MondrianCatalogHelper(unifiedRepository ) {
-    protected boolean hasAccess( MondrianCatalog cat, RepositoryFilePermission permission ) {
-      return true;
-    }
+  private final MondrianCatalogHelper mch =
+    Mockito.spy( new MondrianCatalogHelper( false, null, null, unifiedRepository ) {
+      protected boolean hasAccess( MondrianCatalog cat, RepositoryFilePermission permission ) {
+        return true;
+      }
 
-    public void setAclFor( String catalogName, RepositoryFileAcl acl ) {
-      // do nothing
-    }
+      public void setAclFor( String catalogName, RepositoryFileAcl acl ) {
+        // do nothing
+      }
 
-    protected synchronized MondrianCatalogRepositoryHelper getMondrianCatalogRepositoryHelper() {
-      return mcrh;
-    }
+      protected synchronized MondrianCatalogRepositoryHelper getMondrianCatalogRepositoryHelper() {
+        return mcrh;
+      }
 
-  } );
+    } );
 
   //  private Object cacheValue = null;
 

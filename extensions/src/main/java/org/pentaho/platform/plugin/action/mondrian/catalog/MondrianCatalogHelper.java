@@ -103,6 +103,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import static org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.ANNOTATED_SCHEMA_FILE;
+import static org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.ANNOTATIONS_FILE;
+import static org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.SCHEMA_FILE;
+
 /**
  * Reads in file containing Mondrian data sources and catalogs. (Contains code copied from <code>XmlaServlet</code>.)
  *
@@ -115,9 +119,6 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   public static final String MONDRIAN_CATALOG_CACHE_REGION = "mondrian-catalog-cache"; //$NON-NLS-1$
   private static final String MONDRIAN_FILE_PROVIDER_IDENTIFIER = "mondrian"; //$NON-NLS-1$
   private static final String MONDRIAN_URI_START = "mondrian:/";
-  private static final String ANNOTATED_SCHEMA_FILE = "schema.annotated.xml";
-  private static final String ANNOTATIONS_FILE = "annotations.xml";
-  private static final String SCHEMA_FILE = "schema.xml";
 
   // ~ Static fields/initializers ======================================================================================
 
@@ -182,11 +183,6 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   public MondrianCatalogHelper( boolean useLegacyDbName ) {
     this( useLegacyDbName, null, null );
-  }
-
-  public MondrianCatalogHelper(IUnifiedRepository unifiedRepository) {
-    this();
-    this.unifiedRepository = unifiedRepository;
   }
 
   /**
@@ -260,7 +256,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   }
 
   public MondrianCatalogHelper( boolean useLegacyDbName, FileProvider mondrianFileProvider,
-                                LocalizingDynamicSchemaProcessor localizingDynamicSchemaProcessor ) {
+                                LocalizingDynamicSchemaProcessor localizingDynamicSchemaProcessor,
+                                IUnifiedRepository unifiedRepository ) {
     super();
     this.useLegacyDbName = useLegacyDbName;
 
@@ -284,8 +281,16 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       localizingDynamicSchemaProcessor != null ? localizingDynamicSchemaProcessor
         : new LocalizingDynamicSchemaProcessor();
 
-    this.unifiedRepository = PentahoSystem.get( IUnifiedRepository.class );
+    if ( unifiedRepository != null ) {
+      this.unifiedRepository = unifiedRepository;
+    } else {
+      this.unifiedRepository = PentahoSystem.get( IUnifiedRepository.class );
+    }
+  }
 
+  public MondrianCatalogHelper( boolean useLegacyDbName, FileProvider mondrianFileProvider,
+                                LocalizingDynamicSchemaProcessor localizingDynamicSchemaProcessor ) {
+    this( useLegacyDbName, mondrianFileProvider, localizingDynamicSchemaProcessor, null );
   }
 
   @SuppressWarnings( "unchecked" )

@@ -67,6 +67,10 @@ public class MondrianCatalogRepositoryHelper {
       ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "olap-servers";
   private boolean isSecured = false;
 
+  public static final String ANNOTATED_SCHEMA_FILE = "schema.annotated.xml";
+  public static final String ANNOTATIONS_FILE = "annotations.xml";
+  public static final String SCHEMA_FILE = "schema.xml";
+
   private static final Log logger = LogFactory.getLog( MondrianCatalogRepositoryHelper.class );
 
   private IUnifiedRepository repository;
