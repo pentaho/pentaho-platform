@@ -38,9 +38,9 @@ public class MondrianCatalogRepositoryHelperTest {
   }
 
   @Test( expected = RepositoryException.class )
-  public void testGetModrianSchemaFilesInvalidCatalogName() {
+  public void testGetMondrianSchemaFilesInvalidCatalogName() {
     String testCatalogName = "testCatalogName";
     when( repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + testCatalogName ) ).thenReturn( null );
-    mondrianCatalogRepositoryHelper.getModrianSchemaFiles( testCatalogName );
+    mondrianCatalogRepositoryHelper.getMondrianSchemaFiles( testCatalogName );
   }
 }
