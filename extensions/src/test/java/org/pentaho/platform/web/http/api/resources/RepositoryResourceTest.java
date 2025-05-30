@@ -29,6 +29,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
@@ -189,6 +190,17 @@ public class RepositoryResourceTest {
 
     boolean result = repositoryResource.isStaticResource( request );
     assertTrue( result );
+  }
+
+  @Test
+  public void testIsStaticResource_False_ContextIsRepositoryFileButNoReadContentPermission() {
+    HttpServletRequest request = mock( HttpServletRequest.class );
+    when( request.getServletPath() ).thenReturn( "/api" );
+    when( request.getPathInfo() ).thenReturn( "/repos/:home:admin:file.ext/resource/file.js" );
+    when( repository.getFile( anyString() ) ).thenThrow( UnifiedRepositoryAccessDeniedException.class );
+
+    boolean result = repositoryResource.isStaticResource( request );
+    assertFalse( result );
   }
 
   @Test
