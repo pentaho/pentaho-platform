@@ -18,15 +18,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPluginManager;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -34,19 +38,24 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.pentaho.platform.web.servlet.GenericServlet.CACHE_FILE;
 
 @RunWith( MockitoJUnitRunner.class )
 public class GenericServletTest {
   private GenericServlet genericServlet;
   private HttpServletRequest request;
   private IPluginManager pluginManager;
+  private ICacheManager cacheManager;
 
   @Before
   public void setUp() {
     genericServlet = spy( new GenericServlet() );
     request = mock( HttpServletRequest.class );
     pluginManager = mock( IPluginManager.class );
+    cacheManager = mock( ICacheManager.class );
+
     doReturn( pluginManager ).when( genericServlet ).getPluginManager( request );
+    doReturn( cacheManager ).when( genericServlet ).getCacheManager();
   }
 
   /**
@@ -78,12 +87,31 @@ public class GenericServletTest {
   public void testIsStaticResource_True() {
     when( request.getServletPath() ).thenReturn( "/content" );
     when( request.getPathInfo() ).thenReturn( "/my-plugin/resource.js" );
-    when( pluginManager.getServicePlugin( "my-plugin/resource.js" ) ).thenReturn( "plugin" );
-    when( pluginManager.isStaticResource( "my-plugin/resource.js" ) ).thenReturn( true );
+    when( pluginManager.getServicePlugin( "/my-plugin/resource.js" ) ).thenReturn( "my-plugin" );
+    when( pluginManager.isStaticResource( "/my-plugin/resource.js" ) ).thenReturn( true );
+    when( pluginManager.getStaticResource( "/my-plugin/resource.js" ) ).thenReturn( mock( InputStream.class ) );
 
     boolean result = genericServlet.isStaticResource( request );
     assertTrue( result );
   }
+
+  @Test
+  @SuppressWarnings( { "deprecation" } )
+  public void testIsStaticResource_True_ReadFromCache() {
+    when( request.getServletPath() ).thenReturn( "/content" );
+    when( request.getPathInfo() ).thenReturn( "/my-plugin/resource.js" );
+    when( pluginManager.getServicePlugin( "/my-plugin/resource.js" ) ).thenReturn( "my-plugin" );
+    when( pluginManager.isStaticResource( "/my-plugin/resource.js" ) ).thenReturn( true );
+
+    when( pluginManager.getPluginSetting( eq( "my-plugin" ), eq( "settings/cache" ), any() ) )
+      .thenReturn( "true" );
+    when( cacheManager.getFromRegionCache( CACHE_FILE, "/my-plugin/resource.js" ) ).thenReturn(
+      mock( ByteArrayOutputStream.class ) );
+
+    boolean result = genericServlet.isStaticResource( request );
+    assertTrue( result );
+  }
+
 
   @Test
   public void testIsStaticResource_False_NotSameServletPath() {
@@ -134,7 +162,7 @@ public class GenericServletTest {
   public void testIsStaticResource_False_NoAssociatedPlugin() {
     when( request.getServletPath() ).thenReturn( "/content" );
     when( request.getPathInfo() ).thenReturn( "/my-plugin/resource.js" );
-    when( pluginManager.getServicePlugin( "my-plugin/resource.js" ) ).thenReturn( null );
+    when( pluginManager.getServicePlugin( "/my-plugin/resource.js" ) ).thenReturn( null );
 
     boolean result = genericServlet.isStaticResource( request );
     assertFalse( result );
@@ -142,14 +170,46 @@ public class GenericServletTest {
 
   @Test
   @SuppressWarnings( {"deprecation"} )
-  public void testIsStaticResource_False_NotAStaticResource() {
+  public void testIsStaticResource_False_NotAStaticResourceUrl() {
     when( request.getServletPath() ).thenReturn( "/content" );
     when( request.getPathInfo() ).thenReturn( "/my-plugin/resource.js" );
-    when( pluginManager.getServicePlugin( "my-plugin/resource.js" ) ).thenReturn( "my-plugin" );
-    when( pluginManager.isStaticResource( "my-plugin/resource.js" ) ).thenReturn( false );
+    when( pluginManager.getServicePlugin( "/my-plugin/resource.js" ) ).thenReturn( "my-plugin" );
+    when( pluginManager.isStaticResource( "/my-plugin/resource.js" ) ).thenReturn( false );
 
     boolean result = genericServlet.isStaticResource( request );
     assertFalse( result );
   }
+
+  @Test
+  @SuppressWarnings( { "deprecation" } )
+  public void testIsStaticResource_False_NotAnExistingStaticResource() {
+    when( request.getServletPath() ).thenReturn( "/content" );
+    when( request.getPathInfo() ).thenReturn( "/my-plugin/resource.js" );
+    when( pluginManager.getServicePlugin( "/my-plugin/resource.js" ) ).thenReturn( "my-plugin" );
+    when( pluginManager.isStaticResource( "/my-plugin/resource.js" ) ).thenReturn( true );
+    when( pluginManager.getStaticResource( "/my-plugin/resource.js" ) ).thenReturn( null );
+
+    boolean result = genericServlet.isStaticResource( request );
+    assertFalse( result );
+  }
+
+  @Test
+  @SuppressWarnings( { "deprecation" } )
+  public void testIsStaticResource_False_NotAnExistingStaticResourceAndCacheEnabled() {
+    when( request.getServletPath() ).thenReturn( "/content" );
+    when( request.getPathInfo() ).thenReturn( "/my-plugin/resource.js" );
+    when( pluginManager.getServicePlugin( "/my-plugin/resource.js" ) ).thenReturn( "my-plugin" );
+    when( pluginManager.isStaticResource( "/my-plugin/resource.js" ) ).thenReturn( true );
+
+    when( pluginManager.getPluginSetting( eq( "my-plugin" ), eq( "settings/cache" ), any() ) )
+      .thenReturn( "true" );
+    when( cacheManager.getFromRegionCache( CACHE_FILE, "/my-plugin/resource.js" ) ).thenReturn( null );
+
+    when( pluginManager.getStaticResource( "/my-plugin/resource.js" ) ).thenReturn( null );
+
+    boolean result = genericServlet.isStaticResource( request );
+    assertFalse( result );
+  }
+
   // endregion
 }
