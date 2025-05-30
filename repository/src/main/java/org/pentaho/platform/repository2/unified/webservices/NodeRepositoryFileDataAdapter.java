@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.webservices;
 
@@ -33,6 +34,7 @@ public class NodeRepositoryFileDataAdapter extends XmlAdapter<NodeRepositoryFile
     NodeRepositoryFileDataDto d = new NodeRepositoryFileDataDto();
     DataNodeDto node = new DataNodeDto();
     d.setNode( node );
+    d.setDataSize( v.getDataSize() );
     toDataNodeDto( node, v.getNode() );
     return d;
   }
@@ -72,8 +74,7 @@ public class NodeRepositoryFileDataAdapter extends XmlAdapter<NodeRepositoryFile
   @Override
   public NodeRepositoryFileData unmarshal( final NodeRepositoryFileDataDto v ) {
     DataNode node = toDataNode( v.getNode() );
-    NodeRepositoryFileData data = new NodeRepositoryFileData( node );
-    return data;
+    return new NodeRepositoryFileData( node, v.getDataSize() );
   }
 
   protected DataNode toDataNode( final DataNodeDto nodeDto ) {

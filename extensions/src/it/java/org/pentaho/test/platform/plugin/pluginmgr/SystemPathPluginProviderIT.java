@@ -7,7 +7,7 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
 
 package org.pentaho.test.platform.plugin.pluginmgr;
@@ -36,7 +36,9 @@ import org.pentaho.test.platform.utils.TestResourceLocation;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings( "nls" )
 public class SystemPathPluginProviderIT {
@@ -64,14 +66,22 @@ public class SystemPathPluginProviderIT {
 
     // should successfully load good-plugin1 and good-plugin2 and not load bad-plugin. The fact
     // that bad-plugin does not load should not prevent the good ones from being loaded
-    assertTrue( "plugin1 was not found", CollectionUtils.exists( plugins,
-      new PluginNameMatcherPredicate( "Plugin 1" ) ) );
+    IPlatformPlugin plugin1 = (IPlatformPlugin) CollectionUtils.find( plugins,
+      new PluginNameMatcherPredicate( "Plugin 1" ) );
+    // plugin1 has the valid resource bundle class name
+    assertEquals( "Invalid plugin resource bundle classname", "messages",
+      plugin1.getResourceBundleClassName() );
+    // plugin1 has the valid title and description for translation and interpolation
+    assertEquals( "Invalid plugin title", "${pluginTitle}", plugin1.getTitle() );
+    assertEquals( "Invalid plugin description", "${pluginDescription} - ${pluginDescription}",
+      plugin1.getDescription() );
+
     assertTrue( "plugin2 was not found", CollectionUtils.exists( plugins,
       new PluginNameMatcherPredicate( "Plugin 2" ) ) );
 
     // make sure that the bad plugin caused an error message to be logged
     assertEquals( "bad plugin did not log an error message", 1, PluginMessageLogger
-        .count( "SystemPathXmlPluginProvider.ERROR_0001" ) );
+      .count( "SystemPathXmlPluginProvider.ERROR_0001" ) );
 
     for ( String msg : PluginMessageLogger.getAll() ) {
       System.err.println( msg );
@@ -88,8 +98,8 @@ public class SystemPathPluginProviderIT {
     provider.getPlugins( new StandaloneSession() );
   }
 
-  class PluginNameMatcherPredicate implements Predicate {
-    private String pluginNameToMatch;
+  static class PluginNameMatcherPredicate implements Predicate {
+    private final String pluginNameToMatch;
 
     public PluginNameMatcherPredicate( String pluginNameToMatch ) {
       this.pluginNameToMatch = pluginNameToMatch;
@@ -98,7 +108,6 @@ public class SystemPathPluginProviderIT {
     public boolean evaluate( Object object ) {
       return pluginNameToMatch.equals( ( (IPlatformPlugin) object ).getId() );
     }
-
   }
 
   @SuppressWarnings( "deprecation" )
@@ -116,12 +125,12 @@ public class SystemPathPluginProviderIT {
 
     for ( IPlatformPlugin plugin : plugins ) {
       if ( plugin.getId().equals( "Plugin 1" ) ) {
-        assertEquals( "org.pentaho.test.platform.plugin.pluginmgr.FooInitializer", plugin
-            .getLifecycleListenerClassname() );
+        assertEquals( List.of( "org.pentaho.test.platform.plugin.pluginmgr.FooInitializer" ), plugin
+          .getLifecycleListenerClassnames() );
       }
       if ( plugin.getId().equals( "Plugin 2" ) ) {
         // no listener defined to for Plugin 2
-        assertNull( plugin.getLifecycleListenerClassname() );
+        assertEquals( 0, plugin.getLifecycleListenerClassnames().size() );
       }
     }
   }
@@ -134,23 +143,19 @@ public class SystemPathPluginProviderIT {
     List<IPlatformPlugin> plugins = provider.getPlugins( new StandaloneSession() );
 
     IPlatformPlugin plugin =
-        (IPlatformPlugin) CollectionUtils.find( plugins, new PluginNameMatcherPredicate( "Plugin 1" ) );
+      (IPlatformPlugin) CollectionUtils.find( plugins, new PluginNameMatcherPredicate( "Plugin 1" ) );
     assertNotNull( "Plugin 1 should have been found", plugin );
 
     Collection<PluginBeanDefinition> beans = plugin.getBeans();
 
-    assertEquals( "FooComponent was not loaded", 1, CollectionUtils.countMatches( beans, new Predicate() {
-      public boolean evaluate( Object object ) {
-        PluginBeanDefinition bean = (PluginBeanDefinition) object;
-        return bean.getBeanId().equals( "FooComponent" )
-            && bean.getClassname().equals( "org.pentaho.test.platform.plugin.pluginmgr.FooComponent" );
-      }
+    assertEquals( "FooComponent was not loaded", 1, CollectionUtils.countMatches( beans, object -> {
+      PluginBeanDefinition bean = (PluginBeanDefinition) object;
+      return bean.getBeanId().equals( "FooComponent" )
+        && bean.getClassname().equals( "org.pentaho.test.platform.plugin.pluginmgr.FooComponent" );
     } ) );
-    assertEquals( "genericBean was not loaded", 1, CollectionUtils.countMatches( beans, new Predicate() {
-      public boolean evaluate( Object object ) {
-        PluginBeanDefinition bean = (PluginBeanDefinition) object;
-        return bean.getBeanId().equals( "genericBean" ) && bean.getClassname().equals( "java.lang.Object" );
-      }
+    assertEquals( "genericBean was not loaded", 1, CollectionUtils.countMatches( beans, object -> {
+      PluginBeanDefinition bean = (PluginBeanDefinition) object;
+      return bean.getBeanId().equals( "genericBean" ) && bean.getClassname().equals( "java.lang.Object" );
     } ) );
   }
 
@@ -161,10 +166,12 @@ public class SystemPathPluginProviderIT {
     List<IPlatformPlugin> plugins = provider.getPlugins( new StandaloneSession() );
 
     IPlatformPlugin plugin =
-        (IPlatformPlugin) CollectionUtils.find( plugins, new PluginNameMatcherPredicate( "Plugin 1" ) );
+      (IPlatformPlugin) CollectionUtils.find( plugins, new PluginNameMatcherPredicate( "Plugin 1" ) );
     assertNotNull( "Plugin 1 should have been found", plugin );
 
-    assertEquals( "org.pentaho.test.platform.plugin.pluginmgr.FooInitializer", plugin.getLifecycleListenerClassname() );
+    assertEquals(
+      List.of( "org.pentaho.test.platform.plugin.pluginmgr.FooInitializer" ),
+      plugin.getLifecycleListenerClassnames() );
   }
 
   @SuppressWarnings( "deprecation" )
@@ -176,26 +183,23 @@ public class SystemPathPluginProviderIT {
     System.out.println( PluginMessageLogger.getAll() );
 
     IPlatformPlugin plugin =
-        (IPlatformPlugin) CollectionUtils.find( plugins, new PluginNameMatcherPredicate( "Plugin 1" ) );
+      (IPlatformPlugin) CollectionUtils.find( plugins, new PluginNameMatcherPredicate( "Plugin 1" ) );
     assertNotNull( "Plugin 1 should have been found", plugin );
 
     Collection<PluginServiceDefinition> webservices = plugin.getServices();
 
-    Object wsobj = CollectionUtils.find( webservices, new Predicate() {
-      public boolean evaluate( Object object ) {
-        PluginServiceDefinition ws = (PluginServiceDefinition) object;
-        boolean ret = ws.getTitle().equals( "%TestWS1.TITLE%" );
-        return ret;
-      }
+    Object wsObj = CollectionUtils.find( webservices, object -> {
+      PluginServiceDefinition ws = (PluginServiceDefinition) object;
+      return ws.getTitle().equals( "%TestWS1.TITLE%" );
     } );
 
-    assertNotNull( "Webservice \"%TestWS1.TITLE%\" should have been loaded", wsobj );
+    assertNotNull( "Webservice \"%TestWS1.TITLE%\" should have been loaded", wsObj );
 
-    PluginServiceDefinition wsDfn = (PluginServiceDefinition) wsobj;
+    PluginServiceDefinition wsDfn = (PluginServiceDefinition) wsObj;
 
     assertEquals( "org.pentaho.test.platform.engine.core.EchoServiceBean", wsDfn.getServiceClass() );
-    assertEquals( "xml", wsDfn.getTypes()[0] );
-    assertEquals( "gwt", wsDfn.getTypes()[1] );
+    assertEquals( "xml", wsDfn.getTypes()[ 0 ] );
+    assertEquals( "gwt", wsDfn.getTypes()[ 1 ] );
     assertEquals( "A test webservice", wsDfn.getDescription() );
     assertEquals( 1, wsDfn.getExtraClasses().size() );
     assertEquals( "java.lang.String", wsDfn.getExtraClasses().iterator().next() );
@@ -208,40 +212,36 @@ public class SystemPathPluginProviderIT {
     List<IPlatformPlugin> plugins = provider.getPlugins( new StandaloneSession() );
 
     IPlatformPlugin plugin =
-        (IPlatformPlugin) CollectionUtils.find( plugins, new PluginNameMatcherPredicate( "content-generator-plugin" ) );
+      (IPlatformPlugin) CollectionUtils.find( plugins, new PluginNameMatcherPredicate( "content-generator-plugin" ) );
     assertNotNull( "content-generator-plugin should have been found", plugin );
 
     List<IContentInfo> contentTypes = plugin.getContentInfos();
 
-    Object contentType = CollectionUtils.find( contentTypes, new Predicate() {
-      public boolean evaluate( Object object ) {
-        IContentInfo type = (IContentInfo) object;
-        return type.getTitle().equals( "Good Test Type" );
-      }
+    Object contentType = CollectionUtils.find( contentTypes, object -> {
+      IContentInfo type = (IContentInfo) object;
+      return type.getTitle().equals( "Good Test Type" );
     } );
     assertNotNull( "\"Good Test Type\" should have been loaded", contentType );
-    assertNotNull( "\"Good Test Type\" extension definition is incorrect", ( (IContentInfo) contentType )
-        .getExtension().equals( "good-content-type" ) );
+    assertEquals(
+      "\"Good Test Type\" extension definition is incorrect",
+      "good-test-type",
+      ( (IContentInfo) contentType ).getExtension() );
 
     IContentInfo contentInfo = (IContentInfo) contentType;
     IPluginOperation operation = contentInfo.getOperations().listIterator().next();
     assertEquals( "Missing perspective", "custom-perspective", operation.getPerspective() );
 
     assertEquals( "\"Test Type Missing type\" should not have been loaded", 0, CollectionUtils.countMatches(
-        contentTypes, new Predicate() {
-          public boolean evaluate( Object object ) {
-            IContentInfo type = (IContentInfo) object;
-            return type.getTitle().equals( "Test Type Missing type" );
-          }
-        } ) );
+      contentTypes, object -> {
+        IContentInfo type = (IContentInfo) object;
+        return type.getTitle().equals( "Test Type Missing type" );
+      } ) );
 
     assertEquals( "\"test-type-missing-title\" should not have been loaded", 0, CollectionUtils.countMatches(
-        contentTypes, new Predicate() {
-          public boolean evaluate( Object object ) {
-            IContentInfo type = (IContentInfo) object;
-            return type.getExtension().equals( "test-type-missing-title" );
-          }
-        } ) );
+      contentTypes, object -> {
+        IContentInfo type = (IContentInfo) object;
+        return type.getExtension().equals( "test-type-missing-title" );
+      } ) );
   }
 
   @SuppressWarnings( "deprecation" )
@@ -251,13 +251,13 @@ public class SystemPathPluginProviderIT {
     List<IPlatformPlugin> plugins = provider.getPlugins( new StandaloneSession() );
 
     IPlatformPlugin plugin =
-        (IPlatformPlugin) CollectionUtils.find( plugins, new PluginNameMatcherPredicate( "Plugin 1" ) );
+      (IPlatformPlugin) CollectionUtils.find( plugins, new PluginNameMatcherPredicate( "Plugin 1" ) );
     assertNotNull( "Plugin 1 should have been found", plugin );
 
     assertEquals( 2, plugin.getPluginPerspectives().size() );
     IPluginPerspective perspective = plugin.getPluginPerspectives().get( 0 );
-    assertEquals( perspective.getId(), "perspective1" );
-    assertEquals( perspective.getTitle(), "Test Perspective 1" );
-    assertEquals( perspective.getLayoutPriority(), 500 );
+    assertEquals( "perspective1", perspective.getId() );
+    assertEquals( "Test Perspective 1", perspective.getTitle() );
+    assertEquals( 500, perspective.getLayoutPriority() );
   }
 }
