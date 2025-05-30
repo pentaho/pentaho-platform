@@ -60,7 +60,7 @@ public class GenericServlet extends ServletBase {
   private static final long serialVersionUID = 6713118348911206464L;
 
   private static final Log logger = LogFactory.getLog( GenericServlet.class );
-  private static final String CACHE_FILE = "file"; //$NON-NLS-1$
+  static final String CACHE_FILE = "file";
   private static ICacheManager cache = PentahoSystem.getCacheManager( null );
 
   /**
@@ -68,7 +68,7 @@ public class GenericServlet extends ServletBase {
    * It assumes the REST resource is being served via its default URL, {@code /content}.
    * Used by {@link #isStaticResource(HttpServletRequest)}.
    */
-  private static final Pattern PATH_PATTERN = Pattern.compile( "\\A/content/(.+)\\Z" );
+  private static final Pattern PATH_PATTERN = Pattern.compile( "\\A/content(/.+)\\Z" );
 
   private boolean showDeprecationMessage;
 
@@ -92,7 +92,7 @@ public class GenericServlet extends ServletBase {
   }
 
   /**
-   * Determines if the request is for a static resource handled by this content generator handler
+   * Determines if the request is for an existing static resource handled by this content generator handler
    * assuming it's being served via its default URL, {@code /content}.
    * <p>
    * This particular method can be used without performing servlet initialization, via {@link #init()}.
@@ -116,6 +116,7 @@ public class GenericServlet extends ServletBase {
     }
 
     // Assume it is a static resource, but then check the hypothesis.
+    // Equal in value to getPathInfo() in doGet()
     String staticResourceUrl = matcher.group( 1 );
 
     IPluginManager pluginManager = getPluginManager( request );
@@ -132,8 +133,60 @@ public class GenericServlet extends ServletBase {
     }
 
     @SuppressWarnings( "deprecation" )
-    boolean isStaticResource = pluginManager.isStaticResource( staticResourceUrl );
-    return isStaticResource;
+    boolean isStaticResourceUrl = pluginManager.isStaticResource( staticResourceUrl );
+
+    return isStaticResourceUrl && doesStaticResourceExist( pluginManager, pluginId, staticResourceUrl );
+  }
+
+  /**
+   * Checks if a static resource, given its relative URL actually exists.
+   * <p>
+   * This method is used by {@link #isStaticResource(HttpServletRequest)} to determine if a static resource actually
+   * exists, and not only whether its URL is public.
+   * <p>
+   * This method uses the deprecated method {@link IPluginManager#getStaticResource(String)} so that it behaves the
+   * closest possible to {@link #doGet(HttpServletRequest, HttpServletResponse)}.
+   *
+   * @param pluginManager     The plugin manager.
+   * @param pluginId          The plugin ID.
+   * @param staticResourceUrl The static resource URL.
+   * @return {@code true} if the static resource exists; {@code false}, otherwise.
+   */
+  protected boolean doesStaticResourceExist( @NonNull IPluginManager pluginManager,
+                                             @NonNull String pluginId,
+                                             @NonNull String staticResourceUrl ) {
+    // Check the file actually exists.
+    boolean cacheOn = isPluginCacheOn( pluginManager, pluginId );
+
+    // Do we have this resource cached?
+    if ( cacheOn && getCacheManager().getFromRegionCache( CACHE_FILE, staticResourceUrl ) != null ) {
+      return true;
+    }
+
+    @SuppressWarnings( "deprecation" )
+    InputStream resourceStream = pluginManager.getStaticResource( staticResourceUrl );
+    if ( resourceStream != null ) {
+      IOUtils.closeQuietly( resourceStream );
+      return true;
+    }
+
+    return false;
+  }
+
+  // visible for testing
+  protected ICacheManager getCacheManager() {
+    return cache;
+  }
+
+  /**
+   * Checks if the cache is enabled for the given plugin.
+   *
+   * @param pluginManager The plugin manager.
+   * @param pluginId      The plugin ID.
+   * @return {@code true} if the cache is enabled; {@code false}, otherwise.
+   */
+  protected boolean isPluginCacheOn( @NonNull IPluginManager pluginManager, @NonNull String pluginId ) {
+    return "true".equals( pluginManager.getPluginSetting( pluginId, "settings/cache", "false" ) );
   }
 
   @Override
@@ -228,8 +281,7 @@ public class GenericServlet extends ServletBase {
       String pluginId = pluginManager.getServicePlugin( pathInfo );
 
       if ( pluginId != null && pluginManager.isStaticResource( pathInfo ) ) {
-        boolean cacheOn = "true".equals( pluginManager
-          .getPluginSetting( pluginId, "settings/cache", "false" ) ); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+        boolean cacheOn = isPluginCacheOn( pluginManager, pluginId );
         String maxAge = (String) pluginManager.getPluginSetting( pluginId, "settings/max-age", null ); //$NON-NLS-1$
         allowBrowserCache( maxAge, pathParams );
 
@@ -243,7 +295,7 @@ public class GenericServlet extends ServletBase {
         ByteArrayOutputStream byteStream = null;
 
         if ( cacheOn ) {
-          byteStream = (ByteArrayOutputStream) cache.getFromRegionCache( CACHE_FILE, pathInfo );
+          byteStream = (ByteArrayOutputStream) getCacheManager().getFromRegionCache( CACHE_FILE, pathInfo );
         }
 
         if ( byteStream != null ) {
@@ -258,7 +310,7 @@ public class GenericServlet extends ServletBase {
 
             // if cache is enabled, drop file in cache
             if ( cacheOn ) {
-              cache.putInRegionCache( CACHE_FILE, pathInfo, byteStream );
+              getCacheManager().putInRegionCache( CACHE_FILE, pathInfo, byteStream );
             }
 
             // write it out
