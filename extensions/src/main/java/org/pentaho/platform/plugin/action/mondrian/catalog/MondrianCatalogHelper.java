@@ -185,65 +185,6 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     this( useLegacyDbName, null, null );
   }
 
-  /**
-   * Performs a search for an existing catalog based on the datasource info and catalog definition.
-   *
-   * @param catalog        The catalog to compare against
-   * @param pentahoSession The session with which this request is associated (Used to locate the cache)
-   * @return True if an existing match has been found for the catalog
-   */
-  protected boolean catalogExists( MondrianCatalog catalog, IPentahoSession pentahoSession ) {
-    if ( catalog != null ) {
-      MondrianCatalog foundCatalog = getCatalogFromCache( catalog.getName(), pentahoSession );
-      // Was the catalog found by name?
-      if ( foundCatalog != null ) {
-        // first check dataSourceInfo
-        String foundDataSourceInfo = cleanseDataSourceInfo( foundCatalog.getDataSourceInfo() );
-        String newDataSourceInfo = cleanseDataSourceInfo( catalog.getDataSourceInfo() );
-
-        if ( !foundDataSourceInfo.equals( newDataSourceInfo ) ) {
-          return false;
-        }
-
-        // now check definition
-        String foundDefinition = foundCatalog.getDefinition();
-        String newDefinition = catalog.getDefinition();
-
-        if ( definitionEquals( foundDefinition, newDefinition ) ) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  protected MondrianCatalog getCatalogFromCache( String context, IPentahoSession pentahoSession ) {
-    // NOTE that the context can be the catalog name or the definition string for the catalog. If you are using the
-    // definition string to
-    // retrieve the catalog form the cache, you cannot be guaranteed what datasource is in play; so under these
-    // circumstances, this catalog's
-    // definition is the only part of the catalog that can be trusted. As this feature was added to enable looking up
-    // Mondrian
-    // roles from the schema, we don't much care which datasource is in play.
-
-    MondrianCatalogCache mondrianCatalogCache =
-      (MondrianCatalogCache) PentahoSystem.getCacheManager( pentahoSession ).getFromRegionCache(
-        MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString() );
-    return mondrianCatalogCache.getCatalog( context );
-  }
-
-  /**
-   * TODO Delete this method. Calling this method ties you to this implementation.
-   *
-   * @deprecated Please use PentahoSystem.get to get the Mondrian Catalog Service
-   */
-  @Deprecated
-  public static MondrianCatalogHelper getInstance() {
-    // IMondrianCatalogService is a singleton; IPentahoSession not required
-    return (MondrianCatalogHelper) PentahoSystem
-        .get( IMondrianCatalogService.class, "IMondrianCatalogService", null ); //$NON-NLS-1$
-  }
-
   @VisibleForTesting
   @Deprecated
   public MondrianCatalogHelper( IAclNodeHelper aclHelper ) {
@@ -293,6 +234,35 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     this( useLegacyDbName, mondrianFileProvider, localizingDynamicSchemaProcessor, null );
   }
 
+  // ~ Methods =========================================================================================================
+
+  /**
+   * TODO Delete this method. Calling this method ties you to this implementation.
+   *
+   * @deprecated Please use PentahoSystem.get to get the Mondrian Catalog Service
+   */
+  @Deprecated
+  public static MondrianCatalogHelper getInstance() {
+    // IMondrianCatalogService is a singleton; IPentahoSession not required
+    return (MondrianCatalogHelper) PentahoSystem
+      .get( IMondrianCatalogService.class, "IMondrianCatalogService", null ); //$NON-NLS-1$
+  }
+
+  protected MondrianCatalog getCatalogFromCache( String context, IPentahoSession pentahoSession ) {
+    // NOTE that the context can be the catalog name or the definition string for the catalog. If you are using the
+    // definition string to
+    // retrieve the catalog form the cache, you cannot be guaranteed what datasource is in play; so under these
+    // circumstances, this catalog's
+    // definition is the only part of the catalog that can be trusted. As this feature was added to enable looking up
+    // Mondrian
+    // roles from the schema, we don't much care which datasource is in play.
+
+    MondrianCatalogCache mondrianCatalogCache =
+      (MondrianCatalogCache) PentahoSystem.getCacheManager( pentahoSession ).getFromRegionCache(
+        MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString() );
+    return mondrianCatalogCache.getCatalog( context );
+  }
+
   @SuppressWarnings( "unchecked" )
   protected List<MondrianCatalog> getCatalogs( IPentahoSession pentahoSession ) {
 
@@ -310,9 +280,6 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     SetUniqueList uniqueCatalogs = SetUniqueList.decorate( catalogs );
     return uniqueCatalogs;
   }
-
-
-  // ~ Methods =========================================================================================================
 
   /**
    * This method will conditionally load the catalogs into the cache, depending on the internal flag to check if it
@@ -353,6 +320,39 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
       return Locale.getDefault();
     }
   }
+
+  /**
+   * Performs a search for an existing catalog based on the datasource info and catalog definition.
+   *
+   * @param catalog        The catalog to compare against
+   * @param pentahoSession The session with which this request is associated (Used to locate the cache)
+   * @return True if an existing match has been found for the catalog
+   */
+  protected boolean catalogExists( MondrianCatalog catalog, IPentahoSession pentahoSession ) {
+    if ( catalog != null ) {
+      MondrianCatalog foundCatalog = getCatalogFromCache( catalog.getName(), pentahoSession );
+      // Was the catalog found by name?
+      if ( foundCatalog != null ) {
+        // first check dataSourceInfo
+        String foundDataSourceInfo = cleanseDataSourceInfo( foundCatalog.getDataSourceInfo() );
+        String newDataSourceInfo = cleanseDataSourceInfo( catalog.getDataSourceInfo() );
+
+        if ( !foundDataSourceInfo.equals( newDataSourceInfo ) ) {
+          return false;
+        }
+
+        // now check definition
+        String foundDefinition = foundCatalog.getDefinition();
+        String newDefinition = catalog.getDefinition();
+
+        if ( definitionEquals( foundDefinition, newDefinition ) ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
 
   /**
    * Same as implemented in <code>XmlaServlet</code> except takes advantage of Spring's Resource framework.
