@@ -18,7 +18,7 @@ import org.pentaho.platform.web.http.api.resources.RepositoryResource;
 import org.pentaho.platform.web.servlet.GenericServlet;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
