@@ -87,9 +87,7 @@ import java.util.stream.Collectors;
  */
 public class OlapServiceImpl implements IOlapService {
 
-  public static String CATALOG_CACHE_REGION = "iolapservice-catalog-cache"; //$NON-NLS-1$
-
-  static final String MONDRIAN_DATASOURCE_FOLDER = "mondrian"; //$NON-NLS-1$
+  public static final String CATALOG_CACHE_REGION = "iolapservice-catalog-cache"; //$NON-NLS-1$
 
   final ReadWriteLock cacheLock = new ReentrantReadWriteLock();
 
@@ -109,7 +107,7 @@ public class OlapServiceImpl implements IOlapService {
   private IUnifiedRepository repository;
   private MondrianCatalogRepositoryHelper helper;
 
-  private MondrianServer server = null;
+  private MondrianServer server;
   private final List<IOlapConnectionFilter> filters;
   private Role role;
 
@@ -131,12 +129,12 @@ public class OlapServiceImpl implements IOlapService {
    */
   public OlapServiceImpl( IUnifiedRepository repo, final MondrianServer server ) {
     this.repository = repo;
-    this.filters = new CopyOnWriteArrayList<IOlapConnectionFilter>();
+    this.filters = new CopyOnWriteArrayList<>();
     this.server = server;
 
     try {
       DefaultFileSystemManager dfsm = (DefaultFileSystemManager) VFS.getManager();
-      if ( dfsm.hasProvider( "mondrian" ) == false ) {
+      if ( !dfsm.hasProvider( "mondrian" ) ) {
         dfsm.addProvider( "mondrian", new MondrianVfs() );
       }
     } catch ( FileSystemException e ) {
@@ -259,11 +257,7 @@ public class OlapServiceImpl implements IOlapService {
     try {
       readLock.lock();
       // Check if the cache is empty.
-      if ( cache.size() == 0 ) {
-        needUpdate = true;
-      } else {
-        needUpdate = false;
-      }
+      needUpdate = cache.isEmpty();
     } finally {
       readLock.unlock();
     }
@@ -276,7 +270,7 @@ public class OlapServiceImpl implements IOlapService {
         // First clear the cache
         cache.clear();
 
-        final Callable<Void> call = new Callable<Void>() {
+        final Callable<Void> call = new Callable<>() {
           public Void call() throws Exception {
             // Now build the cache. Use the system session in the holder.
             for ( String name : getHelper().getHostedCatalogs() ) {
@@ -342,7 +336,7 @@ public class OlapServiceImpl implements IOlapService {
   private void addCatalogToCache( IPentahoSession session, String catalogName ) {
 
     final IOlapService.Catalog catalog =
-      new Catalog( catalogName, new ArrayList<IOlapService.Schema>() );
+      new Catalog( catalogName, new ArrayList<>() );
 
     OlapConnection connection = null;
 
@@ -359,8 +353,8 @@ public class OlapServiceImpl implements IOlapService {
           new Schema(
             schema4j.getName(),
             catalog,
-            new ArrayList<IOlapService.Cube>(),
-            new ArrayList<String>( connection.getAvailableRoleNames() ) );
+            new ArrayList<>(),
+            new ArrayList<>( connection.getAvailableRoleNames() ) );
 
         for ( org.olap4j.metadata.Cube cube4j : schema4j.getCubes() ) {
           schema.cubes.add(
@@ -833,7 +827,7 @@ public class OlapServiceImpl implements IOlapService {
   }
 
   private String getDatasourcesXml() {
-    final Callable<String> call = new Callable<String>() {
+    final Callable<String> call = new Callable<>() {
       public String call() throws Exception {
         return generateInMemoryDatasourcesXml();
       }
