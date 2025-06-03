@@ -286,9 +286,18 @@
   </bean>
 
   <bean id="userNavigationAwareAuthenticationEntryPoint"
-        class="org.pentaho.platform.web.http.security.UserNavigationAwareAuthenticationEntryPoint">
-    <constructor-arg ref="authenticationProcessingFilterEntryPoint"/>
-    <constructor-arg ref="basicProcessingFilterEntryPoint"/>
+        class="org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint">
+    <constructor-arg>
+      <util:map>
+        <entry>
+          <key>
+            <bean class="org.pentaho.platform.web.servlet.matchers.UserNavigationRequestMatcher" />
+          </key>
+          <ref bean="authenticationProcessingFilterEntryPoint" />
+        </entry>
+      </util:map>
+    </constructor-arg>
+    <property name="defaultEntryPoint" ref="basicProcessingFilterEntryPoint" />
   </bean>
 
   <bean id="httpRequestAccessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">

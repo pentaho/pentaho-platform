@@ -10,30 +10,47 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-package org.pentaho.platform.web.http.security;
+package org.pentaho.platform.web.servlet.matchers;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
 /**
- * The {@code UserNavigationAwareAuthenticationEntryPoint} class is an authentication entry point that determines the
- * type of request based on the presence of the `sec-fetch-user` HTTP request header. If the request is determined to be
- * a user navigation request, it delegates to the user authentication entry point specified in the constructor.
- * Otherwise, it delegates to the specified API authentication entry point.
+ * The {@code UserNavigationRequestMatcher} determines if a request can be considered a user navigation request,
+ * based on the presence of the `sec-fetch-user` HTTP request header, or on other related headers, such as
+ * `sec-fetch-dest`, `sec-fetch-mode` and `sec-fetch-site`.
  * <p>
- * This approach allows using the most appropriate authentication method depending on if the request is made directly by
- * a user or by an API client.
+ * If the `sec-fetch-user` header is set to `?1`, it indicates that the request was initiated by a user and has
+ * user activation, and is considered a user navigation request.
+ * <p>
+ * Otherwise, other navigation request headers are checked to determine if it is a safe navigation request.
+ * Specifically, the following headers are considered to also indicate safe user navigation requests:
+ * <ul>
+ *   <li>sec-fetch-dest: document / embed / frame / iframe / object</li>
+ *   <li>sec-fetch-mode: navigate</li>
+ *   <li>sec-fetch-site: same-origin / none</li>
+ * </ul>
+ * <p>
+ * These header combinations can happen due to either meta refreshes or 302-redirects:
+ * <ul>
+ *   <li>
+ *     <pre>
+ *       <META HTTP-EQUIV="refresh" CONTENT="0;URL=./Home">
+ *     <pre>
+ *   </li>
+ *   <li>HTTP 302 redirects with a Location header.</li>
+ * </ul>
+ * <p>
+ * In Pentaho, this can happen when the user navigates to localhost:8080.
+ * The response is meta-redirected to localhost:8080/pentaho.
+ * Then, the server 302-redirects to localhost:8080/pentaho/.
+ * Finally, the response is meta-redirected to localhost:8080/pentaho/Home.
  */
-public class UserNavigationAwareAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class UserNavigationRequestMatcher implements RequestMatcher {
   /**
    * The `sec-fetch-user` HTTP request header is included by web browsers to indicate that a request was initiated by
    * a <i>user navigation</i> and having a user activation state.
@@ -109,65 +126,8 @@ public class UserNavigationAwareAuthenticationEntryPoint implements Authenticati
    */
   static final List<String> HEADER_SF_SITE_SAFE = List.of( "same-origin", "none" );
 
-  @NonNull
-  private final AuthenticationEntryPoint userAuthenticationEntryPoint;
-  @NonNull
-  private final AuthenticationEntryPoint apiAuthenticationEntryPoint;
-
-  public UserNavigationAwareAuthenticationEntryPoint(
-    @NonNull AuthenticationEntryPoint userAuthenticationEntryPoint,
-    @NonNull AuthenticationEntryPoint apiAuthenticationEntryPoint ) {
-    this.userAuthenticationEntryPoint = Objects.requireNonNull( userAuthenticationEntryPoint );
-    this.apiAuthenticationEntryPoint = Objects.requireNonNull( apiAuthenticationEntryPoint );
-  }
-
   @Override
-  public void commence( @NonNull HttpServletRequest request,
-                        @NonNull HttpServletResponse response,
-                        @NonNull AuthenticationException authException )
-    throws IOException, ServletException {
-
-    boolean isUserNavigation = isUserNavigation( request );
-    if ( isUserNavigation ) {
-      userAuthenticationEntryPoint.commence( request, response, authException );
-    } else {
-      apiAuthenticationEntryPoint.commence( request, response, authException );
-    }
-  }
-
-  /**
-   * Determines if the request is a user navigation request based on the presence of the `sec-fetch-user` header.
-   * <p>
-   * If the `sec-fetch-user` header is set to `?1`, it indicates that the request was initiated by a user and has
-   * user activation.
-   * <p>
-   * Otherwise, other navigation request headers are checked to determine if it is a safe navigation request.
-   * Specifically, the following headers are considered to also indicate safe user navigation requests:
-   * <ul>
-   *   <li>sec-fetch-dest: document / embed / frame / iframe / object</li>
-   *   <li>sec-fetch-mode: navigate</li>
-   *   <li>sec-fetch-site: same-origin / none</li>
-   * </ul>
-   * <p>
-   * These header combinations can happen due to either meta refreshes or 302-redirects:
-   * <ul>
-   *   <li>
-   *     <pre>
-   *       <META HTTP-EQUIV="refresh" CONTENT="0;URL=./Home">
-   *     <pre>
-   *   </li>
-   *   <li>HTTP 302 redirects with a Location header.</li>
-   * </ul>
-   * <p>
-   * In Pentaho, this can happen when the user navigates to localhost:8080.
-   * The response is meta-redirected to localhost:8080/pentaho.
-   * Then, the server 302-redirects to localhost:8080/pentaho/.
-   * Finally, the response is meta-redirected to localhost:8080/pentaho/Home.
-   *
-   * @param request The HTTP request.
-   * @return {@code true} if the request is a user navigation request; {@code false} otherwise.
-   */
-  protected boolean isUserNavigation( @NonNull HttpServletRequest request ) {
+  public boolean matches( @NonNull HttpServletRequest request ) {
     if ( HEADER_SF_TRUE.equals( request.getHeader( HEADER_SEC_FETCH_USER ) ) ) {
       return true;
     }
