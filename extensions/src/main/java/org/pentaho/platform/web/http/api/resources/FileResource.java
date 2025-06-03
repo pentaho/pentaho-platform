@@ -2205,6 +2205,10 @@ public class FileResource extends AbstractJaxRSResource {
     @ResponseCode ( code = 500, condition = "Server Error." ) } )
   public Response doSetMetadata( @PathParam ( "pathId" ) String pathId, StringKeyStringValueDtoWrapper metadata ) {
     try {
+      if ( metadata == null || metadata.getStringKeyStringValueDtoes() == null ) {
+        return Response.status( Response.Status.BAD_REQUEST ).entity( "Invalid payload." ).build();
+      }
+
       fileService.doSetMetadata( pathId, metadata.getStringKeyStringValueDtoes() );
       return buildOkResponse();
     } catch ( GeneralSecurityException e ) {
