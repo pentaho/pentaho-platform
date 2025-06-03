@@ -17,7 +17,7 @@ import org.junit.Test;
 import org.pentaho.platform.web.http.api.resources.RepositoryResource;
 import org.pentaho.platform.web.servlet.GenericServlet;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
