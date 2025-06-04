@@ -47,7 +47,7 @@ public class MondrianCatalogRepositoryHelperIT {
     FileSystemBackedUnifiedRepository repository =
         new FileSystemBackedUnifiedRepository( TestResourceLocation.TEST_RESOURCES + "/MondrianCatalogRepositoryHelperTest" );
     MondrianCatalogRepositoryHelper helper = new MondrianCatalogRepositoryHelper( repository );
-    Map<String, InputStream> schemaFiles = helper.getModrianSchemaFiles( "sample" );
+    Map<String, InputStream> schemaFiles = helper.getMondrianSchemaFiles( "sample" );
     assertEquals( 1, schemaFiles.size() );
     assertSchemaFile(
         TestResourceLocation.TEST_RESOURCES + "/MondrianCatalogRepositoryHelperTest/etc/mondrian/sample/schema.xml", schemaFiles.get( "schema.xml" ) );
@@ -59,7 +59,7 @@ public class MondrianCatalogRepositoryHelperIT {
     FileSystemBackedUnifiedRepository repository =
         new FileSystemBackedUnifiedRepository( TestResourceLocation.TEST_RESOURCES + "/MondrianCatalogRepositoryHelperTest" );
     MondrianCatalogRepositoryHelper helper = new MondrianCatalogRepositoryHelper( repository );
-    Map<String, InputStream> schemaFiles = helper.getModrianSchemaFiles( "food" );
+    Map<String, InputStream> schemaFiles = helper.getMondrianSchemaFiles( "food" );
     assertEquals( 3, schemaFiles.size() );
     assertSchemaFile(
         TestResourceLocation.TEST_RESOURCES + "/MondrianCatalogRepositoryHelperTest/etc/mondrian/food/schema.xml",

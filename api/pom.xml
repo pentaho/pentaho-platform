@@ -22,6 +22,12 @@
     <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
   </properties>
   <dependencies>
+    <!-- @Null, @Nullable annotations -->
+    <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
