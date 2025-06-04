@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importexport.legacy;
 
@@ -37,9 +38,9 @@ public class MondrianCatalogRepositoryHelperTest {
   }
 
   @Test( expected = RepositoryException.class )
-  public void testGetModrianSchemaFilesInvalidCatalogName() {
+  public void testGetMondrianSchemaFilesInvalidCatalogName() {
     String testCatalogName = "testCatalogName";
     when( repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + testCatalogName ) ).thenReturn( null );
-    mondrianCatalogRepositoryHelper.getModrianSchemaFiles( testCatalogName );
+    mondrianCatalogRepositoryHelper.getMondrianSchemaFiles( testCatalogName );
   }
 }
