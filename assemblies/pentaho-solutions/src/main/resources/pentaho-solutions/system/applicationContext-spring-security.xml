@@ -38,7 +38,7 @@
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
                                    mdcFilter,
-                                   exceptionTranslationFilterForWS,
+                                   exceptionTranslationFilter,
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/api/repos/**"
@@ -69,7 +69,7 @@
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
                                    mdcFilter,
-                                   exceptionTranslationFilterForWS,
+                                   exceptionTranslationFilter,
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/plugin/reporting/api/jobs/**"
@@ -84,7 +84,7 @@
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
                                    mdcFilter,
-                                   exceptionTranslationFilterForWS,
+                                   exceptionTranslationFilter,
                                    filterInvocationInterceptorForWS,
                                    preFlightFilter" />
 
@@ -100,7 +100,7 @@
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
                                    mdcFilter,
-                                   exceptionTranslationFilterForWS,
+                                   exceptionTranslationFilter,
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/**"
@@ -239,14 +239,7 @@
       ===================== HTTP REQUEST SECURITY ====================
   -->
   <bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
-    <constructor-arg ref="authenticationProcessingFilterEntryPoint"/>
-    <property name="accessDeniedHandler">
-      <bean class="org.springframework.security.web.access.AccessDeniedHandlerImpl" />
-    </property>
-  </bean>
-
-  <bean id="exceptionTranslationFilterForWS" class="org.springframework.security.web.access.ExceptionTranslationFilter">
-    <constructor-arg ref="basicProcessingFilterEntryPoint"/>
+    <constructor-arg ref="userNavigationAwareAuthenticationEntryPoint"/>
     <property name="accessDeniedHandler">
       <bean class="org.springframework.security.web.access.AccessDeniedHandlerImpl" />
     </property>
@@ -290,6 +283,21 @@
   <bean id="authenticationProcessingFilterEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
     <constructor-arg value="/Login" />
     <property name="forceHttps" value="false" />
+  </bean>
+
+  <bean id="userNavigationAwareAuthenticationEntryPoint"
+        class="org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint">
+    <constructor-arg>
+      <util:map>
+        <entry>
+          <key>
+            <bean class="org.pentaho.platform.web.servlet.matchers.UserNavigationRequestMatcher" />
+          </key>
+          <ref bean="authenticationProcessingFilterEntryPoint" />
+        </entry>
+      </util:map>
+    </constructor-arg>
+    <property name="defaultEntryPoint" ref="basicProcessingFilterEntryPoint" />
   </bean>
 
   <bean id="httpRequestAccessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
