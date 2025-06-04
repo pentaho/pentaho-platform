@@ -75,7 +75,7 @@ public class MondrianCatalogRepositoryHelper {
   private IUnifiedRepository repository;
 
   private MondrianSchemaAnnotator inlineModelingAnnotator =
-      PentahoSystem.get( MondrianSchemaAnnotator.class, ANNOTATOR_KEY, null );;
+    PentahoSystem.get( MondrianSchemaAnnotator.class, ANNOTATOR_KEY, null );
 
   public MondrianCatalogRepositoryHelper( final IUnifiedRepository repository ) {
     if ( repository == null ) {
@@ -311,7 +311,7 @@ public class MondrianCatalogRepositoryHelper {
       return Collections.emptyList();
     }
 
-    final List<String> names = new ArrayList<String>();
+    final List<String> names = new ArrayList<>();
 
     for ( RepositoryFile repoFile : repository.getChildren( hostedFolder.getId() ) ) {
       names.add( repoFile.getName() );
@@ -341,7 +341,7 @@ public class MondrianCatalogRepositoryHelper {
    * Provides a list of the catalog names hosted locally on this server.
    */
   public List<String> getHostedCatalogs() {
-    final List<String> names = new ArrayList<String>();
+    final List<String> names = new ArrayList<>();
 
     final RepositoryFile serversFolder =
       repository.getFile( ETC_MONDRIAN_JCR_FOLDER );
@@ -403,7 +403,7 @@ public class MondrianCatalogRepositoryHelper {
    * @return
    */
   public Map<String, InputStream> getMondrianSchemaFiles( String catalogName ) {
-    Map<String, InputStream> values = new HashMap<String, InputStream>();
+    Map<String, InputStream> values = new HashMap<>();
 
     RepositoryFile catalogFolder =
       repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName );
@@ -559,11 +559,7 @@ public class MondrianCatalogRepositoryHelper {
   }
 
   private boolean isHosted( String name ) {
-    if ( getHostedCatalogs().contains( name ) ) {
-      return true;
-    } else {
-      return false;
-    }
+    return getHostedCatalogs().contains( name );
   }
 
   private String makePath( String catalogName ) {
