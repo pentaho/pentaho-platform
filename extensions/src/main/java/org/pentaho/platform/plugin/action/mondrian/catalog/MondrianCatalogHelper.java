@@ -176,10 +176,12 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   MondrianCatalogRepositoryHelper catalogRepositoryHelper;
   private final LocalizingDynamicSchemaProcessor localizingDynamicSchemaProcessor;
   private final IUnifiedRepository unifiedRepository;
+  private final IOlapService olapService;
 
   // ~ Constructors ====================================================================================================
 
   public MondrianCatalogHelper( boolean useLegacyDbName ) {
+
     this( useLegacyDbName, null, null );
   }
 
@@ -196,7 +198,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   public MondrianCatalogHelper( boolean useLegacyDbName, FileProvider mondrianFileProvider,
                                 LocalizingDynamicSchemaProcessor localizingDynamicSchemaProcessor,
-                                IUnifiedRepository unifiedRepository ) {
+                                IUnifiedRepository unifiedRepository, IOlapService olapService ) {
     super();
     this.useLegacyDbName = useLegacyDbName;
 
@@ -225,11 +227,17 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     } else {
       this.unifiedRepository = PentahoSystem.get( IUnifiedRepository.class );
     }
+
+    if ( olapService != null ) {
+      this.olapService = olapService;
+    } else {
+      this.olapService = PentahoSystem.get( IOlapService.class );
+    }
   }
 
   public MondrianCatalogHelper( boolean useLegacyDbName, FileProvider mondrianFileProvider,
                                 LocalizingDynamicSchemaProcessor localizingDynamicSchemaProcessor ) {
-    this( useLegacyDbName, mondrianFileProvider, localizingDynamicSchemaProcessor, null );
+    this( useLegacyDbName, mondrianFileProvider, localizingDynamicSchemaProcessor, null, null );
   }
   // ~ Methods =========================================================================================================
 
@@ -765,8 +773,6 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   }
 
   protected void flushCacheForCatalog( String catalogName, IPentahoSession pentahoSession ) {
-    IOlapService olapService =
-      PentahoSystem.get( IOlapService.class, "IOlapService", pentahoSession );
     Connection unwrap = null;
     try {
       OlapConnection connection = olapService.getConnection( catalogName, pentahoSession );
@@ -845,8 +851,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   protected synchronized MondrianCatalogRepositoryHelper getMondrianCatalogRepositoryHelper() {
     if ( catalogRepositoryHelper == null ) {
       catalogRepositoryHelper =
-        new MondrianCatalogRepositoryHelper( PentahoSystem.get( IUnifiedRepository.class ), PentahoSystem.get(
-          IPasswordService.class ) );
+        new MondrianCatalogRepositoryHelper( unifiedRepository );
     }
     return catalogRepositoryHelper;
   }
