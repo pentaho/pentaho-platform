@@ -36,6 +36,7 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.util.FileHelper;
 import org.pentaho.platform.util.XmlTestConstants;
@@ -84,12 +85,13 @@ public class MondrianCatalogHelperTest {
 
   private final IUnifiedRepository unifiedRepository = mock( IUnifiedRepository.class );
   private final IPasswordService passwordService = mock( IPasswordService.class );
+  private final IOlapService olapService = mock( IOlapService.class );
 
   private final MondrianCatalogRepositoryHelper mcrh =
     spy( new MondrianCatalogRepositoryHelper( unifiedRepository, passwordService, false ) );
 
   private final MondrianCatalogHelper mch =
-    Mockito.spy( new MondrianCatalogHelper( false, null, null, unifiedRepository ) {
+    Mockito.spy( new MondrianCatalogHelper( false, null, null, unifiedRepository, olapService ) {
       protected boolean hasAccess( MondrianCatalog cat, RepositoryFilePermission permission ) {
         return true;
       }

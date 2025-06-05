@@ -57,7 +57,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
-import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -1197,9 +1196,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
       FileInputStream schemaInputStream = new FileInputStream( mondrianFile );
       org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper helper =
-        new org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper( PentahoSystem
-          .get( IUnifiedRepository.class ), PentahoSystem
-          .get( IPasswordService.class ) );
+        new org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper(
+          unifiedRepository );
       helper.addSchema( schemaInputStream, catalogName, datasourceInfo );
 
       reInit( PentahoSessionHolder.getSession() );
