@@ -467,7 +467,7 @@ public class MondrianCatalogRepositoryHelper {
     node.setProperty( ENCRYPTED_DATASOURCEINFO_PROPERTY, true );
     NodeRepositoryFileData data = new NodeRepositoryFileData( node );
 
-    logger.debug( "Saving [%s] catalog metadata encrypted" );
+    logger.debug(String.format("Saving [%s] catalog metadata encrypted", catalog.getName()));
     if ( metadata == null ) {
       repository.createFile( catalog.getId(), new RepositoryFile.Builder( METADATA_FILE ).build(), data, null );
     } else {
