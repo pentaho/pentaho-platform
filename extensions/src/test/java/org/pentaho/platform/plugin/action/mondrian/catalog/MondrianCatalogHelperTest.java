@@ -34,7 +34,9 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.util.FileHelper;
 import org.pentaho.platform.util.XmlTestConstants;
@@ -44,7 +46,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.io.StringBufferInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -59,7 +60,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -72,6 +72,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -83,11 +84,14 @@ public class MondrianCatalogHelperTest {
   private static final String DEFINITION = "mondrian:";
 
   private final IUnifiedRepository unifiedRepository = mock( IUnifiedRepository.class );
+  private final IPasswordService passwordService = mock( IPasswordService.class );
+  private final IOlapService olapService = mock( IOlapService.class );
 
-  private final MondrianCatalogRepositoryHelper mcrh = mock( MondrianCatalogRepositoryHelper.class );
+  private final MondrianCatalogRepositoryHelper mcrh =
+    spy( new MondrianCatalogRepositoryHelper( unifiedRepository, passwordService, false ) );
 
   private final MondrianCatalogHelper mch =
-    Mockito.spy( new MondrianCatalogHelper( false, null, null, unifiedRepository ) {
+    Mockito.spy( new MondrianCatalogHelper( false, null, null, unifiedRepository, olapService ) {
       protected boolean hasAccess( MondrianCatalog cat, RepositoryFilePermission permission ) {
         return true;
       }
@@ -111,9 +115,7 @@ public class MondrianCatalogHelperTest {
   @Mock
   RepositoryFile mockRepositoryFolder;
   @Mock
-  RepositoryFile mockRepositoryFile;
-  @Mock
-  RepositoryFile mockMetatdataFolder;
+  RepositoryFile mockMetadataFolder;
   @Mock
   DataNode metadataNode;
   @Mock
@@ -229,7 +231,6 @@ public class MondrianCatalogHelperTest {
 
       MondrianCatalog cat = mch.getCatalog( schemaName, null );
 
-      verify( unifiedRepository, times( 1 ) ).getChildren( any( Serializable.class ) );
       assertNotNull( cat );
       assertEquals( schemaName, cat.getName() );
       assertEquals( String.format( "mondrian:/%s", schemaName ), cat.getDefinition() );
@@ -360,27 +361,21 @@ public class MondrianCatalogHelperTest {
   private void setupRepository( String schemaName, String dataSourceInfo ) {
     when( unifiedRepository.getFile( "/etc/mondrian" ) ).thenReturn( mockRepositoryFolder );
     when( unifiedRepository.getFile( String.format( "/etc/mondrian/%s/metadata", schemaName ) ) ).thenReturn(
-      mockMetatdataFolder );
+      mockMetadataFolder );
     //TODO: may need to handle the return null case, not quite sure how to though...
     when( unifiedRepository.getDataForRead( any(), any() ) ).thenReturn( mockIRepositoryFileData );
-    when( unifiedRepository.getChildren( any( Serializable.class ) ) ).thenReturn(
-      singletonList( mockRepositoryFile ) );
 
-    when( mockRepositoryFolder.getId() ).thenReturn( 1 );
-    when( mockRepositoryFile.getName() ).thenReturn( schemaName );
-    when( mockMetatdataFolder.getId() ).thenReturn( 2 );
-    when( mockIRepositoryFileData.getNode() ).thenReturn( metadataNode );
+      when( mockIRepositoryFileData.getNode() ).thenReturn( metadataNode );
 
-    when( metadataNode.getProperty( "datasourceInfo" ) ).thenReturn(
-      new DataProperty( "datasourceInfo", dataSourceInfo, DataNode.DataPropertyType.STRING ) );
-    when( metadataNode.getProperty( "definition" ) ).thenReturn(
-      new DataProperty( "definition", String.format( "mondrian:/%s", schemaName ),
-        DataNode.DataPropertyType.STRING ) );
+      when( metadataNode.getProperty( "datasourceInfo" ) ).thenReturn(
+        new DataProperty( "datasourceInfo", dataSourceInfo, DataNode.DataPropertyType.STRING ) );
+      when( metadataNode.getProperty( "definition" ) ).thenReturn(
+        new DataProperty( "definition", String.format( "mondrian:/%s", schemaName ),
+          DataNode.DataPropertyType.STRING ) );
   }
 
   private void setupMondrianCatalogHelperMock( String schemaName, String schemaXML ) throws Exception {
-    doReturn( schemaXML ).when( mch )
-      .docAtUrlToString( String.format( "mondrian:/%s", schemaName ) );
+    doReturn( schemaXML ).when( mch ).docAtUrlToString( eq( String.format( "mondrian:/%s", schemaName ) ) );
 
     ArgumentCaptor<InputStream> captor = ArgumentCaptor.forClass( InputStream.class );
 
@@ -409,11 +404,10 @@ public class MondrianCatalogHelperTest {
 
       var catalog =
         new MondrianCatalog( schemaName, null, "dummy", new MondrianSchema( schemaName, new ArrayList<>() ) );
-      mch.addCatalog( new ByteArrayInputStream( schemaXML.getBytes( StandardCharsets.UTF_8 ) ), catalog, true, null );
+      mch.addCatalog( new ByteArrayInputStream( schemaXML.getBytes( StandardCharsets.UTF_8 ) ), catalog, true,
+        null );
 
       MondrianCatalog cat = mch.getCatalog( schemaName, null );
-
-      verify( unifiedRepository, times( 1 ) ).getChildren( any( Serializable.class ) );
 
       // Cache was previously loaded, so there is no need to do that
       verify( mch, times( 0 ) ).loadCatalogsIntoCache( any(), any() );
@@ -447,7 +441,8 @@ public class MondrianCatalogHelperTest {
         new MondrianCatalog( schemaName, dataSourceInfo, definition, null );
 
       MondrianCatalogServiceException e = assertThrows( MondrianCatalogServiceException.class,
-        () -> mch.addCatalog( new ByteArrayInputStream( schemaXML.getBytes( StandardCharsets.UTF_8 ) ), catalog, false,
+        () -> mch.addCatalog( new ByteArrayInputStream( schemaXML.getBytes( StandardCharsets.UTF_8 ) ), catalog,
+          false,
           null ) );
 
       // Cache was previously loaded, so there is no need to do that
@@ -480,7 +475,8 @@ public class MondrianCatalogHelperTest {
         null );
 
       MondrianCatalogServiceException e = assertThrows( MondrianCatalogServiceException.class,
-        () -> mch.addCatalog( new ByteArrayInputStream( schemaXML.getBytes( StandardCharsets.UTF_8 ) ), catalog, false,
+        () -> mch.addCatalog( new ByteArrayInputStream( schemaXML.getBytes( StandardCharsets.UTF_8 ) ), catalog,
+          false,
           null ) );
 
       // Cache was previously loaded, so there is no need to do that
@@ -517,9 +513,6 @@ public class MondrianCatalogHelperTest {
         null );
 
       MondrianCatalog finalCatalog = mch.getCatalog( schemaName, null );
-
-      verify( unifiedRepository, times( 1 ) ).getChildren( any( Serializable.class ) );
-
       // Cache is not loaded as it was previously loaded
       verify( mch, times( 0 ) ).loadCatalogsIntoCache( any(), any() );
 
@@ -784,5 +777,4 @@ public class MondrianCatalogHelperTest {
       return 0;
     }
   }
-
 }
