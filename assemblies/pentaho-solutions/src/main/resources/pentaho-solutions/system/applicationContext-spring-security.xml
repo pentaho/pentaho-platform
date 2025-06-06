@@ -240,8 +240,17 @@
   <!--
       ===================== HTTP REQUEST SECURITY ====================
   -->
+  <bean id="userNavigationRequestMatcher" class="org.pentaho.platform.web.servlet.matchers.UserNavigationRequestMatcher" />
+  <bean id="webBrowserRequestMatcher"  class="org.pentaho.platform.web.servlet.matchers.WebBrowserRequestMatcher" />
+
+  <bean id="httpSessionRequestCache" class="org.springframework.security.web.savedrequest.HttpSessionRequestCache">
+    <!-- After login, only send the user back to "user navigation" requests. Otherwise, go back /Home -->
+    <property name="requestMatcher" ref="userNavigationRequestMatcher" />
+  </bean>
+
   <bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
     <constructor-arg ref="userNavigationAwareAuthenticationEntryPoint"/>
+    <constructor-arg ref="httpSessionRequestCache"/>
     <property name="accessDeniedHandler">
       <bean class="org.springframework.security.web.access.AccessDeniedHandlerImpl" />
     </property>
@@ -291,23 +300,15 @@
         class="org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint">
     <constructor-arg>
       <util:map>
-        <!-- Browser - User Navigation: redirect to the /Login page -->
-        <entry>
-          <key>
-            <bean class="org.pentaho.platform.web.servlet.matchers.UserNavigationRequestMatcher" />
-          </key>
-          <ref bean="authenticationProcessingFilterEntryPoint" />
-        </entry>
-        <!-- Browser - Other: reject with 401, but with no challenge in WWW-Authenticate header -->
-        <entry>
-          <key>
-            <bean class="org.pentaho.platform.web.servlet.matchers.WebBrowserRequestMatcher" />
-          </key>
-          <ref bean="unauthorizedEntryPoint" />
-        </entry>
+        <!-- 1. Browser - User Navigation: redirect to the /Login page -->
+        <entry key-ref="userNavigationRequestMatcher" value-ref="authenticationProcessingFilterEntryPoint" />
+
+        <!-- 2. Browser - Other: reject with 401, but with no challenge in WWW-Authenticate header -->
+        <entry key-ref="webBrowserRequestMatcher" value-ref="unauthorizedEntryPoint" />
       </util:map>
     </constructor-arg>
-    <!-- Non-Browser: reject with 401 and a basic auth challenge in WWW-Authenticate header -->
+
+    <!-- 3. Non-Browser: reject with 401 and a basic auth challenge in WWW-Authenticate header -->
     <property name="defaultEntryPoint" ref="basicProcessingFilterEntryPoint" />
   </bean>
 
