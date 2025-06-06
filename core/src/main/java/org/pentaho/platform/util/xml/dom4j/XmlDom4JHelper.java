@@ -26,6 +26,7 @@ import org.pentaho.platform.util.messages.Messages;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.xml.sax.EntityResolver;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -165,6 +166,9 @@ public class XmlDom4JHelper {
     StringWriter writer = new StringWriter();
 
     TransformerFactory tf = TransformerFactory.newInstance();
+    tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
     if ( null != resolver ) {
       tf.setURIResolver( resolver );
     }
@@ -207,6 +211,9 @@ public class XmlDom4JHelper {
     StringWriter writer = new StringWriter();
 
     TransformerFactory tf = TransformerFactory.newInstance();
+    tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
     Transformer t = tf.newTransformer(); // can throw
     // TransformerConfigurationException
 
@@ -341,7 +348,11 @@ public class XmlDom4JHelper {
     DocumentException {
     DOMSource source = new DOMSource( doc );
     StreamResult result = new StreamResult( new StringWriter() );
-    TransformerFactory.newInstance().newTransformer().transform( source, result );
+    TransformerFactory tf = TransformerFactory.newInstance();
+    tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    tf.newTransformer().transform( source, result );
     String theXML = result.getWriter().toString();
     Document dom4jDoc = null;
     try {
