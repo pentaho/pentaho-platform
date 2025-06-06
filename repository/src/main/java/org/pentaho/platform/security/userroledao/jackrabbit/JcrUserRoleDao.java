@@ -49,7 +49,7 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
 
   Name P_PRINCIPAL_NAME = NF.create( Name.NS_REP_URI, "principalName" ); //$NON-NLS-1$
 
-  JcrTemplate adminJcrTemplate;
+  protected JcrTemplate adminJcrTemplate;
 
   public JcrUserRoleDao( JcrTemplate adminJcrTemplate, ITenantedPrincipleNameResolver userNameUtils,
       ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName,
