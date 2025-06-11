@@ -13,8 +13,8 @@
 
 package org.pentaho.test.platform.web;
 
-import com.mockrunner.mock.web.MockHttpServletRequest;
-import com.mockrunner.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpSession;
 import org.apache.commons.logging.Log;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -93,10 +93,10 @@ public class SessionIT extends BaseTest {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpSession session = new MockHttpSession();
     request.setSession( session );
-    request.setupAddParameter( "solution", "samples" ); //$NON-NLS-1$//$NON-NLS-2$
-    request.setupAddParameter( "path", "steel-wheels/reports" ); //$NON-NLS-1$ //$NON-NLS-2$
-    request.setupAddParameter( "action", "Inventory List.xaction" ); //$NON-NLS-1$ //$NON-NLS-2$
-    request.setupAddParameter( "details", "all" ); //$NON-NLS-1$ //$NON-NLS-2$
+    request.addParameter( "solution", "samples" ); //$NON-NLS-1$//$NON-NLS-2$
+    request.addParameter( "path", "steel-wheels/reports" ); //$NON-NLS-1$ //$NON-NLS-2$
+    request.addParameter( "action", "Inventory List.xaction" ); //$NON-NLS-1$ //$NON-NLS-2$
+    request.addParameter( "details", "all" ); //$NON-NLS-1$ //$NON-NLS-2$
     HttpSession httpSession = session;
 
     Enumeration attrNames = httpSession.getAttributeNames();
