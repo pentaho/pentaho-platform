@@ -36,7 +36,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.ENCRYPTED_DATASOURCEINFO_PROPERTY;
+import static org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.ENCRYPTED_DATASOURCE_INFO_PROPERTY;
 import static org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper.ETC_MONDRIAN_JCR_FOLDER;
 
 public class MondrianCatalogRepositoryHelperTest {
@@ -102,8 +102,8 @@ public class MondrianCatalogRepositoryHelperTest {
     when( mockDataNode.getProperty( "definition" ) ).thenReturn(
       new DataProperty( "definition", "",
         DataNode.DataPropertyType.STRING ) );
-    when( mockDataNode.getProperty( ENCRYPTED_DATASOURCEINFO_PROPERTY ) ).thenReturn(
-      new DataProperty( ENCRYPTED_DATASOURCEINFO_PROPERTY, true,
+    when( mockDataNode.getProperty( ENCRYPTED_DATASOURCE_INFO_PROPERTY ) ).thenReturn(
+      new DataProperty( ENCRYPTED_DATASOURCE_INFO_PROPERTY, true,
         DataNode.DataPropertyType.BOOLEAN ) );
 
     doThrow( PasswordServiceException.class ).when( passwordService ).decrypt( any() );
@@ -138,8 +138,8 @@ public class MondrianCatalogRepositoryHelperTest {
     when( mockDataNode.getProperty( "definition" ) ).thenReturn(
       new DataProperty( "definition", "",
         DataNode.DataPropertyType.STRING ) );
-    when( mockDataNode.getProperty( ENCRYPTED_DATASOURCEINFO_PROPERTY ) ).thenReturn(
-      new DataProperty( ENCRYPTED_DATASOURCEINFO_PROPERTY, true,
+    when( mockDataNode.getProperty( ENCRYPTED_DATASOURCE_INFO_PROPERTY ) ).thenReturn(
+      new DataProperty( ENCRYPTED_DATASOURCE_INFO_PROPERTY, true,
         DataNode.DataPropertyType.BOOLEAN ) );
 
     var catalog = mondrianCatalogRepositoryHelper.getHostedCatalogInfo( testCatalogName );
@@ -172,8 +172,8 @@ public class MondrianCatalogRepositoryHelperTest {
     when( mockDataNode.getProperty( "definition" ) ).thenReturn(
       new DataProperty( "definition", "",
         DataNode.DataPropertyType.STRING ) );
-    when( mockDataNode.getProperty( ENCRYPTED_DATASOURCEINFO_PROPERTY ) ).thenReturn(
-      new DataProperty( ENCRYPTED_DATASOURCEINFO_PROPERTY, false,
+    when( mockDataNode.getProperty( ENCRYPTED_DATASOURCE_INFO_PROPERTY ) ).thenReturn(
+      new DataProperty( ENCRYPTED_DATASOURCE_INFO_PROPERTY, false,
         DataNode.DataPropertyType.BOOLEAN ) );
 
     var catalog = mondrianCatalogRepositoryHelper.getHostedCatalogInfo( testCatalogName );

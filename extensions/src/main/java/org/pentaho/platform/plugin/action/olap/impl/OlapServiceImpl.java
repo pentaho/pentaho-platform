@@ -107,7 +107,6 @@ public class OlapServiceImpl implements IOlapService {
    */
   private IUnifiedRepository repository;
   private MondrianCatalogRepositoryHelper helper;
-  private IPasswordService passwordService;
 
   private MondrianServer server;
   private final List<IOlapConnectionFilter> filters;
@@ -131,7 +130,6 @@ public class OlapServiceImpl implements IOlapService {
    */
   public OlapServiceImpl( IUnifiedRepository repo, final MondrianServer server, IPasswordService passwordService ) {
     this.repository = repo;
-    this.passwordService = passwordService;
     this.filters = new CopyOnWriteArrayList<>();
     this.server = server;
 
@@ -170,18 +168,11 @@ public class OlapServiceImpl implements IOlapService {
     return repository;
   }
 
-  synchronized IPasswordService getPasswordService() {
-    if ( passwordService == null ) {
-      passwordService = PentahoSystem.get( IPasswordService.class );
-    }
-    return passwordService;
-  }
-
   synchronized MondrianCatalogRepositoryHelper getHelper() {
     if ( helper == null ) {
       helper =
         new MondrianCatalogRepositoryHelper(
-          getRepository(), getPasswordService() );
+          getRepository() );
     }
     return helper;
   }
