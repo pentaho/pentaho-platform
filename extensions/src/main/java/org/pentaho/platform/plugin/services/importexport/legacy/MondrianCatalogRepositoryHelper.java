@@ -479,35 +479,39 @@ public class MondrianCatalogRepositoryHelper {
     return repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName );
   }
 
-  private void createCatalogSchemaFile( InputStream mondrianFile, String catalogName, RepositoryFile catalogFolder )
+private void createOrUpdateCatalogSchemaFile( InputStream mondrianFile, String catalogName, RepositoryFile catalogFolder )
     throws IOException {
     File tempFile = File.createTempFile( "tempFile", null );
     tempFile.deleteOnExit();
     FileOutputStream outputStream = new FileOutputStream( tempFile );
     IOUtils.copy( mondrianFile, outputStream );
 
-    RepositoryFile repoFile = new RepositoryFile.Builder( "schema.xml" ).build();
-    org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle repoFileBundle =
-      new org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle( repoFile, null,
-        ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName + RepositoryFile.SEPARATOR, tempFile,
-        "UTF-8", "text/xml" );
+    RepositoryFile newSchemaRepoFile = new RepositoryFile.Builder( SCHEMA_FILE ).build();
+    var newSchemaRepoFileBundle = new RepositoryFileBundle( newSchemaRepoFile, null, getCatalogFolderPath( catalogName ), tempFile, "UTF-8", "text/xml" );
+    IRepositoryFileData newSchemaFileData = new StreamConverter().convert( newSchemaRepoFileBundle.getInputStream(),
+            newSchemaRepoFileBundle.getCharset(), newSchemaRepoFileBundle.getMimeType() );
 
-    RepositoryFile schema =
-      repository.getFile( ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName + RepositoryFile.SEPARATOR
-        + "schema.xml" );
-    IRepositoryFileData data =
-      new StreamConverter().convert(
-        repoFileBundle.getInputStream(), repoFileBundle.getCharset(), repoFileBundle.getMimeType() );
-    if ( schema == null ) {
-      RepositoryFile schemaFile = repository.createFile( catalogFolder.getId(), repoFileBundle.getFile(), data, null );
+    RepositoryFile existingSchemaRepoFile = repository.getFile( getCatalogFilePath( catalogName, SCHEMA_FILE ) );
+
+    if ( existingSchemaRepoFile == null ) {
+      RepositoryFile schemaFile = repository.createFile( catalogFolder.getId(), newSchemaRepoFileBundle.getFile(), newSchemaFileData, null );
+
       if ( schemaFile != null && catalogFolder.isHidden() != schemaFile.isHidden() ) {
         RepositoryFile unhiddenFolder =
           ( new RepositoryFile.Builder( catalogFolder ) ).hidden( schemaFile.isHidden() ).build();
         repository.updateFolder( unhiddenFolder, "" );
       }
     } else {
-      repository.updateFile( schema, data, null );
+      repository.updateFile( existingSchemaRepoFile, newSchemaFileData, null );
     }
+  }
+
+  private String getCatalogFolderPath( String catalogName ) {
+    return ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName + RepositoryFile.SEPARATOR;
+  }
+
+  private String getCatalogFilePath( String catalogName, String fileName ) {
+    return getCatalogFolderPath( catalogName ) + RepositoryFile.SEPARATOR + fileName;
   }
 
   private String makeHostedPath( String name ) {
