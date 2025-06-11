@@ -57,8 +57,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
-import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
-import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -147,7 +145,6 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   private static final String ERROR_MESSAGE_IMPORT_SCHEMA = "MondrianCatalogHelper.ERROR_0018_IMPORT_SCHEMA_ERROR";
   private static final String ERROR_MESSAGE_FAILED_TO_FLUSH = "MondrianCatalogHelper.ERROR_0019_FAILED_TO_FLUSH";
 
-  private static final String WARNING_MESSAGE_NULL_METADATA = "MondrianCatalogHelper.WARN_META_DATA_IS_NULL";
   private static final String WARNING_MESSAGE_SKIPPING_DATASOURCE =
     "MondrianCatalogHelper.WARN_SKIPPING_DATASOURCE_DEF";
 
@@ -178,10 +175,12 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   MondrianCatalogRepositoryHelper catalogRepositoryHelper;
   private final LocalizingDynamicSchemaProcessor localizingDynamicSchemaProcessor;
   private final IUnifiedRepository unifiedRepository;
+  private final IOlapService olapService;
 
   // ~ Constructors ====================================================================================================
 
   public MondrianCatalogHelper( boolean useLegacyDbName ) {
+
     this( useLegacyDbName, null, null );
   }
 
@@ -198,7 +197,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
   public MondrianCatalogHelper( boolean useLegacyDbName, FileProvider mondrianFileProvider,
                                 LocalizingDynamicSchemaProcessor localizingDynamicSchemaProcessor,
-                                IUnifiedRepository unifiedRepository ) {
+                                IUnifiedRepository unifiedRepository, IOlapService olapService ) {
     super();
     this.useLegacyDbName = useLegacyDbName;
 
@@ -227,13 +226,18 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     } else {
       this.unifiedRepository = PentahoSystem.get( IUnifiedRepository.class );
     }
+
+    if ( olapService != null ) {
+      this.olapService = olapService;
+    } else {
+      this.olapService = PentahoSystem.get( IOlapService.class );
+    }
   }
 
   public MondrianCatalogHelper( boolean useLegacyDbName, FileProvider mondrianFileProvider,
                                 LocalizingDynamicSchemaProcessor localizingDynamicSchemaProcessor ) {
-    this( useLegacyDbName, mondrianFileProvider, localizingDynamicSchemaProcessor, null );
+    this( useLegacyDbName, mondrianFileProvider, localizingDynamicSchemaProcessor, null, null );
   }
-
   // ~ Methods =========================================================================================================
 
   /**
@@ -280,17 +284,19 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     return SetUniqueList.decorate( catalogs );
   }
 
-  public static int addToCatalog( String baseUrl, boolean enableXmla, String schemaSolutionPath,
+  /**
+   * Add a catalog to the Mondrian Catalog Service.
+   *
+   * @param schemaSolutionPath the solution path to the schema definition, e.g. /etc/mondrian/XXX/schema.xml
+   * @param session            Pentaho session
+   * @param jndiName           the JNDI name of the datasource to use for this catalog, e.g. java:comp/env/jdbc/XXX
+   * @param overwrite          flag to indicate if the catalog should be overwritten if it already exists
+   * @return 0 is success, -1 if an error occurred
+   */
+  public static int addToCatalog( String schemaSolutionPath,
                                   IPentahoSession session, String jndiName, boolean overwrite ) {
-
     IMondrianCatalogService mondrianCatalogService =
       PentahoSystem.get( IMondrianCatalogService.class, "IMondrianCatalogService", session ); //$NON-NLS-1$
-
-    String dsUrl = baseUrl;
-    if ( !dsUrl.endsWith( "/" ) ) { //$NON-NLS-1$
-      dsUrl += "/"; //$NON-NLS-1$
-    }
-    dsUrl += "Xmla"; //$NON-NLS-1$
 
     String catDef = SOLUTION_PREFIX + schemaSolutionPath; //$NON-NLS-1$
 
@@ -344,6 +350,24 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     return 0;
   }
 
+
+  /**
+   * Add a catalog to the Mondrian Catalog Service.
+   *
+   * @param baseUrl            the base URL for the XMLA service, e.g. http://localhost:8080/pentaho/
+   * @param enableXmla         Deprecated, use the baseUrl to determine if XMLA is enabled
+   * @param schemaSolutionPath the solution path to the schema definition, e.g. /etc/mondrian/XXX/schema.xml
+   * @param session            Pentaho session
+   * @param jndiName           the JNDI name of the datasource to use for this catalog, e.g. java:comp/env/jdbc/XXX
+   * @param overwrite          flag to indicate if the catalog should be overwritten if it already exists
+   * @return 0 is success, -1 if an error occurred
+   * @deprecated Use {@link #addToCatalog(String, IPentahoSession, String, boolean)} instead.
+   */
+  @Deprecated( forRemoval = true )
+  public static int addToCatalog( String baseUrl, boolean enableXmla, String schemaSolutionPath,
+                                  IPentahoSession session, String jndiName, boolean overwrite ) {
+    return addToCatalog( schemaSolutionPath, session, jndiName, overwrite );
+  }
 
   /**
    * This method will conditionally load the catalogs into the cache, depending on the internal flag to check if it
@@ -748,8 +772,6 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   }
 
   protected void flushCacheForCatalog( String catalogName, IPentahoSession pentahoSession ) {
-    IOlapService olapService =
-      PentahoSystem.get( IOlapService.class, "IOlapService", pentahoSession );
     Connection unwrap = null;
     try {
       OlapConnection connection = olapService.getConnection( catalogName, pentahoSession );
@@ -804,7 +826,6 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     datasourcesXML.append( "</Catalogs>\n" ); //$NON-NLS-1$
   }
 
-
   protected synchronized IAclNodeHelper getAclHelper() {
     if ( aclHelper == null ) {
       aclHelper = new JcrAclNodeHelper( unifiedRepository );
@@ -829,7 +850,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   protected synchronized MondrianCatalogRepositoryHelper getMondrianCatalogRepositoryHelper() {
     if ( catalogRepositoryHelper == null ) {
       catalogRepositoryHelper =
-        new MondrianCatalogRepositoryHelper( PentahoSystem.get( IUnifiedRepository.class ) );
+        new MondrianCatalogRepositoryHelper( unifiedRepository );
     }
     return catalogRepositoryHelper;
   }
@@ -977,11 +998,9 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
   }
 
   @Deprecated
-  protected List<MondrianCatalog> transformIntoCatalogList( final DataSourcesConfig.DataSources dataSources,
-                                                            final IPentahoSession pentahoSession ) {
-    List<MondrianCatalog> localCatalogs = new ArrayList<MondrianCatalog>();
+  protected List<MondrianCatalog> transformIntoCatalogList( final DataSourcesConfig.DataSources dataSources ) {
+    List<MondrianCatalog> localCatalogs = new ArrayList<>();
     for ( DataSourcesConfig.DataSource dataSource : dataSources.dataSources ) {
-
       for ( DataSourcesConfig.Catalog catalog : dataSource.catalogs.catalogs ) {
         if ( catalog.definition.startsWith( SOLUTION_PREFIX ) ) { //$NON-NLS-1$
           // try catch here so the whole thing doesn't blow up if one datasource is configured incorrectly.
@@ -1177,8 +1196,8 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
 
       FileInputStream schemaInputStream = new FileInputStream( mondrianFile );
       org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper helper =
-        new org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper( PentahoSystem
-          .get( IUnifiedRepository.class ) );
+        new org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper(
+          unifiedRepository );
       helper.addSchema( schemaInputStream, catalogName, datasourceInfo );
 
       reInit( PentahoSessionHolder.getSession() );
@@ -1207,7 +1226,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
    */
   @Override
   public void removeCatalog( final String catalogName, final IPentahoSession pentahoSession )
-      throws MondrianCatalogServiceException {
+    throws MondrianCatalogServiceException {
 
     //
     // find the catalog to be removed
@@ -1350,7 +1369,7 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     }
 
     DataSourcesConfig.Catalog catalog =
-      getCatalogFromRepo( catalogName, unifiedRepository, etcMondrian, etcMondrianFolder );
+      getCatalogFromRepo( catalogName );
 
     cacheCatalog( catalog, mondrianCatalogCache );
   }
@@ -1393,34 +1412,15 @@ public class MondrianCatalogHelper implements IAclAwareMondrianCatalogService {
     }
   }
 
-  private DataSourcesConfig.Catalog getCatalogFromRepo( String desiredCatalog,
-                                                          IUnifiedRepository unifiedRepository, String etcMondrian,
-                                                          RepositoryFile etcMondrianFolder ) {
-
-    // Creates a DataSourcesConfig.Catalog from the "/etc/mondrian/<catalog>/metadata" nodes.
-    List<RepositoryFile> mondrianCatalogs = unifiedRepository.getChildren( etcMondrianFolder.getId() );
-
-    for ( RepositoryFile catalog : mondrianCatalogs ) {
-      if ( catalog.getName().equals( desiredCatalog ) ) {
-        RepositoryFile metadata =
-          unifiedRepository.getFile( etcMondrian + RepositoryFile.SEPARATOR + desiredCatalog + RepositoryFile.SEPARATOR
-            + "metadata" ); //$NON-NLS-1$
-
-        if ( metadata != null ) {
-          DataNode metadataNode =
-            unifiedRepository.getDataForRead( metadata.getId(), NodeRepositoryFileData.class ).getNode();
-          DataSourcesConfig.Catalog configCatalog = new DataSourcesConfig.Catalog();
-          configCatalog.dataSourceInfo = metadataNode.getProperty( "datasourceInfo" ).getString(); //$NON-NLS-1$
-          configCatalog.definition = metadataNode.getProperty( "definition" ).getString(); //$NON-NLS-1$
-          configCatalog.name = desiredCatalog;
-          return configCatalog;
-        } else {
-          logger
-            .warn( Messages.getInstance().getString( WARNING_MESSAGE_NULL_METADATA ) ); //$NON-NLS-1$
-        }
-      }
+  private DataSourcesConfig.Catalog getCatalogFromRepo( String desiredCatalog ) {
+    var catalogInfo = getMondrianCatalogRepositoryHelper().getHostedCatalogInfo( desiredCatalog );
+    if ( catalogInfo != null ) {
+      DataSourcesConfig.Catalog configCatalog = new DataSourcesConfig.Catalog();
+      configCatalog.dataSourceInfo = catalogInfo.dataSourceInfo; //$NON-NLS-1$
+      configCatalog.definition = catalogInfo.definition; //$NON-NLS-1$
+      configCatalog.name = desiredCatalog;
+      return configCatalog;
     }
-
     return null;
   }
 
