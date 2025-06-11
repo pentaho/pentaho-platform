@@ -668,22 +668,21 @@ private void createOrUpdateCatalogSchemaFile( InputStream mondrianFile, String c
           NodeRepositoryFileData.class );
       this.name = name;
 
-      try {
-        var catalogEncrypted =
-          ( data.getNode().getProperty( ENCRYPTED_DATASOURCEINFO_PROPERTY ) != null ) && data.getNode()
-            .getProperty( ENCRYPTED_DATASOURCEINFO_PROPERTY )
-            .getBoolean();
-        logger.debug( String.format( "Catalog [%s] encrypted:%b", name, catalogEncrypted ) );
-        dataSourceInfo =
-          catalogEncrypted ? passwordService.decrypt( data.getNode().getProperty( "datasourceInfo" ).getString() )
-            : data.getNode().getProperty( "datasourceInfo" ).getString();
-      } catch ( PasswordServiceException e ) {
-        logger.error( "Error decrypting datasourceInfo. Will use with empty value", e );
-        dataSourceInfo = null;
+      var dataNode = data.getNode();
+      var isCatalogEncryptedProperty = dataNode.getProperty( ENCRYPTED_DATASOURCEINFO_PROPERTY );
+      var isCatalogEncrypted = isCatalogEncryptedProperty != null && isCatalogEncryptedProperty.getBoolean();
+      logger.debug( String.format( "Catalog [%s] isEncrypted:%b", name, isCatalogEncrypted) );
+      dataSourceInfo = dataNode.getProperty( "datasourceInfo" ).getString();
+      if( isCatalogEncrypted ) {
+        try {
+          dataSourceInfo = passwordService.decrypt( dataSourceInfo );
+        } catch ( PasswordServiceException e ) {
+          logger.error( "Error decrypting datasourceInfo. Will use with null value", e );
+          dataSourceInfo = null;
+        }
       }
       this.dataSourceInfo = dataSourceInfo;
-      this.definition =
-        data.getNode().getProperty( "definition" ).getString();
+      this.definition = dataNode.getProperty( "definition" ).getString();
     }
 
     public HostedCatalogInfo(
