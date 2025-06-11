@@ -25,6 +25,7 @@ import org.hibernate.cache.spi.TimestampsRegion;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
+import org.hibernate.internal.SessionImpl;
 import org.pentaho.platform.api.cache.ICacheExpirationRegistry;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -123,6 +124,8 @@ public class CacheManager implements ICacheManager {
 
   private Map<String, Cache> regionCache;
 
+  private String regionFactoryClassname;
+
   private boolean cacheEnabled;
 
   private final Properties cacheProperties = new Properties();
@@ -154,19 +157,22 @@ public class CacheManager implements ICacheManager {
       System.setProperty( "java.io.tmpdir", s + "/" ); //$NON-NLS-1$//$NON-NLS-2$
     }
     if ( settings != null ) {
-      Properties cacheProperties = getCacheProperties(settings);
-      setupRegionProvider(cacheProperties);
-      this.cacheEnabled = true;
+      regionFactoryClassname = settings.getSystemSetting( "cache-provider/class", null );
+      if ( regionFactoryClassname != null ) {
+        Properties cacheProperties = getCacheProperties( settings );
+        setupRegionProvider( cacheProperties );
+        this.cacheEnabled = true;
+      }
     }
 
     PentahoSystem.addLogoutListener( this );
   }
 
   protected void setupRegionProvider( Properties cacheProperties ) {
-    regionFactory = PentahoSystem.get( HvCacheRegionFactory.class, "RegionFactory", null );
+    Object obj = PentahoSystem.createObject( regionFactoryClassname );
     cacheExpirationRegistry = PentahoSystem.get( ICacheExpirationRegistry.class );
 
-    if ( null != regionFactory ) {
+    if ( null != obj ) {
       Map<String, Object> cachePropertiesMap = cacheProperties.entrySet().stream()
               .collect( Collectors.toMap( e -> e.getKey().toString(), Map.Entry::getValue) );
       regionFactory.start( HibernateUtil.getSessionFactory().getSessionFactoryOptions(), cachePropertiesMap );
@@ -297,7 +303,9 @@ public class CacheManager implements ICacheManager {
        HvCache cache = (HvCache) regionCache.get( region );
       if ( cache != null ) {
         try {
-          cache.evictAll();
+          try ( SessionImpl session = ( SessionImpl ) cache.getSessionFactory().openSession() ) {
+            cache.getStorageAccess().clearCache( session );
+          }
         } catch ( CacheException e ) {
           CacheManager.logger.error( Messages.getInstance().getString(
             "CacheManager.ERROR_0006_CACHE_EXCEPTION", e.getLocalizedMessage() ) ); //$NON-NLS-1$
