@@ -37,6 +37,7 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.action.olap.IOlapServiceException;
 import org.pentaho.platform.plugin.action.olap.impl.OlapServiceImpl;
+import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
@@ -135,7 +136,7 @@ public class OlapServiceImplTest {
 
     // Create the olap service. Make sure to override hasAccess with the
     // mock version.
-    olapService = spy( new OlapServiceImpl( repository, server, passwordService ) {
+    olapService = spy( new OlapServiceImpl( repository, server ) {
       public boolean hasAccess(
         String path,
         EnumSet<RepositoryFilePermission> perms,
@@ -148,6 +149,7 @@ public class OlapServiceImplTest {
         return mockXmlaExtra;
       }
     } );
+    ( (OlapServiceImpl) olapService ).setHelper( new MondrianCatalogRepositoryHelper( repository, passwordService ) );
 
     when( passwordService.encrypt( any( String.class ) ) ).thenAnswer( arg -> "encrypted:" + arg.getArgument( 0 ) );
   }

@@ -38,7 +38,6 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -122,13 +121,13 @@ public class OlapServiceImpl implements IOlapService {
    * at runtime.
    */
   public OlapServiceImpl() {
-    this( null, null, null );
+    this( null, null );
   }
 
   /**
    * Constructor for testing purposes. Takes a repository as a parameter.
    */
-  public OlapServiceImpl( IUnifiedRepository repo, final MondrianServer server, IPasswordService passwordService ) {
+  public OlapServiceImpl( IUnifiedRepository repo, final MondrianServer server ) {
     this.repository = repo;
     this.filters = new CopyOnWriteArrayList<>();
     this.server = server;

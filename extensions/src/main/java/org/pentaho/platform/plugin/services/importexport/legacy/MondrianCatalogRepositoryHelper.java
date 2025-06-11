@@ -527,7 +527,7 @@ public class MondrianCatalogRepositoryHelper {
   }
 
   private String getCatalogFilePath( String catalogName, String fileName ) {
-    return getCatalogFolderPath( catalogName ) + RepositoryFile.SEPARATOR + fileName;
+    return getCatalogFolderPath( catalogName ) + fileName;
   }
 
   private String makeHostedPath( String name ) {

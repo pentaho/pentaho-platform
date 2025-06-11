@@ -13,12 +13,12 @@
 
 package org.pentaho.platform.plugin.action.olap;
 
+import org.olap4j.OlapConnection;
+import org.pentaho.platform.api.engine.IPentahoSession;
+
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
-
-import org.olap4j.OlapConnection;
-import org.pentaho.platform.api.engine.IPentahoSession;
 
 /**
  * This service manages the hosted OLAP connections, implemented with Mondrian,
