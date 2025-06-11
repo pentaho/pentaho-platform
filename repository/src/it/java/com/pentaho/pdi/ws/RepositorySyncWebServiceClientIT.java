@@ -16,8 +16,8 @@ package com.pentaho.pdi.ws;
 import org.junit.Before;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.Endpoint;
-import javax.xml.ws.Service;
+import jakarta.xml.ws.Endpoint;
+import jakarta.xml.ws.Service;
 import java.io.Serializable;
 import java.net.URL;
 
