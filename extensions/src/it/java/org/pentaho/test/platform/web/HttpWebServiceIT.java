@@ -13,9 +13,9 @@
 
 package org.pentaho.test.platform.web;
 
-import com.mockrunner.mock.web.MockHttpServletRequest;
-import com.mockrunner.mock.web.MockHttpServletResponse;
-import com.mockrunner.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.dom4j.Document;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -58,15 +58,15 @@ public class HttpWebServiceIT extends BaseTestCase {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpSession session = new MockHttpSession();
     request.setSession( session );
-    request.setupAddParameter( "action", "securitydetails" ); //$NON-NLS-1$//$NON-NLS-2$
-    request.setupAddParameter( "details", "all" ); //$NON-NLS-1$ //$NON-NLS-2$
+    request.addParameter( "action", "securitydetails" ); //$NON-NLS-1$//$NON-NLS-2$
+    request.addParameter( "details", "all" ); //$NON-NLS-1$ //$NON-NLS-2$
     MockHttpServletResponse response = new MockHttpServletResponse();
     HttpWebService servlet = new HttpWebService();
     servlet.doGet( request, response );
     assertTrue( "missing or invalid SOAP wrapper elements", //$NON-NLS-1$
-        isSoapValid( response.getOutputStreamContent() ) );
+        isSoapValid( response.getContentAsString() ) );
     assertTrue( "missing or invalid users, roles, or acls elements", //$NON-NLS-1$
-        isBodyValid( response.getOutputStreamContent() ) );
+        isBodyValid( response.getContentAsString() ) );
     // System.out.println(response.getOutputStreamContent());
   }
 

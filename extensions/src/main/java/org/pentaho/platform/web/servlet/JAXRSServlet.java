@@ -117,8 +117,8 @@ public class JAXRSServlet extends ServletContainer {
   }
 
   @Override
-  protected void init(WebConfig webConfig) throws ServletException {
-    super.init(webConfig);
+  public void init() throws ServletException {
+    super.init();
     if ( logger.isDebugEnabled() ) {
       MessageBodyWorkers messageBodyWorkers = provider.get();
       Map<MediaType, List<MessageBodyWriter>> writers = messageBodyWorkers == null ? null
