@@ -103,6 +103,12 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     if ( kids == null || kids.length == 0 ) {
       return;
     }
+    // see if we should ignore this plugin because it is marked to be ignored
+    FilenameFilter ignoreFilter = new NameFileFilter( ".kettle-ignore", IOCase.SENSITIVE ); //$NON-NLS-1$
+    kids = folder.listFiles( ignoreFilter );
+    if ( kids != null && kids.length > 0 ) {
+      return;
+    }
     boolean hasLib = false;
     filter = new NameFileFilter( "lib", IOCase.SENSITIVE ); //$NON-NLS-1$
     kids = folder.listFiles( filter );
