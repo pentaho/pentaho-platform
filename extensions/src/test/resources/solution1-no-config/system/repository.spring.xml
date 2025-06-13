@@ -3,7 +3,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/util"
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
        default-lazy-init="true">
   <!--
     default-lazy-init makes all of the beans in this file lazy-init=true which means they are not instantiated until
@@ -16,7 +16,7 @@
     <property name="allowIfAllAbstainDecisions" value="false"/>
     <property name="decisionVoters">
       <list>
-        <ref local="authorizationPolicyVoter"/>
+        <ref bean="voteAuthzPolicy"/>
       </list>
     </property>
   </bean>
@@ -190,8 +190,8 @@
     <property name="target" ref="unifiedRepositoryTarget"/>
     <property name="interceptorNames">
       <list>
-        <idref local="unifiedRepositoryTransactionInterceptor"/>
-        <idref local="unifiedRepositoryMethodInterceptor"/>
+        <idref bean="unifiedRepositoryTransactionInterceptor"/>
+        <idref bean="unifiedRepositoryMethodInterceptor"/>
       </list>
     </property>
   </bean>
@@ -303,8 +303,8 @@
     <property name="target" ref="ITenantManager"/>
     <property name="interceptorNames">
       <list>
-        <idref local="tenantManagerMethodInterceptor"/>
-        <idref local="tenantManagerTransactionInterceptor"/>
+        <idref bean="tenantManagerMethodInterceptor"/>
+        <idref bean="tenantManagerTransactionInterceptor"/>
       </list>
     </property>
     <pen:attributes>
@@ -321,7 +321,7 @@
     <property name="target" ref="ITenantManager"/>
     <property name="interceptorNames">
       <list>
-        <idref local="tenantManagerTransactionInterceptor"/>
+        <idref bean="tenantManagerTransactionInterceptor"/>
       </list>
     </property>
   </bean>
@@ -411,8 +411,8 @@
     <property name="target" ref="userRoleDao"/>
     <property name="interceptorNames">
       <list>
-        <idref local="userRoleDaoMethodInterceptor"/>
-        <idref local="userRoleDaoTransactionInterceptor"/>
+        <idref bean="userRoleDaoMethodInterceptor"/>
+        <idref bean="userRoleDaoTransactionInterceptor"/>
       </list>
     </property>
     <pen:attributes>
@@ -429,7 +429,7 @@
     <property name="target" ref="userRoleDao"/>
     <property name="interceptorNames">
       <list>
-        <idref local="userRoleDaoTransactionInterceptor"/>
+        <idref bean="userRoleDaoTransactionInterceptor"/>
       </list>
     </property>
   </bean>
@@ -781,7 +781,7 @@
     <property name="target" ref="roleAuthorizationPolicyRoleBindingDaoTarget"/>
     <property name="interceptorNames">
       <list>
-        <idref local="roleBindingDaoTransactionInterceptor"/>
+        <idref bean="roleBindingDaoTransactionInterceptor"/>
       </list>
     </property>
     <pen:attributes>
@@ -797,7 +797,7 @@
     <property name="target" ref="roleAuthorizationPolicyRoleBindingDaoTarget"/>
     <property name="interceptorNames">
       <list>
-        <idref local="roleAuthorizationPolicyRoleBindingDaoMethodInterceptor"/>
+        <idref bean="roleAuthorizationPolicyRoleBindingDaoMethodInterceptor"/>
       </list>
     </property>
   </bean>

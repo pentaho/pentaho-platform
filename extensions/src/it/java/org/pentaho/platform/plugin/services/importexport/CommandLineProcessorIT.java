@@ -22,6 +22,13 @@ import java.io.IOException;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
+import org.glassfish.jersey.test.DeploymentContext;
+import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.ServletDeploymentContext;
+import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
+import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
@@ -41,11 +48,6 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.pentaho.platform.web.http.filters.PentahoRequestContextFilter;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
-import com.sun.jersey.test.framework.AppDescriptor;
-import com.sun.jersey.test.framework.JerseyTest;
-import com.sun.jersey.test.framework.WebAppDescriptor;
-import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
-import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 
 /**
@@ -60,9 +62,10 @@ public class CommandLineProcessorIT extends JerseyTest {
       + "--file-path=/home/dkincade/pentaho/platform/trunk/biserver-ee/pentaho-solutions " + VALID_URL_OPTION;
 
   private String tmpZipFileName;
-  private static WebAppDescriptor webAppDescriptor = new WebAppDescriptor.Builder(
-      "org.pentaho.platform.web.http.api.resources" ).contextPath( "api" ).addFilter(
-      PentahoRequestContextFilter.class, "pentahoRequestContextFilter" ).build();
+  private static ResourceConfig config = new ResourceConfig().packages( "org.pentaho.platform.web.http.api.resources" );
+  private static ServletDeploymentContext servletDeploymentContext = ServletDeploymentContext.forServlet( new ServletContainer( config ) )
+     .addFilter( PentahoRequestContextFilter.class, "pentahoRequestContextFilter" ).contextPath( "api" )
+     .build();
   private MicroPlatform mp = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/solution" );
 
   public CommandLineProcessorIT() throws IOException {
@@ -73,7 +76,7 @@ public class CommandLineProcessorIT extends JerseyTest {
     NameBaseMimeResolver mimeResolver = mock( NameBaseMimeResolver.class );
     IRepositoryContentConverterHandler converterHandler = mock( IRepositoryContentConverterHandler.class );
 
-    mp.setFullyQualifiedServerUrl( getBaseURI() + webAppDescriptor.getContextPath() + "/" );
+    mp.setFullyQualifiedServerUrl( getBaseUri() + servletDeploymentContext.getContextPath() + "/" );
     mp.define( ISolutionEngine.class, SolutionEngine.class );
     mp.define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class,
         IPentahoDefinableObjectFactory.Scope.GLOBAL );
@@ -189,8 +192,8 @@ public class CommandLineProcessorIT extends JerseyTest {
 
 
   @Override
-  protected AppDescriptor configure() {
-    return webAppDescriptor;
+  protected DeploymentContext configureDeployment() {
+    return servletDeploymentContext;
   }
 
   @Override
@@ -199,7 +202,7 @@ public class CommandLineProcessorIT extends JerseyTest {
   }
 
   private String getBaseUrl() {
-    String baseUrl = getBaseURI().toString();
+    String baseUrl = getBaseUri().toString();
     if ( baseUrl.endsWith( "/" ) ) {
       baseUrl = baseUrl.substring( 0, baseUrl.length() - 1 );
     }
