@@ -166,9 +166,9 @@ public class XmlDom4JHelper {
     StringWriter writer = new StringWriter();
 
     TransformerFactory tf = TransformerFactory.newInstance();
-    tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    tf.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, true );
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "" );
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "" );
     if ( null != resolver ) {
       tf.setURIResolver( resolver );
     }
@@ -211,9 +211,9 @@ public class XmlDom4JHelper {
     StringWriter writer = new StringWriter();
 
     TransformerFactory tf = TransformerFactory.newInstance();
-    tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    tf.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, true );
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "" );
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "" );
     Transformer t = tf.newTransformer(); // can throw
     // TransformerConfigurationException
 
@@ -349,9 +349,9 @@ public class XmlDom4JHelper {
     DOMSource source = new DOMSource( doc );
     StreamResult result = new StreamResult( new StringWriter() );
     TransformerFactory tf = TransformerFactory.newInstance();
-    tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    tf.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, true );
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "" );
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "" );
     tf.newTransformer().transform( source, result );
     String theXML = result.getWriter().toString();
     Document dom4jDoc = null;

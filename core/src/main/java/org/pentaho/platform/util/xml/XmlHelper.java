@@ -419,8 +419,8 @@ public class XmlHelper {
     StringWriter writer = new StringWriter();
 
     TransformerFactory tf = TransformerFactory.newInstance();
-    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "");
-    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "" );
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "" );
     if ( null != resolver ) {
       tf.setURIResolver( resolver );
     }
