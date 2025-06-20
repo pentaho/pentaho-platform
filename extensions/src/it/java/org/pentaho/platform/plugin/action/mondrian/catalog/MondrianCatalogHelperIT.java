@@ -342,7 +342,6 @@ public class MondrianCatalogHelperIT {
     repositoryMockSteelWheelsEntry( "Provider=mondrian;" );
     repositoryMockSampleDataEntry();
 
-    IPentahoSession testSession = new StandaloneSession( "admin" );
     MondrianCatalogHelper helperSpy = spy( helper );
 
     IAclNodeHelper aclHelper = mock( IAclNodeHelper.class );
@@ -358,7 +357,7 @@ public class MondrianCatalogHelperIT {
         throw throwable;
       }
     };
-    doAnswer( answer ).when( helperSpy ).docAtUrlToString( any(), any() );
+    doAnswer( answer ).when( helperSpy ).docAtUrlToString( any() );
 
     List<MondrianCatalog> cats = helper.listCatalogs( new StandaloneSession( "admin" ), true );
     assertEquals( 1, cats.size() );
@@ -483,11 +482,10 @@ public class MondrianCatalogHelperIT {
     final String SCHEMA_MOCK = "Test Schema Mock " + replaceTemplate;
 
     MondrianCatalogHelper helperSpy = spy( helper );
-    IPentahoSession testSession = new StandaloneSession( "admin" );
-    String schema = helperSpy.applyDSP( testSession, DATA_SOURCE_INFO_WITH_DSP, SCHEMA_MOCK );
+    String schema = helperSpy.applyDSP( DATA_SOURCE_INFO_WITH_DSP, SCHEMA_MOCK );
     assertNotNull( schema );
     assertTrue( schema.contains( "REPLACE_TOKEN" ) );
-    verify( helperSpy, never() ).docAtUrlToString( nullable( String.class ), nullable( IPentahoSession.class ) );
+    verify( helperSpy, never() ).docAtUrlToString( nullable( String.class ) );
 
   }
 
@@ -499,12 +497,11 @@ public class MondrianCatalogHelperIT {
 
     MondrianCatalogHelper helperSpy = spy( helper );
     doReturn( SCHEMA_MOCK ).when( helperSpy )
-      .docAtUrlToString( nullable( String.class ), nullable( IPentahoSession.class ) );
+      .docAtUrlToString( nullable( String.class ) );
 
-    IPentahoSession testSession = new StandaloneSession( "admin" );
-    String schema = helperSpy.applyDSP( testSession, DATA_SOURCE_INFO_WITHOUT_DSP, SCHEMA_MOCK );
+    String schema = helperSpy.applyDSP( DATA_SOURCE_INFO_WITHOUT_DSP, SCHEMA_MOCK );
     assertNotNull( schema );
-    verify( helperSpy ).docAtUrlToString( nullable( String.class ), nullable( IPentahoSession.class ) );
+    verify( helperSpy ).docAtUrlToString( nullable( String.class ) );
     assertFalse( schema.contains( "REPLACE_TOKEN" ) );
 
   }
