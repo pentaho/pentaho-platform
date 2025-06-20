@@ -38,7 +38,7 @@
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
                                    mdcFilter,
-                                   exceptionTranslationFilterForWS,
+                                   exceptionTranslationFilter,
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/api/repos/**"
@@ -69,7 +69,7 @@
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
                                    mdcFilter,
-                                   exceptionTranslationFilterForWS,
+                                   exceptionTranslationFilter,
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/plugin/reporting/api/jobs/**"
@@ -84,7 +84,7 @@
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
                                    mdcFilter,
-                                   exceptionTranslationFilterForWS,
+                                   exceptionTranslationFilter,
                                    filterInvocationInterceptorForWS,
                                    preFlightFilter" />
 
@@ -100,7 +100,7 @@
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
                                    mdcFilter,
-                                   exceptionTranslationFilterForWS,
+                                   exceptionTranslationFilter,
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/**"
@@ -155,6 +155,8 @@
         class="org.pentaho.platform.web.http.security.PentahoBasicAuthenticationEntryPoint">
     <property name="realmName" value="Pentaho Realm" />
   </bean>
+
+  <bean id="unauthorizedEntryPoint" class="org.pentaho.platform.web.http.security.Http401UnauthorizedEntryPoint" />
 
   <!-- custom Pentaho begin -->
 
@@ -238,15 +240,17 @@
   <!--
       ===================== HTTP REQUEST SECURITY ====================
   -->
-  <bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
-    <constructor-arg ref="authenticationProcessingFilterEntryPoint"/>
-    <property name="accessDeniedHandler">
-      <bean class="org.springframework.security.web.access.AccessDeniedHandlerImpl" />
-    </property>
+  <bean id="userNavigationRequestMatcher" class="org.pentaho.platform.web.servlet.matchers.UserNavigationRequestMatcher" />
+  <bean id="webBrowserRequestMatcher"  class="org.pentaho.platform.web.servlet.matchers.WebBrowserRequestMatcher" />
+
+  <bean id="httpSessionRequestCache" class="org.springframework.security.web.savedrequest.HttpSessionRequestCache">
+    <!-- After login, only send the user back to "user navigation" requests. Otherwise, go back /Home -->
+    <property name="requestMatcher" ref="userNavigationRequestMatcher" />
   </bean>
 
-  <bean id="exceptionTranslationFilterForWS" class="org.springframework.security.web.access.ExceptionTranslationFilter">
-    <constructor-arg ref="basicProcessingFilterEntryPoint"/>
+  <bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
+    <constructor-arg ref="userNavigationAwareAuthenticationEntryPoint"/>
+    <constructor-arg ref="httpSessionRequestCache"/>
     <property name="accessDeniedHandler">
       <bean class="org.springframework.security.web.access.AccessDeniedHandlerImpl" />
     </property>
@@ -264,23 +268,23 @@
     <constructor-arg ref="loginAttemptService"/>
   </bean>
 
+  <bean id="authenticationSuccessHandler"
+        class="org.pentaho.platform.web.http.security.PreventBruteForceSavedRequestAwareAuthenticationSuccessHandler">
+    <constructor-arg ref="loginAttemptService"/>
+    <property name="defaultTargetUrl" value="/Home" />
+    <property name="requestCache" ref="httpSessionRequestCache"/>
+  </bean>
+  <bean id="authenticationFailureHandler"
+        class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+    <constructor-arg type="java.lang.String" value="/Login?login_error=1" />
+  </bean>
+
   <bean id="authenticationProcessingFilter"
         class="org.pentaho.platform.web.http.security.PreventBruteForceUsernamePasswordAuthenticationFilter">
     <constructor-arg ref="loginAttemptService"/>
-    <property name="authenticationManager">
-      <ref bean="authenticationManager" />
-    </property>
-    <property name="authenticationSuccessHandler">
-      <bean class="org.pentaho.platform.web.http.security.PreventBruteForceSavedRequestAwareAuthenticationSuccessHandler">
-        <constructor-arg ref="loginAttemptService"/>
-        <property name="defaultTargetUrl" value="/Home" />
-      </bean>
-    </property>
-    <property name="authenticationFailureHandler">
-      <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
-        <constructor-arg type="java.lang.String" value="/Login?login_error=1" />
-      </bean>
-    </property>
+    <property name="authenticationManager" ref="authenticationManager" />
+    <property name="authenticationSuccessHandler" ref="authenticationSuccessHandler" />
+    <property name="authenticationFailureHandler" ref="authenticationFailureHandler" />
     <property name="filterProcessesUrl" value="/j_spring_security_check" />
     <property name="usernameParameter" value="j_username" />
     <property name="passwordParameter" value="j_password" />
@@ -290,6 +294,22 @@
   <bean id="authenticationProcessingFilterEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
     <constructor-arg value="/Login" />
     <property name="forceHttps" value="false" />
+  </bean>
+
+  <bean id="userNavigationAwareAuthenticationEntryPoint"
+        class="org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint">
+    <constructor-arg>
+      <util:map>
+        <!-- 1. Browser - User Navigation: redirect to the /Login page -->
+        <entry key-ref="userNavigationRequestMatcher" value-ref="authenticationProcessingFilterEntryPoint" />
+
+        <!-- 2. Browser - Other: reject with 401, but with no challenge in WWW-Authenticate header -->
+        <entry key-ref="webBrowserRequestMatcher" value-ref="unauthorizedEntryPoint" />
+      </util:map>
+    </constructor-arg>
+
+    <!-- 3. Non-Browser: reject with 401 and a basic auth challenge in WWW-Authenticate header -->
+    <property name="defaultEntryPoint" ref="basicProcessingFilterEntryPoint" />
   </bean>
 
   <bean id="httpRequestAccessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
