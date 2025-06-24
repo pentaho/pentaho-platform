@@ -20,13 +20,13 @@ import javax.servlet.http.HttpServletRequest;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.pentaho.platform.web.servlet.matchers.UserNavigationRequestMatcher.HEADER_SEC_FETCH_DEST;
-import static org.pentaho.platform.web.servlet.matchers.UserNavigationRequestMatcher.HEADER_SEC_FETCH_MODE;
-import static org.pentaho.platform.web.servlet.matchers.UserNavigationRequestMatcher.HEADER_SEC_FETCH_SITE;
-import static org.pentaho.platform.web.servlet.matchers.UserNavigationRequestMatcher.HEADER_SEC_FETCH_USER;
-import static org.pentaho.platform.web.servlet.matchers.UserNavigationRequestMatcher.HEADER_SF_TRUE;
+import static org.pentaho.platform.web.servlet.matchers.UserNavigationSecFetchRequestMatcher.HEADER_SEC_FETCH_DEST;
+import static org.pentaho.platform.web.servlet.matchers.UserNavigationSecFetchRequestMatcher.HEADER_SEC_FETCH_MODE;
+import static org.pentaho.platform.web.servlet.matchers.UserNavigationSecFetchRequestMatcher.HEADER_SEC_FETCH_SITE;
+import static org.pentaho.platform.web.servlet.matchers.UserNavigationSecFetchRequestMatcher.HEADER_SEC_FETCH_USER;
+import static org.pentaho.platform.web.servlet.matchers.UserNavigationSecFetchRequestMatcher.HEADER_SF_TRUE;
 
-public class UserNavigationRequestMatcherTest {
+public class UserNavigationSecFetchRequestMatcherTest {
 
   private static final String HEADER_SF_FALSE = "?0";
 
@@ -49,7 +49,7 @@ public class UserNavigationRequestMatcherTest {
     when( request.getHeader( HEADER_SEC_FETCH_MODE ) ).thenReturn( secFetchMode );
     when( request.getHeader( HEADER_SEC_FETCH_SITE ) ).thenReturn( secFetchSite );
 
-    var requestMatcher = new UserNavigationRequestMatcher();
+    var requestMatcher = new UserNavigationSecFetchRequestMatcher();
 
     assertEquals( expectMatches, requestMatcher.matches( request ) );
   }
