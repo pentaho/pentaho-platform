@@ -240,8 +240,96 @@
   <!--
       ===================== HTTP REQUEST SECURITY ====================
   -->
-  <bean id="userNavigationRequestMatcher" class="org.pentaho.platform.web.servlet.matchers.UserNavigationRequestMatcher" />
-  <bean id="webBrowserRequestMatcher"  class="org.pentaho.platform.web.servlet.matchers.WebBrowserRequestMatcher" />
+  <bean id="webBrowserRequestMatcher" class="org.springframework.security.web.util.matcher.OrRequestMatcher">
+    <constructor-arg>
+      <util:list>
+        <ref bean="webBrowserRequestMatcherSecFetch" />
+
+        <!--
+          This matcher is for requests considered insecure by the web browser, where the server is accessed via public
+          IP with HTTP, or private IP (even with HTTPS), or HTTPS with an invalid SSL certificate, causing `sec-fetch-*`
+          headers not to be sent. If the server is always accessed via a domain, either via HTTP, or via HTTPS with a
+          valid SSL certificate, then it should be possible to remove this, for added security.
+        -->
+        <ref bean="webBrowserRequestMatcherFallback" />
+      </util:list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="webBrowserRequestMatcherSecFetch"
+        class="org.pentaho.platform.web.servlet.matchers.WebBrowserSecFetchRequestMatcher" />
+  <bean id="webBrowserRequestMatcherFallback"
+        class="org.pentaho.platform.web.servlet.matchers.WebBrowserUserAgentRequestMatcher">
+    <!-- If needed, browser and non-browser `user-agent` header patterns may be changed from defaults:
+    <constructor-arg>
+      <util:list>
+        <value>\bchrome/\b</value>
+        <value>\bheadlesschrome/\b</value>
+        <value>\bfirefox/\b</value>
+        <value>\bsafari/\b</value>
+        <value>\bedge/\b</value>
+        <value>\btrident/\b</value>
+        <value>\bmsie/\b</value>
+        <value>\bopera/\b</value>
+        <value>\bopr/\b</value>
+      </util:list>
+    </constructor-arg>
+    <constructor-arg>
+      <util:list>
+        <value>\bcurl/\b</value>
+        <value>\bwget/\b</value>
+        <value>\bpostmanruntime/\b</value>
+        <value>\bpython-requests/\b</value>
+        <value>\bbot\b</value>
+        <value>\bcrawler\b</value>
+        <value>\bspider\b</value>
+        <value>\bjava/\b</value>
+        <value>\bphp/\b</value>
+        <value>\bruby/\b</value>
+      </util:list>
+    </constructor-arg>
+    -->
+  </bean>
+
+  <bean id="userNavigationRequestMatcher" class="org.springframework.security.web.util.matcher.OrRequestMatcher">
+    <constructor-arg>
+      <util:list>
+        <ref bean="userNavigationRequestMatcherSecFetch" />
+
+        <!--
+          This matcher is for requests considered insecure by the web browser, where the server is accessed via public
+          IP with HTTP, or private IP (even with HTTPS), or HTTPS with an invalid SSL certificate, causing `sec-fetch-*`
+          headers not to be sent. If the server is always accessed via a domain, either via HTTP, or via HTTPS with a
+          valid SSL certificate, then it should be possible to remove this, for added security.
+        -->
+        <ref bean="userNavigationRequestMatcherFallback" />
+      </util:list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="userNavigationRequestMatcherSecFetch"
+        class="org.pentaho.platform.web.servlet.matchers.UserNavigationSecFetchRequestMatcher" />
+  <bean id="userNavigationRequestMatcherFallback" class="org.springframework.security.web.util.matcher.AndRequestMatcher">
+    <constructor-arg>
+      <util:list>
+        <!-- Only use `accept` header matcher if `sec-fetch-*` headers are not present. -->
+        <bean class="org.springframework.security.web.util.matcher.NegatedRequestMatcher">
+          <constructor-arg ref="webBrowserRequestMatcherSecFetch" />
+        </bean>
+        <ref bean="webBrowserRequestMatcherFallback" />
+        <bean class="org.pentaho.platform.web.servlet.matchers.UserNavigationAcceptRequestMatcher">
+          <!-- If needed, matching `accept` header patterns may be changed from defaults:
+          <constructor-arg>
+            <util:list>
+              <value>\btext/html\b</value>
+              <value>\bapplication/xhtml\+xml\b</value>
+            </util:list>
+          </constructor-arg>
+          -->
+        </bean>
+      </util:list>
+    </constructor-arg>
+  </bean>
 
   <bean id="httpSessionRequestCache" class="org.springframework.security.web.savedrequest.HttpSessionRequestCache">
     <!-- After login, only send the user back to "user navigation" requests. Otherwise, go back /Home -->

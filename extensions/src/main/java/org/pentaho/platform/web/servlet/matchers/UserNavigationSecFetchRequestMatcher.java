@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
- * The {@code UserNavigationRequestMatcher} determines if a request can be considered a user navigation request,
+ * The {@code UserNavigationSecFetchRequestMatcher} determines if a request can be considered a user navigation request,
  * based on the presence of the `sec-fetch-user` HTTP request header, or on other related headers, such as
  * `sec-fetch-dest`, `sec-fetch-mode` and `sec-fetch-site`.
  * <p>
@@ -49,14 +49,22 @@ import java.util.List;
  * The response is meta-redirected to localhost:8080/pentaho.
  * Then, the server 302-redirects to localhost:8080/pentaho/.
  * Finally, the response is meta-redirected to localhost:8080/pentaho/Home.
+ * <p>
+ * Unfortunately, the {@code sec-fetch-*} headers are not always present in requests a web browser considers insecure.
+ * Examples of such requests include the server being accessed via an IP address, of public or private range, without
+ * HTTPS, or without a valid SSL certificate. For the case of private IP addresses, there are also special protections
+ * as determined by the
+ * <a href="https://wicg.github.io/private-network-access">Private Network Access (PNA) specification</a>.
+ * For these cases, consider using the {@link UserNavigationAcceptRequestMatcher} as a fallback matcher.
  */
-public class UserNavigationRequestMatcher implements RequestMatcher {
+public class UserNavigationSecFetchRequestMatcher implements RequestMatcher {
   /**
    * The `sec-fetch-user` HTTP request header is included by web browsers to indicate that a request was initiated by
    * a <i>user navigation</i> and having a user activation state.
    * <p>
    * See
-   * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Sec-Fetch-User">MDN Sec-Fetch-User Header</a>.
+   * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-User">MDN Sec-Fetch-User
+   * Header</a>.
    */
   static final String HEADER_SEC_FETCH_USER = "sec-fetch-user";
 
@@ -66,7 +74,8 @@ public class UserNavigationRequestMatcher implements RequestMatcher {
    * This header is used to determine if the request is a navigation request, when `sec-fetch-user` is not set to `?1`.
    * <p>
    * See
-   * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Sec-Fetch-Dest">MDN Sec-Fetch-Dest Header</a>.
+   * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Dest">MDN Sec-Fetch-Dest
+   * Header</a>.
    */
   static final String HEADER_SEC_FETCH_DEST = "sec-fetch-dest";
 
@@ -76,7 +85,8 @@ public class UserNavigationRequestMatcher implements RequestMatcher {
    * This header is used to determine if the request is a navigation request, when `sec-fetch-user` is not set to `?1`.
    * <p>
    * See
-   * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Sec-Fetch-Mode">MDN Sec-Fetch-Mode Header</a>.
+   * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Mode">MDN Sec-Fetch-Mode
+   * Header</a>.
    */
   static final String HEADER_SEC_FETCH_MODE = "sec-fetch-mode";
 
@@ -88,7 +98,8 @@ public class UserNavigationRequestMatcher implements RequestMatcher {
    * to `?1`.
    * <p>
    * See
-   * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Sec-Fetch-Site">MDN Sec-Fetch-Site Header</a>.
+   * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Site">MDN Sec-Fetch-Site
+   * Header</a>.
    */
   static final String HEADER_SEC_FETCH_SITE = "sec-fetch-site";
 
