@@ -96,12 +96,12 @@ public class AbstractAuthorizationActionTest {
 
   @Test
   public void testParseLocaleNull() {
-    Assert.assertEquals( LocaleHelper.getLocale(), action.parseLocale( null ) );
+    Assert.assertEquals( null, action.parseLocale( null ) );
   }
 
   @Test
   public void testParseLocaleEmpty() {
-    Assert.assertEquals( LocaleHelper.getLocale(), action.parseLocale( "" ) );
+    Assert.assertEquals( null, action.parseLocale( "" ) );
   }
 
   @Test
