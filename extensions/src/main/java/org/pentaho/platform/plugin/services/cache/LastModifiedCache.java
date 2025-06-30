@@ -30,6 +30,7 @@ import javax.cache.Cache;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * User: rfellows Date: 10/25/11 Time: 3:53 PM
@@ -78,13 +79,11 @@ public class LastModifiedCache extends EnabledCaching implements ILastModifiedCa
 
   @Override public Set<Object> getAllKeys() {
     Cache<Object, Object> cache = ( (JCacheAccessImpl) getStorageAccess() ).getUnderlyingCache();
-    Set<Object> keys = new HashSet<>();
+    Set<Object> keys = ConcurrentHashMap.newKeySet();
     if ( cache != null ) {
-      for ( Cache.Entry<Object, Object> entry : cache ) {
-           keys.add( entry.getKey() );
-      }
+      cache.forEach(entry -> keys.add( entry.getKey() ) );
     }
-    return keys;
+    return new HashSet<>( keys );
   }
 
   @Override public DirectAccessRegion getDirectAccessRegion() {

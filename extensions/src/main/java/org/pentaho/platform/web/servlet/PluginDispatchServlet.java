@@ -230,21 +230,26 @@ public class PluginDispatchServlet implements Servlet {
         }
         try {
           if ( pluginServlet instanceof JAXRSPluginServlet ) {
-            GenericApplicationContext pluginContext = ( GenericApplicationContext ) ( ( JAXRSPluginServlet ) pluginServlet ).getContext();
-            servletConfig.getServletContext().setAttribute( "PLUGIN_CONTEXT", ( ( JAXRSPluginServlet ) pluginServlet).getContext() );
-            BeanDefinition beanDef =
-                    BeanDefinitionBuilder.rootBeanDefinition( JAXRSPluginApplication.class ).setScope( BeanDefinition.SCOPE_SINGLETON )
-                            .addConstructorArgValue( getPackagesOfBeans( pluginContext.getBeanFactory() ) ).getBeanDefinition();
+            // If it is JAXRSPluginServlet, then we have to get the plugin context and register it with ServletContext. So that it will be available in PentahoSpringComponentProvider
+            GenericApplicationContext pluginContext = (GenericApplicationContext) pluginBeanFactoryEntry.getValue();
+            servletConfig.getServletContext().setAttribute( PentahoSpringComponentProvider.PLUGIN_CONTEXT, pluginContext );
+            // In case plugin is not defined the JAXRSPluginApplication then go with default definition of the same.
+            if ( BeanFactoryUtils.beanNamesForTypeIncludingAncestors( pluginContext, JAXRSPluginApplication.class ).length == 0 ) {
+              // Creating the bean with prototype scope, because there could be a chance of 2 JAXRSPluginServlets defined in one plugin. They will be treated as two different jersey applications.
+              BeanDefinition beanDef =
+                      BeanDefinitionBuilder.rootBeanDefinition( JAXRSPluginApplication.class ).setScope( BeanDefinition.SCOPE_PROTOTYPE )
+                              .addConstructorArgValue( getPackagesOfBeans( pluginContext ) ).getBeanDefinition();
 
-            pluginContext.registerBeanDefinition( "jerseyApplication", beanDef );
-
-            ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
-            try {
-              Thread.currentThread().setContextClassLoader( ( ( JAXRSPluginServlet ) pluginServlet ).getContext().getClassLoader() );
-              pluginServlet.init( servletConfig );
-            } finally {
-              Thread.currentThread().setContextClassLoader( originalClassLoader );
+              pluginContext.registerBeanDefinition( JAXRSPluginApplication.APP_BEAN_NAME, beanDef );
             }
+          }
+
+          ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
+          try {
+            Thread.currentThread().setContextClassLoader( ( ( JAXRSPluginServlet ) pluginServlet ).getContext().getClassLoader() );
+            pluginServlet.init( servletConfig );
+          } finally {
+            Thread.currentThread().setContextClassLoader( originalClassLoader );
           }
         } catch ( Throwable t ) {
           logger.error( "Could not load servlet '" + context + "'", t ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
