@@ -48,7 +48,7 @@ public class JAXRSApplication extends ResourceConfig {
     property( "jersey.config.server.response.setStatusOverSendError", true );
 
     if ( logger.isDebugEnabled() ) {
-      property( "jersey.config.server.tracing", "ALL" );
+      property( "jersey.config.server.tracing.type", "ALL" );
       property( "jersey.config.server.tracing.threshold", "VERBOSE" );
     }
   }
