@@ -44,7 +44,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.function.Supplier;
 
-@Priority(value = 1)
+/**
+ * This component will be created per plugin and will be resolved by jersey through Java SPI API.
+ * <br/><br/>
+ * This component acts as a bridge between Jersey's HK2 and Plugin Spring cotext. So that the jersey resources defined in spring context will be identified by Jersey.
+ * <br/><br/>
+ * The priority of this class should be greater than {@link jakarta.ws.rs.Priorities.USER}. So that Plugin Context will be considered to resolve the {@link @Autowired} components in the jersey resources
+ */
+@Priority( value = 5001 )
 public class PentahoSpringComponentProvider extends SpringComponentProvider {
 
   private static final Log logger = LogFactory.getLog( PentahoSpringComponentProvider.class );
@@ -52,6 +59,8 @@ public class PentahoSpringComponentProvider extends SpringComponentProvider {
   private static final String DEFAULT_CONTEXT_CONFIG_LOCATION = "applicationContext.xml";
   private static final String PARAM_CONTEXT_CONFIG_LOCATION = "contextConfigLocation";
   private static final String PARAM_SPRING_CONTEXT = "contextConfig";
+
+  public static final String PLUGIN_CONTEXT = "PLUGIN_CONTEXT";
 
   private volatile InjectionManager injectionManager;
   private volatile ApplicationContext ctx;
