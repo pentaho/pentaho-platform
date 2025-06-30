@@ -65,7 +65,6 @@ public class JAXRSPluginServlet extends ServletContainer implements ApplicationC
     this.applicationContext = applicationContext;
   }
 
-
   protected ConfigurableApplicationContext getContext() {
     return ( ConfigurableApplicationContext ) applicationContext;
   }
