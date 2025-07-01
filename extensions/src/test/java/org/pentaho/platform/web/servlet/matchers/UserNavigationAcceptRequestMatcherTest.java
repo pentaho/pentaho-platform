@@ -15,7 +15,7 @@ package org.pentaho.platform.web.servlet.matchers;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
