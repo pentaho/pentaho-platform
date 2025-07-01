@@ -12,9 +12,9 @@
 
 package org.pentaho.platform.web.servlet.jersey;
 
-import com.fasterxml.jackson.core.util.JacksonFeature;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.pentaho.platform.web.servlet.JAXRSServlet;
