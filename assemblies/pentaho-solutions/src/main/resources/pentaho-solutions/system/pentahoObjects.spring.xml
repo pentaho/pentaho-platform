@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-This is a Spring file that defines how Pentaho system objects are created and managed.  
-An implementation of IPentahoObjectFactory, such as WebSpringPentahoObjectFactory, is 
+<!--
+This is a Spring file that defines how Pentaho system objects are created and managed.
+An implementation of IPentahoObjectFactory, such as WebSpringPentahoObjectFactory, is
 responsible for serving objects to callers based on this file.
 
 Possible values for scope attribute:
@@ -9,16 +9,16 @@ Possible values for scope attribute:
 *prototype* - each request for this object returns a new instance
 *session* - each request for this object within a session returns the same instance
 
-default-lazy-init is set to true since some of these object make calls into 
+default-lazy-init is set to true since some of these object make calls into
 PentahoSystem which is initialized after Spring
  -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd 
-       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd 
-       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true" >
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
+       default-lazy-init="true">
 
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype"/>
   <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton"/>
@@ -59,17 +59,17 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledOrJndiDatasourceService
     org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceService
     org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledDatasourceService
-    org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService  
+    org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService
     org.pentaho.platform.engine.services.connection.datasource.dbcp.DynamicallyPooledOrJndiDatasourceService (Default option)
   -->
   <bean id="pooledOrJndiDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService" scope="singleton" />
   <bean id="nonPooledOrJndiDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledOrJndiDatasourceService" scope="singleton" />
-  
+
   <bean id="IDBDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.DynamicallyPooledOrJndiDatasourceService" scope="singleton">
     <property name="pooledDatasourceService" ref="pooledOrJndiDatasourceService" />
     <property name="nonPooledDatasourceService" ref="nonPooledOrJndiDatasourceService" />
   </bean>
-  
+
   <bean id="IPasswordService" class="org.pentaho.platform.util.KettlePasswordService" scope="singleton"/>
   <bean id="IPluginProvider" class="org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider"
         scope="singleton"/>
@@ -320,6 +320,11 @@ not directly from the PentahoObjectFactory. -->
         <pen:attr key="priority" value="10"/>
       </pen:attributes>
     </pen:publish>
+  </bean>
+
+  <bean class="org.pentaho.platform.engine.security.authorization.PentahoSystemAuthorizationActionService"
+        scope="singleton">
+    <pen:publish as-type="INTERFACES" />
   </bean>
 
 </beans>

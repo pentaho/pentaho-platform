@@ -83,7 +83,6 @@ public class PentahoPlatformExporter extends ZipExportProcessor implements IPent
   public static final String DATA_SOURCES_PATH_IN_ZIP = "_datasources/";
   public static final String METADATA_PATH_IN_ZIP = DATA_SOURCES_PATH_IN_ZIP + "metadata/";
   public static final String ANALYSIS_PATH_IN_ZIP = DATA_SOURCES_PATH_IN_ZIP + "analysis/";
-  public static final String CONNECTIONS_PATH_IN_ZIP = DATA_SOURCES_PATH_IN_ZIP + "connections/";
   public static final String METASTORE = "metastore";
   public static final String METASTORE_BACKUP_EXT = ".mzip";
 
