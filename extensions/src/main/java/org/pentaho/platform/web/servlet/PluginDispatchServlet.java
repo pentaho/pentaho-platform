@@ -242,14 +242,16 @@ public class PluginDispatchServlet implements Servlet {
 
               pluginContext.registerBeanDefinition( JAXRSPluginApplication.APP_BEAN_NAME, beanDef );
             }
-          }
 
-          ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
-          try {
-            Thread.currentThread().setContextClassLoader( ( ( JAXRSPluginServlet ) pluginServlet ).getContext().getClassLoader() );
+            ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
+            try {
+              Thread.currentThread().setContextClassLoader( ( ( JAXRSPluginServlet ) pluginServlet ).getContext().getClassLoader() );
+              pluginServlet.init( servletConfig );
+            } finally {
+              Thread.currentThread().setContextClassLoader( originalClassLoader );
+            }
+          } else {
             pluginServlet.init( servletConfig );
-          } finally {
-            Thread.currentThread().setContextClassLoader( originalClassLoader );
           }
         } catch ( Throwable t ) {
           logger.error( "Could not load servlet '" + context + "'", t ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
