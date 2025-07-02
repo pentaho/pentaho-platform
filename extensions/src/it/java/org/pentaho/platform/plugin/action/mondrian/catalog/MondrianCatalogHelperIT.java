@@ -438,6 +438,12 @@ public class MondrianCatalogHelperIT {
 
   @Test
   public void testRemoveCatalog() throws Exception {
+    MondrianCatalog cat = createTestCatalog();
+    var catalogMap = new HashMap<String, MondrianCatalog>() {{
+      put(CATALOG_NAME, cat);
+    }};
+    initMondrianCatalogsCache( catalogMap );
+
     repositoryMockMondrianFolder( "SteelWheels/" );
 
     final String steelWheelsFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SteelWheels";
@@ -455,7 +461,7 @@ public class MondrianCatalogHelperIT {
       .getMondrianCatalogFile( any() );
     doReturn( repositoryHelper ).when( helperSpy ).getMondrianCatalogRepositoryHelper();
 
-    helperSpy.removeCatalog( "mondrian:/SteelWheels", testSession );
+    helperSpy.removeCatalog( CATALOG_NAME, testSession );
 
     verify( repo ).deleteFile( eq( UnifiedRepositoryTestUtils.makeIdObject( steelWheelsFolderPath ) ), eq( true ), nullable( String.class ) );
 
