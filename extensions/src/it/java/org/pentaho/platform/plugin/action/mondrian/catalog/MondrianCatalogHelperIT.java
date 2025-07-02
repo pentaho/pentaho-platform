@@ -155,6 +155,8 @@ public class MondrianCatalogHelperIT {
       .when( localizingDynamicSchemaProcessor )
       .filter( nullable( String.class ), any(), any() );
 
+    // repository
+    testPlatform.defineInstance( IUnifiedRepository.class, repo );
 
     var mondrianCatalogHelper =
       new MondrianCatalogHelper( false, null, localizingDynamicSchemaProcessor );
@@ -164,8 +166,6 @@ public class MondrianCatalogHelperIT {
     testPlatform.define( IUserRoleListService.class, UserRoleMapperIT.TestUserRoleListService.class,
       IPentahoDefinableObjectFactory.Scope.GLOBAL );
 
-    // repository
-    testPlatform.defineInstance( IUnifiedRepository.class, repo );
     // OlapService / Mondrian
     testPlatform.defineInstance( IOlapService.class, olapService );
     // needed for a correct catalog loading process
