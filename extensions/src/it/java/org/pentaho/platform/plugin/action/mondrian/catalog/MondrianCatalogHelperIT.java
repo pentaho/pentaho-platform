@@ -161,14 +161,6 @@ public class MondrianCatalogHelperIT {
     // repository
     testPlatform.defineInstance( IUnifiedRepository.class, repo );
 
-    var mondrianCatalogHelper =
-      new MondrianCatalogHelper( false, null, localizingDynamicSchemaProcessor );
-
-    testPlatform.defineInstance( IAclAwareMondrianCatalogService.class, mondrianCatalogHelper );
-
-    testPlatform.define( IUserRoleListService.class, UserRoleMapperIT.TestUserRoleListService.class,
-      IPentahoDefinableObjectFactory.Scope.GLOBAL );
-
     // OlapService / Mondrian
     testPlatform.defineInstance( IOlapService.class, olapService );
     // needed for a correct catalog loading process
@@ -178,6 +170,14 @@ public class MondrianCatalogHelperIT {
     var mockPasswordService = mock( IPasswordService.class );
     when( mockPasswordService.encrypt( anyString() ) ).then( returnsFirstArg() );
     testPlatform.defineInstance( IPasswordService.class, mockPasswordService );
+
+    var mondrianCatalogHelper =
+      new MondrianCatalogHelper( false, null, localizingDynamicSchemaProcessor );
+
+    testPlatform.defineInstance( IAclAwareMondrianCatalogService.class, mondrianCatalogHelper );
+
+    testPlatform.define( IUserRoleListService.class, UserRoleMapperIT.TestUserRoleListService.class,
+      IPentahoDefinableObjectFactory.Scope.GLOBAL );
 
     testPlatform.start();
 
