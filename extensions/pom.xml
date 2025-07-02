@@ -311,8 +311,6 @@
     <dependency>
       <groupId>net.sf.saxon</groupId>
       <artifactId>saxon</artifactId>
-      <version>${saxon.version}</version>
-      <scope>compile</scope>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -323,8 +321,6 @@
     <dependency>
       <groupId>net.sf.saxon</groupId>
       <artifactId>saxon-dom</artifactId>
-      <version>${saxon.version}</version>
-      <scope>compile</scope>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
