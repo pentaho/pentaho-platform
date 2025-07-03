@@ -54,6 +54,7 @@
         <extension>xjpivot</extension>
         <extension>xml</extension>
         <extension>xreportspec</extension>
+        <extension>backup</extension>
       </MimeTypeDefinition>      
     </MimeTypeDefinitions>
   </ImportHandler>
