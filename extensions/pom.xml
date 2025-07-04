@@ -5,11 +5,11 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>10.3.0.0-SNAPSHOT</version>
+    <version>11.0.0.0-SNAPSHOT</version>
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-extensions</artifactId>
-  <version>10.3.0.0-SNAPSHOT</version>
+  <version>11.0.0.0-SNAPSHOT</version>
   <properties>
     <asm-attrs.version>2.2.3</asm-attrs.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
@@ -17,16 +17,16 @@
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
     <hamcrest-library.version>1.3</hamcrest-library.version>
-    <commons-xul.version>10.3.0.0-SNAPSHOT</commons-xul.version>
-    <pdi.version>10.3.0.0-SNAPSHOT</pdi.version>
-    <pentaho-reporting.version>10.3.0.0-SNAPSHOT</pentaho-reporting.version>
-    <pdi-dataservice-client-plugin.version>10.3.0.0-SNAPSHOT</pdi-dataservice-client-plugin.version>
-    <pentaho-connections.version>10.3.0.0-SNAPSHOT</pentaho-connections.version>
-    <pentaho-versionchecker.version>10.3.0.0-SNAPSHOT</pentaho-versionchecker.version>
-    <pentaho-report-wizard-core.version>10.3.0.0-SNAPSHOT</pentaho-report-wizard-core.version>
-    <pentaho-actionsequence-dom.version>10.3.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
-    <pentaho-metadata.version>10.3.0.0-SNAPSHOT</pentaho-metadata.version>
-    <pentaho-chartbeans.version>10.3.0.0-SNAPSHOT</pentaho-chartbeans.version>
+    <commons-xul.version>11.0.0.0-SNAPSHOT</commons-xul.version>
+    <pdi.version>11.0.0.0-SNAPSHOT</pdi.version>
+    <pentaho-reporting.version>11.0.0.0-SNAPSHOT</pentaho-reporting.version>
+    <pdi-dataservice-client-plugin.version>11.0.0.0-SNAPSHOT</pdi-dataservice-client-plugin.version>
+    <pentaho-connections.version>11.0.0.0-SNAPSHOT</pentaho-connections.version>
+    <pentaho-versionchecker.version>11.0.0.0-SNAPSHOT</pentaho-versionchecker.version>
+    <pentaho-report-wizard-core.version>11.0.0.0-SNAPSHOT</pentaho-report-wizard-core.version>
+    <pentaho-actionsequence-dom.version>11.0.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
+    <pentaho-metadata.version>11.0.0.0-SNAPSHOT</pentaho-metadata.version>
+    <pentaho-chartbeans.version>11.0.0.0-SNAPSHOT</pentaho-chartbeans.version>
     <maven-surefire-plugin.argLine> --add-opens=java.base/java.lang=ALL-UNNAMED </maven-surefire-plugin.argLine>
     <nashorn.version>15.4</nashorn.version>
   </properties>
@@ -157,6 +157,16 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.apache.httpcomponents.core5</groupId>
+      <artifactId>httpcore5</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.owasp.encoder</groupId>
       <artifactId>encoder</artifactId>
       <version>${owasp.encoder.version}</version>
@@ -182,8 +192,8 @@
     <!-- Only needed for runtime testing -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-      <version>${log4j.version}</version>
+      <artifactId>log4j-slf4j2-impl</artifactId>
+      <version>${log4j-slf4j2.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -301,8 +311,6 @@
     <dependency>
       <groupId>net.sf.saxon</groupId>
       <artifactId>saxon</artifactId>
-      <version>${saxon.version}</version>
-      <scope>compile</scope>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -313,8 +321,6 @@
     <dependency>
       <groupId>net.sf.saxon</groupId>
       <artifactId>saxon-dom</artifactId>
-      <version>${saxon.version}</version>
-      <scope>compile</scope>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -2065,11 +2071,11 @@
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
+      <artifactId>osgi.core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.compendium</artifactId>
+      <artifactId>osgi.cmpn</artifactId>
     </dependency>
     <dependency>
       <groupId>org.openjdk.nashorn</groupId>
@@ -2736,6 +2742,11 @@
           <groupId>*</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-crypto</artifactId>
+      <version>5.8.12</version>
     </dependency>
   </dependencies>
   <build>
