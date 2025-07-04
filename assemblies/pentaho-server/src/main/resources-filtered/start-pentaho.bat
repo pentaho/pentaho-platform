@@ -46,6 +46,10 @@ set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens=java.base/java.nio=ALL-UNNA
 set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens=java.security.jgss/sun.security.krb5=ALL-UNNAMED"
 
 
+REM Add this option to allow orc's compatibility with protobuf-java 3.25.6 libraries
+set CATALINA_OPTS=%CATALINA_OPTS% "-Dcom.google.protobuf.use_unsafe_pre22_gencode=true"
+
+
 rem Make sure we set the appropriate variable so Tomcat can start (e.g. JAVA_HOME iff. _PENTAHO_JAVA_HOME points to a JDK)
 if not exist "%_PENTAHO_JAVA_HOME%\bin\jdb.exe" goto noJdk
 if not exist "%_PENTAHO_JAVA_HOME%\bin\javac.exe" goto noJdk
