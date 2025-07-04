@@ -422,20 +422,14 @@
     <dependency>
       <groupId>net.sf.saxon</groupId>
       <artifactId>saxon-jdom</artifactId>
-      <version>${saxon.version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>net.sf.saxon</groupId>
       <artifactId>saxon-sql</artifactId>
-      <version>${saxon.version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>net.sf.saxon</groupId>
       <artifactId>saxon-xom</artifactId>
-      <version>${saxon.version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>ognl</groupId>
