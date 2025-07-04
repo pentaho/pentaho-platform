@@ -38,6 +38,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
@@ -66,7 +67,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
@@ -155,6 +158,18 @@ public class MondrianCatalogHelperIT {
       .when( localizingDynamicSchemaProcessor )
       .filter( nullable( String.class ), any(), any() );
 
+    // repository
+    testPlatform.defineInstance( IUnifiedRepository.class, repo );
+
+    // OlapService / Mondrian
+    testPlatform.defineInstance( IOlapService.class, olapService );
+    // needed for a correct catalog loading process
+    testPlatform.defineInstance( "singleTenantAdminUserName", "admin" );
+
+    // Password service
+    var mockPasswordService = mock( IPasswordService.class );
+    when( mockPasswordService.encrypt( anyString() ) ).then( returnsFirstArg() );
+    testPlatform.defineInstance( IPasswordService.class, mockPasswordService );
 
     var mondrianCatalogHelper =
       new MondrianCatalogHelper( false, null, localizingDynamicSchemaProcessor );
@@ -163,13 +178,6 @@ public class MondrianCatalogHelperIT {
 
     testPlatform.define( IUserRoleListService.class, UserRoleMapperIT.TestUserRoleListService.class,
       IPentahoDefinableObjectFactory.Scope.GLOBAL );
-
-    // repository
-    testPlatform.defineInstance( IUnifiedRepository.class, repo );
-    // OlapService / Mondrian
-    testPlatform.defineInstance( IOlapService.class, olapService );
-    // needed for a correct catalog loading process
-    testPlatform.defineInstance( "singleTenantAdminUserName", "admin" );
 
     testPlatform.start();
 
@@ -430,6 +438,12 @@ public class MondrianCatalogHelperIT {
 
   @Test
   public void testRemoveCatalog() throws Exception {
+    MondrianCatalog cat = createTestCatalog();
+    var catalogMap = new HashMap<String, MondrianCatalog>() {{
+      put(CATALOG_NAME, cat);
+    }};
+    initMondrianCatalogsCache( catalogMap );
+
     repositoryMockMondrianFolder( "SteelWheels/" );
 
     final String steelWheelsFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SteelWheels";
@@ -447,7 +461,7 @@ public class MondrianCatalogHelperIT {
       .getMondrianCatalogFile( any() );
     doReturn( repositoryHelper ).when( helperSpy ).getMondrianCatalogRepositoryHelper();
 
-    helperSpy.removeCatalog( "mondrian:/SteelWheels", testSession );
+    helperSpy.removeCatalog( CATALOG_NAME, testSession );
 
     verify( repo ).deleteFile( eq( UnifiedRepositoryTestUtils.makeIdObject( steelWheelsFolderPath ) ), eq( true ), nullable( String.class ) );
 
