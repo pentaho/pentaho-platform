@@ -173,26 +173,32 @@ public class CacheManager implements ICacheManager {
     cacheExpirationRegistry = PentahoSystem.get( ICacheExpirationRegistry.class );
 
     if ( null != obj ) {
-      Map<String, Object> cachePropertiesMap = cacheProperties.entrySet().stream()
-              .collect( Collectors.toMap( e -> e.getKey().toString(), Map.Entry::getValue) );
-      regionFactory.start( HibernateUtil.getSessionFactory().getSessionFactoryOptions(), cachePropertiesMap );
-      regionCache = new HashMap<>();
-      ( (SessionFactoryImplementor) HibernateUtil.getSessionFactory() ).getServiceRegistry()
-        .getService( EventListenerRegistry.class ).prependListeners(
-          EventType.LOAD, new HibernateLoadEventListener() );
-      Cache cache = buildCache( SESSION, HibernateUtil.getSessionFactory(), cacheProperties );
-      if ( cache == null ) {
-        CacheManager.logger
-            .error( Messages.getInstance().getString( "CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE" ) ); //$NON-NLS-1$
+      if ( obj instanceof RegionFactory ) {
+        this.regionFactory = ( RegionFactory ) obj;
+        Map<String, Object> cachePropertiesMap = cacheProperties.entrySet().stream()
+          .collect( Collectors.toMap( e -> e.getKey().toString(), Map.Entry::getValue) );
+        regionFactory.start( HibernateUtil.getSessionFactory().getSessionFactoryOptions(), cachePropertiesMap );
+        regionCache = new HashMap<String, Cache>();
+        ( (SessionFactoryImplementor) HibernateUtil.getSessionFactory() ).getServiceRegistry()
+          .getService( EventListenerRegistry.class ).prependListeners(
+            EventType.LOAD, new HibernateLoadEventListener() );
+        Cache cache = buildCache( SESSION, HibernateUtil.getSessionFactory(), cacheProperties );
+        if ( cache == null ) {
+          CacheManager.logger
+              .error( Messages.getInstance().getString( "CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE" ) ); //$NON-NLS-1$
+        } else {
+          regionCache.put( SESSION, cache );
+        }
+        cache = buildCache( GLOBAL, HibernateUtil.getSessionFactory(), cacheProperties );
+        if ( cache == null ) {
+          CacheManager.logger
+              .error( Messages.getInstance().getString( "CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE" ) ); //$NON-NLS-1$
+        } else {
+          regionCache.put( GLOBAL, cache );
+        }
       } else {
-        regionCache.put( SESSION, cache );
-      }
-      cache = buildCache( GLOBAL, HibernateUtil.getSessionFactory(), cacheProperties );
-      if ( cache == null ) {
-        CacheManager.logger
-            .error( Messages.getInstance().getString( "CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE" ) ); //$NON-NLS-1$
-      } else {
-        regionCache.put( GLOBAL, cache );
+        CacheManager.logger.error( Messages.getInstance().getString(
+            "CacheManager.ERROR_0002_NOT_INSTANCE_OF_CACHE_PROVIDER" ) ); //$NON-NLS-1$
       }
     }
   }
