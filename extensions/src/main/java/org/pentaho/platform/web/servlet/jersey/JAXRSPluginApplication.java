@@ -59,7 +59,6 @@ public class JAXRSPluginApplication extends ResourceConfig {
   public JAXRSPluginApplication( String[] packages ) {
     packages( packages );
     register( MultiPartFeature.class );
-    register( JacksonFeature.class );
 
     property( "jersey.config.server.response.setStatusOverSendError", true );
 
