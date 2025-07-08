@@ -359,7 +359,7 @@
     </dependency>
     <dependency>
       <groupId>net.sf.saxon</groupId>
-      <artifactId>saxon</artifactId>
+      <artifactId>Saxon-HE</artifactId>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -376,6 +376,11 @@
           <groupId>*</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.xmlresolver</groupId>
+      <artifactId>xmlresolver</artifactId>
+      <version>6.0.17</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.modules</groupId>
