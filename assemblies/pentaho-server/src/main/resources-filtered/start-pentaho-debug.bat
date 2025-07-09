@@ -22,6 +22,8 @@ set CATALINA_OPTS=-Xms2048m -Xmx6144m -Xdebug -Xrunjdwp:transport=dt_socket,serv
 
 REM Add this property to change the equivalent value of "SaveOnlyUsedConnectionsToXML" property on the server. Please see JIRA PDI-20078 for more information
 REM set CATALINA_OPTS=%CATALINA_OPTS% -DSTRING_ONLY_USED_DB_TO_XML=N
+REM Add this option to allow orc's compatibility with protobuf-java 3.25.6 libraries
+set CATALINA_OPTS=%CATALINA_OPTS% -Dcom.google.protobuf.use_unsafe_pre22_gencode=true
 
 rem Sets options that only get read by Java 11 to remove illegal reflective access warnings
 set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens=java.base/sun.net.www.protocol.jar=ALL-UNNAMED"
