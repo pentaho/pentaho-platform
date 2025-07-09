@@ -22,7 +22,6 @@
     <commons-xul.version>11.0.0.0-SNAPSHOT</commons-xul.version>
     <pdi.version>11.0.0.0-SNAPSHOT</pdi.version>
     <pentaho-reporting.version>11.0.0.0-SNAPSHOT</pentaho-reporting.version>
-    <pdi-dataservice-client-plugin.version>11.0.0.0-SNAPSHOT</pdi-dataservice-client-plugin.version>
     <pentaho-connections.version>11.0.0.0-SNAPSHOT</pentaho-connections.version>
     <pentaho-versionchecker.version>11.0.0.0-SNAPSHOT</pentaho-versionchecker.version>
     <pentaho-report-wizard-core.version>11.0.0.0-SNAPSHOT</pentaho-report-wizard-core.version>
@@ -1674,18 +1673,6 @@
           <groupId>*</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pdi-dataservice-client-plugin</artifactId>
-      <version>${pdi-dataservice-client-plugin.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pdi-dataservice-client-plugin-api</artifactId>
-      <version>${pdi-dataservice-client-plugin.version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>net.sf.kosmosfs</groupId>
