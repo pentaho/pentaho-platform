@@ -13,24 +13,7 @@
 
 package org.pentaho.platform.security.policy.rolebased;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.jcr.NamespaceException;
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Value;
-
+import com.google.common.collect.HashMultimap;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -48,7 +31,22 @@ import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.HashMultimap;
+import javax.jcr.NamespaceException;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Value;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizationPolicyRoleBindingDao {
 
@@ -151,29 +149,40 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
   @Override
   public List<String> getBoundLogicalRoleNames( Session session, List<String> runtimeRoleNames )
       throws NamespaceException, RepositoryException {
-    Set<String> boundRoleNames = new HashSet<String>();
-    HashMap<ITenant, List<String>> tenantMap = new HashMap<ITenant, List<String>>();
+
+    Set<String> boundLogicalRoleNames = new HashSet<>();
+
+    HashMap<ITenant, List<String>> tenantMap = new HashMap<>();
+
     boolean includeSuperAdminLogicalRoles = false;
+
+    // Index the runtime roles by tenant, and collect their tenant-local names.
     for ( String runtimeRoleName : runtimeRoleNames ) {
       if ( !superAdminRoleName.equals( runtimeRoleName ) ) {
-        ITenant tenant = JcrTenantUtils.getTenant( runtimeRoleName, false );
-        List<String> runtimeRoles = tenantMap.get( tenant );
-        if ( runtimeRoles == null ) {
-          runtimeRoles = new ArrayList<String>();
-          tenantMap.put( tenant, runtimeRoles );
+        // The tenant of the runtime role.
+        ITenant roleTenant = JcrTenantUtils.getTenant( runtimeRoleName, false );
+        List<String> tenantRuntimeRoles = tenantMap.get( roleTenant );
+        if ( tenantRuntimeRoles == null ) {
+          tenantRuntimeRoles = new ArrayList<>();
+          tenantMap.put( roleTenant, tenantRuntimeRoles );
         }
-        runtimeRoles.add( tenantedRoleNameUtils.getPrincipleName( runtimeRoleName ) );
+
+        tenantRuntimeRoles.add( tenantedRoleNameUtils.getPrincipleName( runtimeRoleName ) );
       } else {
+        // The super admin role has no tenant.
         includeSuperAdminLogicalRoles = true;
       }
     }
+
     for ( Map.Entry<ITenant, List<String>> mapEntry : tenantMap.entrySet() ) {
-      boundRoleNames.addAll( getBoundLogicalRoleNames( session, mapEntry.getKey(), mapEntry.getValue() ) );
+      boundLogicalRoleNames.addAll( getBoundLogicalRoleNames( session, mapEntry.getKey(), mapEntry.getValue() ) );
     }
+
     if ( includeSuperAdminLogicalRoles ) {
-      boundRoleNames.addAll( immutableRoleBindingNames.get( superAdminRoleName ) );
+      boundLogicalRoleNames.addAll( immutableRoleBindingNames.get( superAdminRoleName ) );
     }
-    return new ArrayList<String>( boundRoleNames );
+
+    return new ArrayList<>( boundLogicalRoleNames );
   }
 
   @Override
@@ -199,9 +208,10 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
         uncachedRuntimeRoleNames.add( roleName );
       }
     }
+
     if ( uncachedRuntimeRoleNames.isEmpty() ) {
       // no need to hit the repo
-      return new ArrayList<String>( cachedBoundLogicalRoleNames );
+      return new ArrayList<>( cachedBoundLogicalRoleNames );
     }
 
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );

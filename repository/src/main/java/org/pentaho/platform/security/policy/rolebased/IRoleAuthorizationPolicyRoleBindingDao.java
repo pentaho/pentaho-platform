@@ -69,7 +69,7 @@ public interface IRoleAuthorizationPolicyRoleBindingDao {
   /**
    * Gets the logical roles bound to the given runtime roles. Note that the size of the incoming list might not
    * match the size of the returned list. This is a convenience method. The same result could be obtained from
-   * {@link #getRoleBindingStruct()}.
+   * {@link #getRoleBindingStruct(String)}.
    * 
    * @param runtimeRoleNames
    *          list of runtime role names
@@ -80,7 +80,7 @@ public interface IRoleAuthorizationPolicyRoleBindingDao {
   /**
    * Gets the logical roles bound to the given runtime roles in a particular tenant. Note that the size of the
    * incoming list might not match the size of the returned list. This is a convenience method. The same result
-   * could be obtained from {@link #getRoleBindingStruct()}.
+   * could be obtained from {@link #getRoleBindingStruct(ITenant, String)}.
    * 
    * @param tenant
    * @param runtimeRoleNames
@@ -94,7 +94,7 @@ public interface IRoleAuthorizationPolicyRoleBindingDao {
    *
    * Gets the logical roles bound to the given runtime roles. Note that the size of the incoming list might not
    * match the size of the returned list. This is a convenience method. The same result could be obtained from
-   * {@link #getRoleBindingStruct()}.
+   * {@link #getRoleBindingStruct(String)}.
    *
    * @param runtimeRoleNames
    *          list of runtime role names
@@ -107,7 +107,7 @@ public interface IRoleAuthorizationPolicyRoleBindingDao {
    *
    * Gets the logical roles bound to the given runtime roles in a particular tenant. Note that the size of the
    * incoming list might not match the size of the returned list. This is a convenience method. The same result
-   * could be obtained from {@link #getRoleBindingStruct()}.
+   * could be obtained from {@link #getRoleBindingStruct(ITenant, String)}.
    *
    * @param tenant
    * @param runtimeRoleNames
