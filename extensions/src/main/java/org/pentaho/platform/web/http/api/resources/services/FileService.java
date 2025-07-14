@@ -699,12 +699,10 @@ public class FileService {
       throw new FileNotFoundException();
     }
 
-    // check whitelist acceptance of file (based on extension)
-    if ( !getWhitelist().accept( repositoryFile.getName() ) ) {
-      // if whitelist check fails, we can still inline if you have PublishAction, otherwise we're FORBIDDEN
-      if ( !getPolicy().isAllowed( PublishAction.NAME ) ) {
-        throw new IllegalArgumentException();
-      }
+    // check whitelist acceptance of a file (based on extension). If whitelist check fails, we can still inline if
+    // you have PublishAction, otherwise we're FORBIDDEN
+    if ( !canGetFileContent( repositoryFile.getName() ) ) {
+      throw new IllegalArgumentException();
     }
 
     try {
@@ -818,12 +816,10 @@ public class FileService {
       throw new FileNotFoundException();
     }
 
-    // check whitelist acceptance of file (based on extension)
-    if ( !getWhitelist().accept( repoFile.getName() ) ) {
-      // if whitelist check fails, we can still inline if you have PublishAction, otherwise we're FORBIDDEN
-      if ( !getPolicy().isAllowed( PublishAction.NAME ) ) {
-        throw new IllegalArgumentException();
-      }
+    // check whitelist acceptance of a file (based on extension). If whitelist check fails, we can still inline if
+    // you have PublishAction, otherwise we're FORBIDDEN
+    if ( !canGetFileContent( repoFile.getName() ) ) {
+      throw new IllegalArgumentException();
     }
 
     final RepositoryFileInputStream is = getRepositoryFileInputStream( repoFile );
@@ -1071,6 +1067,35 @@ public class FileService {
    */
   public String doGetCanCreate() {
     return getPolicy().isAllowed( RepositoryCreateAction.NAME ) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+  }
+
+  /**
+   * Gets the permission for whether or not a user can publish files
+   *
+   * @return Boolean representing whether or not user can publish files
+   */
+  public boolean doGetCanPublish() {
+    return getPolicy().isAllowed( PublishAction.NAME );
+  }
+
+  /**
+   * Gets the permission for whether or not a user can download files based on a whitelist check
+   *
+   * @param filename The name of the file to check against the whitelist<
+   * @return Boolean representing whether or not a user can download files
+   */
+  public boolean canDownloadWithWhitelist( String filename ) {
+    return getWhitelist().accept( filename );
+  }
+
+  /**
+   * Gets the permission for whether or not a user can get the content of files
+   *
+   * @param filename The name of the file to check
+   * @return Boolean representing whether or not a user can get the content of files
+   */
+  public boolean canGetFileContent( String filename ) {
+    return canDownloadWithWhitelist( filename ) || doGetCanPublish();
   }
 
   /**
