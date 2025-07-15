@@ -31,7 +31,7 @@ public class GetCheckedoutDocsResponseTest {
     GetCheckedoutDocsResponse response = new GetCheckedoutDocsResponse();
     List<CmisObject> docList = Arrays.asList( new CmisObject[] { mock( CmisObject.class ), mock( CmisObject.class ), mock( CmisObject.class ) } );
     response.setDocs( docList );
-    Assert.notEmpty( response.getDocs(), "" );
+    Assert.notEmpty( response.getDocs(), "The document list must not be empty" );
   }
 
   @Test

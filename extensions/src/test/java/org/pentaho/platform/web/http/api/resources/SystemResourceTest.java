@@ -62,6 +62,6 @@ public class SystemResourceTest {
     } catch ( Exception e ) {
 
     }
-    Assert.notNull( resp, "" );
+    Assert.notNull( resp, "Response must not be null" );
   }
 }
