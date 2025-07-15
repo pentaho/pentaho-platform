@@ -134,7 +134,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
   }
 
   public void afterPropertiesSet() throws Exception {
-    Assert.notNull( extraRolesMapping, "" );
+    Assert.notNull( extraRolesMapping, "Extra roles mapping must not be null" );
   }
 
 }

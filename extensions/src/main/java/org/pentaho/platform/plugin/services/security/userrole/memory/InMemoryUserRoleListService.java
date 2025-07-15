@@ -127,12 +127,12 @@ public class InMemoryUserRoleListService implements IUserRoleListService, Initia
   }
 
   public void setRoleComparator( final Comparator<String> roleComparator ) {
-    Assert.notNull( roleComparator, "" );
+    Assert.notNull( roleComparator, "Role comparator must not be null" );
     this.roleComparator = roleComparator;
   }
 
   public void setUsernameComparator( final Comparator<String> usernameComparator ) {
-    Assert.notNull( usernameComparator, "" );
+    Assert.notNull( usernameComparator, "Username comparator must not be null" );
     this.usernameComparator = usernameComparator;
   }
 
