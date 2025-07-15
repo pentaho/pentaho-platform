@@ -90,10 +90,10 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
                                           final List<IAuthorizationAction> authorizationActions ) {
     this();
     // TODO: replace with IllegalArgumentException
-    Assert.notNull( immutableRoleBindings, "" );
-    Assert.notNull( bootstrapRoleBindings, "" );
-    Assert.notNull( superAdminRoleName, "" );
-    Assert.notNull( authorizationActions, "" );
+    Assert.notNull( immutableRoleBindings, "The immutable role bindings map must not be null. Ensure a valid map is provided." );
+    Assert.notNull( bootstrapRoleBindings, "The bootstrap role bindings map must not be null. Ensure a valid map is provided." );
+    Assert.notNull( superAdminRoleName, "The super admin role name must not be null. Ensure a valid role name is provided." );
+    Assert.notNull( authorizationActions, "The authorization actions list must not be null. Ensure a valid list is provided." );
 
     setAuthorizationActions( authorizationActions );
 
@@ -302,7 +302,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
           runtimeRoleName ) ); //$NON-NLS-1$
     }
     session.save();
-    Assert.isTrue( NodeHelper.hasNode( runtimeRolesFolderNode, phoNsPrefix, runtimeRoleName ), "" );
+    Assert.isTrue( NodeHelper.hasNode( runtimeRolesFolderNode, phoNsPrefix, runtimeRoleName ), "The runtime role node must exist after saving. Ensure the node was created successfully." );
 
     // update cache
     String roleId = tenantedRoleNameUtils.getPrincipleId( tenant, runtimeRoleName );

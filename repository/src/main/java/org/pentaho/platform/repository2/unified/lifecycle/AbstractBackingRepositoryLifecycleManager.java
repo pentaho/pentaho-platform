@@ -62,7 +62,7 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
 
   public AbstractBackingRepositoryLifecycleManager( final TransactionTemplate txnTemplate,
       final JcrTemplate adminJcrTemplate, final IPathConversionHelper pathConversionHelper ) {
-    Assert.notNull( txnTemplate, "" );
+    Assert.notNull( txnTemplate, "The transaction template must not be null. Ensure a valid transaction template is provided." );
     this.txnTemplate = txnTemplate;
     this.adminJcrTemplate = adminJcrTemplate;
     this.pathConversionHelper = pathConversionHelper;
