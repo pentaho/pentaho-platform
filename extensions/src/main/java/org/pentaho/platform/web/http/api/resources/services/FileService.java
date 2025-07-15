@@ -701,7 +701,7 @@ public class FileService {
 
     // check whitelist acceptance of a file (based on extension). If whitelist check fails, we can still inline if
     // you have PublishAction, otherwise we're FORBIDDEN
-    if ( !canGetFileContent( repositoryFile.getName() ) ) {
+    if ( !doGetCanGetFileContent( repositoryFile.getName() ) ) {
       throw new IllegalArgumentException();
     }
 
@@ -818,7 +818,7 @@ public class FileService {
 
     // check whitelist acceptance of a file (based on extension). If whitelist check fails, we can still inline if
     // you have PublishAction, otherwise we're FORBIDDEN
-    if ( !canGetFileContent( repoFile.getName() ) ) {
+    if ( !doGetCanGetFileContent( repoFile.getName() ) ) {
       throw new IllegalArgumentException();
     }
 
@@ -1084,7 +1084,7 @@ public class FileService {
    * @param filename The name of the file to check against the whitelist<
    * @return Boolean representing whether or not a user can download files
    */
-  public boolean canDownloadWithWhitelist( String filename ) {
+  public boolean doGetCanDownloadWithWhitelist( String filename ) {
     return getWhitelist().accept( filename );
   }
 
@@ -1094,8 +1094,8 @@ public class FileService {
    * @param filename The name of the file to check
    * @return Boolean representing whether or not a user can get the content of files
    */
-  public boolean canGetFileContent( String filename ) {
-    return canDownloadWithWhitelist( filename ) || doGetCanPublish();
+  public boolean doGetCanGetFileContent( String filename ) {
+    return doGetCanDownloadWithWhitelist( filename ) || doGetCanPublish();
   }
 
   /**
