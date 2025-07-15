@@ -45,7 +45,7 @@ class PentahoMetadataInformationMap {
   }
 
   public RepositoryFile getDomainFile( final String domainId ) {
-    Assert.notNull( domainId, "" );
+    Assert.notNull( domainId, "Domain ID must not be null" );
     final Map<String, RepositoryFile> details = getDetails( domainId, false );
     if ( details != null ) {
       return details.get( DOMAIN_ID_KEY );
