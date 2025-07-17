@@ -20,8 +20,8 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>

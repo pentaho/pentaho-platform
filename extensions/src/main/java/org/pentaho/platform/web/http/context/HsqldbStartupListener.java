@@ -19,9 +19,9 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.web.hsqldb.HsqlDatabaseStarterBean;
 import org.pentaho.platform.web.hsqldb.messages.Messages;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;

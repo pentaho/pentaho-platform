@@ -15,7 +15,7 @@ package org.pentaho.platform.web.servlet.matchers;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * The {@code WebBrowserSecFetchRequestMatcher} determines if a request is made by a web browser, based on the presence

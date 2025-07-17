@@ -19,7 +19,7 @@ import org.pentaho.platform.web.gwt.rpc.AbstractGwtRpc;
 import org.pentaho.platform.web.gwt.rpc.IGwtRpcSerializationPolicyCache;
 import org.pentaho.platform.web.gwt.rpc.SystemGwtRpc;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * This servlet is the traffic cop for GWT services core to the BIServer. See pentahoServices.spring.xml for bean

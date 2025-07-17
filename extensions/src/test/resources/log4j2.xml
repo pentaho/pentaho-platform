@@ -16,7 +16,7 @@
 		<Logger name="org.hibernate" level="error">
 			<appender-ref ref="PENTAHOCONSOLE" />
 		</Logger>
-		<Logger name="net.sf.ehcache" level="error">
+		<Logger name="org.ehcache" level="error">
 			<appender-ref ref="PENTAHOCONSOLE" />
 		</Logger>
 		<Logger name="org.quartz" level="error">

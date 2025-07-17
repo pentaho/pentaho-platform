@@ -24,14 +24,25 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>com.sun.mail</groupId>
-      <artifactId>javax.mail</artifactId>
-      <version>${mail.version}</version>
+      <groupId>jakarta.mail</groupId>
+      <artifactId>jakarta.mail-api</artifactId>
+      <version>${jakarta.mail.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
           <groupId>*</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.angus</groupId>
+      <artifactId>jakarta.mail</artifactId>
+      <version>${jakarta.mail-api.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -381,18 +392,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.hibernate.javax.persistence</groupId>
-      <artifactId>hibernate-jpa-2.1-api</artifactId>
-      <version>${hibernate-jpa-2.1-api.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr-complete</artifactId>
       <version>${antlr-complete.version}</version>
@@ -441,9 +440,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.transaction</groupId>
-      <artifactId>jta</artifactId>
-      <version>${jta.version}</version>
+      <groupId>jakarta.transaction</groupId>
+      <artifactId>jakarta.transaction-api</artifactId>
+      <version>${jakarta.transaction.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>

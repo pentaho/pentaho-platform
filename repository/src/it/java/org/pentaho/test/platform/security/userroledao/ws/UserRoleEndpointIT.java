@@ -19,9 +19,9 @@ import org.pentaho.platform.security.userroledao.ws.UserRoleSecurityInfo;
 import org.pentaho.platform.security.userroledao.ws.UserRoleWebService;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Endpoint;
-import javax.xml.ws.Service;
+import jakarta.xml.ws.BindingProvider;
+import jakarta.xml.ws.Endpoint;
+import jakarta.xml.ws.Service;
 import java.net.URL;
 
 /**

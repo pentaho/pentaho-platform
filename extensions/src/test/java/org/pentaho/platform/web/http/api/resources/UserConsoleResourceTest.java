@@ -18,7 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.web.http.api.resources.services.UserConsoleService;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;

@@ -21,8 +21,8 @@ import org.pentaho.platform.web.gwt.rpc.AbstractGwtRpc;
 import org.pentaho.platform.web.gwt.rpc.IGwtRpcSerializationPolicyCache;
 import org.pentaho.platform.web.servlet.GwtRpcProxyException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.HttpMethod;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.HttpMethod;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;

@@ -65,7 +65,7 @@ import org.pentaho.platform.web.http.api.resources.StringListWrapper;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
 import org.pentaho.platform.web.http.api.resources.utils.RepositoryFileHelper;
 
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.ws.rs.core.StreamingOutput;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;

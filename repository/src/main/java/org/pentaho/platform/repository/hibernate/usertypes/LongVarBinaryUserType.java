@@ -16,15 +16,15 @@ package org.pentaho.platform.repository.hibernate.usertypes;
 import java.sql.Types;
 
 public class LongVarBinaryUserType extends BinaryUserType {
-  private static final int[] SQLTYPE = { Types.LONGVARBINARY };
+  private static final int SQLTYPE = Types.LONGVARBINARY;
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.hibernate.usertype.UserType#sqlTypes()
+   * @see org.hibernate.usertype.UserType#getSqlType()
    */
   @Override
-  public int[] sqlTypes() {
+  public int getSqlType() {
     return LongVarBinaryUserType.SQLTYPE;
   }
 

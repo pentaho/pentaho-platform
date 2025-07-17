@@ -19,7 +19,7 @@ import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedReposi
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 import java.util.ArrayList;
 import java.util.List;
 

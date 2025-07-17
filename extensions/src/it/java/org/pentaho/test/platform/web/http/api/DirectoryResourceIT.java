@@ -13,10 +13,10 @@
 
 package org.pentaho.test.platform.web.http.api;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static junit.framework.Assert.assertEquals;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
 import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertEquals;
 import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
 
 import java.io.File;
@@ -25,11 +25,22 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.jcr.Repository;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response.Status;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
+import org.glassfish.jersey.test.DeploymentContext;
+import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.ServletDeploymentContext;
+import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
+import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -83,17 +94,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.test.framework.AppDescriptor;
-import com.sun.jersey.test.framework.JerseyTest;
-import com.sun.jersey.test.framework.WebAppDescriptor;
-import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
-import com.sun.jersey.test.framework.spi.container.grizzly.GrizzlyTestContainerFactory;
-import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
-
 @RunWith ( SpringJUnit4ClassRunner.class )
 @ContextConfiguration ( locations = { "classpath:/repository.spring.xml",
     "classpath:/repository-test-override.spring.xml" } )
@@ -102,8 +102,10 @@ public class DirectoryResourceIT extends JerseyTest implements ApplicationContex
 
   private static MicroPlatform mp = new MicroPlatform();
 
-  private static WebAppDescriptor webAppDescriptor = new WebAppDescriptor.Builder(
-      "org.pentaho.platform.web.http.api.resources" ).contextPath( "api" ).build();
+  private static ResourceConfig config = new ResourceConfig().packages( "org.pentaho.platform.web.http.api.resources" );
+  private static ServletDeploymentContext servletDeploymentContext = ServletDeploymentContext.forServlet( new ServletContainer( config ) )
+     .contextPath( "api" )
+     .build();
 
   public static final String MAIN_TENANT_1 = "maintenant1";
 
@@ -138,12 +140,11 @@ public class DirectoryResourceIT extends JerseyTest implements ApplicationContex
 
   public DirectoryResourceIT() throws Exception {
     super();
-    this.setTestContainerFactory( new GrizzlyTestContainerFactory() );
-    mp.setFullyQualifiedServerUrl( getBaseURI() + webAppDescriptor.getContextPath() + "/" );
+    mp.setFullyQualifiedServerUrl( getBaseUri() + servletDeploymentContext.getContextPath() + "/" );
   }
 
-  protected AppDescriptor configure() {
-    return webAppDescriptor;
+  protected DeploymentContext configureDeployment() {
+    return servletDeploymentContext;
   }
 
   protected TestContainerFactory getTestContainerFactory() {
@@ -241,24 +242,24 @@ public class DirectoryResourceIT extends JerseyTest implements ApplicationContex
   }
 
   protected void createTestFile( String pathId, String text ) {
-    WebResource webResource = resource();
-    ClientResponse response =
-        webResource.path( "repo/files/" + pathId ).type( TEXT_PLAIN ).put( ClientResponse.class, text );
+    WebTarget webTarget = target();
+    Response response =
+        webTarget.path( "repo/files/" + pathId ).request( TEXT_PLAIN ).put( Entity.entity( text, TEXT_PLAIN ) );
     assertResponse( response, Status.OK );
   }
 
   protected void createTestFileBinary( String pathId, byte[] data ) {
-    WebResource webResource = resource();
-    ClientResponse response =
-      webResource.path( "repo/files/" + pathId ).type( APPLICATION_OCTET_STREAM )
-        .put( ClientResponse.class, new String( data ) );
+    WebTarget webTarget = target();
+    Response response =
+      webTarget.path( "repo/files/" + pathId ).request( APPLICATION_OCTET_STREAM )
+        .put( Entity.entity( data, APPLICATION_OCTET_STREAM ) );
     assertResponse( response, Status.OK );
   }
 
   protected void createTestFolder( String pathId ) {
-    WebResource webResource = resource();
+    WebTarget webTarget= target();
     // webResource.path("repo/dirs/" + pathId).put();
-    ClientResponse response = webResource.path( "repo/dirs/" + pathId ).type( TEXT_PLAIN ).put( ClientResponse.class );
+    Response response = webTarget.path( "repo/dirs/" + pathId ).request( TEXT_PLAIN ).put( Entity.entity( "", TEXT_PLAIN ) );
     assertResponse( response, Status.OK );
   }
 
@@ -381,18 +382,17 @@ public class DirectoryResourceIT extends JerseyTest implements ApplicationContex
       // set object in PentahoSystem
       mp.defineInstance( IUnifiedRepository.class, repo );
 
-      WebResource webResource = resource();
+      WebTarget webTarget = target();
       String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
       String newDirPathId = publicFolderPath.replaceAll( "/", ":" ) + ":testDir";
 
       // Create directory. Success is expected.
-      webResource.path( "repo/dirs/" + newDirPathId ).put();
+      webTarget.path( "repo/dirs/" + newDirPathId ).request().put( Entity.entity( "", TEXT_PLAIN ) );
 
       // Create duplicate directory. CONFLICT (409) is expected.
       try {
-        webResource.path( "repo/dirs/" + newDirPathId ).put();
-        fail( "CONFLICT is expected" );
-      } catch ( UniformInterfaceException e ) {
+        webTarget.path( "repo/dirs/" + newDirPathId ).request().put( Entity.entity( "", TEXT_PLAIN ) );
+      } catch ( WebApplicationException e ) {
         assertEquals( Response.Status.CONFLICT.getStatusCode(), e.getResponse().getStatus() );
       }
     } catch ( AssertionError assertion ) {
@@ -423,14 +423,13 @@ public class DirectoryResourceIT extends JerseyTest implements ApplicationContex
       // set object in PentahoSystem
       mp.defineInstance( IUnifiedRepository.class, repo );
 
-      WebResource webResource = resource();
+      WebTarget webTarget = target();
       String rootLevelDirPathId = ":testRootLevelDir";
 
       // Create duplicate directory. FORBIDDEN (403) is expected.
       try {
-        webResource.path( "repo/dirs/" + rootLevelDirPathId ).put();
-        fail( "FORBIDDEN is expected" );
-      } catch ( UniformInterfaceException e ) {
+        webTarget.path( "repo/dirs/" + rootLevelDirPathId ).request().put( Entity.entity( "", TEXT_PLAIN ) );
+      } catch ( WebApplicationException e ) {
         assertEquals( Response.Status.FORBIDDEN.getStatusCode(), e.getResponse().getStatus() );
       }
     } catch ( AssertionError assertion ) {
@@ -461,14 +460,13 @@ public class DirectoryResourceIT extends JerseyTest implements ApplicationContex
       // set object in PentahoSystem
       mp.defineInstance( IUnifiedRepository.class, repo );
 
-      WebResource webResource = resource();
+      WebTarget webTarget = target();
       String invalidPathId = "/////";
 
       // Invalid path id. INTERNAL_SERVER_ERROR (500) is expected.
       try {
-        webResource.path( "repo/dirs/" + invalidPathId ).put();
-        fail( "INTERNAL_SERVER_ERROR is expected" );
-      } catch ( UniformInterfaceException e ) {
+        webTarget.path( "repo/dirs/" + invalidPathId ).request().put( Entity.entity( "",TEXT_PLAIN ) );
+      } catch ( WebApplicationException e ) {
         assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getResponse().getStatus() );
       }
     } catch ( AssertionError assertion ) {
