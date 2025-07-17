@@ -118,9 +118,9 @@ public class FilePerspectiveResourceIT extends JerseyTest {
   }
 
   protected void createTestFile( String path, String text ) {
-    WebTarget webResource = target();
+    WebTarget webTarget = target();
     Response postResponse =
-        webResource.path( path ).request( MediaType.TEXT_PLAIN ).put( Entity.entity( text, MediaType.TEXT_PLAIN ) );
+        webTarget.path( path ).request( MediaType.TEXT_PLAIN ).put( Entity.entity( text, MediaType.TEXT_PLAIN ) );
     assertEquals( Response.Status.OK, postResponse.getStatus() );
   }
 

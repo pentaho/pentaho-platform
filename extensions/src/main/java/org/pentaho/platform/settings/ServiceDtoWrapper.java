@@ -16,19 +16,20 @@ import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+
 import java.util.List;
 
 @XmlRootElement( name = "serviceDtoes" )
 @XmlAccessorType( XmlAccessType.FIELD )
 public class ServiceDtoWrapper {
 
-    @XmlElement( name = "Service" )
-    private List<ServiceDto> serviceDtoes;
+  @XmlElement( name = "Service" )
+  private List<ServiceDto> serviceDtoes;
 
-    public ServiceDtoWrapper() {
-    }
+  public ServiceDtoWrapper() {
+  }
 
-    public ServiceDtoWrapper( List<ServiceDto> serviceDtoes ) {
-        this.serviceDtoes = serviceDtoes;
-    }
+  public ServiceDtoWrapper( List<ServiceDto> serviceDtoes ) {
+    this.serviceDtoes = serviceDtoes;
+  }
 }

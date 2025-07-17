@@ -19,6 +19,7 @@ public class TimeZoneEntry {
 
   String key;
   String value;
+
   public TimeZoneEntry() {
   }
 
@@ -30,12 +31,15 @@ public class TimeZoneEntry {
   public void setKey( String key ) {
     this.key = key;
   }
+
   public String getKey() {
     return key;
   }
+
   public void setValue( String value ) {
     this.value = value;
   }
+
   public String getValue() {
     return value;
   }
