@@ -122,8 +122,8 @@ public class JAXRSServlet extends ServletContainer {
     if ( logger.isDebugEnabled() ) {
       MessageBodyWorkers messageBodyWorkers = provider.get();
       Map<MediaType, List<MessageBodyWriter>> writers = messageBodyWorkers == null ? null
-              : messageBodyWorkers.getWriters( MediaType.WILDCARD_TYPE );
-      logger.debug( "Writers: " + writers );
+        : messageBodyWorkers.getWriters( MediaType.WILDCARD_TYPE );
+      logger.debug( "Writers: " + writers ); //$NON-NLS-1$
     }
   }
 

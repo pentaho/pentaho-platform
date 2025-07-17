@@ -24,24 +24,24 @@ public class SpringBinding implements BeanNameAware {
   public SpringBinding() {
   }
 
-  public void setBeanName(String name) {
+  public void setBeanName( String name ) {
     this.beanName = name;
   }
 
-  public void create(ServletAdapterList owner) {
+  public void create( ServletAdapterList owner ) {
     String name = this.beanName;
-    if (name == null) {
+    if ( name == null ) {
       name = this.urlPattern;
     }
 
-    owner.createAdapter(name, this.urlPattern, this.endpoint);
+    owner.createAdapter( name, this.urlPattern, this.endpoint );
   }
 
-  public void setUrl(String urlPattern) {
+  public void setUrl( String urlPattern ) {
     this.urlPattern = urlPattern;
   }
 
-  public void setService(WSEndpoint<?> endpoint) {
+  public void setService( WSEndpoint<?> endpoint ) {
     this.endpoint = endpoint;
   }
 }

@@ -273,9 +273,9 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
   }
 
   protected void createTestFolder( String pathId ) {
-    WebTarget webResource = target();
+    WebTarget webTarget = target();
     // webResource.path("repo/dirs/" + pathId).put();
-    Response response = webResource.path( "repo/dirs/" + pathId ).request( TEXT_PLAIN ).put( Entity.entity( "", TEXT_PLAIN ) );
+    Response response = webTarget.path( "repo/dirs/" + pathId ).request( TEXT_PLAIN ).put( Entity.entity( "", TEXT_PLAIN ) );
     assertResponse( response, Response.Status.OK );
   }
 
@@ -652,8 +652,8 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
   @Test
   public void testUserWorkspace() {
     PentahoSessionHolder.setSession( new StandaloneSession( "jerry" ) );
-    WebTarget webResource = target();
-    String userWorkspaceDir = webResource.path( "session/userWorkspaceDir" ).request( TEXT_PLAIN ).get( String.class );
+    WebTarget webTarget = target();
+    String userWorkspaceDir = webTarget.path( "session/userWorkspaceDir" ).request( TEXT_PLAIN ).get( String.class );
     assertTrue( userWorkspaceDir != null );
     assertTrue( userWorkspaceDir.length() > 0 );
   }

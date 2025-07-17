@@ -157,8 +157,9 @@
       </exclusions>
     </dependency>
     <!--
-     Dependency for Apache Santuario XML Security.
-     This library provides security functionality for XML.
+      The xmlsec library is added as a compile-time dependency because the webservices-rt artifact internally uses xmlsec for XML security operations
+      such as signing, encryption, or validation. This ensures that the required classes and methods provided by xmlsec are available during the
+     compilation phase and avoids runtime errors like java.lang.ClassNotFoundException: org.apache.xml.security.exceptions.Base64DecodingException.
     -->
     <dependency>
       <groupId>org.apache.santuario</groupId>

@@ -1,55 +1,49 @@
-/*!
+/*! ******************************************************************************
  *
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
- * Foundation.
+ * Pentaho
  *
- * You should have received a copy of the GNU Lesser General Public License along with this
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
- * or from the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * Copyright (C) 2025 by Hitachi Vantara, LLC : http://www.pentaho.com
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
+ * Use of this software is governed by the Business Source License included
+ * in the LICENSE.TXT file.
  *
- *
- * Copyright (c) 2024 Hitachi Vantara. All rights reserved.
- *
- */
+ * Change Date: 2029-07-20
+ ******************************************************************************/
 
 package org.pentaho.platform.api.repository2.unified.webservices;
 
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+
 import java.util.List;
+
 import jakarta.xml.bind.annotation.XmlAccessType;
 
 @XmlRootElement( name = "repositoryFileDtoes" )
 @XmlAccessorType( XmlAccessType.FIELD )
 public class RepositoryFileDtoWrapper {
 
-    @XmlElement( name = "repositoryFileDto" )
-    private List<RepositoryFileDto> repositoryFileDto;
+  @XmlElement( name = "repositoryFileDto" )
+  private List<RepositoryFileDto> repositoryFileDto;
 
-    public RepositoryFileDtoWrapper() {
+  public RepositoryFileDtoWrapper() {
+  }
+
+  public RepositoryFileDtoWrapper( List<RepositoryFileDto> repositoryFileDto ) {
+    setRepositoryFileDto( repositoryFileDto );
+  }
+
+  public List<RepositoryFileDto> getRepositoryFileDto() {
+    return repositoryFileDto;
+  }
+
+  public void setRepositoryFileDto( List<RepositoryFileDto> repositoryFileDto ) {
+    // If the list is empty, set it to null to support old API responses
+    if ( repositoryFileDto != null && repositoryFileDto.isEmpty() ) {
+      repositoryFileDto = null;
     }
 
-    public RepositoryFileDtoWrapper( List<RepositoryFileDto> repositoryFileDto ) {
-        setRepositoryFileDto( repositoryFileDto );
-    }
-
-    public List<RepositoryFileDto> getRepositoryFileDto() {
-        return repositoryFileDto;
-    }
-
-    public void setRepositoryFileDto( List<RepositoryFileDto> repositoryFileDto ) {
-        // If the list is empty, set it to null to support old API responses
-        if ( repositoryFileDto != null && repositoryFileDto.isEmpty() ) {
-            repositoryFileDto = null;
-        }
-
-        this.repositoryFileDto = repositoryFileDto;
-    }
+    this.repositoryFileDto = repositoryFileDto;
+  }
 }

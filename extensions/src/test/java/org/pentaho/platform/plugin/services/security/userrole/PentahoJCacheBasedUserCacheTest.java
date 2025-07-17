@@ -23,10 +23,8 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.spi.CachingProvider;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
@@ -38,7 +36,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
 public class PentahoJCacheBasedUserCacheTest {
-
   private Cache jcache;
   private PentahoJCacheBasedUserCache userCache;
 
@@ -49,6 +46,7 @@ public class PentahoJCacheBasedUserCacheTest {
 
   @Before
   public void setUp() {
+
     jcache = mock( Cache.class );
     CachingProvider provider = mock( CachingProvider.class );
     CacheManager cacheManager = mock( CacheManager.class );

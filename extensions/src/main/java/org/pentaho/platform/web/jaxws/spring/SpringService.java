@@ -78,179 +78,179 @@ public class SpringService implements FactoryBean, ServletContextAware, Initiali
 
   private ServletContext servletContext;
 
-  public void setServletContext(ServletContext servletContext) {
+  public void setServletContext( ServletContext servletContext ) {
     this.servletContext = servletContext;
   }
 
-  public void setImpl(Class implType) {
+  public void setImpl( Class implType ) {
     this.implType = implType;
   }
 
-  public void setBean(Object sei) {
-    this.invoker = InstanceResolver.createSingleton(sei).createInvoker();
-    if (this.implType == null)
+  public void setBean( Object sei ) {
+    this.invoker = InstanceResolver.createSingleton( sei ).createInvoker();
+    if ( this.implType == null )
       this.implType = sei.getClass();
   }
 
-  public void setInvoker(Invoker invoker) {
+  public void setInvoker( Invoker invoker ) {
     this.invoker = invoker;
   }
 
-  public void setAssembler(Object assembler) {
-    if (assembler instanceof TubelineAssembler || assembler instanceof TubelineAssemblerFactory)
+  public void setAssembler( Object assembler ) {
+    if ( assembler instanceof TubelineAssembler || assembler instanceof TubelineAssemblerFactory )
       this.assembler = assembler;
     else
-      throw new IllegalArgumentException("Invalid type for assembler " + assembler);
+      throw new IllegalArgumentException( "Invalid type for assembler " + assembler );
   }
 
-  public void setServiceName(QName serviceName) {
+  public void setServiceName( QName serviceName ) {
     this.serviceName = serviceName;
   }
 
-  public void setPortName(QName portName) {
+  public void setPortName( QName portName ) {
     this.portName = portName;
   }
 
-  public void setContainer(Container container) {
+  public void setContainer( Container container ) {
     this.container = container;
   }
 
-  public void setBinding(WSBinding binding) {
+  public void setBinding( WSBinding binding ) {
     this.binding = binding;
   }
 
-  public void setBindingID(String id) {
-    this.bindingID = BindingID.parse(id);
+  public void setBindingID( String id ) {
+    this.bindingID = BindingID.parse( id );
   }
 
-  public void setFeatures(List<WebServiceFeature> features) {
+  public void setFeatures( List<WebServiceFeature> features ) {
     this.features = features;
   }
 
-  public void setHandlers(List<Handler> handlers) {
+  public void setHandlers( List<Handler> handlers ) {
     this.handlers = handlers;
   }
 
-  public void setPrimaryWsdl(Object primaryWsdl) throws IOException {
+  public void setPrimaryWsdl( Object primaryWsdl ) throws IOException {
     this.primaryWSDLResource = primaryWsdl;
   }
 
-  public void setMetadata(Collection<Object> metadata) {
+  public void setMetadata( Collection<Object> metadata ) {
     this.metadataResources = metadata;
   }
 
-  public void setResolver(EntityResolver resolver) {
+  public void setResolver( EntityResolver resolver ) {
     this.resolver = resolver;
   }
 
   private WSEndpoint<?> endpoint;
 
   public WSEndpoint getObject() throws Exception {
-    if (endpoint == null) {
-      if (binding == null) {
-        if (bindingID == null)
-          bindingID = BindingID.parse(implType);
-        if (features == null || features.isEmpty())
-          binding = BindingImpl.create(bindingID);
+    if ( endpoint == null ) {
+      if ( binding == null ) {
+        if ( bindingID == null )
+          bindingID = BindingID.parse( implType );
+        if ( features == null || features.isEmpty() )
+          binding = BindingImpl.create( bindingID );
         else
-          binding = BindingImpl.create(bindingID,
-            features.toArray(new WebServiceFeature[features.size()]));
+          binding = BindingImpl.create( bindingID,
+            features.toArray( new WebServiceFeature[ features.size() ] ) );
       } else {
-        if (bindingID != null)
-          throw new IllegalStateException("Both bindingID and binding are configured");
-        if (features != null)
-          throw new IllegalStateException("Both features and binding are configured");
+        if ( bindingID != null )
+          throw new IllegalStateException( "Both bindingID and binding are configured" );
+        if ( features != null )
+          throw new IllegalStateException( "Both features and binding are configured" );
       }
 
-      if (handlers != null) {
+      if ( handlers != null ) {
         List<Handler> chain = binding.getHandlerChain();
-        chain.addAll(handlers);
-        binding.setHandlerChain(chain);
+        chain.addAll( handlers );
+        binding.setHandlerChain( chain );
       }
 
-      if (primaryWsdl == null) {
-        EndpointFactory.verifyImplementorClass(implType);
-        String wsdlLocation = EndpointFactory.getWsdlLocation(implType);
-        if (wsdlLocation != null)
-          primaryWsdl = convertStringToSource(wsdlLocation);
+      if ( primaryWsdl == null ) {
+        EndpointFactory.verifyImplementorClass( implType );
+        String wsdlLocation = EndpointFactory.getWsdlLocation( implType );
+        if ( wsdlLocation != null )
+          primaryWsdl = convertStringToSource( wsdlLocation );
       }
 
       EntityResolver resolver = this.resolver;
-      if (resolver == null) {
-        if (servletContext != null) {
-          resolver = XmlUtil.createEntityResolver(servletContext.getResource("/WEB-INF/jax-ws-catalog.xml"));
+      if ( resolver == null ) {
+        if ( servletContext != null ) {
+          resolver = XmlUtil.createEntityResolver( servletContext.getResource( "/WEB-INF/jax-ws-catalog.xml" ) );
         } else {
-          resolver = XmlUtil.createEntityResolver(getClass().getClassLoader().getResource("/META-INF/jax-ws-catalog.xml"));
+          resolver = XmlUtil.createEntityResolver( getClass().getClassLoader().getResource( "/META-INF/jax-ws-catalog.xml" ) );
         }
       }
 
-      endpoint = WSEndpoint.create(implType, false, invoker, serviceName,
-        portName, new ContainerWrapper(), binding, primaryWsdl, metadata, resolver, true);
+      endpoint = WSEndpoint.create( implType, false, invoker, serviceName,
+        portName, new ContainerWrapper(), binding, primaryWsdl, metadata, resolver, true );
     }
     return endpoint;
   }
 
   public void afterPropertiesSet() throws Exception {
-    if (this.primaryWSDLResource != null) {
-      this.primaryWsdl = this.resolveSDDocumentSource(this.primaryWSDLResource);
+    if ( this.primaryWSDLResource != null ) {
+      this.primaryWsdl = this.resolveSDDocumentSource( this.primaryWSDLResource );
     }
 
-    if (this.metadataResources != null) {
+    if ( this.metadataResources != null ) {
       List<SDDocumentSource> tempList =
-        new ArrayList<SDDocumentSource>(this.metadataResources.size());
+        new ArrayList<SDDocumentSource>( this.metadataResources.size() );
 
-      for (Object resource : this.metadataResources) {
-        tempList.add(this.resolveSDDocumentSource(resource));
+      for ( Object resource : this.metadataResources ) {
+        tempList.add( this.resolveSDDocumentSource( resource ) );
       }
 
       this.metadata = tempList;
     }
   }
 
-  private SDDocumentSource resolveSDDocumentSource(Object resource) {
+  private SDDocumentSource resolveSDDocumentSource( Object resource ) {
     SDDocumentSource source;
 
-    if (resource instanceof String) {
-      source = this.convertStringToSource((String) resource);
-    } else if (resource instanceof URL) {
-      source = SDDocumentSource.create((URL) resource);
-    } else if (resource instanceof SDDocumentSource) {
-      source = (SDDocumentSource) resource;
+    if ( resource instanceof String ) {
+      source = this.convertStringToSource( ( String ) resource );
+    } else if ( resource instanceof URL ) {
+      source = SDDocumentSource.create( ( URL ) resource );
+    } else if ( resource instanceof SDDocumentSource) {
+      source = ( SDDocumentSource ) resource;
     } else {
-      throw new IllegalArgumentException("Unknown type " + resource);
+      throw new IllegalArgumentException( "Unknown type " + resource );
     }
 
     return source;
   }
 
-  private SDDocumentSource convertStringToSource(String resourceLocation) {
+  private SDDocumentSource convertStringToSource( String resourceLocation ) {
     URL url = null;
 
-    if (servletContext != null) {
+    if ( servletContext != null ) {
       try {
-        url = servletContext.getResource(resourceLocation);
-      } catch (MalformedURLException e) {
+        url = servletContext.getResource( resourceLocation );
+      } catch ( MalformedURLException e ) {
 
       }
     }
 
-    if (url == null) {
+    if ( url == null ) {
       ClassLoader cl = implType.getClassLoader();
-      url = cl.getResource(resourceLocation);
+      url = cl.getResource( resourceLocation );
     }
 
     if (url == null) {
       try {
-        url = new URL(resourceLocation);
-      } catch (MalformedURLException e) {
+        url = new URL( resourceLocation );
+      } catch ( MalformedURLException e ) {
       }
     }
 
-    if (url == null) {
-      throw new ServerRtException("cannot.load.wsdl", resourceLocation);
+    if ( url == null ) {
+      throw new ServerRtException( "cannot.load.wsdl", resourceLocation );
     }
 
-    return SDDocumentSource.create(url);
+    return SDDocumentSource.create( url );
   }
 
   public boolean isSingleton() {
@@ -263,30 +263,30 @@ public class SpringService implements FactoryBean, ServletContextAware, Initiali
 
   private class ContainerWrapper extends Container {
 
-    public <T> T getSPI(Class<T> spiType) {
+    public <T> T getSPI( Class<T> spiType ) {
       // allow specified TubelineAssembler to be used
-      if (spiType == TubelineAssemblerFactory.class) {
-        if (assembler instanceof TubelineAssemblerFactory)
-          return spiType.cast(assembler);
-        if (assembler instanceof TubelineAssembler) {
-          return spiType.cast(new TubelineAssemblerFactory() {
-            public TubelineAssembler doCreate(BindingID bindingId) {
-              return (TubelineAssembler) assembler;
+      if ( spiType == TubelineAssemblerFactory.class ) {
+        if ( assembler instanceof TubelineAssemblerFactory )
+          return spiType.cast( assembler );
+        if ( assembler instanceof TubelineAssembler ) {
+          return spiType.cast( new TubelineAssemblerFactory() {
+            public TubelineAssembler doCreate( BindingID bindingId ) {
+              return ( TubelineAssembler ) assembler;
             }
           });
         }
       }
-      if (spiType == ServletContext.class) {
-        return spiType.cast(servletContext);
+      if ( spiType == ServletContext.class ) {
+        return spiType.cast( servletContext );
       }
-      if (container != null) {
-        T t = container.getSPI(spiType);
-        if (t != null)
+      if ( container != null ) {
+        T t = container.getSPI( spiType );
+        if ( t != null )
           return t;
       }
 
-      if (spiType == Module.class) {
-        return spiType.cast(module);
+      if ( spiType == Module.class ) {
+        return spiType.cast( module );
       }
 
       return null;
