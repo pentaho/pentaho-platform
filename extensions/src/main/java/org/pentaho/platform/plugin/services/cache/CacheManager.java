@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024-2025 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -157,7 +157,7 @@ public class CacheManager implements ICacheManager {
       System.setProperty( "java.io.tmpdir", s + "/" ); //$NON-NLS-1$//$NON-NLS-2$
     }
     if ( settings != null ) {
-      regionFactoryClassname = settings.getSystemSetting( "cache-provider/class", null );
+      regionFactoryClassname = settings.getSystemSetting( "cache-provider/class", null ); //$NON-NLS-1$
       if ( regionFactoryClassname != null ) {
         Properties cacheProperties = getCacheProperties( settings );
         setupRegionProvider( cacheProperties );
@@ -169,7 +169,7 @@ public class CacheManager implements ICacheManager {
   }
 
   protected void setupRegionProvider( Properties cacheProperties ) {
-    Object obj = PentahoSystem.createObject( regionFactoryClassname );
+    Object obj = PentahoSystem.createObject( regionFactoryClassname );  //Should be an HvCacheRegionFactory
     cacheExpirationRegistry = PentahoSystem.get( ICacheExpirationRegistry.class );
 
     if ( null != obj ) {
@@ -230,11 +230,11 @@ public class CacheManager implements ICacheManager {
     List propertySettings = settings.getSystemSettings( "cache-provider/properties/*" ); //$NON-NLS-1$
     for (Object obj : propertySettings) {
       Element someProperty = (Element) obj;
-      String propertyName = XmlDom4JHelper.getNodeText("@name", someProperty, null); //$NON-NLS-1$
-      if (propertyName != null) {
+      String propertyName = XmlDom4JHelper.getNodeText( "@name", someProperty, null ); //$NON-NLS-1$
+      if ( propertyName != null ) {
         String propertyValue = someProperty.getTextTrim();
-        if (propertyValue != null) {
-          cacheProperties.put(propertyName, propertyValue);
+        if ( propertyValue != null ) {
+          cacheProperties.put( propertyName, propertyValue );
         }
       }
     }
@@ -334,7 +334,7 @@ public class CacheManager implements ICacheManager {
       if ( key == null || value == null ) {
         return;
       }
-      HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
+      HvCache hvcache = ( HvCache ) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
       hvcache.getDirectAccessRegion().putIntoCache( key, value, null );
     }
   }
@@ -351,7 +351,7 @@ public class CacheManager implements ICacheManager {
     List<Object> list = new ArrayList<>();
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
-      javax.cache.Cache<Object, Object> cache = ( (JCacheAccessImpl) hvcache.getStorageAccess() ).getUnderlyingCache();
+      javax.cache.Cache<Object, Object> cache = ( ( JCacheAccessImpl ) hvcache.getStorageAccess() ).getUnderlyingCache();
       cache.forEach( entry -> list.add( entry.getValue() ) );
     }
     return list;
@@ -379,7 +379,7 @@ public class CacheManager implements ICacheManager {
   public void removeFromRegionCache( String region, Object key ) {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );
-      hvcache.evictEntityData( (String) key );
+      hvcache.evictEntityData( ( String ) key );
     } else {
       CacheManager.logger.warn( Messages.getInstance().getString(
         "CacheManager.WARN_0003_REGION_DOES_NOT_EXIST", region ) ); //$NON-NLS-1$
@@ -460,7 +460,7 @@ public class CacheManager implements ICacheManager {
 
   private LastModifiedCache buildCache( String key, SessionFactory sessionFactory, Properties cacheProperties ) {
     if ( getRegionFactory() != null ) {
-      TimestampsRegion timestampsRegion = getRegionFactory().buildTimestampsRegion( key, (SessionFactoryImplementor) sessionFactory );
+      TimestampsRegion timestampsRegion = getRegionFactory().buildTimestampsRegion( key, ( SessionFactoryImplementor ) sessionFactory );
       LastModifiedCache lmCache = new LastModifiedCache( timestampsRegion, sessionFactory );
       if ( cacheExpirationRegistry != null ) {
         cacheExpirationRegistry.register( lmCache );

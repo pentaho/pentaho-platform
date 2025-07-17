@@ -249,9 +249,9 @@ public class DirectoryResourceIT extends JerseyTest implements ApplicationContex
   }
 
   protected void createTestFileBinary( String pathId, byte[] data ) {
-    WebTarget webResource = target();
+    WebTarget webTarget = target();
     Response response =
-      webResource.path( "repo/files/" + pathId ).request( APPLICATION_OCTET_STREAM )
+      webTarget.path( "repo/files/" + pathId ).request( APPLICATION_OCTET_STREAM )
         .put( Entity.entity( data, APPLICATION_OCTET_STREAM ) );
     assertResponse( response, Status.OK );
   }

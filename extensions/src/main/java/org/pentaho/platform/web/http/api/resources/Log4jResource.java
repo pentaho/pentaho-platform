@@ -69,7 +69,7 @@ public class Log4jResource {
     } )
   @Produces( { MediaType.TEXT_PLAIN } )
   @Consumes( MediaType.APPLICATION_FORM_URLENCODED )
-  public Response updateLogLevel(@FormParam(  "level" ) String targetLevel, @FormParam( "category" ) String category ) {
+  public Response updateLogLevel( @FormParam(  "level" ) String targetLevel, @FormParam( "category" ) String category ) throws Exception {
     LogUtil.setLevel(LOGGER, Level.INFO);
     if ( StringUtils.isBlank( targetLevel ) && StringUtils.isBlank( category ) ) {
       return Response.notModified( "No parameter provided, log level not modified." ).build();
@@ -95,7 +95,9 @@ public class Log4jResource {
 
       LoggerContext logContext = (LoggerContext) LogManager.getContext(false);
       Collection<org.apache.logging.log4j.core.Logger> allLoggers = logContext.getLoggers();
-      allLoggers.forEach(logger -> LogUtil.setLevel(logger, Level.toLevel( targetLevel, root.getLevel() )));
+      allLoggers.forEach(logger -> {
+        LogUtil.setLevel(logger, Level.toLevel( targetLevel, root.getLevel() ));
+      });
     }
 
     return Response.ok( "Log level updated." ).build();

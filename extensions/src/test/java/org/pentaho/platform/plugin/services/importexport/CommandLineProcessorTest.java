@@ -10,6 +10,7 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
+
 package org.pentaho.platform.plugin.services.importexport;
 
 import java.io.ByteArrayOutputStream;
@@ -29,8 +30,14 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.reflect.FieldUtils;
-import org.junit.*;
 import org.junit.runners.MethodSorters;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.FixMethodOrder;
+
 import org.mockito.MockedStatic;
 import org.pentaho.platform.engine.core.output.MultiOutputStream;
 import org.pentaho.platform.plugin.services.importexport.CommandLineProcessor.RequestType;
@@ -158,9 +165,9 @@ public class CommandLineProcessorTest extends Assert {
 
     try ( MockedStatic<ClientBuilder> clientMock = mockStatic( ClientBuilder.class ) ) {
       Client mockClient = mock( Client.class );
-      WebTarget mockWebResource = mock( WebTarget.class );
-      when( mockWebResource.request( any( MediaType.class ) ) ).thenThrow( new RuntimeException( exception ) );
-      when( mockClient.target( nullable( String.class ) ) ).thenReturn( mockWebResource );
+      WebTarget mockWebTarget = mock( WebTarget.class );
+      when( mockWebTarget.request( any( MediaType.class ) ) ).thenThrow( new RuntimeException( exception ) );
+      when( mockClient.target( nullable( String.class ) ) ).thenReturn( mockWebTarget );
       clientMock.when( () -> ClientBuilder.newClient( any() ) ).thenReturn( mockClient );
 
       File file = File.createTempFile( "CommandLineProcessorTest", ".log" );
