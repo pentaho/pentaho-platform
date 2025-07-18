@@ -13,9 +13,11 @@
 package org.pentaho.platform.api.engine.security.authorization;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -39,6 +41,48 @@ public interface IAuthorizationActionService {
    */
   @NonNull
   Stream<IAuthorizationAction> getActions();
+
+  // TODO: tests
+  /**
+   * Gets a stream of authorization actions whose namespace is contained or equal to a given action namespace.
+   *
+   * @param actionNamespace The namespace of the actions to filter by. If {@code null} or empty, all actions are
+   *                        returned.
+   * @return A stream of {@link IAuthorizationAction} that match the specified namespace.
+   */
+  @NonNull
+  default Stream<IAuthorizationAction> getActions( @Nullable String actionNamespace ) {
+    if ( StringUtils.isEmpty( actionNamespace ) ) {
+      return getActions();
+    }
+
+    String actionNamespacePrefix = actionNamespace.endsWith( "." ) ? actionNamespace : ( actionNamespace + "." );
+
+    return getActions()
+      .filter( action -> action.getName().startsWith( actionNamespacePrefix ) );
+  }
+
+  // TODO: tests
+  /**
+   * Gets an authorization action given its name.
+   * <p>
+   * The default implementation of this method finds the action in the stream returned by {@link #getActions()}.
+   * Implementations may override this method to provide a more efficient lookup.
+   *
+   * @param actionName The name of the authorization action.
+   * @return An optional of {@link IAuthorizationAction}.
+   * @throws IllegalArgumentException if the action name is {@code null} or empty.
+   */
+  @NonNull
+  default Optional<IAuthorizationAction> getAction( @NonNull String actionName ) {
+    if ( StringUtils.isEmpty( actionName ) ) {
+      throw new IllegalArgumentException( "Argument `actionName` cannot be null or empty." );
+    }
+
+    return getActions()
+      .filter( action -> action.getName().equals( actionName ) )
+      .findFirst();
+  }
 
   // region System and Plugin Actions
   /**
