@@ -624,22 +624,21 @@ public class FileService {
 
   public DownloadFileWrapper doGetFileOrDirAsDownload( String userAgent, String pathId, String strWithManifest )
       throws Throwable {
-    // change file id to path
-    String path = idToPath( pathId );
-    validateDownloadAccess( path );
-    IAuthorizationPolicy policy = getPolicy();
-
-    String originalFileName, encodedFileName = null;
 
     // if no path is sent, return bad request
     if ( StringUtils.isEmpty( pathId ) ) {
       throw new InvalidParameterException( pathId );
     }
 
+    // change file id to path
+    String path = idToPath( pathId );
+
     // check if path is valid
     if ( !isPathValid( path ) ) {
       throw new IllegalSelectorException();
     }
+
+    validateDownloadAccess( path );
 
     // check if entity exists in repo
     RepositoryFile repositoryFile = getRepository().getFile( path );
@@ -653,8 +652,8 @@ public class FileService {
     boolean withManifest = "false".equals( strWithManifest ) ? false : true;
     boolean requiresZip = repositoryFile.isFolder() || withManifest;
     BaseExportProcessor exportProcessor = getDownloadExportProcessor( path, requiresZip, withManifest );
-    originalFileName = requiresZip ? repositoryFile.getName() + ".zip" : repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
-    encodedFileName = makeEncodedFileName( originalFileName );
+    String originalFileName = requiresZip ? repositoryFile.getName() + ".zip" : repositoryFile.getName();
+    String encodedFileName = makeEncodedFileName( originalFileName );
 
     // add export handlers for each expected file type
     exportProcessor.addExportHandler( getDownloadExportHandler() );
