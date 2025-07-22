@@ -14,6 +14,7 @@ package org.pentaho.platform.engine.security.authorization.core.decisions;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRole;
 import org.pentaho.platform.engine.security.messages.Messages;
 
 import java.text.MessageFormat;
@@ -28,18 +29,18 @@ public class MatchedRoleAuthorizationDecision extends AbstractAuthorizationDecis
     Messages.getInstance().getString( "MatchedRoleAuthorizationDecision.JUSTIFICATION" );
 
   @NonNull
-  private final String role;
+  private final IAuthorizationRole role;
 
   public MatchedRoleAuthorizationDecision( @NonNull IAuthorizationRequest request,
                                            boolean granted,
-                                           @NonNull String role ) {
+                                           @NonNull IAuthorizationRole role ) {
     super( request, granted );
 
     this.role = Objects.requireNonNull( role );
   }
 
   @NonNull
-  public String getRole() {
+  public IAuthorizationRole getRole() {
     return role;
   }
 
@@ -47,12 +48,12 @@ public class MatchedRoleAuthorizationDecision extends AbstractAuthorizationDecis
   @Override
   public String getShortJustification() {
     // Example: "Has role 'Administrator'".
-    return MessageFormat.format( JUSTIFICATION, role );
+    return MessageFormat.format( JUSTIFICATION, role.getName() );
   }
 
   @Override
   public String toString() {
     // Example: "MatchedRole[Granted, name: 'Administrator']"
-    return String.format( "MatchedRole[%s, name: '%s']", getGrantedLogText(), role );
+    return String.format( "MatchedRole[%s, name: '%s']", getGrantedLogText(), role.getName() );
   }
 }

@@ -16,8 +16,10 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationContext;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationOptions;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRole;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationUser;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
+import org.pentaho.platform.engine.security.authorization.core.AuthorizationRole;
 import org.pentaho.platform.engine.security.authorization.core.decisions.MatchedRoleAuthorizationDecision;
 
 import java.util.Objects;
@@ -40,9 +42,13 @@ import java.util.Optional;
  */
 public class MatchedRoleAuthorizationRule extends AbstractAuthorizationRule {
   @NonNull
-  private final String role;
+  private final IAuthorizationRole role;
 
-  public MatchedRoleAuthorizationRule( @NonNull String role ) {
+  public MatchedRoleAuthorizationRule( @NonNull String roleName ) {
+    this( new AuthorizationRole( roleName ) );
+  }
+
+  public MatchedRoleAuthorizationRule( @NonNull IAuthorizationRole role ) {
     this.role = Objects.requireNonNull( role );
   }
 
@@ -52,5 +58,13 @@ public class MatchedRoleAuthorizationRule extends AbstractAuthorizationRule {
                                                      @NonNull IAuthorizationContext context ) {
     boolean hasRole = request.getUser().getRoles().contains( role );
     return Optional.of( new MatchedRoleAuthorizationDecision( request, hasRole, role ) );
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+      "%s[role=%s]",
+      getClass().getTypeName(),
+      role.getName() );
   }
 }

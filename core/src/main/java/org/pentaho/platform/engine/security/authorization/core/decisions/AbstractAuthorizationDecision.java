@@ -15,10 +15,14 @@ package org.pentaho.platform.engine.security.authorization.core.decisions;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
+import org.pentaho.platform.engine.security.messages.Messages;
 
 import java.util.Objects;
 
 public abstract class AbstractAuthorizationDecision implements IAuthorizationDecision {
+
+  protected static final String LIST_SEPARATOR =
+    Messages.getInstance().getString( "AbstractAuthorizationDecision.LIST_SEPARATOR" );
 
   @NonNull
   private final IAuthorizationRequest request;

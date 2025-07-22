@@ -35,6 +35,20 @@ public interface IAuthorizationService {
   IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request, @NonNull IAuthorizationOptions options );
 
   /**
+   * Authorizes a given authorization request, with default options.
+   * <p>
+   * This method is a convenience method equivalent to calling:
+   * {@code instance.authorize( request, AuthorizationOptions.getDefault() )}.
+   *
+   * @param request The authorization request.
+   * @return An {@link IAuthorizationDecision} instance, never {@code null}.
+   */
+  @NonNull
+  default IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request ) {
+    return authorize( request, IAuthorizationOptions.getDefault() );
+  }
+
+  /**
    * Authorizes a given authorization request using a specific authorization rule and options.
    * <p>
    * This method can be used to know the result of a known rule's authorization of a request, possibly to compare it
@@ -50,20 +64,4 @@ public interface IAuthorizationService {
   Optional<IAuthorizationDecision> authorizeRule( @NonNull IAuthorizationRequest request,
                                                   @NonNull IAuthorizationRule rule,
                                                   @NonNull IAuthorizationOptions options );
-
-  // region Sugar
-  /**
-   * Authorizes a given authorization request, with default options.
-   * <p>
-   * This method is a convenience method equivalent to calling:
-   * {@code instance.authorize( request, AuthorizationOptions.getDefault() )}.
-   *
-   * @param request The authorization request.
-   * @return An {@link IAuthorizationDecision} instance, never {@code null}.
-   */
-  @NonNull
-  default IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request ) {
-    return authorize( request, IAuthorizationOptions.getDefault() );
-  }
-  // endregion
 }

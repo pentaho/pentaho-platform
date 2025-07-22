@@ -28,7 +28,7 @@ import java.util.List;
  * version of the platform.
  * 
  * @author mlowery
- * @deprecated
+ * @deprecated since 11.0, for removal in a future release.
  */
 @Deprecated( since = "11.0", forRemoval = true )
 public interface IAuthorizationPolicy {

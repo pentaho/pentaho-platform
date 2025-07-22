@@ -323,6 +323,18 @@ not directly from the PentahoObjectFactory. -->
     </pen:publish>
   </bean>
 
+  <bean id="currentAuthorizationUserSupplier"
+        class="org.pentaho.platform.engine.security.authorization.spring.SpringSecurityContextAuthorizationUserSupplier">
+    <pen:publish as-type="INTERFACES" />
+  </bean>
+
+  <bean id="authorizationRequestBuilder"
+        class="org.pentaho.platform.engine.security.authorization.core.AuthorizationRequestBuilder">
+    <constructor-arg ref="authorizationActionService" />
+    <constructor-arg ref="currentAuthorizationUserSupplier" />
+    <pen:publish as-type="INTERFACES" />
+  </bean>
+
   <bean id="authorizationActionService"
         class="org.pentaho.platform.engine.security.authorization.PentahoSystemAuthorizationActionService">
     <pen:publish as-type="INTERFACES" />
