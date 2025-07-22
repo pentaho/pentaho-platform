@@ -10,7 +10,6 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-
 package org.pentaho.platform.engine.security.authorization;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
