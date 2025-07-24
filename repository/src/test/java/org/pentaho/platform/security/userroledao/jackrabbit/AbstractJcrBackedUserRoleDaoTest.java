@@ -10,7 +10,6 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-
 package org.pentaho.platform.security.userroledao.jackrabbit;
 
 import org.apache.commons.collections.map.LRUMap;
@@ -55,6 +54,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.nullable;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -132,6 +132,10 @@ public class AbstractJcrBackedUserRoleDaoTest {
     doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock ).initUserCache();
     doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock ).initUserDetailsCache();
     doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock ).getUserCache();
+    doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock )
+      .getUserManager( nullable( ITenant.class ), nullable( Session.class ) );
+    doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock )
+      .getJackrabbitUser( nullable( ITenant.class ), nullable( String.class ), nullable( Session.class ) );
     doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock ).setUseJackrabbitUserCache( nullable( boolean.class ) );
     doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock ).isUseJackrabbitUserCache();
     when( abstractJcrBackedUserRoleDaoMock.createUserHomeFolder( nullable( ITenant.class ), nullable( String.class ), nullable( Session.class ) ) ).thenReturn( null );
@@ -163,6 +167,20 @@ public class AbstractJcrBackedUserRoleDaoTest {
         .createUser( adminSession, tenantMock, TEST_USER_NAME, password, TEST_USER_DEC, newRoles );
       IPentahoUser existingUser = abstractJcrBackedUserRoleDaoMock.getUser( adminSession, tenantMock, TEST_USER_NAME );
       assertThat( existingUser, is( newUser ) );
+    }
+  }
+
+  @Test
+  public void testUpdateUserRoles() throws RepositoryException {
+    doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock )
+      .setUserRoles( adminSession, tenantMock, TEST_USER_NAME, newRoles );
+    doCallRealMethod().when( abstractJcrBackedUserRoleDaoMock )
+      .updateUserRoles( adminSession, tenantMock, TEST_USER_NAME, newRoles );
+    try ( MockedStatic<TenantUtils> tenantUtils = mockStatic( TenantUtils.class ) ) {
+      tenantUtils.when( () -> TenantUtils.isAccessibleTenant( any() ) ).thenReturn( true );
+      abstractJcrBackedUserRoleDaoMock.setUserRoles( adminSession, tenantMock, TEST_USER_NAME, newRoles );
+      verify( abstractJcrBackedUserRoleDaoMock, times( 1 ) ).updateUserRoles( adminSession, tenantMock, TEST_USER_NAME,
+        newRoles );
     }
   }
 
