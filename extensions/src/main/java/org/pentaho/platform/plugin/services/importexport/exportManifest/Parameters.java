@@ -15,7 +15,7 @@ package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.MapAdapter;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.HashMap;
 
 /**

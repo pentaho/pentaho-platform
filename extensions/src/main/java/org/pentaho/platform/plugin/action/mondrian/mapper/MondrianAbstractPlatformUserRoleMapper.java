@@ -153,7 +153,7 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
     if ( gAuths == null ) {
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
       gAuths = authentication.getAuthorities();
-      Assert.state( authentication != null );
+      Assert.state( authentication != null, "Authentication object must not be null" );
     }
 
     List<String> rtn = null;

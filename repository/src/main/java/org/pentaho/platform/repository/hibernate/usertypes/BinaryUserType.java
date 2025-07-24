@@ -22,15 +22,15 @@ package org.pentaho.platform.repository.hibernate.usertypes;
 import java.sql.Types;
 
 public class BinaryUserType extends BlobUserType {
-  private static final int[] SQLTYPE = { Types.BINARY };
+  private static final int SQLTYPE = Types.BINARY;
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.hibernate.usertype.UserType#sqlTypes()
+   * @see org.hibernate.usertype.UserType#getSqlType()
    */
   @Override
-  public int[] sqlTypes() {
+  public int getSqlType() {
     return BinaryUserType.SQLTYPE;
   }
 

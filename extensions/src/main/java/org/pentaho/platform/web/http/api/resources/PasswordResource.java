@@ -19,15 +19,16 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.util.PasswordHelper;
 
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.Consumes;
 
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 /**
  * provides a resource for encrypting a password using the configured IPasswordService
@@ -41,6 +42,7 @@ public class PasswordResource {
   @POST
   @Path( "/encrypt" )
   @Produces( MediaType.TEXT_HTML )
+  @Consumes( MediaType.APPLICATION_FORM_URLENCODED )
   @Facet( name = "Unsupported" )
   public Response encryptPassword( @FormParam( "password" ) String password ) {
     if ( isAllowed() ) {

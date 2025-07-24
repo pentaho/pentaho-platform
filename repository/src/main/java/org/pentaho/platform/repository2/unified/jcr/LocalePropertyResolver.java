@@ -35,7 +35,7 @@ public class LocalePropertyResolver {
   private String fileName;
 
   public LocalePropertyResolver( String fileName ) {
-    Assert.notNull( fileName );
+    Assert.notNull( fileName, "The file name must not be null. Ensure a valid file name is provided." );
     this.fileName = fileName;
   }
 

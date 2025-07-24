@@ -25,19 +25,19 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.WILDCARD;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
+import static jakarta.ws.rs.core.MediaType.WILDCARD;
 
 
 /**
@@ -67,7 +67,7 @@ public class ThemeResource extends AbstractJaxRSResource {
   @Path( "/list" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   @Facet( name = "Unsupported" )
-  public List<Theme> getSystemThemes() {
+  public ThemeWrapper getSystemThemes() {
     ArrayList<Theme> themes = new ArrayList<Theme>();
     IThemeManager themeManager = PentahoSystem.get( IThemeManager.class );
     List<String> ids = themeManager.getSystemThemeIds();
@@ -77,7 +77,7 @@ public class ThemeResource extends AbstractJaxRSResource {
         themes.add( new Theme( id, theme.getName() ) );
       }
     }
-    return themes;
+    return new ThemeWrapper( themes );
   }
 
   /**

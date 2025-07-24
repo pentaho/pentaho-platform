@@ -25,8 +25,8 @@ import com.sun.jersey.wadl.resourcedoc.ResourceDoclet;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Marshaller;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -40,7 +40,7 @@ public class PentahoResourceDoclet extends ResourceDoclet {
   private static final String DEPRECATED_TAG = "<deprecated>{0}</deprecated>";
   private static final String DOCUMENTATION_TAG = "<documentation>{0}</documentation>";
 
-  private static final String PATH_ANNOTATION = "@javax.ws.rs.Path";
+  private static final String PATH_ANNOTATION = "@jakarta.ws.rs.Path";
   private static final String DEPRECATED_ANNOTATION = "@java.lang.Deprecated";
   private static final String FACET_ANNOTATION = "@org.codehaus.enunciate.Facet";
 

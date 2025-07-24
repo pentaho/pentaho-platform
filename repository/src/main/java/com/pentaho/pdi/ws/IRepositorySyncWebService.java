@@ -13,7 +13,7 @@
 
 package com.pentaho.pdi.ws;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 
 @WebService
 public interface IRepositorySyncWebService {

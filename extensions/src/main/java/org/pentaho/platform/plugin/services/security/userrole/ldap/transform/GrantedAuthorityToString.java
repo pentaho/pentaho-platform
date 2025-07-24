@@ -102,7 +102,7 @@ public class GrantedAuthorityToString implements Transformer {
   }
 
   public void setRolePrefix( final String rolePrefix ) {
-    Assert.hasLength( rolePrefix );
+    Assert.hasLength( rolePrefix, "Role prefix must not be null or empty" );
     this.rolePrefix = rolePrefix;
   }
 

@@ -189,30 +189,4 @@ public class SimpleMapCacheManager implements ICacheManager {
       }
     }
   }
-
-  @Override
-  public long getElementCountInRegionCache( String region ) {
-    long cnt = 0;
-    String regionKey = region + "\t";
-    Iterator it = simpleMap.entrySet().iterator();
-    while ( it.hasNext() ) {
-      Map.Entry entry = (Map.Entry) it.next();
-      String key = entry.getKey() != null ? (String) entry.getKey() : ""; //$NON-NLS-1$
-      if ( key.startsWith( regionKey ) ) {
-        cnt++;
-      }
-    }
-    return cnt;
-  }
-
-  @Override
-  public long getElementCountInSessionCache() {
-    return getElementCountInRegionCache( SESSION );
-  }
-
-  @Override
-  public long getElementCountInGlobalCache() {
-    return getElementCountInRegionCache( GLOBAL );
-  }
-
 }

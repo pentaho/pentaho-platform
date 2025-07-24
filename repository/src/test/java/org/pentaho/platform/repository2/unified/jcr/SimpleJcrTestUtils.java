@@ -58,7 +58,7 @@ public class SimpleJcrTestUtils {
         Node newNode;
         try {
           Item item = session.getItem( parentAbsPath );
-          Assert.isTrue( item.isNode() );
+          Assert.isTrue( item.isNode(), "The item at the specified path must be a node. Ensure the path points to a valid node." );
           Node parentNode = (Node) item;
           newNode = parentNode.addNode( name, primaryNodeTypeName );
           newNode.addMixin( pentahoJcrConstants.getMIX_REFERENCEABLE() );
@@ -94,7 +94,7 @@ public class SimpleJcrTestUtils {
         } catch ( PathNotFoundException e ) {
           return null;
         }
-        Assert.isTrue( item.isNode() );
+        Assert.isTrue( item.isNode(), "The item must be a node. Ensure the provided path corresponds to a valid node." );
         return ( (Node) item ).getUUID();
       }
     } );
@@ -133,7 +133,7 @@ public class SimpleJcrTestUtils {
                                        final String... privNames ) {
     return (Boolean) jcrTemplate.execute( new JcrCallback() {
       public Object doInJcr( final Session session ) throws RepositoryException {
-        Assert.notEmpty( privNames );
+        Assert.notEmpty( privNames, "The privilege names array must not be empty. Ensure at least one privilege name is provided." );
         Privilege[] privs = new Privilege[privNames.length];
         for ( int i = 0; i < privs.length; i++ ) {
           privs[i] = session.getAccessControlManager().privilegeFromName( privNames[i] );
@@ -149,7 +149,7 @@ public class SimpleJcrTestUtils {
     return (Boolean) jcrTemplate.execute( new JcrCallback() {
       public Object doInJcr( final Session session ) throws RepositoryException {
         Item item = session.getItem( absPath );
-        Assert.isTrue( item.isNode() );
+        Assert.isTrue( item.isNode(), "The item at the specified path must be a node. Ensure the path points to a valid node." );
         return ( (Node) item ).isLocked();
       }
     } );
@@ -159,7 +159,7 @@ public class SimpleJcrTestUtils {
     return (String) jcrTemplate.execute( new JcrCallback() {
       public Object doInJcr( final Session session ) throws RepositoryException {
         Item item = session.getItem( absPath );
-        Assert.isTrue( !item.isNode() );
+        Assert.isTrue( !item.isNode(), "The item at the specified path must be a property. Ensure the path points to a valid property." );
         return ( (Property) item ).getString();
       }
     } );
@@ -169,7 +169,7 @@ public class SimpleJcrTestUtils {
     return (Date) jcrTemplate.execute( new JcrCallback() {
       public Object doInJcr( final Session session ) throws RepositoryException {
         Item item = session.getItem( absPath );
-        Assert.isTrue( !item.isNode() );
+        Assert.isTrue( !item.isNode(), "The item at the specified path must be a property. Ensure the path points to a valid property." );
         return ( (Property) item ).getDate().getTime();
       }
     } );
@@ -187,7 +187,7 @@ public class SimpleJcrTestUtils {
           parentNode.setProperty( absPath.substring( lastSlashIdx + 1 ), cal );
         } else {
           Item item = session.getItem( absPath );
-          Assert.isTrue( !item.isNode() );
+          Assert.isTrue( !item.isNode(), "The item at the specified path must be a node. Ensure the path points to a valid node." );
           Calendar cal = Calendar.getInstance();
           cal.setTime( date );
           ( (Property) item ).setValue( cal );
@@ -212,7 +212,7 @@ public class SimpleJcrTestUtils {
     return (Boolean) jcrTemplate.execute( new JcrCallback() {
       public Object doInJcr( final Session session ) throws RepositoryException {
         Item item = session.getItem( absPath );
-        Assert.isTrue( item.isNode() );
+        Assert.isTrue( item.isNode(), "The item at the specified path must be a node. Ensure the path points to a valid node" );
         return ( (Node) item ).isCheckedOut();
       }
     } );
@@ -222,7 +222,7 @@ public class SimpleJcrTestUtils {
     return (String) jcrTemplate.execute( new JcrCallback() {
       public Object doInJcr( final Session session ) throws RepositoryException {
         Item item = session.getItem( absPath );
-        Assert.isTrue( item.isNode() );
+        Assert.isTrue( item.isNode(), "The item at the specified path must be a node. Ensure the path points to a valid node" );
         Node node = ( (Node) item );
         return node.getVersionHistory().getPath();
       }
