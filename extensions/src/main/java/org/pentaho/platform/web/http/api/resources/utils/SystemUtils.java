@@ -10,13 +10,9 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-
 package org.pentaho.platform.web.http.api.resources.utils;
 
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -32,9 +28,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class SystemUtils {
-
-  private static final Log logger = LogFactory.getLog( SystemUtils.class );
-
   public static boolean canAdminister() {
     IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
     return policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME )
@@ -86,17 +79,14 @@ public class SystemUtils {
     String userHomeFolderPath = ServerRepositoryPaths
       .getUserHomeFolderPath( JcrTenantUtils.getUserNameUtils().getTenant( tenantedUserName ),
         JcrTenantUtils.getUserNameUtils().getPrincipleName( tenantedUserName ) );
-    if ( userHomeFolderPath != null && userHomeFolderPath.length() > 0 ) {
+
+    if ( userHomeFolderPath != null && !userHomeFolderPath.isEmpty() ) {
       //we pass the relative path so add serverside root folder for every home folder
       usingHomeFolder = ( ServerRepositoryPaths.getTenantRootFolderPath() + dir )
-        .contains( userHomeFolderPath );
-    }
-    if ( !( usingHomeFolder && policy.isAllowed( RepositoryCreateAction.NAME )
-      && policy.isAllowed( RepositoryReadAction.NAME ) ) ) {
-      return false;
+        .startsWith( userHomeFolderPath );
     }
 
-    return true;
+    return usingHomeFolder && policy.isAllowed( RepositoryCreateAction.NAME )
+      && policy.isAllowed( RepositoryReadAction.NAME );
   }
-
 }

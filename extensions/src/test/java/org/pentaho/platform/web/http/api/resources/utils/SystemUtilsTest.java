@@ -10,7 +10,6 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-
 package org.pentaho.platform.web.http.api.resources.utils;
 
 import org.junit.After;
@@ -45,10 +44,9 @@ import static org.mockito.Mockito.when;
 @RunWith( MockitoJUnitRunner.class )
 public class SystemUtilsTest {
 
+  private static final String USER = "testUser";
 
-  private static final String REAL_USER = "testUser";
-
-  private static final String IMPORT_DIR = "/home/" + REAL_USER;
+  private static final String USER_HOME_FOLDER = "/home/" + USER;
 
   private IPentahoObjectFactory pentahoObjectFactory;
 
@@ -62,7 +60,7 @@ public class SystemUtilsTest {
 
     resolver = mock( ITenantedPrincipleNameResolver.class );
     doReturn( tenant ).when( resolver ).getTenant( nullable( String.class ) );
-    doReturn( REAL_USER ).when( resolver ).getPrincipleName( nullable( String.class ) );
+    doReturn( USER ).when( resolver ).getPrincipleName( nullable( String.class ) );
     pentahoObjectFactory = mock( IPentahoObjectFactory.class );
     when( pentahoObjectFactory.objectDefined( nullable( String.class ) ) ).thenReturn( true );
     when( pentahoObjectFactory.get( this.anyClass(), nullable( String.class ), any( IPentahoSession.class ) ) ).thenAnswer(
@@ -113,11 +111,11 @@ public class SystemUtilsTest {
     assertFalse( SystemUtils.canDownload( "/mock/path" ) );
 
     // Test 4: user loses administer security, neither does it have download roles but it's on home folder, so it should grant access
-    assertTrue( SystemUtils.canDownload( IMPORT_DIR ) );
+    assertTrue( SystemUtils.canDownload( USER_HOME_FOLDER ) );
 
     // Test 5: user is on home folder but loses read content, should not grant access
     doReturn( false ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME );
-    assertFalse( SystemUtils.canDownload( IMPORT_DIR ) );
+    assertFalse( SystemUtils.canDownload( USER_HOME_FOLDER ) );
 
   }
 
@@ -146,16 +144,79 @@ public class SystemUtilsTest {
     assertFalse( SystemUtils.canDownload( "/mock/path" ) );
 
     // Test 4: user loses administer security, neither does it have publish content, but on ome folder, should grant access
-    assertTrue( SystemUtils.canDownload( IMPORT_DIR ) );
+    assertTrue( SystemUtils.canDownload( USER_HOME_FOLDER ) );
 
     // Test 5: user is on home folder but loses read content, should not grant access
     doReturn( false ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME );
-    assertFalse( SystemUtils.canDownload( IMPORT_DIR ) );
+    assertFalse( SystemUtils.canDownload( USER_HOME_FOLDER ) );
 
     // Test 5: user is on home folder but loses create content, should not grant access
     doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME );
     doReturn( false ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
-    assertFalse( SystemUtils.canDownload( IMPORT_DIR ) );
+    assertFalse( SystemUtils.canDownload( USER_HOME_FOLDER ) );
+  }
+
+  @Test
+  public void testValidateAccessToHomeFolder() {
+    IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
+    /* register  mockAuthPolicy with PentahoSystem so SystemUtils can use it */
+    PentahoSystem.registerObject( mockAuthPolicy );
+
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME );
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
+
+    assertTrue( SystemUtils.validateAccessToHomeFolder( USER_HOME_FOLDER ) );
+  }
+
+  @Test
+  public void testValidateAccessToHomeFolder_Null() {
+    IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
+    /* register  mockAuthPolicy with PentahoSystem so SystemUtils can use it */
+    PentahoSystem.registerObject( mockAuthPolicy );
+
+    assertFalse( SystemUtils.validateAccessToHomeFolder( null ) );
+  }
+
+  @Test
+  public void testValidateAccessToHomeFolder_Empty() {
+    IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
+    /* register  mockAuthPolicy with PentahoSystem so SystemUtils can use it */
+    PentahoSystem.registerObject( mockAuthPolicy );
+
+    assertFalse( SystemUtils.validateAccessToHomeFolder( "" ) );
+  }
+
+  @Test
+  public void testValidateAccessToHomeFolder_NotInHomeFolder() {
+    IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
+    /* register  mockAuthPolicy with PentahoSystem so SystemUtils can use it */
+    PentahoSystem.registerObject( mockAuthPolicy );
+
+    // subfolder structure in admin home folder matches the user home folder, must return false
+    assertFalse( SystemUtils.validateAccessToHomeFolder( "/home/admin/pentaho/tenant0" + USER_HOME_FOLDER ) );
+  }
+
+  @Test
+  public void testValidateAccessToHomeFolder_NoRepositoryCreateAction() {
+    IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
+    /* register  mockAuthPolicy with PentahoSystem so SystemUtils can use it */
+    PentahoSystem.registerObject( mockAuthPolicy );
+
+    doReturn( false ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
+
+    assertFalse( SystemUtils.validateAccessToHomeFolder( USER_HOME_FOLDER ) );
+  }
+
+  @Test
+  public void testValidateAccessToHomeFolder_NoRepositoryReadAction() {
+    IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
+    /* register  mockAuthPolicy with PentahoSystem so SystemUtils can use it */
+    PentahoSystem.registerObject( mockAuthPolicy );
+
+    doReturn( false ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME );
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
+
+    assertFalse( SystemUtils.validateAccessToHomeFolder( USER_HOME_FOLDER ) );
   }
 
   private Class<?> anyClass() {
