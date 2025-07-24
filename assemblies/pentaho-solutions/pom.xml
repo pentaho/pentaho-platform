@@ -233,6 +233,13 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.pentaho.di.plugins</groupId>
+                  <artifactId>repo-vfs-plugin-assembly</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>pentaho-metastore-locator-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
