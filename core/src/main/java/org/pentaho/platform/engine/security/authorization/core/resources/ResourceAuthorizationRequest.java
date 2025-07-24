@@ -10,14 +10,15 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-package org.pentaho.platform.engine.security.authorization.core;
+package org.pentaho.platform.engine.security.authorization.core.resources;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
-import org.pentaho.platform.api.engine.security.authorization.IAuthorizationResource;
+import org.pentaho.platform.api.engine.security.authorization.resources.IAuthorizationResource;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationUser;
-import org.pentaho.platform.api.engine.security.authorization.IResourceAuthorizationRequest;
+import org.pentaho.platform.api.engine.security.authorization.resources.IResourceAuthorizationRequest;
+import org.pentaho.platform.engine.security.authorization.core.AuthorizationRequest;
 
 import java.util.Objects;
 
@@ -90,7 +91,7 @@ public class ResourceAuthorizationRequest extends AuthorizationRequest
   @Override
   public String toString() {
     return String.format(
-      "%s [user=`%s`, action='%s', resource=%s]",
+      "%s [user: `%s`, action: '%s', resource: %s]",
       getClass().getSimpleName(),
       getUser().getName(),
       getAction().getName(),

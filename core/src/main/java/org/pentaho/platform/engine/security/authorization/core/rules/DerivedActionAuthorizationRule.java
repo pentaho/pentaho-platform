@@ -22,6 +22,7 @@ import org.pentaho.platform.engine.security.authorization.core.decisions.Derived
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The {@code DerivedActionAuthorizationRule} class represents an authorization rule that grants permission to perform
@@ -72,5 +73,23 @@ public class DerivedActionAuthorizationRule extends AbstractAuthorizationRule {
       ? abstain()
       // Else grant for the derived action.
       : Optional.of( new DerivedActionAuthorizationDecision( request, baseDecision ) );
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+      "%s[base=%s, derived=%s]",
+      getClass().getTypeName(),
+      baseAction.getName(),
+      getDerivedActionsLogText()
+    );
+  }
+
+  @NonNull
+  private String getDerivedActionsLogText() {
+    return derivedActions
+      .stream()
+      .map( IAuthorizationAction::getName )
+      .collect( Collectors.joining( LIST_SEPARATOR ) );
   }
 }

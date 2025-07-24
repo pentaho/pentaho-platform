@@ -27,8 +27,8 @@ import java.text.MessageFormat;
 public class ImpliedAuthorizationDecision extends AbstractAuthorizationDecision
   implements IImpliedAuthorizationDecision {
 
-  private static final String IMPLIED_FROM_JUSTIFICATION =
-    Messages.getInstance().getString( "AuthorizationDecisionFactory.IMPLIED_FROM_JUSTIFICATION" );
+  private static final String JUSTIFICATION =
+    Messages.getInstance().getString( "ImpliedAuthorizationDecision.JUSTIFICATION" );
 
   @NonNull
   private final IAuthorizationDecision impliedFromDecision;
@@ -56,7 +56,7 @@ public class ImpliedAuthorizationDecision extends AbstractAuthorizationDecision
   @Override
   public String getShortJustification() {
     // Example: "From <implied-from decision justification>"
-    return MessageFormat.format( IMPLIED_FROM_JUSTIFICATION, impliedFromDecision );
+    return MessageFormat.format( JUSTIFICATION, impliedFromDecision );
   }
 
   @Override

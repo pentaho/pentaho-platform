@@ -10,9 +10,10 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-package org.pentaho.platform.api.engine.security.authorization;
+package org.pentaho.platform.api.engine.security.authorization.resources;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 
 public interface IResourceAuthorizationRequest extends IAuthorizationRequest {
 

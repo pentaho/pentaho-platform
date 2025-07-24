@@ -10,10 +10,10 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-package org.pentaho.platform.engine.security.authorization.core;
+package org.pentaho.platform.engine.security.authorization.core.resources;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import org.pentaho.platform.api.engine.security.authorization.IAuthorizationResource;
+import org.pentaho.platform.api.engine.security.authorization.resources.IAuthorizationResource;
 import org.springframework.util.Assert;
 
 import java.util.Objects;

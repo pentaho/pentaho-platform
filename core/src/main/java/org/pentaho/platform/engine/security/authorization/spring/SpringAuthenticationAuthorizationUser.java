@@ -10,11 +10,14 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-package org.pentaho.platform.engine.security.authorization;
+package org.pentaho.platform.engine.security.authorization.spring;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRole;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationUser;
+import org.pentaho.platform.engine.security.authorization.core.AbstractAuthorizationUser;
+import org.pentaho.platform.engine.security.authorization.core.AuthorizationRole;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,7 +25,6 @@ import org.springframework.util.Assert;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,13 +33,13 @@ import java.util.Set;
  * <p>
  * This implementation exposes the username and roles, but does not expose any user attributes.
  */
-public class SpringAuthenticationAuthorizationUser implements IAuthorizationUser {
+public class SpringAuthenticationAuthorizationUser extends AbstractAuthorizationUser {
   @NonNull
   private final Authentication authentication;
 
   // Lazily initialized from authentication.
   @Nullable
-  private Set<String> roles = null;
+  private Set<IAuthorizationRole> roles = null;
 
   public SpringAuthenticationAuthorizationUser( @NonNull Authentication authentication ) {
     Assert.notNull( authentication, "Argument `authentication` must not be null" );
@@ -59,14 +61,7 @@ public class SpringAuthenticationAuthorizationUser implements IAuthorizationUser
 
   @NonNull
   @Override
-  public Map<String, Object> getAttributes() {
-    return Map.of();
-  }
-
-  @NonNull
-  @Override
-  public Set<String> getRoles() {
-    // Thread safe: some initialization concurrency and duplicate work acceptable.
+  public Set<IAuthorizationRole> getRoles() {
     if ( roles == null ) {
       roles = buildRoles();
     }
@@ -75,11 +70,11 @@ public class SpringAuthenticationAuthorizationUser implements IAuthorizationUser
   }
 
   @NonNull
-  protected Set<String> buildRoles() {
-    Set<String> resultRoles = new LinkedHashSet<>();
+  protected Set<IAuthorizationRole> buildRoles() {
+    Set<IAuthorizationRole> resultRoles = new LinkedHashSet<>();
 
     for ( GrantedAuthority authority : authentication.getAuthorities() ) {
-      resultRoles.add( authority.getAuthority() );
+      resultRoles.add( new AuthorizationRole( authority.getAuthority() ) );
     }
 
     return Collections.unmodifiableSet( resultRoles );

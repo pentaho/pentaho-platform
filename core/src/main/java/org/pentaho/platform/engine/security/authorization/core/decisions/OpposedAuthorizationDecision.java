@@ -22,8 +22,8 @@ import java.text.MessageFormat;
 public class OpposedAuthorizationDecision extends AbstractAuthorizationDecision
   implements IOpposedAuthorizationDecision {
 
-  private static final String OPPOSED_TO_JUSTIFICATION =
-    Messages.getInstance().getString( "AuthorizationDecisionFactory.OPPOSED_TO_JUSTIFICATION" );
+  private static final String JUSTIFICATION =
+    Messages.getInstance().getString( "OpposedAuthorizationDecision.JUSTIFICATION" );
 
   @NonNull
   private final IAuthorizationDecision opposedToDecision;
@@ -45,7 +45,7 @@ public class OpposedAuthorizationDecision extends AbstractAuthorizationDecision
   @Override
   public String getShortJustification() {
     // Example: "Opposing: <opposed decision justification>"
-    return MessageFormat.format( OPPOSED_TO_JUSTIFICATION, opposedToDecision );
+    return MessageFormat.format( JUSTIFICATION, opposedToDecision );
   }
 
   @Override

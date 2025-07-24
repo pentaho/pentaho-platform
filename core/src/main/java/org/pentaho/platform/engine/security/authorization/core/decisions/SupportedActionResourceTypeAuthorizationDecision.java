@@ -13,7 +13,7 @@
 package org.pentaho.platform.engine.security.authorization.core.decisions;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import org.pentaho.platform.api.engine.security.authorization.IResourceAuthorizationRequest;
+import org.pentaho.platform.api.engine.security.authorization.resources.IResourceAuthorizationRequest;
 
 public class SupportedActionResourceTypeAuthorizationDecision extends AbstractAuthorizationDecision {
 

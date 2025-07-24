@@ -24,6 +24,7 @@ import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthori
 import org.pentaho.platform.engine.security.authorization.core.decisions.CycleAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.decisions.DefaultAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.rules.AnyAuthorizationRule;
+import org.springframework.util.Assert;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -32,6 +33,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class AuthorizationService implements IAuthorizationService {
+
   private static final Log logger = LogFactory.getLog( AuthorizationService.class );
 
   /**
@@ -75,13 +77,17 @@ public class AuthorizationService implements IAuthorizationService {
 
       if ( logger.isDebugEnabled() ) {
         logger.debug( String.format(
-          "Nested-authorization request: %s - before",
+          "Authorize BEGIN - request: %s",
           request ) );
       }
 
       if ( evaluationPath.contains( request ) ) {
         var cycleDecision = new CycleAuthorizationDecision( request, evaluationPath );
-        logger.error( String.format( "Nested-authorization - cycle detected: %s", cycleDecision ) );
+
+        if ( logger.isErrorEnabled() ) {
+          logger.error( String.format( "Authorize END - CYCLE - %s", cycleDecision ) );
+        }
+
         return cycleDecision;
       }
 
@@ -94,7 +100,7 @@ public class AuthorizationService implements IAuthorizationService {
 
         if ( logger.isDebugEnabled() ) {
           logger.debug( String.format(
-            "Nested-authorization request: %s - after",
+            "Authorize END - request: %s",
             request ) );
         }
       }
@@ -105,7 +111,7 @@ public class AuthorizationService implements IAuthorizationService {
                                                            @NonNull IAuthorizationRule rule ) {
       if ( logger.isDebugEnabled() ) {
         logger.debug( String.format(
-          "AuthorizeRule request: %s rule: %s - before",
+          "AuthorizeRule BEGIN - request: %s rule: %s",
           request,
           rule ) );
       }
@@ -113,24 +119,27 @@ public class AuthorizationService implements IAuthorizationService {
       try {
         Optional<IAuthorizationDecision> result = rule.authorize( request, this );
 
+        Objects.requireNonNull( result, "Rule must return a non-null result" );
+
         if ( logger.isDebugEnabled() ) {
           logger.debug( String.format(
-            "AuthorizeRule request: %s rule: %s - result: %s",
+            "AuthorizeRule END - SUCCESS - request: %s rule: %s result: %s",
             request,
             rule,
-            result.isEmpty() ? "abstained" : result.get() ) );
+            result.isEmpty() ? "Abstained" : result.get() ) );
         }
 
         return result;
       } catch ( Exception e ) {
 
         logger.error( String.format(
-          "AuthorizeRule request: %s rule: %s - error. Abstaining.",
+          "AuthorizeRule END - ERROR - request: %s rule: %s. Abstaining.",
           request,
           rule
         ), e );
 
         // Abstention for a failed rule is like pretending the rule did not exist.
+        // TODO: Change to error decision?
         return Optional.empty();
       }
     }
@@ -158,7 +167,9 @@ public class AuthorizationService implements IAuthorizationService {
    * @param rootRule The root authorization rule.
    */
   public AuthorizationService( @NonNull IAuthorizationRule rootRule ) {
-    this.rootRule = Objects.requireNonNull( rootRule );
+    Assert.notNull( rootRule, "Argument 'rootRule' is required" );
+
+    this.rootRule = rootRule;
   }
 
   /**

@@ -12,15 +12,9 @@
 
 package org.pentaho.platform.api.engine.security.authorization;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
-import java.util.Set;
-
 /**
- * The {@code IAuthorizationUser} interface represents a user principal in the authorization system.
- * It provides methods to access a user's username, attributes and roles.
+ * The {@code IAuthorizationRole} interface represents a role principal in the authorization system.
+ * It provides methods to access a role's name and attributes.
  */
-public interface IAuthorizationUser extends IAuthorizationPrincipal {
-  @NonNull
-  Set<IAuthorizationRole> getRoles();
+public interface IAuthorizationRole extends IAuthorizationPrincipal {
 }

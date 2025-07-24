@@ -17,15 +17,19 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationCont
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
+import org.pentaho.platform.engine.security.messages.Messages;
 
 import java.util.Optional;
 
 /**
  * The {@code AbstractAuthorizationRule} class is an optional base class for implementing authorization rules.
  * <p>
- * It provides a default implementation of the {@link #toString()} method, which returns the fully qualified class name.
+ * It provides a default implementation of the {@link #toString()} method, which returns the class's simple name.
  */
 public abstract class AbstractAuthorizationRule implements IAuthorizationRule {
+
+  protected static final String LIST_SEPARATOR =
+    Messages.getInstance().getString( "AbstractAuthorizationDecision.LIST_SEPARATOR" );
 
   @NonNull
   @Override
@@ -39,6 +43,6 @@ public abstract class AbstractAuthorizationRule implements IAuthorizationRule {
 
   @Override
   public String toString() {
-    return getClass().getTypeName();
+    return getClass().getSimpleName();
   }
 }
