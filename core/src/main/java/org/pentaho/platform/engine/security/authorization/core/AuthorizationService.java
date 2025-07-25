@@ -21,8 +21,8 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequ
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationService;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
-import org.pentaho.platform.engine.security.authorization.core.decisions.CycleAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.decisions.DefaultAuthorizationDecision;
+import org.pentaho.platform.engine.security.authorization.core.decisions.RuleErrorAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.rules.AnyAuthorizationRule;
 import org.springframework.util.Assert;
 
@@ -82,13 +82,11 @@ public class AuthorizationService implements IAuthorizationService {
       }
 
       if ( evaluationPath.contains( request ) ) {
-        var cycleDecision = new CycleAuthorizationDecision( request, evaluationPath );
+        var cycleException = new AuthorizationRequestCycleException( evaluationPath, request );
 
-        if ( logger.isErrorEnabled() ) {
-          logger.error( String.format( "Authorize END - CYCLE - %s", cycleDecision ) );
-        }
+        logger.error( "Authorize END - ERROR - CYCLE", cycleException );
 
-        return cycleDecision;
+        return new RuleErrorAuthorizationDecision( request, cycleException );
       }
 
       evaluationPath.push( request );
@@ -133,14 +131,12 @@ public class AuthorizationService implements IAuthorizationService {
       } catch ( Exception e ) {
 
         logger.error( String.format(
-          "AuthorizeRule END - ERROR - request: %s rule: %s. Abstaining.",
+          "AuthorizeRule END - ERROR - request: %s rule: %s. Denying.",
           request,
           rule
         ), e );
 
-        // Abstention for a failed rule is like pretending the rule did not exist.
-        // TODO: Change to error decision?
-        return Optional.empty();
+        return Optional.of( new RuleErrorAuthorizationDecision( request, e ) );
       }
     }
 
