@@ -146,7 +146,15 @@
   <bean class="org.pentaho.platform.web.http.api.resources.ThemeResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SystemRefreshResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.VersionResource" scope="request"/>
-  <bean class="org.pentaho.platform.web.http.api.resources.UserConsoleResource" scope="request"/>
+
+  <bean class="org.pentaho.platform.web.http.api.resources.UserConsoleResource" scope="request">
+    <constructor-arg ref="userConsoleService"/>
+  </bean>
+
+  <bean id="userConsoleService" class="org.pentaho.platform.web.http.api.resources.services.UserConsoleService">
+    <pen:publish as-type="CLASSES"/>
+  </bean>
+
   <bean class="org.pentaho.platform.web.http.api.resources.UserSettingsResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryPublishResource" scope="request"/>
 
