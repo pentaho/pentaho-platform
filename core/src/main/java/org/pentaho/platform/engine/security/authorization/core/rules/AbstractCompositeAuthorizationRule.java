@@ -18,23 +18,27 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequ
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 public abstract class AbstractCompositeAuthorizationRule extends AbstractAuthorizationRule
   implements IAuthorizationRule {
 
   @NonNull
-  private final List<IAuthorizationRule> rules;
+  private List<IAuthorizationRule> rules;
 
   protected AbstractCompositeAuthorizationRule( @NonNull List<IAuthorizationRule> rules ) {
-    this.rules = List.copyOf( Objects.requireNonNull( rules ) );
+    setRules( rules );
   }
 
   @NonNull
   public List<IAuthorizationRule> getRules() {
     return rules;
+  }
+
+  protected void setRules( @NonNull List<IAuthorizationRule> rules ) {
+    this.rules = Collections.unmodifiableList( rules );
   }
 
   @NonNull
