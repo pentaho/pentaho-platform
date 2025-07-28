@@ -17,7 +17,7 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationCont
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
 import org.pentaho.platform.api.engine.security.authorization.resources.IResourceAuthorizationRequest;
-import org.pentaho.platform.engine.security.authorization.core.decisions.ImpliedAuthorizationDecision;
+import org.pentaho.platform.engine.security.authorization.core.decisions.ResourceActionGeneralRequirementAuthorizationDecision;
 
 import java.util.Optional;
 
@@ -41,6 +41,6 @@ public class ResourceActionGeneralRequirementAuthorizationRule extends AbstractA
     var generalRequest = resourceRequest.asGeneral();
     var generalDecision = context.authorize( generalRequest );
 
-    return Optional.of( new ImpliedAuthorizationDecision( resourceRequest, generalDecision ) );
+    return Optional.of( new ResourceActionGeneralRequirementAuthorizationDecision( resourceRequest, generalDecision ) );
   }
 }
