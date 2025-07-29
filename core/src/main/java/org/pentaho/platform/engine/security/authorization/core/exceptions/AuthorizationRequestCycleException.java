@@ -10,7 +10,7 @@
  * Change Date: 2029-07-20
  ******************************************************************************/
 
-package org.pentaho.platform.engine.security.authorization.core;
+package org.pentaho.platform.engine.security.authorization.core.exceptions;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationContext;
@@ -60,8 +60,6 @@ public class AuthorizationRequestCycleException extends Exception {
                                        @NonNull IAuthorizationRequest cycleRequest ) {
     Objects.requireNonNull( pendingRequests );
     Objects.requireNonNull( cycleRequest );
-
-    // TODO: ideally, this would include a description of the current rule in each step?
 
     StringBuilder builder = new StringBuilder();
     builder

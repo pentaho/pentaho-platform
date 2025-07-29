@@ -15,14 +15,17 @@ package org.pentaho.platform.engine.security.authorization.core;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationActionService;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationContext;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationOptions;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationService;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
+import org.pentaho.platform.engine.security.authorization.core.decisions.AuthorizationErrorDecision;
 import org.pentaho.platform.engine.security.authorization.core.decisions.DefaultAuthorizationDecision;
-import org.pentaho.platform.engine.security.authorization.core.decisions.RuleErrorAuthorizationDecision;
+import org.pentaho.platform.engine.security.authorization.core.exceptions.AuthorizationRequestCycleException;
+import org.pentaho.platform.engine.security.authorization.core.exceptions.AuthorizationRequestUndefinedActionException;
 import org.pentaho.platform.engine.security.authorization.core.rules.AnyAuthorizationRule;
 import org.springframework.util.Assert;
 
@@ -49,7 +52,7 @@ public class AuthorizationService implements IAuthorizationService {
   protected class AuthorizationContext implements IAuthorizationContext {
 
     @NonNull
-    private final Deque<IAuthorizationRequest> evaluationPath = new ArrayDeque<>();
+    private final Deque<IAuthorizationRequest> pendingRequests = new ArrayDeque<>();
 
     @NonNull
     private final IAuthorizationOptions options;
@@ -73,6 +76,9 @@ public class AuthorizationService implements IAuthorizationService {
     @NonNull
     @Override
     public IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request ) {
+
+      // Handles logging, error handling and resolving the request's action.
+
       Objects.requireNonNull( request );
 
       if ( logger.isDebugEnabled() ) {
@@ -81,27 +87,49 @@ public class AuthorizationService implements IAuthorizationService {
           request ) );
       }
 
-      if ( evaluationPath.contains( request ) ) {
-        var cycleException = new AuthorizationRequestCycleException( evaluationPath, request );
-
-        logger.error( "Authorize END - ERROR - CYCLE", cycleException );
-
-        return new RuleErrorAuthorizationDecision( request, cycleException );
-      }
-
-      evaluationPath.push( request );
       try {
-        return authorizeRule( request, getRootRule() )
-          .orElseGet( () -> getDefaultDecision( request ) );
-      } finally {
-        evaluationPath.pop();
+        var decision = authorizeTracked( resolveRequestAction( request ) );
 
         if ( logger.isDebugEnabled() ) {
           logger.debug( String.format(
-            "Authorize END - request: %s",
-            request ) );
+            "Authorize END - SUCCESS - request: %s result: %s",
+            request,
+            decision ) );
         }
+
+        return decision;
+
+      } catch ( Exception e ) {
+
+        logger.error( String.format(
+          "AuthorizeRule END - ERROR - request: %s. Denying.",
+          request
+        ), e );
+
+        return new AuthorizationErrorDecision( request, e );
       }
+    }
+
+    @NonNull
+    protected IAuthorizationDecision authorizeTracked( @NonNull IAuthorizationRequest request )
+      throws AuthorizationRequestCycleException {
+
+      if ( pendingRequests.contains( request ) ) {
+        throw new AuthorizationRequestCycleException( pendingRequests, request );
+      }
+
+      pendingRequests.push( request );
+      try {
+        return authorizeRootRule( request );
+      } finally {
+        pendingRequests.pop();
+      }
+    }
+
+    @NonNull
+    private IAuthorizationDecision authorizeRootRule( @NonNull IAuthorizationRequest request ) {
+      return authorizeRule( request, getRootRule() )
+        .orElseGet( () -> getDefaultDecision( request ) );
     }
 
     @NonNull
@@ -136,8 +164,24 @@ public class AuthorizationService implements IAuthorizationService {
           rule
         ), e );
 
-        return Optional.of( new RuleErrorAuthorizationDecision( request, e ) );
+        return Optional.of( new AuthorizationErrorDecision( request, e ) );
       }
+    }
+
+    @NonNull
+    protected IAuthorizationRequest resolveRequestAction( @NonNull IAuthorizationRequest request )
+      throws AuthorizationRequestUndefinedActionException {
+      // Resolve the action by name.
+      var resolvedActionOptional = getActionService().getAction( request.getAction().getName() );
+      if ( resolvedActionOptional.isEmpty() ) {
+        throw new AuthorizationRequestUndefinedActionException( request );
+      }
+
+      // If a different action instance was specified, prefer using the registered one by same name, ensuring that
+      // proper metadata is used.
+      return resolvedActionOptional.get() != request.getAction()
+        ? request.withAction( resolvedActionOptional.get() )
+        : request;
     }
 
     /**
@@ -155,16 +199,23 @@ public class AuthorizationService implements IAuthorizationService {
   }
 
   @NonNull
+  private final IAuthorizationActionService actionService;
+
+  @NonNull
   private final IAuthorizationRule rootRule;
 
-  /***
+  /**
    * Constructs an instance of the authorization service with a given root rule.
    *
+   * @param actionService The service providing access to authorization actions.
    * @param rootRule The root authorization rule.
    */
-  public AuthorizationService( @NonNull IAuthorizationRule rootRule ) {
+  public AuthorizationService( @NonNull IAuthorizationActionService actionService,
+                               @NonNull IAuthorizationRule rootRule ) {
+    Assert.notNull( actionService, "Argument 'actionService' is required" );
     Assert.notNull( rootRule, "Argument 'rootRule' is required" );
 
+    this.actionService = actionService;
     this.rootRule = rootRule;
   }
 
@@ -172,10 +223,12 @@ public class AuthorizationService implements IAuthorizationService {
    * Constructs an instance of the authorization service with a list of authorization rules combined using an "any-of"
    * logic.
    *
+   * @param actionService The service providing access to authorization actions.
    * @param anyOfRules The list of rules.
    */
-  public AuthorizationService( @NonNull List<IAuthorizationRule> anyOfRules ) {
-    this( new AnyAuthorizationRule( anyOfRules ) );
+  public AuthorizationService( @NonNull IAuthorizationActionService actionService,
+                               @NonNull List<IAuthorizationRule> anyOfRules ) {
+    this( actionService, new AnyAuthorizationRule( anyOfRules ) );
   }
 
   @NonNull
@@ -214,5 +267,15 @@ public class AuthorizationService implements IAuthorizationService {
   @NonNull
   protected final IAuthorizationRule getRootRule() {
     return rootRule;
+  }
+
+  /**
+   * Gets the authorization action service.
+   *
+   * @return The action service.
+   */
+  @NonNull
+  protected IAuthorizationActionService getActionService() {
+    return actionService;
   }
 }

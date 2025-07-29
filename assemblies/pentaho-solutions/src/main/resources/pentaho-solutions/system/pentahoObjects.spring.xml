@@ -331,6 +331,7 @@ not directly from the PentahoObjectFactory. -->
 
   <bean id="authorizationService"
         class="org.pentaho.platform.engine.security.authorization.core.AuthorizationService">
+    <constructor-arg ref="authorizationActionService" />
     <constructor-arg ref="rootAuthorizationRule" />
     <pen:publish as-type="INTERFACES" />
   </bean>

@@ -34,15 +34,22 @@ public class AuthorizationRequestBuilderTest {
     builder = new AuthorizationRequestBuilder( actionServiceMock, () -> currentUser );
   }
 
-  @Test( expected = IllegalArgumentException.class )
-  public void testResolveActionThrowsIfNotFound() {
-    when( actionServiceMock.getAction( "undefined-action" ) ).thenReturn( Optional.empty() );
-    builder.action( "undefined-action" );
-  }
-
   private void mockActionName( String name ) {
     when( actionServiceMock.getAction( name ) ).thenReturn( Optional.of( actionMock ) );
     when( actionMock.getName() ).thenReturn( name );
+  }
+
+  @Test
+  public void testResolveUndefinedAction() {
+    when( actionServiceMock.getAction( "undefined-action" ) )
+      .thenReturn( Optional.empty() );
+
+    var request = builder
+      .action( "undefined-action" )
+      .build();
+
+    assertNotNull( request );
+    assertEquals( "undefined-action", request.getAction().getName() );
   }
 
   @Test

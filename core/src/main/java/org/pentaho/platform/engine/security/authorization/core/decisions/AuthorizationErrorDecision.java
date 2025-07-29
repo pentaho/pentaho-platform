@@ -14,25 +14,25 @@ package org.pentaho.platform.engine.security.authorization.core.decisions;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
-import org.pentaho.platform.api.engine.security.authorization.decisions.IRuleErrorAuthorizationDecision;
+import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationErrorDecision;
 import org.pentaho.platform.engine.security.messages.Messages;
 
 import java.util.Objects;
 
 /**
- * The {@code RuleErrorAuthorizationDecision} class is a basic implementation of the
- * {@link IRuleErrorAuthorizationDecision} interface.
+ * The {@code AuthorizationErrorDecision} class is a basic implementation of the
+ * {@link IAuthorizationErrorDecision} interface.
  */
-public class RuleErrorAuthorizationDecision extends AbstractAuthorizationDecision
-  implements IRuleErrorAuthorizationDecision {
+public class AuthorizationErrorDecision extends AbstractAuthorizationDecision
+  implements IAuthorizationErrorDecision {
 
   private static final String JUSTIFICATION =
-    Messages.getInstance().getString( "OpposedAuthorizationDecision.JUSTIFICATION" );
+    Messages.getInstance().getString( "AuthorizationErrorDecision.JUSTIFICATION" );
 
   @NonNull
   private final Exception cause;
 
-  public RuleErrorAuthorizationDecision(
+  public AuthorizationErrorDecision(
     @NonNull IAuthorizationRequest request,
     @NonNull Exception cause ) {
 
@@ -55,7 +55,7 @@ public class RuleErrorAuthorizationDecision extends AbstractAuthorizationDecisio
 
   @Override
   public String toString() {
-    // Example: `RuleErrorAuthorizationDecision[Denied, "An error occurred while..."]`
+    // Example: `AuthorizationErrorDecision[Denied, "An error occurred while..."]`
     return String.format(
       "%s[%s \"%s\"]",
       getClass().getSimpleName(),
