@@ -13,9 +13,9 @@
 
 package org.pentaho.platform.plugin.services.connections.xquery;
 
-import net.sf.saxon.om.NodeInfo;
-import net.sf.saxon.tree.iter.AxisIterator;
-import net.sf.saxon.om.AxisInfo;
+import net.sf.saxon.om.Axis;
+import net.sf.saxon.om.AxisIterator;
+import net.sf.saxon.tinytree.TinyNodeImpl;
 import net.sf.saxon.type.Type;
 import org.pentaho.commons.connection.AbstractPentahoMetaData;
 
@@ -46,14 +46,14 @@ public class XQMetaData extends AbstractPentahoMetaData {
     while ( iter.hasNext() ) {
       rowCount++;
       Object obj = iter.next();
-      if ( obj instanceof NodeInfo ) {
+      if ( obj instanceof TinyNodeImpl ) {
         boolean processedChildren = false;
-        AxisIterator aIter = ( (NodeInfo) obj ).iterateAxis( AxisInfo.DESCENDANT );
+        AxisIterator aIter = ( (TinyNodeImpl) obj ).iterateAxis( Axis.DESCENDANT );
         Object descendent = aIter.next();
         while ( descendent != null ) {
-          if ( ( descendent instanceof NodeInfo ) && ( ( (NodeInfo) descendent )
+          if ( ( descendent instanceof TinyNodeImpl ) && ( ( (TinyNodeImpl) descendent )
             .getNodeKind() == Type.ELEMENT ) ) {
-            NodeInfo descNode = (NodeInfo) descendent;
+            TinyNodeImpl descNode = (TinyNodeImpl) descendent;
             processedChildren = true;
             if ( !headers.contains( descNode.getDisplayName() ) ) {
               headers.add( descNode.getDisplayName() );
@@ -62,7 +62,7 @@ public class XQMetaData extends AbstractPentahoMetaData {
           descendent = aIter.next();
         }
         if ( !processedChildren ) {
-          Object value = ( (NodeInfo) obj ).getDisplayName();
+          Object value = ( (TinyNodeImpl) obj ).getDisplayName();
           if ( !headers.contains( value ) ) {
             headers.add( value );
           }

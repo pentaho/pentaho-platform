@@ -13,15 +13,16 @@
 
 package org.pentaho.platform.plugin.services.connections.xquery;
 
-import net.sf.saxon.om.AxisInfo;
+import net.sf.saxon.om.Axis;
+import net.sf.saxon.om.AxisIterator;
 import net.sf.saxon.om.Item;
-import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.XQueryExpression;
+import net.sf.saxon.tinytree.TinyNodeImpl;
 import net.sf.saxon.trans.XPathException;
-import net.sf.saxon.tree.iter.AxisIterator;
 import net.sf.saxon.type.Type;
+import net.sf.saxon.value.Value;
 import org.apache.commons.collections.OrderedMap;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.logging.Log;
@@ -111,7 +112,7 @@ public class XQResultSet implements IPentahoResultSet, IPeekable {
       if ( ( maxRows >= 0 ) && ( rowCount > maxRows ) ) {
         break;
       }
-      rtn.add( item.getStringValue() );
+      rtn.add( Value.convertToJava( item ) );
     }
     return rtn;
   }
@@ -177,15 +178,15 @@ public class XQResultSet implements IPentahoResultSet, IPeekable {
   }
 
   protected void decodeNode( final Object obj, final Map retValue ) {
-    if ( obj instanceof NodeInfo ) {
-      AxisIterator aIter = ( (NodeInfo) obj ).iterateAxis( AxisInfo.DESCENDANT );
+    if ( obj instanceof TinyNodeImpl ) {
+      AxisIterator aIter = ( (TinyNodeImpl) obj ).iterateAxis( Axis.DESCENDANT );
       Object descendent = aIter.next();
       boolean processedChildren = false;
       int columnIndex = 0;
       while ( descendent != null ) {
-        if ( ( descendent instanceof NodeInfo ) && ( ( (NodeInfo) descendent )
+        if ( ( descendent instanceof TinyNodeImpl ) && ( ( (TinyNodeImpl) descendent )
           .getNodeKind() == Type.ELEMENT ) ) {
-          NodeInfo descNode = (NodeInfo) descendent;
+          TinyNodeImpl descNode = (TinyNodeImpl) descendent;
           Object value = retValue.get( descNode.getDisplayName() );
           if ( value == null ) {
             value = XQResultSet.EMPTY_STR;
@@ -219,8 +220,8 @@ public class XQResultSet implements IPentahoResultSet, IPeekable {
         descendent = aIter.next();
       }
       if ( !processedChildren ) {
-        Object key = ( (NodeInfo) obj ).getDisplayName();
-        Object value = ( (NodeInfo) obj ).getStringValue();
+        Object key = ( (TinyNodeImpl) obj ).getDisplayName();
+        Object value = ( (TinyNodeImpl) obj ).getStringValue();
         retValue.put( key, value );
       }
     } else {
