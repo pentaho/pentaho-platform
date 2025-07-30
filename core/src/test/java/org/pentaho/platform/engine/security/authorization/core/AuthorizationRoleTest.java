@@ -31,6 +31,9 @@ public class AuthorizationRoleTest {
     var role2 = new AuthorizationRole( "Administrator" );
     var role3 = new AuthorizationRole( "Power User" );
 
+    var notRole = new Object();
+    assertNotEquals( role1, notRole );
+
     assertEquals( role1, role2 );
     assertNotEquals( role1, role3 );
     assertEquals( role1.hashCode(), role2.hashCode() );

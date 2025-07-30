@@ -43,6 +43,9 @@ public class AuthorizationResourceTest {
     var resource2 = new AuthorizationResource( "file", "report123" );
     var resource3 = new AuthorizationResource( "folder", "report123" );
 
+    var notResource = new Object();
+    assertNotEquals( resource1, notResource );
+
     assertEquals( resource1, resource2 );
     assertNotEquals( resource1, resource3 );
     assertEquals( resource1.hashCode(), resource2.hashCode() );

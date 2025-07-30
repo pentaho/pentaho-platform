@@ -31,6 +31,10 @@ public class AuthorizationOptionsTest {
     var options1 = new AuthorizationOptions( AuthorizationDecisionReportingMode.FULL );
     var options2 = new AuthorizationOptions( AuthorizationDecisionReportingMode.FULL );
     var options3 = new AuthorizationOptions( AuthorizationDecisionReportingMode.SETTLED );
+
+    var notOptions = new Object();
+    assertNotEquals( options1, notOptions );
+
     assertEquals( options1, options2 );
     assertNotEquals( options1, options3 );
     assertEquals( options1.hashCode(), options2.hashCode() );

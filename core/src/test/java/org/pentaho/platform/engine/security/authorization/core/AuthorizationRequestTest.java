@@ -81,6 +81,9 @@ public class AuthorizationRequestTest {
     // Different action.
     assertNotEquals( request1, request3 );
     assertNotEquals( request1.hashCode(), request3.hashCode() );
+
+    var notRequest = new Object();
+    assertNotEquals( request1, notRequest );
   }
 
   @Test

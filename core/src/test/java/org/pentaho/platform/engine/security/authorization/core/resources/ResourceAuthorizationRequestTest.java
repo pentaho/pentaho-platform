@@ -111,6 +111,9 @@ public class ResourceAuthorizationRequestTest {
     var request2 = new ResourceAuthorizationRequest( user, action, resource2 );
     var request3 = new ResourceAuthorizationRequest( user, action, resource3 );
 
+    var notRequest = new Object();
+    assertNotEquals( request1, notRequest );
+
     assertEquals( request1, request2 );
     assertNotEquals( request1, request3 );
     assertEquals( request1.hashCode(), request2.hashCode() );

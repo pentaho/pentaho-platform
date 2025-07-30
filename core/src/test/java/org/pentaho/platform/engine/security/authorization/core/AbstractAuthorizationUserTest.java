@@ -37,6 +37,9 @@ public class AbstractAuthorizationUserTest {
     var user2 = new TestUser( "user1" );
     var user3 = new TestUser( "user2" );
 
+    var notUser = new Object();
+    assertNotEquals( user1, notUser );
+
     assertEquals( user1, user2 );
     assertNotEquals( user1, user3 );
     assertEquals( user1.hashCode(), user2.hashCode() );

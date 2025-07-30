@@ -1,0 +1,82 @@
+package org.pentaho.platform.engine.security.authorization.core.decisions;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.pentaho.platform.api.engine.IAuthorizationAction;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
+import org.pentaho.platform.engine.security.authorization.core.AuthorizationRequest;
+import org.pentaho.platform.engine.security.authorization.core.AuthorizationRole;
+import org.pentaho.platform.engine.security.authorization.core.AuthorizationUser;
+
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class AbstractAuthorizationDecisionTest {
+
+  private IAuthorizationRequest request;
+  private TestAuthorizationDecision grantedDecision;
+  private TestAuthorizationDecision deniedDecision;
+
+  // Concrete test implementation of AbstractAuthorizationDecision
+  private static class TestAuthorizationDecision extends AbstractAuthorizationDecision {
+    public TestAuthorizationDecision( IAuthorizationRequest request, boolean granted ) {
+      super( request, granted );
+    }
+  }
+
+  @Before
+  public void setUp() {
+    var user = new AuthorizationUser( "test-user", Set.of( new AuthorizationRole( "Administrator" ) ) );
+
+    var action = mock( IAuthorizationAction.class );
+    when( action.getName() ).thenReturn( "read" );
+
+    request = new AuthorizationRequest( user, action );
+
+    grantedDecision = new TestAuthorizationDecision( request, true );
+    deniedDecision = new TestAuthorizationDecision( request, false );
+  }
+
+  @Test
+  public void testConstructorAndGetters() {
+    assertEquals( request, grantedDecision.getRequest() );
+    assertTrue( grantedDecision.isGranted() );
+
+    assertEquals( request, deniedDecision.getRequest() );
+    assertFalse( deniedDecision.isGranted() );
+  }
+
+  @Test( expected = NullPointerException.class )
+  public void testConstructorWithNullRequestThrows() {
+    new TestAuthorizationDecision( null, true );
+  }
+
+  @Test
+  public void testGetShortJustificationDefaultsToEmptyString() {
+    assertEquals( "", grantedDecision.getShortJustification() );
+    assertEquals( "", deniedDecision.getShortJustification() );
+  }
+
+  @Test
+  public void testGetGrantedLogText() {
+    assertEquals( "Granted", grantedDecision.getGrantedLogText() );
+    assertEquals( "Denied", deniedDecision.getGrantedLogText() );
+  }
+
+  @Test
+  public void testToStringFormat() {
+    var grantedString = grantedDecision.toString();
+    var deniedString = deniedDecision.toString();
+
+    assertTrue( grantedString.contains( "TestAuthorizationDecision" ) );
+    assertTrue( grantedString.contains( "Granted" ) );
+
+    assertTrue( deniedString.contains( "TestAuthorizationDecision" ) );
+    assertTrue( deniedString.contains( "Denied" ) );
+  }
+}
