@@ -7,12 +7,11 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
 
-package org.pentaho.platform.engine.core.system.objfac.spring;
 
-import java.io.File;
+package org.pentaho.platform.engine.core.system.objfac.spring;
 
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
@@ -25,9 +24,11 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 
+import java.io.File;
+
 /**
  * When added as a bean to a Spring context this class will register the ApplicationContext as a
- * StandalongSpringPentahoObjectFactory with the PentahoSystem
+ * StandaloneSpringPentahoObjectFactory with the PentahoSystem.
  * <p/>
  * User: nbaker Date: 3/31/13
  */

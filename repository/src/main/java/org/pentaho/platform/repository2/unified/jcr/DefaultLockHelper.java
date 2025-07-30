@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.jcr;
 
@@ -113,7 +114,7 @@ public class DefaultLockHelper implements ILockHelper {
     throws RepositoryException {
     Node lockTokensNode = getOrCreateLockTokensNode( session, pentahoJcrConstants, lock );
     NodeIterator nodes = lockTokensNode.getNodes( lock.getNode().getIdentifier() );
-    Assert.isTrue( nodes.hasNext() );
+    Assert.isTrue( nodes.hasNext(), "No lock token node found for the given lock" );
     return nodes.nextNode().getProperty( pentahoJcrConstants.getPHO_LOCKTOKEN() ).getString();
   }
 
@@ -225,7 +226,7 @@ public class DefaultLockHelper implements ILockHelper {
         makeOwnerInfo( JcrTenantUtils.getTenantedUser( PentahoSessionHolder.getSession().getName() ), Calendar
             .getInstance().getTime(), message );
     Node fileNode = session.getNodeByIdentifier( fileId.toString() );
-    Assert.isTrue( fileNode.isNodeType( pentahoJcrConstants.getMIX_LOCKABLE() ) );
+    Assert.isTrue( fileNode.isNodeType( pentahoJcrConstants.getMIX_LOCKABLE() ), "The specified file node must be lockable" );
     Lock lock = lockManager.lock( fileNode.getPath(), isDeep, isSessionScoped, timeoutHint, ownerInfo );
     addLockToken( session, pentahoJcrConstants, lock );
   }
