@@ -13,6 +13,7 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import jakarta.inject.Inject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.Facet;
@@ -99,6 +100,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   private static final Log logger = LogFactory.getLog( UserConsoleResource.class );
   private final UserConsoleService userConsoleService;
 
+  @Inject
   public UserConsoleResource( @NonNull UserConsoleService userConsoleService ) {
     this.userConsoleService = Objects.requireNonNull( userConsoleService );
   }

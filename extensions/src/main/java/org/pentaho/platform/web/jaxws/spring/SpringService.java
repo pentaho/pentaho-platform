@@ -88,8 +88,9 @@ public class SpringService implements FactoryBean, ServletContextAware, Initiali
 
   public void setBean( Object sei ) {
     this.invoker = InstanceResolver.createSingleton( sei ).createInvoker();
-    if ( this.implType == null )
+    if ( this.implType == null ) {
       this.implType = sei.getClass();
+    }
   }
 
   public void setInvoker( Invoker invoker ) {
@@ -97,10 +98,11 @@ public class SpringService implements FactoryBean, ServletContextAware, Initiali
   }
 
   public void setAssembler( Object assembler ) {
-    if ( assembler instanceof TubelineAssembler || assembler instanceof TubelineAssemblerFactory )
+    if ( assembler instanceof TubelineAssembler || assembler instanceof TubelineAssemblerFactory ) {
       this.assembler = assembler;
-    else
-      throw new IllegalArgumentException( "Invalid type for assembler " + assembler );
+    } else {
+      throw new IllegalArgumentException("Invalid type for assembler " + assembler);
+    }
   }
 
   public void setServiceName( QName serviceName ) {
@@ -148,18 +150,24 @@ public class SpringService implements FactoryBean, ServletContextAware, Initiali
   public WSEndpoint getObject() throws Exception {
     if ( endpoint == null ) {
       if ( binding == null ) {
-        if ( bindingID == null )
-          bindingID = BindingID.parse( implType );
-        if ( features == null || features.isEmpty() )
-          binding = BindingImpl.create( bindingID );
-        else
-          binding = BindingImpl.create( bindingID,
-            features.toArray( new WebServiceFeature[ features.size() ] ) );
+        if ( bindingID == null ) {
+          bindingID = BindingID.parse(implType);
+        }
+
+        if ( features == null || features.isEmpty() ) {
+          binding = BindingImpl.create(bindingID);
+        } else {
+          binding = BindingImpl.create(bindingID,
+                  features.toArray(new WebServiceFeature[features.size()]));
+        }
       } else {
-        if ( bindingID != null )
-          throw new IllegalStateException( "Both bindingID and binding are configured" );
-        if ( features != null )
-          throw new IllegalStateException( "Both features and binding are configured" );
+        if ( bindingID != null ) {
+          throw new IllegalStateException("Both bindingID and binding are configured");
+        }
+
+        if ( features != null ) {
+          throw new IllegalStateException("Both features and binding are configured");
+        }
       }
 
       if ( handlers != null ) {
@@ -171,8 +179,9 @@ public class SpringService implements FactoryBean, ServletContextAware, Initiali
       if ( primaryWsdl == null ) {
         EndpointFactory.verifyImplementorClass( implType );
         String wsdlLocation = EndpointFactory.getWsdlLocation( implType );
-        if ( wsdlLocation != null )
-          primaryWsdl = convertStringToSource( wsdlLocation );
+        if ( wsdlLocation != null ) {
+          primaryWsdl = convertStringToSource(wsdlLocation);
+        }
       }
 
       EntityResolver resolver = this.resolver;
@@ -214,7 +223,7 @@ public class SpringService implements FactoryBean, ServletContextAware, Initiali
       source = this.convertStringToSource( ( String ) resource );
     } else if ( resource instanceof URL ) {
       source = SDDocumentSource.create( ( URL ) resource );
-    } else if ( resource instanceof SDDocumentSource) {
+    } else if ( resource instanceof SDDocumentSource ) {
       source = ( SDDocumentSource ) resource;
     } else {
       throw new IllegalArgumentException( "Unknown type " + resource );
@@ -266,8 +275,10 @@ public class SpringService implements FactoryBean, ServletContextAware, Initiali
     public <T> T getSPI( Class<T> spiType ) {
       // allow specified TubelineAssembler to be used
       if ( spiType == TubelineAssemblerFactory.class ) {
-        if ( assembler instanceof TubelineAssemblerFactory )
-          return spiType.cast( assembler );
+        if ( assembler instanceof TubelineAssemblerFactory ) {
+          return spiType.cast(assembler);
+        }
+
         if ( assembler instanceof TubelineAssembler ) {
           return spiType.cast( new TubelineAssemblerFactory() {
             public TubelineAssembler doCreate( BindingID bindingId ) {
@@ -279,10 +290,12 @@ public class SpringService implements FactoryBean, ServletContextAware, Initiali
       if ( spiType == ServletContext.class ) {
         return spiType.cast( servletContext );
       }
+
       if ( container != null ) {
         T t = container.getSPI( spiType );
-        if ( t != null )
+        if ( t != null ) {
           return t;
+        }
       }
 
       if ( spiType == Module.class ) {

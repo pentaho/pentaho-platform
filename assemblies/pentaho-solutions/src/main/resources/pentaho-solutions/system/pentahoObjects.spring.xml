@@ -376,4 +376,7 @@ not directly from the PentahoObjectFactory. -->
     </constructor-arg>
   </bean>
 
+  <bean id="userConsoleService" class="org.pentaho.platform.web.http.api.resources.services.UserConsoleService">
+    <pen:publish as-type="CLASSES"/>
+  </bean>
 </beans>
