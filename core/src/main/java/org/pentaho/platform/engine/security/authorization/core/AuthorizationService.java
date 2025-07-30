@@ -26,12 +26,10 @@ import org.pentaho.platform.engine.security.authorization.core.decisions.Authori
 import org.pentaho.platform.engine.security.authorization.core.decisions.DefaultAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.exceptions.AuthorizationRequestCycleException;
 import org.pentaho.platform.engine.security.authorization.core.exceptions.AuthorizationRequestUndefinedActionException;
-import org.pentaho.platform.engine.security.authorization.core.rules.AnyAuthorizationRule;
 import org.springframework.util.Assert;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -217,18 +215,6 @@ public class AuthorizationService implements IAuthorizationService {
 
     this.actionService = actionService;
     this.rootRule = rootRule;
-  }
-
-  /**
-   * Constructs an instance of the authorization service with a list of authorization rules combined using an "any-of"
-   * logic.
-   *
-   * @param actionService The service providing access to authorization actions.
-   * @param anyOfRules The list of rules.
-   */
-  public AuthorizationService( @NonNull IAuthorizationActionService actionService,
-                               @NonNull List<IAuthorizationRule> anyOfRules ) {
-    this( actionService, new AnyAuthorizationRule( anyOfRules ) );
   }
 
   @NonNull
