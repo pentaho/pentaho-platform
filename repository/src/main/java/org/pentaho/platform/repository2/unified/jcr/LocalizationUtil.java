@@ -31,7 +31,7 @@ public class LocalizationUtil {
   public static final String DEFAULT = "default";
 
   public LocalizationUtil( Map<String, Properties> localePropertiesMap, Locale locale ) {
-    Assert.notNull( localePropertiesMap );
+    Assert.notNull( localePropertiesMap, "The locale properties map must not be null. Ensure a valid map is provided." );
     this.localePropertiesMap = localePropertiesMap;
     this.locale = locale;
   }

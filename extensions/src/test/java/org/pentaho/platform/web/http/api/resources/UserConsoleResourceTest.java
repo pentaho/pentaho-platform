@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.pentaho.platform.web.http.api.resources.services.ForbiddenSessionVariableException;
 import org.pentaho.platform.web.http.api.resources.services.UserConsoleService;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.List;
 

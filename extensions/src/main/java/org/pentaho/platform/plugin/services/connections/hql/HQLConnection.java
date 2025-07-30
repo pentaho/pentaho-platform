@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.plugin.services.connections.hql;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -26,6 +26,7 @@ import org.pentaho.platform.engine.core.system.IPentahoLoggingConnection;
 import org.pentaho.platform.plugin.services.messages.Messages;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -135,8 +136,10 @@ public class HQLConnection implements IPentahoLoggingConnection, ILimitableConne
       if ( maxRows >= 0 ) {
         q.setMaxResults( maxRows );
       }
-      List list = q.list();
-      localResultSet = generateResultSet( list, q.getReturnAliases(), q.getReturnTypes() );
+      List<Object[]> list = q.getResultList();
+      String[] returnAliases = list.isEmpty() ? new String[0] : Arrays.stream( list.get( 0 ) ).map( Object::toString ).toArray( String[]::new );
+      Type[] returnTypes = list.isEmpty() ? new Type[0] : Arrays.stream( list.get( 0 ) ).map( Object::getClass ).toArray( Type[]::new );
+      localResultSet = generateResultSet( list, returnAliases, returnTypes );
     } finally {
       try {
         if ( sess != null ) {

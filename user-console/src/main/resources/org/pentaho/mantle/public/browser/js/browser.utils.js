@@ -179,7 +179,7 @@ define([
       var canSchedule = false;
       $.each(this.executableTypes, function (idx, type) {
         if (fileExtension == type.extension) {
-          canSchedule = type.canSchedule == 'true';
+          canSchedule = type.canSchedule;
           return false; // break the $.each loop
         }
       });
@@ -191,7 +191,7 @@ define([
       var canEdit = false;
       $.each(this.executableTypes, function (idx, type) {
         if (fileExtension == type.extension) {
-          canEdit = type.canEdit == 'true';
+          canEdit = type.canEdit;
           return false; // break the $.each loop
         }
       });

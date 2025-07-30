@@ -107,7 +107,7 @@ public class SearchResultToAttrValueList implements Transformer, InitializingBea
   }
 
   public void afterPropertiesSet() throws Exception {
-    Assert.hasLength( attributeName );
+    Assert.hasLength( attributeName, "Attribute name must not be null or empty" );
   }
 
   public Object transform( final Object obj ) {

@@ -13,6 +13,7 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import jakarta.inject.Inject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.Facet;
@@ -29,22 +30,22 @@ import org.pentaho.platform.plugin.services.pluginmgr.IAdminContentConditionalLo
 import org.pentaho.platform.web.http.api.resources.services.ForbiddenSessionVariableException;
 import org.pentaho.platform.web.http.api.resources.services.UserConsoleService;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringTokenizer;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
+import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
+import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
 
 /**
  * The {@code UserConsoleResource} service provides both shared and user-specific state or settings related with the
@@ -99,6 +100,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   private static final Log logger = LogFactory.getLog( UserConsoleResource.class );
   private final UserConsoleService userConsoleService;
 
+  @Inject
   public UserConsoleResource( @NonNull UserConsoleService userConsoleService ) {
     this.userConsoleService = Objects.requireNonNull( userConsoleService );
   }
@@ -163,7 +165,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @Path( "/getAdminContent" )
   @Facet( name = "Unsupported" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
-  public List<Setting> getAdminContent() {
+  public SettingsWrapper getAdminContent() {
 
     ArrayList<Setting> settings = new ArrayList<Setting>();
     try {
@@ -198,7 +200,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     } catch ( Exception e ) {
       logger.error( e.getMessage(), e );
     }
-    return settings;
+    return new SettingsWrapper( settings );
   }
 
   /**
@@ -210,7 +212,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @Path( "/settings" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   @Facet( name = "Unsupported" )
-  public List<Setting> getMantleSettings() {
+  public SettingsWrapper getMantleSettings() {
     ArrayList<Setting> settings = new ArrayList<Setting>();
     settings
       .add( new Setting( "login-show-users-list",
@@ -285,7 +287,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
       }
     }
 
-    return settings;
+    return new SettingsWrapper( settings );
   }
 
   /**
@@ -297,7 +299,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @Path( "/cubes" )
   @Facet( name = "Unsupported" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
-  public List<Cube> getMondrianCatalogs() {
+  public CubesWrapper getMondrianCatalogs() {
     ArrayList<Cube> cubes = new ArrayList<Cube>();
 
     IMondrianCatalogService catalogService =
@@ -311,7 +313,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
         cubes.add( new Cube( cat.getName(), cube.getName(), cube.getId() ) );
       }
     }
-    return cubes;
+    return new CubesWrapper( cubes );
   }
 
   /**
