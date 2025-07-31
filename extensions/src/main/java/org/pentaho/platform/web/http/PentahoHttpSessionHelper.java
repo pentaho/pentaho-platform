@@ -15,7 +15,7 @@ package org.pentaho.platform.web.http;
 
 import org.apache.commons.lang.StringUtils;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
 

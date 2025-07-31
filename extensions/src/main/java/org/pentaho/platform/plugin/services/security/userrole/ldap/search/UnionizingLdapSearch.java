@@ -63,7 +63,7 @@ public class UnionizingLdapSearch implements LdapSearch, InitializingBean {
   }
 
   public void afterPropertiesSet() throws Exception {
-    Assert.notEmpty( searches );
+    Assert.notEmpty( searches, "Searches set must not be empty" );
   }
 
 }

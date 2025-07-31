@@ -63,17 +63,18 @@
 		or interpret an XML document.
 	-->
 
-        <cache-provider>
-          <class>org.pentaho.platform.plugin.services.cache.HvCacheRegionFactory</class>
-          <region>pentahoCache</region>
-          <!--
-          Uncomment this block to specify some parameters for your cache provider. EHCache has no parameters
-          other than what are provided in the ehcache.xml.
-          <properties>
-              <property name="someProperty">someValue</property>
-          </properties>
-          -->
-        </cache-provider>
+    <cache-provider>
+      <!-- Not using this anymore since pentaho uses JCache. Underlying implementation will be chosen by JCache  -->
+<!--      <class>org.pentaho.platform.plugin.services.cache.HvCacheRegionFactory</class>-->
+      <region>pentahoCache</region>
+      <!--
+      Uncomment this block to specify some parameters for your cache provider. EHCache has no parameters
+      other than what are provided in the ehcache.xml.
+      <properties>
+          <property name="someProperty">someValue</property>
+      </properties>
+      -->
+    </cache-provider>
 	<!-- Insert additional pentaho-system -->
 
     <audit>

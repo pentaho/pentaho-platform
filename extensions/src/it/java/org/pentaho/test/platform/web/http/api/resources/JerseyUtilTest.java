@@ -23,16 +23,16 @@ import org.pentaho.platform.web.http.api.resources.JerseyUtil;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.MultivaluedMap;
 
-import com.sun.jersey.core.util.MultivaluedMapImpl;
+import jakarta.ws.rs.core.MultivaluedHashMap;
 
 public class JerseyUtilTest {
-  
+
   private final static String EXPECTED_VALUE = "EXPECTED_VALUE";
   private final static String KEY = "KEY";
-  
+
   @Test
   public void testDummy() {
     Map<String, String[]> parameterMap = new HashMap<String, String[]>();
@@ -41,7 +41,7 @@ public class JerseyUtilTest {
     HttpServletRequest request = mock( HttpServletRequest.class );
     when( request.getParameterMap() ).thenReturn( parameterMap );
 
-    MultivaluedMap<String, String> formParams = new MultivaluedMapImpl();
+    MultivaluedMap<String, String> formParams = new MultivaluedHashMap<>();
 
     Map<String, String[]> resultMap = JerseyUtil.correctPostRequest( formParams, request ).getParameterMap();
     Assert.assertEquals( EXPECTED_VALUE, resultMap.get( KEY )[0] );

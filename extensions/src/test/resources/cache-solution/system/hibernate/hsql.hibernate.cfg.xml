@@ -5,9 +5,9 @@
 <hibernate-configuration>
   <session-factory>
 
-    <property name="cache.provider_class">org.hibernate.cache.EhCacheProvider</property>
-    <property name="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.internal.SingletonEhcacheRegionFactory
-    </property>
+    <property name="hibernate.javax.cache.provider">org.ehcache.jsr107.EhcacheCachingProvider</property>
+    <property name="hibernate.javax.cache.uri">ehcache.xml</property>
+    <property name="hibernate.cache.region.factory_class">org.hibernate.cache.jcache.internal.JCacheRegionFactory</property>
 
     <property name="hibernate.generate_statistics">true</property>
     <property name="hibernate.cache.use_query_cache">true</property>
@@ -20,5 +20,6 @@
     <property name="connection.pool_size">10</property>
     <property name="show_sql">false</property>
     <property name="hibernate.jdbc.use_streams_for_binary">true</property>
+    <property name="hibernate.id.db_structure_naming_strategy">legacy</property>
   </session-factory>
 </hibernate-configuration>

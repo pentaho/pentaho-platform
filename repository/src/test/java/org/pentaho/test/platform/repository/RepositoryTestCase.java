@@ -68,7 +68,7 @@ public class RepositoryTestCase extends BaseTest {
 
   /**
    * Constructor for RepositoryTestCase.
-   * 
+   *
    * @param arg0
    */
   public RepositoryTestCase( String arg0 ) {

@@ -1,4 +1,5 @@
-/*! ******************************************************************************
+/*
+ * ! ******************************************************************************
  *
  * Pentaho
  *
@@ -13,6 +14,7 @@
 
 package org.pentaho.platform.plugin.services.pluginmgr;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.lang.StringUtils;
@@ -41,12 +43,16 @@ import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.ui.xul.impl.DefaultXulOverlay;
 
+import com.cronutils.utils.VisibleForTesting;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * An implementation of {@link IPluginProvider} that searches for plugin.xml files in the Pentaho system path and
@@ -57,6 +63,7 @@ import java.util.List;
 public class SystemPathXmlPluginProvider implements IPluginProvider {
 
   public static final String CLASS_PROPERRTY = "class";
+  private static final Pattern PLUGIN_DATE_STAMP_REGEX = Pattern.compile( "([\\w\\-]+)-2\\d{3}-[\\d\\-]+" );
 
   /**
    * Gets the list of plugins that this provider class has discovered.
@@ -103,12 +110,22 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     if ( kids == null || kids.length == 0 ) {
       return;
     }
+    // if the folder is marked for deletion, then delete it 
+    FilenameFilter deleteFilter = new NameFileFilter( ".plugin-manager-delete", IOCase.SENSITIVE ); //$NON-NLS-1$
+    kids = folder.listFiles( deleteFilter );
+    if ( kids != null && kids.length > 0 ) {
+      deleteFolder( folder );
+      return;
+    }
     // see if we should ignore this plugin because it is marked to be ignored
     FilenameFilter ignoreFilter = new NameFileFilter( ".kettle-ignore", IOCase.SENSITIVE ); //$NON-NLS-1$
     kids = folder.listFiles( ignoreFilter );
     if ( kids != null && kids.length > 0 ) {
       return;
     }
+
+    folder = cleanUpUninstalledPlugins( folder, deleteFilter, ignoreFilter );
+
     boolean hasLib = false;
     filter = new NameFileFilter( "lib", IOCase.SENSITIVE ); //$NON-NLS-1$
     kids = folder.listFiles( filter );
@@ -139,6 +156,80 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     }
   }
 
+  /*
+   * This method ensures that if a plugin folder was uninstalled by the plugin manager, we delete it.
+   * If a plugin was newly installed by the plugin manager (still has a date stamp on the end of the name),
+   * we rename it to the base folder name without the date stamp.
+   */
+  private File cleanUpUninstalledPlugins( File folder, FilenameFilter deleteFilter, FilenameFilter ignoreFilter ) {
+    // strip off any datestamp left from the plugin manager to leave only the base folder name
+    String newFolderName = stripDateStampFromFolderName( folder.getName() );
+    if ( !folder.getName().equals( newFolderName ) ) {
+      // The plugin folder had a date stamp on the end of the name which was removed.
+      // Check if a folder with the new name already exists
+      File parent = folder.getParentFile();
+      FilenameFilter newFolderFilter = new NameFileFilter( newFolderName, IOCase.SENSITIVE );
+      File[] matchingFolders = parent.listFiles( newFolderFilter );
+      boolean canRenameFolder = false;
+      if ( matchingFolders != null && matchingFolders.length == 1 ) { //it either matches or it doesn't
+        // folder already exists; check whether it is marked to be ignored and deleted by the plugin manager
+        File oldPluginFolder = matchingFolders[ 0 ];
+        File[] ignoreFiles = oldPluginFolder.listFiles( ignoreFilter );
+        File[] deleteFiles = oldPluginFolder.listFiles( deleteFilter );
+        if ( null != ignoreFiles && ignoreFiles.length == 1 && null != deleteFiles && deleteFiles.length == 1 ) {
+          // we can and should delete this folder before we rename the other one
+          deleteFolder( oldPluginFolder );
+          canRenameFolder = true;
+        } else {
+          // log an error since we can't get rid of the old plugin to allow the new one to load correctly
+          String msg = Messages.getInstance().getErrorString(
+            "PluginManager.ERROR_0030_CANNOT_DELETE_CONFLICTING_PLUGIN_FOLDER", oldPluginFolder.getName(), folder
+              .getName() );
+          Logger.error( getClass().toString(), msg );
+          canRenameFolder = false;
+        }
+      } else {
+        canRenameFolder = true;
+      }
+      if ( !canRenameFolder || !folder.renameTo( new File( parent, newFolderName ) ) ) {
+        String msg = Messages.getInstance().getErrorString(
+          "PluginManager.ERROR_0028_CANNOT_RENAME_PLUGIN_FOLDER", folder.getName(), newFolderName );
+        Logger.error( getClass().toString(), msg );
+        PluginMessageLogger.add( msg );
+      } else {
+        // rename was successful, so we can continue processing the plugin
+        folder = new File( parent, newFolderName );
+      }
+    }
+    return folder;
+  }
+
+  private void deleteFolder( File folder ) {
+    // delete the folder and its contents
+    try {
+      FileUtils.deleteDirectory( folder );
+      String msg = Messages.getInstance().getString(
+        "PluginManager.PLUGIN_FOLDER_DELETED", folder.getAbsolutePath() );
+      Logger.info( getClass().toString(), msg );
+      PluginMessageLogger.add( msg );
+    } catch ( Exception e ) {
+      String msg = Messages.getInstance().getErrorString(
+        "PluginManager.ERROR_0029_CANNOT_DELETE_PLUGIN_FOLDER", folder.getAbsolutePath() );
+      Logger.error( getClass().toString(), msg, e );
+      PluginMessageLogger.add( msg );
+    }
+  }
+
+  @VisibleForTesting
+  protected String stripDateStampFromFolderName( String folderName ) {
+    if ( null == folderName ) {
+      return null;
+    }
+    Matcher matcher = PLUGIN_DATE_STAMP_REGEX.matcher( folderName );
+
+    return matcher.matches() ? matcher.group( 1 ) : folderName;
+  }
+
   protected PlatformPlugin createPlugin( Document doc, IPentahoSession session, String folder, boolean hasLib ) {
     PlatformPlugin plugin = new PlatformPlugin();
 
@@ -153,7 +244,8 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     processExternalResources( plugin, doc );
     processPerspectives( plugin, doc );
 
-    int listenerCount = plugin.getLifecycleListenerClassnames() != null ? plugin.getLifecycleListenerClassnames().size() : 0;
+    int listenerCount = plugin.getLifecycleListenerClassnames() != null ? plugin.getLifecycleListenerClassnames()
+      .size() : 0;
     String msg =
       Messages.getInstance().getString(
         "SystemPathXmlPluginProvider.PLUGIN_PROVIDES", //$NON-NLS-1$
@@ -226,7 +318,8 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     for ( Object obj : nodes ) {
       Element node = (Element) obj;
       if ( node != null ) {
-        plugin.addBean( new PluginBeanDefinition( node.attributeValue( "id" ), node.attributeValue( CLASS_PROPERRTY ) ) ); //$NON-NLS-1$
+        plugin.addBean( new PluginBeanDefinition( node.attributeValue( "id" ), node.attributeValue( //$NON-NLS-1$
+          CLASS_PROPERRTY ) ) );
       }
     }
   }

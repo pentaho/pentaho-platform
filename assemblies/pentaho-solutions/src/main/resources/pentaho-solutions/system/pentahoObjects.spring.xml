@@ -14,11 +14,11 @@ PentahoSystem which is initialized after Spring
  -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
-
-       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
-       default-lazy-init="true">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true" >
 
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype"/>
   <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton"/>
@@ -175,18 +175,10 @@ not directly from the PentahoObjectFactory. -->
     </constructor-arg>
   </bean>
 
-  <bean id="ehCacheUserCache" class="org.pentaho.platform.plugin.services.security.userrole.PentahoEhCacheBasedUserCache">
-    <property name="cache">
-      <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-        <property name="cacheManager">
-          <bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-            <property name="shared" value="true"/>
-          </bean>
-        </property>
-        <property name="cacheName" value="userCache"/>
-      </bean>
-    </property>
-    <property name="caseSensitive" value="true"></property>
+  <bean id="RegionFactory" class="org.pentaho.platform.plugin.services.cache.HvCacheRegionFactory"/>
+
+  <bean id="jCacheUserCache" class="org.pentaho.platform.plugin.services.security.userrole.PentahoJCacheBasedUserCache">
+    <constructor-arg index="0" value="true" />
   </bean>
 
   <bean id="cachingUserDetailsService" class="org.pentaho.platform.plugin.services.security.userrole.PentahoCachingUserDetailsService">
@@ -194,7 +186,7 @@ not directly from the PentahoObjectFactory. -->
       <ref bean="UserDetailsService"/>
     </constructor-arg>
     <constructor-arg ref="tenantedUserNameUtils"/>
-    <property name="userCache" ref="ehCacheUserCache"/>
+    <property name="userCache" ref="jCacheUserCache"/>
 
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
@@ -205,17 +197,16 @@ not directly from the PentahoObjectFactory. -->
   </bean>
 
 
-
-    <pen:bean class="org.springframework.security.authentication.AuthenticationProvider">
-        <pen:attributes>
-            <pen:attr key="providerName" value="${security.provider}"/>
-        </pen:attributes>
-        <pen:publish as-type="ALL">
-            <pen:attributes>
-                <pen:attr key="priority" value="50"/>
-            </pen:attributes>
-        </pen:publish>
-    </pen:bean>
+  <pen:bean class="org.springframework.security.authentication.AuthenticationProvider">
+      <pen:attributes>
+          <pen:attr key="providerName" value="${security.provider}"/>
+      </pen:attributes>
+      <pen:publish as-type="ALL">
+          <pen:attributes>
+              <pen:attr key="priority" value="50"/>
+          </pen:attributes>
+      </pen:publish>
+  </pen:bean>
 
   <!-- actual bean defined in applicationContext-spring-security.xml; aliased here -->
   <alias name="authenticationManager" alias="AuthenticationManager"/>
@@ -322,9 +313,70 @@ not directly from the PentahoObjectFactory. -->
     </pen:publish>
   </bean>
 
-  <bean class="org.pentaho.platform.engine.security.authorization.PentahoSystemAuthorizationActionService"
-        scope="singleton">
+  <bean id="currentAuthorizationUserSupplier"
+        class="org.pentaho.platform.engine.security.authorization.spring.SpringSecurityContextAuthorizationUserSupplier">
+  </bean>
+
+  <bean id="authorizationRequestBuilder"
+        class="org.pentaho.platform.engine.security.authorization.core.AuthorizationRequestBuilder">
+    <constructor-arg ref="authorizationActionService" />
+    <constructor-arg ref="currentAuthorizationUserSupplier" />
+    <pen:publish as-type="CLASSES" />
+  </bean>
+
+  <bean id="authorizationActionService"
+        class="org.pentaho.platform.engine.security.authorization.PentahoSystemAuthorizationActionService">
     <pen:publish as-type="INTERFACES" />
   </bean>
 
+  <bean id="authorizationService"
+        class="org.pentaho.platform.engine.security.authorization.core.AuthorizationService">
+    <constructor-arg ref="rootAuthorizationRule" />
+    <pen:publish as-type="INTERFACES" />
+  </bean>
+
+  <bean id="rootAuthorizationRule"
+        class="org.pentaho.platform.engine.security.authorization.core.rules.AnyAuthorizationRule">
+    <constructor-arg>
+      <util:list>
+        <!-- 1 - TOP-GRANT-RULE LEVEL is an Any/Or level.
+             ONE grant is sufficient, but not necessary.
+          -->
+
+        <!-- Administration Universal Access -->
+        <bean class="org.pentaho.platform.engine.security.authorization.core.rules.MatchedRoleAuthorizationRule">
+          <constructor-arg ref="singleTenantAdminAuthorityName" />
+        </bean>
+        <bean class="org.pentaho.platform.engine.security.authorization.core.rules.MatchedRoleAuthorizationRule">
+          <constructor-arg ref="superAdminAuthorityName" />
+        </bean>
+
+        <!-- 2 - DENY-RULE LEVEL is an All/And level.
+             ALL rules must grant (or abstain) for a grant - necessary but not sufficient.
+             ONE rule denial is sufficient to deny overall.
+           -->
+        <bean class="org.pentaho.platform.engine.security.authorization.core.rules.AllAuthorizationRule">
+          <constructor-arg>
+            <util:list>
+              <bean class="org.pentaho.platform.engine.security.authorization.core.rules.SupportedActionResourceTypeAuthorizationRule" />
+              <bean class="org.pentaho.platform.engine.security.authorization.core.rules.ResourceActionGeneralRequirementAuthorizationRule" />
+
+              <!-- 3 - GRANT-RULE LEVEL is an Any/Or level.
+                   ONE grant is necessary and sufficient to grant.
+                -->
+              <bean class="org.pentaho.platform.engine.security.authorization.core.rules.AnyAuthorizationRule">
+                <constructor-arg>
+                  <pen:list class="org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule" />
+                </constructor-arg>
+              </bean>
+            </util:list>
+          </constructor-arg>
+        </bean>
+      </util:list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="userConsoleService" class="org.pentaho.platform.web.http.api.resources.services.UserConsoleService">
+    <pen:publish as-type="CLASSES"/>
+  </bean>
 </beans>

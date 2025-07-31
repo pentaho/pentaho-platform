@@ -13,9 +13,9 @@
 
 package org.pentaho.platform.web.servlet;
 
-import com.mockrunner.mock.web.MockHttpServletRequest;
-import com.mockrunner.mock.web.MockHttpServletResponse;
-import com.mockrunner.mock.web.MockServletConfig;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockServletConfig;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -34,7 +34,7 @@ import org.pentaho.di.core.util.HttpClientManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -66,7 +66,7 @@ public class ProxyServletTest {
   @Test
   public void testInitMalformedURLException() throws ServletException {
     MockServletConfig config = new MockServletConfig();
-    config.setInitParameter( "ProxyURL", "pentaho" );
+    config.addInitParameter( "ProxyURL", "pentaho" );
 
     ProxyServlet servlet = spy( new ProxyServlet() );
     servlet.init( config );
@@ -79,7 +79,7 @@ public class ProxyServletTest {
   @Test
   public void testInitParameterProxyURL() throws ServletException {
     MockServletConfig config = new MockServletConfig();
-    config.setInitParameter( "ProxyURL", "https://www.pentaho.org" );
+    config.addInitParameter( "ProxyURL", "https://www.pentaho.org" );
 
     ProxyServlet servlet = spy( new ProxyServlet() );
     servlet.init( config );
@@ -93,7 +93,7 @@ public class ProxyServletTest {
   @Test
   public void testInitParameterErrorURL() throws ServletException {
     MockServletConfig config = new MockServletConfig();
-    config.setInitParameter( "ErrorURL", "https://www.pentaho.org" );
+    config.addInitParameter( "ErrorURL", "https://www.pentaho.org" );
 
     ProxyServlet servlet = spy( new ProxyServlet() );
     servlet.init( config );
@@ -108,8 +108,8 @@ public class ProxyServletTest {
   @Test
   public void testInitParameterLocaleOverrideEnabledFalse() throws ServletException {
     MockServletConfig config = new MockServletConfig();
-    config.setInitParameter( "ProxyURL", "https://www.pentaho.org" );
-    config.setInitParameter( "LocaleOverrideEnabled", "false" );
+    config.addInitParameter( "ProxyURL", "https://www.pentaho.org" );
+    config.addInitParameter( "LocaleOverrideEnabled", "false" );
 
     ProxyServlet servlet = spy( new ProxyServlet() );
     servlet.init( config );
@@ -120,8 +120,8 @@ public class ProxyServletTest {
   @Test
   public void testInitParameterLocaleOverrideEnabledTrue() throws ServletException {
     MockServletConfig config = new MockServletConfig();
-    config.setInitParameter( "ProxyURL", "https://www.pentaho.org" );
-    config.setInitParameter( "LocaleOverrideEnabled", "true" );
+    config.addInitParameter( "ProxyURL", "https://www.pentaho.org" );
+    config.addInitParameter( "LocaleOverrideEnabled", "true" );
 
     ProxyServlet servlet = spy( new ProxyServlet() );
     servlet.init( config );
@@ -132,7 +132,7 @@ public class ProxyServletTest {
   @Test
   public void testInitParameterLocaleOverrideEnabledDefault() throws ServletException {
     MockServletConfig config = new MockServletConfig();
-    config.setInitParameter( "ProxyURL", "https://www.pentaho.org" );
+    config.addInitParameter( "ProxyURL", "https://www.pentaho.org" );
 
     ProxyServlet servlet = spy( new ProxyServlet() );
     servlet.init( config );
@@ -273,8 +273,8 @@ public class ProxyServletTest {
     Locale locale = new Locale( "en" );
 
     request.setServletPath( "/pentaho" );
-    request.setupAddParameter( "_TRUST_USER_", "suzy" );
-    request.setupAddParameter( "foo", "bar" );
+    request.addParameter( "_TRUST_USER_", "suzy" );
+    request.addParameter( "foo", "bar" );
 
     ProxyServlet servlet = spy( new ProxyServlet() );
 
@@ -454,7 +454,7 @@ public class ProxyServletTest {
     Header header = mock( Header.class );
 
     request.setMethod( HttpPost.METHOD_NAME );
-    request.setBodyContent( content );
+    request.setContent( content.getBytes() );
     request.setContentType( ContentType.TEXT_XML.toString() );
     when( statusLine.getStatusCode() ).thenReturn( HttpStatus.SC_OK );
     when( proxyResponse.getStatusLine() ).thenReturn( statusLine );

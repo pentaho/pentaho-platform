@@ -17,7 +17,6 @@
     <pentaho-hadoop-shims.version>11.0.0.0-SNAPSHOT</pentaho-hadoop-shims.version>
     <prepared.war.lib.directory>${prepared.war.directory}/WEB-INF/lib</prepared.war.lib.directory>
     <datasource.resources.directory>${basedir}/src/main/resources/datasources</datasource.resources.directory>
-    <hibernate-ehcache.version>5.4.24.Final</hibernate-ehcache.version>
     <maven-resources-plugin.version>3.0.1</maven-resources-plugin.version>
     <jcommon-xml.version>1.0.12</jcommon-xml.version>
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
@@ -30,12 +29,12 @@
     <!-- region - Fasterxml jackson providers are required to be in the main classloader for serialization of POJOs
          in the Publish Model step. -->
     <dependency>
-      <groupId>com.fasterxml.jackson.jaxrs</groupId>
-      <artifactId>jackson-jaxrs-json-provider</artifactId>
+      <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+      <artifactId>jackson-jakarta-rs-json-provider</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.jaxrs</groupId>
-      <artifactId>jackson-jaxrs-base</artifactId>
+      <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+      <artifactId>jackson-jakarta-rs-base</artifactId>
     </dependency>
     <!-- endregion -->
 
@@ -134,7 +133,7 @@
     </dependency>
     <dependency>
       <groupId>com.hitachivantara.security.web</groupId>
-      <artifactId>csrf-token-service-client-java-jax-rs-v1</artifactId>
+      <artifactId>csrf-token-service-client-java-jax-rs-v3</artifactId>
       <scope>compile</scope>
     </dependency>
     <!-- endregion HV Web Security -->
@@ -422,20 +421,14 @@
     <dependency>
       <groupId>net.sf.saxon</groupId>
       <artifactId>saxon-jdom</artifactId>
-      <version>${saxon.version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>net.sf.saxon</groupId>
       <artifactId>saxon-sql</artifactId>
-      <version>${saxon.version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>net.sf.saxon</groupId>
       <artifactId>saxon-xom</artifactId>
-      <version>${saxon.version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>ognl</groupId>
@@ -596,9 +589,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.xml.soap</groupId>
-      <artifactId>saaj-api</artifactId>
-      <version>${saaj.version}</version>
+      <groupId>jakarta.xml.soap</groupId>
+      <artifactId>jakarta.xml.soap-api</artifactId>
+      <version>${jakarta.xml.soap-api.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -744,9 +737,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.jws</groupId>
-      <artifactId>jsr181-api</artifactId>
-      <version>${jsr181-api.version}</version>
+      <groupId>jakarta.jws</groupId>
+      <artifactId>jakarta.jws-api</artifactId>
+      <version>${jakarta.jws-api.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -836,8 +829,8 @@
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-ehcache</artifactId>
-      <version>${hibernate-ehcache.version}</version>
+      <artifactId>hibernate-jcache</artifactId>
+      <version>${hibernate-jcache.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -886,9 +879,9 @@
       <version>${jackcess.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.sun.mail</groupId>
-      <artifactId>javax.mail</artifactId>
-      <version>${mail.version}</version>
+      <groupId>jakarta.mail</groupId>
+      <artifactId>jakarta.mail-api</artifactId>
+      <version>${jakarta.mail.version}</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish</groupId>
@@ -1005,6 +998,74 @@
               </artifactItems>
             </configuration>
           </execution>
+          <execution>
+            <!--
+              Dependencies for Javax XML Binding API, JAXB Runtime, Javax Activation API, Javax Transaction API and IStack Commons Runtime
+              These dependencies are required for OSGi environment and Felix directly depends on javax.xml.bind (Javax XML Bind API and Javax JAXB runtime) and we are making these available to OSGi through jre.properties.
+              Even if these dependencies are added to pom.xml dependencies section, maven is trying to add the latest version of artifacts instead of adding jars with both versions.
+              So, Following configuration helps to copy the both versions of jars to the lib.
+             -->
+            <id>copy-extra-dependencies</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>jakarta.xml.bind</groupId>
+                  <artifactId>jakarta.xml.bind-api</artifactId>
+                  <version>${jakarta.xml.bind-api.version}</version>
+                  <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+                  <type>jar</type>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>jakarta.xml.bind</groupId>
+                  <artifactId>jakarta.xml.bind-api</artifactId>
+                  <version>${jakarta.xml.bind-osgi.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+                </artifactItem>
+
+                <artifactItem>
+                  <groupId>org.glassfish.jaxb</groupId>
+                  <artifactId>jaxb-runtime</artifactId>
+                  <version>${jaxb-runtime.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.glassfish.jaxb</groupId>
+                  <artifactId>jaxb-runtime</artifactId>
+                  <version>${jaxb-api-osgi.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+                </artifactItem>
+
+                <artifactItem>
+                  <groupId>jakarta.transaction</groupId>
+                  <artifactId>jakarta.transaction-api</artifactId>
+                  <version>${jakarta.transaction-api-osgi.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>jakarta.transaction</groupId>
+                  <artifactId>jakarta.transaction-api</artifactId>
+                  <version>${jakarta.transaction.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>com.sun.istack</groupId>
+                  <artifactId>istack-commons-runtime</artifactId>
+                  <version>${istack-osgi.version}</version>
+                  <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -1019,6 +1080,10 @@
             <resource>
               <directory>src/main/resources-filtered/</directory>
               <filtering>true</filtering>
+            </resource>
+            <resource>
+              <directory>${prepared.war.lib.directory}</directory>
+              <targetPath>WEB-INF/lib</targetPath>
             </resource>
           </webResources>
           <webXml>${package.resources.directory}/WEB-INF/web.xml</webXml>
