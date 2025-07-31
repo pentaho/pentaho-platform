@@ -31,7 +31,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class PentahoAuthorizationRuleLevel implements IAuthorizationRule {
+public class PentahoAuthorizationRuleLevel implements IAuthorizationRule<IAuthorizationRequest> {
   private static final String RULE_LEVEL_ATTRIBUTE = "ruleLevel";
 
   public enum RuleLevelType {
@@ -42,18 +42,18 @@ public class PentahoAuthorizationRuleLevel implements IAuthorizationRule {
   private final RuleLevelType ruleLevelType;
 
   @NonNull
-  private final Predicate<IPentahoObjectReference<IAuthorizationRule>> levelRulePredicate;
+  private final Predicate<IPentahoObjectReference<?>> levelRulePredicate;
 
   @NonNull
-  private final List<IAuthorizationRule> postRules;
+  private final List<IAuthorizationRule<IAuthorizationRequest>> postRules;
 
   @NonNull
-  private IAuthorizationRule delegateRule;
+  private IAuthorizationRule<IAuthorizationRequest> delegateRule;
 
   public PentahoAuthorizationRuleLevel( @NonNull IPluginManager pluginManager,
                                         @NonNull RuleLevelType ruleLevelType,
                                         @Nullable String ruleLevel,
-                                        @NonNull List<IAuthorizationRule> postRules ) {
+                                        @NonNull List<IAuthorizationRule<IAuthorizationRequest>> postRules ) {
     this( pluginManager, ruleLevelType, ruleLevel, false, postRules );
   }
 
@@ -69,7 +69,7 @@ public class PentahoAuthorizationRuleLevel implements IAuthorizationRule {
                                         @NonNull RuleLevelType ruleLevelType,
                                         @Nullable String ruleLevel,
                                         boolean isDefaultRuleLevel,
-                                        @NonNull List<IAuthorizationRule> postRules ) {
+                                        @NonNull List<IAuthorizationRule<IAuthorizationRequest>> postRules ) {
 
     this( pluginManager, ruleLevelType, buildLevelRulePredicate( ruleLevel, isDefaultRuleLevel ), postRules );
   }
@@ -77,12 +77,13 @@ public class PentahoAuthorizationRuleLevel implements IAuthorizationRule {
   public PentahoAuthorizationRuleLevel(
     @NonNull IPluginManager pluginManager,
     @NonNull RuleLevelType ruleLevelType,
-    @NonNull Predicate<IPentahoObjectReference<IAuthorizationRule>> levelRulePredicate,
-    @NonNull List<IAuthorizationRule> postRules ) {
+    @NonNull Predicate<IPentahoObjectReference<?>> levelRulePredicate,
+    @NonNull List<IAuthorizationRule<IAuthorizationRequest>> postRules ) {
 
     this.ruleLevelType = Objects.requireNonNull( ruleLevelType );
     this.levelRulePredicate = Objects.requireNonNull( levelRulePredicate );
-    this.postRules = Objects.requireNonNull( postRules );
+
+    this.postRules = List.copyOf( postRules );
 
     this.updateDelegateRule();
 
@@ -94,12 +95,12 @@ public class PentahoAuthorizationRuleLevel implements IAuthorizationRule {
   }
 
   @NonNull
-  private IAuthorizationRule getDelegateRule() {
+  private IAuthorizationRule<IAuthorizationRequest> getDelegateRule() {
     return this.delegateRule;
   }
 
   @NonNull
-  private IAuthorizationRule buildDelegateRule() {
+  private IAuthorizationRule<IAuthorizationRequest> buildDelegateRule() {
     var rules = new ArrayList<>( getLevelAuthorizationRules( levelRulePredicate ) );
     rules.addAll( postRules );
 
@@ -110,26 +111,41 @@ public class PentahoAuthorizationRuleLevel implements IAuthorizationRule {
 
   @NonNull
   @Override
+  public Class<IAuthorizationRequest> getRequestType() {
+    return IAuthorizationRequest.class;
+  }
+
+  @NonNull
+  @Override
   public Optional<IAuthorizationDecision> authorize( @NonNull IAuthorizationRequest request,
                                                      @NonNull IAuthorizationContext context ) {
     return getDelegateRule().authorize( request, context );
   }
 
   @NonNull
-  public static List<IAuthorizationRule> getLevelAuthorizationRules(
-    @NonNull Predicate<IPentahoObjectReference<IAuthorizationRule>> rulePredicate ) {
+  private static List<IAuthorizationRule<IAuthorizationRequest>> getLevelAuthorizationRules(
+    @NonNull Predicate<IPentahoObjectReference<?>> rulePredicate ) {
 
-    return PentahoSystem.getObjectReferences( IAuthorizationRule.class, null )
+    var objectReferences = PentahoSystem.getObjectReferences( IAuthorizationRule.class, null );
+
+    return objectReferences
       .stream()
       .filter( rulePredicate )
-      .map( IPentahoObjectReference::getObject )
+      .map( ref -> {
+        // Cast the raw generic rule type from IPentahoObjectReference<IAuthorizationRule>.
+        @SuppressWarnings( "unchecked" )
+        IAuthorizationRule<IAuthorizationRequest> rule =
+          (IAuthorizationRule<IAuthorizationRequest>) ref.getObject();
+        return rule;
+      } )
       .collect( Collectors.toList() );
   }
 
   @NonNull
-  public static Predicate<IPentahoObjectReference<IAuthorizationRule>> buildLevelRulePredicate(
+  private static Predicate<IPentahoObjectReference<?>> buildLevelRulePredicate(
     @Nullable String ruleLevel,
     boolean isDefaultRuleLevel ) {
+
     // normalize null to ""
     final String normalizedRuleLevel = getDefaultValue( ruleLevel, "" );
 

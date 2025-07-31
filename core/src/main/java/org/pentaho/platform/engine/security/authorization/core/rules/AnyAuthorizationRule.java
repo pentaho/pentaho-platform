@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public class AnyAuthorizationRule extends AbstractCompositeAuthorizationRule {
 
-  public AnyAuthorizationRule( @NonNull List<IAuthorizationRule> rules ) {
+  public AnyAuthorizationRule( @NonNull List<IAuthorizationRule<IAuthorizationRequest>> rules ) {
     super( rules );
   }
 

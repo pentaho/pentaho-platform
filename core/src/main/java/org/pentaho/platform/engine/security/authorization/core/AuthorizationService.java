@@ -131,8 +131,11 @@ public class AuthorizationService implements IAuthorizationService {
     }
 
     @NonNull
-    public Optional<IAuthorizationDecision> authorizeRule( @NonNull IAuthorizationRequest request,
-                                                           @NonNull IAuthorizationRule rule ) {
+    @Override
+    public Optional<IAuthorizationDecision> authorizeRule(
+      @NonNull IAuthorizationRequest request,
+      @NonNull IAuthorizationRule<? extends IAuthorizationRequest> rule ) {
+
       if ( logger.isDebugEnabled() ) {
         logger.debug( String.format(
           "AuthorizeRule BEGIN - request: %s rule: %s",
@@ -141,7 +144,14 @@ public class AuthorizationService implements IAuthorizationService {
       }
 
       try {
-        Optional<IAuthorizationDecision> result = rule.authorize( request, this );
+        if ( !rule.getRequestType().isAssignableFrom( request.getClass() ) ) {
+          return Optional.empty();
+        }
+
+        // Use raw type call since we can't guarantee type safety at runtime
+        @SuppressWarnings( "unchecked" )
+        IAuthorizationRule<IAuthorizationRequest> rawRule = (IAuthorizationRule<IAuthorizationRequest>) rule;
+        Optional<IAuthorizationDecision> result = rawRule.authorize( request, this );
 
         Objects.requireNonNull( result, "Rule must return a non-null result" );
 
@@ -200,7 +210,7 @@ public class AuthorizationService implements IAuthorizationService {
   private final IAuthorizationActionService actionService;
 
   @NonNull
-  private final IAuthorizationRule rootRule;
+  private final IAuthorizationRule<? extends IAuthorizationRequest> rootRule;
 
   /**
    * Constructs an instance of the authorization service with a given root rule.
@@ -209,7 +219,7 @@ public class AuthorizationService implements IAuthorizationService {
    * @param rootRule The root authorization rule.
    */
   public AuthorizationService( @NonNull IAuthorizationActionService actionService,
-                               @NonNull IAuthorizationRule rootRule ) {
+                               @NonNull IAuthorizationRule<? extends IAuthorizationRequest> rootRule ) {
     Assert.notNull( actionService, "Argument 'actionService' is required" );
     Assert.notNull( rootRule, "Argument 'rootRule' is required" );
 
@@ -226,9 +236,10 @@ public class AuthorizationService implements IAuthorizationService {
 
   @NonNull
   @Override
-  public Optional<IAuthorizationDecision> authorizeRule( @NonNull IAuthorizationRequest request,
-                                                         @NonNull IAuthorizationRule rule,
-                                                         @NonNull IAuthorizationOptions options ) {
+  public Optional<IAuthorizationDecision> authorizeRule(
+    @NonNull IAuthorizationRequest request,
+    @NonNull IAuthorizationRule<? extends IAuthorizationRequest> rule,
+    @NonNull IAuthorizationOptions options ) {
     return createContext( options ).authorizeRule( request, rule );
   }
 
@@ -251,7 +262,7 @@ public class AuthorizationService implements IAuthorizationService {
    * @return The root rule.
    */
   @NonNull
-  protected final IAuthorizationRule getRootRule() {
+  protected final IAuthorizationRule<? extends IAuthorizationRequest> getRootRule() {
     return rootRule;
   }
 

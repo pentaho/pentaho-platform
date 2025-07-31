@@ -14,29 +14,28 @@ package org.pentaho.platform.engine.security.authorization.core.rules;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationContext;
-import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
-import org.pentaho.platform.api.engine.security.authorization.resources.IResourceAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
+import org.pentaho.platform.api.engine.security.authorization.resources.IResourceAuthorizationRequest;
 import org.pentaho.platform.engine.security.authorization.core.decisions.SupportedActionResourceTypeAuthorizationDecision;
 
 import java.util.Optional;
 
-public class SupportedActionResourceTypeAuthorizationRule extends AbstractAuthorizationRule {
+/**
+ * Authorization rule that validates whether an action is supported for a specific resource type.
+ * This rule only handles resource-specific authorization requests.
+ */
+public class SupportedActionResourceTypeAuthorizationRule extends AbstractAuthorizationRule<IResourceAuthorizationRequest> {
+
   @NonNull
   @Override
-  public Optional<IAuthorizationDecision> authorize( @NonNull IAuthorizationRequest request,
-                                                     @NonNull IAuthorizationContext context ) {
-    if ( !( request instanceof IResourceAuthorizationRequest ) ) {
-      return abstain();
-    }
-
-    return authorizeCore( (IResourceAuthorizationRequest) request, context );
+  public Class<IResourceAuthorizationRequest> getRequestType() {
+    return IResourceAuthorizationRequest.class;
   }
 
   @NonNull
-  protected Optional<IAuthorizationDecision> authorizeCore(
-    @NonNull IResourceAuthorizationRequest resourceRequest,
-    @NonNull IAuthorizationContext context ) {
+  @Override
+  public Optional<IAuthorizationDecision> authorize( @NonNull IResourceAuthorizationRequest resourceRequest,
+                                                     @NonNull IAuthorizationContext context ) {
 
     var isSupported = resourceRequest.getAction().performsOnResourceType( resourceRequest.getResource().getType() );
 

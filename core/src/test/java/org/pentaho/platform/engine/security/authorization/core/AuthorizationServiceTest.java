@@ -1,5 +1,6 @@
 package org.pentaho.platform.engine.security.authorization.core;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.AfterClass;
@@ -22,6 +23,7 @@ import org.pentaho.platform.engine.security.authorization.core.exceptions.Author
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -36,19 +38,28 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 public class AuthorizationServiceTest {
+
+  /**
+   * Test subclass of IAuthorizationRequest for testing request type compatibility.
+   */
+  private static class SpecificAuthorizationRequest extends AuthorizationRequest {
+    public SpecificAuthorizationRequest( AuthorizationUser user, IAuthorizationAction action ) {
+      super( user, action );
+    }
+  }
+
   private IAuthorizationActionService actionService;
-  private IAuthorizationRule rootRule;
+  private IAuthorizationRule<IAuthorizationRequest> rootRule;
   private IAuthorizationOptions options;
   private AuthorizationService service;
   private IAuthorizationRequest request;
   private IAuthorizationAction action;
 
   private static MockedStatic<LogFactory> logFactoryMockedStatic;
-  private static Log logger;
 
   @BeforeClass
   public static void init() {
-    logger = mock( Log.class );
+    Log logger = mock( Log.class );
     when( logger.isDebugEnabled() ).thenReturn( true );
 
     logFactoryMockedStatic = mockStatic( LogFactory.class );
@@ -60,12 +71,17 @@ public class AuthorizationServiceTest {
   @Before
   public void setUp() {
     actionService = mock( IAuthorizationActionService.class );
-    rootRule = mock( IAuthorizationRule.class );
     options = mock( IAuthorizationOptions.class );
 
     action = mock( IAuthorizationAction.class );
     when( action.getName() ).thenReturn( "action" );
     when( actionService.getAction( "action" ) ).thenReturn( Optional.of( action ) );
+
+    // Fix the generic type for the mock
+    @SuppressWarnings( "unchecked" )
+    IAuthorizationRule<IAuthorizationRequest> typedRootRule = mock( IAuthorizationRule.class );
+    rootRule = typedRootRule;
+    when( rootRule.getRequestType() ).thenReturn( IAuthorizationRequest.class );
 
     service = new AuthorizationService( actionService, rootRule );
 
@@ -101,21 +117,6 @@ public class AuthorizationServiceTest {
 
     assertNotNull( decision );
     assertFalse( decision.isGranted() );
-  }
-
-  @Test
-  public void testAuthorizeRuleDelegatesToSpecifiedRule() {
-
-    IAuthorizationRule customRule = mock( IAuthorizationRule.class );
-    IAuthorizationDecision customDecision = mock( IAuthorizationDecision.class );
-
-    when( customRule.authorize( eq( request ), any( IAuthorizationContext.class ) ) )
-      .thenReturn( Optional.of( customDecision ) );
-
-    Optional<IAuthorizationDecision> decision = service.authorizeRule( request, customRule, options );
-
-    assertTrue( decision.isPresent() );
-    assertEquals( customDecision, decision.get() );
   }
 
   @Test
@@ -184,17 +185,18 @@ public class AuthorizationServiceTest {
 
     var request2 = request.withAction( action2 );
 
-    IAuthorizationRule innerRule = ( request, context ) ->
-      Optional.of( decision2 );
+    var innerRule = createMockRule();
+    when( innerRule.authorize( eq( request2 ), any( IAuthorizationContext.class ) ) )
+      .thenReturn( Optional.of( decision2 ) );
 
-    IAuthorizationRule outerRule = ( request, context ) -> {
+    var outerRule = createMockRuleWithAnswer( ( req, context ) -> {
       var result = context.authorizeRule( request2, innerRule );
       return result.map( decision -> new ImpliedAuthorizationDecision( request, decision2 ) );
-    };
+    } );
 
-    var service = new AuthorizationService( actionService, outerRule );
+    var testService = new AuthorizationService( actionService, outerRule );
 
-    var decision = service.authorize( request, options );
+    var decision = testService.authorize( request, options );
 
     assertNotNull( decision );
     assertTrue( decision instanceof IImpliedAuthorizationDecision );
@@ -205,23 +207,25 @@ public class AuthorizationServiceTest {
   public void testRuleCanCallAuthorizeRule() {
     var innerDecision = mock( IAuthorizationDecision.class );
 
-    IAuthorizationRule innerRule = ( request, context ) ->
-      Optional.of( innerDecision );
+    var innerRule = createMockRule();
+    when( innerRule.authorize( eq( request ), any( IAuthorizationContext.class ) ) )
+      .thenReturn( Optional.of( innerDecision ) );
 
-    IAuthorizationRule outerRule = ( request, context ) ->
-      context.authorizeRule( request, innerRule );
+    var outerRule = createMockRuleWithAnswer( ( req, context ) -> {
+      return context.authorizeRule( request, innerRule );
+    } );
 
-    var service = new AuthorizationService( actionService, outerRule );
+    var testService = new AuthorizationService( actionService, outerRule );
 
-    var decision = service.authorize( request, options );
+    var decision = testService.authorize( request, options );
     assertSame( innerDecision, decision );
   }
 
   @Test
   public void testContextDetectsRequestsCyclesAndDeniesDecision() {
-
-    IAuthorizationRule outerRule = ( request, context ) -> {
+    var outerRule = createMockRuleWithAnswer( ( req, context ) -> {
       var innerDecision = context.authorize( request );
+
       assertNotNull( innerDecision );
       assertFalse( innerDecision.isGranted() );
       assertTrue( innerDecision instanceof IAuthorizationErrorDecision );
@@ -229,10 +233,10 @@ public class AuthorizationServiceTest {
         ( (IAuthorizationErrorDecision) innerDecision ).getCause() instanceof AuthorizationRequestCycleException );
 
       return Optional.of( innerDecision );
-    };
+    } );
 
-    var service = new AuthorizationService( actionService, outerRule );
-    var decision = service.authorize( request, options );
+    var testService = new AuthorizationService( actionService, outerRule );
+    var decision = testService.authorize( request, options );
 
     assertNotNull( decision );
     assertFalse( decision.isGranted() );
@@ -243,18 +247,121 @@ public class AuthorizationServiceTest {
   @Test
   public void testRuleExceptionHandledAsErrorDecision() {
     var ruleException = mock( RuntimeException.class );
+    var rule = createMockRule();
+    when( rule.authorize( any( IAuthorizationRequest.class ), any( IAuthorizationContext.class ) ) )
+      .thenThrow( ruleException );
 
-    IAuthorizationRule rule = ( request, context ) -> {
-      throw ruleException;
-    };
+    var testService = new AuthorizationService( actionService, rule );
 
-    var service = new AuthorizationService( actionService, rule );
-
-    var decision = service.authorize( request, options );
+    var decision = testService.authorize( request, options );
 
     assertNotNull( decision );
     assertFalse( decision.isGranted() );
     assertTrue( decision instanceof IAuthorizationErrorDecision );
     assertSame( ruleException, ( (IAuthorizationErrorDecision) decision ).getCause() );
   }
+
+
+  // region authorizeRule tests
+  @Test
+  public void testAuthorizeRuleDelegatesToSpecifiedRule() {
+    IAuthorizationDecision customDecision = mock( IAuthorizationDecision.class );
+
+    IAuthorizationRule<IAuthorizationRequest> customRule = createMockRule();
+    when( customRule.authorize( eq( request ), any( IAuthorizationContext.class ) ) )
+      .thenReturn( Optional.of( customDecision ) );
+
+    Optional<IAuthorizationDecision> decision = service.authorizeRule( request, customRule, options );
+
+    assertTrue( decision.isPresent() );
+    assertEquals( customDecision, decision.get() );
+  }
+
+
+  @Test
+  public void testAuthorizeRuleReturnsEmptyWhenRequestTypeNotSupported() {
+    // Create a rule that only accepts a specific request type
+    @SuppressWarnings( "unchecked" )
+    IAuthorizationRule<SpecificAuthorizationRequest> specificRule = mock( IAuthorizationRule.class );
+    when( specificRule.getRequestType() ).thenReturn( SpecificAuthorizationRequest.class );
+
+    // Use a standard IAuthorizationRequest (which is not assignable to SpecificAuthorizationRequest)
+    Optional<IAuthorizationDecision> decision = service.authorizeRule( request, specificRule, options );
+
+    // Should return empty because request type is not supported
+    assertFalse( decision.isPresent() );
+  }
+
+  @Test
+  public void testAuthorizeRuleProcessesWhenRequestTypeIsSupported() {
+    IAuthorizationDecision expectedDecision = mock( IAuthorizationDecision.class );
+
+    // Create a rule that accepts IAuthorizationRequest (which our request implements)
+    IAuthorizationRule<IAuthorizationRequest> compatibleRule = createMockRule();
+    when( compatibleRule.authorize( eq( request ), any( IAuthorizationContext.class ) ) )
+      .thenReturn( Optional.of( expectedDecision ) );
+
+    Optional<IAuthorizationDecision> decision = service.authorizeRule( request, compatibleRule, options );
+
+    // Should process the rule and return the decision
+    assertTrue( decision.isPresent() );
+    assertEquals( expectedDecision, decision.get() );
+  }
+
+  @Test
+  public void testAuthorizeRuleWorksWithSubclassRequestTypes() {
+    IAuthorizationDecision expectedDecision = mock( IAuthorizationDecision.class );
+
+    // Create a specific request subclass
+    SpecificAuthorizationRequest specificRequest = new SpecificAuthorizationRequest(
+      new AuthorizationUser( "user", Set.of( new AuthorizationRole( "role" ) ) ),
+      action );
+
+    // Create a rule that accepts the base IAuthorizationRequest type
+    IAuthorizationRule<IAuthorizationRequest> baseRule = createMockRule();
+    when( baseRule.authorize( eq( specificRequest ), any( IAuthorizationContext.class ) ) )
+      .thenReturn( Optional.of( expectedDecision ) );
+
+    Optional<IAuthorizationDecision> decision = service.authorizeRule( specificRequest, baseRule, options );
+
+    // Should work because SpecificAuthorizationRequest is assignable to IAuthorizationRequest
+    assertTrue( decision.isPresent() );
+    assertEquals( expectedDecision, decision.get() );
+  }
+  // endregion
+
+  // region Helper methods
+  /**
+   * Creates a basic mock authorization rule with getRequestType() configured.
+   *
+   * @return A mock IAuthorizationRule with getRequestType() returning IAuthorizationRequest.class
+   */
+  @SuppressWarnings( "unchecked" )
+  private IAuthorizationRule<IAuthorizationRequest> createMockRule() {
+    IAuthorizationRule<IAuthorizationRequest> rule = mock( IAuthorizationRule.class );
+    when( rule.getRequestType() ).thenReturn( IAuthorizationRequest.class );
+    return rule;
+  }
+
+  /**
+   * Creates a mock authorization rule that uses a lambda to provide custom behavior.
+   *
+   * @param authorizeFunction The lambda function that implements the authorize behavior
+   * @return A properly configured mock IAuthorizationRule
+   */
+  private IAuthorizationRule<IAuthorizationRequest> createMockRuleWithAnswer(
+    @NonNull
+    BiFunction<IAuthorizationRequest, IAuthorizationContext, Optional<IAuthorizationDecision>> authorizeFunction ) {
+
+    IAuthorizationRule<IAuthorizationRequest> rule = createMockRule();
+    when( rule.authorize( any( IAuthorizationRequest.class ), any( IAuthorizationContext.class ) ) )
+      .thenAnswer( answer -> {
+        IAuthorizationRequest request = answer.getArgument( 0 );
+        IAuthorizationContext context = answer.getArgument( 1 );
+        return authorizeFunction.apply( request, context );
+      } );
+
+    return rule;
+  }
+  // endregion
 }
