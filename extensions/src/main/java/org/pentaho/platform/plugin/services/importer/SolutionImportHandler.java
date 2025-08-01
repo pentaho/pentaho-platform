@@ -92,6 +92,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
   public boolean overwriteFile;
   private List<IRepositoryFileBundle> files;
   private boolean isPerformingRestore = false;
+  // whether the import was partially successful.
+  private boolean partialImport = false;
 
   private List<IImportHelper> importHelpers = new ArrayList<>();
 
@@ -175,6 +177,10 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     if ( manifest != null ) {
       runImportHelpers();
 //      importSchedules( manifest.getScheduleList() );
+    }
+    if ( partialImport ) {
+      throw new PlatformImportException( "Some files have invalid mime types",
+        PlatformImportException.PUBLISH_PARTIAL_UPLOAD );
     }
   }
 
@@ -979,6 +985,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           if ( !solutionHelper.isInApprovedExtensionList( entryName ) ) {
             zipInputStream.closeEntry();
             entry = zipInputStream.getNextEntry();
+            partialImport = true;
             continue;
           }
 
