@@ -6,11 +6,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-public class AuthorizationResourceTest {
+public class GenericAuthorizationResourceTest {
 
   @Test
   public void testConstructorAndGetters() {
-    var resource = new AuthorizationResource( "file", "report123" );
+    var resource = new GenericAuthorizationResource( "file", "report123" );
     assertEquals( "file", resource.getType() );
     assertEquals( "report123", resource.getId() );
   }
@@ -18,30 +18,30 @@ public class AuthorizationResourceTest {
   @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullTypeThrows() {
     //noinspection DataFlowIssue
-    new AuthorizationResource( null, "report123" );
+    new GenericAuthorizationResource( null, "report123" );
   }
 
   @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithEmptyTypeThrows() {
-    new AuthorizationResource( "", "report123" );
+    new GenericAuthorizationResource( "", "report123" );
   }
 
   @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullIdThrows() {
     //noinspection DataFlowIssue
-    new AuthorizationResource( "file", null );
+    new GenericAuthorizationResource( "file", null );
   }
 
   @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithEmptyIdThrows() {
-    new AuthorizationResource( "file", "" );
+    new GenericAuthorizationResource( "file", "" );
   }
 
   @Test
   public void testEqualsAndHashCode() {
-    var resource1 = new AuthorizationResource( "file", "report123" );
-    var resource2 = new AuthorizationResource( "file", "report123" );
-    var resource3 = new AuthorizationResource( "folder", "report123" );
+    var resource1 = new GenericAuthorizationResource( "file", "report123" );
+    var resource2 = new GenericAuthorizationResource( "file", "report123" );
+    var resource3 = new GenericAuthorizationResource( "folder", "report123" );
 
     var notResource = new Object();
     assertNotEquals( resource1, notResource );
@@ -54,7 +54,7 @@ public class AuthorizationResourceTest {
 
   @Test
   public void testToStringFormat() {
-    var resource = new AuthorizationResource( "file", "report123" );
+    var resource = new GenericAuthorizationResource( "file", "report123" );
     assertTrue( resource.toString().contains( "file" ) );
     assertTrue( resource.toString().contains( "report123" ) );
   }

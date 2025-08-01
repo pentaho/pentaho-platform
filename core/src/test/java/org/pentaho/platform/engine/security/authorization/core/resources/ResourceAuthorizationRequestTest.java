@@ -31,7 +31,7 @@ public class ResourceAuthorizationRequestTest {
     action = mock( IAuthorizationAction.class );
     when( action.getName() ).thenReturn( "read" );
     
-    resource = new AuthorizationResource( "file", "report123" );
+    resource = new GenericAuthorizationResource( "file", "report123" );
   }
 
   @Test
@@ -78,7 +78,7 @@ public class ResourceAuthorizationRequestTest {
 
   @Test
   public void testWithResource() {
-    var resource2 = new AuthorizationResource( "folder", "folder456" );
+    var resource2 = new GenericAuthorizationResource( "folder", "folder456" );
 
     var request1 = new ResourceAuthorizationRequest( user, action, resource );
     var request2 = request1.withResource( resource2 );
@@ -104,8 +104,8 @@ public class ResourceAuthorizationRequestTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    var resource2 = new AuthorizationResource( "file", "report123" );
-    var resource3 = new AuthorizationResource( "folder", "folder456" );
+    var resource2 = new GenericAuthorizationResource( "file", "report123" );
+    var resource3 = new GenericAuthorizationResource( "folder", "folder456" );
 
     var request1 = new ResourceAuthorizationRequest( user, action, resource );
     var request2 = new ResourceAuthorizationRequest( user, action, resource2 );

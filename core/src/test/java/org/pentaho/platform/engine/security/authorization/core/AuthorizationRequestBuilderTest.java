@@ -6,7 +6,7 @@ import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationActionService;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.resources.IResourceAuthorizationRequest;
-import org.pentaho.platform.engine.security.authorization.core.resources.AuthorizationResource;
+import org.pentaho.platform.engine.security.authorization.core.resources.GenericAuthorizationResource;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -95,7 +95,7 @@ public class AuthorizationRequestBuilderTest {
 
     IResourceAuthorizationRequest req = builder
       .action( "update" )
-      .resource( new AuthorizationResource( "type", "id" ) )
+      .resource( new GenericAuthorizationResource( "type", "id" ) )
       .build();
 
     assertNotNull( req );

@@ -20,7 +20,7 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequ
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationUser;
 import org.pentaho.platform.api.engine.security.authorization.resources.IAuthorizationResource;
 import org.pentaho.platform.api.engine.security.authorization.resources.IResourceAuthorizationRequest;
-import org.pentaho.platform.engine.security.authorization.core.resources.AuthorizationResource;
+import org.pentaho.platform.engine.security.authorization.core.resources.GenericAuthorizationResource;
 import org.pentaho.platform.engine.security.authorization.core.resources.ResourceAuthorizationRequest;
 import org.springframework.util.Assert;
 
@@ -100,7 +100,7 @@ public class AuthorizationRequestBuilder {
 
     @NonNull
     public WithResourceBuilder resource( @NonNull String type, @NonNull String id ) {
-      return resource( new AuthorizationResource( type, id ) );
+      return resource( new GenericAuthorizationResource( type, id ) );
     }
 
     @NonNull

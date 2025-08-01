@@ -6,7 +6,7 @@ import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.security.authorization.resources.IResourceAuthorizationRequest;
 import org.pentaho.platform.engine.security.authorization.core.AuthorizationRole;
 import org.pentaho.platform.engine.security.authorization.core.AuthorizationUser;
-import org.pentaho.platform.engine.security.authorization.core.resources.AuthorizationResource;
+import org.pentaho.platform.engine.security.authorization.core.resources.GenericAuthorizationResource;
 import org.pentaho.platform.engine.security.authorization.core.resources.ResourceAuthorizationRequest;
 
 import java.util.Set;
@@ -28,7 +28,7 @@ public class SupportedActionResourceTypeAuthorizationDecisionTest {
     var action = mock( IAuthorizationAction.class );
     when( action.getName() ).thenReturn( "read" );
 
-    var resource = new AuthorizationResource( "file", "report123" );
+    var resource = new GenericAuthorizationResource( "file", "report123" );
 
     request = new ResourceAuthorizationRequest( user, action, resource );
   }
