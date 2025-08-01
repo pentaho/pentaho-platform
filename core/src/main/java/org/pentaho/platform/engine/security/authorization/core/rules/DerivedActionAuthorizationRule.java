@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * an equal request but with the base action instead, and as its
  * {@link DerivedActionAuthorizationDecision#getDerivedFromAction() derived-from action} the base action.
  */
-public class DerivedActionAuthorizationRule extends AbstractAuthorizationRule {
+public class DerivedActionAuthorizationRule extends AbstractAuthorizationRule<IAuthorizationRequest> {
 
   @NonNull
   private final IAuthorizationAction baseAction;
@@ -55,6 +55,12 @@ public class DerivedActionAuthorizationRule extends AbstractAuthorizationRule {
                                          @NonNull Set<IAuthorizationAction> derivedActions ) {
     this.baseAction = Objects.requireNonNull( baseAction );
     this.derivedActions = Set.copyOf( derivedActions );
+  }
+
+  @NonNull
+  @Override
+  public Class<IAuthorizationRequest> getRequestType() {
+    return IAuthorizationRequest.class;
   }
 
   @NonNull

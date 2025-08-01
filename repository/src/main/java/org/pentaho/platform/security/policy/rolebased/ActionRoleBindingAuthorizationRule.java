@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class ActionRoleBindingAuthorizationRule extends AbstractAuthorizationRule {
+public class ActionRoleBindingAuthorizationRule extends AbstractAuthorizationRule<IAuthorizationRequest> {
 
   @NonNull
   private final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
@@ -37,6 +37,12 @@ public class ActionRoleBindingAuthorizationRule extends AbstractAuthorizationRul
     Assert.notNull( roleBindingDao, "Argument 'roleBindingDao' is required" );
 
     this.roleBindingDao = roleBindingDao;
+  }
+
+  @NonNull
+  @Override
+  public Class<IAuthorizationRequest> getRequestType() {
+    return IAuthorizationRequest.class;
   }
 
   @NonNull

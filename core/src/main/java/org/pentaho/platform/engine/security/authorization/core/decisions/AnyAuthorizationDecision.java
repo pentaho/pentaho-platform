@@ -23,9 +23,18 @@ public class AnyAuthorizationDecision extends AbstractCompositeAuthorizationDeci
   implements IAnyAuthorizationDecision {
 
   public AnyAuthorizationDecision( @NonNull IAuthorizationRequest request,
+                                   @NonNull Set<IAuthorizationDecision> decisions ) {
+    this( request, calculateIsGranted( decisions ), decisions );
+  }
+
+  public AnyAuthorizationDecision( @NonNull IAuthorizationRequest request,
                                    boolean granted,
                                    @NonNull Set<IAuthorizationDecision> decisions ) {
     super( request, granted, decisions );
+  }
+
+  private static boolean calculateIsGranted( @NonNull Set<IAuthorizationDecision> decisions ) {
+    return decisions.stream().anyMatch( IAuthorizationDecision::isGranted );
   }
 
   @Override

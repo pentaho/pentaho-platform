@@ -18,14 +18,14 @@ import org.springframework.util.Assert;
 
 import java.util.Objects;
 
-public class AuthorizationResource implements IAuthorizationResource {
+public class GenericAuthorizationResource implements IAuthorizationResource {
   @NonNull
   private final String typeId;
 
   @NonNull
   private final String id;
 
-  public AuthorizationResource( @NonNull String typeId, @NonNull String id ) {
+  public GenericAuthorizationResource( @NonNull String typeId, @NonNull String id ) {
     Assert.hasText( typeId, "Argument `typeId` must not be null or empty" );
     Assert.hasText( id, "Argument `id` must not be null or empty" );
 

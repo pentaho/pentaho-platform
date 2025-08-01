@@ -20,7 +20,7 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationUser
 import java.util.Objects;
 
 /**
- * The {@code AuthorizationRequest} class is a basic implementation of the {@link IAuthorizationRequest} interface,
+ * The {@code AuthorizationRequest} class is a basic implementation of the {@link IAuthorizationRequest} interface.
  */
 public class AuthorizationRequest implements IAuthorizationRequest {
   @NonNull

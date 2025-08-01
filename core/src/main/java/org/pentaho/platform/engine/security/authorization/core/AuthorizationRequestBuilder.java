@@ -20,7 +20,7 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequ
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationUser;
 import org.pentaho.platform.api.engine.security.authorization.resources.IAuthorizationResource;
 import org.pentaho.platform.api.engine.security.authorization.resources.IResourceAuthorizationRequest;
-import org.pentaho.platform.engine.security.authorization.core.resources.AuthorizationResource;
+import org.pentaho.platform.engine.security.authorization.core.resources.GenericAuthorizationResource;
 import org.pentaho.platform.engine.security.authorization.core.resources.ResourceAuthorizationRequest;
 import org.springframework.util.Assert;
 
@@ -53,10 +53,11 @@ public class AuthorizationRequestBuilder {
   @NonNull
   protected IAuthorizationAction resolveAction( @NonNull String actionName ) {
     return authorizationActionService.getAction( actionName )
-      .orElseThrow( () -> new IllegalArgumentException(
-        String.format(
-          "There is no registered action with name '%s'.",
-          actionName ) ) );
+      // Create and return a dummy action.
+      // Let the authorization service to gracefully deny the request
+      // (for actions which are not registered in the action service).
+      // No way to know if an original action was self or resource, and for which resource types.
+      .orElseGet( () -> new UndefinedAuthorizationAction( actionName ) );
   }
 
   @NonNull
@@ -69,6 +70,7 @@ public class AuthorizationRequestBuilder {
     return action( resolveAction( actionName ) );
   }
 
+  // region Step Builder classes
   public class WithActionBuilder {
     @NonNull
     private final IAuthorizationAction action;
@@ -98,7 +100,7 @@ public class AuthorizationRequestBuilder {
 
     @NonNull
     public WithResourceBuilder resource( @NonNull String type, @NonNull String id ) {
-      return resource( new AuthorizationResource( type, id ) );
+      return resource( new GenericAuthorizationResource( type, id ) );
     }
 
     @NonNull
@@ -128,6 +130,31 @@ public class AuthorizationRequestBuilder {
     @NonNull
     public IResourceAuthorizationRequest build() {
       return new ResourceAuthorizationRequest( user, action, resource );
+    }
+  }
+  // endregion
+
+  private static class UndefinedAuthorizationAction implements IAuthorizationAction {
+    @NonNull
+    private final String actionName;
+
+    public UndefinedAuthorizationAction( @NonNull String actionName ) {
+      this.actionName = actionName;
+    }
+
+    @Override
+    public String getName() {
+      return actionName;
+    }
+
+    @Override
+    public String getLocalizedDisplayName( String locale ) {
+      return actionName;
+    }
+
+    @Override
+    public String getLocalizedDescription( String locale ) {
+      return actionName;
     }
   }
 }

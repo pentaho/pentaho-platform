@@ -49,19 +49,16 @@ public interface IAuthorizationService {
   }
 
   /**
-   * Authorizes a given authorization request using a specific authorization rule and options.
-   * <p>
-   * This method can be used to know the result of a known rule's authorization of a request, possibly to compare it
-   * against the overall authorization decision taking all rules into account, obtained via
-   * {@link #authorize(IAuthorizationRequest, IAuthorizationOptions)}.
+   * Authorizes a given authorization request using a specific rule, with specific options.
    *
    * @param request The authorization request.
-   * @param rule    The authorization rule to evaluate.
+   * @param rule The authorization rule to evaluate.
    * @param options The authorization options.
-   * @return An optional authorization decision; an empty optional, if the rule abstains from making a decision.
+   * @return An empty optional, for abstaining from the decision; an optional with a decision object, for granting or
+   *         denying the authorization request.
    */
   @NonNull
   Optional<IAuthorizationDecision> authorizeRule( @NonNull IAuthorizationRequest request,
-                                                  @NonNull IAuthorizationRule rule,
+                                                  @NonNull IAuthorizationRule<? extends IAuthorizationRequest> rule,
                                                   @NonNull IAuthorizationOptions options );
 }

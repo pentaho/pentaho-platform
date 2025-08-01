@@ -32,7 +32,7 @@ public class SupportedActionResourceTypeAuthorizationDecision extends AbstractAu
       "%s[%s action='%s' resourceType='%s']",
       getClass().getSimpleName(),
       getGrantedLogText(),
-      resourceRequest.getAction(),
+      resourceRequest.getAction().getName(),
       resourceRequest.getResource().getType() );
   }
 }

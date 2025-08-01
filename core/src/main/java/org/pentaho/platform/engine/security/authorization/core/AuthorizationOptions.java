@@ -16,11 +16,14 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.AuthorizationDecisionReportingMode;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationOptions;
 
+import java.util.Objects;
+
 /**
  * The {@code AuthorizationOptions} class is a basic implementation of the {@link IAuthorizationOptions} interface.
  */
 public class AuthorizationOptions implements IAuthorizationOptions {
 
+  @NonNull
   private final AuthorizationDecisionReportingMode decisionReportingMode;
 
   /**
@@ -31,8 +34,14 @@ public class AuthorizationOptions implements IAuthorizationOptions {
     this( AuthorizationDecisionReportingMode.SETTLED );
   }
 
-  public AuthorizationOptions( AuthorizationDecisionReportingMode decisionReportingMode ) {
-    this.decisionReportingMode = decisionReportingMode;
+  /**
+   * Constructs an {@code AuthorizationOptions} instance with the specified decision reporting mode.
+   *
+   * @param decisionReportingMode The decision reporting mode.
+   * @throws NullPointerException if the decision reporting mode is null.
+   */
+  public AuthorizationOptions( @NonNull AuthorizationDecisionReportingMode decisionReportingMode ) {
+    this.decisionReportingMode = Objects.requireNonNull( decisionReportingMode );
   }
 
   /**
@@ -42,5 +51,27 @@ public class AuthorizationOptions implements IAuthorizationOptions {
   @NonNull
   public AuthorizationDecisionReportingMode getDecisionReportingMode() {
     return decisionReportingMode;
+  }
+
+  @Override
+  public boolean equals( Object o ) {
+    if ( !( o instanceof IAuthorizationOptions ) ) {
+      return false;
+    }
+
+    IAuthorizationOptions that = (IAuthorizationOptions) o;
+    return getDecisionReportingMode() == that.getDecisionReportingMode();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode( getDecisionReportingMode() );
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+      "AuthorizationOptions{decisionReportingMode=%s}",
+      decisionReportingMode );
   }
 }
