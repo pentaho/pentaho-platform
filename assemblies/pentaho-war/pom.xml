@@ -873,6 +873,12 @@
       <artifactId>jackcess</artifactId>
       <version>${jackcess.version}</version>
     </dependency>
+    <!-- Added this dependency as part of webservices jar upgradation which excluded below jar-->
+    <dependency>
+      <groupId>com.fasterxml.woodstox</groupId>
+      <artifactId>woodstox-core</artifactId>
+      <version>${woodstox-core.version}</version>
+    </dependency>
     <dependency>
       <groupId>jakarta.mail</groupId>
       <artifactId>jakarta.mail-api</artifactId>
