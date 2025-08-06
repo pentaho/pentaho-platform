@@ -94,7 +94,7 @@ public class ResourceAuthorizationRequest extends AuthorizationRequest
       "%s [user: `%s`, action: '%s', resource: %s]",
       getClass().getSimpleName(),
       getUser().getName(),
-      getAction().getName(),
+      getAction(),
       getResource() );
   }
 }
