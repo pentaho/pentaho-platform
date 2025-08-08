@@ -24,15 +24,15 @@ import java.text.MessageFormat;
  * The {@code DerivedActionAuthorizationDecision} class represents an authorization decision that is derived from
  * the authorization decision for another action.
  */
-public class DerivedActionAuthorizationDecision extends ImpliedAuthorizationDecision {
+public class DerivedActionAuthorizationDecision extends DerivedAuthorizationDecision {
 
   private static final String JUSTIFICATION =
     Messages.getInstance().getString( "DerivedActionAuthorizationDecision.JUSTIFICATION" );
 
 
   public DerivedActionAuthorizationDecision( @NonNull IAuthorizationRequest request,
-                                             @NonNull IAuthorizationDecision impliedFromDecision ) {
-    super( request, impliedFromDecision );
+                                             @NonNull IAuthorizationDecision derivedFromDecision ) {
+    super( request, derivedFromDecision );
   }
 
   /**
@@ -42,7 +42,7 @@ public class DerivedActionAuthorizationDecision extends ImpliedAuthorizationDeci
    */
   @NonNull
   public IAuthorizationAction getDerivedFromAction() {
-    return getImpliedFromDecision().getRequest().getAction();
+    return getDerivedFromDecision().getRequest().getAction();
   }
 
 
@@ -60,6 +60,6 @@ public class DerivedActionAuthorizationDecision extends ImpliedAuthorizationDeci
       "%s[%s, from: %s]",
       getClass().getSimpleName(),
       getGrantedLogText(),
-      getDerivedFromAction().getName() );
+      getDerivedFromAction() );
   }
 }

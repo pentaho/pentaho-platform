@@ -331,49 +331,147 @@ not directly from the PentahoObjectFactory. -->
 
   <bean id="authorizationService"
         class="org.pentaho.platform.engine.security.authorization.core.AuthorizationService">
+    <constructor-arg ref="authorizationActionService" />
     <constructor-arg ref="rootAuthorizationRule" />
     <pen:publish as-type="INTERFACES" />
   </bean>
 
+  <!-- Rules are organized into three **Rule Levels**:
+
+       1. **"absolute-grant"** (Override Level)
+          An Any/Or level where ONE rule grant is sufficient to grant overall access, regardless of any denials
+          from lower levels.
+
+          This level is intended for rules that provide absolute granting authority, such as administration rules
+          that should override all restrictions. Rules at this level are "undeniable" - they cannot be vetoed
+          by any other rules.
+
+          Register a rule at this level by publishing the rule bean according to the following example:
+          ```xml
+          <bean class="org.my.MyAbsoluteGrantRule">
+            <pen:publish as-type="INTERFACES">
+              <pen:attributes>
+                <pen:attr key="ruleLevel" value="absolute-grant"/>
+              </pen:attributes>
+            </pen:publish>
+          </bean>
+          ```
+
+       2. **"veto"** (Veto Level)
+          An All/And level where ONE rule denial is sufficient to deny overall access (except for absolute-grant
+          rules). All rules at this level must grant or abstain for the request to proceed to the next level.
+
+          This level is intended for rules that enforce security invariants or requirements that cannot be
+          violated. For example, a rule that ensures users have general access to an action before allowing
+          resource-specific access. Note that veto rules cannot block absolute-grant rules.
+
+          Register a rule at this level by publishing the rule bean according to the following example:
+          ```xml
+          <bean class="org.my.MyVetoRule">
+            <pen:publish as-type="INTERFACES">
+              <pen:attributes>
+                <pen:attr key="ruleLevel" value="veto"/>
+              </pen:attributes>
+            </pen:publish>
+          </bean>
+          ```
+
+       3. **"grant"** (Standard Grant Level)
+          An Any/Or level where ONE rule grant is necessary and sufficient to grant access. This is the
+          default level for authorization rules.
+
+          This level contains the standard authorization logic for granting access to resources and actions.
+          Rules at this level can be overridden by absolute-grant rules or blocked by veto rules.
+
+          Register a rule at this level by publishing the rule bean according to the following example:
+          ```xml
+          <bean class="org.my.MyGrantRule">
+            <pen:publish as-type="INTERFACES">
+              <pen:attributes>
+                <pen:attr key="ruleLevel" value="grant"/>
+              </pen:attributes>
+            </pen:publish>
+          </bean>
+          ```
+
+          Or, more simply, without the `ruleLevel` attribute (defaults to "grant"):
+          ```xml
+          <bean class="org.my.MyGrantRule">
+            <pen:publish as-type="INTERFACES"/>
+          </bean>
+          ```
+
+       **Evaluation Order:**
+       Rules are evaluated in the following order: absolute-grant → veto → grant
+       1. If any absolute-grant rule grants, access is granted immediately
+       2. If any veto rule denies, access is denied (unless overridden by absolute-grant)
+       3. If any grant rule grants (and no veto rules deny), access is granted
+       4. If no rules grant at any level, access is denied by default
+    -->
   <bean id="rootAuthorizationRule"
-        class="org.pentaho.platform.engine.security.authorization.core.rules.AnyAuthorizationRule">
+        class="org.pentaho.platform.engine.security.authorization.PentahoAuthorizationRuleLevel">
+    <constructor-arg ref="IPluginManager" />
+    <constructor-arg value="ANY" />
+    <constructor-arg value="absolute-grant" />
     <constructor-arg>
       <util:list>
-        <!-- 1 - TOP-GRANT-RULE LEVEL is an Any/Or level.
-             ONE grant is sufficient, but not necessary.
-          -->
 
-        <!-- Administration Universal Access -->
-        <bean class="org.pentaho.platform.engine.security.authorization.core.rules.MatchedRoleAuthorizationRule">
-          <constructor-arg ref="singleTenantAdminAuthorityName" />
-        </bean>
-        <bean class="org.pentaho.platform.engine.security.authorization.core.rules.MatchedRoleAuthorizationRule">
-          <constructor-arg ref="superAdminAuthorityName" />
-        </bean>
-
-        <!-- 2 - DENY-RULE LEVEL is an All/And level.
-             ALL rules must grant (or abstain) for a grant - necessary but not sufficient.
-             ONE rule denial is sufficient to deny overall.
-           -->
-        <bean class="org.pentaho.platform.engine.security.authorization.core.rules.AllAuthorizationRule">
+        <bean class="org.pentaho.platform.engine.security.authorization.PentahoAuthorizationRuleLevel">
+          <constructor-arg ref="IPluginManager" />
+          <constructor-arg value="ALL" />
+          <constructor-arg value="veto" />
           <constructor-arg>
             <util:list>
-              <bean class="org.pentaho.platform.engine.security.authorization.core.rules.SupportedActionResourceTypeAuthorizationRule" />
-              <bean class="org.pentaho.platform.engine.security.authorization.core.rules.ResourceActionGeneralRequirementAuthorizationRule" />
 
-              <!-- 3 - GRANT-RULE LEVEL is an Any/Or level.
-                   ONE grant is necessary and sufficient to grant.
-                -->
-              <bean class="org.pentaho.platform.engine.security.authorization.core.rules.AnyAuthorizationRule">
-                <constructor-arg>
-                  <pen:list class="org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule" />
-                </constructor-arg>
+              <bean class="org.pentaho.platform.engine.security.authorization.PentahoAuthorizationRuleLevel">
+                <constructor-arg ref="IPluginManager" />
+                <constructor-arg value="ANY" />
+                <constructor-arg value="grant" />
+                <constructor-arg value="true" type="boolean" />
               </bean>
             </util:list>
           </constructor-arg>
         </bean>
       </util:list>
     </constructor-arg>
+  </bean>
+
+  <!-- Administration Universal Access -->
+  <bean class="org.pentaho.platform.engine.security.authorization.core.rules.MatchedRoleAuthorizationRule">
+    <constructor-arg ref="singleTenantAdminAuthorityName" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="ruleLevel" value="absolute-grant"/>
+        <pen:attr key="priority" value="20"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.engine.security.authorization.core.rules.MatchedRoleAuthorizationRule">
+    <constructor-arg ref="superAdminAuthorityName" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="ruleLevel" value="absolute-grant"/>
+        <pen:attr key="priority" value="10"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <!-- Resource-related Rules -->
+  <bean class="org.pentaho.platform.engine.security.authorization.core.rules.SupportedActionResourceTypeAuthorizationRule">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="ruleLevel" value="veto"/>
+        <pen:attr key="priority" value="20"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.engine.security.authorization.core.rules.ResourceActionGeneralRequirementAuthorizationRule">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="ruleLevel" value="veto"/>
+        <pen:attr key="priority" value="10"/>
+      </pen:attributes>
+    </pen:publish>
   </bean>
 
   <bean id="userConsoleService" class="org.pentaho.platform.web.http.api.resources.services.UserConsoleService">

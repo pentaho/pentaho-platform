@@ -16,12 +16,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationContext;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule;
-import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
-import org.pentaho.platform.api.engine.security.authorization.decisions.ICompositeAuthorizationDecision;
-import org.pentaho.platform.engine.security.authorization.core.decisions.AnyAuthorizationDecision;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * The {@code OrAuthorizationRulesManager} class is an authorization rules manager which combines the results of a list
@@ -29,28 +25,13 @@ import java.util.Set;
  */
 public class AnyAuthorizationRule extends AbstractCompositeAuthorizationRule {
 
-  public AnyAuthorizationRule( @NonNull List<IAuthorizationRule> rules ) {
+  public AnyAuthorizationRule( @NonNull List<IAuthorizationRule<IAuthorizationRequest>> rules ) {
     super( rules );
   }
 
   @NonNull
   @Override
   protected AbstractCompositeResultBuilder createResultBuilder( @NonNull IAuthorizationContext context ) {
-
-    return new AbstractCompositeResultBuilder( context.getOptions().getDecisionReportingMode() ) {
-      @NonNull
-      @Override
-      protected ICompositeAuthorizationDecision createDecision( @NonNull IAuthorizationRequest request,
-                                                                boolean isGranted,
-                                                                @NonNull Set<IAuthorizationDecision> decisions ) {
-        return new AnyAuthorizationDecision( request, isGranted, decisions );
-      }
-
-      @Override
-      protected boolean getSettledGrantedStatus() {
-        // Granted
-        return true;
-      }
-    };
+    return new AnyResultBuilder( context.getOptions().getDecisionReportingMode() );
   }
 }

@@ -27,9 +27,21 @@ import java.util.Optional;
  * <p>
  * Implementations should override the {@link Object#toString()} method to provide a meaningful description of the rule,
  * appropriate for including in exception messages, and for logging and debugging purposes.
+ *
+ * @param <T> The specific type of authorization request this rule can handle, must extend {@link IAuthorizationRequest}
  */
-@FunctionalInterface
-public interface IAuthorizationRule {
+public interface IAuthorizationRule<T extends IAuthorizationRequest> {
+  /**
+   * Gets the specific type of authorization request this rule can handle.
+   * <p>
+   * Other requests that do not match this type will not be processed by this rule,
+   * resulting, in practice, in an abstention from the decision.
+   *
+   * @return The class type of the authorization request this rule processes.
+   */
+  @NonNull
+  Class<T> getRequestType();
+
   /**
    * Authorizes a given authorization request under a given authorization context.
    *
@@ -39,6 +51,6 @@ public interface IAuthorizationRule {
    *         denying the authorization request.
    */
   @NonNull
-  Optional<IAuthorizationDecision> authorize( @NonNull IAuthorizationRequest request,
+  Optional<IAuthorizationDecision> authorize( @NonNull T request,
                                               @NonNull IAuthorizationContext context );
 }

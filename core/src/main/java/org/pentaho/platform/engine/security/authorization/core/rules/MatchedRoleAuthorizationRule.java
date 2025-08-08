@@ -40,7 +40,7 @@ import java.util.Optional;
  * {@link IAuthorizationOptions#getDecisionReportingMode() decision reporting mode} option into account for controlling
  * whether to test for the various roles, or if it is enough to test for and report the first one that matches.
  */
-public class MatchedRoleAuthorizationRule extends AbstractAuthorizationRule {
+public class MatchedRoleAuthorizationRule extends AbstractAuthorizationRule<IAuthorizationRequest> {
   @NonNull
   private final IAuthorizationRole role;
 
@@ -50,6 +50,12 @@ public class MatchedRoleAuthorizationRule extends AbstractAuthorizationRule {
 
   public MatchedRoleAuthorizationRule( @NonNull IAuthorizationRole role ) {
     this.role = Objects.requireNonNull( role );
+  }
+
+  @NonNull
+  @Override
+  public Class<IAuthorizationRequest> getRequestType() {
+    return IAuthorizationRequest.class;
   }
 
   @NonNull

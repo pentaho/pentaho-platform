@@ -12,9 +12,12 @@
 
 package org.pentaho.platform.security.policy.rolebased.actions;
 
-public class AdministerSecurityAction extends AbstractAuthorizationAction {
+import edu.umd.cs.findbugs.annotations.NonNull;
+
+public class AdministerSecurityAction extends AbstractLocalizedAuthorizationAction {
   public static final String NAME = "org.pentaho.security.administerSecurity";
 
+  @NonNull
   @Override
   public String getName() {
     return NAME;
