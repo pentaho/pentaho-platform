@@ -25,19 +25,9 @@ import java.util.Objects;
  * {@link org.pentaho.platform.api.engine.security.authorization.IAuthorizationActionService}.
  */
 public class AuthorizationRequestUndefinedActionException extends Exception {
-  @NonNull
-  private final IAuthorizationRequest request;
 
   public AuthorizationRequestUndefinedActionException( @NonNull IAuthorizationRequest request ) {
-
     super( createMessage( request ) );
-
-    this.request = request;
-  }
-
-  @NonNull
-  public IAuthorizationRequest getRequest() {
-    return request;
   }
 
   @NonNull

@@ -163,18 +163,6 @@ public class PentahoAuthorizationRuleLevelTest {
   // endregion
 
   @Test
-  public void testGetRequestTypeIsIAuthorizationRequest() {
-    var ruleLevel = new PentahoAuthorizationRuleLevel(
-      mockPluginManager,
-      PentahoAuthorizationRuleLevel.RuleLevelType.ALL,
-      "test-level",
-      Collections.emptyList()
-    );
-
-    assertEquals( IAuthorizationRequest.class, ruleLevel.getRequestType() );
-  }
-
-  @Test
   public void testAllRuleLevelTypeCreatesAllAuthorizationRule() {
     var objectRef = createMockObjectReference( mockLevelRule1, "test-level" );
     var mockRuleRefsSupplier = createMockRuleReferencesSupplier( List.of( objectRef ) );

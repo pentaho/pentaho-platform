@@ -121,7 +121,7 @@ public class PentahoAuthorizationRuleLevel implements IAuthorizationRule<IAuthor
 
   @NonNull
   private IAuthorizationRule<IAuthorizationRequest> buildDelegateRule() {
-    var rules = new ArrayList<>( getLevelAuthorizationRules( levelRulePredicate ) );
+    var rules = getLevelAuthorizationRules( levelRulePredicate );
     rules.addAll( postRules );
 
     return ruleLevelType.equals( RuleLevelType.ALL )
@@ -143,7 +143,7 @@ public class PentahoAuthorizationRuleLevel implements IAuthorizationRule<IAuthor
   }
 
   @NonNull
-  private List<IAuthorizationRule<IAuthorizationRequest>> getLevelAuthorizationRules(
+  private ArrayList<IAuthorizationRule<IAuthorizationRequest>> getLevelAuthorizationRules(
     @NonNull Predicate<IPentahoObjectReference<?>> rulePredicate ) {
 
     var objectReferences = authorizationRuleReferencesSupplier.get();
@@ -158,7 +158,7 @@ public class PentahoAuthorizationRuleLevel implements IAuthorizationRule<IAuthor
           (IAuthorizationRule<IAuthorizationRequest>) ref.getObject();
         return rule;
       } )
-      .collect( Collectors.toList() );
+      .collect( Collectors.toCollection( ArrayList::new ) );
   }
 
   @VisibleForTesting

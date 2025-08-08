@@ -14,7 +14,7 @@ package org.pentaho.platform.security.policy.rolebased.actions;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 
-public class PublishAction extends AbstractAuthorizationAction {
+public class PublishAction extends AbstractLocalizedAuthorizationAction {
   public static final String NAME = "org.pentaho.security.publish";
 
   @NonNull

@@ -30,29 +30,11 @@ import java.util.Objects;
  * perform a sub-authorization for a request which is already being evaluated upstream.
  */
 public class AuthorizationRequestCycleException extends Exception {
-  @NonNull
-  private final Collection<IAuthorizationRequest> pendingRequests;
-  @NonNull
-  private final IAuthorizationRequest cycleRequest;
-
   public AuthorizationRequestCycleException(
     @NonNull Collection<IAuthorizationRequest> pendingRequests,
     @NonNull IAuthorizationRequest cycleRequest ) {
 
     super( createMessage( pendingRequests, cycleRequest ) );
-
-    this.pendingRequests = pendingRequests;
-    this.cycleRequest = cycleRequest;
-  }
-
-  @NonNull
-  public Collection<IAuthorizationRequest> getPendingRequests() {
-    return pendingRequests;
-  }
-
-  @NonNull
-  public IAuthorizationRequest getCycleRequest() {
-    return cycleRequest;
   }
 
   @NonNull

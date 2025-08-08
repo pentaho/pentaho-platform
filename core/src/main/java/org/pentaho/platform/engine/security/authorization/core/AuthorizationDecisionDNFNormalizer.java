@@ -189,7 +189,7 @@ public class AuthorizationDecisionDNFNormalizer {
 
       return visitComposite(
         decision,
-        ( child ) -> visit( new OpposedAuthorizationDecision( child ) ),
+        child -> visit( new OpposedAuthorizationDecision( child ) ),
         ( ignored, visitedChildren, hasModifiedChildren ) ->
           getCompositeAuthorizationDecisionFactory( decision, true )
             .create( decision.getRequest(), visitedChildren )
@@ -247,7 +247,7 @@ public class AuthorizationDecisionDNFNormalizer {
       // The list of terms that will feed all AND decisions.
       // Mutated along the way, copied at the leaf of the recursion when building each AND decision.
       List<IAuthorizationDecision> andTerms = new ArrayList<>( orChildren.size() + nonOrChildren.size() );
-      for ( IAnyAuthorizationDecision ignored : orChildren ) {
+      for ( int i = 0; i < orChildren.size(); i++ ) {
         // Add one placeholder position for each OR term, one per OR child.
         andTerms.add( null );
       }
@@ -336,6 +336,7 @@ public class AuthorizationDecisionDNFNormalizer {
     }
   }
 
+  // NOTE: Consider an option for strict DNF output, enforcing OR(And(...)) structure.
   @NonNull
   public IAuthorizationDecision normalize( @NonNull IAuthorizationDecision decision ) {
     Objects.requireNonNull( decision );
@@ -349,9 +350,6 @@ public class AuthorizationDecisionDNFNormalizer {
     if ( decision instanceof IAllAuthorizationDecision ) {
       decision = new AnyAuthorizationDecision( decision.getRequest(), Set.of( decision ) );
     }
-
-    // TODO: simplify composites with a single child?
-    // TODO: strict dnf? or of and of terminals? or allow skipping degenerate composites?
 
     return decision;
   }

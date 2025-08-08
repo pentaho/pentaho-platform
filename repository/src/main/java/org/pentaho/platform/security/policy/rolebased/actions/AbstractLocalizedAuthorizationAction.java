@@ -14,6 +14,7 @@ package org.pentaho.platform.security.policy.rolebased.actions;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import org.pentaho.platform.engine.security.authorization.core.AbstractAuthorizationAction;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.messages.LocaleHelper;
@@ -24,8 +25,7 @@ import java.util.ResourceBundle;
 
 /**
  * The {@code AbstractAuthorizationAction} class provides a base implementation for authorization actions that builds
- * upon the {@link org.pentaho.platform.engine.security.authorization.core.AbstractAuthorizationAction} class to add
- * basic support for localization and resource bundles.
+ * upon the {@link AbstractAuthorizationAction} class to add basic support for localization and resource bundles.
  * <p>
  * The action's localized display name and description are retrieved from a resource bundle, returned by
  * {@link #getResourceBundle(Locale)}, using resource string keys based on the action's name, {@link #getName()}.
@@ -36,8 +36,7 @@ import java.util.ResourceBundle;
  * When a given locale string is {@code null} or empty, the default locale is obtained from the
  * {@link #getDefaultLocale()} method.
  */
-public abstract class AbstractAuthorizationAction
-  extends org.pentaho.platform.engine.security.authorization.core.AbstractAuthorizationAction {
+public abstract class AbstractLocalizedAuthorizationAction extends AbstractAuthorizationAction {
 
   /**
    * Gets the resource bundle for a specific locale.

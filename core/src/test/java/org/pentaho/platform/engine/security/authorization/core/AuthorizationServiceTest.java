@@ -47,8 +47,8 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
-import static org.pentaho.platform.engine.security.authorization.core.AuthorizationTestHelpers.createTestAction;
 import static org.pentaho.platform.engine.security.authorization.core.AuthorizationTestHelpers.createMockRule;
+import static org.pentaho.platform.engine.security.authorization.core.AuthorizationTestHelpers.createTestAction;
 import static org.pentaho.platform.engine.security.authorization.core.AuthorizationTestHelpers.createTestUser;
 
 public class AuthorizationServiceTest {
@@ -159,7 +159,7 @@ public class AuthorizationServiceTest {
   public void testRuleGetsCorrectRequestAndContext() {
 
     when( rootRule.authorize( any( IAuthorizationRequest.class ), any( IAuthorizationContext.class ) ) )
-      .thenAnswer( ( answer ) -> {
+      .thenAnswer( answer -> {
         // Verify that the rule receives the correct request and context.
         IAuthorizationRequest requestArg = answer.getArgument( 0 );
         IAuthorizationContext contextArg = answer.getArgument( 1 );
@@ -348,9 +348,9 @@ public class AuthorizationServiceTest {
     IAuthorizationRule<IAuthorizationRequest> rule = createMockRule();
     when( rule.authorize( any( IAuthorizationRequest.class ), any( IAuthorizationContext.class ) ) )
       .thenAnswer( answer -> {
-        IAuthorizationRequest request = answer.getArgument( 0 );
-        IAuthorizationContext context = answer.getArgument( 1 );
-        return authorizeFunction.apply( request, context );
+        IAuthorizationRequest req = answer.getArgument( 0 );
+        IAuthorizationContext ctx = answer.getArgument( 1 );
+        return authorizeFunction.apply( req, ctx );
       } );
 
     return rule;

@@ -21,7 +21,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -50,7 +49,7 @@ class IAuthorizationServiceTest {
 
     // Verify that the main authorize method was called with default options
     verify( service, times( 1 ) )
-      .authorize( eq( mockRequest ), eq( IAuthorizationOptions.getDefault() ) );
+      .authorize( mockRequest, IAuthorizationOptions.getDefault() );
   }
 
   private static class TestAuthorizationService implements IAuthorizationService {
