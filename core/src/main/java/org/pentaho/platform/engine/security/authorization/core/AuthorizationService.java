@@ -100,7 +100,7 @@ public class AuthorizationService implements IAuthorizationService {
       } catch ( Exception e ) {
 
         logger.error( String.format(
-          "AuthorizeRule END - ERROR - request: %s. Denying.",
+          "Authorize END - ERROR - request: %s. Denying.",
           request
         ), e );
 
