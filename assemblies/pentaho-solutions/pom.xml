@@ -5,10 +5,10 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>10.3.0.0-SNAPSHOT</version>
+    <version>11.0.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>pentaho-solutions</artifactId>
-  <version>10.3.0.0-SNAPSHOT</version>
+  <version>11.0.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
     <prepared.samples.directory>${project.build.directory}/dependency/plugin-samples</prepared.samples.directory>
@@ -227,6 +227,13 @@
                 <artifactItem>
                   <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>ms-access-plugins</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.pentaho.di.plugins</groupId>
+                  <artifactId>repo-vfs-plugin-assembly</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>

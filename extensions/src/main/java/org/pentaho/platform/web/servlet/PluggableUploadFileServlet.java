@@ -7,16 +7,17 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.servlet;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileItemFactory;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -27,11 +28,11 @@ import org.pentaho.platform.web.servlet.messages.Messages;
 import org.safehaus.uuid.UUID;
 import org.owasp.encoder.Encode;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -137,8 +138,8 @@ public class PluggableUploadFileServlet extends HttpServlet implements Servlet {
 
   @SuppressWarnings( "unchecked" )
   private FileItem getFileItem( HttpServletRequest request, long maxFileSize ) throws FileUploadException {
-    FileItemFactory factory = new DiskFileItemFactory();
-    ServletFileUpload upload = new ServletFileUpload( factory );
+    FileItemFactory factory = new DiskFileItemFactory.Builder().get();
+    JakartaServletFileUpload upload = new JakartaServletFileUpload( factory );
     upload.setFileSizeMax( maxFileSize );
     List items = upload.parseRequest( request );
     Iterator it = items.iterator();

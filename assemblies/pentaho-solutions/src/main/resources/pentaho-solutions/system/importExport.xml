@@ -84,6 +84,14 @@
 		<property name="knownExtensions" ref="extensions" />
 	</bean>
 
+	<bean id="solutionImportHandler" class="org.pentaho.platform.plugin.services.importer.SolutionImportHandler">
+		<constructor-arg>
+			<bean factory-bean="MimeTypeListFactory" factory-method="createMimeTypeList" >
+				<constructor-arg value="org.pentaho.platform.plugin.services.importer.SolutionImportHandler"/>
+			</bean>
+		</constructor-arg>
+	</bean>
+
 	<bean id="IPlatformImporter"
 		class="org.pentaho.platform.plugin.services.importer.PentahoPlatformImporter"
 		scope="singleton">
@@ -108,14 +116,7 @@
 				value-type="org.pentaho.platform.plugin.services.importer.IPlatformImportHandler">
 				<ref bean="defaultImportHandler" />
 
-				<bean
-					class="org.pentaho.platform.plugin.services.importer.SolutionImportHandler">
-					<constructor-arg>
-						<bean factory-bean="MimeTypeListFactory" factory-method="createMimeTypeList" >
-							<constructor-arg value="org.pentaho.platform.plugin.services.importer.SolutionImportHandler"/> 
-						</bean>
-					</constructor-arg>
-				</bean>
+				<ref bean="solutionImportHandler" />
 
 				<bean
 					class="org.pentaho.platform.plugin.services.importer.MetadataImportHandler">
@@ -209,6 +210,9 @@
 
 	<bean id="IPentahoPlatformExporter" class="org.pentaho.platform.plugin.services.exporter.PentahoPlatformExporter">
 		<constructor-arg ref="unifiedRepository"/>
+		<property name="repositoryExportLogger">
+			<bean class="org.pentaho.platform.plugin.services.importexport.Log4JRepositoryExportLogger" />
+		</property>
 	</bean>
 	
 	<bean id="IRepositoryVersionManager" class="org.pentaho.platform.repository2.unified.DefaultRepositoryVersionManager" scope="singleton">

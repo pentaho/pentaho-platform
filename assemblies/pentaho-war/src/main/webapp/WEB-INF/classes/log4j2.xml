@@ -112,7 +112,7 @@
     <Loggers>
         <Logger name="org.apache.hadoop.io.retry" level="INFO"/>
         <Logger name="org.hibernate" level="ERROR"/>
-        <Logger name="net.sf.ehcache" level="ERROR"/>
+        <Logger name="org.ehcache" level="ERROR"/>
         <Logger name="org.quartz" level="ERROR"/>
         <Logger name="org.springframework" level="ERROR"/>
         <Logger name="org.springframework.security" level="ERROR"/>

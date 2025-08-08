@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importer;
 
@@ -446,7 +447,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
           }
         }
         Serializable parentFileId = parentFile.getId();
-        Assert.notNull( parentFileId );
+        Assert.notNull( parentFileId, "Parent file ID must not be null" );
       }
     }
     return getParentId( repositoryPath );
@@ -478,14 +479,14 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    * @return
    */
   protected Serializable getParentId( final String repositoryPath ) {
-    Assert.notNull( repositoryPath );
+    Assert.notNull( repositoryPath, "Repository Path must not be null" );
     final String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator( repositoryPath );
     final RepositoryFile parentFile = repository.getFile( parentPath );
     if ( parentFile == null ) {
       return null;
     }
     Serializable parentFileId = parentFile.getId();
-    Assert.notNull( parentFileId );
+    Assert.notNull( parentFileId, "Parent file ID must not be null" );
     return parentFileId;
   }
 
@@ -506,7 +507,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     // The file doesn't exist and it is a folder. Create folder.
     getLogger().trace( messages.getString( "RepositoryFileImportFileHandler.CreatingImpliedFolder", folderPath ) );
     final Serializable parentId = getParentId( folderPath );
-    Assert.notNull( parentId );
+    Assert.notNull( parentId, "Parent ID must not be null" );
     boolean isHidden;
     if ( getImportSession().isFileHidden( manifestKey ) == null ) {
       isHidden = false;
