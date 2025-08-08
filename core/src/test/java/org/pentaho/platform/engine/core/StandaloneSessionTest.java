@@ -108,6 +108,12 @@ public class StandaloneSessionTest extends TestCase {
       session.getAttributeNames().next() );
     assertEquals( "Wrong attribute value", this, session.getAttribute( "testattribute" ) );
 
+    assertTrue( "testattribute", session.getAttributeNames().hasNext() );
+
+    session.setAttribute( "testattribute", null );
+    assertFalse( "testattribute", session.getAttributeNames().hasNext() );
+    assertNull( "Attribute removed", session.getAttribute( "testattribute" ) );
+
     session.removeAttribute( "testattribute" );
     assertFalse( "Wrong attributes", session.getAttributeNames().hasNext() );
     assertNull( "Wrong attribute value", session.getAttribute( "testattribute" ) );

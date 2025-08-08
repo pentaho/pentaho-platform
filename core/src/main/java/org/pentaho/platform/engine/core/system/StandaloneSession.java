@@ -25,6 +25,7 @@ import java.util.Locale;
 public class StandaloneSession extends BaseSession {
   private static final long serialVersionUID = -1614831602086304014L;
   private static final Log logger = LogFactory.getLog( StandaloneSession.class );
+  private static final String ERROR_0001 = "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION";
 
   private HashMap<String, Object> attributes;
 
@@ -53,9 +54,8 @@ public class StandaloneSession extends BaseSession {
   @SuppressWarnings( "rawtypes" ) // Treated as in IPentahoSession
   public Iterator getAttributeNames() {
     if ( attributes == null ) {
-      throw new IllegalStateException( Messages.getInstance().getErrorString(
-        "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION",
-        String.valueOf( Thread.currentThread().getId() ) ) );
+      throw new IllegalStateException(
+        Messages.getInstance().getErrorString( ERROR_0001, String.valueOf( Thread.currentThread().getId() ) ) );
     }
 
     // TODO need to turn the set iterator into an enumeration...
@@ -64,28 +64,30 @@ public class StandaloneSession extends BaseSession {
 
   public Object getAttribute( final String attributeName ) {
     if ( attributes == null ) {
-      throw new IllegalStateException( Messages.getInstance().getErrorString(
-        "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION",
-        String.valueOf( Thread.currentThread().getId() ) ) );
+      throw new IllegalStateException(
+        Messages.getInstance().getErrorString( ERROR_0001, String.valueOf( Thread.currentThread().getId() ) ) );
     }
     return attributes.get( attributeName );
   }
 
   public void setAttribute( final String attributeName, final Object value ) {
     if ( attributes == null ) {
-      throw new IllegalStateException( Messages.getInstance().getErrorString(
-        "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION",
-        String.valueOf( Thread.currentThread().getId() ) ) );
+      throw new IllegalStateException(
+        Messages.getInstance().getErrorString( ERROR_0001, String.valueOf( Thread.currentThread().getId() ) ) );
     }
 
-    attributes.put( attributeName, value );
+    // Make it semantically equivalent to HttpSession.setAttribute
+    if ( value == null ) {
+      attributes.remove( attributeName );
+    } else {
+      attributes.put( attributeName, value );
+    }
   }
 
   public Object removeAttribute( final String attributeName ) {
     if ( attributes == null ) {
-      throw new IllegalStateException( Messages.getInstance().getErrorString(
-        "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION",
-        String.valueOf( Thread.currentThread().getId() ) ) );
+      throw new IllegalStateException(
+        Messages.getInstance().getErrorString( ERROR_0001, String.valueOf( Thread.currentThread().getId() ) ) );
     }
 
     Object result = getAttribute( attributeName );
