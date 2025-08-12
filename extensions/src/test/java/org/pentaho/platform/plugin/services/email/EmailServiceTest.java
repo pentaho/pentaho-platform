@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.email;
 
@@ -31,11 +32,11 @@ import org.pentaho.platform.api.email.IEmailConfiguration;
 import org.pentaho.platform.util.EmailConstants;
 import org.pentaho.platform.util.MockMail;
 
-import javax.mail.Message;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.ws.rs.HttpMethod;
+import jakarta.mail.Message;
+import jakarta.mail.Session;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.ws.rs.HttpMethod;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

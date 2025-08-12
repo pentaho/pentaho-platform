@@ -7,16 +7,17 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package com.pentaho.pdi.ws;
 
 import org.junit.Before;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.Endpoint;
-import javax.xml.ws.Service;
+import jakarta.xml.ws.Endpoint;
+import jakarta.xml.ws.Service;
 import java.io.Serializable;
 import java.net.URL;
 
