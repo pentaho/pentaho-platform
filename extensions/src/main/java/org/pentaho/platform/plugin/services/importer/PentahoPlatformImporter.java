@@ -159,6 +159,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
       // so log the error and keep going.
       RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) file;
       String repositoryFilePath = RepositoryFilenameUtils.concat( bundle.getPath(), bundle.getName() );
+      // whoops. gets caught here. Need another mechanism
       if ( repositoryImportLogger.hasLogger() && repositoryFilePath != null && repositoryFilePath.length() > 0 ) {
         repositoryImportLogger.error( e );
       } else {

@@ -129,6 +129,13 @@ public class ImportDialog extends PromptDialogBox {
                     true,
                     Messages.getString( "close" ) );
             dialogBox.center();
+          } else if ( result.contains( "INVALID_MIME_TYPE_PARTIAL" )  ) {
+              MessageDialogBox dialogBox = new MessageDialogBox(
+                      Messages.getString( "uploadUnsuccessful" ),// TODO: need new messages here. See https://github.com/pentaho/pentaho-commons-gwt-modules/blob/master/widgets/src/main/resources/org/pentaho/mantle/public/messages/mantleMessages.properties#L625
+                      Messages.getString( "uploadInvalidFileTypeQuestionPartial", result ),
+                      true,
+                      Messages.getString( "close" ) );
+              dialogBox.center();
           } else if ( result.contains( UPLOAD_ACCESS_DENIED_SNIPPET ) ) {
             MessageDialogBox messageDialogBox = new MessageDialogBox(
                     Messages.getString( "uploadUnsuccessful" ),
