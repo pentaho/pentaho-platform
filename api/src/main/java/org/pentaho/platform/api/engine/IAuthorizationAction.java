@@ -13,18 +13,30 @@
 package org.pentaho.platform.api.engine;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 import java.util.Set;
 
 /**
- * Represents a Logical Role name used by some IAuthorizationPolicy implementations. Also known as Action-Based Security
+ * The {@code IAuthorizationAction} interface defines the contract for actions that can be authorized via the
+ * authorization system.
+ * <p>
+ * An action is identified by its name, which is a unique string that represents the action within the system.
+ * It is recommended that the action name uses a reverse domain name notation (e.g., "com.example.action").
+ * <p>
+ * Accordingly, equality is based on the action name. The implementations of the {@link Object#equals(Object)} and
+ * {@link Object#hashCode()} methods must ensure this behavior.
+ * <p>
+ * The string representation of this action, as returned by {@link Object#toString()}, should be appropriate for logging
+ * and debugging purposes.
  */
 public interface IAuthorizationAction {
   /**
    * Gets the name of the action.
    *
-   * @return The action name.
+   * @return The action name, never {@code null} or empty.
    */
+  @NonNull
   String getName();
 
   /**
@@ -32,20 +44,27 @@ public interface IAuthorizationAction {
    * <p>
    * This method is syntactic sugar for {@code getLocalizedDisplayName(null)}.
    *
-   * @return The localized name.
+   * @return The localized name, never {@code null} or empty.
    */
+  @NonNull
   default String getLocalizedDisplayName() {
     return getLocalizedDisplayName( null );
   }
 
   /**
    * Gets the localized display name of the action for a specific locale.
+   * <p>
+   * If there is no localization available whatsoever, the action name should be returned.
+   * This is ensured by the default implementation of this method.
    *
    * @param locale The locale to use for localization.
    *               The default locale is used if the string is {@code null} or empty.
-   * @return The localized name.
+   * @return The localized name, never {@code null} or empty.
    */
-  String getLocalizedDisplayName( String locale );
+  @NonNull
+  default String getLocalizedDisplayName( @Nullable String locale ) {
+    return getName();
+  }
 
   /**
    * Gets the localized description of the action for the default locale.
@@ -54,18 +73,24 @@ public interface IAuthorizationAction {
    *
    * @return The localized description.
    */
+  @Nullable
   default String getLocalizedDescription() {
     return getLocalizedDescription( null );
   }
 
   /**
    * Gets the localized description of the action for a specific locale.
+   * <p>
+   * The default implementation returns an empty string.
    *
    * @param locale The locale to use for localization.
    *               The default locale is used if the string is {@code null} or empty.
    * @return The localized description.
    */
-  String getLocalizedDescription( String locale );
+  @Nullable
+  default String getLocalizedDescription( @Nullable String locale ) {
+    return "";
+  }
 
   /**
    * Get the set of resource types that this action can be performed on / applied to.

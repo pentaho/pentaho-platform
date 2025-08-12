@@ -25,60 +25,32 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class IAuthorizationActionTest {
 
   static class SelfAction implements IAuthorizationAction {
+    @NonNull
     @Override
     public String getName() {
       return "self";
     }
-
-    @Override
-    public String getLocalizedDisplayName( String locale ) {
-      return "Self";
-    }
-
-    @Override
-    public String getLocalizedDescription( String locale ) {
-      return "Self action";
-    }
-    // getResourceTypes() default: empty set
   }
 
   static class ResourceAction implements IAuthorizationAction {
+    @NonNull
     @Override
     public String getName() {
       return "resource";
     }
 
-    @Override
-    public String getLocalizedDisplayName( String locale ) {
-      return "Resource";
-    }
-
-    @Override
-    public String getLocalizedDescription( String locale ) {
-      return "Resource action";
-    }
-
-    @Override
     @NonNull
+    @Override
     public Set<String> getResourceTypes() {
       return Set.of( "typeA", "typeB" );
     }
   }
 
   static class DefaultsAction implements IAuthorizationAction {
+    @NonNull
     @Override
     public String getName() {
       return "defaults";
-    }
-
-    @Override
-    public String getLocalizedDisplayName( String locale ) {
-      return "Defaults";
-    }
-
-    @Override
-    public String getLocalizedDescription( String locale ) {
-      return "Defaults action";
     }
   }
 
@@ -134,7 +106,7 @@ class IAuthorizationActionTest {
     IAuthorizationAction action = new DefaultsAction();
 
     assertThrows( NullPointerException.class, () -> {
-        action.performsOnResourceType( null );
-      });
+      action.performsOnResourceType( null );
+    } );
   }
 }
