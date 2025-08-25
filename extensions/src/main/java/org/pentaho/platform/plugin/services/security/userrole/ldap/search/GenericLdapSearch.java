@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.security.userrole.ldap.search;
 
@@ -124,7 +125,7 @@ public class GenericLdapSearch implements LdapSearch, InitializingBean {
   }
 
   public void afterPropertiesSet() throws Exception {
-    Assert.notNull( contextSource );
-    Assert.notNull( paramsFactory );
+    Assert.notNull( contextSource, "ContextSource must not be null" );
+    Assert.notNull( paramsFactory, "LdapSearchParamsFactory must not be null" );
   }
 }

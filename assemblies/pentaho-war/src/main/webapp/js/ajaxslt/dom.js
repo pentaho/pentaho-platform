@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 // Copyright 2005 Google Inc.
 // All Rights Reserved
@@ -73,7 +74,7 @@ function xmlResolveEntities(s) {
         // through the W3C DOM. W3C DOM access is specified to resolve
         // entities. 
         var span = window.document.createElement('span');
-        span.innerHTML = '&' + rp[0] + '; ';
+        pho.util.xss.setHtml(span, '&' + rp[0] + '; ');
         ch = span.childNodes[0].nodeValue.charAt(0);
     }
     ret += ch + rp[1];

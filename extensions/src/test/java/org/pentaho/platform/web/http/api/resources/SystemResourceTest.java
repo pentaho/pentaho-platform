@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources;
 
@@ -22,7 +23,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import static org.mockito.Mockito.mock;
 
@@ -61,6 +62,6 @@ public class SystemResourceTest {
     } catch ( Exception e ) {
 
     }
-    Assert.notNull(resp);
+    Assert.notNull( resp, "Response must not be null" );
   }
 }
