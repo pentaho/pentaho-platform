@@ -1041,7 +1041,7 @@ public class CommandLineProcessor {
     WebTarget authTarget =
         client.target( contextURL + API_AUTHORIZATION_ACTION_IS_AUTHORIZED + "?authAction="
             + securityAction );
-    boolean isAuthorized = Boolean.parseBoolean( authTarget.request().get().getEntity().toString() );
+    boolean isAuthorized = Boolean.parseBoolean( authTarget.request().get().readEntity( String.class ) );
     if ( !isAuthorized ) {
       System.err.println( Messages.getInstance().getString(
           "CommandLineProcessor.ERROR_0006_NON_ADMIN_CREDENTIALS" ) );

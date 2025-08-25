@@ -12,9 +12,12 @@
 
 package org.pentaho.platform.security.policy.rolebased.actions;
 
-public class RepositoryCreateAction extends AbstractAuthorizationAction {
+import edu.umd.cs.findbugs.annotations.NonNull;
+
+public class RepositoryCreateAction extends AbstractLocalizedAuthorizationAction {
   public static final String NAME = "org.pentaho.repository.create";
 
+  @NonNull
   @Override
   public String getName() {
     return NAME;

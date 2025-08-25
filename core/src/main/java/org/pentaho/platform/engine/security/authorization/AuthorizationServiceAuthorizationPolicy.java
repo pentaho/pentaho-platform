@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  *
  * @deprecated since 11.0, for removal in a future release.
  */
-@SuppressWarnings( "removal" )
+@SuppressWarnings( { "removal", "DeprecatedIsStillUsed" } )
 @Deprecated( since = "11.0", forRemoval = true )
 public class AuthorizationServiceAuthorizationPolicy implements IAuthorizationPolicy {
 
@@ -61,7 +61,7 @@ public class AuthorizationServiceAuthorizationPolicy implements IAuthorizationPo
   }
 
   @NonNull
-  protected IAuthorizationUser getCurrentUser() {
+  private IAuthorizationUser getCurrentUser() {
     return Objects.requireNonNull( currentUserSupplier.get() );
   }
 
@@ -74,7 +74,7 @@ public class AuthorizationServiceAuthorizationPolicy implements IAuthorizationPo
     return actionOptional.isPresent() && isAllowed( actionOptional.get() );
   }
 
-  protected boolean isAllowed( @NonNull IAuthorizationAction action ) {
+  private boolean isAllowed( @NonNull IAuthorizationAction action ) {
     return authorizationService
       .authorize( new AuthorizationRequest( getCurrentUser(), action ) )
       .isGranted();

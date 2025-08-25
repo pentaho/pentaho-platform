@@ -184,7 +184,6 @@ public class DatabaseConnection {
   protected String dataTablespace;
   protected String databaseName;
   protected String databasePort;
-  @XmlElement( namespace = "http://www.pentaho.com/schema/" )
   protected DatabaseType databaseType;
   @XmlElement( required = true )
   protected DatabaseConnection.ExtraOptions extraOptions;
