@@ -26,19 +26,18 @@ import java.util.stream.Collectors;
 
 /**
  * The {@code DerivedActionAuthorizationRule} class represents an authorization rule that grants permission to perform
- * one or more actions (the derived / implied / consequent ones) based on the existing permission to perform another
- * action (the base / implied-from / implied-by / antecedent one) for a request otherwise equal to the one being
- * authorized.
+ * one or more actions (the derived ones) based on the existing permission to perform another action (the base one) for
+ * a request otherwise equal to the one being authorized.
  * <p>
- * If permission is granted to perform the base action, then permission is also granted to perform any of the derived
- * actions. In all other cases, the rule abstains from making a decision.
+ * The rule abstains for requests that do not ask for one of the derived actions. Otherwise, the permission is
+ * granted to perform the derived action if there is permission to perform the base action, denying if not.
  * <p>
  * The decisions taken by this rule are always of type {@link DerivedActionAuthorizationDecision}, having as its
- * {@link DerivedActionAuthorizationDecision#getImpliedFromDecision() implied-from decision} the result of authorizing
+ * {@link DerivedActionAuthorizationDecision#getDerivedFromDecision() derived-from decision} the result of authorizing
  * an equal request but with the base action instead, and as its
- * {@link DerivedActionAuthorizationDecision#getDerivedFromAction() derived-from action} the base action.
+ * {@link DerivedActionAuthorizationDecision#getDerivedFromAction() derived-from action}, the base action.
  */
-public class DerivedActionAuthorizationRule extends AbstractAuthorizationRule {
+public class DerivedActionAuthorizationRule extends AbstractAuthorizationRule<IAuthorizationRequest> {
 
   @NonNull
   private final IAuthorizationAction baseAction;
@@ -59,20 +58,24 @@ public class DerivedActionAuthorizationRule extends AbstractAuthorizationRule {
 
   @NonNull
   @Override
+  public Class<IAuthorizationRequest> getRequestType() {
+    return IAuthorizationRequest.class;
+  }
+
+  @NonNull
+  @Override
   public Optional<IAuthorizationDecision> authorize( @NonNull IAuthorizationRequest request,
                                                      @NonNull IAuthorizationContext context ) {
 
-    // If not asking about one of the potentially derived actions, abstain.
+    // If not asking about one of the derived actions, abstain.
     if ( !derivedActions.contains( request.getAction() ) ) {
       return abstain();
     }
 
-    var baseDecision = context.authorize( request.withAction( baseAction ) );
-    return baseDecision.isDenied()
-      // If denied for the base action, abstain.
-      ? abstain()
-      // Else grant for the derived action.
-      : Optional.of( new DerivedActionAuthorizationDecision( request, baseDecision ) );
+    var baseRequest = request.withAction( baseAction );
+    var baseDecision = context.authorize( baseRequest );
+    var derivedDecision = new DerivedActionAuthorizationDecision( request, baseDecision );
+    return Optional.of( derivedDecision );
   }
 
   @Override
@@ -80,7 +83,7 @@ public class DerivedActionAuthorizationRule extends AbstractAuthorizationRule {
     return String.format(
       "%s[base=%s, derived=%s]",
       getClass().getTypeName(),
-      baseAction.getName(),
+      baseAction,
       getDerivedActionsLogText()
     );
   }
@@ -89,7 +92,7 @@ public class DerivedActionAuthorizationRule extends AbstractAuthorizationRule {
   private String getDerivedActionsLogText() {
     return derivedActions
       .stream()
-      .map( IAuthorizationAction::getName )
+      .map( Objects::toString )
       .collect( Collectors.joining( LIST_SEPARATOR ) );
   }
 }

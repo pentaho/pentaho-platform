@@ -20,7 +20,7 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationUser
 import java.util.Objects;
 
 /**
- * The {@code AuthorizationRequest} class is a basic implementation of the {@link IAuthorizationRequest} interface,
+ * The {@code AuthorizationRequest} class is a basic implementation of the {@link IAuthorizationRequest} interface.
  */
 public class AuthorizationRequest implements IAuthorizationRequest {
   @NonNull
@@ -69,15 +69,12 @@ public class AuthorizationRequest implements IAuthorizationRequest {
 
     AuthorizationRequest that = (AuthorizationRequest) o;
     return Objects.equals( user, that.user )
-
-      // TODO: should we add #equals to the IAuthorizationAction's interface? And require implementations to update?
-      // IAuthorizationAction's don't usually override equals, so we compare by name.
-      && Objects.equals( action.getName(), that.getAction().getName() );
+      && Objects.equals( action, that.getAction() );
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash( user, action.getName() );
+    return Objects.hash( user, action );
   }
 
   @Override
@@ -86,6 +83,6 @@ public class AuthorizationRequest implements IAuthorizationRequest {
       "%s [user=`%s`, action='%s']",
       getClass().getSimpleName(),
       user.getName(),
-      action.getName() );
+      action );
   }
 }

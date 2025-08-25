@@ -97,48 +97,59 @@ public class UserConsoleService {
   }
 
   /**
-   * Sets a session variable for the current user session.
-   * Keys must be present in the configured whitelist for security to prevent unauthorized access.
+   * Retrieves a session variable from the current user session if it exists in the configured
+   * {@link #getSessionVarWhiteList}.
    *
-   * @param key   the session variable key to set. Must be present in the whitelist.
-   * @param value the value to set for the session variable. Can be null.
-   * @return the value that was actually set in the session
-   * @throws ForbiddenSessionVariableException if the key is not in the whitelist
-   */
-  public Object setSessionVariable( String key, String value ) {
-    if ( !setSessionVarWhiteList.contains( key ) ) {
-      throw new ForbiddenSessionVariableException( String.format( "Setting session variable not allowed: %s", key ) );
-    }
-    IPentahoSession session = getPentahoSession();
-    session.setAttribute( key, value );
-    return session.getAttribute( key );
-  }
-
-  /**
-   * Retrieves a session variable from the current user session.
-   * Keys must be present in the configured whitelist for security to prevent unauthorized access.
-   *
-   * @param key the session variable key to retrieve. Must be present in the whitelist.
-   * @return the value associated with the key in the current session, or null if the key is not found or has no value
-   * @throws ForbiddenSessionVariableException if the key is not in the whitelist
+   * @param key the session variable key to retrieve.
+   * @return the value associated with the key in the current session, or null if the key is not found
+   * @throws ForbiddenSessionVariableException if the key is not in the {@link #getSessionVarWhiteList}
    */
   public Object getSessionVariable( String key ) {
     if ( !getSessionVarWhiteList.contains( key ) ) {
+      logger.error( "Session variable '" + key + "' is not whitelisted to get." );
       throw new ForbiddenSessionVariableException( String.format( "Getting session variable not allowed: %s", key ) );
     }
     return getPentahoSession().getAttribute( key );
   }
 
   /**
-   * Removes a session variable from the current user session.
-   * Keys must be present in the configured whitelist for security to prevent unauthorized access.
+   * Sets a session variable for the current user session if it exists in the configured
+   * {@link #setSessionVarWhiteList}.
+   * If value is null, this has the same effect as calling {@link #clearSessionVariable}.
    *
-   * @param key the session variable key to remove. Must be present in the set whitelist.
-   * @return the previous value associated with the key, or null if the key was not found or had no value
-   * @throws ForbiddenSessionVariableException if the key is not in the whitelist
+   * @param key   the session variable key to set.
+   * @param value the value to set for the session variable. If null, the attribute is removed.
+   * @return the value that was actually set in the session, or null if the attribute was removed or the key is not
+   * found
+   * @throws ForbiddenSessionVariableException if the key is not in the {@link #setSessionVarWhiteList}
+   */
+  public Object setSessionVariable( String key, String value ) {
+    if ( !setSessionVarWhiteList.contains( key ) ) {
+      logger.error( "Session variable '" + key + "' is not whitelisted to set." );
+      throw new ForbiddenSessionVariableException( String.format( "Setting session variable not allowed: %s", key ) );
+    }
+
+    final var session = getPentahoSession();
+
+    if ( value == null ) {
+      return session.removeAttribute( key );
+    } else {
+      session.setAttribute( key, value );
+      return value;
+    }
+  }
+
+  /**
+   * Removes a session variable from the current user session if it exists in the configured
+   * {@link #setSessionVarWhiteList}.
+   *
+   * @param key the session variable key to remove.
+   * @return the previous value associated with the key, or null if the key is not found
+   * @throws ForbiddenSessionVariableException if the key is not in the {@link #setSessionVarWhiteList}
    */
   public Object clearSessionVariable( String key ) {
     if ( !setSessionVarWhiteList.contains( key ) ) {
+      logger.error( "Session variable '" + key + "' is not whitelisted to set." );
       throw new ForbiddenSessionVariableException( String.format( "Clearing session variable not allowed: %s", key ) );
     }
     return getPentahoSession().removeAttribute( key );

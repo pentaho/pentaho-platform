@@ -62,9 +62,13 @@ public class PentahoSystemAuthorizationActionService implements IAuthorizationAc
    * Gets all authorization actions registered in the Pentaho System, while making sure that no duplicate actions
    * are returned.
    * <p>
-   * An action is a duplicate action if it has the same {@link IAuthorizationAction#getName() name} as another action.
+   * An action is a duplicate action if it has the same {@link IAuthorizationAction#getName() name} as another action,
+   * as defined by the {@link IAuthorizationAction} interface's equality semantics.
    * The action registered with the highest {@link IPentahoObjectReference#getRanking() ranking} is considered the
    * original one, and any others duplicates.
+   * <p>
+   * This implementation performs direct action name comparison, to guard against potential issues with
+   * {@link Object#equals(Object)} and {@link Object#hashCode()} implementations of action instances.
    *
    * @return A stream of authorization action object references ensured to have no duplicates.
    */
@@ -77,9 +81,6 @@ public class PentahoSystemAuthorizationActionService implements IAuthorizationAc
    * Gets the key to use to compare two action object references.
    * <p>
    * Returns the name of the action, which is should be unique for each action.
-   * <p>
-   * Unfortunately, it is not possible to enforce the implementation of {@link Object#equals(Object)}
-   * on an existing interface like {@link IAuthorizationAction}.
    *
    * @param actionReference The action object reference to get the key for.
    */

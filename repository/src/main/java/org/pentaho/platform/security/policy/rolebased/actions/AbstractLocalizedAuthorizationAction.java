@@ -14,7 +14,7 @@ package org.pentaho.platform.security.policy.rolebased.actions;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import org.pentaho.platform.api.engine.IAuthorizationAction;
+import org.pentaho.platform.engine.security.authorization.core.AbstractAuthorizationAction;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.messages.LocaleHelper;
@@ -24,19 +24,19 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 /**
- * Abstract base class for authorization actions.
+ * The {@code AbstractAuthorizationAction} class provides a base implementation for authorization actions that builds
+ * upon the {@link AbstractAuthorizationAction} class to add basic support for localization and resource bundles.
  * <p>
- * In this implementation, the action's localized display name and description are retrieved from a resource bundle,
- * returned by {@link #getResourceBundle(Locale)}, using resource string keys based on the action's name,
- * {@link #getName()}. See {@link #getLocalizedDisplayName(String)} and {@link #getLocalizedDescription(String)} for
- * details.
+ * The action's localized display name and description are retrieved from a resource bundle, returned by
+ * {@link #getResourceBundle(Locale)}, using resource string keys based on the action's name, {@link #getName()}.
+ * See {@link org.pentaho.platform.api.engine.IAuthorizationAction#getLocalizedDisplayName(String)} and {@link #getLocalizedDescription(String)} for details.
  * <p>
  * Methods accepting locale strings parse them using the {@link #parseLocale(String)} method.
  * <p>
  * When a given locale string is {@code null} or empty, the default locale is obtained from the
  * {@link #getDefaultLocale()} method.
  */
-public abstract class AbstractAuthorizationAction implements IAuthorizationAction {
+public abstract class AbstractLocalizedAuthorizationAction extends AbstractAuthorizationAction {
 
   /**
    * Gets the resource bundle for a specific locale.
@@ -140,7 +140,9 @@ public abstract class AbstractAuthorizationAction implements IAuthorizationActio
    * @param localeString The locale to use for localization.
    * @return The localized name.
    */
-  public String getLocalizedDisplayName( String localeString ) {
+  @NonNull
+  @Override
+  public String getLocalizedDisplayName( @Nullable String localeString ) {
     return getResourceBundle( localeString ).getString( getName() );
   }
 
@@ -155,7 +157,9 @@ public abstract class AbstractAuthorizationAction implements IAuthorizationActio
    * @param localeString The locale to use for localization.
    * @return The localized description.
    */
-  public String getLocalizedDescription( String localeString ) {
+  @Nullable
+  @Override
+  public String getLocalizedDescription( @Nullable String localeString ) {
     return getResourceBundle( localeString ).getString( getName() + ".description" );
   }
 }

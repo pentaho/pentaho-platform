@@ -28,13 +28,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class AbstractAuthorizationActionTest {
+public class AbstractLocalizedAuthorizationActionTest {
   private ResourceBundle resourceBundle;
-  private AbstractAuthorizationAction action;
+  private AbstractLocalizedAuthorizationAction action;
 
   @Before
   public void setUp() {
-    action = mock( AbstractAuthorizationAction.class, Mockito.CALLS_REAL_METHODS );
+    action = mock( AbstractLocalizedAuthorizationAction.class, Mockito.CALLS_REAL_METHODS );
     String ACTION_NAME = "org.pentaho.action";
     when( action.getName() ).thenReturn( ACTION_NAME );
 

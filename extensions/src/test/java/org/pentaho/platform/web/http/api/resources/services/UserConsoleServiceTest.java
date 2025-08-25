@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,6 +31,7 @@ import static org.pentaho.platform.web.http.api.resources.services.UserConsoleSe
 
 public class UserConsoleServiceTest {
   private static final String INVALID_KEY = "invalid_key";
+
   private IPentahoSession mockPentahoSession;
   private UserConsoleService userConsoleService;
 
@@ -42,30 +44,11 @@ public class UserConsoleServiceTest {
   }
 
   @Test
-  public void testSetSessionVariableWithValidKeySetsAndReturnsValue() {
-    String value = "/home/user";
-    when( mockPentahoSession.getAttribute( DEFAULT_SCHEDULER_FOLDER ) ).thenReturn( value );
-
-    Object result = userConsoleService.setSessionVariable( DEFAULT_SCHEDULER_FOLDER, value );
-
-    assertEquals( value, result );
-    verify( mockPentahoSession ).setAttribute( DEFAULT_SCHEDULER_FOLDER, value );
-    verify( mockPentahoSession ).getAttribute( DEFAULT_SCHEDULER_FOLDER );
-  }
-
-  @Test( expected = ForbiddenSessionVariableException.class )
-  public void testSetSessionVariableWithInvalidKeyThrowsException() {
-    String value = "some_value";
-
-    userConsoleService.setSessionVariable( INVALID_KEY, value );
-  }
-
-  @Test
   public void testGetSessionVariableWithValidKeyReturnsValue() {
-    String expectedValue = "true";
+    final var expectedValue = "true";
     when( mockPentahoSession.getAttribute( DEFAULT_SHOW_OVERRIDE_DIALOG ) ).thenReturn( expectedValue );
 
-    Object result = userConsoleService.getSessionVariable( DEFAULT_SHOW_OVERRIDE_DIALOG );
+    final var result = userConsoleService.getSessionVariable( DEFAULT_SHOW_OVERRIDE_DIALOG );
 
     assertEquals( expectedValue, result );
     verify( mockPentahoSession ).getAttribute( DEFAULT_SHOW_OVERRIDE_DIALOG );
@@ -77,11 +60,53 @@ public class UserConsoleServiceTest {
   }
 
   @Test
+  public void testGetSessionVariableWhenKeyNotFoundReturnsNull() {
+    when( mockPentahoSession.getAttribute( DEFAULT_SHOW_OVERRIDE_DIALOG ) ).thenReturn( null );
+
+    final var result = userConsoleService.getSessionVariable( DEFAULT_SHOW_OVERRIDE_DIALOG );
+
+    assertNull( result );
+    verify( mockPentahoSession ).getAttribute( DEFAULT_SHOW_OVERRIDE_DIALOG );
+  }
+
+  @Test
+  public void testSetSessionVariableWithNullRemovesVariable() {
+    String value = null;
+
+    when( mockPentahoSession.getAttribute( DEFAULT_SCHEDULER_FOLDER ) ).thenReturn( value );
+
+    final var result = userConsoleService.setSessionVariable( DEFAULT_SCHEDULER_FOLDER, value );
+
+    assertNull( result );
+    verify( mockPentahoSession, never() ).setAttribute( DEFAULT_SCHEDULER_FOLDER, value );
+    verify( mockPentahoSession ).removeAttribute( DEFAULT_SCHEDULER_FOLDER );
+  }
+
+  @Test
+  public void testSetSessionVariableWithValidKeySetsAndReturnsValue() {
+    final var value = "false";
+    when( mockPentahoSession.getAttribute( DEFAULT_SHOW_OVERRIDE_DIALOG ) ).thenReturn( value );
+
+    final var result = userConsoleService.setSessionVariable( DEFAULT_SHOW_OVERRIDE_DIALOG, value );
+
+    assertEquals( value, result );
+    verify( mockPentahoSession ).setAttribute( DEFAULT_SHOW_OVERRIDE_DIALOG, value );
+    verify( mockPentahoSession, never() ).removeAttribute( DEFAULT_SHOW_OVERRIDE_DIALOG );
+  }
+
+  @Test( expected = ForbiddenSessionVariableException.class )
+  public void testSetSessionVariableWithInvalidKeyThrowsException() {
+    final var value = "some_value";
+
+    userConsoleService.setSessionVariable( INVALID_KEY, value );
+  }
+
+  @Test
   public void testClearSessionVariableWithValidKeyRemovesAndReturnsValue() {
-    String previousValue = "/previous/path";
+    final var previousValue = "/previous/path";
     when( mockPentahoSession.removeAttribute( DEFAULT_SCHEDULER_FOLDER ) ).thenReturn( previousValue );
 
-    Object result = userConsoleService.clearSessionVariable( DEFAULT_SCHEDULER_FOLDER );
+    final var result = userConsoleService.clearSessionVariable( DEFAULT_SCHEDULER_FOLDER );
 
     assertEquals( previousValue, result );
     verify( mockPentahoSession ).removeAttribute( DEFAULT_SCHEDULER_FOLDER );
@@ -93,32 +118,10 @@ public class UserConsoleServiceTest {
   }
 
   @Test
-  public void testSetSessionVariableWithNullValueHandlesGracefully() {
-    String value = null;
-    when( mockPentahoSession.getAttribute( DEFAULT_SCHEDULER_FOLDER ) ).thenReturn( value );
-
-    Object result = userConsoleService.setSessionVariable( DEFAULT_SCHEDULER_FOLDER, value );
-
-    assertNull( result );
-    verify( mockPentahoSession ).setAttribute( DEFAULT_SCHEDULER_FOLDER, value );
-    verify( mockPentahoSession ).getAttribute( DEFAULT_SCHEDULER_FOLDER );
-  }
-
-  @Test
-  public void testGetSessionVariableWhenKeyNotFoundReturnsNull() {
-    when( mockPentahoSession.getAttribute( DEFAULT_SHOW_OVERRIDE_DIALOG ) ).thenReturn( null );
-
-    Object result = userConsoleService.getSessionVariable( DEFAULT_SHOW_OVERRIDE_DIALOG );
-
-    assertNull( result );
-    verify( mockPentahoSession ).getAttribute( DEFAULT_SHOW_OVERRIDE_DIALOG );
-  }
-
-  @Test
   public void testClearSessionVariableWhenKeyNotFoundReturnsNull() {
     when( mockPentahoSession.removeAttribute( DEFAULT_SCHEDULER_FOLDER ) ).thenReturn( null );
 
-    Object result = userConsoleService.clearSessionVariable( DEFAULT_SCHEDULER_FOLDER );
+    final var result = userConsoleService.clearSessionVariable( DEFAULT_SCHEDULER_FOLDER );
 
     assertNull( result );
     verify( mockPentahoSession ).removeAttribute( DEFAULT_SCHEDULER_FOLDER );

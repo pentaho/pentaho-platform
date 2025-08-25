@@ -12,9 +12,12 @@
 
 package org.pentaho.platform.security.policy.rolebased.actions;
 
-public class SchedulerAction extends AbstractAuthorizationAction {
+import edu.umd.cs.findbugs.annotations.NonNull;
+
+public class SchedulerAction extends AbstractLocalizedAuthorizationAction {
   public static final String NAME = "org.pentaho.scheduler.manage";
 
+  @NonNull
   @Override
   public String getName() {
     return NAME;

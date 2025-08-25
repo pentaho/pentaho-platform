@@ -31,22 +31,27 @@ import java.util.Optional;
  * {@link IOpposedAuthorizationDecision#getOpposedToDecision() opposed-to decision} the result of authorizing the
  * opposed-to rule for the same request.
  */
-public class OpposedAuthorizationRule extends AbstractAuthorizationRule {
+public class OpposedAuthorizationRule<T extends IAuthorizationRequest> extends AbstractAuthorizationRule<T> {
 
   @NonNull
-  private final IAuthorizationRule opposedToRule;
+  private final IAuthorizationRule<T> opposedToRule;
 
-  public OpposedAuthorizationRule( @NonNull IAuthorizationRule opposedToRule ) {
+  public OpposedAuthorizationRule( @NonNull IAuthorizationRule<T> opposedToRule ) {
     this.opposedToRule = Objects.requireNonNull( opposedToRule );
+  }
+
+  @NonNull
+  @Override
+  public Class<T> getRequestType() {
+    return opposedToRule.getRequestType();
   }
 
   @NonNull
   @Override
   public Optional<IAuthorizationDecision> authorize( @NonNull IAuthorizationRequest request,
                                                      @NonNull IAuthorizationContext context ) {
-
-    return opposedToRule
-      .authorize( request, context )
+    return context
+      .authorizeRule( request, opposedToRule )
       .map( OpposedAuthorizationDecision::new );
   }
 }

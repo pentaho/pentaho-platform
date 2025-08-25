@@ -61,18 +61,19 @@ public interface IAuthorizationContext {
   IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request );
 
   /**
-   * Authorizes a given authorization request using a specific authorization rule.
+   * Authorizes a given authorization request using a specific rule.
    * <p>
    * This method should be used by authorization rules which evaluate other rules as part of their decision-making
    * process, instead of calling the rules'
    * {@link IAuthorizationRule#authorize(IAuthorizationRequest, IAuthorizationContext)} method directly. This allows for
    * centralized logging and error handling.
    *
-   * @param rule    The authorization rule to evaluate.
    * @param request The authorization request.
-   * @return An optional authorization decision; an empty optional, if the rule abstains from making a decision.
+   * @param rule The authorization rule to evaluate.
+   * @return An empty optional, for abstaining from the decision; an optional with a decision object, for granting or
+   *         denying the authorization request.
    */
   @NonNull
   Optional<IAuthorizationDecision> authorizeRule( @NonNull IAuthorizationRequest request,
-                                                  @NonNull IAuthorizationRule rule );
+                                                  @NonNull IAuthorizationRule<? extends IAuthorizationRequest> rule );
 }
