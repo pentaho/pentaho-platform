@@ -89,4 +89,31 @@ public interface IAuthorizationDecision {
    */
   @NonNull
   String getShortJustification();
+
+  /**
+   * Gets the base decision type.
+   *
+   * @return The base decision type class; one of {@link IAllAuthorizationDecision}, {@link IAnyAuthorizationDecision},
+   *         {@link IOpposedAuthorizationDecision}, or {@link IAuthorizationDecision}.
+   */
+  @NonNull
+  default Class<? extends IAuthorizationDecision> getBaseType() {
+
+    if ( this instanceof ICompositeAuthorizationDecision ) {
+      if ( this instanceof IAllAuthorizationDecision ) {
+        return IAllAuthorizationDecision.class;
+      }
+
+      assert this instanceof IAnyAuthorizationDecision;
+
+      return IAnyAuthorizationDecision.class;
+    }
+
+
+    if ( this instanceof IOpposedAuthorizationDecision ) {
+      return IOpposedAuthorizationDecision.class;
+    }
+
+    return IAuthorizationDecision.class;
+  }
 }

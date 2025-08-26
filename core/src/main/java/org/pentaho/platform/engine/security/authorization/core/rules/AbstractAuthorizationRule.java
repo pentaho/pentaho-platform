@@ -23,17 +23,26 @@ import java.util.Optional;
 
 /**
  * The {@code AbstractAuthorizationRule} class is an optional base class for implementing authorization rules.
+ * It implements the generic {@link IAuthorizationRule} interface, preserving the generic type parameter to allow
+ * subclasses to specify their own specific request types. Subclasses should specify the appropriate request type they
+ * handle and implement the {@link #getRequestType()} method accordingly.
  * <p>
  * It provides a default implementation of the {@link #toString()} method, which returns the class's simple name.
+ *
+ * @param <T> The specific type of authorization request this rule can handle, must extend {@link IAuthorizationRequest}
  */
-public abstract class AbstractAuthorizationRule implements IAuthorizationRule {
+public abstract class AbstractAuthorizationRule<T extends IAuthorizationRequest> implements IAuthorizationRule<T> {
 
   protected static final String LIST_SEPARATOR =
     Messages.getInstance().getString( "AbstractAuthorizationDecision.LIST_SEPARATOR" );
 
   @NonNull
   @Override
-  public abstract Optional<IAuthorizationDecision> authorize( @NonNull IAuthorizationRequest request,
+  public abstract Class<T> getRequestType();
+
+  @NonNull
+  @Override
+  public abstract Optional<IAuthorizationDecision> authorize( @NonNull T request,
                                                               @NonNull IAuthorizationContext context );
 
   @NonNull

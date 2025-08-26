@@ -379,7 +379,7 @@ public class CacheManager implements ICacheManager {
   public void removeFromRegionCache( String region, Object key ) {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );
-      hvcache.evictEntityData( ( String ) key );
+      hvcache.getStorageAccess().evictData( key );
     } else {
       CacheManager.logger.warn( Messages.getInstance().getString(
         "CacheManager.WARN_0003_REGION_DOES_NOT_EXIST", region ) ); //$NON-NLS-1$
