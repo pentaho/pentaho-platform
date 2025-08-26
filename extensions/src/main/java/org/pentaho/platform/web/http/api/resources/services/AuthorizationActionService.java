@@ -13,12 +13,13 @@
 
 package org.pentaho.platform.web.http.api.resources.services;
 
-import java.util.List;
-
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
+import java.util.List;
+
+@SuppressWarnings( "removal" )
 public class AuthorizationActionService {
 
   @SuppressWarnings( "serial" )

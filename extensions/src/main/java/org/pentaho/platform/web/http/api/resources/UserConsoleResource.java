@@ -342,19 +342,19 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Sets the value of a session variable for the current user session. Session variables are unique per user session
-   * and reset to their default values at every user session creation.
+   * Sets a session variable for the current user session.
+   * If value is null, the session variable is removed.
    *
-   * @param key   The name of the session variable.
-   * @param value The value to set for the session variable. Can be null to clear the value.
-   * @return A Response containing the value that was actually set in the session
+   * @param key   The session variable name. Must be whitelisted.
+   * @param value The value to set, or null to remove the variable.
+   * @return A Response containing the set value, or null if removed
    */
   @POST
   @Path( "/session-variable" )
   @Facet( name = "Unsupported" )
   @Produces( TEXT_PLAIN )
   @StatusCodes( {
-    @ResponseCode( code = 200, condition = "Successfully set the session variable. Returns the value that was set." ),
+    @ResponseCode( code = 200, condition = "Successfully set or removed the session variable. Returns the value that was set, or null if removed." ),
     @ResponseCode( code = 403, condition = "Access to the requested session variable not allowed." )
   } )
   public Response setSessionVariable( @QueryParam( "key" ) String key, @QueryParam( "value" ) String value ) {
@@ -367,11 +367,10 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Retrieves the value of a session variable from the current user session. Session variables are unique per user
-   * session and reset to their default values at every user session creation.
+   * Retrieves a session variable from the current user session.
    *
-   * @param key The name of the session variable to retrieve.
-   * @return A Response containing the session variable value, or no content if the variable is not set
+   * @param key The session variable name. Must be whitelisted.
+   * @return A Response containing the session variable value, or no content if not found
    */
   @GET
   @Path( "/session-variable" )
@@ -379,7 +378,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @Produces( { TEXT_PLAIN, APPLICATION_JSON, APPLICATION_XML } )
   @StatusCodes( {
     @ResponseCode( code = 200, condition = "Successfully retrieved the session variable value." ),
-    @ResponseCode( code = 204, condition = "The session variable has no value." ),
+    @ResponseCode( code = 204, condition = "The session variable does not exist." ),
     @ResponseCode( code = 403, condition = "Access to the requested session variable not allowed." )
   } )
   public Response getSessionVariable( @QueryParam( "key" ) String key ) {
@@ -396,11 +395,10 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Removes a session variable from the current user session and returns its previous value. Session variables are
-   * unique per user session and reset to their default values at every user session creation.
+   * Removes a session variable from the current user session.
    *
-   * @param key The name of the session variable to remove.
-   * @return A Response containing the previous value of the session variable, or null if it had no value
+   * @param key The session variable name. Must be whitelisted.
+   * @return A Response containing the previous value, or null if not found
    */
   @DELETE
   @Path( "/session-variable" )

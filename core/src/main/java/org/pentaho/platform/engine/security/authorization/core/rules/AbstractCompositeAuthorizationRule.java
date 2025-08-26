@@ -18,22 +18,32 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequ
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
-public abstract class AbstractCompositeAuthorizationRule extends AbstractAuthorizationRule
-  implements IAuthorizationRule {
+/**
+ * The {@code AbstractCompositeAuthorizationRule} is an abstract class for rules that combine multiple rules.
+ * Composite rules handle any type of authorization request.
+ */
+public abstract class AbstractCompositeAuthorizationRule extends AbstractAuthorizationRule<IAuthorizationRequest>
+  implements IAuthorizationRule<IAuthorizationRequest> {
 
   @NonNull
-  private final List<IAuthorizationRule> rules;
+  private final List<IAuthorizationRule<IAuthorizationRequest>> rules;
 
-  protected AbstractCompositeAuthorizationRule( @NonNull List<IAuthorizationRule> rules ) {
-    this.rules = List.copyOf( Objects.requireNonNull( rules ) );
+  protected AbstractCompositeAuthorizationRule( @NonNull List<IAuthorizationRule<IAuthorizationRequest>> rules ) {
+    this.rules = Collections.unmodifiableList( rules );
   }
 
   @NonNull
-  public List<IAuthorizationRule> getRules() {
+  @Override
+  public Class<IAuthorizationRequest> getRequestType() {
+    return IAuthorizationRequest.class;
+  }
+
+  @NonNull
+  public List<IAuthorizationRule<IAuthorizationRequest>> getRules() {
     return rules;
   }
 
@@ -44,8 +54,7 @@ public abstract class AbstractCompositeAuthorizationRule extends AbstractAuthori
 
     AbstractCompositeResultBuilder resultBuilder = createResultBuilder( context );
 
-    for ( IAuthorizationRule rule : getRules() ) {
-
+    for ( var rule : getRules() ) {
       Optional<IAuthorizationDecision> ruleResult = context.authorizeRule( request, rule );
       if ( ruleResult.isPresent() ) {
         resultBuilder.withDecision( ruleResult.get() );
