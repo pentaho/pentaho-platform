@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -35,29 +36,55 @@ class IAuthorizationActionServiceTest {
   private IAuthorizationAction resourceAction1;
   private IAuthorizationAction selfAction2;
   private IAuthorizationAction resourceAction2;
+  private IAuthorizationAction namespacedAction1;
+  private IAuthorizationAction namespacedAction2;
+  private IAuthorizationAction nestedNamespacedAction;
 
   @BeforeEach
   public void setUp() {
     selfAction1 = mock( IAuthorizationAction.class );
+    when( selfAction1.getName() ).thenReturn( "selfAction1" );
     when( selfAction1.isSelfAction() ).thenReturn( true );
     when( selfAction1.isResourceAction() ).thenReturn( false );
 
     selfAction2 = mock( IAuthorizationAction.class );
+    when( selfAction2.getName() ).thenReturn( "selfAction2" );
     when( selfAction2.isSelfAction() ).thenReturn( true );
     when( selfAction2.isResourceAction() ).thenReturn( false );
 
     resourceAction1 = mock( IAuthorizationAction.class );
+    when( resourceAction1.getName() ).thenReturn( "resourceAction1" );
     when( resourceAction1.isSelfAction() ).thenReturn( false );
     when( resourceAction1.isResourceAction() ).thenReturn( true );
     when( resourceAction1.performsOnResourceType( "typeA" ) ).thenReturn( true );
     when( resourceAction1.performsOnResourceType( "typeB" ) ).thenReturn( true );
 
     resourceAction2 = mock( IAuthorizationAction.class );
+    when( resourceAction2.getName() ).thenReturn( "resourceAction2" );
     when( resourceAction2.isSelfAction() ).thenReturn( false );
     when( resourceAction2.isResourceAction() ).thenReturn( true );
     when( resourceAction2.performsOnResourceType( "typeB" ) ).thenReturn( true );
 
-    List<IAuthorizationAction> actions = Arrays.asList( selfAction1, selfAction2, resourceAction1, resourceAction2 );
+    // Actions with namespaces for testing getActions(String namespace)
+    namespacedAction1 = mock( IAuthorizationAction.class );
+    when( namespacedAction1.getName() ).thenReturn( "com.pentaho.read" );
+    when( namespacedAction1.isSelfAction() ).thenReturn( false );
+    when( namespacedAction1.isResourceAction() ).thenReturn( false );
+
+    namespacedAction2 = mock( IAuthorizationAction.class );
+    when( namespacedAction2.getName() ).thenReturn( "com.pentaho.write" );
+    when( namespacedAction2.isSelfAction() ).thenReturn( false );
+    when( namespacedAction2.isResourceAction() ).thenReturn( false );
+
+    nestedNamespacedAction = mock( IAuthorizationAction.class );
+    when( nestedNamespacedAction.getName() ).thenReturn( "com.pentaho.admin.manage" );
+    when( nestedNamespacedAction.isSelfAction() ).thenReturn( false );
+    when( nestedNamespacedAction.isResourceAction() ).thenReturn( false );
+
+    List<IAuthorizationAction> actions = Arrays.asList(
+      selfAction1, selfAction2, resourceAction1, resourceAction2,
+      namespacedAction1, namespacedAction2, nestedNamespacedAction
+    );
 
     service = new IAuthorizationActionService() {
       @Override
@@ -120,15 +147,94 @@ class IAuthorizationActionServiceTest {
   @SuppressWarnings( "DataFlowIssue" )
   @Test
   void testGetResourceActionsWithNullTypeThrows() {
-    assertThrows( IllegalArgumentException.class, () -> {
-      service.getResourceActions( null );
-    } );
+    assertThrows( IllegalArgumentException.class, () -> service.getResourceActions( null ) );
   }
 
   @Test
   void testGetResourceActionsWithEmptyTypeThrows() {
-    assertThrows( IllegalArgumentException.class, () -> {
-      service.getResourceActions( "" );
-    } );
+    assertThrows( IllegalArgumentException.class, () -> service.getResourceActions( "" ) );
   }
+
+  // region getActions(String namespace) Tests
+
+  @Test
+  void testGetActionsWithNullNamespace() {
+    var result = service.getActions( null )
+      .collect( Collectors.toList() );
+    assertEquals( 7, result.size() ); // All actions should be returned
+  }
+
+  @Test
+  void testGetActionsWithEmptyNamespace() {
+    var result = service.getActions( "" )
+      .collect( Collectors.toList() );
+    assertEquals( 7, result.size() ); // All actions should be returned
+  }
+
+  @Test
+  void testGetActionsWithNamespacePrefix() {
+    var result = service.getActions( "com.pentaho" )
+      .collect( Collectors.toList() );
+    assertEquals( 3, result.size() );
+    assertTrue( result.contains( namespacedAction1 ) );
+    assertTrue( result.contains( namespacedAction2 ) );
+    assertTrue( result.contains( nestedNamespacedAction ) );
+  }
+
+  @Test
+  void testGetActionsWithNamespacePrefixEndingWithDot() {
+    var result = service.getActions( "com.pentaho." )
+      .collect( Collectors.toList() );
+    assertEquals( 3, result.size() );
+    assertTrue( result.contains( namespacedAction1 ) );
+    assertTrue( result.contains( namespacedAction2 ) );
+    assertTrue( result.contains( nestedNamespacedAction ) );
+  }
+
+  @Test
+  void testGetActionsWithNestedNamespace() {
+    var result = service.getActions( "com.pentaho.admin" )
+      .collect( Collectors.toList() );
+    assertEquals( 1, result.size() );
+    assertSame( nestedNamespacedAction, result.get( 0 ) );
+  }
+
+  @Test
+  void testGetActionsWithNonMatchingNamespace() {
+    var result = service.getActions( "com.example" )
+      .collect( Collectors.toList() );
+    assertEquals( 0, result.size() );
+  }
+
+  // endregion
+
+  // region getAction(String actionName) Tests
+
+  @Test
+  void testGetActionWithValidName() {
+    var result = service.getAction( "selfAction1" );
+    assertTrue( result.isPresent() );
+    assertSame( selfAction1, result.get() );
+  }
+
+  @Test
+  void testGetActionWithNonExistingName() {
+    var result = service.getAction( "nonExisting" );
+    assertTrue( result.isEmpty() );
+  }
+
+  @SuppressWarnings( "DataFlowIssue" )
+  @Test
+  void testGetActionWithNullNameThrows() {
+    assertThrows( IllegalArgumentException.class, () ->
+      service.getAction( null ) );
+  }
+
+  @Test
+  void testGetActionWithEmptyNameThrows() {
+    assertThrows( IllegalArgumentException.class, () ->
+      service.getAction( "" ) );
+  }
+
+  // endregion
 }

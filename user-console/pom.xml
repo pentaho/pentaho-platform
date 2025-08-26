@@ -213,7 +213,7 @@
     <artifactId>gwt-servlet-jakarta</artifactId>
   </dependency>
     <dependency>
-      <groupId>com.google.gwt</groupId>
+      <groupId>org.gwtproject</groupId>
       <artifactId>gwt-user</artifactId>
       <exclusions>
         <exclusion>
@@ -223,7 +223,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.google.gwt</groupId>
+      <groupId>org.gwtproject</groupId>
       <artifactId>gwt-dev</artifactId>
       <exclusions>
         <exclusion>
@@ -237,7 +237,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.google.gwt</groupId>
+      <groupId>org.gwtproject</groupId>
       <artifactId>gwt-codeserver</artifactId>
       <exclusions>
         <exclusion>
@@ -372,7 +372,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>gwt-maven-plugin</artifactId>
-        <version>${gwt.version}</version>
+        <version>${gwt-maven-plugin.version}</version>
         <executions>
           <execution>
             <goals>
