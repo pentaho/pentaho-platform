@@ -379,7 +379,7 @@ public class CacheManager implements ICacheManager {
   public void removeFromRegionCache( String region, Object key ) {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );
-      hvcache.evictEntityData( ( String ) key );
+      hvcache.getStorageAccess().evictData( key );
     } else {
       CacheManager.logger.warn( Messages.getInstance().getString(
         "CacheManager.WARN_0003_REGION_DOES_NOT_EXIST", region ) ); //$NON-NLS-1$
@@ -417,11 +417,12 @@ public class CacheManager implements ICacheManager {
       if ( hvcache != null ) {
         javax.cache.Cache<Object, Object> cache = ( ( JCacheAccessImpl ) hvcache.getStorageAccess() ).getUnderlyingCache();
         if ( cache != null ) {
-          while ( cache.iterator().hasNext() ) {
-            javax.cache.Cache.Entry<Object, Object> entry = cache.iterator().next();
+          Iterator<javax.cache.Cache.Entry<Object, Object>> cacheIterator = cache.iterator();
+          while ( cacheIterator.hasNext() ) {
+            javax.cache.Cache.Entry<Object, Object> entry = cacheIterator.next();
             String key = ( String ) entry.getKey();
             if ( key.contains( session.getId() ) ) {
-              hvcache.getStorageAccess().removeFromCache( key, null );
+              hvcache.getStorageAccess().evictData( key );
             }
           }
         }

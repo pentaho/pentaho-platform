@@ -41,6 +41,9 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.ui.xul.gwt.tags.GwtDialog;
 import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class UserDialog extends GwtDialog {
 
   private UserRolesAdminPanelController controller;
@@ -49,12 +52,9 @@ public class UserDialog extends GwtDialog {
   private PasswordTextBox reTypePasswordTextBox;
   private Button acceptBtn = new Button( Messages.getString( "ok" ) );
   private Button cancelBtn = new Button( Messages.getString( "cancel" ) );
-  private static final String USER_ALLOWED_CHARS = "^[a-zA-Z0-9_.,;<>|!@#$%^&*()\\[\\]]+$";
-  private static final RegExp USER_ALLOWED_CHARS_REGEXP = RegExp.compile( USER_ALLOWED_CHARS );
-  private static final String USER_ALLOWED_CHARS_LIST = "a-z A-Z 0-9 _ . , ; < > | ! @ # $ % ^ & * ( ) [ ]";
-  private static final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
+  private static final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]-]+$";
   private static final RegExp ALLOWED_CHARS_REGEXP = RegExp.compile( ALLOWED_CHARS );
-  private static final String ALLOWED_CHARS_LIST = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ]";
+  private static final String ALLOWED_CHARS_LIST = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ] -";
 
   public UserDialog( UserRolesAdminPanelController controller ) {
     setWidth( 260 );
@@ -136,11 +136,11 @@ public class UserDialog extends GwtDialog {
     return !StringUtils.containsAnyChars( name, reservedSymbols );
   }
 
-  private void showErrorMessage( String userName, String reservedCharacters ) {
+  private void showErrorMessage( String value, String reservedCharacters, String message ) {
     GwtMessageBox messageBox = new GwtMessageBox();
     messageBox.setTitle( Messages.getString( "error" ) );
-    messageBox.setMessage( Messages.getString( "allowedNameCharacters", userName, reservedCharacters ) );
-    messageBox.setButtons( new Object[ACCEPT] );
+    messageBox.setMessage( Messages.getString( message, value, reservedCharacters ) );
+    messageBox.setButtons( new Object[ ACCEPT ] );
     messageBox.setWidth( 300 );
     messageBox.show();
   }
@@ -156,13 +156,14 @@ public class UserDialog extends GwtDialog {
         String password = passwordTextBox.getText();
         String reservedCharacters = response.getText();
 
-        if ( !isValidUsername( userName, reservedCharacters )) {
-          showErrorMessage( userName, USER_ALLOWED_CHARS_LIST );
+        if ( !isValidName( userName, reservedCharacters ) ) {
+          showErrorMessage( userName, reservedCharacters, "prohibitedNameSymbols" );
           return;
         }
 
         if ( !isValidPassword( password ) ) {
-          showErrorMessage( password, ALLOWED_CHARS_LIST );
+          String nonMatchingChars = getNonMatchingCharacters( password, ALLOWED_CHARS );
+          showErrorMessage( nonMatchingChars, ALLOWED_CHARS_LIST, "allowedNameCharacters" );
           return;
         }
 
@@ -174,8 +175,20 @@ public class UserDialog extends GwtDialog {
         return ALLOWED_CHARS_REGEXP.test( password );
       }
 
-      private boolean isValidUsername( String userName, String reservedCharacters ) {
-        return isValidName( userName, reservedCharacters ) && USER_ALLOWED_CHARS_REGEXP.test( userName );
+      private String getNonMatchingCharacters( String value, String allowedCharacters ) {
+        Set<Character> seen = new HashSet<>(); // Allows to identify unique non matching characters
+        StringBuilder nonMatchingChars = new StringBuilder();
+
+        for ( char c : value.toCharArray() ) {
+          if ( !ALLOWED_CHARS_REGEXP.test( String.valueOf( c ) )
+            && seen.add( c ) ) {
+            if (nonMatchingChars.length() > 0) {
+              nonMatchingChars.append(" ");
+            }
+            nonMatchingChars.append( c );
+          }
+        }
+        return nonMatchingChars.toString();
       }
 
       @Override
@@ -192,7 +205,7 @@ public class UserDialog extends GwtDialog {
         performSave();
       } catch ( RequestException e ) {
         MessageDialogBox dialogBox = new MessageDialogBox( Messages.getString( "error" ), e.toString(), //$NON-NLS-1$
-            false, false, true );
+          false, false, true );
         dialogBox.center();
       }
     }
@@ -210,7 +223,7 @@ public class UserDialog extends GwtDialog {
       String password = passwordTextBox.getText();
       String reTypePassword = reTypePasswordTextBox.getText();
       boolean isEnabled =
-          !StringUtils.isEmpty( name ) && !StringUtils.isEmpty( password ) && password.equals( reTypePassword );
+        !StringUtils.isEmpty( name ) && !StringUtils.isEmpty( password ) && password.equals( reTypePassword );
       acceptBtn.setEnabled( isEnabled );
     }
   }
