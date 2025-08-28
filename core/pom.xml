@@ -653,8 +653,7 @@
                   <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                 </manifest>
                 <manifestEntries>
-                  <Source-Java-Version>${source.jdk.version}</Source-Java-Version>
-                  <Target-Java-Version>${target.jdk.version}</Target-Java-Version>
+                  <Release-Java-Version>${release.jdk.version}</Release-Java-Version>
                 </manifestEntries>
               </archive>
             </configuration>
