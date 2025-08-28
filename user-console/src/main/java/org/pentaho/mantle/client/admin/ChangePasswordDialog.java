@@ -189,7 +189,7 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
       GwtMessageBox messageBox = new GwtMessageBox();
       messageBox.setTitle( Messages.getString( "error" ) );
       messageBox.setMessage( Messages.getString( "allowedNameCharacters", value, allowedCharacters ) );
-      messageBox.setButtons( new Object[ACCEPT] );
+      messageBox.setButtons( new Object[ ACCEPT ] );
       messageBox.setWidth( 300 );
       messageBox.show();
     }
