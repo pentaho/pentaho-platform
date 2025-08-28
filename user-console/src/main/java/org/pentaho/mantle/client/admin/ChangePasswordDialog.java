@@ -33,6 +33,9 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.ui.xul.gwt.tags.GwtDialog;
 import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
 
   private UpdatePasswordController controller;
@@ -172,10 +175,12 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     }
 
     private String getNonMatchingCharacters( String value, String allowedCharacters ) {
+      Set<Character> seen = new HashSet<>(); // Allows to identify unique non matching characters
       StringBuilder nonMatchingChars = new StringBuilder();
+
       for ( char c : value.toCharArray() ) {
-        if ( !String.valueOf( c ).matches( allowedCharacters )
-          && nonMatchingChars.indexOf( String.valueOf( c ) ) < 0 ) {
+        if ( !ALLOWED_CHARS_REGEXP.test( String.valueOf( c ) )
+          && seen.add( c ) ) {
           if (nonMatchingChars.length() > 0) {
             nonMatchingChars.append(" ");
           }

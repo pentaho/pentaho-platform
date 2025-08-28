@@ -34,6 +34,9 @@ import org.pentaho.mantle.client.ui.xul.MantleController;
 import org.pentaho.ui.xul.gwt.tags.GwtDialog;
 import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 
+import java.util.HashSet;
+import java.util.Set;
+
 //This rule is triggered when the class has more than 5 parents. in this case most of the parents are third party classes that can't be changed.
 @SuppressWarnings( "squid:S110" )
 public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCallback {
@@ -176,10 +179,12 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
     }
 
     private String getNonMatchingCharacters( String value, String allowedCharacters ) {
+      Set<Character> seen = new HashSet<>(); // Allows to identify unique non matching characters
       StringBuilder nonMatchingChars = new StringBuilder();
+
       for ( char c : value.toCharArray() ) {
-        if ( !String.valueOf( c ).matches( allowedCharacters )
-          && nonMatchingChars.indexOf( String.valueOf( c ) ) < 0 ) {
+        if ( !ALLOWED_CHARS_REGEXP.test( String.valueOf( c ) )
+          && seen.add( c ) ) {
           if (nonMatchingChars.length() > 0) {
             nonMatchingChars.append(" ");
           }
