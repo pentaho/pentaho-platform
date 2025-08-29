@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources;
 
@@ -22,18 +23,18 @@ import org.pentaho.platform.engine.security.DefaultRoleComparator;
 import org.pentaho.platform.engine.security.DefaultUsernameComparator;
 import org.pentaho.platform.web.http.api.resources.services.UserRoleListService;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.DefaultValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
+import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
 
 /**
  * The UserRoleListResource service lists roles, permissions, and users. Provides a list of users per role and roles per

@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.engine.core.system.objfac;
 
@@ -27,16 +28,14 @@ import java.util.Map;
 
 /**
  * This factory implementation creates and uses a self-contained Spring {@link ApplicationContext} which is not tied to
- * or accesible by any other parts of the application.
+ * or accessible by any other parts of the application.
  *
  * @author Aaron Phillips
  * @see AbstractSpringPentahoObjectFactory
  */
 public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoObjectFactory {
 
-  private static Map<ApplicationContext, StandaloneSpringPentahoObjectFactory> factoryMap =
-    new HashMap<ApplicationContext, StandaloneSpringPentahoObjectFactory>();
-
+  private static Map<ApplicationContext, StandaloneSpringPentahoObjectFactory> factoryMap = new HashMap<>();
 
   public StandaloneSpringPentahoObjectFactory() {
   }
