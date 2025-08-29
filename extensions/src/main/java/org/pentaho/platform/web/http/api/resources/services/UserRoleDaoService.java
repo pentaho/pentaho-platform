@@ -66,6 +66,7 @@ public class UserRoleDaoService {
   public static final String PUC_USER_PASSWORD_LENGTH = "PUC_USER_PASSWORD_LENGTH";
   public static final String PUC_USER_PASSWORD_REQUIRE_SPECIAL_CHARACTER = "PUC_USER_PASSWORD_REQUIRE_SPECIAL_CHARACTER";
   private static final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]-]+$";
+  private static final String ALLOWED_CHARS_LIST = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ] -";
   private static final String SPEC_CHARS = "((?=.*[@#$%!]).{0,100})";
   private final Pattern allowedCharsPattern = Pattern.compile( ALLOWED_CHARS );
   private final Pattern specCharsPattern = Pattern.compile( SPEC_CHARS );
@@ -243,7 +244,7 @@ public class UserRoleDaoService {
     }
 
     if ( !allowedCharsMatcher.matches() ) {
-      validationCriteria.add( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_PermittedChars" ) );
+      validationCriteria.add( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_PermittedChars", ALLOWED_CHARS_LIST ) );
     }
 
     errorMsg = errorMsg + String.join( ", ", validationCriteria ) + ".";
