@@ -417,11 +417,12 @@ public class CacheManager implements ICacheManager {
       if ( hvcache != null ) {
         javax.cache.Cache<Object, Object> cache = ( ( JCacheAccessImpl ) hvcache.getStorageAccess() ).getUnderlyingCache();
         if ( cache != null ) {
-          while ( cache.iterator().hasNext() ) {
-            javax.cache.Cache.Entry<Object, Object> entry = cache.iterator().next();
+          Iterator<javax.cache.Cache.Entry<Object, Object>> cacheIterator = cache.iterator();
+          while ( cacheIterator.hasNext() ) {
+            javax.cache.Cache.Entry<Object, Object> entry = cacheIterator.next();
             String key = ( String ) entry.getKey();
             if ( key.contains( session.getId() ) ) {
-              hvcache.getStorageAccess().removeFromCache( key, null );
+              hvcache.getStorageAccess().evictData( key );
             }
           }
         }
