@@ -420,18 +420,6 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>net.sf.saxon</groupId>
-      <artifactId>saxon-jdom</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>net.sf.saxon</groupId>
-      <artifactId>saxon-sql</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>net.sf.saxon</groupId>
-      <artifactId>saxon-xom</artifactId>
-    </dependency>
-    <dependency>
       <groupId>ognl</groupId>
       <artifactId>ognl</artifactId>
       <version>${ognl.version}</version>
