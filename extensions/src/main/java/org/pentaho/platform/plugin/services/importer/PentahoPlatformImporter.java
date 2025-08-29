@@ -172,6 +172,11 @@ public class PentahoPlatformImporter implements IPlatformImporter {
       if ( e.getCause() instanceof UnifiedRepositoryAccessDeniedException ) {
         throw new UnifiedRepositoryAccessDeniedException();
       }
+      if ( ( e instanceof PlatformImportException )
+          && ((PlatformImportException) e).getErrorStatus() == PlatformImportException.PUBLISH_PARTIAL_UPLOAD ) {
+        // needs to be propagated even if it was logged.
+        throw e;
+      }
     }
   }
 

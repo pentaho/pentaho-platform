@@ -122,13 +122,22 @@ public class ImportDialog extends PromptDialogBox {
         String result = sce.getResults();
         if ( result.length() > 5 ) {
           HTML messageTextBox = null;
-          if ( result.contains( "INVALID_MIME_TYPE" )  ) {
+          // order matters here. second case is a substring of the first, so we have to check the longer one first.
+          if ( result.contains( "INVALID_MIME_TYPE_PARTIAL" )  ) {
+              MessageDialogBox dialogBox = new MessageDialogBox(
+                      Messages.getString( "uploadPartialSuccess" ),
+                      Messages.getString( "uploadInvalidFileTypeQuestionPartial", result ),
+                      true,
+                      Messages.getString( "close" ) );
+              dialogBox.center();
+          } else if ( result.contains( "INVALID_MIME_TYPE" )  ) {
             MessageDialogBox dialogBox = new MessageDialogBox(
                     Messages.getString( "uploadUnsuccessful" ),
                     Messages.getString( "uploadInvalidFileTypeQuestion", result ),
                     true,
                     Messages.getString( "close" ) );
             dialogBox.center();
+
           } else if ( result.contains( UPLOAD_ACCESS_DENIED_SNIPPET ) ) {
             MessageDialogBox messageDialogBox = new MessageDialogBox(
                     Messages.getString( "uploadUnsuccessful" ),

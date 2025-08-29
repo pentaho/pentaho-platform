@@ -37,6 +37,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
+import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
@@ -297,7 +298,15 @@ public class RepositoryImportResource {
 
         bundleBuilder.mime( mimeTypeFromFile );
         importer.getRepositoryImportLogger().setPerformingRestore( false );
-        importer.importFile( bundle );
+        try {
+          importer.importFile( bundle );
+        } catch ( PlatformImportException ex ) {
+          if ( ex.getErrorStatus() == PlatformImportException.PUBLISH_PARTIAL_UPLOAD ) {
+            return Response.ok( "INVALID_MIME_TYPE_PARTIAL", MediaType.TEXT_HTML ).build();
+          } else {
+            throw ex;
+          }
+        }
       }
 
       // Flush the Mondrian cache to show imported data-sources.
