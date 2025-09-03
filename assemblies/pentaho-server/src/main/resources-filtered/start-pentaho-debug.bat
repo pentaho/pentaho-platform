@@ -1,23 +1,15 @@
 @echo off
-
-REM *******************************************************************************************
-REM This program is free software; you can redistribute it and/or modify it under the
-REM terms of the GNU General Public License, version 2 as published by the Free Software
-REM Foundation.
+REM ******************************************************************************
 REM
-REM You should have received a copy of the GNU General Public License along with this
-REM program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-REM or from the Free Software Foundation, Inc.,
-REM 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+REM Pentaho
 REM
-REM This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-REM without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-REM See the GNU General Public License for more details.
+REM Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
 REM
+REM Use of this software is governed by the Business Source License included
+REM in the LICENSE.TXT file.
 REM
-REM Copyright 2011 - ${copyright.year} Hitachi Vantara. All rights reserved.
-REM *******************************************************************************************
-
+REM Change Date: 2029-07-20
+REM ******************************************************************************
 setlocal
 cd /D %~dp0
 call set-pentaho-env.bat "%~dp0jre"
@@ -30,6 +22,8 @@ set CATALINA_OPTS=-Xms2048m -Xmx6144m -Xdebug -Xrunjdwp:transport=dt_socket,serv
 
 REM Add this property to change the equivalent value of "SaveOnlyUsedConnectionsToXML" property on the server. Please see JIRA PDI-20078 for more information
 REM set CATALINA_OPTS=%CATALINA_OPTS% -DSTRING_ONLY_USED_DB_TO_XML=N
+REM Add this option to allow orc's compatibility with protobuf-java 3.25.6 libraries
+set CATALINA_OPTS=%CATALINA_OPTS% -Dcom.google.protobuf.use_unsafe_pre22_gencode=true
 
 rem Sets options that only get read by Java 11 to remove illegal reflective access warnings
 set "JDK_JAVA_OPTIONS=%JDK_JAVA_OPTIONS% --add-opens=java.base/sun.net.www.protocol.jar=ALL-UNNAMED"
