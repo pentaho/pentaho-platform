@@ -165,7 +165,7 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
         String oldPassword = oldPasswordTextBox.getText();
 
         if ( !isValidPassword( newPassword ) ) {
-          String nonMatchingChars = getNonMatchingCharacters( newPassword, ALLOWED_CHARS );
+          String nonMatchingChars = getNonMatchingCharacters( newPassword );
           showErrorMessage( nonMatchingChars, ALLOWED_CHARS_LIST );
           return;
         }
@@ -178,7 +178,7 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
       return ALLOWED_CHARS_REGEXP.test( password );
     }
 
-    private String getNonMatchingCharacters( String value, String allowedCharacters ) {
+    private String getNonMatchingCharacters( String value ) {
       Set<Character> seen = new HashSet<>(); // Allows to identify unique non matching characters
       StringBuilder nonMatchingChars = new StringBuilder();
 
