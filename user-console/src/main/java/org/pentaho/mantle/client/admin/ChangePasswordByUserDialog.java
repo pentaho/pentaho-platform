@@ -34,6 +34,9 @@ import org.pentaho.mantle.client.ui.xul.MantleController;
 import org.pentaho.ui.xul.gwt.tags.GwtDialog;
 import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 
+import java.util.HashSet;
+import java.util.Set;
+
 //This rule is triggered when the class has more than 5 parents. in this case most of the parents are third party classes that can't be changed.
 @SuppressWarnings( "squid:S110" )
 public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCallback {
@@ -47,9 +50,9 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
   private static final String TEXT_BOX_WIDTH = "260px";
   private static final String SPACER_STYLE_NAME = "spacer";
   private boolean acceptBtnEnabled = false;
-  private static final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]]+$";
+  private static final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]-]+$";
   private static final RegExp ALLOWED_CHARS_REGEXP = RegExp.compile( ALLOWED_CHARS );
-  private static final String ALLOWED_CHARS_LIST = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ]";
+  private static final String ALLOWED_CHARS_LIST = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ] -";
 
   public ChangePasswordByUserDialog( MantleController controller ) {
     setWidth( 260 );
@@ -162,7 +165,8 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
         String oldPassword = oldPasswordTextBox.getText();
 
         if ( !isValidPassword( newPassword ) ) {
-          showErrorMessage( newPassword, ALLOWED_CHARS_LIST );
+          String nonMatchingChars = getNonMatchingCharacters( newPassword );
+          showErrorMessage( nonMatchingChars, ALLOWED_CHARS_LIST );
           return;
         }
 
@@ -174,11 +178,27 @@ public class ChangePasswordByUserDialog extends GwtDialog implements ServiceCall
       return ALLOWED_CHARS_REGEXP.test( password );
     }
 
-    private void showErrorMessage( String userName, String allowedCharacters ) {
+    private String getNonMatchingCharacters( String value ) {
+      Set<Character> seen = new HashSet<>(); // Allows to identify unique non matching characters
+      StringBuilder nonMatchingChars = new StringBuilder();
+
+      for ( char c : value.toCharArray() ) {
+        if ( !ALLOWED_CHARS_REGEXP.test( String.valueOf( c ) )
+          && seen.add( c ) ) {
+          if (nonMatchingChars.length() > 0) {
+            nonMatchingChars.append(" ");
+          }
+          nonMatchingChars.append( c );
+        }
+      }
+      return nonMatchingChars.toString();
+    }
+
+    private void showErrorMessage( String value, String allowedCharacters ) {
       GwtMessageBox messageBox = new GwtMessageBox();
       messageBox.setTitle( Messages.getString( "error" ) );
-      messageBox.setMessage( Messages.getString( "allowedNameCharacters", userName, allowedCharacters ) );
-      messageBox.setButtons( new Object[ACCEPT] );
+      messageBox.setMessage( Messages.getString( "allowedNameCharacters", value, allowedCharacters ) );
+      messageBox.setButtons( new Object[ ACCEPT ] );
       messageBox.setWidth( 300 );
       messageBox.show();
     }
