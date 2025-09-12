@@ -65,19 +65,42 @@ public class FileUtils {
   /**
    * Checks whether {@code path} contains any of {@code reserved}.
    *
-   * @param path unix-style path
+   * @param path     unix-style path
    * @param reserved array of reserved characters
    * @return {@code true} if any of {@code reserved} is contained by {@code path}
    */
   public static boolean containsReservedCharacter( String path, char[] reserved ) {
-    while ( !path.isEmpty() ) {
-      String name = FilenameUtils.getName( path );
-      if ( StringUtils.containsAny( name, reserved ) ) {
+    return containsReservedCharacter( path, reserved, false );
+  }
+
+  /**
+   * Checks whether {@code nameOrPath} contains any of {@code reserved}.
+   *
+   * @param nameOrPath unix-style path or name
+   * @param reserved   array of reserved characters
+   * @param strict     if true, only the last segment of the path (the name) is checked
+   * @return {@code true} if any of {@code reserved} is contained by {@code path}
+   */
+  public static boolean containsReservedCharacter( String nameOrPath, char[] reserved, boolean strict ) {
+    if ( strict ) {
+      return nameContainsReservedCharacter( nameOrPath, reserved );
+    }
+
+    while ( !nameOrPath.isEmpty() ) {
+      final String name = FilenameUtils.getName( nameOrPath );
+
+      if ( nameContainsReservedCharacter( name, reserved ) ) {
         return true;
       }
-      path = FilenameUtils.getPathNoEndSeparator( path );
+
+      nameOrPath = FilenameUtils.getPathNoEndSeparator( nameOrPath );
     }
+
     return false;
+  }
+
+  public static boolean nameContainsReservedCharacter( String name, char[] reserved ) {
+    return StringUtils.containsAny( name, reserved );
   }
 
   /**

@@ -1791,37 +1791,73 @@ public class FileService {
     return doCreateDirFor( path );
   }
 
-  public boolean isValidFolderName( String path ) {
+  /**
+   * Backward compatible method (non-strict).
+   * Delegates to {@link #isValidFolderName(String, boolean)} with strict=false.
+   */
+  public boolean isValidFolderName( final String path ) {
+    return isValidFolderName( path, false );
+  }
+
+  /**
+   * Validates a folder name or path.
+   * strict=false (legacy): treats the argument as a (possibly full) path and validates each segment.
+   * strict=true: treats the argument as a single folder name and rejects any path separators.
+   *
+   * @param nameOrPath folder name or path
+   * @param strict     if true, disallow '/' or '\' and do not strip path segments
+   * @return true if valid
+   */
+  public boolean isValidFolderName( final String nameOrPath, final boolean strict ) {
     /*
      * If a change is to be made on this method, please synchronize with the following method:
      * [pentaho-commons-gwt-modules] org.pentaho.gwt.widgets.client.utils.NameUtils#isValidFolderName
      */
-    if ( FileUtils.containsReservedCharacter( path, doGetReservedChars().toString().toCharArray() )
-        || FileUtils.containsControlCharacters( path ) ) {
-      return false;
+
+    final boolean isFileNameValid = isValidFileName( nameOrPath, strict );
+
+    if ( isFileNameValid ) {
+      final String folderName = decode( FilenameUtils.getName( nameOrPath ) );
+
+      return !".".equals( folderName ) && !"..".equals( folderName ) && !FileUtils.containsControlCharacters(
+        folderName );
     }
 
-    String folderName = decode( FilenameUtils.getName( path ) );
-    return !".".equals( folderName ) && !"..".equals( folderName ) && !FileUtils.containsControlCharacters( folderName );
+    return false;
+  }
+
+  /**
+   * Backward compatible method (non-strict).
+   * Delegates to {@link #isValidFileName(String, boolean)} with strict=false.
+   */
+  public boolean isValidFileName( final String name ) {
+    return isValidFileName( name, false );
   }
 
   /**
    * <p>Check if a given name can be used as a file name.</p>
+   * <p>
+   * strict=false: keep existing (path-like input tolerated; implementation continues legacy logic).
+   * strict=true: reject if contains '/' or '\', or is blank/whitespace/reserved/control.
    *
-   * @param name the name to be tested
+   * @param nameOrPath the name to be tested (or legacy path when strict=false)
    * @return {@code true} if the given name is valid for a file and {@code false} otherwise
    */
-  public boolean isValidFileName( final String name ) {
+  public boolean isValidFileName( final String nameOrPath, final boolean strict ) {
     /*
      * If a change is to be made on this method, please synchronize with the following method:
      * [pentaho-commons-gwt-modules] org.pentaho.gwt.widgets.client.utils.NameUtils#isValidFileName
      */
-    return !(
-        StringUtils.isEmpty( name ) || // not null, not empty and not all whitespace
-            !name.trim().equals( name ) || !decode( name ).trim().equals( decode( name ) ) || // no leading or trailing whitespace
-            FileUtils.containsReservedCharacter( name, doGetReservedChars().toString().toCharArray() ) || // no reserved characters
-            FileUtils.containsControlCharacters( name ) || FileUtils.containsControlCharacters( decode( name ) ) // control characters
-    );
+
+    if ( StringUtils.isEmpty( nameOrPath ) || // not null, not empty and not all whitespace
+      !nameOrPath.trim().equals( nameOrPath ) ||
+      !decode( nameOrPath ).trim().equals( decode( nameOrPath ) ) ) {
+      return false;
+    }
+
+    return !FileUtils.containsReservedCharacter( nameOrPath, doGetReservedChars().toString().toCharArray(), strict )
+      && !FileUtils.containsControlCharacters( nameOrPath )
+      && !FileUtils.containsControlCharacters( decode( nameOrPath ) );
   }
 
   private String getParentPath( final String path ) {
