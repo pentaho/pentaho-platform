@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 // used in getParameters and doClearIgnoreFields to ignore specific hidden fields
 
@@ -360,7 +361,7 @@ function executeAction (target, submitUrl) {
 // convert characters from entities like &#305; to display characters (HTML)
 function convertHtmlEntitiesToCharacters(theStr) {
     var newDiv = document.createElement(newDiv);
-    newDiv.innerHTML = theStr;
+    pho.util.xss.setHtml(newDiv, theStr);
     return newDiv.innerHTML;
 }
 
