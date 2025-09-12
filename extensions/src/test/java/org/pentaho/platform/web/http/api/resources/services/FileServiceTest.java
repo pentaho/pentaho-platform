@@ -35,6 +35,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -86,6 +87,10 @@ public class FileServiceTest {
     }
     when( settingsService.getSystemSetting( nullable( String.class ), nullable( String.class ) ) ).thenReturn( "" );
     PentahoSystem.registerObjectFactory( objectFactory );
+
+    DefaultUnifiedRepositoryWebService repoWs = mock( DefaultUnifiedRepositoryWebService.class );
+    doReturn( List.of( '/', '\\', '\t', '\r', '\n' ) ).when( repoWs ).getReservedChars();
+    doReturn( repoWs ).when( fileService ).getRepoWs();
   }
 
   @Test( expected = FileService.InvalidNameException.class )
@@ -122,16 +127,11 @@ public class FileServiceTest {
 
   @Test( expected = FileService.InvalidNameException.class )
   public void testDoCreateDirSafe_ControlCharactersFound() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
-
     fileService.doCreateDirSafe( PATH_CONTROL_CHARACTER );
   }
 
   @Test
   public void testDoCreateDirSafe_Special_Characters() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
     doReturn( true ).when( fileService ).doCreateDirFor( nullable( String.class ) );
 
     assertTrue( fileService.doCreateDirSafe( PATH_SPECIAL_CHARACTERS ) );
@@ -139,69 +139,45 @@ public class FileServiceTest {
 
   @Test
   public void testDoCreateDirSafe_Japanese_Characters() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
     doReturn( true ).when( fileService ).doCreateDirFor( nullable( String.class ) );
 
     assertTrue( fileService.doCreateDirSafe( PATH_JAPANESE_CHARACTERS ) );
   }
 
   @Test
-  public void testIsValidFolderName_DecodedControl_Characters() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
-
+  public void testIsValidFolderName_DecodedControl_Characters() {
     assertFalse( fileService.isValidFolderName( PATH_CONTROL_CHARACTER ) );
   }
 
   @Test
   public void testIsValidFolderName_EncodedControl_Characters() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
-
-    assertFalse(
-      fileService.isValidFolderName( encode( PATH_CONTROL_CHARACTER ) ) );
+    assertFalse( fileService.isValidFolderName( encode( PATH_CONTROL_CHARACTER ) ) );
   }
 
   @Test
-  public void testIsValidFolderName_DecodedJapanese_Characters() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
-
+  public void testIsValidFolderName_DecodedJapanese_Characters() {
     assertTrue( fileService.isValidFolderName( PATH_JAPANESE_CHARACTERS ) );
   }
 
   @Test
   public void testIsValidFolderName_EncodedJapanese_Characters() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
-
-    assertTrue(
-      fileService.isValidFolderName( encode( PATH_JAPANESE_CHARACTERS ) ) );
+    assertTrue( fileService.isValidFolderName( encode( PATH_JAPANESE_CHARACTERS ) ) );
   }
 
   @Test
-  public void testIsValidFolderName_DecodedSpecial_Characters() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
-
+  public void testIsValidFolderName_DecodedSpecial_Characters() {
     assertTrue( fileService.isValidFolderName( PATH_SPECIAL_CHARACTERS ) );
   }
 
   @Test
   public void testIsValidFolderName_EncodedSpecial_Characters() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
-
-    assertTrue(
-      fileService.isValidFolderName( encode( PATH_SPECIAL_CHARACTERS ) ) );
+    assertTrue( fileService.isValidFolderName( encode( PATH_SPECIAL_CHARACTERS ) ) );
   }
 
   @Test
-  public void testIsValidFolderName_Decoded_InvalidCases() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
+  public void testIsValidFolderName_Decoded_InvalidCases() {
     String[] invalidNames = { ".", ".." };
+
     for ( String invalidName : invalidNames ) {
       assertFalse( fileService.isValidFolderName( invalidName ) );
     }
@@ -209,73 +185,48 @@ public class FileServiceTest {
 
   @Test
   public void testIsValidFolderName_Encoded_InvalidCases() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
     String[] invalidNames = { ".", ".." };
+
     for ( String invalidName : invalidNames ) {
-      assertFalse(
-        fileService.isValidFolderName( encode( invalidName ) ) );
+      assertFalse( fileService.isValidFolderName( encode( invalidName ) ) );
     }
   }
 
   @Test
-  public void testIsValidFileName_DecodedControl_Characters() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
-
+  public void testIsValidFileName_DecodedControl_Characters() {
     assertFalse( fileService.isValidFileName( PATH_CONTROL_CHARACTER ) );
   }
 
   @Test
   public void testIsValidFileName_EncodedControl_Characters() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
-    String pathControlCharacter = PATH_CONTROL_CHARACTER;
-
-    assertFalse(
-      fileService.isValidFileName( encode( pathControlCharacter ) ) );
+    assertFalse( fileService.isValidFileName( encode( PATH_CONTROL_CHARACTER ) ) );
   }
 
   @Test
-  public void testIsValidFileName_DecodedJapanese_Characters() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
-
+  public void testIsValidFileName_DecodedJapanese_Characters() {
     assertTrue( fileService.isValidFileName( PATH_JAPANESE_CHARACTERS ) );
   }
 
   @Test
   public void testIsValidFileName_EncodedJapanese_Characters() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
-
-    assertTrue(
-      fileService.isValidFileName( encode( PATH_JAPANESE_CHARACTERS ) ) );
+    assertTrue( fileService.isValidFileName( encode( PATH_JAPANESE_CHARACTERS ) ) );
   }
 
   @Test
-  public void testIsValidFileName_DecodedSpecial_Characters() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
-
+  public void testIsValidFileName_DecodedSpecial_Characters() {
     assertTrue( fileService.isValidFileName( PATH_SPECIAL_CHARACTERS ) );
   }
 
   @Test
   public void testIsValidFileName_EncodedSpecial_Characters() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
-
-    assertTrue(
-      fileService.isValidFileName( encode( PATH_SPECIAL_CHARACTERS ) ) );
+    assertTrue( fileService.isValidFileName( encode( PATH_SPECIAL_CHARACTERS ) ) );
   }
 
   @Test
-  public void testIsValidFileName_Decoded_InvalidCases() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
+  public void testIsValidFileName_Decoded_InvalidCases() {
     String[] invalidNames =
       { null, "", " ", " x", "x ", " x ", "\tx", "x\t", "\tx\t", "\rx", "x\r", "\rx\r", "\nx", "x\n", "\nx\n" };
+
     for ( String invalidName : invalidNames ) {
       assertFalse( fileService.isValidFileName( invalidName ) );
     }
@@ -283,10 +234,9 @@ public class FileServiceTest {
 
   @Test
   public void testIsValidFileName_Encoded_InvalidCases() throws Exception {
-    DefaultUnifiedRepositoryWebService RepoWs = mock( DefaultUnifiedRepositoryWebService.class );
-    doReturn( RepoWs ).when( fileService ).getRepoWs();
     String[] invalidNames =
       { "", " x", "x ", " x ", "\tx", "x\t", "\tx\t", "\rx", "x\r", "\rx\r", "\nx", "x\n", "\nx\n" };
+
     for ( String invalidName : invalidNames ) {
       assertFalse(
         fileService.isValidFileName( encode( invalidName ) ) );
@@ -294,7 +244,7 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testIsVisible() throws Exception {
+  public void testIsVisible() {
     RepositoryFileDto hiddenDto = new RepositoryFileDto();
     hiddenDto.setFolder( true );
     hiddenDto.setHidden( true );
@@ -316,7 +266,7 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testGetDefaultLocation_Scenario_ProvidedFolderIsNull() throws Exception {
+  public void testGetDefaultLocation_Scenario_ProvidedFolderIsNull() {
     DefaultUnifiedRepositoryWebService repoWs = mock( DefaultUnifiedRepositoryWebService.class );
     doReturn( repoWs ).when( fileService ).getRepoWs();
     doReturn( null ).when( repoWs ).getFile( "/home/joe" );
@@ -325,7 +275,7 @@ public class FileServiceTest {
 
 
   @Test
-  public void testGetDefaultLocation_Scenario_ProvidedFolderIsVisible() throws Exception {
+  public void testGetDefaultLocation_Scenario_ProvidedFolderIsVisible() {
     RepositoryFileDto visibleDto = new RepositoryFileDto();
     visibleDto.setFolder( true );
     visibleDto.setHidden( false );
@@ -348,7 +298,7 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testGetDefaultLocation_Scenario__DefaultFolderIsNotProvidedPublicFolderIsVisible() throws Exception {
+  public void testGetDefaultLocation_Scenario__DefaultFolderIsNotProvidedPublicFolderIsVisible() {
     RepositoryFileDto hiddenDto = new RepositoryFileDto();
     hiddenDto.setFolder( true );
     hiddenDto.setHidden( true );
@@ -370,7 +320,7 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testGetDefaultLocation_Scenario_DefaultFolderIsNotProvidedPublicFolderIsHidden() throws Exception {
+  public void testGetDefaultLocation_Scenario_DefaultFolderIsNotProvidedPublicFolderIsHidden() {
     RepositoryFileDto hiddenDto = new RepositoryFileDto();
     hiddenDto.setFolder( true );
     hiddenDto.setHidden( true );
@@ -390,7 +340,7 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testGetDefaultLocation_Scenario_DefaultFolderIsVisible() throws Exception {
+  public void testGetDefaultLocation_Scenario_DefaultFolderIsVisible() {
     RepositoryFileDto hiddenDto = new RepositoryFileDto();
     hiddenDto.setFolder( true );
     hiddenDto.setHidden( true );
@@ -413,7 +363,7 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testGetDefaultLocation_Scenario_DefaultFolderIsHidden() throws Exception {
+  public void testGetDefaultLocation_Scenario_DefaultFolderIsHidden() {
     RepositoryFileDto hiddenDto = new RepositoryFileDto();
     hiddenDto.setFolder( true );
     hiddenDto.setHidden( true );
@@ -445,7 +395,7 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testGetDefaultLocation_Scenario_DefaultFolderIsNotAccessible() throws Exception {
+  public void testGetDefaultLocation_Scenario_DefaultFolderIsNotAccessible() {
     RepositoryFileDto hiddenDto = new RepositoryFileDto();
     hiddenDto.setFolder( true );
     hiddenDto.setHidden( true );
@@ -470,7 +420,6 @@ public class FileServiceTest {
     userHomeFolderDto.setId( RandomStringUtils.randomNumeric( 20 ) );
     userHomeFolderDto.setName( "suzy" );
     userHomeFolderDto.setPath( "/home/suzy" );
-
 
     RepositoryFileDto homeFolderDto = new RepositoryFileDto();
     homeFolderDto.setFolder( true );
@@ -497,7 +446,7 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testDoCanEdit() throws Exception {
+  public void testDoCanEdit() {
     ISystemSettings settingsService = mock( ISystemSettings.class );
     when( settingsService.getSystemSetting(  "edit-permission", "" ) ).thenReturn( RepositoryCreateAction.NAME );
     PentahoSystem.setSystemSettingsService( settingsService );
@@ -506,20 +455,20 @@ public class FileServiceTest {
     IAuthorizationPolicy policy = mock( IAuthorizationPolicy.class );
     when( policy.isAllowed( RepositoryCreateAction.NAME ) ).thenReturn( true );
     PentahoSystem.registerObject( policy );
-    assertEquals(fileService.doGetCanEdit(), "true" );
+    assertEquals( "true", fileService.doGetCanEdit() );
 
     // Test for user not having a proper permission to edit
     when( settingsService.getSystemSetting(  "edit-permission", "" ) ).thenReturn( RepositoryCreateAction.NAME );
     when( policy.isAllowed( any() ) ).thenReturn( false );
-    assertEquals(fileService.doGetCanEdit(), "false" );
+    assertEquals( "false", fileService.doGetCanEdit() );
 
     // Test for configuration in the pentaho.xml is an empty string
     when( settingsService.getSystemSetting(  "edit-permission", "" ) ).thenReturn( "" );
-    assertEquals(fileService.doGetCanEdit(), "true" );
+    assertEquals( "true", fileService.doGetCanEdit() );
 
     // Test for configuration in the pentaho.xml does not exist
     when( settingsService.getSystemSetting(  "edit-permission", "" ) ).thenReturn( null );
-    assertEquals(fileService.doGetCanEdit(), "true" );
+    assertEquals( "true", fileService.doGetCanEdit() );
   }
 
   private static String encode( String pathControlCharacter ) throws UnsupportedEncodingException {
