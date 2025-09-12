@@ -144,6 +144,8 @@ public class FileServiceTest {
     assertTrue( fileService.doCreateDirSafe( PATH_JAPANESE_CHARACTERS ) );
   }
 
+  // region isValidFolderName
+
   @Test
   public void testIsValidFolderName_DecodedControl_Characters() {
     assertFalse( fileService.isValidFolderName( PATH_CONTROL_CHARACTER ) );
@@ -191,6 +193,64 @@ public class FileServiceTest {
       assertFalse( fileService.isValidFolderName( encode( invalidName ) ) );
     }
   }
+
+  @Test
+  public void testIsValidFolderName_StrictRejectsSeparators() {
+    assertFalse( fileService.isValidFolderName( "a/b", true ) );
+    assertFalse( fileService.isValidFolderName( "a\\b", true ) );
+  }
+
+  @Test
+  public void testIsValidFolderName_NonStrictPathDotFinalSegmentInvalid() {
+    assertFalse( fileService.isValidFolderName( "a/b/.", false ) );
+    assertFalse( fileService.isValidFolderName( "a/b/..", false ) );
+  }
+
+  @Test
+  public void testIsValidFolderName_StrictDotsInvalid() {
+    assertFalse( fileService.isValidFolderName( ".", true ) );
+    assertFalse( fileService.isValidFolderName( "..", true ) );
+  }
+
+  @Test
+  public void testIsValidFolderName_WhitespaceInvalid() throws Exception {
+    assertFalse( fileService.isValidFolderName( " folder", true ) );
+    assertFalse( fileService.isValidFolderName( "folder ", true ) );
+    assertFalse( fileService.isValidFolderName( encode( " folder" ), true ) );
+    assertFalse( fileService.isValidFolderName( encode( "folder " ), true ) );
+  }
+
+  @Test
+  public void testIsValidFolderName_NullAndEmpty() {
+    assertFalse( fileService.isValidFolderName( null, true ) );
+    assertFalse( fileService.isValidFolderName( "", true ) );
+  }
+
+  @Test
+  public void testIsValidFolderName_StrictReservedChar() {
+    doReturn( new StringBuffer( "@$" ) ).when( fileService ).doGetReservedChars();
+
+    assertFalse( fileService.isValidFolderName( "bad@folder", true ) );
+    assertTrue( fileService.isValidFolderName( "okFolder", true ) );
+  }
+
+  @Test
+  public void testIsValidFolderName_UnicodeValid() {
+    assertTrue( fileService.isValidFolderName( PATH_JAPANESE_CHARACTERS, true ) );
+  }
+
+  @Test
+  public void testIsValidFolderName_NonStrictChecksAllSegmentsForReserved() {
+    doReturn( new StringBuffer( "!%" ) ).when( fileService ).doGetReservedChars();
+
+    assertFalse( fileService.isValidFolderName( "a!/b/c", false ) );
+    assertFalse( fileService.isValidFolderName( "a/b%/c", false ) );
+    assertTrue( fileService.isValidFolderName( "a/b/c", false ) );
+  }
+
+  //endregion
+
+  // region isValidFileName
 
   @Test
   public void testIsValidFileName_DecodedControl_Characters() {
@@ -242,6 +302,60 @@ public class FileServiceTest {
         fileService.isValidFileName( encode( invalidName ) ) );
     }
   }
+
+  @Test
+  public void testIsValidFileName_StrictRejectsPathSeparators() {
+    assertFalse( fileService.isValidFileName( "dir/sub", true ) );
+    assertFalse( fileService.isValidFileName( "dir\\sub", true ) );
+  }
+
+  @Test
+  public void testIsValidFileName_NonStrictAllowsPathButValidatesAllSegments() {
+    doReturn( new StringBuffer( "?*" ) ).when( fileService ).doGetReservedChars();
+
+    // '?' reserved in first segment
+    assertFalse( fileService.isValidFileName( "ba?d/good/prn", false ) );
+    // '*' reserved in last segment
+    assertFalse( fileService.isValidFileName( "good/path/inva*lid", false ) );
+    // No reserved chars
+    assertTrue( fileService.isValidFileName( "good/path/valid", false ) );
+  }
+
+  @Test
+  public void testIsValidFileName_StrictReservedChar() {
+    doReturn( new StringBuffer( "#%" ) ).when( fileService ).doGetReservedChars();
+
+    assertFalse( fileService.isValidFileName( "bad#name", true ) );
+    assertTrue( fileService.isValidFileName( "cleanName", true ) );
+  }
+
+  @Test
+  public void testIsValidFileName_StrictUnicodeValid() {
+    assertTrue( fileService.isValidFileName( PATH_JAPANESE_CHARACTERS, true ) );
+  }
+
+  @Test
+  public void testIsValidFileName_StrictLeadingTrailingWhitespaceInvalid() throws Exception {
+    assertFalse( fileService.isValidFileName( " name", true ) );
+    assertFalse( fileService.isValidFileName( "name ", true ) );
+    assertFalse( fileService.isValidFileName( encode( " name" ), true ) );
+    assertFalse( fileService.isValidFileName( encode( "name " ), true ) );
+  }
+
+  @Test
+  public void testIsValidFileName_StrictBlankAndNull() {
+    assertFalse( fileService.isValidFileName( "", true ) );
+    assertFalse( fileService.isValidFileName( "   ", true ) );
+    assertFalse( fileService.isValidFileName( null, true ) );
+  }
+
+  @Test
+  public void testIsValidFileName_EncodedInternalWhitespaceOk() throws Exception {
+    // internal spaces (not leading/trailing) allowed
+    assertTrue( fileService.isValidFileName( encode( "my file name" ), true ) );
+  }
+
+  // endregion
 
   @Test
   public void testIsVisible() {
