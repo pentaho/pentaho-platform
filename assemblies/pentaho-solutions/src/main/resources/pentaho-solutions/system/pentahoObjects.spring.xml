@@ -465,10 +465,17 @@ not directly from the PentahoObjectFactory. -->
       </pen:attributes>
     </pen:publish>
   </bean>
-  <bean class="org.pentaho.platform.engine.security.authorization.core.rules.ResourceActionGeneralRequirementAuthorizationRule">
+  <bean class="org.pentaho.platform.engine.security.authorization.core.rules.ResourceGeneralAuthorizationRule">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="ruleLevel" value="veto"/>
+        <pen:attr key="priority" value="10"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.engine.security.authorization.core.rules.ResourceSpecificAuthorizationRule">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
         <pen:attr key="priority" value="10"/>
       </pen:attributes>
     </pen:publish>

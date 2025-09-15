@@ -19,7 +19,7 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequ
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
 import org.pentaho.platform.api.engine.security.authorization.resources.IResourceAuthorizationRequest;
 import org.pentaho.platform.engine.security.authorization.core.AuthorizationRequest;
-import org.pentaho.platform.engine.security.authorization.core.decisions.ResourceActionGeneralRequirementAuthorizationDecision;
+import org.pentaho.platform.engine.security.authorization.core.decisions.ResourceGeneralAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.resources.GenericAuthorizationResource;
 import org.pentaho.platform.engine.security.authorization.core.resources.ResourceAuthorizationRequest;
 
@@ -32,13 +32,13 @@ import static org.mockito.Mockito.when;
 import static org.pentaho.platform.engine.security.authorization.core.AuthorizationTestHelpers.createTestAction;
 import static org.pentaho.platform.engine.security.authorization.core.AuthorizationTestHelpers.createTestUser;
 
-public class ResourceActionGeneralRequirementAuthorizationRuleTest {
+public class ResourceGeneralAuthorizationRuleTest {
 
   private IResourceAuthorizationRequest resourceRequest;
   private IAuthorizationContext context;
   private IAuthorizationRequest generalRequest;
 
-  private ResourceActionGeneralRequirementAuthorizationRule rule;
+  private ResourceGeneralAuthorizationRule rule;
 
   @Before
   public void setUp() {
@@ -56,7 +56,7 @@ public class ResourceActionGeneralRequirementAuthorizationRuleTest {
     // Mock asGeneral() to return our controlled general request.
     when( resourceRequest.asGeneral() ).thenReturn( generalRequest );
 
-    rule = new ResourceActionGeneralRequirementAuthorizationRule();
+    rule = new ResourceGeneralAuthorizationRule();
   }
 
   @Test
@@ -75,9 +75,9 @@ public class ResourceActionGeneralRequirementAuthorizationRuleTest {
     var result = rule.authorize( resourceRequest, context );
 
     assertTrue( result.isPresent() );
-    assertTrue( result.get() instanceof ResourceActionGeneralRequirementAuthorizationDecision );
+    assertTrue( result.get() instanceof ResourceGeneralAuthorizationDecision );
 
-    var decision = (ResourceActionGeneralRequirementAuthorizationDecision) result.get();
+    var decision = (ResourceGeneralAuthorizationDecision) result.get();
     assertTrue( decision.isGranted() );
     assertEquals( resourceRequest, decision.getRequest() );
     assertEquals( grantedGeneralDecision, decision.getDerivedFromDecision() );
@@ -94,9 +94,9 @@ public class ResourceActionGeneralRequirementAuthorizationRuleTest {
     var result = rule.authorize( resourceRequest, context );
 
     assertTrue( result.isPresent() );
-    assertTrue( result.get() instanceof ResourceActionGeneralRequirementAuthorizationDecision );
+    assertTrue( result.get() instanceof ResourceGeneralAuthorizationDecision );
 
-    var decision = (ResourceActionGeneralRequirementAuthorizationDecision) result.get();
+    var decision = (ResourceGeneralAuthorizationDecision) result.get();
     assertFalse( decision.isGranted() );
     assertEquals( resourceRequest, decision.getRequest() );
     assertEquals( deniedGeneralDecision, decision.getDerivedFromDecision() );
@@ -106,6 +106,6 @@ public class ResourceActionGeneralRequirementAuthorizationRuleTest {
   public void testToStringFormat() {
     var result = rule.toString();
 
-    assertTrue( result.contains( ResourceActionGeneralRequirementAuthorizationRule.class.getSimpleName() ) );
+    assertTrue( result.contains( ResourceGeneralAuthorizationRule.class.getSimpleName() ) );
   }
 }

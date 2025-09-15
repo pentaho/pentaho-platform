@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ResourceActionGeneralRequirementAuthorizationDecisionTest {
+public class ResourceGeneralAuthorizationDecisionTest {
 
   private IAuthorizationRequest request1;
   private IAuthorizationRequest request2;
@@ -64,13 +64,13 @@ public class ResourceActionGeneralRequirementAuthorizationDecisionTest {
   @Test
   public void testConstructorAndGetters() {
     var grantedRequirementDecision =
-      new ResourceActionGeneralRequirementAuthorizationDecision( request2, grantedDecision );
+      new ResourceGeneralAuthorizationDecision( request2, grantedDecision );
     assertEquals( request2, grantedRequirementDecision.getRequest() );
     assertTrue( grantedRequirementDecision.isGranted() );
     assertSame( grantedDecision, grantedRequirementDecision.getDerivedFromDecision() );
 
     var deniedRequirementDecision =
-      new ResourceActionGeneralRequirementAuthorizationDecision( request2, deniedDecision );
+      new ResourceGeneralAuthorizationDecision( request2, deniedDecision );
     assertEquals( request2, deniedRequirementDecision.getRequest() );
     assertFalse( deniedRequirementDecision.isGranted() );
     assertSame( deniedDecision, deniedRequirementDecision.getDerivedFromDecision() );
@@ -79,23 +79,23 @@ public class ResourceActionGeneralRequirementAuthorizationDecisionTest {
   @Test( expected = NullPointerException.class )
   public void testConstructorWithNullRequestThrows() {
     //noinspection DataFlowIssue
-    new ResourceActionGeneralRequirementAuthorizationDecision( null, grantedDecision );
+    new ResourceGeneralAuthorizationDecision( null, grantedDecision );
   }
 
   @Test( expected = NullPointerException.class )
   public void testConstructorWithNullDerivedFromDecisionThrows() {
     //noinspection DataFlowIssue
-    new ResourceActionGeneralRequirementAuthorizationDecision( request2, null );
+    new ResourceGeneralAuthorizationDecision( request2, null );
   }
 
   @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithSameRequestThrows() {
-    new ResourceActionGeneralRequirementAuthorizationDecision( request1, grantedDecision );
+    new ResourceGeneralAuthorizationDecision( request1, grantedDecision );
   }
 
   @Test
   public void testGetShortJustification() {
-    var requirementDecision = new ResourceActionGeneralRequirementAuthorizationDecision( request2, grantedDecision );
+    var requirementDecision = new ResourceGeneralAuthorizationDecision( request2, grantedDecision );
     var justification = requirementDecision.getShortJustification();
     assertNotNull( justification );
     assertFalse( justification.isEmpty() );
@@ -104,19 +104,19 @@ public class ResourceActionGeneralRequirementAuthorizationDecisionTest {
   @Test
   public void testToStringFormat() {
     var grantedRequirementDecision =
-      new ResourceActionGeneralRequirementAuthorizationDecision( request2, grantedDecision );
+      new ResourceGeneralAuthorizationDecision( request2, grantedDecision );
     var deniedRequirementDecision =
-      new ResourceActionGeneralRequirementAuthorizationDecision( request2, deniedDecision );
+      new ResourceGeneralAuthorizationDecision( request2, deniedDecision );
 
     var grantedString = grantedRequirementDecision.toString();
     var deniedString = deniedRequirementDecision.toString();
 
-    assertTrue( grantedString.contains( "ResourceActionGeneralRequirementAuthorizationDecision" ) );
+    assertTrue( grantedString.contains( "ResourceGeneralAuthorizationDecision" ) );
     assertTrue( grantedString.contains( "Granted" ) );
     assertTrue( grantedString.contains( "from:" ) );
     assertTrue( grantedString.contains( "GrantedGeneralDecision" ) );
 
-    assertTrue( deniedString.contains( "ResourceActionGeneralRequirementAuthorizationDecision" ) );
+    assertTrue( deniedString.contains( "ResourceGeneralAuthorizationDecision" ) );
     assertTrue( deniedString.contains( "Denied" ) );
     assertTrue( deniedString.contains( "from:" ) );
     assertTrue( deniedString.contains( "DeniedGeneralDecision" ) );
