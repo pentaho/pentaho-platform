@@ -138,6 +138,17 @@
     </dependency>
     <!-- endregion HV Web Security -->
 
+    <!-- region GFS -->
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-generic-file-system-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-generic-file-system-impl</artifactId>
+    </dependency>
+    <!-- endregion GFS -->
+
     <dependency>
       <groupId>org.pentaho</groupId>
       <artifactId>commons-database-model</artifactId>
