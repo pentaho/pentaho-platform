@@ -24,7 +24,37 @@
     <pentaho-server.kettle.plugins.directory>${pentaho-server.system.directory}/kettle/plugins</pentaho-server.kettle.plugins.directory>
     <package.id>pentaho-server</package.id>
     <pentaho-server.directory>${project.build.directory}/${package.id}</pentaho-server.directory>
+    <pentaho-generic-file-system.version>11.0.0-SNAPSHOT</pentaho-generic-file-system.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- region GFS -->
+      <dependency>
+        <groupId>pentaho</groupId>
+        <artifactId>pentaho-generic-file-system-api</artifactId>
+        <version>${pentaho-generic-file-system.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>*</artifactId>
+            <groupId>*</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>pentaho</groupId>
+        <artifactId>pentaho-generic-file-system-impl</artifactId>
+        <version>${pentaho-generic-file-system.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>*</artifactId>
+            <groupId>*</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <!-- endregion GFS -->
+    </dependencies>
+  </dependencyManagement>
 
   <build>
     <pluginManagement>

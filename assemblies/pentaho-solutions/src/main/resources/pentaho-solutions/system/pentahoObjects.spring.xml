@@ -477,4 +477,21 @@ not directly from the PentahoObjectFactory. -->
   <bean id="userConsoleService" class="org.pentaho.platform.web.http.api.resources.services.UserConsoleService">
     <pen:publish as-type="CLASSES"/>
   </bean>
+
+  <!-- region Generic File Service and Providers -->
+  <bean class="org.pentaho.platform.genericfile.DefaultGenericFileService" scope="session">
+    <constructor-arg>
+      <pen:bean class="org.pentaho.platform.api.genericfile.IGenericFileProvider"/>
+    </constructor-arg>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+  <bean class="org.pentaho.platform.genericfile.providers.repository.RepositoryFileProvider">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="20"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <!-- endregion -->
 </beans>
