@@ -486,7 +486,7 @@ not directly from the PentahoObjectFactory. -->
     <pen:publish as-type="INTERFACES"/>
   </bean>
 
-  <bean class="org.pentaho.platform.genericfile.providers.repository.RepositoryFileProvider">
+  <bean class="org.pentaho.platform.genericfile.providers.repository.RepositoryFileProvider" scope="session">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="20"/>
