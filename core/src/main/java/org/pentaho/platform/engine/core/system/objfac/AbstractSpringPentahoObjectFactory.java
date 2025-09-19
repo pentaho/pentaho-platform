@@ -203,12 +203,11 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
 
       previousSpringSession = SpringScopeSessionHolder.SESSION.get();
 
-      if ( session instanceof StandaloneSession ) {
-        // first ask Spring for the object, if it is session scoped it will fail
-        // since Spring doesn't know about StandaloneSessions
+      // Save the session off to support Session and Request scope.
+      // If it is session scoped it would fail without this, since Spring doesn't know about StandaloneSessions.
+      SpringScopeSessionHolder.SESSION.set( session );
 
-        // Save the session off to support Session and Request scope.
-        SpringScopeSessionHolder.SESSION.set( session );
+      if ( session instanceof StandaloneSession ) {
         try {
           if ( key != null ) { // if they want it by id, look for it that way first
             object = retrieveViaSpring( key );
@@ -237,10 +236,9 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
           }
         }
       } else {
-        // be sure to clear out any session held.
-        SpringScopeSessionHolder.SESSION.set( null );
-        // Spring can handle the object retrieval since we are not dealing with StandaloneSession
-
+        // Spring can handle the object retrieval. However, SpringScopeSessionHolder.SESSION still needs
+        // to be set for session/request scoped beans, given this is used by
+        // StandaloneSpringPentahoObjectFactory.ThreadLocalScope, for request and session scopes.
         if ( key != null ) { // if they want it by id, look for it that way first
           object = retrieveViaSpring( key );
         } else {
