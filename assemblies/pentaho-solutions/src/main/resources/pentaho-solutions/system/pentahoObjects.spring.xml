@@ -481,7 +481,7 @@ not directly from the PentahoObjectFactory. -->
   <!-- region Generic File Service and Providers -->
   <bean class="org.pentaho.platform.genericfile.DefaultGenericFileService" scope="session">
     <constructor-arg>
-      <pen:bean class="org.pentaho.platform.api.genericfile.IGenericFileProvider"/>
+      <pen:list class="org.pentaho.platform.api.genericfile.IGenericFileProvider"/>
     </constructor-arg>
     <pen:publish as-type="INTERFACES"/>
   </bean>
