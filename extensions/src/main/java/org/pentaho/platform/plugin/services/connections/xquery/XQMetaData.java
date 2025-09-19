@@ -7,14 +7,15 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.connections.xquery;
 
-import net.sf.saxon.om.Axis;
-import net.sf.saxon.om.AxisIterator;
-import net.sf.saxon.tinytree.TinyNodeImpl;
+import net.sf.saxon.om.NodeInfo;
+import net.sf.saxon.tree.iter.AxisIterator;
+import net.sf.saxon.om.AxisInfo;
 import net.sf.saxon.type.Type;
 import org.pentaho.commons.connection.AbstractPentahoMetaData;
 
@@ -45,14 +46,14 @@ public class XQMetaData extends AbstractPentahoMetaData {
     while ( iter.hasNext() ) {
       rowCount++;
       Object obj = iter.next();
-      if ( obj instanceof TinyNodeImpl ) {
+      if ( obj instanceof NodeInfo ) {
         boolean processedChildren = false;
-        AxisIterator aIter = ( (TinyNodeImpl) obj ).iterateAxis( Axis.DESCENDANT );
+        AxisIterator aIter = ( (NodeInfo) obj ).iterateAxis( AxisInfo.DESCENDANT );
         Object descendent = aIter.next();
         while ( descendent != null ) {
-          if ( ( descendent instanceof TinyNodeImpl ) && ( ( (TinyNodeImpl) descendent )
+          if ( ( descendent instanceof NodeInfo ) && ( ( (NodeInfo) descendent )
             .getNodeKind() == Type.ELEMENT ) ) {
-            TinyNodeImpl descNode = (TinyNodeImpl) descendent;
+            NodeInfo descNode = (NodeInfo) descendent;
             processedChildren = true;
             if ( !headers.contains( descNode.getDisplayName() ) ) {
               headers.add( descNode.getDisplayName() );
@@ -61,7 +62,7 @@ public class XQMetaData extends AbstractPentahoMetaData {
           descendent = aIter.next();
         }
         if ( !processedChildren ) {
-          Object value = ( (TinyNodeImpl) obj ).getDisplayName();
+          Object value = ( (NodeInfo) obj ).getDisplayName();
           if ( !headers.contains( value ) ) {
             headers.add( value );
           }
