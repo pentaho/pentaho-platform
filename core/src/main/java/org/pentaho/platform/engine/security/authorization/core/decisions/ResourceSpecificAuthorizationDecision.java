@@ -5,27 +5,25 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequ
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
 import org.pentaho.platform.engine.security.messages.Messages;
 
-public class ResourceActionGeneralRequirementAuthorizationDecision extends DerivedAuthorizationDecision {
+public class ResourceSpecificAuthorizationDecision extends DerivedAuthorizationDecision {
   private static final String JUSTIFICATION =
-    Messages.getInstance().getString( "ResourceActionGeneralRequirementAuthorizationDecision.JUSTIFICATION" );
+    Messages.getInstance().getString( "ResourceSpecificAuthorizationDecision.JUSTIFICATION" );
 
-  public ResourceActionGeneralRequirementAuthorizationDecision( @NonNull
-                                                                IAuthorizationRequest request,
-                                                                @NonNull
-                                                                IAuthorizationDecision derivedFromDecision ) {
+  public ResourceSpecificAuthorizationDecision( @NonNull IAuthorizationRequest request,
+                                                @NonNull IAuthorizationDecision derivedFromDecision ) {
     super( request, derivedFromDecision );
   }
 
   @NonNull
   @Override
   public String getShortJustification() {
-    // Example: "From general permission"
+    // Example: "From specific permission"
     return JUSTIFICATION;
   }
 
   @Override
   public String toString() {
-    // Example: "ResourceActionGeneralRequirementAuthorizationDecision[Granted, from: <general decision>]"
+    // Example: "ResourceSpecificAuthorizationDecision[Granted, from: <specific decision>]"
     return String.format(
       "%s[%s, from: %s]",
       getClass().getSimpleName(),
