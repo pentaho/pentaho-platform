@@ -16,8 +16,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationActionService;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationPrincipal;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationService;
-import org.pentaho.platform.api.engine.security.authorization.IAuthorizationUser;
 import org.pentaho.platform.engine.security.authorization.core.AuthorizationRequest;
 import org.springframework.util.Assert;
 
@@ -44,25 +44,25 @@ public class AuthorizationServiceAuthorizationPolicy implements IAuthorizationPo
   private final IAuthorizationService authorizationService;
 
   @NonNull
-  private final Supplier<IAuthorizationUser> currentUserSupplier;
+  private final Supplier<IAuthorizationPrincipal> currentPrincipalSupplier;
 
   public AuthorizationServiceAuthorizationPolicy(
     @NonNull IAuthorizationActionService authorizationActionService,
     @NonNull IAuthorizationService authorizationService,
-    @NonNull Supplier<IAuthorizationUser> currentUserSupplier ) {
+    @NonNull Supplier<IAuthorizationPrincipal> currentPrincipalSupplier ) {
 
     Assert.notNull( authorizationActionService, "Argument 'authorizationActionService' is required" );
     Assert.notNull( authorizationService, "Argument 'authorizationService' is required" );
-    Assert.notNull( currentUserSupplier, "Argument 'currentUserSupplier' is required" );
+    Assert.notNull( currentPrincipalSupplier, "Argument 'currentPrincipalSupplier' is required" );
 
     this.authorizationActionService = authorizationActionService;
     this.authorizationService = authorizationService;
-    this.currentUserSupplier = currentUserSupplier;
+    this.currentPrincipalSupplier = currentPrincipalSupplier;
   }
 
   @NonNull
-  private IAuthorizationUser getCurrentUser() {
-    return Objects.requireNonNull( currentUserSupplier.get() );
+  private IAuthorizationPrincipal getCurrentPrincipal() {
+    return Objects.requireNonNull( currentPrincipalSupplier.get() );
   }
 
   @Override
@@ -76,7 +76,7 @@ public class AuthorizationServiceAuthorizationPolicy implements IAuthorizationPo
 
   private boolean isAllowed( @NonNull IAuthorizationAction action ) {
     return authorizationService
-      .authorize( new AuthorizationRequest( getCurrentUser(), action ) )
+      .authorize( new AuthorizationRequest( getCurrentPrincipal(), action ) )
       .isGranted();
   }
 
