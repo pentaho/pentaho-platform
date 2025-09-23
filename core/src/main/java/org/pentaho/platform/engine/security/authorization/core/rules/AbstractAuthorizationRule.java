@@ -29,7 +29,7 @@ import java.util.Optional;
  * <p>
  * It provides a default implementation of the {@link #toString()} method, which returns the class's simple name.
  *
- * @param <T> The specific type of authorization request this rule can handle, must extend {@link IAuthorizationRequest}
+ * @param <T> The specific type of authorization request this rule can handle, must extend {@link IAuthorizationRequest}.
  */
 public abstract class AbstractAuthorizationRule<T extends IAuthorizationRequest> implements IAuthorizationRule<T> {
 
