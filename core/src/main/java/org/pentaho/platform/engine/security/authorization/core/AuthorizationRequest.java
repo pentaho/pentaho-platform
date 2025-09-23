@@ -14,8 +14,9 @@ package org.pentaho.platform.engine.security.authorization.core;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationPrincipal;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
-import org.pentaho.platform.api.engine.security.authorization.IAuthorizationUser;
+import org.springframework.util.Assert;
 
 import java.util.Objects;
 
@@ -24,27 +25,30 @@ import java.util.Objects;
  */
 public class AuthorizationRequest implements IAuthorizationRequest {
   @NonNull
-  private final IAuthorizationUser user;
+  private final IAuthorizationPrincipal principal;
 
   @NonNull
   private final IAuthorizationAction action;
 
   /**
-   * Constructs an {@code AuthorizationRequest} with the specified user and action name.
+   * Constructs an {@code AuthorizationRequest} with the specified principal and action.
    *
-   * @param user   The user for whom the authorization is being evaluated.
+   * @param principal The principal (user, role, etc.) for whom the authorization is being evaluated.
    * @param action The action to be evaluated.
-   * @throws IllegalArgumentException if the user or action are null.
+   * @throws IllegalArgumentException if the principal or action are {@code null}.
    */
-  public AuthorizationRequest( @NonNull IAuthorizationUser user, @NonNull IAuthorizationAction action ) {
-    this.user = Objects.requireNonNull( user );
-    this.action = Objects.requireNonNull( action );
+  public AuthorizationRequest( @NonNull IAuthorizationPrincipal principal, @NonNull IAuthorizationAction action ) {
+    Assert.notNull( principal, "Argument 'principal' is required" );
+    Assert.notNull( action, "Argument 'action' is required" );
+
+    this.principal = principal;
+    this.action = action;
   }
 
   @NonNull
   @Override
-  public IAuthorizationUser getUser() {
-    return user;
+  public IAuthorizationPrincipal getPrincipal() {
+    return principal;
   }
 
   @NonNull
@@ -53,12 +57,11 @@ public class AuthorizationRequest implements IAuthorizationRequest {
     return action;
   }
 
-  // Helper method so that rules can easily evaluate dependent permissions, for the same user.
-
+  // Helper method so that rules can easily evaluate dependent permissions, for the same principal.
   @NonNull
   @Override
   public IAuthorizationRequest withAction( @NonNull IAuthorizationAction action ) {
-    return new AuthorizationRequest( user, action );
+    return new AuthorizationRequest( principal, action );
   }
 
   @Override
@@ -68,21 +71,21 @@ public class AuthorizationRequest implements IAuthorizationRequest {
     }
 
     AuthorizationRequest that = (AuthorizationRequest) o;
-    return Objects.equals( user, that.user )
+    return Objects.equals( principal, that.principal )
       && Objects.equals( action, that.getAction() );
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash( user, action );
+    return Objects.hash( principal, action );
   }
 
   @Override
   public String toString() {
     return String.format(
-      "%s [user=`%s`, action='%s']",
+      "%s [principal=`%s`, action='%s']",
       getClass().getSimpleName(),
-      user.getName(),
+      principal.getName(),
       action );
   }
 }

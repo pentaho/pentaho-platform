@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationActionService;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationPrincipal;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationService;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationUser;
@@ -46,7 +47,7 @@ public class AuthorizationServiceAuthorizationPolicyTest {
 
   private IAuthorizationActionService mockActionService;
   private IAuthorizationService mockAuthorizationService;
-  private Supplier<IAuthorizationUser> mockCurrentUserSupplier;
+  private Supplier<IAuthorizationPrincipal> mockCurrentPrincipalSupplier;
   private IAuthorizationUser mockUser;
 
   private IAuthorizationAction mockAction1;
@@ -62,10 +63,10 @@ public class AuthorizationServiceAuthorizationPolicyTest {
     mockActionService = mock( IAuthorizationActionService.class );
     mockAuthorizationService = mock( IAuthorizationService.class );
 
-    mockCurrentUserSupplier = (Supplier<IAuthorizationUser>) mock( Supplier.class );
+    mockCurrentPrincipalSupplier = (Supplier<IAuthorizationPrincipal>) mock( Supplier.class );
 
     mockUser = createTestUser();
-    when( mockCurrentUserSupplier.get() ).thenReturn( mockUser );
+    when( mockCurrentPrincipalSupplier.get() ).thenReturn( mockUser );
 
     // Create mock actions
     mockAction1 = createTestAction( "action1" );
@@ -86,7 +87,7 @@ public class AuthorizationServiceAuthorizationPolicyTest {
     new AuthorizationServiceAuthorizationPolicy(
       null,
       mockAuthorizationService,
-      mockCurrentUserSupplier
+      mockCurrentPrincipalSupplier
     );
   }
 
@@ -96,12 +97,12 @@ public class AuthorizationServiceAuthorizationPolicyTest {
     new AuthorizationServiceAuthorizationPolicy(
       mockActionService,
       null,
-      mockCurrentUserSupplier
+      mockCurrentPrincipalSupplier
     );
   }
 
   @Test( expected = IllegalArgumentException.class )
-  public void testConstructorWithNullCurrentUserSupplierThrows() {
+  public void testConstructorWithNullCurrentPrincipalSupplierThrows() {
     //noinspection DataFlowIssue
     new AuthorizationServiceAuthorizationPolicy(
       mockActionService,
@@ -120,7 +121,7 @@ public class AuthorizationServiceAuthorizationPolicyTest {
     var policy = new AuthorizationServiceAuthorizationPolicy(
       mockActionService,
       mockAuthorizationService,
-      mockCurrentUserSupplier
+      mockCurrentPrincipalSupplier
     );
 
     boolean result = policy.isAllowed( "unknown-action" );
@@ -140,7 +141,7 @@ public class AuthorizationServiceAuthorizationPolicyTest {
     var policy = new AuthorizationServiceAuthorizationPolicy(
       mockActionService,
       mockAuthorizationService,
-      mockCurrentUserSupplier
+      mockCurrentPrincipalSupplier
     );
 
     policy.isAllowed( "action1" );
@@ -157,7 +158,7 @@ public class AuthorizationServiceAuthorizationPolicyTest {
     var policy = new AuthorizationServiceAuthorizationPolicy(
       mockActionService,
       mockAuthorizationService,
-      mockCurrentUserSupplier
+      mockCurrentPrincipalSupplier
     );
 
     boolean result = policy.isAllowed( "action1" );
@@ -174,7 +175,7 @@ public class AuthorizationServiceAuthorizationPolicyTest {
     var policy = new AuthorizationServiceAuthorizationPolicy(
       mockActionService,
       mockAuthorizationService,
-      mockCurrentUserSupplier
+      mockCurrentPrincipalSupplier
     );
 
     boolean result = policy.isAllowed( "action1" );
@@ -183,7 +184,7 @@ public class AuthorizationServiceAuthorizationPolicyTest {
   }
 
   @Test
-  public void testIsAllowedCreatesCorrectAuthorizationRequestWithCurrentUser() {
+  public void testIsAllowedCreatesCorrectAuthorizationRequestWithCurrentPrincipal() {
     when( mockActionService.getAction( "action1" ) ).thenReturn( Optional.of( mockAction1 ) );
     when( mockAuthorizationService.authorize( any( AuthorizationRequest.class ) ) )
       .thenReturn( mockGrantedDecision );
@@ -191,7 +192,7 @@ public class AuthorizationServiceAuthorizationPolicyTest {
     var policy = new AuthorizationServiceAuthorizationPolicy(
       mockActionService,
       mockAuthorizationService,
-      mockCurrentUserSupplier
+      mockCurrentPrincipalSupplier
     );
 
     policy.isAllowed( "action1" );
@@ -200,10 +201,10 @@ public class AuthorizationServiceAuthorizationPolicyTest {
     verify( mockAuthorizationService ).authorize( requestCaptor.capture() );
 
     var capturedRequest = requestCaptor.getValue();
-    assertSame( mockUser, capturedRequest.getUser() );
+    assertSame( mockUser, capturedRequest.getPrincipal() );
     assertSame( mockAction1, capturedRequest.getAction() );
 
-    verify( mockCurrentUserSupplier, times( 1 ) ).get();
+    verify( mockCurrentPrincipalSupplier, times( 1 ) ).get();
   }
   // endregion
 
@@ -215,7 +216,7 @@ public class AuthorizationServiceAuthorizationPolicyTest {
     var policy = new AuthorizationServiceAuthorizationPolicy(
       mockActionService,
       mockAuthorizationService,
-      mockCurrentUserSupplier
+      mockCurrentPrincipalSupplier
     );
 
     List<String> result = policy.getAllowedActions( "empty-namespace" );
@@ -246,7 +247,7 @@ public class AuthorizationServiceAuthorizationPolicyTest {
     var policy = new AuthorizationServiceAuthorizationPolicy(
       mockActionService,
       mockAuthorizationService,
-      mockCurrentUserSupplier
+      mockCurrentPrincipalSupplier
     );
 
     List<String> result = policy.getAllowedActions( "test-namespace" );
@@ -272,7 +273,7 @@ public class AuthorizationServiceAuthorizationPolicyTest {
     var policy = new AuthorizationServiceAuthorizationPolicy(
       mockActionService,
       mockAuthorizationService,
-      mockCurrentUserSupplier
+      mockCurrentPrincipalSupplier
     );
 
     List<String> result = policy.getAllowedActions( "test-namespace" );
