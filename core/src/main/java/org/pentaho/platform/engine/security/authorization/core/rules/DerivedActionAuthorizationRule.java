@@ -18,6 +18,7 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationCont
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.decisions.DerivedActionAuthorizationDecision;
+import org.springframework.util.Assert;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -52,7 +53,9 @@ public class DerivedActionAuthorizationRule extends AbstractAuthorizationRule<IA
 
   public DerivedActionAuthorizationRule( @NonNull IAuthorizationAction baseAction,
                                          @NonNull Set<IAuthorizationAction> derivedActions ) {
-    this.baseAction = Objects.requireNonNull( baseAction );
+    Assert.notNull( baseAction, "Argument 'baseAction' is required" );
+
+    this.baseAction = baseAction;
     this.derivedActions = Set.copyOf( derivedActions );
   }
 

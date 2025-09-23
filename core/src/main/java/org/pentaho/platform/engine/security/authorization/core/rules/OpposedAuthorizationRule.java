@@ -19,8 +19,8 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IOpposedAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.decisions.OpposedAuthorizationDecision;
+import org.springframework.util.Assert;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -37,7 +37,9 @@ public class OpposedAuthorizationRule<T extends IAuthorizationRequest> extends A
   private final IAuthorizationRule<T> opposedToRule;
 
   public OpposedAuthorizationRule( @NonNull IAuthorizationRule<T> opposedToRule ) {
-    this.opposedToRule = Objects.requireNonNull( opposedToRule );
+    Assert.notNull( opposedToRule, "Argument 'opposedToRule' is required" );
+
+    this.opposedToRule = opposedToRule;
   }
 
   @NonNull

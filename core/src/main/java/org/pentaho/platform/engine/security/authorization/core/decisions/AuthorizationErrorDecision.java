@@ -16,8 +16,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationErrorDecision;
 import org.pentaho.platform.engine.security.messages.Messages;
-
-import java.util.Objects;
+import org.springframework.util.Assert;
 
 /**
  * The {@code AuthorizationErrorDecision} class is a basic implementation of the
@@ -38,7 +37,9 @@ public class AuthorizationErrorDecision extends AbstractAuthorizationDecision
 
     super( request, false );
 
-    this.cause = Objects.requireNonNull( cause );
+    Assert.notNull( cause, "Argument 'cause' is required" );
+
+    this.cause = cause;
   }
 
   @NonNull

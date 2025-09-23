@@ -15,6 +15,7 @@ package org.pentaho.platform.engine.security.authorization.core;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.AuthorizationDecisionReportingMode;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationOptions;
+import org.springframework.util.Assert;
 
 import java.util.Objects;
 
@@ -38,10 +39,12 @@ public class AuthorizationOptions implements IAuthorizationOptions {
    * Constructs an {@code AuthorizationOptions} instance with the specified decision reporting mode.
    *
    * @param decisionReportingMode The decision reporting mode.
-   * @throws NullPointerException if the decision reporting mode is {@code null}.
+   * @throws IllegalArgumentException if the decision reporting mode is {@code null}.
    */
   public AuthorizationOptions( @NonNull AuthorizationDecisionReportingMode decisionReportingMode ) {
-    this.decisionReportingMode = Objects.requireNonNull( decisionReportingMode );
+    Assert.notNull( decisionReportingMode, "Argument 'decisionReportingMode' is required" );
+
+    this.decisionReportingMode = decisionReportingMode;
   }
 
   /**
