@@ -28,7 +28,7 @@ import java.util.Optional;
  * Implementations should override the {@link Object#toString()} method to provide a meaningful description of the rule,
  * appropriate for including in exception messages, and for logging and debugging purposes.
  *
- * @param <T> The specific type of authorization request this rule can handle, must extend {@link IAuthorizationRequest}
+ * @param <T> The specific type of authorization request this rule can handle, must extend {@link IAuthorizationRequest}.
  */
 public interface IAuthorizationRule<T extends IAuthorizationRequest> {
   /**

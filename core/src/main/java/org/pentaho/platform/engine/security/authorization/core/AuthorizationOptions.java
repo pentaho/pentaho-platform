@@ -38,7 +38,7 @@ public class AuthorizationOptions implements IAuthorizationOptions {
    * Constructs an {@code AuthorizationOptions} instance with the specified decision reporting mode.
    *
    * @param decisionReportingMode The decision reporting mode.
-   * @throws NullPointerException if the decision reporting mode is null.
+   * @throws NullPointerException if the decision reporting mode is {@code null}.
    */
   public AuthorizationOptions( @NonNull AuthorizationDecisionReportingMode decisionReportingMode ) {
     this.decisionReportingMode = Objects.requireNonNull( decisionReportingMode );
