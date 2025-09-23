@@ -54,13 +54,13 @@ public class MatchedRoleAuthorizationDecisionTest {
     assertEquals( role, deniedDecision.getRole() );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullRequestThrows() {
     //noinspection DataFlowIssue
     new MatchedRoleAuthorizationDecision( null, true, role );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullRoleThrows() {
     //noinspection DataFlowIssue
     new MatchedRoleAuthorizationDecision( request, true, null );

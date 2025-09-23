@@ -16,9 +16,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRole;
 import org.pentaho.platform.engine.security.messages.Messages;
+import org.springframework.util.Assert;
 
 import java.text.MessageFormat;
-import java.util.Objects;
 
 /**
  * The {@code MatchedRoleAuthorizationDecision} class represents an authorization decision that is granted when the user
@@ -36,7 +36,9 @@ public class MatchedRoleAuthorizationDecision extends AbstractAuthorizationDecis
                                            @NonNull IAuthorizationRole role ) {
     super( request, granted );
 
-    this.role = Objects.requireNonNull( role );
+    Assert.notNull( role, "Argument 'role' is required" );
+
+    this.role = role;
   }
 
   @NonNull

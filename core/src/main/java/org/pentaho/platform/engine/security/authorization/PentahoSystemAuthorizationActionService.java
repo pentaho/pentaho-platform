@@ -19,6 +19,7 @@ import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationActionService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.objfac.spring.Const;
+import org.springframework.util.Assert;
 
 import java.util.Objects;
 import java.util.Set;
@@ -42,7 +43,10 @@ public class PentahoSystemAuthorizationActionService implements IAuthorizationAc
 
   public PentahoSystemAuthorizationActionService(
     @NonNull Supplier<Stream<IPentahoObjectReference<IAuthorizationAction>>> authorizationActionsSupplier ) {
-    this.authorizationActionsSupplier = Objects.requireNonNull( authorizationActionsSupplier );
+
+    Assert.notNull( authorizationActionsSupplier, "Argument 'authorizationActionsSupplier' is required" );
+
+    this.authorizationActionsSupplier = authorizationActionsSupplier;
   }
 
   // region Helper methods

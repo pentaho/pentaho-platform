@@ -16,8 +16,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
 import org.pentaho.platform.engine.security.messages.Messages;
-
-import java.util.Objects;
+import org.springframework.util.Assert;
 
 public abstract class AbstractAuthorizationDecision implements IAuthorizationDecision {
 
@@ -29,7 +28,9 @@ public abstract class AbstractAuthorizationDecision implements IAuthorizationDec
   private final boolean granted;
 
   protected AbstractAuthorizationDecision( @NonNull IAuthorizationRequest request, boolean granted ) {
-    this.request = Objects.requireNonNull( request );
+    Assert.notNull( request, "Argument 'request' is required" );
+
+    this.request = request;
     this.granted = granted;
   }
 

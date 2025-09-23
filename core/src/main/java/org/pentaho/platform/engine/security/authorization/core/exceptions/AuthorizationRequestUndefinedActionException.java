@@ -14,8 +14,7 @@ package org.pentaho.platform.engine.security.authorization.core.exceptions;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
-
-import java.util.Objects;
+import org.springframework.util.Assert;
 
 /**
  * The {@code AuthorizationRequestCycleException} exception is used to signal when the authorization process receives
@@ -32,7 +31,7 @@ public class AuthorizationRequestUndefinedActionException extends Exception {
 
   @NonNull
   private static String createMessage( @NonNull IAuthorizationRequest request ) {
-    Objects.requireNonNull( request );
+    Assert.notNull( request, "Argument 'request' is required" );
 
     return String.format( "Authorization request references an undefined action: '%s'.",
       request.getAction() );

@@ -56,7 +56,7 @@ public class AbstractAuthorizationDecisionTest {
     assertFalse( deniedDecision.isGranted() );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullRequestThrows() {
     new TestAuthorizationDecision( null, true );
   }

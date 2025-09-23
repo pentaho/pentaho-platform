@@ -24,10 +24,10 @@ import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthori
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.authorization.core.rules.AllAuthorizationRule;
 import org.pentaho.platform.engine.security.authorization.core.rules.AnyAuthorizationRule;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -99,10 +99,14 @@ public class PentahoAuthorizationRuleLevel implements IAuthorizationRule<IAuthor
     @NonNull
     Supplier<List<IPentahoObjectReference<IAuthorizationRule>>> authorizationRuleReferencesSupplier ) {
 
-    this.ruleLevelType = Objects.requireNonNull( ruleLevelType );
-    this.levelRulePredicate = Objects.requireNonNull( levelRulePredicate );
+    Assert.notNull( ruleLevelType, "Argument 'ruleLevelType' is required" );
+    Assert.notNull( levelRulePredicate, "Argument 'levelRulePredicate' is required" );
+    Assert.notNull( authorizationRuleReferencesSupplier, "Argument 'authorizationRuleReferencesSupplier' is required" );
+
+    this.ruleLevelType = ruleLevelType;
+    this.levelRulePredicate = levelRulePredicate;
     this.postRules = List.copyOf( postRules );
-    this.authorizationRuleReferencesSupplier = Objects.requireNonNull( authorizationRuleReferencesSupplier );
+    this.authorizationRuleReferencesSupplier = authorizationRuleReferencesSupplier;
 
     this.updateDelegateRule();
 

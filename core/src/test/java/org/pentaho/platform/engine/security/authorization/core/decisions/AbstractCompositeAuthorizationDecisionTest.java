@@ -83,7 +83,7 @@ public class AbstractCompositeAuthorizationDecisionTest {
     assertEquals( decisions, deniedComposite.getDecisions() );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullRequestThrows() {
     new TestCompositeAuthorizationDecision( null, true, decisions );
   }

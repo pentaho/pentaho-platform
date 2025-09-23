@@ -73,7 +73,7 @@ public class DerivedAuthorizationDecisionTest {
     assertEquals( deniedDecision, derivedDenied.getDerivedFromDecision() );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullRequestThrows() {
     //noinspection DataFlowIssue
     new DerivedAuthorizationDecision( null, grantedDecision );
