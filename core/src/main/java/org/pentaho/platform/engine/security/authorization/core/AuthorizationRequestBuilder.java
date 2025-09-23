@@ -16,7 +16,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationActionService;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationPrincipal;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRole;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationUser;
 import org.pentaho.platform.api.engine.security.authorization.resources.IAuthorizationResource;
 import org.pentaho.platform.api.engine.security.authorization.resources.IResourceAuthorizationRequest;
@@ -29,46 +31,46 @@ import java.util.function.Supplier;
 
 /**
  * The {@code AuthorizationRequestBuilder} class is a builder for creating authorization requests.
- * It allows specifying the action, user, and resource for the authorization request.
+ * It allows specifying the action, principal (user, role, etc.), and resource for the authorization request.
  * <p>
- * When the user is not specified, the request is built with the current user, obtained from a configured current user
- * supplier.
+ * When the principal is not specified, the request is built with the current principal,
+ * obtained from a configured current principal supplier.
  */
 public class AuthorizationRequestBuilder {
   @NonNull
   private final IAuthorizationActionService authorizationActionService;
 
   @NonNull
-  private final Supplier<IAuthorizationUser> currentUserSupplier;
+  private final Supplier<IAuthorizationPrincipal> currentPrincipalSupplier;
 
   /**
    * Constructs an {@code AuthorizationRequestBuilder} with the specified authorization action service and current user
    * supplier.
    *
    * @param authorizationActionService The service to resolve actions by name.
-   * @param currentUserSupplier        A supplier that provides the current user.
+   * @param currentPrincipalSupplier   A supplier that provides the current principal.
    * @throws IllegalArgumentException If either the <code>authorizationActionService</code> or
-   *                                  <code>currentUserSupplier</code> parameters are <code>null</code>.
+   *                                  <code>currentPrincipalSupplier</code> parameters are <code>null</code>.
    */
   public AuthorizationRequestBuilder(
     @NonNull IAuthorizationActionService authorizationActionService,
-    @NonNull Supplier<IAuthorizationUser> currentUserSupplier
+    @NonNull Supplier<IAuthorizationPrincipal> currentPrincipalSupplier
   ) {
     Assert.notNull( authorizationActionService, "Argument 'authorizationActionService' is required" );
-    Assert.notNull( currentUserSupplier, "Argument 'currentUserSupplier' is required" );
+    Assert.notNull( currentPrincipalSupplier, "Argument 'currentPrincipalSupplier' is required" );
 
     this.authorizationActionService = authorizationActionService;
-    this.currentUserSupplier = currentUserSupplier;
+    this.currentPrincipalSupplier = currentPrincipalSupplier;
   }
 
   /**
-   * Gets the current user, from the configured current user supplier.
+   * Gets the current principal, from the configured current principal supplier.
    *
-   * @return The current user.
+   * @return The current principal.
    */
   @NonNull
-  protected IAuthorizationUser getCurrentUser() {
-    return Objects.requireNonNull( currentUserSupplier.get() );
+  protected IAuthorizationPrincipal getCurrentPrincipal() {
+    return Objects.requireNonNull( currentPrincipalSupplier.get() );
   }
 
   /**
@@ -122,48 +124,78 @@ public class AuthorizationRequestBuilder {
 
   /**
    * The {@code WithActionBuilder} class is a builder step for creating authorization requests with a specific action.
-   * It allows specifying the user and resource for the authorization request.
+   * It allows specifying the principal and resource for the authorization request.
    */
   public class WithActionBuilder {
     @NonNull
     private final IAuthorizationAction action;
 
     @Nullable
-    private IAuthorizationUser user;
+    private IAuthorizationPrincipal principal;
 
     protected WithActionBuilder( @NonNull IAuthorizationAction action ) {
-      this.action = Objects.requireNonNull( action );
+      Assert.notNull( action, "Argument 'action' is required" );
+
+      this.action = action;
     }
 
     /**
-     * Configures the authorization request with a specific user, or the current user if none is specified.
+     * Configures the authorization request with a specific user.
+     *
      * @param user The user for whom the authorization is being evaluated; <code>null</code> to use the current user.
      * @return A builder for the authorization request.
      */
     @NonNull
     public WithActionBuilder user( @Nullable IAuthorizationUser user ) {
-      this.user = user;
+      this.principal = user;
       return this;
     }
 
     /**
-     * Gets the user for the authorization request.
-     * If no user is defined, it returns the current user.
-     * @return The user for the authorization request.
+     * Configures the authorization request with a specific role.
+     *
+     * @param role The role for which the authorization is being evaluated.
+     * @return A builder for the authorization request.
      */
     @NonNull
-    protected IAuthorizationUser getUser() {
-      return user != null ? user : getCurrentUser();
+    public WithActionBuilder role( @Nullable IAuthorizationRole role ) {
+      this.principal = role;
+      return this;
+    }
+
+    /**
+     * Configures the authorization request with a specific principal.
+     *
+     * @param principal The principal (user, role, etc.) for whom the authorization is being evaluated;
+     *                  <code>null</code> to use the current principal.
+     * @return A builder for the authorization request.
+     */
+    @NonNull
+    public WithActionBuilder principal( @Nullable IAuthorizationPrincipal principal ) {
+      this.principal = principal;
+      return this;
+    }
+
+    /**
+     * Gets the principal for the authorization request.
+     * If no principal is defined, it returns the current principal.
+     *
+     * @return The principal for the authorization request.
+     */
+    @NonNull
+    protected IAuthorizationPrincipal getPrincipal() {
+      return principal != null ? principal : getCurrentPrincipal();
     }
 
     /**
      * Configures the authorization request with an {@link IAuthorizationResource arbitrary resource}.
+     *
      * @param resource The resource to be authorized.
      * @return A builder for the resource authorization request.
      */
     @NonNull
     public WithResourceBuilder resource( @NonNull IAuthorizationResource resource ) {
-      return new WithResourceBuilder( action, getUser(), resource );
+      return new WithResourceBuilder( action, getPrincipal(), resource );
     }
 
     /**
@@ -180,13 +212,13 @@ public class AuthorizationRequestBuilder {
     }
 
     /**
-     * Builds an authorization request with the configured action and user.
+     * Builds an authorization request with the configured action and principal.
      *
      * @return The authorization request.
      */
     @NonNull
     public IAuthorizationRequest build() {
-      return new AuthorizationRequest( getUser(), action );
+      return new AuthorizationRequest( getPrincipal(), action );
     }
   }
 
@@ -198,31 +230,34 @@ public class AuthorizationRequestBuilder {
     private final IAuthorizationAction action;
 
     @NonNull
-    private final IAuthorizationUser user;
+    private final IAuthorizationPrincipal principal;
 
     @NonNull
     private final IAuthorizationResource resource;
 
     protected WithResourceBuilder( @NonNull IAuthorizationAction action,
-                                   @NonNull IAuthorizationUser user,
+                                   @NonNull IAuthorizationPrincipal principal,
                                    @NonNull IAuthorizationResource resource ) {
-      this.user = user;
+      this.principal = principal;
       this.action = action;
       this.resource = resource;
     }
 
     /**
-     * Builds a resource authorization request with the previously configured user, action, and resource.
+     * Builds a resource authorization request with the previously configured principal, action, and resource.
      *
      * @return The resource authorization request.
      */
     @NonNull
     public IResourceAuthorizationRequest build() {
-      return new ResourceAuthorizationRequest( user, action, resource );
+      return new ResourceAuthorizationRequest( principal, action, resource );
     }
   }
   // endregion
 
+  /**
+   * Placeholder authorization action for actions that are not registered in the action service.
+   */
   private static class UndefinedAuthorizationAction extends AbstractAuthorizationAction {
     @NonNull
     private final String actionName;

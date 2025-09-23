@@ -45,6 +45,23 @@ public class ActionRoleBindingAuthorizationRule extends AbstractAuthorizationRul
     return IAuthorizationRequest.class;
   }
 
+  /**
+   * Authorizes the given request by checking if the principal has the necessary role-action bindings
+   * for the requested action.
+   * <p>
+   * If the principal is a user, this rule checks if any of the user's roles are bound to the action being requested.
+   * If at least one role is bound to the action, the request is granted; otherwise, it is denied.
+   * <p>
+   * If the principal is a role, this rule checks if that specific role is bound to the action being requested.
+   * If it is, the request is granted; otherwise, it is denied.
+   * <p>
+   * If the request is a resource-specific authorization request, this rule abstains from making a decision.
+   *
+   * @param request The authorization request to evaluate.
+   * @param context The authorization context providing additional information for decision-making.
+   * @return An {@code Optional} containing the authorization decision, or empty if the rule abstains.
+   * @throws IllegalArgumentException if the request or context is {@code null}.
+   */
   @NonNull
   @Override
   public Optional<IAuthorizationDecision> authorize( @NonNull IAuthorizationRequest request,
@@ -61,7 +78,7 @@ public class ActionRoleBindingAuthorizationRule extends AbstractAuthorizationRul
 
     Set<IAuthorizationRole> rolesWithBinding = new LinkedHashSet<>();
 
-    for ( IAuthorizationRole role : request.getUser().getRoles() ) {
+    for ( IAuthorizationRole role : request.getAllRoles() ) {
       if ( hasRoleActionBinding( role, actionName ) ) {
         rolesWithBinding.add( role );
 

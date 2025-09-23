@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationActionService;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationPrincipal;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.resources.IResourceAuthorizationRequest;
 import org.pentaho.platform.engine.security.authorization.core.resources.GenericAuthorizationResource;
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.when;
 
 public class AuthorizationRequestBuilderTest {
   private IAuthorizationActionService actionServiceMock;
-  private AuthorizationUser currentUser;
+  private IAuthorizationPrincipal currentPrincipal;
   private IAuthorizationAction actionMock;
   private AuthorizationRequestBuilder builder;
 
@@ -40,10 +41,10 @@ public class AuthorizationRequestBuilderTest {
     actionMock = mock( IAuthorizationAction.class );
     actionServiceMock = mock( IAuthorizationActionService.class );
 
-    currentUser = new AuthorizationUser( "current-user", Set.of(
+    currentPrincipal = new AuthorizationUser( "current-user", Set.of(
       new AuthorizationRole( "Administrator" ) ) );
 
-    builder = new AuthorizationRequestBuilder( actionServiceMock, () -> currentUser );
+    builder = new AuthorizationRequestBuilder( actionServiceMock, () -> currentPrincipal );
   }
 
   private void mockActionName( String name ) {
@@ -84,12 +85,26 @@ public class AuthorizationRequestBuilderTest {
       .build();
 
     assertNotNull( req );
-    assertEquals( "another", req.getUser().getName() );
+    assertEquals( "another", req.getPrincipal().getName() );
     assertEquals( "write", req.getAction().getName() );
   }
 
   @Test
-  public void testActionWithDefaultUser() {
+  public void testActionWithExplicitRole() {
+    mockActionName( "write" );
+
+    IAuthorizationRequest req = builder
+      .action( "write" )
+      .role( new AuthorizationRole( "editor" ) )
+      .build();
+
+    assertNotNull( req );
+    assertEquals( "editor", req.getPrincipal().getName() );
+    assertEquals( "write", req.getAction().getName() );
+  }
+
+  @Test
+  public void testActionWithCurrentPrincipal() {
     mockActionName( "delete" );
 
     IAuthorizationRequest req = builder
@@ -97,7 +112,7 @@ public class AuthorizationRequestBuilderTest {
       .build();
 
     assertNotNull( req );
-    assertEquals( "current-user", req.getUser().getName() );
+    assertEquals( "current-user", req.getPrincipal().getName() );
     assertEquals( "delete", req.getAction().getName() );
   }
 
@@ -112,7 +127,7 @@ public class AuthorizationRequestBuilderTest {
 
     assertNotNull( req );
     assertEquals( "update", req.getAction().getName() );
-    assertEquals( "current-user", req.getUser().getName() );
+    assertEquals( "current-user", req.getPrincipal().getName() );
     assertEquals( "type", req.getResource().getType() );
     assertEquals( "id", req.getResource().getId() );
   }
@@ -128,8 +143,36 @@ public class AuthorizationRequestBuilderTest {
 
     assertNotNull( req );
     assertEquals( "view", req.getAction().getName() );
-    assertEquals( "current-user", req.getUser().getName() );
+    assertEquals( "current-user", req.getPrincipal().getName() );
     assertEquals( "type", req.getResource().getType() );
     assertEquals( "id", req.getResource().getId() );
+  }
+
+  @Test
+  public void testActionWithUserPrincipal() {
+    mockActionName( "admin" );
+
+    IAuthorizationRequest req = builder
+      .action( "admin" )
+      .principal( new AuthorizationUser( "another", Collections.singleton( new AuthorizationRole( "Administrator" ) ) )  )
+      .build();
+
+    assertNotNull( req );
+    assertEquals( "another", req.getPrincipal().getName() );
+    assertEquals( "admin", req.getAction().getName() );
+  }
+
+  @Test
+  public void testActionWithRolePrincipal() {
+    mockActionName( "admin" );
+
+    IAuthorizationRequest req = builder
+      .action( "admin" )
+      .principal( new AuthorizationRole( "Administrator" ) )
+      .build();
+
+    assertNotNull( req );
+    assertEquals( "Administrator", req.getPrincipal().getName() );
+    assertEquals( "admin", req.getAction().getName() );
   }
 }

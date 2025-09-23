@@ -17,9 +17,9 @@ import org.junit.Test;
 import org.pentaho.platform.api.engine.security.authorization.AuthorizationDecisionReportingMode;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationContext;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationOptions;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationPrincipal;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRole;
-import org.pentaho.platform.api.engine.security.authorization.IAuthorizationUser;
 import org.pentaho.platform.engine.security.authorization.core.AuthorizationRequest;
 import org.pentaho.platform.engine.security.authorization.core.AuthorizationRole;
 import org.pentaho.platform.engine.security.authorization.core.resources.GenericAuthorizationResource;
@@ -46,7 +46,7 @@ public class ActionRoleBindingAuthorizationRuleTest {
   private IRoleAuthorizationPolicyRoleBindingDao mockRoleBindingDao;
   private IAuthorizationContext mockContext;
   private IAuthorizationOptions mockOptions;
-  private IAuthorizationUser mockUser;
+  private IAuthorizationPrincipal mockPrincipal;
   private IAuthorizationRequest mockRequest;
 
   private IAuthorizationRole roleUser;
@@ -71,7 +71,7 @@ public class ActionRoleBindingAuthorizationRuleTest {
     mockRoleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
     mockContext = mock( IAuthorizationContext.class );
     mockOptions = mock( IAuthorizationOptions.class );
-    mockUser = mock( IAuthorizationUser.class );
+    mockPrincipal = mock( IAuthorizationPrincipal.class );
 
     // Create test roles
     roleUser = new AuthorizationRole( "ROLE_USER" );
@@ -84,7 +84,10 @@ public class ActionRoleBindingAuthorizationRuleTest {
 
     // Create test request
     var action = createTestAction( "read" );
-    mockRequest = new AuthorizationRequest( mockUser, action );
+
+    mockRequest = mock( AuthorizationRequest.class );
+    when( mockRequest.getAction() ).thenReturn( action );
+    when( mockRequest.getPrincipal() ).thenReturn( mockPrincipal );
 
     rule = new ActionRoleBindingAuthorizationRule( mockRoleBindingDao );
   }
@@ -109,7 +112,7 @@ public class ActionRoleBindingAuthorizationRuleTest {
     // Create a resource authorization request
     var action = createTestAction( "read" );
     var resource = new GenericAuthorizationResource( "file", "report123" );
-    var resourceRequest = new ResourceAuthorizationRequest( mockUser, action, resource );
+    var resourceRequest = new ResourceAuthorizationRequest( mockPrincipal, action, resource );
 
     var result = rule.authorize( resourceRequest, mockContext );
 
@@ -118,7 +121,7 @@ public class ActionRoleBindingAuthorizationRuleTest {
 
   @Test
   public void testAuthorizeWithNoRolesReturnsEmptyBoundRoles() {
-    when( mockUser.getRoles() ).thenReturn( orderedSetOf() );
+    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf() );
 
     var result = rule.authorize( mockRequest, mockContext );
 
@@ -132,7 +135,7 @@ public class ActionRoleBindingAuthorizationRuleTest {
 
   @Test
   public void testAuthorizeWithSingleRoleHavingBindingGrantsAccess() {
-    when( mockUser.getRoles() ).thenReturn( orderedSetOf( roleUser ) );
+    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser ) );
     when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_USER" ) ) )
       .thenReturn( Arrays.asList( "read", "write" ) );
 
@@ -150,7 +153,7 @@ public class ActionRoleBindingAuthorizationRuleTest {
 
   @Test
   public void testAuthorizeWithSingleRoleWithoutBindingDeniesAccess() {
-    when( mockUser.getRoles() ).thenReturn( orderedSetOf( roleUser ) );
+    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser ) );
 
     // "read" not included
     when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_USER" ) ) )
@@ -168,7 +171,7 @@ public class ActionRoleBindingAuthorizationRuleTest {
 
   @Test
   public void testAuthorizeWithMultipleRolesFullModeReturnsAllBoundRoles() {
-    when( mockUser.getRoles() ).thenReturn( orderedSetOf( roleUser, roleAdmin, roleManager ) );
+    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser, roleAdmin, roleManager ) );
     when( mockOptions.getDecisionReportingMode() ).thenReturn( AuthorizationDecisionReportingMode.FULL );
 
     // roleUser has binding, roleAdmin doesn't, roleManager has binding
@@ -198,7 +201,7 @@ public class ActionRoleBindingAuthorizationRuleTest {
 
   @Test
   public void testAuthorizeWithMultipleRolesSettledModeStopsAtFirstMatch() {
-    when( mockUser.getRoles() ).thenReturn( orderedSetOf( roleUser, roleAdmin, roleManager ) );
+    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser, roleAdmin, roleManager ) );
     when( mockOptions.getDecisionReportingMode() ).thenReturn( AuthorizationDecisionReportingMode.SETTLED );
 
     // roleUser has binding - should stop here in SETTLED mode
@@ -222,7 +225,7 @@ public class ActionRoleBindingAuthorizationRuleTest {
 
   @Test
   public void testAuthorizeWithMultipleRolesSettledModeContinuesUntilMatch() {
-    when( mockUser.getRoles() ).thenReturn( orderedSetOf( roleUser, roleAdmin, roleManager ) );
+    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser, roleAdmin, roleManager ) );
     when( mockOptions.getDecisionReportingMode() ).thenReturn( AuthorizationDecisionReportingMode.SETTLED );
 
     // roleUser no binding, roleAdmin has binding - should stop at roleAdmin
@@ -248,7 +251,7 @@ public class ActionRoleBindingAuthorizationRuleTest {
 
   @Test
   public void testAuthorizeWithAllRolesLackingBindingDeniesAccess() {
-    when( mockUser.getRoles() ).thenReturn( orderedSetOf( roleUser, roleAdmin ) );
+    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser, roleAdmin ) );
 
     // Neither role has binding for "read"
     when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_USER" ) ) )
