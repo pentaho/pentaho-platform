@@ -313,6 +313,14 @@ not directly from the PentahoObjectFactory. -->
     </pen:publish>
   </bean>
 
+  <!-- Legacy IAuthorizationPolicy implementation that delegates to IAuthorizationService -->
+  <bean id="authorizationPolicy"
+        class="org.pentaho.platform.engine.security.authorization.AuthorizationServiceAuthorizationPolicy">
+    <constructor-arg ref="authorizationActionService"/>
+    <constructor-arg ref="authorizationService"/>
+    <constructor-arg ref="currentAuthorizationUserSupplier"/>
+  </bean>
+
   <bean id="currentAuthorizationUserSupplier"
         class="org.pentaho.platform.engine.security.authorization.spring.SpringSecurityContextAuthorizationUserSupplier">
   </bean>
