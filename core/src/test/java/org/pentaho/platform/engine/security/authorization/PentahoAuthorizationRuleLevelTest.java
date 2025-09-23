@@ -101,7 +101,7 @@ public class PentahoAuthorizationRuleLevelTest {
     );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullRuleLevelTypeThrows() {
     //noinspection DataFlowIssue
     new PentahoAuthorizationRuleLevel(

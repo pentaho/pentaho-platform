@@ -22,11 +22,11 @@ import org.pentaho.platform.api.engine.security.authorization.decisions.IOpposed
 import org.pentaho.platform.engine.security.authorization.core.decisions.AllAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.decisions.AnyAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.decisions.OpposedAuthorizationDecision;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -339,7 +339,7 @@ public class AuthorizationDecisionDNFNormalizer {
   // NOTE: Consider an option for strict DNF output, enforcing OR(And(...)) structure.
   @NonNull
   public IAuthorizationDecision normalize( @NonNull IAuthorizationDecision decision ) {
-    Objects.requireNonNull( decision );
+    Assert.notNull( decision, "Argument 'decision' is required" );
 
     decision = new MoveNotInwardsTransformer().visit( decision );
     decision = new MoveAndInwardsTransformer().visit( decision );

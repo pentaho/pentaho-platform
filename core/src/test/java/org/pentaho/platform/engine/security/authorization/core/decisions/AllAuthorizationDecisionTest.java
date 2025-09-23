@@ -88,7 +88,7 @@ public class AllAuthorizationDecisionTest {
     assertTrue( allDecision.getDecisions().contains( deniedDecision ) );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullRequestThrows() {
     //noinspection DataFlowIssue
     new AllAuthorizationDecision( null, Set.of( grantedDecision ) );

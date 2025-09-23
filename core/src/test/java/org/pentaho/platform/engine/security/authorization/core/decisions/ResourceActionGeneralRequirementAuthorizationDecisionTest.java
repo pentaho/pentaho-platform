@@ -76,7 +76,7 @@ public class ResourceActionGeneralRequirementAuthorizationDecisionTest {
     assertSame( deniedDecision, deniedRequirementDecision.getDerivedFromDecision() );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullRequestThrows() {
     //noinspection DataFlowIssue
     new ResourceActionGeneralRequirementAuthorizationDecision( null, grantedDecision );

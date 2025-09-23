@@ -47,13 +47,13 @@ public class AuthorizationErrorDecisionTest {
     assertEquals( cause, decision.getCause() );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullRequestThrows() {
     //noinspection DataFlowIssue
     new AuthorizationErrorDecision( null, cause );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullCauseThrows() {
     //noinspection DataFlowIssue
     new AuthorizationErrorDecision( request, null );
