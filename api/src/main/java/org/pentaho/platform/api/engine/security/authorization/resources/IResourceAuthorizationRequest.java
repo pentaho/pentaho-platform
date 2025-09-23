@@ -39,7 +39,7 @@ public interface IResourceAuthorizationRequest extends IAuthorizationRequest {
    *
    * @param resource The resource to be evaluated.
    * @return The new instance.
-   * @throws IllegalArgumentException if the resource is null.
+   * @throws IllegalArgumentException if the resource is {@code null}.
    */
   @NonNull
   IResourceAuthorizationRequest withResource( @NonNull IAuthorizationResource resource );
