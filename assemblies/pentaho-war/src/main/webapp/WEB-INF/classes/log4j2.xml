@@ -125,7 +125,6 @@
         <Logger name="org.pentaho.di.osgi" level="ERROR"/>
         <Logger name="org.pentaho.di.monitor" level="ERROR"/>
         <Logger name="org.pentaho.platform.engine.core.system.status" level="INFO"/>
-        <Logger name="org.pentaho.hadoop.shim.DriverManager" level="INFO"/>
         <Logger name="org.pentaho.reporting.engine.classic.core.modules.output.fast.validator.ReportStructureValidator" level="INFO"/>
 
         <!-- =========================== -->
