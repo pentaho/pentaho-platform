@@ -130,6 +130,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       DomainAlreadyExistsException, DomainStorageException, IOException {
     IPlatformImporter platformImporter = PentahoSystem.get( IPlatformImporter.class );
     isPerformingRestore = platformImporter.getRepositoryImportLogger().isPerformingRestore();
+    partialImport = false;
     if ( isPerformingRestore ) {
       getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_START_IMPORT_PROCESS" ) );
     }
