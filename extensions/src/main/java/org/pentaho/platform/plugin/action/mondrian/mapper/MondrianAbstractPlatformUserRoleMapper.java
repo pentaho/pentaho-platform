@@ -7,22 +7,15 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
 
-package org.pentaho.platform.plugin.action.mondrian.mapper;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+package org.pentaho.platform.plugin.action.mondrian.mapper;
 
 import mondrian.olap.Util;
 import mondrian.olap.Util.PropertyList;
 import mondrian.rolap.RolapConnectionProperties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.olap4j.OlapConnection;
@@ -41,6 +34,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author mbatchelor
@@ -61,6 +61,7 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
    * @param platformRoles
    *          Sorted list of the roles defined in the catalog
    * @return
+   *          The list of roles.
    */
   protected abstract String[] mapRoles( String[] mondrianRoles, String[] platformRoles )
     throws PentahoAccessControlException;
@@ -75,13 +76,13 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
    *          The name of the catalog
    * @return Array of role names from the schema file
    */
-  protected String[] getMondrianRolesFromCatalog( IPentahoSession userSession, String context ) {
+  protected String[] getMondrianRolesFromCatalog( IPentahoSession userSession, String catalogName ) {
     String[] rtn = null;
     // Get the catalog service
     IMondrianCatalogService catalogService = PentahoSystem.get( IMondrianCatalogService.class );
     if ( catalogService != null ) {
       // Get the catalog by name
-      MondrianCatalog catalog = catalogService.getCatalog( context, userSession );
+      MondrianCatalog catalog = catalogService.getCatalog( catalogName, userSession );
       if ( catalog != null ) {
         // The roles are in the schema object
         MondrianSchema schema = catalog.getSchema();
@@ -105,7 +106,7 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
       String serverName = null;
       for ( String name : helper.getOlap4jServers() ) {
         PropertyList props = Util.parseConnectString( helper.getOlap4jServerInfo( name ).URL );
-        if ( props.get( RolapConnectionProperties.Catalog.name(), "" ).equals( context ) ) {
+        if ( props.get( RolapConnectionProperties.Catalog.name(), "" ).equals( catalogName ) ) {
           serverName = name;
         }
       }
@@ -119,7 +120,7 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
           Arrays.sort( roleArray );
           return roleArray;
         } catch ( OlapException e ) {
-          log.error( "Failed to get a list of roles from olap connection " + context, e );
+          log.error( "Failed to get a list of roles from olap connection " + catalogName, e );
           throw new RuntimeException( e );
         } finally {
           if ( conn != null ) {
@@ -127,7 +128,7 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
               conn.close();
             } catch ( SQLException e ) {
               // OK to squash this one.
-              log.error( "Failed to get a list of roles from olap connection " + context, e );
+              log.error( "Failed to get a list of roles from olap connection " + catalogName, e );
             }
           }
         }
@@ -152,13 +153,13 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
     if ( gAuths == null ) {
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
       gAuths = authentication.getAuthorities();
-      Assert.state( authentication != null );
+      Assert.state( authentication != null, "Authentication object must not be null" );
     }
 
     List<String> rtn = null;
-    if ( ( gAuths != null ) && ( gAuths.size() > 0 ) ) {
+    if ( ( gAuths != null ) && ( !gAuths.isEmpty() ) ) {
       // Copy role names out of the Authentication
-      rtn = new ArrayList<String>();
+      rtn = new ArrayList<>();
       for ( GrantedAuthority auth : gAuths ) {
         rtn.add( auth.getAuthority() );
       }
@@ -193,7 +194,7 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
    * @see org.pentaho.platform.api.engine.IConnectionUserRoleMapper#mapConnectionUser(org.pentaho.platform.api.engine.
    * IPentahoSession, java.lang.String)
    */
-  public Object mapConnectionUser( IPentahoSession userSession, String context ) throws PentahoAccessControlException {
+  public Object mapConnectionUser( IPentahoSession userSession, String context ) {
     throw new UnsupportedOperationException();
   }
 
