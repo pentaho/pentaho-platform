@@ -65,8 +65,8 @@ public class DerivedActionAuthorizationRuleTest {
     context = mock( IAuthorizationContext.class );
   }
 
-  // region NPE argument tests
-  @Test( expected = NullPointerException.class )
+  // region null argument tests
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullBaseActionThrows() {
     //noinspection DataFlowIssue
     new DerivedActionAuthorizationRule( null, derivedAction );

@@ -33,8 +33,9 @@ public class AuthorizationOptionsTest {
     assertEquals( AuthorizationDecisionReportingMode.FULL, options.getDecisionReportingMode() );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullDecisionReportingModeThrows() {
+    //noinspection DataFlowIssue
     new AuthorizationOptions( null );
   }
 

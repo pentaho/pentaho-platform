@@ -53,7 +53,7 @@ public class SupportedActionResourceTypeAuthorizationDecisionTest {
     assertFalse( deniedDecision.isGranted() );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullRequestThrows() {
     //noinspection DataFlowIssue
     new SupportedActionResourceTypeAuthorizationDecision( null, true );

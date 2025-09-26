@@ -21,19 +21,25 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationUser
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.AuthorizationRole;
 import org.pentaho.platform.engine.security.authorization.core.decisions.MatchedRoleAuthorizationDecision;
+import org.springframework.util.Assert;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /**
  * The {@code MatchedRoleAuthorizationRule} class represents an authorization rule that matches the
  * {@link IAuthorizationRequest authorization request} against a specific role.
  * <p>
- * More specifically, this rule tests whether the request's {@link IAuthorizationRequest#getUser() user} has a specific
- * role in its {@link IAuthorizationUser#getRoles() roles} collection.
+ * More specifically, this rule tests whether the request's {@link IAuthorizationRequest#getPrincipal() principal}
+ * matches the specified role in one of two ways:
+ * <ul>
+ *   <li>If the principal is a user ({@link IAuthorizationUser}), it checks if the role is contained in the user's
+ *       {@link IAuthorizationUser#getRoles() roles} collection</li>
+ *   <li>If the principal is itself a role ({@link IAuthorizationRole}), it checks if the principal role equals
+ *       the target role</li>
+ * </ul>
  * <p>
- * The rule grants the authorization if the user has the role, and denies it, otherwise. In any case, the decision is an
- * instance of {@link MatchedRoleAuthorizationDecision}.
+ * The rule grants authorization if either condition is met, and denies it otherwise.
+ * In any case, the decision is an instance of {@link MatchedRoleAuthorizationDecision}.
  * <p>
  * If multiple roles are needed, an "Any" composite rule can be created using several instances of this rule, one per
  * role. This approach has the advantage of automatically taking the authorization's
@@ -49,7 +55,9 @@ public class MatchedRoleAuthorizationRule extends AbstractAuthorizationRule<IAut
   }
 
   public MatchedRoleAuthorizationRule( @NonNull IAuthorizationRole role ) {
-    this.role = Objects.requireNonNull( role );
+    Assert.notNull( role, "Argument 'role' is required" );
+
+    this.role = role;
   }
 
   @NonNull
@@ -58,11 +66,21 @@ public class MatchedRoleAuthorizationRule extends AbstractAuthorizationRule<IAut
     return IAuthorizationRequest.class;
   }
 
+  /**
+   * Authorizes the given request by checking if the principal has the specified role, or if the principal is
+   * itself the specified role.
+   *
+   * @param request The authorization request to evaluate.
+   * @param context The authorization context providing additional options.
+   * @return An {@link Optional} containing a {@link MatchedRoleAuthorizationDecision} indicating whether the
+   *         authorization was granted or denied based on the role match.
+   */
   @NonNull
   @Override
   public Optional<IAuthorizationDecision> authorize( @NonNull IAuthorizationRequest request,
                                                      @NonNull IAuthorizationContext context ) {
-    boolean hasRole = request.getUser().getRoles().contains( role );
+    boolean hasRole = request.getAllRoles().contains( role );
+
     return Optional.of( new MatchedRoleAuthorizationDecision( request, hasRole, role ) );
   }
 

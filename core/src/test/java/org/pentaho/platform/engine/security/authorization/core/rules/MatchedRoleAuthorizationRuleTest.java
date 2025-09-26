@@ -38,13 +38,13 @@ public class MatchedRoleAuthorizationRuleTest {
 
   @Before
   public void setUp() {
-    var userWithRole = createTestUser( "test-user", "Administrator" );
-    var userWithoutRole = createTestUser( "other-user", "User" );
+    var principalWithRole = createTestUser( "test-user", "Administrator" );
+    var principalWithoutRole = createTestUser( "other-user", "User" );
 
     var action = createTestAction( "read" );
 
-    requestWithRole = new AuthorizationRequest( userWithRole, action );
-    requestWithoutRole = new AuthorizationRequest( userWithoutRole, action );
+    requestWithRole = new AuthorizationRequest( principalWithRole, action );
+    requestWithoutRole = new AuthorizationRequest( principalWithoutRole, action );
     context = mock( IAuthorizationContext.class );
 
     ruleFromRole = new MatchedRoleAuthorizationRule( new AuthorizationRole( "Administrator" ) );
@@ -57,7 +57,7 @@ public class MatchedRoleAuthorizationRuleTest {
     new MatchedRoleAuthorizationRule( (String) null );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullRoleThrows() {
     //noinspection DataFlowIssue
     new MatchedRoleAuthorizationRule( (IAuthorizationRole) null );

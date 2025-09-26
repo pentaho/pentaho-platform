@@ -14,17 +14,18 @@ package org.pentaho.platform.engine.security.authorization.core.resources;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationPrincipal;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.resources.IAuthorizationResource;
-import org.pentaho.platform.api.engine.security.authorization.IAuthorizationUser;
 import org.pentaho.platform.api.engine.security.authorization.resources.IResourceAuthorizationRequest;
 import org.pentaho.platform.engine.security.authorization.core.AuthorizationRequest;
+import org.springframework.util.Assert;
 
 import java.util.Objects;
 
 /**
- * The {@code ResourceAuthorizationRequest} class is a basic implementation of the {@link IResourceAuthorizationRequest}
- * interface.
+ * The {@code ResourceAuthorizationRequest} class represents an authorization request for a specific resource.
+ * It extends the basic authorization request to include resource-specific authorization context.
  */
 public class ResourceAuthorizationRequest extends AuthorizationRequest
   implements IResourceAuthorizationRequest {
@@ -33,20 +34,28 @@ public class ResourceAuthorizationRequest extends AuthorizationRequest
   private final IAuthorizationResource resource;
 
   /**
-   * Constructs an {@code ResourceAuthorizationRequest} with the specified user and action name.
+   * Constructs a new resource authorization request.
    *
-   * @param user     The user for whom the authorization is being evaluated.
-   * @param action   The action to be evaluated.
-   * @param resource The resource for which the authorization is being evaluated.
+   * @param principal The principal (user, role, etc.) requesting authorization.
+   * @param action    The action to be authorized.
+   * @param resource  The resource for which authorization is requested.
+   * @throws IllegalArgumentException if any parameter is {@code null}.
    */
-  public ResourceAuthorizationRequest( @NonNull IAuthorizationUser user,
+  public ResourceAuthorizationRequest( @NonNull IAuthorizationPrincipal principal,
                                        @NonNull IAuthorizationAction action,
                                        @NonNull IAuthorizationResource resource ) {
-    super( user, action );
+    super( principal, action );
 
-    this.resource = Objects.requireNonNull( resource );
+    Assert.notNull( resource, "Argument 'resource' is required" );
+
+    this.resource = resource;
   }
 
+  /**
+   * Gets the resource for which authorization is being requested.
+   *
+   * @return The authorization resource.
+   */
   @NonNull
   @Override
   public IAuthorizationResource getResource() {
@@ -58,19 +67,19 @@ public class ResourceAuthorizationRequest extends AuthorizationRequest
   @NonNull
   @Override
   public IResourceAuthorizationRequest withAction( @NonNull IAuthorizationAction action ) {
-    return new ResourceAuthorizationRequest( getUser(), action, getResource() );
+    return new ResourceAuthorizationRequest( getPrincipal(), action, getResource() );
   }
 
   @NonNull
   @Override
   public IResourceAuthorizationRequest withResource( @NonNull IAuthorizationResource resource ) {
-    return new ResourceAuthorizationRequest( getUser(), getAction(), resource );
+    return new ResourceAuthorizationRequest( getPrincipal(), getAction(), resource );
   }
 
   @NonNull
   @Override
   public IAuthorizationRequest asGeneral() {
-    return new AuthorizationRequest( getUser(), getAction() );
+    return new AuthorizationRequest( getPrincipal(), getAction() );
   }
 
   @Override
@@ -91,9 +100,9 @@ public class ResourceAuthorizationRequest extends AuthorizationRequest
   @Override
   public String toString() {
     return String.format(
-      "%s [user: `%s`, action: '%s', resource: %s]",
+      "%s [principal: `%s`, action: '%s', resource: %s]",
       getClass().getSimpleName(),
-      getUser().getName(),
+      getPrincipal().getName(),
       getAction(),
       getResource() );
   }

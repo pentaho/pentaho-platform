@@ -56,7 +56,9 @@ public class AuthorizationService implements IAuthorizationService {
     private final IAuthorizationOptions options;
 
     public AuthorizationContext( @NonNull IAuthorizationOptions options ) {
-      this.options = Objects.requireNonNull( options );
+      Assert.notNull( options, "Argument 'options' is required" );
+
+      this.options = options;
     }
 
     @NonNull
@@ -74,10 +76,9 @@ public class AuthorizationService implements IAuthorizationService {
     @NonNull
     @Override
     public IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request ) {
+      Assert.notNull( request, "Argument 'request' is required" );
 
       // Handles logging, error handling and resolving the request's action.
-
-      Objects.requireNonNull( request );
 
       if ( logger.isDebugEnabled() ) {
         logger.debug( String.format(

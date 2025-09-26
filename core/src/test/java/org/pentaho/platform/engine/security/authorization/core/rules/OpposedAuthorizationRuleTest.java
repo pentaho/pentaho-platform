@@ -64,7 +64,7 @@ public class OpposedAuthorizationRuleTest {
     assertEquals( IResourceAuthorizationRequest.class, opposedRule.getRequestType() );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullRuleThrows() {
     //noinspection DataFlowIssue
     new OpposedAuthorizationRule<>( null );

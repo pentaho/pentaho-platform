@@ -15,12 +15,12 @@ package org.pentaho.platform.engine.security.authorization.core.exceptions;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationContext;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * The {@code AuthorizationRequestCycleException} exception is used to signal when a cycle is detected during the
@@ -40,8 +40,8 @@ public class AuthorizationRequestCycleException extends Exception {
   @NonNull
   private static String createMessage( @NonNull Collection<IAuthorizationRequest> pendingRequests,
                                        @NonNull IAuthorizationRequest cycleRequest ) {
-    Objects.requireNonNull( pendingRequests );
-    Objects.requireNonNull( cycleRequest );
+    Assert.notNull( pendingRequests, "Argument 'pendingRequests' is required" );
+    Assert.notNull( cycleRequest, "Argument 'cycleRequest' is required" );
 
     StringBuilder builder = new StringBuilder();
     builder

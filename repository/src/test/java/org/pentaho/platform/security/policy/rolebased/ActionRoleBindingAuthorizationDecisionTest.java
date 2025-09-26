@@ -98,7 +98,7 @@ public class ActionRoleBindingAuthorizationDecisionTest {
     assertTrue( decision.getBoundRoles().contains( roleManager ) );
   }
 
-  @Test( expected = NullPointerException.class )
+  @Test( expected = IllegalArgumentException.class )
   public void testConstructorWithNullRequestThrows() {
     var roles = orderedSetOf( roleUser );
     //noinspection DataFlowIssue
