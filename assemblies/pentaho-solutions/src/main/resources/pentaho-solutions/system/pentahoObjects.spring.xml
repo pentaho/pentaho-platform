@@ -483,6 +483,13 @@ not directly from the PentahoObjectFactory. -->
     <constructor-arg>
       <pen:list class="org.pentaho.platform.api.genericfile.IGenericFileProvider"/>
     </constructor-arg>
+    <constructor-arg>
+      <bean class="org.pentaho.platform.genericfile.decorators.CompositeGenericFileDecorator" scope="session">
+        <constructor-arg>
+          <pen:list class="org.pentaho.platform.api.genericfile.IGenericFileDecorator"/>
+        </constructor-arg>
+      </bean>
+    </constructor-arg>
     <pen:publish as-type="INTERFACES"/>
   </bean>
 
