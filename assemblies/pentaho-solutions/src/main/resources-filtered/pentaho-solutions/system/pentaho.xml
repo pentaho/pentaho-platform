@@ -35,7 +35,7 @@
   <!--
     This is the URL to the user guide
   -->
-  <documentation-url>${doc.base.url}/mk-95pdia004/pentaho-user-console</documentation-url>
+  <documentation-url>${doc.base.url}/pdia-analytics/pentaho-user-console</documentation-url>
 
   <log-file>server.log</log-file>
   <log-level>DEBUG</log-level>
