@@ -16,11 +16,12 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationContext;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
 import org.pentaho.platform.api.engine.security.authorization.resources.IResourceAuthorizationRequest;
-import org.pentaho.platform.engine.security.authorization.core.decisions.ResourceActionGeneralRequirementAuthorizationDecision;
+import org.pentaho.platform.api.engine.security.authorization.resources.IResourceSpecificAuthorizationRequest;
+import org.pentaho.platform.engine.security.authorization.core.decisions.ResourceGeneralAuthorizationDecision;
 
 import java.util.Optional;
 
-public class ResourceActionGeneralRequirementAuthorizationRule
+public class ResourceGeneralAuthorizationRule
   extends AbstractAuthorizationRule<IResourceAuthorizationRequest> {
 
   @NonNull
@@ -33,9 +34,13 @@ public class ResourceActionGeneralRequirementAuthorizationRule
   @Override
   public Optional<IAuthorizationDecision> authorize( @NonNull IResourceAuthorizationRequest resourceRequest,
                                                      @NonNull IAuthorizationContext context ) {
+    if ( resourceRequest instanceof IResourceSpecificAuthorizationRequest ) {
+      return abstain();
+    }
 
+    // Dispatch a corresponding general request.
     var generalRequest = resourceRequest.asGeneral();
     var generalDecision = context.authorize( generalRequest );
-    return Optional.of( new ResourceActionGeneralRequirementAuthorizationDecision( resourceRequest, generalDecision ) );
+    return Optional.of( new ResourceGeneralAuthorizationDecision( resourceRequest, generalDecision ) );
   }
 }

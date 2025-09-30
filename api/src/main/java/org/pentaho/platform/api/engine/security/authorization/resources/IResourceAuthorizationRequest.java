@@ -34,6 +34,17 @@ public interface IResourceAuthorizationRequest extends IAuthorizationRequest {
   IAuthorizationRequest asGeneral();
 
   /**
+   * Creates a resource-specific request, of type {@code IResourceSpecificAuthorizationRequest}, having the same user,
+   * action and resource.
+   * <p>
+   * If the current instance is already of type {@code IResourceSpecificAuthorizationRequest}, it is returned as-is.
+   *
+   * @return A corresponding specific resource request.
+   */
+  @NonNull
+  IResourceSpecificAuthorizationRequest asSpecific();
+
+  /**
    * Creates a new instance of {@code IResourceAuthorizationRequest} with the same user and action, but with a
    * different resource.
    *
