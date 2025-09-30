@@ -182,7 +182,6 @@
     <com.github.spotbugs.annotations.version>4.2.3</com.github.spotbugs.annotations.version>
     <jboss-logging.version>3.4.3.Final</jboss-logging.version>
     <classmate.version>1.6.0</classmate.version>
-    <byte-buddy.version>1.12.16</byte-buddy.version>
   </properties>
 
   <dependencyManagement>
