@@ -17,6 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.IPluginManagerListener;
 import org.pentaho.platform.engine.core.system.objfac.spring.Const;
 
 import java.util.ArrayList;
@@ -27,13 +29,19 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.pentaho.platform.engine.security.authorization.core.AuthorizationTestHelpers.createTestAction;
 
 public class PentahoSystemAuthorizationActionServiceTest {
 
   private PentahoSystemAuthorizationActionService service;
+  private IPluginManager pluginManager;
 
   @NonNull
   private IPentahoObjectReference<IAuthorizationAction> createActionObjectReference(
@@ -56,34 +64,24 @@ public class PentahoSystemAuthorizationActionServiceTest {
 
   @Before
   public void setUp() {
-    service = new PentahoSystemAuthorizationActionService( () -> createSampleActionsStream() );
+    pluginManager = mock( IPluginManager.class );
+
+    service = new PentahoSystemAuthorizationActionService(
+      pluginManager,
+      this::createSampleActionsStream );
   }
 
   @NonNull
   private Stream<IPentahoObjectReference<IAuthorizationAction>> createSampleActionsStream() {
-    var systemAction1 = mock( IAuthorizationAction.class );
-    when( systemAction1.getName() ).thenReturn( "systemAction1" );
-
-    var systemAction2 = mock( IAuthorizationAction.class );
-    when( systemAction2.getName() ).thenReturn( "systemAction2" );
-
-    var systemAction2Dup = mock( IAuthorizationAction.class );
-    when( systemAction2Dup.getName() ).thenReturn( "systemAction2" );
-
-    // An action with a null name. Should be excluded from the results.
-    var systemAction3 = mock( IAuthorizationAction.class );
-
-    var pluginAction1 = mock( IAuthorizationAction.class );
-    when( pluginAction1.getName() ).thenReturn( "pluginAction1" );
-
-    var pluginAction2 = mock( IAuthorizationAction.class );
-    when( pluginAction2.getName() ).thenReturn( "pluginAction2" );
-
-    var pluginAction2Dup = mock( IAuthorizationAction.class );
-    when( pluginAction2Dup.getName() ).thenReturn( "pluginAction2" );
-
-    var pluginAction3 = mock( IAuthorizationAction.class );
-    when( pluginAction3.getName() ).thenReturn( "pluginAction3" );
+    var systemAction1 = createTestAction( "systemAction1" );
+    var systemAction2 = createTestAction( "systemAction2" );
+    var systemAction2Dup = createTestAction( "systemAction2" );
+    // An action with an empty name. Should be excluded from the results.
+    var systemAction3 = createTestAction( "" );
+    var pluginAction1 = createTestAction( "pluginAction1" );
+    var pluginAction2 = createTestAction( "pluginAction2" );
+    var pluginAction2Dup = createTestAction( "pluginAction2" );
+    var pluginAction3 = createTestAction( "pluginAction3" );
 
     Map<String, Object> plugin1Attrs = new HashMap<>();
     plugin1Attrs.put( Const.PUBLISHER_PLUGIN_ID_ATTRIBUTE, "plugin1" );
@@ -164,5 +162,42 @@ public class PentahoSystemAuthorizationActionServiceTest {
   @Test( expected = IllegalArgumentException.class )
   public void testGetPluginActionsWithEmptyPluginIdThrows() {
     service.getPluginActions( "" );
+  }
+
+  @Test
+  public void testPluginManagerRefreshesActionsOnPluginManagerReload() {
+    // Capture the plugin manager listener registered in the service constructor.
+    var listenerAtomicReference = new java.util.concurrent.atomic.AtomicReference<IPluginManagerListener>();
+    doAnswer( invocation -> {
+      listenerAtomicReference.set( invocation.getArgument( 0 ) );
+      return null;
+    } ).when( pluginManager ).addPluginManagerListener( any() );
+
+    // Create a new service, which should register a listener with the mock plugin manager.
+    service = new PentahoSystemAuthorizationActionService(
+      pluginManager,
+      this::createSampleActionsStream );
+
+    // Verify that a listener was registered.
+    IPluginManagerListener listener = listenerAtomicReference.get();
+    assertNotNull( listener );
+
+    // Capture actions and their names before listener is called
+    List<IAuthorizationAction> actionsBefore = service.getActions().toList();
+    List<String> namesBefore = actionsBefore.stream().map( IAuthorizationAction::getName ).toList();
+
+    listener.onReload();
+
+    // Capture actions and their names after listener is called
+    List<IAuthorizationAction> actionsAfter = service.getActions().toList();
+    List<String> namesAfter = actionsAfter.stream().map( IAuthorizationAction::getName ).toList();
+
+    // Assert that the names are the same
+    assertEquals( namesBefore, namesAfter );
+
+    // Assert that the instances are different for each name (by index)
+    for ( int i = 0; i < actionsBefore.size(); i++ ) {
+      assertNotSame( actionsBefore.get( i ), actionsAfter.get( i ) );
+    }
   }
 }
