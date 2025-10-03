@@ -43,6 +43,8 @@ import org.w3c.dom.Element;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -159,7 +161,11 @@ public class SolutionEngineInteractivityService extends ServletBase {
 
       DOMSource source = new DOMSource( document );
       StreamResult result = new StreamResult( new StringWriter() );
-      TransformerFactory.newInstance().newTransformer().transform( source, result );
+      TransformerFactory factory = TransformerFactory.newInstance();
+      factory.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, true );
+      factory.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "" );
+      factory.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "" );
+      factory.newTransformer().transform( source, result );
       String theXML = result.getWriter().toString();
 
       response.setContentType( "text/xml" );
