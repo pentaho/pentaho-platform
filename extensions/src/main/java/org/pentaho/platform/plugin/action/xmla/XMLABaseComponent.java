@@ -36,6 +36,8 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
+
+import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -967,6 +969,9 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
     try {
       Writer writer = new StringWriter();
       TransformerFactory tFact = TransformerFactory.newInstance();
+      tFact.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, true );
+      tFact.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "" );
+      tFact.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "" );
       Transformer transformer = tFact.newTransformer();
       Source src = msg.getSOAPPart().getContent();
       StreamResult result = new StreamResult( writer );
