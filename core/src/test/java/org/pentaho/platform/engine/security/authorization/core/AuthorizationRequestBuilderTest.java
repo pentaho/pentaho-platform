@@ -27,6 +27,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -101,6 +102,30 @@ public class AuthorizationRequestBuilderTest {
     assertNotNull( req );
     assertEquals( "editor", req.getPrincipal().getName() );
     assertEquals( "write", req.getAction().getName() );
+  }
+
+  @Test
+  public void testActionWithExplicitRoleName() {
+    mockActionName( "write" );
+
+    IAuthorizationRequest req = builder
+      .action( "write" )
+      .role( "editor" )
+      .build();
+
+    assertNotNull( req );
+    assertEquals( "editor", req.getPrincipal().getName() );
+    assertEquals( "write", req.getAction().getName() );
+  }
+
+  @Test
+  public void testActionWithExplicitRoleNameEmpty() {
+    mockActionName( "write" );
+
+    AuthorizationRequestBuilder.WithActionBuilder withActionBuilder = builder
+      .action( "write" );
+
+    assertThrows( IllegalArgumentException.class, () -> withActionBuilder.role( "" ) );
   }
 
   @Test
