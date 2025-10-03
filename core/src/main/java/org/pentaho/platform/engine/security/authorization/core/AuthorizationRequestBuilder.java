@@ -164,6 +164,20 @@ public class AuthorizationRequestBuilder {
     }
 
     /**
+     * Configures the authorization request with a specific role name.
+     * A new {@link AuthorizationRole} instance is created with the given role name.
+     *
+     * @param roleName The name of the role for which the authorization is being evaluated.
+     * @return A builder for the authorization request.
+     * @throws IllegalArgumentException If the <code>roleName</code> parameter is <code>null</code> or empty.
+     */
+    @NonNull
+    public WithActionBuilder role( @NonNull String roleName ) {
+      this.principal = new AuthorizationRole( roleName );
+      return this;
+    }
+
+    /**
      * Configures the authorization request with a specific principal.
      *
      * @param principal The principal (user, role, etc.) for whom the authorization is being evaluated;
