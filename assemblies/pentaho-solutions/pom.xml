@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>pentaho</groupId>
@@ -122,13 +123,6 @@
                 <artifactItem>
                   <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>pdi-core-plugins</artifactId>
-                  <version>${project.version}</version>
-                  <type>zip</type>
-                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>pentaho</groupId>
-                  <artifactId>pentaho-big-data-plugin</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
@@ -262,13 +256,6 @@
                 <artifactItem>
                   <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>kettle-repository-locator-platform-plugin</artifactId>
-                  <version>${project.version}</version>
-                  <type>zip</type>
-                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>pentaho</groupId>
-                  <artifactId>pentaho-big-data-plugin-samples</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
