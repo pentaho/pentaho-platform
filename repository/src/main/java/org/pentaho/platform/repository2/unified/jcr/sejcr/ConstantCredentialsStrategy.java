@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
@@ -52,8 +53,8 @@ public class ConstantCredentialsStrategy implements CredentialsStrategy {
   }
 
   public ConstantCredentialsStrategy( final String userID, final String preAuthenticationToken ) {
-    Assert.hasText( userID );
-    Assert.hasText( preAuthenticationToken );
+    Assert.hasText( userID, "The user ID must not be null or empty. Ensure a valid user ID is provided." );
+    Assert.hasText( preAuthenticationToken, "The pre-authentication token must not be null or empty. Ensure a valid token is provided." );
     SimpleCredentials creds = new SimpleCredentials( userID, PASSWORD );
     creds.setAttribute( ATTR_PRE_AUTHENTICATION_TOKEN, preAuthenticationToken );
     this.credentials = creds;

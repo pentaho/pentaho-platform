@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.lifecycle;
 
@@ -61,7 +62,7 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
 
   public AbstractBackingRepositoryLifecycleManager( final TransactionTemplate txnTemplate,
       final JcrTemplate adminJcrTemplate, final IPathConversionHelper pathConversionHelper ) {
-    Assert.notNull( txnTemplate );
+    Assert.notNull( txnTemplate, "The transaction template must not be null. Ensure a valid transaction template is provided." );
     this.txnTemplate = txnTemplate;
     this.adminJcrTemplate = adminJcrTemplate;
     this.pathConversionHelper = pathConversionHelper;

@@ -78,6 +78,14 @@
       <directory>${project.build.directory}/pentaho-solutions/system/dialects/hsqldb</directory>
       <outputDirectory>pentaho-solutions/system</outputDirectory>
     </fileSet>
+    <!-- license -->
+    <fileSet>
+      <directory>${project.basedir}/../..</directory>
+      <includes>
+        <include>LICENSE.TXT</include>
+      </includes>
+      <outputDirectory>.</outputDirectory>
+    </fileSet>
   </fileSets>
 
   <dependencySets>

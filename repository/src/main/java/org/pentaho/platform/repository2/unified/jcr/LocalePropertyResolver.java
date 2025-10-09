@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.jcr;
 
@@ -34,7 +35,7 @@ public class LocalePropertyResolver {
   private String fileName;
 
   public LocalePropertyResolver( String fileName ) {
-    Assert.notNull( fileName );
+    Assert.notNull( fileName, "The file name must not be null. Ensure a valid file name is provided." );
     this.fileName = fileName;
   }
 
