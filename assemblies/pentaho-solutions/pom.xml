@@ -288,13 +288,13 @@
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
-                <artifactItem>
-                  <groupId>pentaho</groupId>
-                  <artifactId>pentaho-streaming-kafka-plugin</artifactId>
-                  <version>${project.version}</version>
-                  <type>zip</type>
-                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
-                </artifactItem>
+<!--                <artifactItem>-->
+<!--                  <groupId>pentaho</groupId>-->
+<!--                  <artifactId>pentaho-streaming-kafka-plugin</artifactId>-->
+<!--                  <version>${project.version}</version>-->
+<!--                  <type>zip</type>-->
+<!--                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>-->
+<!--                </artifactItem>-->
                 <artifactItem>
                   <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>pentaho-streaming-jms-plugin-zip</artifactId>
@@ -309,13 +309,13 @@
                   <type>zip</type>
                   <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
                 </artifactItem>
-                <artifactItem>
-                  <groupId>pentaho</groupId>
-                  <artifactId>pentaho-s3-vfs-plugin</artifactId>
-                  <version>${project.version}</version>
-                  <type>zip</type>
-                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>
-                </artifactItem>
+<!--                <artifactItem>-->
+<!--                  <groupId>pentaho</groupId>-->
+<!--                  <artifactId>pentaho-s3-vfs-plugin</artifactId>-->
+<!--                  <version>${project.version}</version>-->
+<!--                  <type>zip</type>-->
+<!--                  <outputDirectory>${prepared.kettle.plugins.directory}</outputDirectory>-->
+<!--                </artifactItem>-->
                 <artifactItem>
                   <groupId>org.pentaho.di.plugins</groupId>
                   <artifactId>pentaho-reporting-plugins</artifactId>
