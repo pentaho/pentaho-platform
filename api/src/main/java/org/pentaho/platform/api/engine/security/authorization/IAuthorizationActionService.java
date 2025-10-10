@@ -62,7 +62,6 @@ public interface IAuthorizationActionService {
       .filter( action -> action.getName().startsWith( actionNamespacePrefix ) );
   }
 
-  // TODO: tests
   /**
    * Gets an authorization action given its name.
    * <p>

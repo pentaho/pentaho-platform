@@ -334,14 +334,33 @@ not directly from the PentahoObjectFactory. -->
 
   <bean id="authorizationActionService"
         class="org.pentaho.platform.engine.security.authorization.PentahoSystemAuthorizationActionService">
+    <constructor-arg ref="IPluginManager" />
+    <pen:publish as-type="INTERFACES" />
+  </bean>
+
   <bean id="authorizationDecisionCache"
         class="org.pentaho.platform.engine.security.authorization.core.caching.MemoryAuthorizationDecisionCache">
-    <!-- expireAfterWrite, in seconds -->
+    <!-- expireAfterWrite: Max number of seconds that an auth entry stays cached.
+           Warning: this can only be set to a high value (e.g. several minutes or more) if operations that change any
+           variables that affect authorization decisions (e.g. user roles, resource permissions, etc.) also perform
+           cache invalidation. This is the case of the default Pentaho platform Security Provider implementation,
+           which appropriately invalidates the authorizations cache whenever a user's roles change.
+           When an external security provider is configured, either a lower, acceptable value is used (e.g. 2 seconds),
+           or a custom invalidation mechanism must be sought. Full manual invalidation of the cache can be done via
+           endpoint or PUC UI -->
     <constructor-arg value="300" />
-    <!-- maximumSize -->
+
+    <!-- maximumSize: Max number of auth entries the cache can hold, _per session_ -->
     <constructor-arg value="100" />
-    <!-- recordStats -->
+
+    <!-- recordStats: Enable statistics recording. To be used for diagnostics and configuration fine-tuning, along with
+           enabling logging of the 'org.pentaho.platform.engine.security.authorization' package at TRACE level. -->
     <constructor-arg value="false" />
+
+    <!-- staleSessionsSweepInterval: number of seconds between sweeps to remove stale session caches. Provided as a
+           fallback mechanism to deal with misbehaved code that does not explicitly destroy Pentaho sessions.
+           A value of 0 or less disables this feature. Class logs a warning whenever stale entries are detected. -->
+    <constructor-arg value="240" />
 
     <pen:publish as-type="INTERFACES" />
   </bean>

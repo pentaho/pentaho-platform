@@ -64,8 +64,11 @@ public class CachingAuthorizationService extends AuthorizationService {
                                            @NonNull IAuthorizationOptions options ) {
     IAuthorizationDecision decision = super.authorize( request, options );
 
-    if ( logger.isDebugEnabled() ) {
-      logger.debug( decisionCache );
+    // Don't really know at this point if recordStats is on. Logging only for trace level makes
+    // it less bad if disabled. When disabled, will just log 0s as stats.
+    // Also, this method is just one of the top-level authorization methods (authorizeRule is not logging stats).
+    if ( logger.isTraceEnabled() ) {
+      logger.trace( decisionCache );
     }
 
     return decision;

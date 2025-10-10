@@ -34,6 +34,9 @@
         </bean>
 
         <bean id="defaultContentSystemListener" class="org.pentaho.platform.plugin.action.defaultcontent.DefaultContentSystemListener" />
+        <bean id="memoryAuthorizationCacheSystemListener" class="org.pentaho.platform.engine.security.authorization.core.caching.MemoryAuthorizationDecisionCacheSystemListener">
+          <constructor-arg ref="authorizationDecisionCache" />
+        </bean>
         <!-- Insert system-listeners -->
       </list>
     </constructor-arg>
