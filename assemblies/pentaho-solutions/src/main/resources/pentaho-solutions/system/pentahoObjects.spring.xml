@@ -334,6 +334,10 @@ not directly from the PentahoObjectFactory. -->
 
   <bean id="authorizationActionService"
         class="org.pentaho.platform.engine.security.authorization.PentahoSystemAuthorizationActionService">
+    <constructor-arg ref="IPluginManager" />
+    <pen:publish as-type="INTERFACES" />
+  </bean>
+
   <bean id="authorizationDecisionCache"
         class="org.pentaho.platform.engine.security.authorization.core.caching.MemoryAuthorizationDecisionCache">
     <!-- expireAfterWrite, in seconds -->
