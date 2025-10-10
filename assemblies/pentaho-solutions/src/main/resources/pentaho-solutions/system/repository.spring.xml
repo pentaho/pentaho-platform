@@ -317,6 +317,7 @@
     <constructor-arg ref="singleTenantSystemAuthorities"/>
     <constructor-arg ref="extraRoles"/>
     <constructor-arg ref="jCacheUserCache"/>
+    <constructor-arg ref="authorizationDecisionCache" />
   </bean>
 
   <!-- 
