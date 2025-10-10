@@ -77,7 +77,9 @@ public class AuthorizationRequest implements IAuthorizationRequest {
 
   @Override
   public int hashCode() {
-    return Objects.hash( principal, action );
+    int result = principal.hashCode();
+    result = 31 * result + action.hashCode();
+    return result;
   }
 
   @Override
