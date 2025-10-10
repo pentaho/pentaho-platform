@@ -33,6 +33,8 @@ public abstract class AbstractAuthorizationUser extends AbstractAuthorizationPri
   // possible to put principals of various types into a map.
   @Override
   public int hashCode() {
-    return Objects.hash( IAuthorizationUser.class, getName() );
+    int result = IAuthorizationUser.class.hashCode();
+    result = 31 * result + Objects.hashCode( getName() );
+    return result;
   }
 }
