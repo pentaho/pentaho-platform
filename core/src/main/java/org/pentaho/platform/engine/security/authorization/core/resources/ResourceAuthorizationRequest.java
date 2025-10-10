@@ -21,8 +21,6 @@ import org.pentaho.platform.api.engine.security.authorization.resources.IResourc
 import org.pentaho.platform.engine.security.authorization.core.AuthorizationRequest;
 import org.springframework.util.Assert;
 
-import java.util.Objects;
-
 /**
  * The {@code ResourceAuthorizationRequest} class represents an authorization request for a specific resource.
  * It extends the basic authorization request to include resource-specific authorization context.
@@ -89,12 +87,14 @@ public class ResourceAuthorizationRequest extends AuthorizationRequest
     }
 
     IResourceAuthorizationRequest that = (IResourceAuthorizationRequest) o;
-    return Objects.equals( resource, that.getResource() );
+    return resource.equals( that.getResource() );
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash( super.hashCode(), resource );
+    int result = super.hashCode();
+    result = 31 * result + resource.hashCode();
+    return result;
   }
 
   @Override
