@@ -753,6 +753,7 @@
     <constructor-arg>
       <pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/>
     </constructor-arg>
+    <constructor-arg ref="authorizationDecisionCache" />
   </bean>
 
   <!-- Built-In ABS Logical Roles -->
