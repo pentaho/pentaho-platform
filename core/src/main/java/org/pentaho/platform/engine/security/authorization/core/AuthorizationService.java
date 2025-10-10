@@ -110,7 +110,7 @@ public class AuthorizationService implements IAuthorizationService {
     }
 
     @NonNull
-    protected IAuthorizationDecision authorizeTracked( @NonNull IAuthorizationRequest request )
+    private IAuthorizationDecision authorizeTracked( @NonNull IAuthorizationRequest request )
       throws AuthorizationRequestCycleException {
 
       if ( pendingRequests.contains( request ) ) {
@@ -119,14 +119,14 @@ public class AuthorizationService implements IAuthorizationService {
 
       pendingRequests.push( request );
       try {
-        return authorizeRootRule( request );
+        return authorizeCore( request );
       } finally {
         pendingRequests.pop();
       }
     }
 
     @NonNull
-    private IAuthorizationDecision authorizeRootRule( @NonNull IAuthorizationRequest request ) {
+    protected IAuthorizationDecision authorizeCore( @NonNull IAuthorizationRequest request ) {
       return authorizeRule( request, getRootRule() )
         .orElseGet( () -> getDefaultDecision( request ) );
     }

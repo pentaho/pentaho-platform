@@ -334,13 +334,23 @@ not directly from the PentahoObjectFactory. -->
 
   <bean id="authorizationActionService"
         class="org.pentaho.platform.engine.security.authorization.PentahoSystemAuthorizationActionService">
+  <bean id="authorizationDecisionCache"
+        class="org.pentaho.platform.engine.security.authorization.core.caching.MemoryAuthorizationDecisionCache">
+    <!-- expireAfterWrite, in seconds -->
+    <constructor-arg value="300" />
+    <!-- maximumSize -->
+    <constructor-arg value="100" />
+    <!-- recordStats -->
+    <constructor-arg value="false" />
+
     <pen:publish as-type="INTERFACES" />
   </bean>
 
   <bean id="authorizationService"
-        class="org.pentaho.platform.engine.security.authorization.core.AuthorizationService">
+        class="org.pentaho.platform.engine.security.authorization.core.CachingAuthorizationService">
     <constructor-arg ref="authorizationActionService" />
     <constructor-arg ref="rootAuthorizationRule" />
+    <constructor-arg ref="authorizationDecisionCache" />
     <pen:publish as-type="INTERFACES" />
   </bean>
 
