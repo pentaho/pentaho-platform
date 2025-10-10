@@ -16,6 +16,7 @@ package org.pentaho.platform.web.http.api.resources;
 import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.security.authorization.caching.IAuthorizationDecisionCache;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
@@ -149,6 +150,22 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
         clearCacheAction.run();
       }
 
+      return Response.ok().type( MediaType.TEXT_PLAIN ).build();
+    } else {
+      return Response.status( UNAUTHORIZED ).build();
+    }
+  }
+
+  @GET
+  @Path( "/authorizationDecisionCache" )
+  @Produces( { MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
+  public Response flushAuthorizationDecisionCache() {
+    if ( canAdminister() ) {
+      IAuthorizationDecisionCache decisionCache = PentahoSystem.get( IAuthorizationDecisionCache.class );
+      if ( decisionCache != null ) {
+        decisionCache.invalidateAll();
+      }
       return Response.ok().type( MediaType.TEXT_PLAIN ).build();
     } else {
       return Response.status( UNAUTHORIZED ).build();
