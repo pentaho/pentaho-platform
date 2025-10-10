@@ -49,6 +49,8 @@ public class AuthorizationRole extends AbstractAuthorizationPrincipal
   // possible to put principals of various types into a map.
   @Override
   public int hashCode() {
-    return Objects.hash( IAuthorizationRole.class, getName() );
+    int result = IAuthorizationRole.class.hashCode();
+    result = 31 * result + name.hashCode();
+    return result;
   }
 }
