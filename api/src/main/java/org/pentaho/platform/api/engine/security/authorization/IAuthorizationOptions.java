@@ -13,6 +13,7 @@
 package org.pentaho.platform.api.engine.security.authorization;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import org.pentaho.platform.api.engine.security.authorization.impl.DefaultAuthorizationOptions;
 
 /**
  * The {@code IAuthorizationOptions} interface encapsulates options that control the authorization evaluation process.
@@ -34,39 +35,7 @@ public interface IAuthorizationOptions {
    * @return An instance of {@link IAuthorizationOptions}.
    */
   static IAuthorizationOptions getDefault() {
-    return new IAuthorizationOptions() {
-      @NonNull
-      @Override
-      public AuthorizationDecisionReportingMode getDecisionReportingMode() {
-        return AuthorizationDecisionReportingMode.SETTLED;
-      }
-
-      @Override
-      public boolean equals( Object obj ) {
-        if ( this == obj ) {
-          return true;
-        }
-
-        if ( !( obj instanceof IAuthorizationOptions ) ) {
-          return false;
-        }
-
-        IAuthorizationOptions other = (IAuthorizationOptions) obj;
-        return getDecisionReportingMode() == other.getDecisionReportingMode();
-      }
-
-      @Override
-      public int hashCode() {
-        return getDecisionReportingMode().hashCode();
-      }
-
-      @Override
-      public String toString() {
-        return String.format(
-          "IAuthorizationOptions{decisionReportingMode=%s}",
-          getDecisionReportingMode() );
-      }
-    };
+    return DefaultAuthorizationOptions.INSTANCE;
   }
 
   /**
