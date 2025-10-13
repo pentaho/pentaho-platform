@@ -51,8 +51,6 @@ public class MemoryAuthorizationDecisionCache implements
   ILogoutListener,
   Closeable {
 
-  private static final CacheStats EMPTY_STATS = new CacheStats( 0, 0, 0, 0, 0, 0 );
-
   // region Helper classes
 
   /**
@@ -245,6 +243,9 @@ public class MemoryAuthorizationDecisionCache implements
   @NonNull
   private final Map<String, SessionCacheData> cacheBySessionKey;
 
+  // Thread-guarded by sessionsLock. Updated with stats of removed caches.
+  private CacheStats pastCacheStats = new CacheStats( 0, 0, 0, 0, 0, 0 );
+
   public MemoryAuthorizationDecisionCache(
     long expireAfterWrite,
     long maximumSize,
@@ -348,6 +349,12 @@ public class MemoryAuthorizationDecisionCache implements
       var cacheData = cacheBySessionKey.get( sessionKey );
       if ( cacheData != null && cacheData.removeSession( session ) ) {
         // Last session, so dispose and remove session cache data from the map.
+
+        // Store stats of removed cache.
+        if ( recordStats ) {
+          pastCacheStats = pastCacheStats.plus( cacheData.cache.stats() );
+        }
+
         cacheData.dispose();
         cacheBySessionKey.remove( sessionKey );
       }
@@ -500,7 +507,7 @@ public class MemoryAuthorizationDecisionCache implements
       .values()
       .stream()
       .map( cacheData -> cacheData.cache.stats() )
-      .reduce( EMPTY_STATS, CacheStats::plus );
+      .reduce( pastCacheStats, CacheStats::plus );
   }
 
   @Override
