@@ -325,4 +325,33 @@ public class SystemPathXmlPluginProviderTest {
       assertEquals( 1, plugins.size() );
     }
   }
+
+  /*
+   * This test forces the condition where a plugin with a given ID already exists in the plugins list.
+   * It verifies that the plugin manager does not add a duplicate plugin and logs an appropriate message.
+   */
+  @Test
+  public void testProcessDirectory_duplicatePluginId() throws Exception {
+    File pluginDir = tempFolder.newFolder( "duplicatePlugin" );
+    File pluginXml = new File( pluginDir, "plugin.xml" );
+    pluginXml.createNewFile();
+    List<IPlatformPlugin> plugins = new ArrayList<>();
+    IPentahoSession session = Mockito.mock( IPentahoSession.class );
+    // Add a plugin with the same ID to the list
+    IPlatformPlugin existingPlugin = Mockito.mock( IPlatformPlugin.class );
+    Mockito.when( existingPlugin.getId() ).thenReturn( "duplicatePlugin" );
+    plugins.add( existingPlugin );
+    // statically mock the ActionSequenceResource to always return an inputStream to the plugin.xml file
+    try ( MockedStatic<ActionSequenceResource> mockedStatic =
+      Mockito.mockStatic( ActionSequenceResource.class ) ) {
+      String pluginXmlText = "<plugin title=\"duplicatePlugin\" name=\"duplicatePlugin\"></plugin>";
+      // create an input stream from the pluginXmlText
+      mockedStatic.when( () -> ActionSequenceResource.getInputStream( anyString(), any() ) )
+        .thenReturn( new ByteArrayInputStream( pluginXmlText.getBytes() ) );
+      systemPathXmlPluginProvider.processDirectory( plugins, pluginDir, session );
+      // Verify that the plugin was not added again
+      assertEquals( 1, plugins.size() );
+      assertTrue( PluginMessageLogger.getAll().stream().anyMatch( msg -> msg.contains( "A plugin has already been registered by name duplicatePlugin" ) ) );
+    }
+  }
 }

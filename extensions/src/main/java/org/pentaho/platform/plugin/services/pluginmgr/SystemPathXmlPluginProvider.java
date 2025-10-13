@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.slf4j.LoggerFactory;
 import org.pentaho.platform.api.engine.IContentGeneratorInfo;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPlatformPlugin;
@@ -48,6 +49,7 @@ import com.cronutils.utils.VisibleForTesting;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -64,6 +66,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
 
   public static final String CLASS_PROPERRTY = "class";
   private static final Pattern PLUGIN_DATE_STAMP_REGEX = Pattern.compile( "([\\w\\-]+)-2\\d{3}-[\\d\\-]+" );
+  private static final org.slf4j.Logger log = LoggerFactory.getLogger( SystemPathXmlPluginProvider.class );
 
   /**
    * Gets the list of plugins that this provider class has discovered.
@@ -83,6 +86,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
         "PluginManager.ERROR_0004_CANNOT_FIND_SYSTEM_FOLDER" ) ); //$NON-NLS-1$
     }
     File[] kids = systemDir.listFiles();
+    Arrays.sort( kids );  // default sort is by name, which is what we want
     // look at each child to see if it is a folder
     for ( File kid : kids ) {
       if ( kid.isDirectory() ) {
@@ -102,8 +106,11 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     return Collections.unmodifiableList( plugins );
   }
 
+  @SuppressWarnings( "squid:S3776" ) // cannot break down into smaller methods without reducing readability
   protected void processDirectory( List<IPlatformPlugin> plugins, File folder, IPentahoSession session )
     throws PlatformPluginRegistrationException {
+
+    log.debug( "Processing plugin directory: {}", folder.getAbsolutePath() );
     // see if there is a plugin.xml file
     FilenameFilter filter = new NameFileFilter( "plugin.xml", IOCase.SENSITIVE ); //$NON-NLS-1$
     File[] kids = folder.listFiles( filter );
@@ -114,6 +121,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     FilenameFilter deleteFilter = new NameFileFilter( ".plugin-manager-delete", IOCase.SENSITIVE ); //$NON-NLS-1$
     kids = folder.listFiles( deleteFilter );
     if ( kids != null && kids.length > 0 ) {
+      log.debug( "Deleting plugin directory marked for deletion: {}", folder.getAbsolutePath() );
       deleteFolder( folder );
       return;
     }
@@ -121,6 +129,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     FilenameFilter ignoreFilter = new NameFileFilter( ".kettle-ignore", IOCase.SENSITIVE ); //$NON-NLS-1$
     kids = folder.listFiles( ignoreFilter );
     if ( kids != null && kids.length > 0 ) {
+      log.debug( "Ignoring plugin directory marked to be ignored: {}", folder.getAbsolutePath() );
       return;
     }
 
@@ -144,7 +153,19 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
         // XML document can't be read. We'll just return a null document.
       }
       if ( doc != null ) {
-        plugins.add( createPlugin( doc, session, folder.getName(), hasLib ) );
+        PlatformPlugin newPlugin = createPlugin( doc, session, folder.getName(), hasLib );
+        // make sure we don't already have a plugin with this id
+        if ( plugins.stream().anyMatch( p -> p.getId().equals( newPlugin.getId() ) ) ) {
+          String msg =
+            Messages.getInstance().getErrorString(
+              "PluginManager.ERROR_0024_PLUGIN_ALREADY_LOADED_BY_SAME_NAME", newPlugin.getId(), folder //$NON-NLS-1$
+                .getAbsolutePath() );
+          Logger.error( getClass().toString(), msg );
+          PluginMessageLogger.add( msg );
+          log.warn( "Plugin with id {} already loaded, skipping plugin in folder {}", newPlugin.getId(), path );
+        } else {
+          plugins.add( newPlugin );
+        }
       }
     } catch ( Exception e ) {
       throw new PlatformPluginRegistrationException( Messages.getInstance().getErrorString(
@@ -163,6 +184,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
    */
   private File cleanUpUninstalledPlugins( File folder, FilenameFilter deleteFilter, FilenameFilter ignoreFilter ) {
     // strip off any datestamp left from the plugin manager to leave only the base folder name
+    log.debug( "Checking for datestamp on plugin folder: {}", folder.getAbsolutePath() );
     String newFolderName = stripDateStampFromFolderName( folder.getName() );
     if ( !folder.getName().equals( newFolderName ) ) {
       // The plugin folder had a date stamp on the end of the name which was removed.
@@ -178,6 +200,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
         File[] deleteFiles = oldPluginFolder.listFiles( deleteFilter );
         if ( null != ignoreFiles && ignoreFiles.length == 1 && null != deleteFiles && deleteFiles.length == 1 ) {
           // we can and should delete this folder before we rename the other one
+          log.debug( "Deleting old plugin folder marked for deletion: {}", oldPluginFolder.getAbsolutePath() );
           deleteFolder( oldPluginFolder );
           canRenameFolder = true;
         } else {
@@ -208,6 +231,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     // delete the folder and its contents
     try {
       FileUtils.deleteDirectory( folder );
+      log.debug( "Deleted plugin directory: {}", folder.getAbsolutePath() );
       String msg = Messages.getInstance().getString(
         "PluginManager.PLUGIN_FOLDER_DELETED", folder.getAbsolutePath() );
       Logger.info( getClass().toString(), msg );
