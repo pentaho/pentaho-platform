@@ -2287,28 +2287,35 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Validates if a current user is authorized to upload content to the given dir
+   * Validates if a current user is authorized to upload content to the given dir.
+   * <p>
+   * <b>Example Request:</b><br>
+   * GET pentaho/api/repo/files/canUpload?dirPath=/public/new-report&ignoreUploadDirExistenceChecks=true
+   * <p>
+   * <b>Example Response:</b><br>
+   * <code>false</code>
    *
-   * <p><b>Example Request:</b><br />
-   * GET pentaho/api/repo/files/canUpload
-   * </p>
-   *
-   * @param dirPath to be validated for upload action for the current user.
-   * @return A boolean response based on the current user being authorized to upload to given dir
-   *
-   * <p><b>Example Response:</b></p>
-   * <pre function="syntax.xml">
-   *     false
-   * </pre>
+   * @param dirPath                        The path to be validated for upload action for the current user.
+   *                                       If not specified, only the user roles authorization is checked.
+   *                                       Default is an empty string.
+   * @param ignoreUploadDirExistenceChecks If {@code true}, skips checks to see if the upload folder exists
+   *                                       and if the user has write access to it.
+   *                                       It is useful when the upload folder is being created, or the ACL will change,
+   *                                       as part of the upload operation.
+   *                                       Default is {@code false}.
+   * @return A boolean response based on the current user being authorized to upload to the given folder path.
    */
   @GET
   @Path( "/canUpload" )
   @Produces( {MediaType.TEXT_PLAIN} )
   @StatusCodes( {
-      @ResponseCode( code = 200, condition = "Returns a boolean response." )
+    @ResponseCode( code = 200, condition = "Returns a boolean response." )
   } )
-  public Response canUpload( @QueryParam( "dirPath" ) @DefaultValue( "" ) String dirPath ) {
-    return Response.ok( ( String.valueOf( SystemUtils.canUpload( dirPath ) ) ) ).build();
+  public Response canUpload( @QueryParam( "dirPath" ) @DefaultValue( "" ) String dirPath,
+                             @QueryParam( "ignoreUploadDirExistenceChecks" ) @DefaultValue( "false" )
+                             boolean ignoreUploadDirExistenceChecks ) {
+    return Response.ok( ( String.valueOf( SystemUtils.canUpload( dirPath, ignoreUploadDirExistenceChecks ) ) ) )
+      .build();
   }
 
   protected boolean isPathValid( String path ) {
