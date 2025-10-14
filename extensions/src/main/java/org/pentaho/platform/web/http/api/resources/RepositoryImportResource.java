@@ -109,7 +109,7 @@ public class RepositoryImportResource {
    * @param fileUpload              Input stream for the file.
    * @param overwriteFile           The flag indicates ability to overwrite existing file.
    * @param overwriteAclPermissions The flag indicates ability to overwrite Acl permissions.
-   * @param applyAclPermissions     The flag indicates ability to apply Acl permissions.
+   * @param applyAclPermission      The flag indicates ability to apply ACL permissions.
    * @param retainOwnership         The flag indicates ability to retain ownership.
    * @param charSet                 The charset for imported file.
    * @param logLevel                The level of logging.
@@ -174,7 +174,8 @@ public class RepositoryImportResource {
   }
 
   protected void validateImportAccess( String importDir ) throws PentahoAccessControlException {
-    boolean canUpload = SystemUtils.canUpload( importDir );
+    // upload directory might be created or its permissions changed so skip existence and write permission checks
+    boolean canUpload = SystemUtils.canUpload( importDir, true );
     if ( !canUpload ) {
       throw new PentahoAccessControlException( "User is not authorized to perform this operation" );
     }
