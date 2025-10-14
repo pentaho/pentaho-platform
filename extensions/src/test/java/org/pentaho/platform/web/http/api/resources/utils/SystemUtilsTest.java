@@ -180,6 +180,10 @@ public class SystemUtilsTest {
     doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
     PentahoSystem.registerObject( mockAuthPolicy );
 
+    RepositoryFile file = mock( RepositoryFile.class );
+    doReturn( true ).when( file ).isFolder();
+    doReturn( file ).when( repo ).getFile( any( String.class ) );
+
     doReturn( false ).when( repo ).hasAccess( USER_HOME_FOLDER, EnumSet.of( RepositoryFilePermission.WRITE ) );
 
     assertFalse( SystemUtils.canUpload( USER_HOME_FOLDER ) );
@@ -192,8 +196,6 @@ public class SystemUtilsTest {
     doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
     PentahoSystem.registerObject( mockAuthPolicy );
 
-    doReturn( true ).when( repo ).hasAccess( USER_HOME_FOLDER, EnumSet.of( RepositoryFilePermission.WRITE ) );
-
     doReturn( null ).when( repo ).getFile( any( String.class ) );
 
     assertFalse( SystemUtils.canUpload( USER_HOME_FOLDER ) );
@@ -205,8 +207,6 @@ public class SystemUtilsTest {
     doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME );
     doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
     PentahoSystem.registerObject( mockAuthPolicy );
-
-    doReturn( true ).when( repo ).hasAccess( USER_HOME_FOLDER, EnumSet.of( RepositoryFilePermission.WRITE ) );
 
     RepositoryFile file = mock( RepositoryFile.class );
     doReturn( false ).when( file ).isFolder();
@@ -223,11 +223,11 @@ public class SystemUtilsTest {
     doReturn( true ).when( mockAuthPolicy ).isAllowed( AdministerSecurityAction.NAME );
     PentahoSystem.registerObject( mockAuthPolicy );
 
-    doReturn( true ).when( repo ).hasAccess( USER_HOME_FOLDER, EnumSet.of( RepositoryFilePermission.WRITE ) );
-
     RepositoryFile file = mock( RepositoryFile.class );
     doReturn( true ).when( file ).isFolder();
     doReturn( file ).when( repo ).getFile( any( String.class ) );
+
+    doReturn( true ).when( repo ).hasAccess( USER_HOME_FOLDER, EnumSet.of( RepositoryFilePermission.WRITE ) );
 
     assertTrue( SystemUtils.canUpload( USER_HOME_FOLDER ) );
   }
@@ -241,11 +241,11 @@ public class SystemUtilsTest {
     doReturn( true ).when( mockAuthPolicy ).isAllowed( PublishAction.NAME );
     PentahoSystem.registerObject( mockAuthPolicy );
 
-    doReturn( true ).when( repo ).hasAccess( USER_HOME_FOLDER, EnumSet.of( RepositoryFilePermission.WRITE ) );
-
     RepositoryFile file = mock( RepositoryFile.class );
     doReturn( true ).when( file ).isFolder();
     doReturn( file ).when( repo ).getFile( any( String.class ) );
+
+    doReturn( true ).when( repo ).hasAccess( USER_HOME_FOLDER, EnumSet.of( RepositoryFilePermission.WRITE ) );
 
     assertTrue( SystemUtils.canUpload( USER_HOME_FOLDER ) );
   }
@@ -289,11 +289,11 @@ public class SystemUtilsTest {
     doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
     PentahoSystem.registerObject( mockAuthPolicy );
 
-    doReturn( true ).when( repo ).hasAccess( "/public/test", EnumSet.of( RepositoryFilePermission.WRITE ) );
-
     RepositoryFile file = mock( RepositoryFile.class );
     doReturn( true ).when( file ).isFolder();
     doReturn( file ).when( repo ).getFile( any( String.class ) );
+
+    doReturn( true ).when( repo ).hasAccess( "/public/test", EnumSet.of( RepositoryFilePermission.WRITE ) );
 
     assertFalse( SystemUtils.canUpload( "/public/test" ) );
   }
@@ -305,13 +305,45 @@ public class SystemUtilsTest {
     doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
     PentahoSystem.registerObject( mockAuthPolicy );
 
-    doReturn( true ).when( repo ).hasAccess( USER_HOME_FOLDER, EnumSet.of( RepositoryFilePermission.WRITE ) );
-
     RepositoryFile file = mock( RepositoryFile.class );
     doReturn( true ).when( file ).isFolder();
     doReturn( file ).when( repo ).getFile( any( String.class ) );
 
+    doReturn( true ).when( repo ).hasAccess( USER_HOME_FOLDER, EnumSet.of( RepositoryFilePermission.WRITE ) );
+
     assertTrue( SystemUtils.canUpload( USER_HOME_FOLDER ) );
+  }
+
+  @Test
+  public void testCanUpload_ignoreUploadDirExistenceChecks_HasAdministerSecurityAction() {
+    IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME );
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( AdministerSecurityAction.NAME );
+    PentahoSystem.registerObject( mockAuthPolicy );
+
+    assertTrue( SystemUtils.canUpload( "", true ) );
+  }
+
+  @Test
+  public void testCanUpload_ignoreUploadDirExistenceChecks_HasPublishActions() {
+    IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME );
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( PublishAction.NAME );
+    PentahoSystem.registerObject( mockAuthPolicy );
+
+    assertTrue( SystemUtils.canUpload( "", true ) );
+  }
+
+  @Test
+  public void testCanUpload_ignoreUploadDirExistenceChecks_HomeFolder() {
+    IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME );
+    doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryCreateAction.NAME );
+    PentahoSystem.registerObject( mockAuthPolicy );
+
+    assertTrue( SystemUtils.canUpload( USER_HOME_FOLDER, true ) );
   }
 
   @Test
