@@ -160,7 +160,6 @@
         <include>commons-logging:commons-logging</include>
         <include>org.hsqldb:hsqldb</include>
         <include>mysql:mysql-connector-java</include>
-        <include>com.h2database:h2</include>
         <include>org.postgresql:postgresql</include>
       </includes>
       <outputDirectory>tomcat/lib</outputDirectory>
