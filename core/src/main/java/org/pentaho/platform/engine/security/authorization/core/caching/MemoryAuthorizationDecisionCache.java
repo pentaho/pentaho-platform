@@ -153,6 +153,31 @@ public class MemoryAuthorizationDecisionCache implements
       }
     }
 
+    public void invalidate( @NonNull IAuthorizationDecisionCacheKey key ) {
+      cache.invalidate( key );
+    }
+
+    public void invalidateAll( @NonNull Predicate<IAuthorizationDecisionCacheKey> predicate ) {
+      // There doesn't seem to be a "safer" way to iterate the cache keys using the Guava Cache API.
+      // The asMap() and its keySet() are both views, backed by the real objects, so they "suffer" from concurrent
+      // modification issues. The `asMap()` documentation says:
+      // > Iterators from the returned map are at least <i>weakly consistent</i>: they are safe for
+      // > concurrent use, but if the cache is modified (including by eviction) after the iterator is
+      // > created, it is undefined which of the changes (if any) will be reflected in that iterator.
+      // So, it seems that only _changes_ to the cache would possibly not be visible, not the original values at the
+      // time
+      // when the iterator was created. This is consistent with the general goals described for the main class's
+      // invalidate* methods.
+      var invalidateRequests = cache
+        .asMap()
+        .keySet()
+        .stream()
+        .filter( predicate )
+        .toList();
+
+      cache.invalidateAll( invalidateRequests );
+    }
+
     /**
      * Disposes this session cache data, by clearing all associated sessions and disposing the shared cache.
      */
@@ -240,10 +265,12 @@ public class MemoryAuthorizationDecisionCache implements
 
   private final ReentrantReadWriteLock sessionsLock = new ReentrantReadWriteLock();
 
+  // Thread-guarded by sessionsLock.
   @NonNull
   private final Map<String, SessionCacheData> cacheBySessionKey;
 
-  // Thread-guarded by sessionsLock. Updated with stats of removed caches.
+  // Accumulates stats of removed session caches.
+  // Thread-guarded by sessionsLock.
   private CacheStats pastCacheStats = new CacheStats( 0, 0, 0, 0, 0, 0 );
 
   public MemoryAuthorizationDecisionCache(
@@ -262,7 +289,7 @@ public class MemoryAuthorizationDecisionCache implements
 
   // region Global and Per-session cache management
   @NonNull
-  private Cache<IAuthorizationDecisionCacheKey, IAuthorizationDecision> createCache() {
+  protected Cache<IAuthorizationDecisionCacheKey, IAuthorizationDecision> createCache() {
     final var cacheBuilder = CacheBuilder.newBuilder()
       .expireAfterWrite( expireAfterWrite, TimeUnit.SECONDS )
       .maximumSize( maximumSize );
@@ -277,9 +304,9 @@ public class MemoryAuthorizationDecisionCache implements
   @NonNull
   protected String getSessionKey( IPentahoSession session ) {
     // Using session name so that different sessions of same user (e.g. one StandaloneSession and one
-    // PentahoHttpSession)
-    // use the same cache. It is common for the current PentahoHttpSession to create several StandaloneSessions,
-    // typically via runAsUser, or runAsSystem. Using session ID would associate different caches to the same user.
+    // PentahoHttpSession) use the same cache. It is common for the current PentahoHttpSession to create several
+    // StandaloneSessions, typically via runAsUser, or runAsSystem. Using session ID would associate different caches to
+    // the same user.
     String sessionKey = session.getName();
     if ( sessionKey == null ) {
       throw new IllegalStateException( "Pentaho session without name" );
@@ -297,7 +324,7 @@ public class MemoryAuthorizationDecisionCache implements
     try {
       return Optional
         .ofNullable( cacheBySessionKey.get( sessionKey ) )
-        .map( data -> data.getCache( session ) );
+        .map( cacheData -> cacheData.getCache( session ) );
     } finally {
       sessionsLock.readLock().unlock();
     }
@@ -442,22 +469,54 @@ public class MemoryAuthorizationDecisionCache implements
   // endregion Main get, put methods
 
   // region Authorization Request Invalidation
+
+  // NOTE: Regarding all the invalidate* methods below:
+  //
+  // It is possible that, after the session map is copied and the end of the call, a new session cache is created and
+  // added to the original session map.
+  // This is acceptable, as the new cache will be empty, so there is nothing to invalidate.
+  //
+  // It is also possible that a session cache is removed from the original map, remaining present in the copied map.
+  // This is also acceptable, as the session cache will simply be invalidated again.
+  //
+  // Finally, it is also possible that authorization decision(s) are added to the captured session caches, during the
+  // per-session invalidation process. For example:
+  // 1. invalidate session A
+  // 2. new auth added to session C cache (not yet invalidated)
+  // 3. invalidate session B
+  // 4. invalidate session C
+  // 5. new auth added to session A cache (already invalidated)
+  //
+  // In case 2, above, the new auth will be invalidated in step 4, even though it was likely added to the cache after
+  // the invalidation process started. If a write lock were used, the entry would end up in the cache, which could be
+  // worse.
+  // In case 5, above, the new auth will not be invalidated, but this is acceptable, as the invalidation process
+  // started before the new auth was added to the cache.
+  //
+  // All this appears to be a good compromise between consistency, performance and implementation complexity, especially
+  // given the main use cases for these methods, of being able to invalidate authorization decisions when domain objects
+  // change, such as when a user's roles change, or a role's permissions change.
+  // One point in favor is that these changes are expected to be relatively infrequent, compared to authorization
+  // checks.
+  //
+  // If stronger consistency is required in the future, a more complex approach would be needed, such as read-locking
+  // the _entire_ cache (including contained per-session caches) when doing these operations.
+
   @Override
   public void invalidate( @NonNull IAuthorizationRequest request, @NonNull IAuthorizationOptions options ) {
     var key = createAuthorizationKey( request, options );
     copyCacheBySessionKey()
-      .forEach( ( sessionKey, cacheData ) -> cacheData.cache.invalidate( key ) );
+      .forEach( ( sessionKey, cacheData ) -> cacheData.invalidate( key ) );
   }
 
   @Override
   public void invalidateAll( @NonNull Predicate<IAuthorizationDecisionCacheKey> predicate ) {
     copyCacheBySessionKey()
-      .forEach( ( sessionKey, cacheData ) -> invalidateAllOfCache( cacheData.cache, predicate ) );
+      .forEach( ( sessionKey, cacheData ) -> cacheData.invalidateAll( predicate ) );
   }
 
   @Override
   public void invalidateAll() {
-    // Includes invalidating session cache data for the NULL_SESSION, if present.
     sessionsLock.writeLock().lock();
     try {
       cacheBySessionKey.forEach( ( sessionId, cacheData ) -> cacheData.dispose() );
@@ -465,18 +524,6 @@ public class MemoryAuthorizationDecisionCache implements
     } finally {
       sessionsLock.writeLock().unlock();
     }
-  }
-
-  private void invalidateAllOfCache( @NonNull Cache<IAuthorizationDecisionCacheKey, IAuthorizationDecision> cache,
-                                     @NonNull Predicate<IAuthorizationDecisionCacheKey> predicate ) {
-    var invalidateRequests = cache
-      .asMap()
-      .keySet()
-      .stream()
-      .filter( predicate )
-      .toList();
-
-    cache.invalidateAll( invalidateRequests );
   }
   // endregion Authorization Request Invalidation
 
@@ -499,15 +546,31 @@ public class MemoryAuthorizationDecisionCache implements
 
   /**
    * Builds a consolidated {@link CacheStats} reflecting all session caches.
+   * <p>
+   * This builds collects stats of each session in a way that is safe for concurrent access, however, the stats may be
+   * inconsistent with respect to each other, as they may be collected at different times without locking each session's
+   * internal workings. This appears to be a good compromise given the rough requirement of being able to log stats for
+   * monitoring and configuration fine-tuning purposes.
    *
    * @return The consolidated stats.
    */
   protected CacheStats getStats() {
-    return copyCacheBySessionKey()
+    Map<String, SessionCacheData> sessionCacheMapCopy;
+    CacheStats pastCacheStatsCopy;
+
+    sessionsLock.readLock().lock();
+    try {
+      sessionCacheMapCopy = new HashMap<>( cacheBySessionKey );
+      pastCacheStatsCopy = pastCacheStats;
+    } finally {
+      sessionsLock.readLock().unlock();
+    }
+
+    return sessionCacheMapCopy
       .values()
       .stream()
       .map( cacheData -> cacheData.cache.stats() )
-      .reduce( pastCacheStats, CacheStats::plus );
+      .reduce( pastCacheStatsCopy, CacheStats::plus );
   }
 
   @Override
