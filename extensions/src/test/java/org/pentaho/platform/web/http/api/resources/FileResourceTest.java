@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
@@ -47,6 +48,7 @@ import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedReposi
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
+import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
@@ -87,6 +89,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -97,6 +100,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -1940,5 +1944,16 @@ public class FileResourceTest {
     assertFalse( fileResource.validateSecurityPrincipal( "Ad,min" ) );
     assertFalse( fileResource.validateSecurityPrincipal( ",Admin" ) );
     assertFalse( fileResource.validateSecurityPrincipal( "Admin\"" ) );
+  }
+
+  @Test
+  public void testCanUpload() {
+    try ( MockedStatic<SystemUtils> systemUtils = mockStatic( SystemUtils.class ) ) {
+      systemUtils.when( () -> SystemUtils.canUpload( anyString(), anyBoolean() ) ).thenReturn( true );
+
+      var response = fileResource.canUpload( "/mock/path/", false );
+
+      assertEquals( "true", response.getEntity() );
+    }
   }
 }

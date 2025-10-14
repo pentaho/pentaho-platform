@@ -39,24 +39,44 @@ public class SystemUtils {
       && policy.isAllowed( AdministerSecurityAction.NAME );
   }
 
+  /**
+   * Checks if the current user can upload to the specified directory.<br>
+   * Existence and write permission checks on the upload directory are performed.
+   *
+   * @param uploadDir The directory to check upload permissions for.
+   * @return {@code true} if the user can upload to the specified directory, {@code false} otherwise.
+   */
   public static boolean canUpload( String uploadDir ) {
-    // Repo and File Write Access checks
+    return canUpload( uploadDir, false );
+  }
 
+  /**
+   * Checks if the current user can upload to the specified directory.<br>
+   * If {@code ignoreUploadDirExistenceChecks} is {@code true}, the existence and write permission checks on
+   * the upload directory are skipped.
+   *
+   * @param uploadDir The directory to check upload permissions for.
+   * @param ignoreUploadDirExistenceChecks If {@code true}, skips existence and write permission checks
+   *                                      on the upload directory.
+   * @return {@code true} if the user can upload to the specified directory, {@code false} otherwise.
+   */
+  public static boolean canUpload( String uploadDir, boolean ignoreUploadDirExistenceChecks ) {
+    // Repo and File Write Access checks
     IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
     if ( !( policy.isAllowed( RepositoryReadAction.NAME ) && policy.isAllowed( RepositoryCreateAction.NAME ) ) ) {
       return false;
     }
 
-    if ( !StringUtil.isEmpty( uploadDir ) ) {
+    if ( !ignoreUploadDirExistenceChecks && !StringUtil.isEmpty( uploadDir ) ) {
       IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
-      // validate if the user has write permission to the upload dir
-      if ( !repo.hasAccess( uploadDir, EnumSet.of( RepositoryFilePermission.WRITE ) ) ) {
-        return false;
-      }
-
       // check if upload dir is a folder
       RepositoryFile file = repo.getFile( uploadDir );
       if ( file == null || !file.isFolder() ) {
+        return false;
+      }
+
+      // validate if the user has write permission to the upload dir
+      if ( !repo.hasAccess( uploadDir, EnumSet.of( RepositoryFilePermission.WRITE ) ) ) {
         return false;
       }
     }
