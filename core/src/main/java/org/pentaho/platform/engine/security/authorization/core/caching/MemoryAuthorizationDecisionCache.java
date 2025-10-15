@@ -18,6 +18,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheStats;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.ILogoutListener;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISessionContainer;
@@ -31,25 +34,33 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.springframework.util.Assert;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+/**
+ * An in-memory implementation of {@link IAuthorizationDecisionCache}, that associates cache entries to the current
+ * Pentaho session.
+ */
 public class MemoryAuthorizationDecisionCache implements
   IAuthorizationDecisionCache,
   ILogoutListener,
-  Closeable {
+  AutoCloseable {
+
+  private static final Log logger = LogFactory.getLog( MemoryAuthorizationDecisionCache.class );
 
   // region Helper classes
 
@@ -147,10 +158,19 @@ public class MemoryAuthorizationDecisionCache implements
     public boolean removeSession( @NonNull IPentahoSession session ) {
       lock.writeLock().lock();
       try {
-        return sessions.remove( session ) && sessions.isEmpty();
+        return sessions.remove( session ) && isStale();
       } finally {
         lock.writeLock().unlock();
       }
+    }
+
+    /**
+     * Indicates whether this session cache data is stale does not contain any associated sessions.
+     *
+     * @return {@code true} if there are no associated sessions; {@code false} otherwise.
+     */
+    public boolean isStale() {
+      return sessions.isEmpty();
     }
 
     public void invalidate( @NonNull IAuthorizationDecisionCacheKey key ) {
@@ -257,39 +277,174 @@ public class MemoryAuthorizationDecisionCache implements
       return String.format( "AuthorizationDecisionCacheKey[request=%s, options=%s]", request, options );
     }
   }
+
+  /**
+   * Helper class of {@link MemoryAuthorizationDecisionCache} that aggregates code that manages the periodic sweeping of
+   * stale session caches. A stale session cache is one that has no associated sessions, presumably because they were
+   * garbage collected, without being properly destroyed. This can happen in case of misbehaved code that creates
+   * {@link StandaloneSession}s without destroying them, by calling {@link StandaloneSession#destroy()}.
+   * <p>
+   * This feature is provided as a fallback / memory-leak protection mechanism, J.I.C.
+   */
+  private class SessionCacheSweeper implements AutoCloseable {
+    private final ScheduledExecutorService sessionCacheSweeperExecutor;
+    private final ScheduledFuture<?> sessionCacheSweeperHandle;
+
+    public SessionCacheSweeper( long staleSessionsSweepInterval ) {
+      Assert.isTrue(
+        staleSessionsSweepInterval > 0,
+        "Argument 'staleSessionsSweepInterval' must be greater than zero." );
+
+      this.sessionCacheSweeperExecutor = Executors.newSingleThreadScheduledExecutor( runnable -> {
+        // Must be a daemon thread, to not block VM shutdown.
+        Thread t = new Thread(
+          runnable,
+          String.format( "%s-session-cleanup", MemoryAuthorizationDecisionCache.class.getSimpleName() ) );
+        t.setDaemon( true );
+        return t;
+      } );
+
+      this.sessionCacheSweeperHandle = sessionCacheSweeperExecutor.scheduleAtFixedRate(
+        this::doSweep,
+        staleSessionsSweepInterval,
+        staleSessionsSweepInterval,
+        TimeUnit.SECONDS );
+    }
+
+    protected void doSweep() {
+      if ( logger.isTraceEnabled() ) {
+        logger.trace( "Sweeping for stale session caches..." );
+      }
+
+      // Happy path: no dead session caches.
+      boolean hasStaleSessionCaches;
+      sessionsLock.readLock().lock();
+      try {
+        hasStaleSessionCaches = cacheBySessionKey
+          .values()
+          .stream()
+          .anyMatch( SessionCacheData::isStale );
+      } finally {
+        sessionsLock.readLock().unlock();
+      }
+
+      if ( hasStaleSessionCaches ) {
+        // Slow path: remove dead session caches.
+        List<String> staleSessionKeys;
+        sessionsLock.writeLock().lock();
+        try {
+          // Collect keys of stale sessions, to avoid copying the whole map to be able to remove during loop.
+          // Then invalidate those.
+          staleSessionKeys = cacheBySessionKey
+            .entrySet()
+            .stream()
+            .filter( entry -> entry.getValue().isStale() )
+            .map( Map.Entry::getKey )
+            .toList();
+
+          for ( String staleSessionKey : staleSessionKeys ) {
+            invalidateSessionCache( staleSessionKey, cacheBySessionKey.get( staleSessionKey ) );
+          }
+        } finally {
+          sessionsLock.writeLock().unlock();
+        }
+
+        hasStaleSessionCaches = !staleSessionKeys.isEmpty();
+
+        if ( hasStaleSessionCaches && logger.isWarnEnabled() ) {
+          // Log, for monitoring purposes.
+          // This is expected to be a rare occurrence, so logging at warning level should be acceptable.
+          // If it happens often, it may indicate a problem in the application code, such as
+          // StandaloneSessions not being properly destroyed.
+          // Note that this log may be noisy in testing environments, where StandaloneSessions are more common.
+          // In production, PentahoHttpSessions are more common, which are properly handled via logout listeners.
+          logger.warn(
+            String.format( "Cleaned up %d stale session caches: %s", staleSessionKeys.size(), staleSessionKeys )
+          );
+        }
+
+      }
+
+      if ( logger.isTraceEnabled() ) {
+        if ( !hasStaleSessionCaches ) {
+          logger.trace( "No stale session caches found." );
+        }
+
+        // Print stats in the end in any case.
+        logger.trace( MemoryAuthorizationDecisionCache.this.toString() );
+      }
+    }
+
+    @Override
+    public void close() throws Exception {
+      sessionCacheSweeperHandle.cancel( true );
+      sessionCacheSweeperExecutor.shutdown();
+    }
+  }
   // endregion Helper classes
 
+  // Settings for each session's internal authorization cache, a Guava cache.
+  // Used by createSessionCache().
   private final long expireAfterWrite;
   private final long maximumSize;
   private final boolean recordStats;
 
-  private final ReentrantReadWriteLock sessionsLock = new ReentrantReadWriteLock();
+  // Global lock for the sessions map, cacheBySessionKey.
+  // Also guards the pastCacheStats field.
+  @NonNull
+  private final ReentrantReadWriteLock sessionsLock;
 
-  // Thread-guarded by sessionsLock.
   @NonNull
   private final Map<String, SessionCacheData> cacheBySessionKey;
 
   // Accumulates stats of removed session caches.
-  // Thread-guarded by sessionsLock.
   private CacheStats pastCacheStats = new CacheStats( 0, 0, 0, 0, 0, 0 );
 
+  @Nullable
+  private final AutoCloseable sessionCacheSweeper;
+
+  /**
+   * Creates a new memory-based authorization decision cache.
+   *
+   * @param expireAfterWrite           The number of seconds after which an authorization entry should be automatically
+   *                                   removed from the cache.
+   * @param maximumSize                The maximum number of entries that the cache may contain per-session. When the
+   *                                   size is exceeded, the cache will evict entries that are less likely to be used
+   *                                   again.
+   * @param recordStats                Whether to record cache statistics, which may be retrieved informally via
+   *                                   {@link #toString()}.
+   * @param staleSessionsSweepInterval The number of seconds between sweeps to remove stale session caches.
+   *                                   A value of 0 or less disables this feature.
+   */
   public MemoryAuthorizationDecisionCache(
     long expireAfterWrite,
     long maximumSize,
-    boolean recordStats ) {
+    boolean recordStats,
+    long staleSessionsSweepInterval ) {
 
     this.expireAfterWrite = expireAfterWrite;
     this.maximumSize = maximumSize;
     this.recordStats = recordStats;
 
+    this.sessionsLock = new ReentrantReadWriteLock();
     this.cacheBySessionKey = new HashMap<>();
+
+    this.sessionCacheSweeper = createSessionCacheSweeper( staleSessionsSweepInterval );
 
     registerLogoutListener();
   }
 
-  // region Global and Per-session cache management
+  @VisibleForTesting
+  @Nullable
+  protected AutoCloseable createSessionCacheSweeper( long staleSessionsSweepInterval ) {
+    return staleSessionsSweepInterval > 0
+      ? new SessionCacheSweeper( staleSessionsSweepInterval )
+      : null;
+  }
+
+  // region Per-session cache management
   @NonNull
-  protected Cache<IAuthorizationDecisionCacheKey, IAuthorizationDecision> createCache() {
+  protected Cache<IAuthorizationDecisionCacheKey, IAuthorizationDecision> createSessionCache() {
     final var cacheBuilder = CacheBuilder.newBuilder()
       .expireAfterWrite( expireAfterWrite, TimeUnit.SECONDS )
       .maximumSize( maximumSize );
@@ -302,7 +457,7 @@ public class MemoryAuthorizationDecisionCache implements
   }
 
   @NonNull
-  protected String getSessionKey( IPentahoSession session ) {
+  protected String getSessionKey( @NonNull IPentahoSession session ) {
     // Using session name so that different sessions of same user (e.g. one StandaloneSession and one
     // PentahoHttpSession) use the same cache. It is common for the current PentahoHttpSession to create several
     // StandaloneSessions, typically via runAsUser, or runAsSystem. Using session ID would associate different caches to
@@ -316,7 +471,7 @@ public class MemoryAuthorizationDecisionCache implements
   }
 
   @NonNull
-  protected Optional<Cache<IAuthorizationDecisionCacheKey, IAuthorizationDecision>> getCacheOptional() {
+  protected Optional<Cache<IAuthorizationDecisionCacheKey, IAuthorizationDecision>> getSessionCacheOptional() {
     var session = getSession();
     var sessionKey = getSessionKey( session );
 
@@ -331,7 +486,7 @@ public class MemoryAuthorizationDecisionCache implements
   }
 
   @NonNull
-  protected Cache<IAuthorizationDecisionCacheKey, IAuthorizationDecision> getCache() {
+  protected Cache<IAuthorizationDecisionCacheKey, IAuthorizationDecision> getSessionCache() {
     var session = getSession();
     var sessionKey = getSessionKey( session );
 
@@ -357,7 +512,7 @@ public class MemoryAuthorizationDecisionCache implements
         return cacheData.getCache( session );
       }
 
-      var cache = createCache();
+      var cache = createSessionCache();
       cacheData = new SessionCacheData( cache, session );
       cacheBySessionKey.put( sessionKey, cacheData );
       return cache;
@@ -376,18 +531,37 @@ public class MemoryAuthorizationDecisionCache implements
       var cacheData = cacheBySessionKey.get( sessionKey );
       if ( cacheData != null && cacheData.removeSession( session ) ) {
         // Last session, so dispose and remove session cache data from the map.
-
-        // Store stats of removed cache.
-        if ( recordStats ) {
-          pastCacheStats = pastCacheStats.plus( cacheData.cache.stats() );
-        }
-
-        cacheData.dispose();
-        cacheBySessionKey.remove( sessionKey );
+        invalidateSessionCache( sessionKey, cacheData );
       }
     } finally {
       sessionsLock.writeLock().unlock();
     }
+  }
+
+  private void invalidateSessionCache( @NonNull String sessionKey, @NonNull SessionCacheData cacheData ) {
+    sessionsLock.writeLock().lock();
+    try {
+      // Store stats of removed cache.
+      if ( recordStats ) {
+        updatePastCacheStats( cacheData );
+      }
+
+      cacheData.dispose();
+      cacheBySessionKey.remove( sessionKey );
+    } finally {
+      sessionsLock.writeLock().unlock();
+    }
+  }
+
+  private void updatePastCacheStats( @NonNull SessionCacheData expiredCacheData ) {
+    // Must adjust the eviction count, given that all items in the expired cache can now be considered evicted.
+
+    var expiredCacheStats = expiredCacheData.cache.stats();
+    var additionalEvictionCount = expiredCacheStats.loadSuccessCount();
+
+    pastCacheStats = pastCacheStats
+      .plus( expiredCacheStats )
+      .plus( new CacheStats( 0, 0, 0, 0, 0, additionalEvictionCount ) );
   }
   // endregion Global and Per-session cache management
 
@@ -420,9 +594,12 @@ public class MemoryAuthorizationDecisionCache implements
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() throws Exception {
     unregisterLogoutListener();
     invalidateAll();
+    if ( sessionCacheSweeper != null ) {
+      sessionCacheSweeper.close();
+    }
   }
   // endregion Pentaho Integration
 
@@ -434,7 +611,7 @@ public class MemoryAuthorizationDecisionCache implements
 
     var key = createAuthorizationKey( request, options );
 
-    return getCacheOptional()
+    return getSessionCacheOptional()
       .map( cache -> cache.getIfPresent( key ) );
   }
 
@@ -447,7 +624,7 @@ public class MemoryAuthorizationDecisionCache implements
 
     var key = createAuthorizationKey( request, options );
     try {
-      return Objects.requireNonNull( getCache().get( key, () -> loader.apply( key ) ) );
+      return Objects.requireNonNull( getSessionCache().get( key, () -> loader.apply( key ) ) );
     } catch ( ExecutionException e ) {
       throw new UncheckedExecutionException( e );
     }
@@ -458,7 +635,7 @@ public class MemoryAuthorizationDecisionCache implements
                    @NonNull IAuthorizationOptions options,
                    @NonNull IAuthorizationDecision decision ) {
     var key = createAuthorizationKey( request, options );
-    getCache().put( key, decision );
+    getSessionCache().put( key, decision );
   }
 
   @NonNull
@@ -555,6 +732,7 @@ public class MemoryAuthorizationDecisionCache implements
    * @return The consolidated stats.
    */
   protected CacheStats getStats() {
+    // Create safe copies of the session cache map and past session stats.
     Map<String, SessionCacheData> sessionCacheMapCopy;
     CacheStats pastCacheStatsCopy;
 
