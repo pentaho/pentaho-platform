@@ -368,8 +368,11 @@ not directly from the PentahoObjectFactory. -->
   <bean id="authorizationService"
         class="org.pentaho.platform.engine.security.authorization.core.CachingAuthorizationService">
     <constructor-arg ref="authorizationActionService" />
-    <constructor-arg ref="rootAuthorizationRule" />
     <constructor-arg ref="authorizationDecisionCache" />
+    <!-- Setting the rootRule as a property, instead of as a constructor arg, allows rules themselves to depend on the
+         authorizationService. While this does not appear to be a useful scenario, it is provided for flexibility, and
+         might avoid some third-party usage issues implementing rules. -->
+    <property name="rootRule" ref="rootAuthorizationRule" />
     <pen:publish as-type="INTERFACES" />
   </bean>
 

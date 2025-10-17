@@ -30,10 +30,26 @@ public class CachingAuthorizationService extends AuthorizationService {
   private final IAuthorizationDecisionCache decisionCache;
 
   /**
+   * Constructs an instance of the authorization service with a default root rule that always abstains.
+   *
+   * @param actionService The service providing access to authorization actions.
+   * @param decisionCache The cache for authorization decisions.
+   */
+  public CachingAuthorizationService( @NonNull IAuthorizationActionService actionService,
+                                      @NonNull IAuthorizationDecisionCache decisionCache ) {
+    super( actionService );
+
+    Assert.notNull( decisionCache, "Argument 'decisionCache' is required" );
+
+    this.decisionCache = decisionCache;
+  }
+
+  /**
    * Constructs an instance of the authorization service with a given root rule.
    *
    * @param actionService The service providing access to authorization actions.
    * @param rootRule      The root authorization rule.
+   * @param decisionCache The cache for authorization decisions.
    */
   public CachingAuthorizationService( @NonNull IAuthorizationActionService actionService,
                                       @NonNull IAuthorizationRule<? extends IAuthorizationRequest> rootRule,
