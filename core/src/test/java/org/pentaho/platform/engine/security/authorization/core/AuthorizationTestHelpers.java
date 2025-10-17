@@ -74,8 +74,9 @@ public class AuthorizationTestHelpers {
       this.actionName = actionName;
     }
 
+    @NonNull
     @Override
-    public @NonNull String getName() {
+    public String getName() {
       return actionName;
     }
 
@@ -118,7 +119,7 @@ public class AuthorizationTestHelpers {
    * Creates a basic authorization resource action with the specified name and resource type.
    * Includes implementation of equals and hashCode to ensure proper comparison in tests.
    *
-   * @param actionName The name of the action.
+   * @param actionName   The name of the action.
    * @param resourceType The resource type this action applies to.
    * @return An IAuthorizationAction with the specified name and resource type.
    */
@@ -129,6 +130,7 @@ public class AuthorizationTestHelpers {
   // endregion
 
   // region Rule Mock Creation Helpers
+
   /**
    * Creates a basic mock authorization rule with getRequestType() configured.
    *
@@ -143,12 +145,13 @@ public class AuthorizationTestHelpers {
    * Creates a basic mock authorization rule with getRequestType() configured for a specific request type.
    *
    * @param requestType The type of request this rule handles.
-   * @param <T> The type of authorization request this rule handles.
+   * @param <T>         The type of authorization request this rule handles.
    * @return A mock IAuthorizationRule with getRequestType() returning the specified request type.
    */
   @SuppressWarnings( "unchecked" )
   @NonNull
-  public static <T extends IAuthorizationRequest> IAuthorizationRule<T> createMockRule( @NonNull Class<T> requestType ) {
+  public static <T extends IAuthorizationRequest> IAuthorizationRule<T> createMockRule(
+    @NonNull Class<T> requestType ) {
     IAuthorizationRule<T> rule = mock( IAuthorizationRule.class );
     when( rule.getRequestType() ).thenReturn( requestType );
     return rule;
@@ -156,6 +159,7 @@ public class AuthorizationTestHelpers {
   // endregion
 
   // region Composite Decision Assertion Helpers
+
   /**
    * Asserts that the given composite decision contains exactly the expected decisions, in the same order and with the
    * same references.
@@ -196,6 +200,7 @@ public class AuthorizationTestHelpers {
   // endregion
 
   // region Decision Mock Creation Helpers
+
   /**
    * Creates a mock IAuthorizationDecision for the given request and granted status.
    *

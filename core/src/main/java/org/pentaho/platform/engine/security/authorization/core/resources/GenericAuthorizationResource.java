@@ -58,7 +58,9 @@ public class GenericAuthorizationResource implements IAuthorizationResource {
 
   @Override
   public int hashCode() {
-    return Objects.hash( typeId, id );
+    int result = typeId.hashCode();
+    result = 31 * result + id.hashCode();
+    return result;
   }
 
   @Override
