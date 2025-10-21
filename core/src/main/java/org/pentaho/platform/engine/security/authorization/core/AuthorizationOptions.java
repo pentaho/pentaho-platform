@@ -58,12 +58,9 @@ public class AuthorizationOptions implements IAuthorizationOptions {
 
   @Override
   public boolean equals( Object o ) {
-    if ( !( o instanceof IAuthorizationOptions ) ) {
-      return false;
-    }
+    return o instanceof IAuthorizationOptions that
+      && getDecisionReportingMode() == that.getDecisionReportingMode();
 
-    IAuthorizationOptions that = (IAuthorizationOptions) o;
-    return getDecisionReportingMode() == that.getDecisionReportingMode();
   }
 
   @Override

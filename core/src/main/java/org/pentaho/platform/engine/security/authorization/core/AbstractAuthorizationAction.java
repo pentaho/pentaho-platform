@@ -30,13 +30,9 @@ public abstract class AbstractAuthorizationAction implements IAuthorizationActio
       return true;
     }
 
-    if ( !( obj instanceof IAuthorizationAction ) ) {
-      return false;
-    }
+    return obj instanceof IAuthorizationAction other
+      && Objects.equals( getName(), other.getName() );
 
-    IAuthorizationAction other = (IAuthorizationAction) obj;
-
-    return Objects.equals( getName(), other.getName() );
   }
 
   @Override

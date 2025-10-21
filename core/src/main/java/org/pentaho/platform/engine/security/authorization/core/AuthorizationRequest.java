@@ -85,9 +85,9 @@ public class AuthorizationRequest implements IAuthorizationRequest {
   @Override
   public String toString() {
     return String.format(
-      "%s [principal=`%s`, action='%s']",
+      "%s [principal=%s, action=%s]",
       getClass().getSimpleName(),
-      principal.getName(),
+      principal,
       action );
   }
 }

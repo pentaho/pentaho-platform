@@ -22,6 +22,8 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequ
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.security.authorization.core.rules.AbstractAuthorizationRule;
+import org.pentaho.platform.engine.security.authorization.core.rules.AbstractCompositeAuthorizationRule;
 import org.pentaho.platform.engine.security.authorization.core.rules.AllAuthorizationRule;
 import org.pentaho.platform.engine.security.authorization.core.rules.AnyAuthorizationRule;
 import org.springframework.util.Assert;
@@ -33,7 +35,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class PentahoAuthorizationRuleLevel implements IAuthorizationRule<IAuthorizationRequest> {
+public class PentahoAuthorizationRuleLevel extends AbstractAuthorizationRule<IAuthorizationRequest> {
   private static final String RULE_LEVEL_ATTRIBUTE = "ruleLevel";
 
   public enum RuleLevelType {
@@ -58,7 +60,7 @@ public class PentahoAuthorizationRuleLevel implements IAuthorizationRule<IAuthor
   private final Supplier<List<IPentahoObjectReference<IAuthorizationRule>>> authorizationRuleReferencesSupplier;
 
   @NonNull
-  private IAuthorizationRule<IAuthorizationRequest> delegateRule;
+  private AbstractCompositeAuthorizationRule delegateRule;
 
   public PentahoAuthorizationRuleLevel( @NonNull IPluginManager pluginManager,
                                         @NonNull RuleLevelType ruleLevelType,
@@ -119,12 +121,12 @@ public class PentahoAuthorizationRuleLevel implements IAuthorizationRule<IAuthor
 
   @VisibleForTesting
   @NonNull
-  protected IAuthorizationRule<IAuthorizationRequest> getDelegateRule() {
+  protected AbstractCompositeAuthorizationRule getDelegateRule() {
     return this.delegateRule;
   }
 
   @NonNull
-  private IAuthorizationRule<IAuthorizationRequest> buildDelegateRule() {
+  private AbstractCompositeAuthorizationRule buildDelegateRule() {
     var rules = getLevelAuthorizationRules( levelRulePredicate );
     rules.addAll( postRules );
 
@@ -174,12 +176,20 @@ public class PentahoAuthorizationRuleLevel implements IAuthorizationRule<IAuthor
     // normalize null to ""
     final String normalizedRuleLevel = getDefaultValue( ruleLevel, "" );
 
-    return ruleRef -> {
-      String value = getDefaultValue(
-        ruleRef.getAttributes().get( RULE_LEVEL_ATTRIBUTE ),
-        isDefaultRuleLevel ? normalizedRuleLevel : "" );
+    return new Predicate<>() {
+      @Override
+      public boolean test( IPentahoObjectReference<?> ruleRef ) {
+        String value = getDefaultValue(
+          ruleRef.getAttributes().get( RULE_LEVEL_ATTRIBUTE ),
+          isDefaultRuleLevel ? normalizedRuleLevel : "" );
 
-      return value.equals( normalizedRuleLevel );
+        return value.equals( normalizedRuleLevel );
+      }
+
+      @Override
+      public String toString() {
+        return "Rules[level=" + normalizedRuleLevel + " default=" + isDefaultRuleLevel + "]";
+      }
     };
   }
 
@@ -193,5 +203,14 @@ public class PentahoAuthorizationRuleLevel implements IAuthorizationRule<IAuthor
   @NonNull
   private static Supplier<List<IPentahoObjectReference<IAuthorizationRule>>> getPentahoSystemAuthorizationRuleReferencesSupplier() {
     return () -> PentahoSystem.getObjectReferences( IAuthorizationRule.class, null );
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+      "PentahoAuthorizationRuleLevel[%s, %s, count=%s]",
+      ruleLevelType,
+      levelRulePredicate,
+      getDelegateRule().getRules().size() );
   }
 }

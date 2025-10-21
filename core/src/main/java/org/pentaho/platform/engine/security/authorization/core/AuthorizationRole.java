@@ -37,12 +37,9 @@ public class AuthorizationRole extends AbstractAuthorizationPrincipal
 
   @Override
   public boolean equals( Object o ) {
-    if ( !( o instanceof IAuthorizationRole ) ) {
-      return false;
-    }
+    return o instanceof IAuthorizationRole that
+      && Objects.equals( getName(), that.getName() );
 
-    IAuthorizationRole that = (IAuthorizationRole) o;
-    return Objects.equals( getName(), that.getName() );
   }
 
   // have hash code be sensitive to the interface type, so that it is

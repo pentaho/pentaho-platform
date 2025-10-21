@@ -74,6 +74,9 @@ public class MemoryAuthorizationDecisionCache implements
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
+    @NonNull
+    private final String sessionKey;
+
     /**
      * Stores the set of sessions associated with this session cache data.
      * <p>
@@ -91,8 +94,10 @@ public class MemoryAuthorizationDecisionCache implements
     @NonNull
     private final Cache<IAuthorizationDecisionCacheKey, IAuthorizationDecision> cache;
 
-    public SessionCacheData( @NonNull Cache<IAuthorizationDecisionCacheKey, IAuthorizationDecision> cache,
+    public SessionCacheData( @NonNull String sessionKey,
+                             @NonNull Cache<IAuthorizationDecisionCacheKey, IAuthorizationDecision> cache,
                              @NonNull IPentahoSession session ) {
+      this.sessionKey = sessionKey;
       this.cache = cache;
 
       addSessionCore( session );
@@ -174,6 +179,13 @@ public class MemoryAuthorizationDecisionCache implements
     }
 
     public void invalidate( @NonNull IAuthorizationDecisionCacheKey key ) {
+      if ( logger.isTraceEnabled() ) {
+        logger.trace(
+          String.format(
+            "Invalidating cache entry for key '%s' in session cache for '%s'",
+            key, sessionKey ) );
+      }
+
       cache.invalidate( key );
     }
 
@@ -195,6 +207,15 @@ public class MemoryAuthorizationDecisionCache implements
         .filter( predicate )
         .toList();
 
+      if ( logger.isTraceEnabled() ) {
+        for ( var key : invalidateRequests ) {
+          logger.trace(
+            String.format(
+              "Invalidating cache entry for key '%s' in session cache for '%s'",
+              key, sessionKey ) );
+        }
+      }
+
       cache.invalidateAll( invalidateRequests );
     }
 
@@ -209,6 +230,10 @@ public class MemoryAuthorizationDecisionCache implements
         cache.cleanUp();
       } finally {
         lock.writeLock().unlock();
+      }
+
+      if ( logger.isTraceEnabled() ) {
+        logger.trace( String.format( "Session cache disposed for '%s'", sessionKey ) );
       }
     }
   }
@@ -513,7 +538,7 @@ public class MemoryAuthorizationDecisionCache implements
       }
 
       var cache = createSessionCache();
-      cacheData = new SessionCacheData( cache, session );
+      cacheData = new SessionCacheData( sessionKey, cache, session );
       cacheBySessionKey.put( sessionKey, cacheData );
       return cache;
     } finally {

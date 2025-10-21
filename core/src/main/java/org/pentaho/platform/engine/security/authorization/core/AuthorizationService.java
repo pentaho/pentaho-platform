@@ -162,6 +162,13 @@ public class AuthorizationService implements IAuthorizationService {
 
       try {
         if ( !rule.getRequestType().isAssignableFrom( request.getClass() ) ) {
+          if ( logger.isDebugEnabled() ) {
+            logger.debug( String.format(
+              "AuthorizeRule END - SUCCESS - request: %s rule: %s result: Abstained for request type",
+              request,
+              rule ) );
+          }
+
           return Optional.empty();
         }
 

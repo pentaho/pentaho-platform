@@ -13,7 +13,6 @@
 package org.pentaho.platform.engine.security.authorization.core.rules;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import org.pentaho.platform.api.engine.security.authorization.IAuthorizationContext;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
@@ -29,21 +28,13 @@ import java.util.Optional;
  * <p>
  * It provides a default implementation of the {@link #toString()} method, which returns the class's simple name.
  *
- * @param <T> The specific type of authorization request this rule can handle, must extend {@link IAuthorizationRequest}.
+ * @param <T> The specific type of authorization request this rule can handle, must extend
+ * {@link IAuthorizationRequest}.
  */
 public abstract class AbstractAuthorizationRule<T extends IAuthorizationRequest> implements IAuthorizationRule<T> {
 
   protected static final String LIST_SEPARATOR =
     Messages.getInstance().getString( "AbstractAuthorizationDecision.LIST_SEPARATOR" );
-
-  @NonNull
-  @Override
-  public abstract Class<T> getRequestType();
-
-  @NonNull
-  @Override
-  public abstract Optional<IAuthorizationDecision> authorize( @NonNull T request,
-                                                              @NonNull IAuthorizationContext context );
 
   @NonNull
   protected final Optional<IAuthorizationDecision> abstain() {

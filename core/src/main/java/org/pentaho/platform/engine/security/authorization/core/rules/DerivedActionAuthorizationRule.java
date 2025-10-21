@@ -85,7 +85,7 @@ public class DerivedActionAuthorizationRule extends AbstractAuthorizationRule<IA
   public String toString() {
     return String.format(
       "%s[base=%s, derived=%s]",
-      getClass().getTypeName(),
+      getClass().getSimpleName(),
       baseAction,
       getDerivedActionsLogText()
     );

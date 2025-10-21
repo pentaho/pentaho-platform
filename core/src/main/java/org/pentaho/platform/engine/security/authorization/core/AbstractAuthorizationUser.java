@@ -21,12 +21,9 @@ public abstract class AbstractAuthorizationUser extends AbstractAuthorizationPri
 
   @Override
   public boolean equals( Object o ) {
-    if ( !( o instanceof IAuthorizationUser ) ) {
-      return false;
-    }
+    return o instanceof IAuthorizationUser that
+      && Objects.equals( getName(), that.getName() );
 
-    IAuthorizationUser that = (IAuthorizationUser) o;
-    return Objects.equals( getName(), that.getName() );
   }
 
   // have hash code be sensitive to the interface type, so that it is

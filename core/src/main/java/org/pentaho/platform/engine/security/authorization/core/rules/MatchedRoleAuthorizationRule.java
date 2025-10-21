@@ -88,7 +88,7 @@ public class MatchedRoleAuthorizationRule extends AbstractAuthorizationRule<IAut
   public String toString() {
     return String.format(
       "%s[role=%s]",
-      getClass().getTypeName(),
+      getClass().getSimpleName(),
       role.getName() );
   }
 }

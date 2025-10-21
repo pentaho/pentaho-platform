@@ -100,9 +100,9 @@ public class ResourceAuthorizationRequest extends AuthorizationRequest
   @Override
   public String toString() {
     return String.format(
-      "%s [principal: `%s`, action: '%s', resource: %s]",
+      "%s [principal=%s, action=%s, resource=%s]",
       getClass().getSimpleName(),
-      getPrincipal().getName(),
+      getPrincipal(),
       getAction(),
       getResource() );
   }
