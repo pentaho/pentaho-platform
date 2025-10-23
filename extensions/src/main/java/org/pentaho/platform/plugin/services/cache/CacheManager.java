@@ -246,7 +246,7 @@ public class CacheManager implements ICacheManager {
   }
 
   public void onLogout( final IPentahoSession session ) {
-    removeRegionCache( session.getName() );
+    killSessionCache( session );
   }
 
   public boolean addCacheRegion( String region, Properties cacheProperties ) {

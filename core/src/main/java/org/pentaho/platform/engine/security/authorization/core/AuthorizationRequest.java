@@ -77,15 +77,17 @@ public class AuthorizationRequest implements IAuthorizationRequest {
 
   @Override
   public int hashCode() {
-    return Objects.hash( principal, action );
+    int result = principal.hashCode();
+    result = 31 * result + action.hashCode();
+    return result;
   }
 
   @Override
   public String toString() {
     return String.format(
-      "%s [principal=`%s`, action='%s']",
+      "%s [principal=%s, action=%s]",
       getClass().getSimpleName(),
-      principal.getName(),
+      principal,
       action );
   }
 }

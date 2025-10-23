@@ -26,6 +26,7 @@ import org.pentaho.platform.engine.security.authorization.core.decisions.Authori
 import org.pentaho.platform.engine.security.authorization.core.decisions.DefaultAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.exceptions.AuthorizationRequestCycleException;
 import org.pentaho.platform.engine.security.authorization.core.exceptions.AuthorizationRequestUndefinedActionException;
+import org.pentaho.platform.engine.security.authorization.core.rules.AbstractAuthorizationRule;
 import org.springframework.util.Assert;
 
 import java.util.ArrayDeque;
@@ -33,6 +34,21 @@ import java.util.Deque;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * The {@code AuthorizationService} class is the default implementation of the {@link IAuthorizationService} interface.
+ * <p>
+ * It performs authorization evaluations based on a root authorization rule, which may delegate to other rules as
+ * needed.
+ * <p>
+ * The implementation is thread-safe, as each authorization evaluation is performed within its own
+ * {@link AuthorizationContext}, which tracks the evaluation state for that specific request.
+ * Of course, the thread-safety of the overall service also depends on the thread-safety of the provided authorization
+ * rules.
+ * <p>
+ * One exception is setting the root rule, using {@link #setRootRule(IAuthorizationRule)} which is not thread-safe. Care
+ * must be taken to avoid inconsistent decisions in concurrent evaluations. This is intended to be used during
+ * application initialization.
+ */
 public class AuthorizationService implements IAuthorizationService {
 
   private static final Log logger = LogFactory.getLog( AuthorizationService.class );
@@ -110,7 +126,7 @@ public class AuthorizationService implements IAuthorizationService {
     }
 
     @NonNull
-    protected IAuthorizationDecision authorizeTracked( @NonNull IAuthorizationRequest request )
+    private IAuthorizationDecision authorizeTracked( @NonNull IAuthorizationRequest request )
       throws AuthorizationRequestCycleException {
 
       if ( pendingRequests.contains( request ) ) {
@@ -119,14 +135,14 @@ public class AuthorizationService implements IAuthorizationService {
 
       pendingRequests.push( request );
       try {
-        return authorizeRootRule( request );
+        return authorizeCore( request );
       } finally {
         pendingRequests.pop();
       }
     }
 
     @NonNull
-    private IAuthorizationDecision authorizeRootRule( @NonNull IAuthorizationRequest request ) {
+    protected IAuthorizationDecision authorizeCore( @NonNull IAuthorizationRequest request ) {
       return authorizeRule( request, getRootRule() )
         .orElseGet( () -> getDefaultDecision( request ) );
     }
@@ -146,6 +162,13 @@ public class AuthorizationService implements IAuthorizationService {
 
       try {
         if ( !rule.getRequestType().isAssignableFrom( request.getClass() ) ) {
+          if ( logger.isDebugEnabled() ) {
+            logger.debug( String.format(
+              "AuthorizeRule END - SUCCESS - request: %s rule: %s result: Abstained for request type",
+              request,
+              rule ) );
+          }
+
           return Optional.empty();
         }
 
@@ -207,17 +230,45 @@ public class AuthorizationService implements IAuthorizationService {
     }
   }
 
+  /**
+   * An authorization rule that always abstains. Used as a default root rule if none is provided.
+   */
+  private static class AbstainAuthorizationRule extends AbstractAuthorizationRule<IAuthorizationRequest> {
+
+    @NonNull
+    @Override
+    public Class<IAuthorizationRequest> getRequestType() {
+      return IAuthorizationRequest.class;
+    }
+
+    @NonNull
+    @Override
+    public Optional<IAuthorizationDecision> authorize( @NonNull IAuthorizationRequest request,
+                                                       @NonNull IAuthorizationContext context ) {
+      return abstain();
+    }
+  }
+
   @NonNull
   private final IAuthorizationActionService actionService;
 
   @NonNull
-  private final IAuthorizationRule<? extends IAuthorizationRequest> rootRule;
+  private IAuthorizationRule<? extends IAuthorizationRequest> rootRule;
+
+  /**
+   * Constructs an instance of the authorization service with a default root rule that always abstains.
+   *
+   * @param actionService The service providing access to authorization actions.
+   */
+  public AuthorizationService( @NonNull IAuthorizationActionService actionService ) {
+    this( actionService, new AbstainAuthorizationRule() );
+  }
 
   /**
    * Constructs an instance of the authorization service with a given root rule.
    *
    * @param actionService The service providing access to authorization actions.
-   * @param rootRule The root authorization rule.
+   * @param rootRule      The root authorization rule.
    */
   public AuthorizationService( @NonNull IAuthorizationActionService actionService,
                                @NonNull IAuthorizationRule<? extends IAuthorizationRequest> rootRule ) {
@@ -263,8 +314,21 @@ public class AuthorizationService implements IAuthorizationService {
    * @return The root rule.
    */
   @NonNull
-  protected final IAuthorizationRule<? extends IAuthorizationRequest> getRootRule() {
+  public final IAuthorizationRule<? extends IAuthorizationRequest> getRootRule() {
     return rootRule;
+  }
+
+  /**
+   * Sets the root authorization rule.
+   * <p>
+   * Warning: changing the root rule at runtime may lead to inconsistent authorization decisions if there are
+   * concurrent authorization evaluations. This method should only be used during application initialization.
+   *
+   * @param rootRule The root rule.
+   */
+  public final void setRootRule( @NonNull IAuthorizationRule<? extends IAuthorizationRequest> rootRule ) {
+    Assert.notNull( rootRule, "Argument 'rootRule' is required" );
+    this.rootRule = rootRule;
   }
 
   /**
@@ -273,7 +337,7 @@ public class AuthorizationService implements IAuthorizationService {
    * @return The action service.
    */
   @NonNull
-  protected IAuthorizationActionService getActionService() {
+  protected final IAuthorizationActionService getActionService() {
     return actionService;
   }
 }

@@ -13,10 +13,6 @@
 
 package org.pentaho.platform.engine.security;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAclHolder;
@@ -33,15 +29,18 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.UserSession;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -161,7 +160,7 @@ public class SecurityHelper implements ISecurityHelper {
 
   @Override
   public <T> T
-    runAsUser( final String principalName, final IParameterProvider paramProvider, final Callable<T> callable )
+  runAsUser( final String principalName, final IParameterProvider paramProvider, final Callable<T> callable )
     throws Exception {
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
@@ -198,8 +197,10 @@ public class SecurityHelper implements ISecurityHelper {
   public <T> T runAsAnonymous( final Callable<T> callable ) throws Exception {
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
+    IPentahoSession anonymousSession = null;
     try {
-      PentahoSessionHolder.setSession( new StandaloneSession() );
+      anonymousSession = new StandaloneSession();
+      PentahoSessionHolder.setSession( anonymousSession );
 
       // get anonymous username/role defined in pentaho.xml
       String user = PentahoSystem
@@ -220,6 +221,14 @@ public class SecurityHelper implements ISecurityHelper {
       SecurityContextHolder.getContext().setAuthentication( auth );
       return callable.call();
     } finally {
+      if ( anonymousSession != null ) {
+        try {
+          anonymousSession.destroy();
+        } catch ( Exception e ) {
+          e.printStackTrace();
+        }
+      }
+
       PentahoSessionHolder.setSession( origSession );
       SecurityContextHolder.getContext().setAuthentication( origAuth );
     }
