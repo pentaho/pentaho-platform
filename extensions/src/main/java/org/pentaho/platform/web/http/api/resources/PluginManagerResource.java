@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources;
 
@@ -25,19 +26,19 @@ import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAc
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.ui.xul.XulOverlay;
 
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 @Path( "/plugin-manager/" )
 public class PluginManagerResource {
@@ -57,7 +58,7 @@ public class PluginManagerResource {
   @Path( "/overlays" )
   @Produces( { APPLICATION_JSON } )
   @Facet( name = "Unsupported" )
-  public List<Overlay> getOverlays( @QueryParam( "id" ) @DefaultValue( "" ) String id ) {
+  public OverlayWrapper getOverlays( @QueryParam( "id" ) @DefaultValue( "" ) String id ) {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() ); //$NON-NLS-1$
     List<XulOverlay> overlays = pluginManager.getOverlays();
     ArrayList<Overlay> result = new ArrayList<Overlay>();
@@ -70,7 +71,7 @@ public class PluginManagerResource {
               overlay.getPriority() );
       result.add( tempOverlay );
     }
-    return result;
+    return new OverlayWrapper( result );
   }
 
   /**
@@ -82,7 +83,7 @@ public class PluginManagerResource {
   @Path( "/perspectives" )
   @Produces( { APPLICATION_JSON } )
   @Facet ( name = "Unsupported" )
-  public ArrayList<PluginPerspective> getPluginPerpectives() {
+  public PluginPerspectiveWrapper getPluginPerpectives() {
     IPluginPerspectiveManager manager =
         PentahoSystem.get( IPluginPerspectiveManager.class, PentahoSessionHolder.getSession() ); //$NON-NLS-1$
 
@@ -109,7 +110,7 @@ public class PluginManagerResource {
       perspectives.add( pp );
     }
 
-    return perspectives;
+    return new PluginPerspectiveWrapper( perspectives );
   }
 
   /**
