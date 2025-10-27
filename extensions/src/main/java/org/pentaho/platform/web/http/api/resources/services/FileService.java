@@ -96,6 +96,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.channels.IllegalSelectorException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.text.Collator;
@@ -255,13 +256,21 @@ public class FileService {
   }
 
   private StreamingOutput getBackupStream() throws IOException, ExportException {
-    File zipFile = getBackupExporter().performExport();
-    final FileInputStream inputStream = new FileInputStream( zipFile );
-
+    final File zipFile = getBackupExporter().performExport();
     return new StreamingOutput() {
       @Override
       public void write( OutputStream output ) throws IOException {
-        IOUtils.copy( inputStream, output );
+        try ( FileInputStream inputStream = new FileInputStream( zipFile ) ) {
+          IOUtils.copy( inputStream, output );
+        } finally {
+          try {
+            if ( zipFile != null && !Files.deleteIfExists( zipFile.toPath() ) ) {
+              logger.warn( Messages.getInstance().getString( "FileService.WARN_UNABLE_TO_DELETE_TEMP_FILE", zipFile.getAbsolutePath() ) );
+            }
+          } catch ( Exception e ) {
+            logger.warn( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_DELETE_TEMP_FILE", zipFile.getAbsolutePath() ), e );
+          }
+        }
       }
     };
   }
@@ -1935,12 +1944,21 @@ public class FileService {
   protected StreamingOutput getDownloadStream( RepositoryFile repositoryFile, BaseExportProcessor exportProcessor )
       throws ExportException, IOException {
     File zipFile = exportProcessor.performExport( repositoryFile );
-    final FileInputStream is = new FileInputStream( zipFile );
     // copy streaming output
     return new StreamingOutput() {
       @Override
       public void write( OutputStream output ) throws IOException {
-        IOUtils.copy( is, output );
+        try ( final FileInputStream is = new FileInputStream( zipFile ) ) {
+          IOUtils.copy(is, output);
+        } finally {
+          try {
+            if ( zipFile != null && !Files.deleteIfExists( zipFile.toPath() ) ) {
+              logger.warn( Messages.getInstance().getString( "FileService.WARN_UNABLE_TO_DELETE_TEMP_FILE", zipFile.getAbsolutePath() ) );
+            }
+          } catch ( Exception e ) {
+            logger.warn( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_DELETE_TEMP_FILE", zipFile.getAbsolutePath() ), e );
+          }
+        }
       }
     };
   }
