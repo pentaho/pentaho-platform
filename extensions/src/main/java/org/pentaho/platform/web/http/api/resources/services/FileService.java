@@ -255,19 +255,13 @@ public class FileService {
   }
 
   private StreamingOutput getBackupStream() throws IOException, ExportException {
-    final File zipFile = getBackupExporter().performExport();
+    File zipFile = getBackupExporter().performExport();
+    final FileInputStream inputStream = new FileInputStream( zipFile );
+
     return new StreamingOutput() {
       @Override
       public void write( OutputStream output ) throws IOException {
-        try ( FileInputStream inputStream = new FileInputStream( zipFile ) ) {
-          IOUtils.copy( inputStream, output );
-        } finally {
-          if ( zipFile != null && zipFile.exists() ) {
-            if ( !zipFile.delete() ) {
-              logger.warn( "Temporary backup file " + zipFile.getAbsolutePath() + " could not be deleted." );
-            }
-          }
-        }
+        IOUtils.copy( inputStream, output );
       }
     };
   }
@@ -1941,18 +1935,12 @@ public class FileService {
   protected StreamingOutput getDownloadStream( RepositoryFile repositoryFile, BaseExportProcessor exportProcessor )
       throws ExportException, IOException {
     File zipFile = exportProcessor.performExport( repositoryFile );
+    final FileInputStream is = new FileInputStream( zipFile );
     // copy streaming output
     return new StreamingOutput() {
       @Override
       public void write( OutputStream output ) throws IOException {
-        try ( final FileInputStream is = new FileInputStream( zipFile ) ) {
-          IOUtils.copy(is, output);
-        } finally {
-          // delete temp file
-          if ( zipFile.exists() && !zipFile.delete() ) {
-            logger.debug( "Temporary file " + zipFile.getAbsolutePath() + " could not be deleted." );
-          }
-        }
+        IOUtils.copy( is, output );
       }
     };
   }
