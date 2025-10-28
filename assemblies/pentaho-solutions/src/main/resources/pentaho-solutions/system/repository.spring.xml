@@ -837,13 +837,6 @@
     <pen:publish as-type="INTERFACES"/>
   </bean>
 
-  <!-- ScheduleContent => ExecuteScheduledContent -->
-  <bean class="org.pentaho.platform.engine.security.authorization.core.rules.DerivedActionAuthorizationRule">
-    <constructor-arg ref="schedulerAction"/>
-    <constructor-arg ref="schedulerExecuteAction"/>
-    <pen:publish as-type="INTERFACES"/>
-  </bean>
-
   <bean class="org.pentaho.platform.repository2.DefaultClientRepositoryPathsStrategy">
     <pen:publish as-type="INTERFACES" />
   </bean>
