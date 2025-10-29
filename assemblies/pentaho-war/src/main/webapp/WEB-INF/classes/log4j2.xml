@@ -145,6 +145,7 @@
         <!-- Set these to WARN to enable logging of scheduler output location validation and fallback process. -->
         <Logger name="org.pentaho.platform.scheduler2.action.SchedulerOutputPathResolver" level="WARN"/>
         <Logger name="org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver" level="WARN"/>
+        <Logger name="org.pentaho.platform.web.http.api.resources.SchedulerResource" level="WARN"/>
 
         <!-- =========================== -->
         <!-- Mondrian Log Levels         -->
