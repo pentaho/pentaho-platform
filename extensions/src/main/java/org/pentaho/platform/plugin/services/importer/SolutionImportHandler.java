@@ -848,7 +848,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         successfulMetadataModelImport++;
       }
       if ( isPerformingRestore ) {
-        getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_SUCCESSFUL_METDATA_DATASOURCE_COUNT", successfulMetadataModelImport, metadataList.size() ) );
+        getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_SUCCESSFUL_METADATA_DATASOURCE_COUNT", successfulMetadataModelImport, metadataList.size() ) );
       }
     }
     if ( isPerformingRestore ) {
