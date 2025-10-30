@@ -363,7 +363,6 @@ public class CommandLineProcessor {
     Invocation.Builder builder = webTarget.request( MediaType.APPLICATION_JSON ).accept( MediaType.TEXT_XML_TYPE );
     Response response = builder.get( Response.class );
     if ( response != null && response.getStatus() == 200 ) {
-
       String message = Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_COMPLETED" ).concat( "\n" );
       message +=
           Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_STATUS", response.getStatus() );
@@ -527,7 +526,6 @@ public class CommandLineProcessor {
           logResponseMessage( logFile, path, response, RequestType.IMPORT );
           response.close();
         }
-
       } else {
         FileInputStream metadataDatasourceInputStream = new FileInputStream( metadataDatasourceFile );
 
@@ -690,7 +688,9 @@ public class CommandLineProcessor {
             .setContentDisposition( FormDataContentDisposition.name( MULTIPART_FIELD_FILE_UPLOAD ).fileName(
                 fileIS.getName() ).build() );
 
-        Response response = webTarget.request( MediaType.MULTIPART_FORM_DATA_TYPE ).post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA_TYPE ) );
+        Response response = webTarget.request( MediaType.MULTIPART_FORM_DATA_TYPE )
+          .accept( MediaType.TEXT_HTML_TYPE )
+          .post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA_TYPE ) );
         if ( response != null ) {
           logResponseMessage( logFile, path, response, RequestType.IMPORT );
           response.close();
@@ -717,23 +717,27 @@ public class CommandLineProcessor {
   private void logResponseMessage( String logFile, String path, Response response, RequestType requestType ) {
     boolean badLogFilePath = false;
     if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
-      errorMessage = Messages.getInstance().getString( "CommandLineProcessor.INFO_" + requestType.toString() + "_SUCCESSFUL" );
+      errorMessage =
+        Messages.getInstance().getString( "CommandLineProcessor.INFO_" + requestType.toString() + "_SUCCESSFUL" );
     } else if ( response.getStatus() == Response.Status.FORBIDDEN.getStatusCode() ) {
       errorMessage = Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0007_FORBIDDEN", path );
     } else if ( response.getStatus() == Response.Status.NOT_FOUND.getStatusCode() ) {
       errorMessage =
-          Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE", path );
+        Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE", path );
     } else if ( response.getStatus() == Response.Status.BAD_REQUEST.getStatusCode() ) {
       errorMessage =
-          Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0009_INVALID_LOG_FILE_PATH", logFile );
+        Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0009_INVALID_LOG_FILE_PATH", logFile );
       badLogFilePath = true;
+    } else {
+      errorMessage = Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0002_INVALID_RESPONSE" );
     }
+
     StringBuilder message = new StringBuilder( errorMessage );
     if ( !badLogFilePath ) {
       message.append( System.getProperty( "line.separator" ) );
       if ( response.hasEntity() ) {
         message.append( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
-            response.readEntity( String.class ) ) );
+          response.readEntity( String.class ) ) );
       }
       System.out.println( message );
       if ( StringUtils.isNotBlank( logFile ) ) {
@@ -931,11 +935,13 @@ public class CommandLineProcessor {
     } else if ( response != null && response.getStatus() == 404 ) {
       errorMessage = Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0004_UNKNOWN_SOURCE", path );
       System.out.println( errorMessage );
+    } else {
+      errorMessage = Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0002_INVALID_RESPONSE" );
+      System.out.println( errorMessage );
     }
   }
 
   private boolean isValidExportPath( String filePath, String logFile ) {
-
     boolean isValid = false;
 
     if ( filePath != null && filePath.toLowerCase().endsWith( ".zip" ) ) {
