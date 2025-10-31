@@ -21,6 +21,7 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequ
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule;
 import org.pentaho.platform.api.engine.security.authorization.caching.IAuthorizationDecisionCache;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
+import org.pentaho.platform.api.engine.security.authorization.exceptions.AuthorizationFailureException;
 import org.springframework.util.Assert;
 
 public class CachingAuthorizationService extends AuthorizationService {
@@ -77,7 +78,9 @@ public class CachingAuthorizationService extends AuthorizationService {
   @NonNull
   @Override
   public IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request,
-                                           @NonNull IAuthorizationOptions options ) {
+                                           @NonNull IAuthorizationOptions options )
+    throws AuthorizationFailureException {
+
     IAuthorizationDecision decision = super.authorize( request, options );
 
     // Don't really know at this point if recordStats is on. Logging only for trace level makes
