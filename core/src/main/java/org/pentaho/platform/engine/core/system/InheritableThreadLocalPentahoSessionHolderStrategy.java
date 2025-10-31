@@ -80,7 +80,7 @@ public class InheritableThreadLocalPentahoSessionHolderStrategy implements IPent
 
   /**
    * Removes the IPentahoSession for the current thread. It is important that the framework calls this to prevent
-   * session bleed- through between requests as threads are re-used by the server.
+   * session bleed-through between requests as threads are re-used by the server.
    */
   public void removeSession() {
     IPentahoSession sess = perThreadSession.get();
