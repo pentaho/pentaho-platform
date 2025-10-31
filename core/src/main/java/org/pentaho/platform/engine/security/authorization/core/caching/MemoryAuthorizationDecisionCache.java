@@ -651,7 +651,22 @@ public class MemoryAuthorizationDecisionCache implements
     try {
       return Objects.requireNonNull( getSessionCache().get( key, () -> loader.apply( key ) ) );
     } catch ( ExecutionException e ) {
-      throw new UncheckedExecutionException( e );
+      throw new IllegalStateException( "Loader does not throw checked exception", e );
+    } catch ( UncheckedExecutionException e ) {
+      Throwable cause = e.getCause();
+      // Cause should be a RuntimeException.
+      if ( cause == null ) {
+        // Not really expected to happen, but J.I.C.
+        throw new IllegalStateException( "Cause must not be null", e );
+      }
+
+      if ( !( cause instanceof RuntimeException runtimeException ) ) {
+        // Not really expected to happen, but J.I.C.
+        throw new IllegalStateException( "Cause must be unchecked", e );
+      }
+
+      // Unwrap and rethrow runtime exceptions.
+      throw runtimeException;
     }
   }
 

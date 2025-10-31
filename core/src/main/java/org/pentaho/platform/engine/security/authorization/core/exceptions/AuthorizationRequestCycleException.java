@@ -15,6 +15,7 @@ package org.pentaho.platform.engine.security.authorization.core.exceptions;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationContext;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
+import org.pentaho.platform.api.engine.security.authorization.exceptions.AuthorizationFailureException;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import java.util.List;
  * A cycle occurs when an authorization rule calls {@link IAuthorizationContext#authorize(IAuthorizationRequest)} to
  * perform a sub-authorization for a request which is already being evaluated upstream.
  */
-public class AuthorizationRequestCycleException extends Exception {
+public class AuthorizationRequestCycleException extends AuthorizationFailureException {
   public AuthorizationRequestCycleException(
     @NonNull Collection<IAuthorizationRequest> pendingRequests,
     @NonNull IAuthorizationRequest cycleRequest ) {

@@ -27,11 +27,11 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationOpti
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
-import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationErrorDecision;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IDerivedAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.decisions.DerivedAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.exceptions.AuthorizationRequestCycleException;
 import org.pentaho.platform.engine.security.authorization.core.exceptions.AuthorizationRequestUndefinedActionException;
+import org.pentaho.platform.engine.security.authorization.core.exceptions.AuthorizationRuleException;
 
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -126,18 +126,11 @@ public class AuthorizationServiceTest {
     assertFalse( decision.isGranted() );
   }
 
-  @Test
-  public void testAuthorizeDeniesIfRequestActionIsUndefined() {
+  @Test( expected = AuthorizationRequestUndefinedActionException.class )
+  public void testAuthorizeThrowsIfRequestActionIsUndefined() {
     when( actionService.getAction( "action" ) ).thenReturn( Optional.empty() );
 
-    var decision = service.authorize( request, options );
-
-    assertNotNull( decision );
-    assertFalse( decision.isGranted() );
-    assertTrue( decision instanceof IAuthorizationErrorDecision );
-
-    var errorDecision = (IAuthorizationErrorDecision) decision;
-    assertTrue( errorDecision.getCause() instanceof AuthorizationRequestUndefinedActionException );
+    service.authorize( request, options );
   }
 
   @Test
@@ -224,31 +217,19 @@ public class AuthorizationServiceTest {
     assertSame( innerDecision, decision );
   }
 
-  @Test
-  public void testContextDetectsRequestsCyclesAndDeniesDecision() {
+  @Test( expected = AuthorizationRequestCycleException.class )
+  public void testContextDetectsRequestsCyclesAndThrows() {
     var outerRule = createMockRuleWithAnswer( ( req, context ) -> {
-      var innerDecision = context.authorize( request );
-
-      assertNotNull( innerDecision );
-      assertFalse( innerDecision.isGranted() );
-      assertTrue( innerDecision instanceof IAuthorizationErrorDecision );
-      assertTrue(
-        ( (IAuthorizationErrorDecision) innerDecision ).getCause() instanceof AuthorizationRequestCycleException );
-
-      return Optional.of( innerDecision );
+      // Sending same request without change results in a cycle.
+      return Optional.of( context.authorize( request ) );
     } );
 
     var testService = new AuthorizationService( actionService, outerRule );
-    var decision = testService.authorize( request, options );
-
-    assertNotNull( decision );
-    assertFalse( decision.isGranted() );
-    assertTrue( decision instanceof IAuthorizationErrorDecision );
-    assertTrue( ( (IAuthorizationErrorDecision) decision ).getCause() instanceof AuthorizationRequestCycleException );
+    testService.authorize( request, options );
   }
 
-  @Test
-  public void testRuleExceptionHandledAsErrorDecision() {
+  @Test( expected = AuthorizationRuleException.class )
+  public void testRuleExceptionHandledIsWrappedInAuthorizationRuleException() {
     var ruleException = mock( RuntimeException.class );
     var rule = createMockRule();
     when( rule.authorize( any( IAuthorizationRequest.class ), any( IAuthorizationContext.class ) ) )
@@ -256,12 +237,7 @@ public class AuthorizationServiceTest {
 
     var testService = new AuthorizationService( actionService, rule );
 
-    var decision = testService.authorize( request, options );
-
-    assertNotNull( decision );
-    assertFalse( decision.isGranted() );
-    assertTrue( decision instanceof IAuthorizationErrorDecision );
-    assertSame( ruleException, ( (IAuthorizationErrorDecision) decision ).getCause() );
+    testService.authorize( request, options );
   }
 
 
