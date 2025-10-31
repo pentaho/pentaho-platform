@@ -78,7 +78,10 @@ public class PentahoJcrTemplate extends JcrTemplate {
       // Callback code threw application exception...
       throw pentahoConvertJcrAccessException( ex );
     } finally {
-      releaseSession( session );
+      // Session will be null if getSession() fails.
+      if ( session != null ) {
+        releaseSession( session );
+      }
     }
   }
 
