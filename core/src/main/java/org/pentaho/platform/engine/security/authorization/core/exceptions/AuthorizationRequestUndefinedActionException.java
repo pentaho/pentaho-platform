@@ -14,6 +14,7 @@ package org.pentaho.platform.engine.security.authorization.core.exceptions;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
+import org.pentaho.platform.api.engine.security.authorization.exceptions.AuthorizationFailureException;
 import org.springframework.util.Assert;
 
 /**
@@ -23,7 +24,7 @@ import org.springframework.util.Assert;
  * An undefined action is one which is not defined in the system's
  * {@link org.pentaho.platform.api.engine.security.authorization.IAuthorizationActionService}.
  */
-public class AuthorizationRequestUndefinedActionException extends Exception {
+public class AuthorizationRequestUndefinedActionException extends AuthorizationFailureException {
 
   public AuthorizationRequestUndefinedActionException( @NonNull IAuthorizationRequest request ) {
     super( createMessage( request ) );

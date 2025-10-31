@@ -14,6 +14,7 @@ package org.pentaho.platform.api.engine.security.authorization;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
+import org.pentaho.platform.api.engine.security.authorization.exceptions.AuthorizationFailureException;
 
 import java.util.Optional;
 
@@ -28,7 +29,8 @@ import java.util.Optional;
  * their own decision, using the same options and in a way that protects against cycles in the process. The context
  * tracks authorization requests to detect and prevent cycles in the evaluation process.
  * <p>
- * The service/context separation aids with the service being thread-safe, as each authorization's context is independent,
+ * The service/context separation aids with the service being thread-safe, as each authorization's context is
+ * independent,
  * and each authorization is executed in a single thread.
  */
 public interface IAuthorizationContext {
@@ -56,9 +58,10 @@ public interface IAuthorizationContext {
    *
    * @param request The authorization request.
    * @return The evaluation decision, never {@code null}.
+   * @throws AuthorizationFailureException When the authorization process fails.
    */
   @NonNull
-  IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request );
+  IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request ) throws AuthorizationFailureException;
 
   /**
    * Authorizes a given authorization request using a specific rule.
@@ -69,11 +72,13 @@ public interface IAuthorizationContext {
    * centralized logging and error handling.
    *
    * @param request The authorization request.
-   * @param rule The authorization rule to evaluate.
+   * @param rule    The authorization rule to evaluate.
    * @return An empty optional, for abstaining from the decision; an optional with a decision object, for granting or
-   *         denying the authorization request.
+   * denying the authorization request.
+   * @throws AuthorizationFailureException When the authorization process fails.
    */
   @NonNull
   Optional<IAuthorizationDecision> authorizeRule( @NonNull IAuthorizationRequest request,
-                                                  @NonNull IAuthorizationRule<? extends IAuthorizationRequest> rule );
+                                                  @NonNull IAuthorizationRule<? extends IAuthorizationRequest> rule )
+    throws AuthorizationFailureException;
 }

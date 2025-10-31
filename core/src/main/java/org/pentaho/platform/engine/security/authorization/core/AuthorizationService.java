@@ -22,10 +22,11 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequ
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationService;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
-import org.pentaho.platform.engine.security.authorization.core.decisions.AuthorizationErrorDecision;
+import org.pentaho.platform.api.engine.security.authorization.exceptions.AuthorizationFailureException;
 import org.pentaho.platform.engine.security.authorization.core.decisions.DefaultAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.exceptions.AuthorizationRequestCycleException;
 import org.pentaho.platform.engine.security.authorization.core.exceptions.AuthorizationRequestUndefinedActionException;
+import org.pentaho.platform.engine.security.authorization.core.exceptions.AuthorizationRuleException;
 import org.pentaho.platform.engine.security.authorization.core.rules.AbstractAuthorizationRule;
 import org.springframework.util.Assert;
 
@@ -91,7 +92,9 @@ public class AuthorizationService implements IAuthorizationService {
 
     @NonNull
     @Override
-    public IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request ) {
+    public IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request )
+      throws AuthorizationFailureException {
+
       Assert.notNull( request, "Argument 'request' is required" );
 
       // Handles logging, error handling and resolving the request's action.
@@ -114,20 +117,26 @@ public class AuthorizationService implements IAuthorizationService {
 
         return decision;
 
+      } catch ( AuthorizationFailureException afe ) {
+        // Don't log the exception multiple times.
+        logger.error( String.format( "Authorize END - ERROR - request: %s. Throwing.", request ) );
+
+        throw afe;
       } catch ( Exception e ) {
+        var wrapped = new AuthorizationFailureException( String.format( "Error authorizing request: %s", request ), e );
 
         logger.error( String.format(
-          "Authorize END - ERROR - request: %s. Denying.",
+          "Authorize END - ERROR - request: %s. Throwing.",
           request
-        ), e );
+        ), wrapped );
 
-        return new AuthorizationErrorDecision( request, e );
+        throw wrapped;
       }
     }
 
     @NonNull
     private IAuthorizationDecision authorizeTracked( @NonNull IAuthorizationRequest request )
-      throws AuthorizationRequestCycleException {
+      throws AuthorizationFailureException {
 
       if ( pendingRequests.contains( request ) ) {
         throw new AuthorizationRequestCycleException( pendingRequests, request );
@@ -154,10 +163,7 @@ public class AuthorizationService implements IAuthorizationService {
       @NonNull IAuthorizationRule<? extends IAuthorizationRequest> rule ) {
 
       if ( logger.isDebugEnabled() ) {
-        logger.debug( String.format(
-          "AuthorizeRule BEGIN - request: %s rule: %s",
-          request,
-          rule ) );
+        logger.debug( String.format( "AuthorizeRule BEGIN - request: %s rule: %s", request, rule ) );
       }
 
       try {
@@ -188,15 +194,21 @@ public class AuthorizationService implements IAuthorizationService {
         }
 
         return result;
+      } catch ( AuthorizationFailureException afe ) {
+        // Don't log the exception multiple times.
+        logger.error( String.format( "AuthorizeRule END - ERROR - request: %s rule: %s. Throwing.", request, rule ) );
+
+        throw afe;
       } catch ( Exception e ) {
+        var wrapped = new AuthorizationRuleException( request, rule, e );
 
         logger.error( String.format(
-          "AuthorizeRule END - ERROR - request: %s rule: %s. Denying.",
+          "AuthorizeRule END - ERROR - request: %s rule: %s. Throwing.",
           request,
           rule
-        ), e );
+        ), wrapped );
 
-        return Optional.of( new AuthorizationErrorDecision( request, e ) );
+        throw wrapped;
       }
     }
 
@@ -282,7 +294,8 @@ public class AuthorizationService implements IAuthorizationService {
   @NonNull
   @Override
   public IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request,
-                                           @NonNull IAuthorizationOptions options ) {
+                                           @NonNull IAuthorizationOptions options )
+    throws AuthorizationFailureException {
     return createContext( options ).authorize( request );
   }
 
