@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 define([
   "./browser.fileButtons",
   "./browser.folderButtons",
@@ -22,11 +23,13 @@ define([
   "./browser.templates",
   "common-ui/util/URLEncoder",
   "common-ui/util/_a11y",
+  "backbone",
+  "common-ui/underscore",
   "common-ui/bootstrap",
   "common-ui/handlebars",
   "common-ui/jquery-pentaho-i18n",
   "common-ui/jquery"
-], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder, a11yUtil) {
+], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder, a11yUtil, Backbone, _) {
 
   const REPOSITORY_ROOT_PATH = "/";
 
@@ -1290,6 +1293,8 @@ define([
 
               var toAppend = templates.folders(reformatResponse(response));
               $target.find("> .folders").append(toAppend ? toAppend : "");
+              
+              myself.updateDescriptions();
             }
 
             // set the widths of new folder descriptions
