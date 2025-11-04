@@ -14,6 +14,7 @@ package org.pentaho.platform.api.engine.security.authorization;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
+import org.pentaho.platform.api.engine.security.authorization.exceptions.AuthorizationFailureException;
 
 import java.util.Optional;
 
@@ -30,9 +31,11 @@ public interface IAuthorizationService {
    * @param request The authorization request.
    * @param options The authorization options.
    * @return The evaluation decision, never {@code null}.
+   * @throws AuthorizationFailureException When the authorization process fails.
    */
   @NonNull
-  IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request, @NonNull IAuthorizationOptions options );
+  IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request, @NonNull IAuthorizationOptions options )
+    throws AuthorizationFailureException;
 
   /**
    * Authorizes a given authorization request, with default options.
@@ -42,9 +45,11 @@ public interface IAuthorizationService {
    *
    * @param request The authorization request.
    * @return An {@link IAuthorizationDecision} instance, never {@code null}.
+   * @throws AuthorizationFailureException When the authorization process fails.
    */
   @NonNull
-  default IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request ) {
+  default IAuthorizationDecision authorize( @NonNull IAuthorizationRequest request )
+    throws AuthorizationFailureException {
     return authorize( request, IAuthorizationOptions.getDefault() );
   }
 
@@ -56,9 +61,11 @@ public interface IAuthorizationService {
    * @param options The authorization options.
    * @return An empty optional, for abstaining from the decision; an optional with a decision object, for granting or
    *         denying the authorization request.
+   * @throws AuthorizationFailureException When the authorization process fails.
    */
   @NonNull
   Optional<IAuthorizationDecision> authorizeRule( @NonNull IAuthorizationRequest request,
                                                   @NonNull IAuthorizationRule<? extends IAuthorizationRequest> rule,
-                                                  @NonNull IAuthorizationOptions options );
+                                                  @NonNull IAuthorizationOptions options )
+    throws AuthorizationFailureException;
 }

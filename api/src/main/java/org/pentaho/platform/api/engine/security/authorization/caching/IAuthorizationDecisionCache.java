@@ -16,6 +16,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationOptions;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
+import org.pentaho.platform.api.engine.security.authorization.exceptions.AuthorizationFailureException;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -45,11 +46,13 @@ public interface IAuthorizationDecisionCache {
    * @param options The authorization options.
    * @param loader  A function that computes the authorization decision if it is not found in the cache.
    * @return The authorization decision.
+   * @throws AuthorizationFailureException When the loader function fails to compute the decision.
    */
   @NonNull
   IAuthorizationDecision get( @NonNull IAuthorizationRequest request,
                               @NonNull IAuthorizationOptions options,
-                              @NonNull Function<IAuthorizationDecisionCacheKey, IAuthorizationDecision> loader );
+                              @NonNull Function<IAuthorizationDecisionCacheKey, IAuthorizationDecision> loader )
+    throws AuthorizationFailureException;
 
   /**
    * Caches an authorization decision for a specific authorization request and options.
