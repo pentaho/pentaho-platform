@@ -9,13 +9,6 @@
   </formats>
   <baseDirectory>pentaho-server</baseDirectory>
 
-  <!-- Add shim drivers README file -->
-  <files>
-    <file>
-      <source>${project.basedir}/src/main/resources/drivers/README</source>
-      <outputDirectory>./pentaho-solutions/drivers</outputDirectory>
-    </file>
-  </files>
   <fileSets>
     <fileSet>
       <directory>${project.basedir}/src/main/resources-filtered</directory>
