@@ -1290,6 +1290,8 @@ define([
 
               var toAppend = templates.folders(reformatResponse(response));
               $target.find("> .folders").append(toAppend ? toAppend : "");
+              
+              myself.updateDescriptions();
             }
 
             // set the widths of new folder descriptions
