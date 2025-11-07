@@ -130,7 +130,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Path( "/createUser" )
   @Consumes( { MediaType.WILDCARD } )
   @StatusCodes( {
-    @ResponseCode( code = 200, condition = "Successfully created new user." ),
+    @ResponseCode( code = 204, condition = "Successfully created new user." ),
     @ResponseCode( code = 400, condition = "Provided data has invalid format." ),
     @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode( code = 412, condition = "Unable to create user." )
@@ -168,7 +168,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Path ( "/deleteUsers" )
   @Consumes ( { MediaType.WILDCARD } )
   @StatusCodes ( {
-    @ResponseCode ( code = 200, condition = "Successfully deleted the list of users." ),
+    @ResponseCode ( code = 204, condition = "Successfully deleted the list of users." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
     } )
@@ -215,7 +215,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @PUT
   @Path( "/user" )
   @StatusCodes( {
-    @ResponseCode( code = 200, condition = "Successfully changed password." ),
+    @ResponseCode( code = 204, condition = "Successfully changed password." ),
     @ResponseCode( code = 400, condition = "Provided data has invalid format." ),
     @ResponseCode( code = 403, condition = "Provided user name or password is incorrect." ),
     @ResponseCode( code = 412, condition = "An error occurred in the platform." )
@@ -332,7 +332,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Path( "/assignRoleToUser" )
   @Consumes( { MediaType.WILDCARD } )
   @StatusCodes ( {
-    @ResponseCode ( code = 200, condition = "Successfully append the roles to the user." ),
+    @ResponseCode ( code = 204, condition = "Successfully append the roles to the user." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
     } )
@@ -370,7 +370,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Path( "/removeRoleFromUser" )
   @Consumes( { MediaType.WILDCARD } )
   @StatusCodes ( {
-    @ResponseCode ( code = 200, condition = "Successfully removed the roles from the user." ),
+    @ResponseCode ( code = 204, condition = "Successfully removed the roles from the user." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
     } )
@@ -408,7 +408,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Path( "/createRole" )
   @Consumes( { MediaType.WILDCARD } )
   @StatusCodes( {
-    @ResponseCode( code = 200, condition = "Successfully created new role." ),
+    @ResponseCode( code = 204, condition = "Successfully created new role." ),
     @ResponseCode( code = 400, condition = "Provided data has invalid format." ),
     @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode( code = 412, condition = "Unable to create role objects." )
@@ -442,7 +442,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Path( "/deleteRoles" )
   @Consumes( { MediaType.WILDCARD } )
   @StatusCodes( {
-    @ResponseCode( code = 200, condition = "Successfully deleted the list of roles." ),
+    @ResponseCode( code = 204, condition = "Successfully deleted the list of roles." ),
     @ResponseCode( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode( code = 500, condition = "The system was unable to delete the roles passed in." )
     } )
@@ -549,7 +549,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Consumes ( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
   @Path ( "/roleAssignments" )
   @StatusCodes ( {
-    @ResponseCode ( code = 200, condition = "Successfully applied the logical role assignment." ),
+    @ResponseCode ( code = 204, condition = "Successfully applied the logical role assignment." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." )
     } )
   public Response setLogicalRoles( LogicalRoleAssignments roleAssignments ) {
@@ -874,7 +874,7 @@ public class UserRoleDaoResource extends AbstractJaxRSResource {
   @Path( "/updatePassword" )
   @Consumes( { MediaType.WILDCARD } )
   @StatusCodes ( {
-    @ResponseCode ( code = 200, condition = "Successfully deleted the list of users." ),
+    @ResponseCode ( code = 204, condition = "Successfully deleted the list of users." ),
     @ResponseCode ( code = 403, condition = "Only users with administrative privileges can access this method." ),
     @ResponseCode ( code = 500, condition = "Internal server error prevented the system from properly retrieving either the user or roles." )
     } )

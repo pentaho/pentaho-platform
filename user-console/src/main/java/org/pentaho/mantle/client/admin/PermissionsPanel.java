@@ -125,7 +125,8 @@ public class PermissionsPanel extends VerticalPanel {
         final boolean isUncheckedCreateAction =
             permissionTitle.equals( RepositoryCreateAction.NAME ) && !event.getValue();
 
-        List<String> selectedLogicalRoles = new ArrayList<String>();
+        // use a Set to avoid duplicates
+        Set<String> selectedLogicalRoles = new HashSet<>();
         for ( LogicalRoleInfo logicalRoleInfo : logicalRoles.values() ) {
           if ( logicalRoleInfo.checkBox.getValue() ) {
             // BACKLOG-326 If the user selects "Administer Security" then select [READ & CREATE] permission for this
@@ -148,7 +149,7 @@ public class PermissionsPanel extends VerticalPanel {
             && selectedLogicalRoles.containsAll( originalRoles ) ) {
           newRoleAssignments.remove( runtimeRole );
         } else {
-          newRoleAssignments.put( runtimeRole, selectedLogicalRoles );
+          newRoleAssignments.put( runtimeRole, new ArrayList<>( selectedLogicalRoles ) );
         }
 
         saveSecuritySettings();
@@ -183,7 +184,7 @@ public class PermissionsPanel extends VerticalPanel {
         }
 
         public void onResponseReceived( Request request, Response response ) {
-          if ( response.getStatusCode() == 200 ) {
+          if ( response.getStatusCode() == 204 ) {
             masterRoleMap.putAll( newRoleAssignments );
             newRoleAssignments.clear();
           }
