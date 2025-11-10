@@ -30,7 +30,7 @@
     System admins must change what are the users/roles that have permissions for download action.
     If not defined here, the default value is set to 'Administrator'.
   -->
-  <download-roles>Administrator</download-roles>
+  <download-roles>Administrator,Authenticated</download-roles>
 
   <!--
     This is the URL to the user guide
