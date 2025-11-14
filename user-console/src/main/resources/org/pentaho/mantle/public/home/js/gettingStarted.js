@@ -7,14 +7,16 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 define([
   "common-ui/util/ContextProvider",
   "common-ui/util/BootstrappedTabLoader",
-  "common-ui/util/HandlebarsCompiler"
-], function (ContextProvider, BootstrappedTabLoader, HandlebarsCompiler) {
+  "common-ui/util/HandlebarsCompiler",
+  "common-ui/util/xss"
+], function (ContextProvider, BootstrappedTabLoader, HandlebarsCompiler, xssUtil) {
 
   var brightCoveVideoTemplate =
       '<iframe src="https://players.brightcove.net/4680021553001/default_default/index.html?videoId={{videoId}}&autoplay=true"' +
@@ -206,7 +208,7 @@ define([
 
     launchLink.unbind("click");
     launchLink.bind("click", function () {
-      window.open(href, "_blank");
+      xssUtil.open(href, "_blank");
     });
   }
 

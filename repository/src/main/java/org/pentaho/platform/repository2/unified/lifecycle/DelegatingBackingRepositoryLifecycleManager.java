@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.lifecycle;
 
@@ -39,7 +40,7 @@ public class DelegatingBackingRepositoryLifecycleManager implements IBackingRepo
 
   public DelegatingBackingRepositoryLifecycleManager( final List<IBackingRepositoryLifecycleManager> managers ) {
     super();
-    Assert.notNull( managers );
+    Assert.notNull( managers, "The managers list must not be null. Ensure a valid list of managers is provided." );
     this.managers = managers;
   }
 

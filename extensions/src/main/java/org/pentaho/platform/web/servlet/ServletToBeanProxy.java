@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.servlet;
 
@@ -18,11 +19,11 @@ import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
@@ -156,7 +157,7 @@ public class ServletToBeanProxy implements Servlet {
     }
 
     if ( !( object instanceof Servlet ) ) {
-      throw new ServletException( "Bean '" + beanName + "' does not implement javax.servlet.Servlet" );
+      throw new ServletException( "Bean '" + beanName + "' does not implement jakarta.servlet.Servlet" );
     }
 
     delegate = (Servlet) object;

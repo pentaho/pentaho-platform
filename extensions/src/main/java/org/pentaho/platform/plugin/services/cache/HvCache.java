@@ -7,14 +7,14 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 package org.pentaho.platform.plugin.services.cache;
 
-import net.sf.ehcache.Ehcache;
 import org.hibernate.Cache;
-import org.hibernate.cache.ehcache.internal.StorageAccessImpl;
 import org.hibernate.cache.spi.DirectAccessRegion;
+import org.hibernate.cache.spi.support.StorageAccess;
 
 import java.util.Set;
 
@@ -35,12 +35,5 @@ public interface HvCache extends Cache {
    * Return the object that allows direct storage access
    * @return
    */
-  StorageAccessImpl getStorageAccess();
-
-  /**
-   * Exposes the underlaying EhCache associated with this HvCache
-   * @return The EhCache
-   */
-  Ehcache getCache();
-
+  StorageAccess getStorageAccess();
 }
