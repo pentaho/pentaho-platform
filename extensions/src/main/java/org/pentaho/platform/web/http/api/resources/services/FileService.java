@@ -116,6 +116,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import javax.jcr.PathNotFoundException;
+
 public class FileService {
 
   public static final Integer MODE_OVERWRITE = 1;
@@ -1531,7 +1533,12 @@ public class FileService {
     try {
       tree = getRepoWs().getTreeFromRequest( repositoryRequest );
     } catch ( UnifiedRepositoryException e ) {
-      logger.error( e.getCause() );
+      var cause = e.getCause();
+      if ( cause != null && cause.getCause() instanceof PathNotFoundException ) {
+        logger.debug( Messages.getInstance().getString( "FileResource.FILE_NOT_FOUND", path ) );
+      } else {
+        logger.error( cause );
+      }
     }
 
     if ( tree == null || tree.getChildren() == null || tree.getChildren().isEmpty() ) {
