@@ -43,7 +43,7 @@ import static org.mockito.Mockito.verify;
  * 1. verify, that recursion ends.
  * 2. verify, that accurate number of files and folders were created.
  * <p/>
- * Tests are called N_LevelDeepness, where by deepness meant folders-hierarchy deepness.
+ * Tests are called N_LevelDeepness, whereby deepness meant folders-hierarchy deepness.
  * <p/>
  * Example:
  * <p/>
@@ -215,7 +215,7 @@ public class CopyFilesOperation_DeepFolderCopyTest {
   }
 
   private List<RepositoryFile> listOfMockedRepoFiles( final int files, final boolean isFolder ) {
-    return new ArrayList<RepositoryFile>() { {
+    return new ArrayList<>() { {
         for ( int i = 0; i < files; i++ ) {
           if ( isFolder ) {
             add( mockFolder() );
