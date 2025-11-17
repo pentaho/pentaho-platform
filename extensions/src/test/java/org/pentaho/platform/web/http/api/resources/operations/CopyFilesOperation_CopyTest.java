@@ -106,7 +106,7 @@ public class CopyFilesOperation_CopyTest {
     List<String> listOfFiles = new ArrayList<>();
     listOfFiles.add( DEFAULT );
 
-    String destDirPath = "/destintion";
+    String destDirPath = "/destination";
     mockFile( generateID(), DEFAULT, destDirPath );
     new CopyFilesOperation( repo, webService, listOfFiles, destDirPath, 2 );
   }
@@ -129,6 +129,7 @@ public class CopyFilesOperation_CopyTest {
 
     RepositoryFileDto fileDto = mock( RepositoryFileDto.class );
     doReturn( conflictFile ).when( operation ).toFile( fileDto );
+    //noinspection unchecked
     doReturn( fileDto ).when( operation ).toFileDto( eq( conflictFile ), nullable( Set.class ), nullable( Boolean.class ) );
 
     doReturn( conflictFile ).when( repo )
@@ -284,7 +285,7 @@ public class CopyFilesOperation_CopyTest {
     String conflictFilePath = conflict.getPath();
     RepositoryFileDto dtoConflictFile = mock( RepositoryFileDto.class );
 
-    doReturn( dtoConflictFile ).when( webService ).getFile( eq( conflictFilePath ) );
+    doReturn( dtoConflictFile ).when( webService ).getFile( conflictFilePath );
 
     operation.execute();
 
@@ -316,7 +317,7 @@ public class CopyFilesOperation_CopyTest {
     String conflictFolderPath = conflict.getPath();
     RepositoryFileDto dtoConflictFolder = mock( RepositoryFileDto.class );
 
-    doReturn( dtoConflictFolder ).when( webService ).getFile( eq( conflictFolderPath ) );
+    doReturn( dtoConflictFolder ).when( webService ).getFile( conflictFolderPath );
 
     doReturn( mockFolder( generateID(), NAME_DIR_1, PATH_DEST_DIR + SEPARATOR + NAME_DIR_1 ) ).when( repo )
       .createFolder( notNull( Serializable.class ),
@@ -407,7 +408,7 @@ public class CopyFilesOperation_CopyTest {
   }
 
   private List<String> getIdList( final RepositoryFile... files ) {
-    return new ArrayList<String>() {
+    return new ArrayList<>() {
       {
         for ( RepositoryFile file : files ) {
           add( file.getId().toString() );
