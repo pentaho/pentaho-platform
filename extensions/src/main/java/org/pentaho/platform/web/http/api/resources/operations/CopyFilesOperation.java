@@ -36,15 +36,15 @@ import java.util.Set;
 
 public class CopyFilesOperation {
 
-  private RepositoryFile destDir;
-  private List<String> sourceFileIds;
-  private String path;
-  private int mode;
+  private final RepositoryFile destDir;
+  private final List<String> sourceFileIds;
+  private final String path;
+  private final int mode;
 
   private IUnifiedRepository repository;
   private DefaultUnifiedRepositoryWebService defaultUnifiedRepositoryWebService;
 
-  private static final Log logger = LogFactory.getLog( FileService.class );
+  private static final Log logger = LogFactory.getLog( CopyFilesOperation.class );
   public static final Integer DEFAULT_DEEPNESS = 10;
 
   public CopyFilesOperation( List<String> sourceFileIds, String destDirPath, int overrideMode ) {
@@ -198,22 +198,21 @@ public class CopyFilesOperation {
     String nameNoExtension = repoFileName;
     String extension = "";
     int indexOfDot = repoFileName.lastIndexOf( '.' );
-    if ( !( indexOfDot == -1 ) ) {
+    if ( indexOfDot != -1 ) {
       nameNoExtension = repoFileName.substring( 0, indexOfDot );
       extension = repoFileName.substring( indexOfDot );
     }
 
-    RepositoryFileDto
-      testFile =
-      getRepoWs().getFile( path + FileUtils.PATH_SEPARATOR + nameNoExtension + extension ); //$NON-NLS-1$
-    if ( testFile != null ) {
+    RepositoryFileDto testFile = getRepoWs()
+      .getFile( path + FileUtils.PATH_SEPARATOR + nameNoExtension + extension );
+
+    if ( testFile != null
       // Second try COPY_PREFIX, If the name already ends with a COPY_PREFIX don't append twice
-      if ( !nameNoExtension
-        .endsWith( Messages.getInstance().getString( "FileResource.COPY_PREFIX" ) ) ) { //$NON-NLS-1$
-        copyText = rootCopyText = Messages.getInstance().getString( "FileResource.COPY_PREFIX" );
-        repoFileName = nameNoExtension + copyText + extension;
-        testFile = getRepoWs().getFile( path + FileUtils.PATH_SEPARATOR + repoFileName );
-      }
+      && !nameNoExtension.endsWith( Messages.getInstance().getString( "FileResource.COPY_PREFIX" ) ) ) {
+
+      copyText = rootCopyText = Messages.getInstance().getString( "FileResource.COPY_PREFIX" );
+      repoFileName = nameNoExtension + copyText + extension;
+      testFile = getRepoWs().getFile( path + FileUtils.PATH_SEPARATOR + repoFileName );
     }
 
     // Third try COPY_PREFIX + DUPLICATE_INDICATOR
@@ -227,11 +226,11 @@ public class CopyFilesOperation {
     }
     IRepositoryFileData data = RepositoryFileHelper.getFileData( repoFile );
     RepositoryFileAcl acl = getRepository().getAcl( repoFile.getId() );
-    RepositoryFile duplicateFile = null;
+    RepositoryFile duplicateFile;
     final RepositoryFile repositoryFile;
 
     if ( repoFile.isFolder() ) {
-      // If the title is different than the source file, copy it separately
+      // If the title is different from the source file, copy it separately
       if ( !repoFile.getName().equals( repoFile.getTitle() ) ) {
         duplicateFile =
           new RepositoryFile.Builder( repoFileName ).title( RepositoryFile.DEFAULT_LOCALE,
@@ -245,7 +244,7 @@ public class CopyFilesOperation {
 
       performFolderDeepCopy( repoFile, repositoryFile, DEFAULT_DEEPNESS );
     } else {
-      // If the title is different than the source file, copy it separately
+      // If the title is different from the source file, copy it separately
       if ( !repoFile.getName().equals( repoFile.getTitle() ) ) {
         duplicateFile =
           new RepositoryFile.Builder( repoFileName ).title( RepositoryFile.DEFAULT_LOCALE,
