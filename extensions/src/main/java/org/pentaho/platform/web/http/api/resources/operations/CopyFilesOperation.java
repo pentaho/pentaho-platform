@@ -301,8 +301,14 @@ public class CopyFilesOperation {
 
     for ( RepositoryFile repoFile : children ) {
       if ( repoFile.isFolder() ) {
+        // skip nested Self-Copy root folder (child that might have been previously created)
+        if ( repoFile.getId().equals( to.getId() ) ) {
+          continue;
+        }
+
         RepositoryFile childFolder =
           getRepository().createFolder( to.getId(), repoFile, getRepository().getAcl( repoFile.getId() ), null );
+
         performFolderDeepCopy( repoFile, childFolder, deepness );
       } else {
         getRepository().createFile( to.getId(), repoFile, RepositoryFileHelper.getFileData( repoFile ), null );

@@ -33,19 +33,15 @@ import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
- * @author Ivan Nikolaichuk
- */
-
-/**
  * Goals of this test are:
  * 1. verify, that recursion ends.
  * 2. verify, that accurate number of files and folders were created.
- *
  * <p/>
  * Tests are called N_LevelDeepness, where by deepness meant folders-hierarchy deepness.
  * <p/>
@@ -101,6 +97,33 @@ public class CopyFilesOperation_DeepFolderCopyTest {
     operation.performFolderDeepCopy( from, to, CopyFilesOperation.DEFAULT_DEEPNESS );
 
     performVerification( 0, files.size() );
+  }
+
+  @Test
+  public void nestedSelfCopy() {
+    List<RepositoryFile> children = listOfMockedFiles( 3 );
+
+    // folders `from` and `to` are the same, using `folder` avoid further confusion
+    RepositoryFile folder = mockFolder();
+
+    // the nested root folder was previously created, to contain the content of `folder`
+    // for use case details see `CopyFileOperation` functions: `copyRenameMode` and `copyNoOverrideMode`
+    children.add( folder );
+
+    mockRequest( folder, children );
+
+    operation.performFolderDeepCopy( folder, folder, CopyFilesOperation.DEFAULT_DEEPNESS );
+
+    // both the `selfCopyFolder` and the nested `selfCopy` folders
+    verify( operation, times( 1 ) )
+      .performFolderDeepCopy( any( RepositoryFile.class ), any( RepositoryFile.class ), anyInt() );
+
+    verify( repo, never() )
+      .createFolder( any( Serializable.class ), any( RepositoryFile.class ), nullable( RepositoryFileAcl.class ),
+        nullable( String.class ) );
+
+    verify( repo, times( 3 ) ).createFile( anyString(), any( RepositoryFile.class ), nullable(
+      IRepositoryFileData.class ), nullable( String.class ) );
   }
 
   @Test
