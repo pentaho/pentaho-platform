@@ -11,11 +11,11 @@ REM Change Date: 2029-07-20
 REM ******************************************************************************
 
 if not "%PENTAHO_JAVA%" == "" goto gotPentahoJava
-set __LAUNCHER=java.exe
+SET "__LAUNCHER=java.exe"
 goto checkPentahoJavaHome
 
 :gotPentahoJava
-set __LAUNCHER=%PENTAHO_JAVA%
+SET "__LAUNCHER=%PENTAHO_JAVA%"
 goto checkPentahoJavaHome
 
 :checkPentahoJavaHome
@@ -33,68 +33,68 @@ goto gotPath
 
 :gotPentahoJavaHome
 echo DEBUG: Using PENTAHO_JAVA_HOME
-set _PENTAHO_JAVA_HOME=%PENTAHO_JAVA_HOME%
-set _PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%
+SET "_PENTAHO_JAVA_HOME=%PENTAHO_JAVA_HOME%"
+SET "_PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%"
 goto end
 
 :gotJreCurrentFolder
 echo DEBUG: Found JRE at the current folder
-set _PENTAHO_JAVA_HOME=%~dp0jre
-set _PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%
+SET "_PENTAHO_JAVA_HOME=%~dp0jre"
+SET "_PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%"
 goto end
 
 :gotJavaCurrentFolder
 echo DEBUG: Found JAVA at the current folder
-set _PENTAHO_JAVA_HOME=%~dp0java
-set _PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%
+SET "_PENTAHO_JAVA_HOME=%~dp0java"
+SET "_PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%"
 goto end
 
 :gotJreOneFolderUp
 echo DEBUG: Found JRE one folder up
-set _PENTAHO_JAVA_HOME=%~dp0..\jre
-set _PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%
+SET "_PENTAHO_JAVA_HOME=%~dp0..\jre"
+SET "_PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%"
 goto end
 
 :gotJavaOneFolderUp
 echo DEBUG: Found JAVA one folder up
-set _PENTAHO_JAVA_HOME=%~dp0..\java
-set _PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%
+SET "_PENTAHO_JAVA_HOME=%~dp0..\java"
+SET "_PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%"
 goto end
 
 :gotJreTwoFolderUp
 echo DEBUG: Found JRE two folder up
-set _PENTAHO_JAVA_HOME=%~dp0..\..\jre
-set _PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%
+SET "_PENTAHO_JAVA_HOME=%~dp0..\..\jre"
+SET "_PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%"
 goto end
 
 :gotJavaTwoFolderUp
 echo DEBUG: Found JAVA two folder up
-set _PENTAHO_JAVA_HOME=%~dp0..\..\java
-set _PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%
+SET "_PENTAHO_JAVA_HOME=%~dp0..\..\java"
+SET "_PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%"
 goto end
 
 :gotJdkHome
 echo DEBUG: Using JAVA_HOME
-set _PENTAHO_JAVA_HOME=%JAVA_HOME%
-set _PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%
+SET "_PENTAHO_JAVA_HOME=%JAVA_HOME%"
+SET "_PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%"
 goto end
 
 :gotJreHome
 echo DEBUG: Using JRE_HOME
-set _PENTAHO_JAVA_HOME=%JRE_HOME%
-set _PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%
+SET "_PENTAHO_JAVA_HOME=%JRE_HOME%"
+SET "_PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%"
 goto end
 
 :gotValueFromCaller
 echo DEBUG: Using value (%~1) from calling script
-set _PENTAHO_JAVA_HOME=%~1
-set _PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%
+SET "_PENTAHO_JAVA_HOME=%~1"
+SET "_PENTAHO_JAVA=%_PENTAHO_JAVA_HOME%\bin\%__LAUNCHER%"
 goto end
 
 :gotPath
 echo WARNING: Using java from path
-set _PENTAHO_JAVA_HOME=
-set _PENTAHO_JAVA=%__LAUNCHER%
+SET "_PENTAHO_JAVA_HOME="
+SET "_PENTAHO_JAVA=%__LAUNCHER%"
 
 goto end
 

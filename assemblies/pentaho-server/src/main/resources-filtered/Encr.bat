@@ -12,9 +12,9 @@ REM Change Date: 2029-07-20
 REM ******************************************************************************
 
 setlocal
-pushd %~dp0
-SET STARTTITLE="Encr"
-SET SPOON_CONSOLE=1
-set JAVA_TOOL_OPTIONS=
+pushd "%~dp0"
+SET "STARTTITLE=Encr"
+SET "SPOON_CONSOLE=1"
+SET "JAVA_TOOL_OPTIONS="
 java -cp tomcat/webapps/pentaho/WEB-INF/classes;tomcat/webapps/pentaho/WEB-INF/lib/pentaho-encryption-support-${encryption-support.version}.jar;tomcat/webapps/pentaho/WEB-INF/lib/jetty-util-${jetty.version}.jar org.pentaho.support.encryption.Encr %*
 popd
