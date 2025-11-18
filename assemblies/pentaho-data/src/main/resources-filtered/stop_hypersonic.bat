@@ -11,19 +11,19 @@ REM
 REM Change Date: 2029-07-20
 REM ******************************************************************************
 setlocal 
-cd /D %~dp0
+cd /D "%~dp0"
 REM ---------------------------------------------
 REM - Create the classpath for this application -
 REM ---------------------------------------------
-SET tempclasspath=
-SET libdir=.\lib
+SET "tempclasspath="
+SET "libdir=.\lib"
 
-FOR /f "delims=" %%a IN ('dir %libdir%\hsqldb*.jar /b /a-d') DO call :addToClasspath %%a
+FOR /f "delims=" %%a IN ('dir "%libdir%\hsqldb*.jar" /b /a-d') DO call :addToClasspath %%a
 GOTO :startApp
 
 :addToClasspath
-IF "%tempclasspath%"=="" SET tempclasspath=%libdir%\%1& GOTO :end
-SET tempclasspath=%tempclasspath%;%libdir%\%1
+IF "%tempclasspath%"=="" SET "tempclasspath=%libdir%\%1"& GOTO :end
+SET "tempclasspath=%tempclasspath%;%libdir%\%1"
 GOTO :end
 
 REM -----------------------
@@ -37,7 +37,7 @@ GOTO end
 
 call set-pentaho-env.bat "%~dp0..\jre"
 
-"%_PENTAHO_JAVA%" -cp %tempclasspath% org.hsqldb.util.ShutdownServer -url "jdbc:hsqldb:hsql://localhost/%1" -user "SA" -password ""
+"%_PENTAHO_JAVA%" -cp "%tempclasspath%" org.hsqldb.util.ShutdownServer -url "jdbc:hsqldb:hsql://localhost/%1" -user "SA" -password ""
 echo %command%
 %command%
 GOTO :end
