@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.spring;
 
@@ -25,6 +26,7 @@ import org.springframework.core.Ordered;
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
+import org.springframework.security.core.Authentication;
 
 import java.util.concurrent.Callable;
 
@@ -68,7 +70,7 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
       final IBackingRepositoryLifecycleManager lifecycleManager = getLifecycleManager();
       // Execute new tenant with the tenant id from the logged in user
       final AbstractAuthenticationEvent aEvent = (AbstractAuthenticationEvent) event;
-      final String principalName = aEvent.getAuthentication().getName();
+      final String principalName = getPrincipalName( aEvent.getAuthentication() );
 
       try {
         getSecurityHelper().runAsSystem( new Callable<Void>() {
@@ -127,6 +129,10 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
       }
       logger.info( "The user \"" + principalName +"\"" + " connected to repository" );
     }
+  }
+
+  protected String getPrincipalName( Authentication authentication ) {
+    return authentication.getName();
   }
 
   public int getOrder() {

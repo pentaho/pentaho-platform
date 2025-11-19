@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources;
 
@@ -20,18 +21,18 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.api.resources.utils.EscapeUtils;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Response;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
 
 /**
  * This resource manages the user settings of the platform.
@@ -65,7 +66,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
   @Path( "/list" )
   @Produces( { APPLICATION_JSON, APPLICATION_XML } )
   @Facet ( name = "Unsupported" )
-  public ArrayList<Setting> getUserSettings() {
+  public SettingsWrapper getUserSettings() {
     try {
       IUserSettingService settingsService = getUserSettingService();
       List<IUserSetting> userSettings =  settingsService.getUserSettings();
@@ -75,7 +76,7 @@ public class UserSettingsResource extends AbstractJaxRSResource {
         settings.add( new Setting( userSetting.getSettingName(), userSetting.getSettingValue() ) );
       }
 
-      return settings;
+      return new SettingsWrapper( settings );
     } catch ( Exception e ) {
       e.printStackTrace();
     }

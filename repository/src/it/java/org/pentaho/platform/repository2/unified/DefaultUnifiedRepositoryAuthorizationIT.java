@@ -7,30 +7,11 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
 
+
 package org.pentaho.platform.repository2.unified;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-
-import javax.jcr.security.Privilege;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -60,8 +41,28 @@ import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
+import org.pentaho.platform.security.policy.rolebased.actions.SchedulerExecuteAction;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.jcr.security.Privilege;
+import java.io.ByteArrayInputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Integration test. Tests {@link DefaultUnifiedRepository} and {@link org.pentaho.platform.api.engine.IAuthorizationPolicy IAuthorizationPolicy} fully configured
@@ -1012,14 +1013,17 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
     assertTrue( allowedActions.contains( RepositoryCreateAction.NAME ) );
     // test with scheduler
     allowedActions = authorizationPolicy.getAllowedActions( NAMESPACE_SCHEDULER );
-    assertEquals( 1, allowedActions.size() );
+    assertEquals( 2, allowedActions.size() );
     assertTrue( allowedActions.contains( SchedulerAction.NAME ) );
+    assertTrue( allowedActions.contains( SchedulerExecuteAction.NAME ) );
+
+
     allowedActions = authorizationPolicy.getAllowedActions( NAMESPACE_SECURITY );
     assertEquals( 2, allowedActions.size() );
     assertTrue( allowedActions.contains( AdministerSecurityAction.NAME ) );
 
     allowedActions = authorizationPolicy.getAllowedActions( NAMESPACE_PENTAHO );
-    assertEquals( 5, allowedActions.size() );
+    assertEquals( 6, allowedActions.size() );
   }
 
   @Test
@@ -1042,7 +1046,7 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
       login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
       userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
       userRoleDao.createUser( tenantDuff, USERNAME_PAT, PASSWORD, "", null );
-      assertEquals( 5, authorizationPolicy.getAllowedActions( null ).size() );
+      assertEquals( 6, authorizationPolicy.getAllowedActions( null ).size() );
 
       login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
       assertEquals( 3, authorizationPolicy.getAllowedActions( null ).size() );
@@ -1052,7 +1056,7 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
       roleBindingDao
           .setRoleBindings( tenantAuthenticatedRoleName, Arrays.asList( RepositoryReadAction.NAME,
               RepositoryCreateAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME ) );
-      assertEquals( 5, authorizationPolicy.getAllowedActions( null ).size() );
+      assertEquals( 6, authorizationPolicy.getAllowedActions( null ).size() );
 
       // login with pat (in tenant duff)
       login( USERNAME_PAT, tenantDuff, new String[] { tenantAuthenticatedRoleName } );
@@ -1154,11 +1158,11 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
     assertNotNull( struct.bindingMap );
     assertEquals( 3, struct.bindingMap.size() );
     assertEquals( Arrays.asList( new String[] { RepositoryReadAction.NAME, RepositoryCreateAction.NAME,
-      SchedulerAction.NAME, AdministerSecurityAction.NAME, PublishAction.NAME } ), struct.bindingMap
-        .get( superAdminRoleName ) );
+      SchedulerExecuteAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME, PublishAction.NAME } ),
+      struct.bindingMap.get( superAdminRoleName ) );
     assertEquals( Arrays.asList( new String[] { RepositoryReadAction.NAME, RepositoryCreateAction.NAME,
-      SchedulerAction.NAME, AdministerSecurityAction.NAME, PublishAction.NAME } ), struct.bindingMap
-        .get( tenantAdminRoleName ) );
+      SchedulerExecuteAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME, PublishAction.NAME } ),
+      struct.bindingMap.get( tenantAdminRoleName ) );
     assertEquals( Arrays.asList( new String[] { RepositoryReadAction.NAME, RepositoryCreateAction.NAME,
       SchedulerAction.NAME } ), struct.bindingMap.get( tenantAuthenticatedRoleName ) );
     roleBindingDao.setRoleBindings( "whatever", Arrays.asList( "org.pentaho.p1.reader" ) );
@@ -1168,7 +1172,7 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
     assertEquals( Arrays.asList( new String[] { "org.pentaho.p1.reader" } ), struct.bindingMap.get( "whatever" ) );
 
     assertNotNull( struct.logicalRoleNameMap );
-    assertEquals( 5, struct.logicalRoleNameMap.size() );
+    assertEquals( 6, struct.logicalRoleNameMap.size() );
     assertEquals( "Create Content", struct.logicalRoleNameMap.get( RepositoryCreateAction.NAME ) );
 
     assertNotNull( struct.immutableRoles );

@@ -7,14 +7,16 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 package org.pentaho.platform.web.http.api.resources.utils;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.eclipse.jetty.util.ajax.JSON;
 import org.junit.Test;
 import org.pentaho.platform.web.http.api.resources.utils.EscapeUtils.HTMLCharacterEscapes;
 
@@ -156,7 +158,7 @@ public class EscapeUtilsTest {
   }
 
   @Test
-  public void testEscapeJsonOrRaw_simpleValue() {
+  public void testEscapeJsonOrRaw_simpleValue() throws JsonProcessingException {
     final String text = "\"text\"";
     final String expected = "\"text\"";
 
@@ -168,7 +170,7 @@ public class EscapeUtilsTest {
   }
 
   @Test
-  public void testEscapeJsonOrRaw_jsonArray() {
+  public void testEscapeJsonOrRaw_jsonArray() throws JsonProcessingException {
     assertTestData( JSON_ARRAY_JSON_ESCAPE, JSON_ARRAY );
 
     String actual = EscapeUtils.escapeJsonOrRaw( JSON_ARRAY );
@@ -178,7 +180,7 @@ public class EscapeUtilsTest {
   }
 
   @Test
-  public void testEscapeJsonOrRaw_jsonObject() {
+  public void testEscapeJsonOrRaw_jsonObject() throws JsonProcessingException {
     assertTestData( JSON_OBJECT_JSON_ESCAPE, JSON_OBJECT );
 
     String actual = EscapeUtils.escapeJsonOrRaw( JSON_OBJECT );
@@ -210,9 +212,10 @@ public class EscapeUtilsTest {
   }
 
   // region aux methods
-  private void assertTestData( String testData, String actual ) {
-    final String expected = JSON.toString( JSON.parse( testData ) );
-    final String parsedActual = JSON.toString( JSON.parse( actual ) );
+  private void assertTestData( String testData, String actual ) throws JsonProcessingException {
+    ObjectMapper objectMapper = new ObjectMapper();
+    final String expected = objectMapper.writeValueAsString( objectMapper.readTree( testData ) );
+    final String parsedActual = objectMapper.writeValueAsString( objectMapper.readTree( actual ) );
 
     assertEquals( expected, parsedActual );
   }

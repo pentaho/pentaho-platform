@@ -7,11 +7,13 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.servlet;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -37,9 +39,9 @@ import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
 import org.pentaho.platform.web.servlet.messages.Messages;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,14 +52,23 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GenericServlet extends ServletBase {
 
   private static final long serialVersionUID = 6713118348911206464L;
 
   private static final Log logger = LogFactory.getLog( GenericServlet.class );
-  private static final String CACHE_FILE = "file"; //$NON-NLS-1$
+  static final String CACHE_FILE = "file";
   private static ICacheManager cache = PentahoSystem.getCacheManager( null );
+
+  /**
+   * This pattern is used to match the path in the format of "/content/<static-resource-url>".
+   * It assumes the REST resource is being served via its default URL, {@code /content}.
+   * Used by {@link #isStaticResource(HttpServletRequest)}.
+   */
+  private static final Pattern PATH_PATTERN = Pattern.compile( "\\A/content(/.+)\\Z" );
 
   private boolean showDeprecationMessage;
 
@@ -78,6 +89,104 @@ public class GenericServlet extends ServletBase {
     super.init();
     String value = getServletConfig().getInitParameter( "showDeprecationMessage" );
     showDeprecationMessage = Boolean.parseBoolean( value );
+  }
+
+  /**
+   * Determines if the request is for an existing static resource handled by this content generator handler
+   * assuming it's being served via its default URL, {@code /content}.
+   * <p>
+   * This particular method can be used without performing servlet initialization, via {@link #init()}.
+   * <p>
+   * The implementation of this method uses the exact same rules used by
+   * {@link #doGet(HttpServletRequest, HttpServletResponse)} to identify static resources. The two must be kept in sync.
+   *
+   * @param request The request.
+   * @return {@code true} if the request is for a static resource; {@code false}, otherwise.
+   */
+  public boolean isStaticResource( @NonNull final HttpServletRequest request ) {
+    if ( StringUtils.isEmpty( request.getPathInfo() ) ) {
+      return false;
+    }
+
+    String fullPath = request.getServletPath() + request.getPathInfo();
+
+    Matcher matcher = PATH_PATTERN.matcher( fullPath );
+    if ( !matcher.matches() ) {
+      return false;
+    }
+
+    // Assume it is a static resource, but then check the hypothesis.
+    // Equal in value to getPathInfo() in doGet()
+    String staticResourceUrl = matcher.group( 1 );
+
+    IPluginManager pluginManager = getPluginManager( request );
+    if ( pluginManager == null ) {
+      return false;
+    }
+
+    // Determine the plugin from the static resource URL, and then double check it is a static resource.
+    // Must use the deprecated methods to have the exact same behavior as the doGet() method.
+    @SuppressWarnings( {"deprecation"} )
+    String pluginId = pluginManager.getServicePlugin( staticResourceUrl );
+    if ( pluginId == null ) {
+      return false;
+    }
+
+    @SuppressWarnings( "deprecation" )
+    boolean isStaticResourceUrl = pluginManager.isStaticResource( staticResourceUrl );
+
+    return isStaticResourceUrl && doesStaticResourceExist( pluginManager, pluginId, staticResourceUrl );
+  }
+
+  /**
+   * Checks if a static resource, given its relative URL actually exists.
+   * <p>
+   * This method is used by {@link #isStaticResource(HttpServletRequest)} to determine if a static resource actually
+   * exists, and not only whether its URL is public.
+   * <p>
+   * This method uses the deprecated method {@link IPluginManager#getStaticResource(String)} so that it behaves the
+   * closest possible to {@link #doGet(HttpServletRequest, HttpServletResponse)}.
+   *
+   * @param pluginManager     The plugin manager.
+   * @param pluginId          The plugin ID.
+   * @param staticResourceUrl The static resource URL.
+   * @return {@code true} if the static resource exists; {@code false}, otherwise.
+   */
+  protected boolean doesStaticResourceExist( @NonNull IPluginManager pluginManager,
+                                             @NonNull String pluginId,
+                                             @NonNull String staticResourceUrl ) {
+    // Check the file actually exists.
+    boolean cacheOn = isPluginCacheOn( pluginManager, pluginId );
+
+    // Do we have this resource cached?
+    if ( cacheOn && getCacheManager().getFromRegionCache( CACHE_FILE, staticResourceUrl ) != null ) {
+      return true;
+    }
+
+    @SuppressWarnings( "deprecation" )
+    InputStream resourceStream = pluginManager.getStaticResource( staticResourceUrl );
+    if ( resourceStream != null ) {
+      IOUtils.closeQuietly( resourceStream );
+      return true;
+    }
+
+    return false;
+  }
+
+  // visible for testing
+  protected ICacheManager getCacheManager() {
+    return cache;
+  }
+
+  /**
+   * Checks if the cache is enabled for the given plugin.
+   *
+   * @param pluginManager The plugin manager.
+   * @param pluginId      The plugin ID.
+   * @return {@code true} if the cache is enabled; {@code false}, otherwise.
+   */
+  protected boolean isPluginCacheOn( @NonNull IPluginManager pluginManager, @NonNull String pluginId ) {
+    return "true".equals( pluginManager.getPluginSetting( pluginId, "settings/cache", "false" ) );
   }
 
   @Override
@@ -147,8 +256,9 @@ public class GenericServlet extends ServletBase {
         debug( "GenericServlet contentGeneratorId=" + contentGeneratorId ); //$NON-NLS-1$
         debug( "GenericServlet urlPath=" + urlPath ); //$NON-NLS-1$
       }
+
       IPentahoSession session = getPentahoSession( request );
-      IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, session );
+      IPluginManager pluginManager = getPluginManager( request );
       if ( pluginManager == null ) {
         OutputStream out = response.getOutputStream();
         String message =
@@ -171,8 +281,7 @@ public class GenericServlet extends ServletBase {
       String pluginId = pluginManager.getServicePlugin( pathInfo );
 
       if ( pluginId != null && pluginManager.isStaticResource( pathInfo ) ) {
-        boolean cacheOn = "true".equals( pluginManager
-          .getPluginSetting( pluginId, "settings/cache", "false" ) ); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+        boolean cacheOn = isPluginCacheOn( pluginManager, pluginId );
         String maxAge = (String) pluginManager.getPluginSetting( pluginId, "settings/max-age", null ); //$NON-NLS-1$
         allowBrowserCache( maxAge, pathParams );
 
@@ -186,7 +295,7 @@ public class GenericServlet extends ServletBase {
         ByteArrayOutputStream byteStream = null;
 
         if ( cacheOn ) {
-          byteStream = (ByteArrayOutputStream) cache.getFromRegionCache( CACHE_FILE, pathInfo );
+          byteStream = (ByteArrayOutputStream) getCacheManager().getFromRegionCache( CACHE_FILE, pathInfo );
         }
 
         if ( byteStream != null ) {
@@ -201,7 +310,7 @@ public class GenericServlet extends ServletBase {
 
             // if cache is enabled, drop file in cache
             if ( cacheOn ) {
-              cache.putInRegionCache( CACHE_FILE, pathInfo, byteStream );
+              getCacheManager().putInRegionCache( CACHE_FILE, pathInfo, byteStream );
             }
 
             // write it out
@@ -331,5 +440,10 @@ public class GenericServlet extends ServletBase {
     OutputStream out = response.getOutputStream();
     HttpOutputHandler handler = new HttpOutputHandler( response, out, allowFeedback );
     return handler;
+  }
+
+  protected IPluginManager getPluginManager( final HttpServletRequest request ) {
+    IPentahoSession session = getPentahoSession( request );
+    return PentahoSystem.get( IPluginManager.class, session );
   }
 }
