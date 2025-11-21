@@ -27,7 +27,23 @@
     <replacer.version>1.5.2</replacer.version>
     <rxjava.version>2.2.3</rxjava.version>
     <big-data-plugin.version>9.3.0.10-886</big-data-plugin.version>
+    <org.eclipse.swt-legacy.version>3.127.0</org.eclipse.swt-legacy.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Force SWT to Java 11 compatible version to stop jface resolving 3.131.0 (Java 17).
+           This pins the transitive dependency obtained via
+           org.eclipse.platform:org.eclipse.jface:jar:3.22.0
+        -->
+      <dependency>
+        <groupId>org.eclipse.platform</groupId>
+        <artifactId>org.eclipse.swt</artifactId>
+        <version>${org.eclipse.swt-legacy.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <!-- region - Fasterxml jackson providers are required to be in the main classloader for serialization of POJOs
          in the Publish Model step. -->
