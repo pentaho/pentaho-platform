@@ -20,6 +20,15 @@ package org.pentaho.platform.api.engine;
  */
 public interface IPluginManagerListener {
   /**
+   * Called after all plugins have been loaded (or reloaded), but before the final {@link #onReload()} method is called.
+   * <p>
+   * This method allows listeners to perform additional loading logic before the plugins are considered fully loaded.
+   */
+  default void onAfterPluginsLoaded() {
+    // noop
+  }
+
+  /**
    * Called when the {@link IPluginManager} is reloaded.
    */
   void onReload();

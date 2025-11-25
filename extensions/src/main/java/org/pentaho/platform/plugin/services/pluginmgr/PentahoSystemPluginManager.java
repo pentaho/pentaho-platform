@@ -311,6 +311,12 @@ public class PentahoSystemPluginManager implements IPluginManager {
       }
     }
 
+    // Allow listeners to do additional loading logic before being considered fully loaded.
+    for ( IPluginManagerListener listener : listeners ) {
+      listener.onAfterPluginsLoaded();
+    }
+
+    // Notify listeners that the plugins have been reloaded.
     for ( IPluginManagerListener listener : listeners ) {
       listener.onReload();
     }
