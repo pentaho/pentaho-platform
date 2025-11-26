@@ -13,7 +13,21 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.pentaho.database.model.IDatabaseConnection;
@@ -61,20 +75,7 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import com.google.common.annotations.VisibleForTesting;
 
 public class SolutionImportHandler implements IPlatformImportHandler {
 
@@ -985,6 +986,55 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     }
   }
 
+  private void createTempAndAddBundle( String entryName, boolean isDir, ZipInputStream zipInputStream ) throws IOException {
+    File tempFile = null;
+    if ( !isDir ) {
+      tempFile = File.createTempFile( "zip", null );
+      tempFile.deleteOnExit();
+      try ( FileOutputStream fos = new FileOutputStream( tempFile ) ) {
+        IOUtils.copy( zipInputStream, fos );
+      }
+    }
+    addRepoFileBundle( entryName, isDir, tempFile );
+  }
+
+  private void processZipEntry( ZipInputStream zipInputStream, String entryName, String decodedEntryName, boolean isDir, FileService fileService )
+    throws IOException, PlatformImportException {
+    if ( !isDir ) {
+      if ( !solutionHelper.isInApprovedExtensionList( entryName ) ) {
+        zipInputStream.closeEntry();
+        partialImport = true;
+        return;
+      }
+
+      if ( !fileService.isValidFileName( decodedEntryName ) ) {
+        String sanitizedName = decodedEntryName.replaceAll( INVALID_FILENAME_CHARS_REGEX, "_" );
+        if ( fileService.isValidFileName( sanitizedName ) ) {
+          getLogger().warn( Messages.getInstance().getString( "SolutionImportHandler.RetryImport", sanitizedName ) );
+          createTempAndAddBundle( sanitizedName, false, zipInputStream );
+          zipInputStream.closeEntry();
+          return;
+        } else {
+          getLogger().error( Messages.getInstance().getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME", sanitizedName ) );
+          throw new PlatformImportException( Messages.getInstance().getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME", entryName ), PlatformImportException.PUBLISH_PROHIBITED_SYMBOLS_ERROR );
+        }
+      }
+
+      createTempAndAddBundle( entryName, false, zipInputStream );
+      zipInputStream.closeEntry();
+      return;
+    } else {
+      if ( !fileService.isValidFileName( decodedEntryName ) ) {
+        getLogger().error( Messages.getInstance().getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME", decodedEntryName ) );
+        throw new PlatformImportException( Messages.getInstance().getString( "DefaultImportHandler.ERROR_0012_INVALID_FOLDER_NAME", entryName ), PlatformImportException.PUBLISH_PROHIBITED_SYMBOLS_ERROR );
+      }
+      // folders don't need a temp file
+      addRepoFileBundle( entryName, true, null );
+      zipInputStream.closeEntry();
+      return;
+    }
+  }
+
   private boolean processZip( InputStream inputStream ) {
     this.files = new ArrayList<>();
     if ( isPerformingRestore ) {
@@ -997,57 +1047,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
         final String entryName = RepositoryFilenameUtils.separatorsToRepository( entry.getName() );
         getLogger().debug( Messages.getInstance().getString( "ZIPFILE.ProcessingEntry", entryName ) );
         final String decodedEntryName = ExportFileNameEncoder.decodeZipFileName( entryName );
-        File tempFile = null;
         boolean isDir = entry.isDirectory();
-        if ( !isDir ) {
-          if ( !solutionHelper.isInApprovedExtensionList( entryName ) ) {
-            zipInputStream.closeEntry();
-            entry = zipInputStream.getNextEntry();
-            partialImport = true;
-            continue;
-          }
-
-          if ( !fileService.isValidFileName( decodedEntryName ) ) {
-            // Attempt retry with sanitized filename
-            String sanitizedName = decodedEntryName.replaceAll( INVALID_FILENAME_CHARS_REGEX, "_" );
-            
-            if ( fileService.isValidFileName( sanitizedName ) ) {
-              getLogger().warn( Messages.getInstance().getString( "SolutionImportHandler.RetryImport", sanitizedName ) );
-              
-              // Create temp file for sanitized name and copy contents
-              File tempFileSanitized = File.createTempFile( "zip", null );
-              tempFileSanitized.deleteOnExit();
-              try ( FileOutputStream fosSanitized = new FileOutputStream( tempFileSanitized ) ) {
-                IOUtils.copy(zipInputStream, fosSanitized);
-              }
-
-              // Add repo file bundle with sanitized name
-              addRepoFileBundle( sanitizedName, false, tempFileSanitized );
-              zipInputStream.closeEntry();
-              entry = zipInputStream.getNextEntry();
-              continue;
-            } else {
-              getLogger().error( Messages.getInstance().getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME", sanitizedName ) );
-              throw new PlatformImportException(
-                  Messages.getInstance().getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME", entryName ), PlatformImportException.PUBLISH_PROHIBITED_SYMBOLS_ERROR );
-            }
-          }
-
-          tempFile = File.createTempFile( "zip", null );
-          tempFile.deleteOnExit();
-          try ( FileOutputStream fos = new FileOutputStream( tempFile ) ) {
-            IOUtils.copy( zipInputStream, fos );
-          }
-        } else {
-          if ( !fileService.isValidFileName( decodedEntryName ) ) {
-            getLogger().error( Messages.getInstance().getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME", decodedEntryName ) );
-            throw new PlatformImportException(
-                Messages.getInstance().getString( "DefaultImportHandler.ERROR_0012_INVALID_FOLDER_NAME",
-                    entryName ), PlatformImportException.PUBLISH_PROHIBITED_SYMBOLS_ERROR );
-          }
-        }
-        addRepoFileBundle( entryName, isDir, tempFile );
-        zipInputStream.closeEntry();
+        processZipEntry( zipInputStream, entryName, decodedEntryName, isDir, fileService );
         entry = zipInputStream.getNextEntry();
       }
     } catch ( IOException | PlatformImportException e ) {
