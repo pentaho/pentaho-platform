@@ -79,6 +79,7 @@ import java.util.zip.ZipInputStream;
 public class SolutionImportHandler implements IPlatformImportHandler {
 
   private static final String XMI_EXTENSION = ".xmi";
+  private static final String INVALID_FILENAME_CHARS_REGEX = "[\\*\\?\\\"<>\\|:/\\\\+ ]|%2B|%20|%25|%3C|%3E|%3A|%2F|%5C|%7C|%22|%3F";
 
   private static final String EXPORT_MANIFEST_XML_FILE = "exportManifest.xml";
   private static final String DOMAIN_ID = "domain-id";
@@ -968,6 +969,22 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     return path;
   }
 
+  private void addRepoFileBundle( String entryName, boolean isDir, File tempFile ) {
+    File file = new File( entryName );
+    RepositoryFile repoFile = new RepositoryFile.Builder( file.getName() ).folder( isDir ).hidden( false ).build();
+    String parentDir = file.getParent() == null ? RepositoryFile.SEPARATOR : file.getParent() + RepositoryFile.SEPARATOR;
+    IRepositoryFileBundle repoFileBundle = new RepositoryFileBundle( repoFile, null, parentDir, tempFile, UTF_8, null );
+
+    if ( EXPORT_MANIFEST_XML_FILE.equals( file.getName() ) ) {
+      initializeAclManifest( repoFileBundle );
+    } else {
+      if ( isPerformingRestore ) {
+        getLogger().debug( "Adding file " + repoFile.getName() + " to list for later processing " );
+      }
+      files.add( repoFileBundle );
+    }
+  }
+
   private boolean processZip( InputStream inputStream ) {
     this.files = new ArrayList<>();
     if ( isPerformingRestore ) {
@@ -991,10 +1008,29 @@ public class SolutionImportHandler implements IPlatformImportHandler {
           }
 
           if ( !fileService.isValidFileName( decodedEntryName ) ) {
-            getLogger().error( Messages.getInstance().getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME", decodedEntryName ) );
-            throw new PlatformImportException(
-                Messages.getInstance().getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME",
-                    entryName ), PlatformImportException.PUBLISH_PROHIBITED_SYMBOLS_ERROR );
+            // Attempt retry with sanitized filename
+            String sanitizedName = decodedEntryName.replaceAll( INVALID_FILENAME_CHARS_REGEX, "_" );
+            
+            if ( fileService.isValidFileName( sanitizedName ) ) {
+              getLogger().warn( Messages.getInstance().getString( "SolutionImportHandler.RetryImport", sanitizedName ) );
+              
+              // Create temp file for sanitized name and copy contents
+              File tempFileSanitized = File.createTempFile( "zip", null );
+              tempFileSanitized.deleteOnExit();
+              try ( FileOutputStream fosSanitized = new FileOutputStream( tempFileSanitized ) ) {
+                IOUtils.copy(zipInputStream, fosSanitized);
+              }
+
+              // Add repo file bundle with sanitized name
+              addRepoFileBundle( sanitizedName, false, tempFileSanitized );
+              zipInputStream.closeEntry();
+              entry = zipInputStream.getNextEntry();
+              continue;
+            } else {
+              getLogger().error( Messages.getInstance().getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME", sanitizedName ) );
+              throw new PlatformImportException(
+                  Messages.getInstance().getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME", entryName ), PlatformImportException.PUBLISH_PROHIBITED_SYMBOLS_ERROR );
+            }
           }
 
           tempFile = File.createTempFile( "zip", null );
@@ -1010,23 +1046,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
                     entryName ), PlatformImportException.PUBLISH_PROHIBITED_SYMBOLS_ERROR );
           }
         }
-        File file = new File( entryName );
-        RepositoryFile repoFile =
-            new RepositoryFile.Builder( file.getName() ).folder( isDir ).hidden( false ).build();
-        String parentDir =
-            file.getParent() == null ? RepositoryFile.SEPARATOR : file.getParent()
-                + RepositoryFile.SEPARATOR;
-        IRepositoryFileBundle repoFileBundle =
-            new RepositoryFileBundle( repoFile, null, parentDir, tempFile, UTF_8, null );
-
-        if ( EXPORT_MANIFEST_XML_FILE.equals( file.getName() ) ) {
-          initializeAclManifest( repoFileBundle );
-        } else {
-          if ( isPerformingRestore ) {
-            getLogger().debug( "Adding file " + repoFile.getName() + " to list for later processing " );
-          }
-          files.add( repoFileBundle );
-        }
+        addRepoFileBundle( entryName, isDir, tempFile );
         zipInputStream.closeEntry();
         entry = zipInputStream.getNextEntry();
       }
