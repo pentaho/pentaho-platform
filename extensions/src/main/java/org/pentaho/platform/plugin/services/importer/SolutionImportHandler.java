@@ -990,7 +990,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             continue;
           }
 
-          if ( !fileService.isValidFileName( decodedEntryName ) ) {
+          if ( !fileService.isValidDecodedFileName( decodedEntryName ) ) {
             getLogger().error( Messages.getInstance().getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME", decodedEntryName ) );
             throw new PlatformImportException(
                 Messages.getInstance().getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME",
@@ -1003,8 +1003,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
             IOUtils.copy( zipInputStream, fos );
           }
         } else {
-          if ( !fileService.isValidFileName( decodedEntryName ) ) {
-            getLogger().error( Messages.getInstance().getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME", decodedEntryName ) );
+          if ( !fileService.isValidDecodedFolderName( decodedEntryName ) ) {
+            getLogger().error( Messages.getInstance().getString( "DefaultImportHandler.ERROR_0012_INVALID_FOLDER_NAME", decodedEntryName ) );
             throw new PlatformImportException(
                 Messages.getInstance().getString( "DefaultImportHandler.ERROR_0012_INVALID_FOLDER_NAME",
                     entryName ), PlatformImportException.PUBLISH_PROHIBITED_SYMBOLS_ERROR );

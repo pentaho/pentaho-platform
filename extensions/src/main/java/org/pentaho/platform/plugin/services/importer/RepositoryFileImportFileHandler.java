@@ -154,12 +154,12 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       FileService fileService = new FileService();
       String name = bundle.getName();
       if ( bundle.isFolder() ) {
-        if ( !fileService.isValidFolderName( name ) ) {
+        if ( !fileService.isValidDecodedFolderName( name ) ) {
           throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0012_INVALID_FOLDER_NAME",
             name ), PlatformImportException.PUBLISH_PROHIBITED_SYMBOLS_ERROR );
         }
       } else {
-        if ( !fileService.isValidFileName( name ) ) {
+        if ( !fileService.isValidDecodedFileName( name ) ) {
           throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME",
             name ), PlatformImportException.PUBLISH_PROHIBITED_SYMBOLS_ERROR );
         }

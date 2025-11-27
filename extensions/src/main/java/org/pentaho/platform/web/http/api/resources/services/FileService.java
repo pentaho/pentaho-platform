@@ -1876,6 +1876,39 @@ public class FileService {
       && !FileUtils.containsControlCharacters( decode( nameOrPath ) );
   }
 
+  /**
+   * Validate a filename that is already decoded (i.e. the original repository name).
+   *
+   * @param decodedName the decoded file name to validate
+   * @return true if the decoded name is valid
+   */
+  public boolean isValidDecodedFileName( final String decodedName ) {
+    if ( StringUtils.isEmpty( decodedName ) || !decodedName.trim().equals( decodedName ) ) {
+      return false;
+    }
+
+    return !FileUtils.containsReservedCharacter( decodedName, doGetReservedChars().toString().toCharArray(), false )
+      && !FileUtils.containsControlCharacters( decodedName );
+  }
+
+  /**
+   * Validate a folder name that is already decoded (i.e. the original repository name).
+   *
+   * @param decodedFolderName the decoded folder name to validate
+   * @return true if the decoded name is valid
+   */
+  public boolean isValidDecodedFolderName( final String decodedFolderName ) {
+    if ( !isValidDecodedFileName( decodedFolderName ) ) {
+      return false;
+    }
+
+    if ( ".".equals( decodedFolderName ) || "..".equals( decodedFolderName ) ) {
+      return false;
+    }
+
+    return true;
+  }
+
   private String getParentPath( final String path ) {
     return FileUtils.getParentPath( path );
   }
