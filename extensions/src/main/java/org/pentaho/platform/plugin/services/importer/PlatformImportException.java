@@ -41,6 +41,8 @@ public class PlatformImportException extends Exception {
 
   public static final int PUBLISH_PARTIAL_UPLOAD = 12;
 
+  public static final int PUBLISH_NAME_ERROR = 13;
+
   private int errorStatusCode = PlatformImportException.PUBLISH_TO_SERVER_FAILED;
 
   public PlatformImportException( String s ) {

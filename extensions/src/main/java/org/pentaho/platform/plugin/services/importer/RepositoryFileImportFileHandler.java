@@ -13,6 +13,16 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
@@ -35,13 +45,6 @@ import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.springframework.util.Assert;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * User: nbaker Date: 5/29/12
@@ -152,7 +155,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   private void validateName( RepositoryFileImportBundle bundle ) throws PlatformImportException {
     if ( null != bundle ) {
       FileService fileService = new FileService();
-      String name = bundle.getName();
+      String name = getEncodedBundleName( bundle, StandardCharsets.UTF_8 );
       if ( bundle.isFolder() ) {
         if ( !fileService.isValidFolderName( name ) ) {
           throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0012_INVALID_FOLDER_NAME",
@@ -553,5 +556,20 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   public List<String> getKnownExtensions() {
     return knownExtensions;
+  }
+
+  protected String getEncodedBundleName( RepositoryFileImportBundle bundle, Charset charset  ) throws PlatformImportException {
+    String name = bundle.getName();
+    try {
+      return URLEncoder.encode( name, charset );
+    } catch ( Exception ex ) {
+      if ( bundle.isFolder() ) {
+        throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0012_INVALID_FOLDER_NAME",
+          name ), PlatformImportException.PUBLISH_NAME_ERROR );
+      } else {
+        throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME",
+          name ), PlatformImportException.PUBLISH_NAME_ERROR );
+      }
+    }
   }
 }
