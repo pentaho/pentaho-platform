@@ -561,6 +561,9 @@ public class JcrRepositoryFileUtils {
 
     folderNode.addNode( pentahoJcrConstants.getPHO_METADATA(), JcrConstants.NT_UNSTRUCTURED );
     folderNode.addMixin( pentahoJcrConstants.getMIX_REFERENCEABLE() );
+
+    updateParentFolderLastModified( session, pentahoJcrConstants, parentFolderId );
+
     return folderNode;
   }
 
@@ -607,6 +610,9 @@ public class JcrRepositoryFileUtils {
     }
 
     transformer.createContentNode( session, pentahoJcrConstants, content, fileNode );
+
+    updateParentFolderLastModified( session, pentahoJcrConstants, parentFolderId );
+
     return fileNode;
   }
 
@@ -675,6 +681,15 @@ public class JcrRepositoryFileUtils {
 
     folderNode.setProperty( pentahoJcrConstants.getPHO_HIDDEN(), folder.isHidden() );
     folderNode.setProperty( pentahoJcrConstants.getPHO_ACLNODE(), folder.isAclNode() );
+
+    Node metadataNode;
+    if ( !folderNode.hasNode( pentahoJcrConstants.getPHO_METADATA() ) ) {
+      metadataNode = folderNode.addNode( pentahoJcrConstants.getPHO_METADATA(), JcrConstants.NT_UNSTRUCTURED );
+    } else {
+      metadataNode = folderNode.getNode( pentahoJcrConstants.getPHO_METADATA() );
+    }
+    metadataNode.setProperty( pentahoJcrConstants.getPHO_LASTMODIFIED(), Calendar.getInstance() );
+
     if ( folder.getLocalePropertiesMap() != null && !folder.getLocalePropertiesMap().isEmpty() ) {
       Node localePropertiesMapNode = null;
       if ( !folderNode.hasNode( pentahoJcrConstants.getPHO_LOCALES() ) ) {
@@ -686,6 +701,36 @@ public class JcrRepositoryFileUtils {
       setLocalePropertiesMap( session, pentahoJcrConstants, localePropertiesMapNode, folder.getLocalePropertiesMap() );
     }
     return folderNode;
+  }
+
+  /**
+   * Updates the lastModified timestamp of a parent folder node.
+   * This should be called when a child file or folder is added, deleted, or moved.
+   * 
+   * @param session the JCR session
+   * @param pentahoJcrConstants JCR constants
+   * @param parentFolderId the ID of the parent folder to update
+   * @throws RepositoryException if an error occurs
+   */
+  public static void updateParentFolderLastModified( final Session session, final PentahoJcrConstants pentahoJcrConstants,
+      final Serializable parentFolderId ) throws RepositoryException {
+    if ( parentFolderId == null ) {
+      return;
+    }
+    try {
+      Node parentFolderNode = session.getNodeByIdentifier( parentFolderId.toString() );
+      if ( isPentahoFolder( pentahoJcrConstants, parentFolderNode ) ) {
+        Node metadataNode;
+        if ( !parentFolderNode.hasNode( pentahoJcrConstants.getPHO_METADATA() ) ) {
+          metadataNode = parentFolderNode.addNode( pentahoJcrConstants.getPHO_METADATA(), JcrConstants.NT_UNSTRUCTURED );
+        } else {
+          metadataNode = parentFolderNode.getNode( pentahoJcrConstants.getPHO_METADATA() );
+        }
+        metadataNode.setProperty( pentahoJcrConstants.getPHO_LASTMODIFIED(), Calendar.getInstance() );
+      }
+    } catch ( RepositoryException e ) {
+      logger.warn( "Unable to update lastModified timestamp for parent folder: " + parentFolderId, e );
+    }
   }
 
   public static IRepositoryFileData getContent( final Session session, final PentahoJcrConstants pentahoJcrConstants,
