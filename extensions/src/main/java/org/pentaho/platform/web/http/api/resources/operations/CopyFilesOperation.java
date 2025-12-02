@@ -13,6 +13,7 @@
 
 package org.pentaho.platform.web.http.api.resources.operations;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -295,20 +296,34 @@ public class CopyFilesOperation {
       deepness = DEFAULT_DEEPNESS;
     }
 
+    performFolderDeepCopy( from, to, deepness, to );
+  }
+
+  /**
+   * Internal method to perform deep copy of folder content.
+   * Tracks the root folder to prevent infinite recursion in case of self-copy.
+   *
+   * @param from     folder, from witch we will copy content
+   * @param to       folder, in witch we will copy content
+   * @param deepness deepness of child entries in each folder
+   * @param root     root folder, in witch we will copy content, prevents re-processing (infinite recursion)
+   */
+  @VisibleForTesting
+  protected void performFolderDeepCopy( RepositoryFile from, RepositoryFile to, Integer deepness, RepositoryFile root ) {
     List<RepositoryFile> children =
       getRepository().getChildren( createRepoRequest( from, deepness ) );
 
     for ( RepositoryFile repoFile : children ) {
       if ( repoFile.isFolder() ) {
-        // skip nested Self-Copy root folder (child that might have been previously created)
-        if ( repoFile.getId().equals( to.getId() ) ) {
+        // skip nested Self-Copy root folder, avoids infinite recursion
+        if ( repoFile.getId().equals( root.getId() ) ) {
           continue;
         }
 
         RepositoryFile childFolder =
           getRepository().createFolder( to.getId(), repoFile, getRepository().getAcl( repoFile.getId() ), null );
 
-        performFolderDeepCopy( repoFile, childFolder, deepness );
+        performFolderDeepCopy( repoFile, childFolder, deepness, root );
       } else {
         getRepository().createFile( to.getId(), repoFile, RepositoryFileHelper.getFileData( repoFile ), null );
       }
