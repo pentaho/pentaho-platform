@@ -311,7 +311,7 @@
     </dependency>
     <dependency>
       <groupId>net.sf.saxon</groupId>
-      <artifactId>saxon</artifactId>
+      <artifactId>Saxon-HE</artifactId>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -320,14 +320,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>net.sf.saxon</groupId>
-      <artifactId>saxon-dom</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.xmlresolver</groupId>
+      <artifactId>xmlresolver</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.modules</groupId>
