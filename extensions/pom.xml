@@ -1419,18 +1419,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>trilead-ssh2</groupId>
-      <artifactId>trilead-ssh2</artifactId>
-      <version>${trilead-ssh2.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>ftp4che</groupId>
       <artifactId>ftp4che</artifactId>
       <version>${ftp4che.version}</version>
