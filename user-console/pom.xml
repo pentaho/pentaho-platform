@@ -5,26 +5,26 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>9.3.0.10-886</version>
+    <version>9.3.0.10-888</version>
   </parent>
   <artifactId>pentaho-user-console</artifactId>
-  <version>9.3.0.10-886</version>
+  <version>9.3.0.10-888</version>
   <properties>
     <validation-api.version>1.0.0.GA</validation-api.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
-    <gwt.outputDirectory>${project.build.directory}/${project.artifactId}-gwt-9.3.0.10-886</gwt.outputDirectory>
+    <gwt.outputDirectory>${project.build.directory}/${project.artifactId}-gwt-9.3.0.10-888</gwt.outputDirectory>
     <json-simple.version>1.1</json-simple.version>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
     <mockito.version>1.8.5</mockito.version>
-    <commons-xul.version>9.3.0.10-886</commons-xul.version>
-    <common-ui.version>9.3.0.10-886</common-ui.version>
-    <commons-gwt.version>9.3.0.10-886</commons-gwt.version>
+    <commons-xul.version>9.3.0.10-888</commons-xul.version>
+    <common-ui.version>9.3.0.10-888</common-ui.version>
+    <commons-gwt.version>9.3.0.10-888</commons-gwt.version>
   </properties>
   <dependencies>
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-core</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -42,7 +42,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -54,7 +54,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -66,7 +66,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-repository</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -78,7 +78,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-extensions</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -90,7 +90,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <classifier>sources</classifier>
       <exclusions>
         <exclusion>
@@ -102,7 +102,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-repository</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <classifier>sources</classifier>
       <exclusions>
         <exclusion>
@@ -114,7 +114,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-extensions</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <classifier>sources</classifier>
       <exclusions>
         <exclusion>

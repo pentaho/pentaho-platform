@@ -5,20 +5,20 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>9.3.0.10-886</version>
+    <version>9.3.0.10-888</version>
   </parent>
   <artifactId>pentaho-server-manual-ce</artifactId>
-  <version>9.3.0.10-886</version>
+  <version>9.3.0.10-888</version>
   <packaging>pom</packaging>
   <properties>
     <!-- Pentaho drivers kar file dependencies versions -->
-    <pentaho-hadoop-shims-cdh61.version>9.3.0.10-886</pentaho-hadoop-shims-cdh61.version>
-    <pentaho-hadoop-shims-hdp30.version>9.3.0.10-886</pentaho-hadoop-shims-hdp30.version>
-    <pentaho-hadoop-shims-emr521.version>9.3.0.10-886</pentaho-hadoop-shims-emr521.version>
-    <pentaho-hadoop-shims-dataproc1421.version>9.3.0.10-886</pentaho-hadoop-shims-dataproc1421.version>
-    <pentaho-hadoop-shims-cdpdc71.version>9.3.0.10-886</pentaho-hadoop-shims-cdpdc71.version>
-    <pentaho-hadoop-shims-mapr61.version>9.3.0.10-886</pentaho-hadoop-shims-mapr61.version>
-    <pentaho-hadoop-shims-hdi40.version>9.3.0.10-886</pentaho-hadoop-shims-hdi40.version>
+    <pentaho-hadoop-shims-cdh61.version>9.3.0.10-888</pentaho-hadoop-shims-cdh61.version>
+    <pentaho-hadoop-shims-hdp30.version>9.3.0.10-888</pentaho-hadoop-shims-hdp30.version>
+    <pentaho-hadoop-shims-emr521.version>9.3.0.10-888</pentaho-hadoop-shims-emr521.version>
+    <pentaho-hadoop-shims-dataproc1421.version>9.3.0.10-888</pentaho-hadoop-shims-dataproc1421.version>
+    <pentaho-hadoop-shims-cdpdc71.version>9.3.0.10-888</pentaho-hadoop-shims-cdpdc71.version>
+    <pentaho-hadoop-shims-mapr61.version>9.3.0.10-888</pentaho-hadoop-shims-mapr61.version>
+    <pentaho-hadoop-shims-hdi40.version>9.3.0.10-888</pentaho-hadoop-shims-hdi40.version>
   </properties>
   <dependencies>
     <!-- START Pentaho drivers kar file dependencies -->
@@ -110,25 +110,25 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-data</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <type>zip</type>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-solutions</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <type>zip</type>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-war</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <type>war</type>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-style</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <type>war</type>
     </dependency>
   </dependencies>
@@ -148,7 +148,7 @@
                 <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>oss-licenses</artifactId>
-                  <version>9.3.0.10-886</version>
+                  <version>9.3.0.10-888</version>
                   <type>zip</type>
                   <overWrite>false</overWrite>
                   <outputDirectory>${pentaho-server.directory}/licenses</outputDirectory>
@@ -168,7 +168,7 @@
                 <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>pentaho-war</artifactId>
-                  <version>9.3.0.10-886</version>
+                  <version>9.3.0.10-888</version>
                   <type>war</type>
                   <overWrite>false</overWrite>
                   <outputDirectory>${pentaho-server.directory}</outputDirectory>

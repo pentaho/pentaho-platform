@@ -5,10 +5,10 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>9.3.0.10-886</version>
+    <version>9.3.0.10-888</version>
   </parent>
   <artifactId>pentaho-platform-build-utils</artifactId>
-  <version>9.3.0.10-886</version>
+  <version>9.3.0.10-888</version>
   <properties>
     <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
     <mockito-all.version>1.9.5</mockito-all.version>
