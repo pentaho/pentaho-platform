@@ -18,11 +18,13 @@ import org.hibernate.cache.jcache.ConfigSettings;
 import org.hibernate.cache.jcache.MissingCacheStrategy;
 import org.hibernate.cache.jcache.internal.JCacheRegionFactory;
 import javax.cache.Cache;
-import javax.cache.configuration.MutableConfiguration;
 import java.util.Map;
 import static org.hibernate.cache.spi.SecondLevelCacheLogger.L2CACHE_LOGGER;
 
 public class HvCacheRegionFactory extends JCacheRegionFactory {
+
+  private static final String EHCACHE_XML_PATH = "ehcache.xml";
+
   private MissingCacheStrategy missingCacheStrategy;
 
   @Override
@@ -33,14 +35,15 @@ public class HvCacheRegionFactory extends JCacheRegionFactory {
 
   @Override
   protected Cache<Object, Object> createCache( String regionName ) {
-    MutableConfiguration<Object, Object> configuration = new MutableConfiguration<>();
-    configuration.setStoreByValue( false );
+    // Parent's getOrCreateCache() already checked getCache() - this is only called when cache doesn't exist in ehcache.xml
+    // EhCache3 removed support for default cache creation from ehcache.xml so explicitly handling the default cache creation here
     switch ( missingCacheStrategy ) {
       case CREATE_WARN:
         L2CACHE_LOGGER.missingCacheCreated( regionName, ConfigSettings.MISSING_CACHE_STRATEGY, MissingCacheStrategy.CREATE.getExternalRepresentation() );
-        return getCacheManager().createCache( regionName, configuration );
       case CREATE:
-        return getCacheManager().createCache( regionName, configuration );
+        return getCacheManager().createCache( regionName,
+                PentahoCacheUtil.getDefaultCacheConfiguration( regionName,
+                        HvCacheRegionFactory.class.getClassLoader().getResource( EHCACHE_XML_PATH ) ) );
       case FAIL:
         throw new CacheException( "On-the-fly creation of JCache Cache objects is not supported [" + regionName + "]" );
       default:
