@@ -740,22 +740,22 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-connections</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
     </dependency>
     <dependency>
       <groupId>org.pentaho</groupId>
       <artifactId>pentaho-metadata</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
     </dependency>
     <dependency>
       <groupId>org.javassist</groupId>
@@ -777,7 +777,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -917,13 +917,13 @@
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-core</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
   </dependencies>
   <build>
-    <finalName>${project.artifactId}-${project.version}</finalName>
+    <finalName>${project.artifactId}-9.3.0.10-886</finalName>
     <plugins>
       <plugin>
         <groupId>com.mycila</groupId>

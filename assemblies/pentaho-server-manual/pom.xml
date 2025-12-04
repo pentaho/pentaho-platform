@@ -110,25 +110,25 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-data</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <type>zip</type>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-solutions</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <type>zip</type>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-war</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <type>war</type>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-style</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <type>war</type>
     </dependency>
   </dependencies>
@@ -148,7 +148,7 @@
                 <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>oss-licenses</artifactId>
-                  <version>${project.version}</version>
+                  <version>9.3.0.10-886</version>
                   <type>zip</type>
                   <overWrite>false</overWrite>
                   <outputDirectory>${pentaho-server.directory}/licenses</outputDirectory>
@@ -168,7 +168,7 @@
                 <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>pentaho-war</artifactId>
-                  <version>${project.version}</version>
+                  <version>9.3.0.10-886</version>
                   <type>war</type>
                   <overWrite>false</overWrite>
                   <outputDirectory>${pentaho-server.directory}</outputDirectory>

@@ -29,21 +29,21 @@
                 <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>pentaho-cdf-samples</artifactId>
-                  <version>${project.version}</version>
+                  <version>9.3.0.10-886</version>
                   <type>zip</type>
                   <outputDirectory>${pentaho-server.samples.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>cda-samples</artifactId>
-                  <version>${project.version}</version>
+                  <version>9.3.0.10-886</version>
                   <type>zip</type>
                   <outputDirectory>${pentaho-server.samples.directory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.pentaho.ctools</groupId>
                   <artifactId>pentaho-cdf-dd-samples</artifactId>
-                  <version>${project.version}</version>
+                  <version>9.3.0.10-886</version>
                   <type>zip</type>
                   <outputDirectory>${pentaho-server.samples.directory}</outputDirectory>
                 </artifactItem>

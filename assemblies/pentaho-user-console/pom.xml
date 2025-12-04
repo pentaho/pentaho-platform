@@ -14,7 +14,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-user-console</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <classifier>gwt</classifier>
     </dependency>
   </dependencies>

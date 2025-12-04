@@ -68,7 +68,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-extensions</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -176,7 +176,7 @@
     <dependency>
       <groupId>org.pentaho.reporting.plugin</groupId>
       <artifactId>classic-core-platform-plugin</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -188,19 +188,19 @@
     <dependency>
       <groupId>org.pentaho.reporting.engine</groupId>
       <artifactId>classic-core</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.pentaho.reporting.engine</groupId>
       <artifactId>classic-extensions</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.pentaho.reporting.library</groupId>
       <artifactId>libserializer</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -266,12 +266,12 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-mongodb-plugin</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-mongo-utils</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
     </dependency>
     <dependency>
       <groupId>org.mongodb</groupId>
@@ -287,7 +287,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-capability-manager</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -486,13 +486,13 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pdi-osgi-bridge-core</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-osgi-utils-api</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -503,13 +503,13 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-metaverse-api</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.pentaho</groupId>
       <artifactId>pdi-engine-api</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -578,7 +578,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-proxy-factory</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -819,12 +819,12 @@
     <dependency>
       <groupId>org.pentaho.reporting.library</groupId>
       <artifactId>libpixie</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
     </dependency>
     <dependency>
       <groupId>org.pentaho.reporting.library</groupId>
       <artifactId>libsparkline</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
     </dependency>
     <dependency>
       <groupId>org.pentaho</groupId>
@@ -994,7 +994,7 @@
                 <artifactItem>
                   <groupId>pentaho</groupId>
                   <artifactId>pentaho-user-console-package</artifactId>
-                  <version>${project.version}</version>
+                  <version>9.3.0.10-886</version>
                   <type>zip</type>
                   <overWrite>false</overWrite>
                   <outputDirectory>${prepared.war.directory}</outputDirectory>

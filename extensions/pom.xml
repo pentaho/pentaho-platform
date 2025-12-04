@@ -1990,13 +1990,13 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -2008,19 +2008,19 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-repository</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-scheduler</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -2033,7 +2033,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-repository</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -2046,7 +2046,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-scheduler</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -2739,7 +2739,7 @@
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-core</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>

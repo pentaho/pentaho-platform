@@ -472,7 +472,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
-      <version>${project.version}</version>
+      <version>9.3.0.10-886</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

@@ -37,7 +37,7 @@
               <addMavenDescriptor>false</addMavenDescriptor>
               <manifestEntries>
                 <Implementation-Title>${impl.title}</Implementation-Title>
-                <Implementation-Version>${project.version}</Implementation-Version>
+                <Implementation-Version>9.3.0.10-886</Implementation-Version>
                 <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
               </manifestEntries>
             </archive>
