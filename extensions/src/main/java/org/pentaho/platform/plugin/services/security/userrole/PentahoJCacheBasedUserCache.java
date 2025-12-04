@@ -45,6 +45,8 @@ public class PentahoJCacheBasedUserCache implements UserCache {
       userCache = cacheManager.getCache( "userCache" );
     } catch (URISyntaxException e) {
       // This should never happen
+      logger.error( "Cache creation failed.", e);
+      throw new IllegalStateException( "Failed to initialize user cache", e );
     }
   }
 

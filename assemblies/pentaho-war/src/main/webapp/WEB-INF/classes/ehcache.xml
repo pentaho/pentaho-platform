@@ -10,7 +10,7 @@
        user.home - User's home directory
        user.dir - User's current working directory
        java.io.tmpdir - Default temp file path -->
-  <persistence directory="${user.home}/.pentaho/caches/ehcache"/>
+  <!--  <persistence directory="${user.home}/.pentaho/caches/ehcache"/>-->
 
   <!-- Default cache configuration for cache with store-by-reference configuration (store-by-value=false)
        Using IdentityCopier to avoid copying objects, giving store-by-reference behavior
