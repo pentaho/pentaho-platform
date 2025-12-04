@@ -20,8 +20,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.cache.Cache;
+import javax.cache.CacheManager;
 import javax.cache.Caching;
-import javax.cache.configuration.MutableConfiguration;
+import javax.cache.spi.CachingProvider;
+import java.net.URISyntaxException;
 
 public class PentahoJCacheBasedUserCache implements UserCache {
 
@@ -36,9 +38,16 @@ public class PentahoJCacheBasedUserCache implements UserCache {
     }
 
     this.caseSensitive = caseSensitive;
-    MutableConfiguration<String, UserDetails> configuration= new MutableConfiguration<>();
-    configuration.setStoreByValue( false );
-    userCache = Caching.getCachingProvider().getCacheManager().createCache ( "userCache", configuration );
+    try {
+      CachingProvider cachingProvider = Caching.getCachingProvider();
+      java.net.URI ehCacheURI = getClass().getClassLoader().getResource( "ehcache.xml" ).toURI();
+      CacheManager cacheManager = cachingProvider.getCacheManager( ehCacheURI, cachingProvider.getDefaultClassLoader() );
+      userCache = cacheManager.getCache( "userCache" );
+    } catch (URISyntaxException e) {
+      // This should never happen
+      logger.error( "Cache creation failed.", e);
+      throw new IllegalStateException( "Failed to initialize user cache", e );
+    }
   }
 
   public void setCaseSensitive ( boolean caseSensitive ) {
