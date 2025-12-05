@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-This is a Spring file that defines how Pentaho system objects are created and managed.  
-An implementation of IPentahoObjectFactory, such as WebSpringPentahoObjectFactory, is 
+<!--
+This is a Spring file that defines how Pentaho system objects are created and managed.
+An implementation of IPentahoObjectFactory, such as WebSpringPentahoObjectFactory, is
 responsible for serving objects to callers based on this file.
 
 Possible values for scope attribute:
@@ -9,15 +9,15 @@ Possible values for scope attribute:
 *prototype* - each request for this object returns a new instance
 *session* - each request for this object within a session returns the same instance
 
-default-lazy-init is set to true since some of these object make calls into 
+default-lazy-init is set to true since some of these object make calls into
 PentahoSystem which is initialized after Spring
  -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/util"
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd 
-       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
        http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true" >
 
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype"/>
@@ -59,17 +59,17 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledOrJndiDatasourceService
     org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceService
     org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledDatasourceService
-    org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService  
+    org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService
     org.pentaho.platform.engine.services.connection.datasource.dbcp.DynamicallyPooledOrJndiDatasourceService (Default option)
   -->
   <bean id="pooledOrJndiDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService" scope="singleton" />
   <bean id="nonPooledOrJndiDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledOrJndiDatasourceService" scope="singleton" />
-  
+
   <bean id="IDBDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.DynamicallyPooledOrJndiDatasourceService" scope="singleton">
     <property name="pooledDatasourceService" ref="pooledOrJndiDatasourceService" />
     <property name="nonPooledDatasourceService" ref="nonPooledOrJndiDatasourceService" />
   </bean>
-  
+
   <bean id="IPasswordService" class="org.pentaho.platform.util.KettlePasswordService" scope="singleton"/>
   <bean id="IPluginProvider" class="org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider"
         scope="singleton"/>
@@ -175,18 +175,10 @@ not directly from the PentahoObjectFactory. -->
     </constructor-arg>
   </bean>
 
-  <bean id="ehCacheUserCache" class="org.pentaho.platform.plugin.services.security.userrole.PentahoEhCacheBasedUserCache">
-    <property name="cache">
-      <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-        <property name="cacheManager">
-          <bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-            <property name="shared" value="true"/>
-          </bean>
-        </property>
-        <property name="cacheName" value="userCache"/>
-      </bean>
-    </property>
-    <property name="caseSensitive" value="true"></property>
+  <bean id="RegionFactory" class="org.pentaho.platform.plugin.services.cache.HvCacheRegionFactory"/>
+
+  <bean id="jCacheUserCache" class="org.pentaho.platform.plugin.services.security.userrole.PentahoJCacheBasedUserCache">
+    <constructor-arg index="0" value="true" />
   </bean>
 
   <bean id="cachingUserDetailsService" class="org.pentaho.platform.plugin.services.security.userrole.PentahoCachingUserDetailsService">
@@ -194,7 +186,7 @@ not directly from the PentahoObjectFactory. -->
       <ref bean="UserDetailsService"/>
     </constructor-arg>
     <constructor-arg ref="tenantedUserNameUtils"/>
-    <property name="userCache" ref="ehCacheUserCache"/>
+    <property name="userCache" ref="jCacheUserCache"/>
 
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
@@ -205,17 +197,16 @@ not directly from the PentahoObjectFactory. -->
   </bean>
 
 
-
-    <pen:bean class="org.springframework.security.authentication.AuthenticationProvider">
-        <pen:attributes>
-            <pen:attr key="providerName" value="${security.provider}"/>
-        </pen:attributes>
-        <pen:publish as-type="ALL">
-            <pen:attributes>
-                <pen:attr key="priority" value="50"/>
-            </pen:attributes>
-        </pen:publish>
-    </pen:bean>
+  <pen:bean class="org.springframework.security.authentication.AuthenticationProvider">
+      <pen:attributes>
+          <pen:attr key="providerName" value="${security.provider}"/>
+      </pen:attributes>
+      <pen:publish as-type="ALL">
+          <pen:attributes>
+              <pen:attr key="priority" value="50"/>
+          </pen:attributes>
+      </pen:publish>
+  </pen:bean>
 
   <!-- actual bean defined in applicationContext-spring-security.xml; aliased here -->
   <alias name="authenticationManager" alias="AuthenticationManager"/>
@@ -322,4 +313,232 @@ not directly from the PentahoObjectFactory. -->
     </pen:publish>
   </bean>
 
+  <!-- Legacy IAuthorizationPolicy implementation that delegates to IAuthorizationService -->
+  <bean id="authorizationPolicy"
+        class="org.pentaho.platform.engine.security.authorization.AuthorizationServiceAuthorizationPolicy">
+    <constructor-arg ref="authorizationActionService"/>
+    <constructor-arg ref="authorizationService"/>
+    <constructor-arg ref="currentAuthorizationUserSupplier"/>
+  </bean>
+
+  <bean id="currentAuthorizationUserSupplier"
+        class="org.pentaho.platform.engine.security.authorization.spring.SpringSecurityContextAuthorizationUserSupplier">
+  </bean>
+
+  <bean id="authorizationRequestBuilder"
+        class="org.pentaho.platform.engine.security.authorization.core.AuthorizationRequestBuilder">
+    <constructor-arg ref="authorizationActionService" />
+    <constructor-arg ref="currentAuthorizationUserSupplier" />
+    <pen:publish as-type="CLASSES" />
+  </bean>
+
+  <bean id="authorizationActionService"
+        class="org.pentaho.platform.engine.security.authorization.PentahoSystemAuthorizationActionService">
+    <constructor-arg ref="IPluginManager" />
+    <pen:publish as-type="INTERFACES" />
+  </bean>
+
+  <bean id="authorizationDecisionCache"
+        class="org.pentaho.platform.engine.security.authorization.core.caching.MemoryAuthorizationDecisionCache">
+    <!-- expireAfterWrite: Max number of seconds that an auth entry stays cached.
+           Warning: this can only be set to a high value (e.g. several minutes or more) if operations that change any
+           variables that affect authorization decisions (e.g. user roles, resource permissions, etc.) also perform
+           cache invalidation. This is the case of the default Pentaho platform Security Provider implementation,
+           which appropriately invalidates the authorizations cache whenever a user's roles change.
+           When an external security provider is configured, either a lower, acceptable value is used (e.g. 2 seconds),
+           or a custom invalidation mechanism must be sought. Full manual invalidation of the cache can be done via
+           endpoint or PUC UI -->
+    <constructor-arg value="300" />
+
+    <!-- maximumSize: Max number of auth entries the cache can hold, _per session_ -->
+    <constructor-arg value="100" />
+
+    <!-- recordStats: Enable statistics recording. To be used for diagnostics and configuration fine-tuning, along with
+           enabling logging of the 'org.pentaho.platform.engine.security.authorization' package at TRACE level. -->
+    <constructor-arg value="false" />
+
+    <!-- staleSessionsSweepInterval: number of seconds between sweeps to remove stale session caches. Provided as a
+           fallback mechanism to deal with misbehaved code that does not explicitly destroy Pentaho sessions.
+           A value of 0 or less disables this feature. Class logs a warning whenever stale entries are detected. -->
+    <constructor-arg value="240" />
+
+    <pen:publish as-type="INTERFACES" />
+  </bean>
+
+  <bean id="authorizationService"
+        class="org.pentaho.platform.engine.security.authorization.core.CachingAuthorizationService">
+    <constructor-arg ref="authorizationActionService" />
+    <constructor-arg ref="authorizationDecisionCache" />
+    <!-- Setting the rootRule as a property, instead of as a constructor arg, allows rules themselves to depend on the
+         authorizationService. While this does not appear to be a useful scenario, it is provided for flexibility, and
+         might avoid some third-party usage issues implementing rules. -->
+    <property name="rootRule" ref="rootAuthorizationRule" />
+    <pen:publish as-type="INTERFACES" />
+  </bean>
+
+  <!-- Rules are organized into three **Rule Levels**:
+
+       1. **"absolute-grant"** (Override Level)
+          An Any/Or level where ONE rule grant is sufficient to grant overall access, regardless of any denials
+          from lower levels.
+
+          This level is intended for rules that provide absolute granting authority, such as administration rules
+          that should override all restrictions. Rules at this level are "undeniable" - they cannot be vetoed
+          by any other rules.
+
+          Register a rule at this level by publishing the rule bean according to the following example:
+          ```xml
+          <bean class="org.my.MyAbsoluteGrantRule">
+            <pen:publish as-type="INTERFACES">
+              <pen:attributes>
+                <pen:attr key="ruleLevel" value="absolute-grant"/>
+              </pen:attributes>
+            </pen:publish>
+          </bean>
+          ```
+
+       2. **"veto"** (Veto Level)
+          An All/And level where ONE rule denial is sufficient to deny overall access (except for absolute-grant
+          rules). All rules at this level must grant or abstain for the request to proceed to the next level.
+
+          This level is intended for rules that enforce security invariants or requirements that cannot be
+          violated. For example, a rule that ensures users have general access to an action before allowing
+          resource-specific access. Note that veto rules cannot block absolute-grant rules.
+
+          Register a rule at this level by publishing the rule bean according to the following example:
+          ```xml
+          <bean class="org.my.MyVetoRule">
+            <pen:publish as-type="INTERFACES">
+              <pen:attributes>
+                <pen:attr key="ruleLevel" value="veto"/>
+              </pen:attributes>
+            </pen:publish>
+          </bean>
+          ```
+
+       3. **"grant"** (Standard Grant Level)
+          An Any/Or level where ONE rule grant is necessary and sufficient to grant access. This is the
+          default level for authorization rules.
+
+          This level contains the standard authorization logic for granting access to resources and actions.
+          Rules at this level can be overridden by absolute-grant rules or blocked by veto rules.
+
+          Register a rule at this level by publishing the rule bean according to the following example:
+          ```xml
+          <bean class="org.my.MyGrantRule">
+            <pen:publish as-type="INTERFACES">
+              <pen:attributes>
+                <pen:attr key="ruleLevel" value="grant"/>
+              </pen:attributes>
+            </pen:publish>
+          </bean>
+          ```
+
+          Or, more simply, without the `ruleLevel` attribute (defaults to "grant"):
+          ```xml
+          <bean class="org.my.MyGrantRule">
+            <pen:publish as-type="INTERFACES"/>
+          </bean>
+          ```
+
+       **Evaluation Order:**
+       Rules are evaluated in the following order: absolute-grant → veto → grant
+       1. If any absolute-grant rule grants, access is granted immediately
+       2. If any veto rule denies, access is denied (unless overridden by absolute-grant)
+       3. If any grant rule grants (and no veto rules deny), access is granted
+       4. If no rules grant at any level, access is denied by default
+    -->
+  <bean id="rootAuthorizationRule"
+        class="org.pentaho.platform.engine.security.authorization.PentahoAuthorizationRuleLevel">
+    <constructor-arg ref="IPluginManager" />
+    <constructor-arg value="ANY" />
+    <constructor-arg value="absolute-grant" />
+    <constructor-arg>
+      <util:list>
+
+        <bean class="org.pentaho.platform.engine.security.authorization.PentahoAuthorizationRuleLevel">
+          <constructor-arg ref="IPluginManager" />
+          <constructor-arg value="ALL" />
+          <constructor-arg value="veto" />
+          <constructor-arg>
+            <util:list>
+
+              <bean class="org.pentaho.platform.engine.security.authorization.PentahoAuthorizationRuleLevel">
+                <constructor-arg ref="IPluginManager" />
+                <constructor-arg value="ANY" />
+                <constructor-arg value="grant" />
+                <constructor-arg value="true" type="boolean" />
+              </bean>
+            </util:list>
+          </constructor-arg>
+        </bean>
+      </util:list>
+    </constructor-arg>
+  </bean>
+
+  <!-- Administration Universal Access -->
+  <bean class="org.pentaho.platform.engine.security.authorization.core.rules.MatchedRoleAuthorizationRule">
+    <constructor-arg ref="singleTenantAdminAuthorityName" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="ruleLevel" value="absolute-grant"/>
+        <pen:attr key="priority" value="20"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.engine.security.authorization.core.rules.MatchedRoleAuthorizationRule">
+    <constructor-arg ref="superAdminAuthorityName" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="ruleLevel" value="absolute-grant"/>
+        <pen:attr key="priority" value="10"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <!-- Resource-related Rules -->
+  <bean class="org.pentaho.platform.engine.security.authorization.core.rules.SupportedActionResourceTypeAuthorizationRule">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="ruleLevel" value="veto"/>
+        <pen:attr key="priority" value="20"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.engine.security.authorization.core.rules.ResourceActionGeneralRequirementAuthorizationRule">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="ruleLevel" value="veto"/>
+        <pen:attr key="priority" value="10"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <bean id="userConsoleService" class="org.pentaho.platform.web.http.api.resources.services.UserConsoleService">
+    <pen:publish as-type="CLASSES"/>
+  </bean>
+
+  <!-- region Generic File Service and Providers -->
+  <bean class="org.pentaho.platform.genericfile.DefaultGenericFileService" scope="session">
+    <constructor-arg>
+      <pen:list class="org.pentaho.platform.api.genericfile.IGenericFileProvider"/>
+    </constructor-arg>
+    <constructor-arg>
+      <bean class="org.pentaho.platform.genericfile.decorators.CompositeGenericFileDecorator" scope="session">
+        <constructor-arg>
+          <pen:list class="org.pentaho.platform.api.genericfile.IGenericFileDecorator"/>
+        </constructor-arg>
+      </bean>
+    </constructor-arg>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+  <bean class="org.pentaho.platform.genericfile.providers.repository.RepositoryFileProvider" scope="session">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="20"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <!-- endregion -->
 </beans>

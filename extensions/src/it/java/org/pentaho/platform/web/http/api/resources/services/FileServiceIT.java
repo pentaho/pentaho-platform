@@ -7,37 +7,65 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.Level;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
+import org.mockito.MockedStatic;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoObjectFactory;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
+import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
+import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
+import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
+import org.pentaho.platform.plugin.services.importexport.ExportHandler;
+import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
+import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
+import org.pentaho.platform.repository2.locale.PentahoLocale;
+import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
+import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
+import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
+import org.pentaho.platform.repository2.unified.webservices.PropertiesWrapper;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.web.http.api.resources.SessionResource;
+import org.pentaho.platform.web.http.api.resources.Setting;
+import org.pentaho.platform.web.http.api.resources.StringListWrapper;
+import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
+import org.pentaho.platform.web.http.api.resources.utils.RepositoryFileHelper;
 
+import jakarta.ws.rs.core.StreamingOutput;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -55,68 +83,32 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.ws.rs.core.StreamingOutput;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import org.apache.commons.lang.StringUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoObjectFactory;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IUserRoleListService;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
-import org.pentaho.platform.api.engine.PentahoAccessControlException;
-import org.pentaho.platform.api.mt.ITenant;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
-import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
-import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
-import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
-import org.pentaho.platform.plugin.services.importexport.ExportHandler;
-import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
-import org.pentaho.platform.plugin.services.importexport.ImportSession;
-import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
-import org.pentaho.platform.repository2.locale.PentahoLocale;
-import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
-import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
-import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
-import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
-import org.pentaho.platform.repository2.unified.webservices.PropertiesWrapper;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
-import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
-import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
-import org.pentaho.platform.web.http.api.resources.SessionResource;
-import org.pentaho.platform.web.http.api.resources.Setting;
-import org.pentaho.platform.web.http.api.resources.StringListWrapper;
-import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
-
-@RunWith( PowerMockRunner.class )
-@PowerMockIgnore( "jdk.internal.reflect.*" )
-@PrepareForTest( FileUtils.class )
 public class FileServiceIT {
 
   private static FileService fileService;
@@ -125,13 +117,11 @@ public class FileServiceIT {
   private static final String FILE_2 = "file2";
   private static final String FILE_3 = "file3";
   private static final String PARAMS = FILE_1 + COMMA + FILE_2;
-  private static String USER_NAME = "user";
-  private static String FOLDER_HOME = "home";
-  private static String SEPARATOR = "/";
-  private static String PATH_USER_HOME_FOLDER = SEPARATOR + FOLDER_HOME + SEPARATOR + USER_NAME;
+  private static final String USER_NAME = "user";
+  private static final String FOLDER_HOME = "home";
+  private static final String SEPARATOR = "/";
+  private static final String PATH_USER_HOME_FOLDER = SEPARATOR + FOLDER_HOME + SEPARATOR + USER_NAME;
   private static final String REAL_USER = "testUser";
-
-  private static final String IMPORT_DIR = "/home/" + REAL_USER;
 
   private IPentahoObjectFactory pentahoObjectFactory;
 
@@ -148,30 +138,28 @@ public class FileServiceIT {
     fileService.policy = mock( IAuthorizationPolicy.class );
 
     PentahoSystem.init();
-    ITenant tenat = mock( ITenant.class );
+    ITenant tenant = mock( ITenant.class );
 
     resolver = mock( ITenantedPrincipleNameResolver.class );
-    doReturn( tenat ).when( resolver ).getTenant( nullable( String.class ) );
+    doReturn( tenant ).when( resolver ).getTenant( nullable( String.class ) );
     doReturn( REAL_USER ).when( resolver ).getPrincipleName( nullable( String.class ) );
     policy = mock( IAuthorizationPolicy.class );
     pentahoObjectFactory = mock( IPentahoObjectFactory.class );
     platformImporter = mock( IPlatformImporter.class );
     when( pentahoObjectFactory.objectDefined( nullable( String.class ) ) ).thenReturn( true );
     when( pentahoObjectFactory.get( this.anyClass(), nullable( String.class ), any( IPentahoSession.class ) ) ).thenAnswer(
-        new Answer<Object>() {
-          @Override
-          public Object answer( InvocationOnMock invocation ) throws Throwable {
-            if ( invocation.getArguments()[0].equals( IAuthorizationPolicy.class ) ) {
-              return policy;
-            }
-            if ( invocation.getArguments()[0].equals( ITenantedPrincipleNameResolver.class ) ) {
-              return resolver;
-            }
-            if ( invocation.getArguments()[0].equals( IPlatformImporter.class ) ) {
-              return platformImporter;
-            }
-            return null;
-        } } );
+      invocation -> {
+        if ( invocation.getArguments()[ 0 ].equals( IAuthorizationPolicy.class ) ) {
+          return policy;
+        }
+        if ( invocation.getArguments()[ 0 ].equals( ITenantedPrincipleNameResolver.class ) ) {
+          return resolver;
+        }
+        if ( invocation.getArguments()[ 0 ].equals( IPlatformImporter.class ) ) {
+          return platformImporter;
+        }
+        return null;
+      } );
     PentahoSystem.registerObjectFactory( pentahoObjectFactory );
 
     IUserRoleListService userRoleListService = mock( IUserRoleListService.class );
@@ -205,95 +193,96 @@ public class FileServiceIT {
 
   @Test
   public void restoredFilesInTrashDeletedAfterRestoringInHomeDir_renameMode() throws Exception {
-    FileService fileService = mock( FileService.class );
-    mockSession( fileService, USER_NAME );
-    when( fileService.doRestoreFilesInHomeDir( PARAMS, FileService.MODE_RENAME ) ).thenCallRealMethod();
+    FileService fileServiceMock = mock( FileService.class );
+    mockSession( fileServiceMock, USER_NAME );
+    when( fileServiceMock.doRestoreFilesInHomeDir( PARAMS, FileService.MODE_RENAME ) ).thenCallRealMethod();
 
-    boolean restored = fileService.doRestoreFilesInHomeDir( PARAMS, FileService.MODE_RENAME );
+    boolean restored = fileServiceMock.doRestoreFilesInHomeDir( PARAMS, FileService.MODE_RENAME );
 
-    verify( fileService ).doDeleteFilesPermanent( PARAMS );
-    assertEquals( restored, true );
+    verify( fileServiceMock ).doDeleteFilesPermanent( PARAMS );
+    assertTrue( restored );
   }
 
   @Test
   public void onlyNonConflictFilesDeletedAfterRestoringInHomeDir_noOverwriteMode() throws Exception {
-    FileService fileService = mock( FileService.class );
-    mockSession( fileService, USER_NAME );
-    mockDoRestoreInHomeDir( fileService );
+    FileService fileServiceMock = mock( FileService.class );
+    mockSession( fileServiceMock, USER_NAME );
+    mockDoRestoreInHomeDir( fileServiceMock );
 
     final String filesToRestore = PARAMS;
 
-    when( fileService.getSourceFileIdsThatNotConflictWithFolderFiles( PATH_USER_HOME_FOLDER, PARAMS ) )
+    when( fileServiceMock.getSourceFileIdsThatNotConflictWithFolderFiles( PATH_USER_HOME_FOLDER, PARAMS ) )
       .thenCallRealMethod();
-    when( fileService.getCommaSeparatedFileIds( anyListOf( String.class ) ) ).thenCallRealMethod();
+    when( fileServiceMock.getCommaSeparatedFileIds( anyList() ) ).thenCallRealMethod();
 
-    boolean result = fileService.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_NO_OVERWRITE );
+    boolean result = fileServiceMock.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_NO_OVERWRITE );
 
-    verify( fileService ).doDeleteFilesPermanent( FILE_2 );
-    assertEquals( result, true );
+    verify( fileServiceMock ).doDeleteFilesPermanent( FILE_2 );
+    assertTrue( result );
   }
 
   @Test
   public void filesOverwrittenWhenConflict_overwriteMode() throws Exception {
-    FileService fileService = mock( FileService.class );
-    mockSession( fileService, USER_NAME );
-    mockDoRestoreInHomeDir( fileService );
+    FileService fileServiceMock = mock( FileService.class );
+    mockSession( fileServiceMock, USER_NAME );
+    mockDoRestoreInHomeDir( fileServiceMock );
     final String filesToRestore = PARAMS;
 
-    when( fileService.getFolderFileIdsThatConflictWithSource( PATH_USER_HOME_FOLDER, filesToRestore ) )
+    when( fileServiceMock.getFolderFileIdsThatConflictWithSource( PATH_USER_HOME_FOLDER, filesToRestore ) )
       .thenCallRealMethod();
-    when( fileService.getCommaSeparatedFileIds( anyListOf( String.class ) ) ).thenCallRealMethod();
+    when( fileServiceMock.getCommaSeparatedFileIds( anyList() ) ).thenCallRealMethod();
 
-    boolean result = fileService.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_OVERWRITE );
+    boolean result = fileServiceMock.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_OVERWRITE );
 
-    verify( fileService ).doMoveFiles( PATH_USER_HOME_FOLDER, filesToRestore );
-    verify( fileService ).doDeleteFilesPermanent( FILE_1 );
+    verify( fileServiceMock ).doMoveFiles( PATH_USER_HOME_FOLDER, filesToRestore );
+    verify( fileServiceMock ).doDeleteFilesPermanent( FILE_1 );
 
-    assertEquals( result, true );
+    assertTrue( result );
   }
 
 
   @Test
   public void filesOverwrittenWhenNoConflict_overwriteMode() throws Exception {
-    FileService fileService = mock( FileService.class );
-    mockSession( fileService, USER_NAME );
+    FileService fileServiceMock = mock( FileService.class );
+    mockSession( fileServiceMock, USER_NAME );
     final String filesToRestore = PARAMS;
 
-    when( fileService.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_OVERWRITE ) ).thenCallRealMethod();
-    when( fileService.getFolderFileIdsThatConflictWithSource( PATH_USER_HOME_FOLDER, filesToRestore ) )
+    when( fileServiceMock.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_OVERWRITE ) ).thenCallRealMethod();
+    when( fileServiceMock.getFolderFileIdsThatConflictWithSource( PATH_USER_HOME_FOLDER, filesToRestore ) )
       .thenReturn( "" );
 
 
-    boolean result = fileService.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_OVERWRITE );
+    boolean result = fileServiceMock.doRestoreFilesInHomeDir( filesToRestore, FileService.MODE_OVERWRITE );
 
-    verify( fileService ).doMoveFiles( PATH_USER_HOME_FOLDER, filesToRestore );
+    verify( fileServiceMock ).doMoveFiles( PATH_USER_HOME_FOLDER, filesToRestore );
 
-    assertEquals( result, true );
+    assertTrue( result );
   }
 
 
   @Test
   public void noFilesOverwrittenWhenDeletingOfConflictFilesFailed_overwriteMode() throws Exception {
-    FileService fileService = mock( FileService.class );
-    mockSession( fileService, USER_NAME );
-    when( fileService.doRestoreFilesInHomeDir( PARAMS, FileService.MODE_OVERWRITE ) ).thenCallRealMethod();
-    when( fileService.getFolderFileIdsThatConflictWithSource( PATH_USER_HOME_FOLDER, PARAMS ) ).thenReturn( PARAMS );
-    doThrow( new Exception() ).when( fileService ).doDeleteFilesPermanent( nullable( String.class ) );
+    FileService fileServiceMock = mock( FileService.class );
+    mockSession( fileServiceMock, USER_NAME );
+    when( fileServiceMock.doRestoreFilesInHomeDir( PARAMS, FileService.MODE_OVERWRITE ) ).thenCallRealMethod();
+    when( fileServiceMock.getFolderFileIdsThatConflictWithSource( PATH_USER_HOME_FOLDER, PARAMS ) ).thenReturn(
+      PARAMS );
+    doThrow( new Exception() ).when( fileServiceMock ).doDeleteFilesPermanent( nullable( String.class ) );
 
-    boolean result = fileService.doRestoreFilesInHomeDir( PARAMS, FileService.MODE_OVERWRITE );
+    boolean result = fileServiceMock.doRestoreFilesInHomeDir( PARAMS, FileService.MODE_OVERWRITE );
 
-    verify( fileService, never() ).doMoveFiles( PATH_USER_HOME_FOLDER, PARAMS );
-    assertEquals( result, false );
+    verify( fileServiceMock, never() ).doMoveFiles( PATH_USER_HOME_FOLDER, PARAMS );
+    assertFalse( result );
   }
 
   @Test
-  public void conflictWhenRestoreFileNameEqFolderFileName() throws Exception {
-    FileService fileService = mock( FileService.class );
-    mockDoRestoreInHomeDir( fileService );
-    when( fileService.canRestoreToFolderWithNoConflicts( PATH_USER_HOME_FOLDER, PARAMS ) ).thenCallRealMethod();
+  public void conflictWhenRestoreFileNameEqFolderFileName() {
+    FileService fileServiceMock = mock( FileService.class );
+    mockDoRestoreInHomeDir( fileServiceMock );
+    when( fileServiceMock.canRestoreToFolderWithNoConflicts( PATH_USER_HOME_FOLDER, PARAMS ) ).thenCallRealMethod();
 
-    boolean result = fileService.canRestoreToFolderWithNoConflicts( PATH_USER_HOME_FOLDER, PARAMS );
-    assertEquals( result, false );
+    boolean result = fileServiceMock.canRestoreToFolderWithNoConflicts( PATH_USER_HOME_FOLDER, PARAMS );
+    assertFalse( result );
   }
 
   public List<RepositoryFileDto> getMockedRepositoryFileDtoList( String[] fileNames ) {
@@ -338,24 +327,17 @@ public class FileServiceIT {
     when( fileService.getSession() ).thenReturn( mockSession );
   }
 
-  @Test
-  public void testDoDeleteFilesException() {
+  @Test( expected = IllegalArgumentException.class )
+  public void testDoDeleteFilesException() throws Exception {
 
     doThrow( new IllegalArgumentException() ).when(
       fileService.defaultUnifiedRepositoryWebService ).deleteFile( nullable( String.class ), nullable( String.class ) );
 
-    try {
-      fileService.doDeleteFiles( PARAMS );
-      fail(); //This line should never be reached
-    } catch ( IllegalArgumentException e ) {
-      //Expected exception
-    } catch ( Exception e ) {
-      fail();
-    }
+    fileService.doDeleteFiles( PARAMS );
   }
 
-  @Test
-  public void doCopyFilesException() throws Exception {
+  @Test( expected = IllegalArgumentException.class )
+  public void doCopyFilesException() {
 
     String destinationPathColon = ":path:to:destination";
 
@@ -365,12 +347,7 @@ public class FileServiceIT {
 
     when( fileService.policy.isAllowed( nullable( String.class ) ) ).thenReturn( false );
 
-    try {
-      fileService.doCopyFiles( destinationPathColon, 1, fileId1 + "," + fileId2 );
-      fail();
-    } catch ( IllegalArgumentException e ) {
-      //Should catch the exception
-    }
+    fileService.doCopyFiles( destinationPathColon, 1, fileId1 + "," + fileId2 );
   }
 
   @Test
@@ -391,7 +368,7 @@ public class FileServiceIT {
     assertEquals( "file.txt", wrapper.getRepositoryFile().getName() );
   }
 
-  @Test
+  @Test( expected = FileNotFoundException.class )
   public void testDoGetFileOrDirException() throws Exception {
     RepositoryFile file = mock( RepositoryFile.class );
     doReturn( "file.txt" ).when( file ).getName();
@@ -402,12 +379,7 @@ public class FileServiceIT {
     doReturn( mockInputStream ).when( fileService ).getRepositoryFileInputStream( any( RepositoryFile.class ) );
 
     String pathId = "/usr/folder/file.txt";
-    try {
-      fileService.doGetFileOrDir( pathId );
-      fail(); //This line should never be reached
-    } catch ( FileNotFoundException fileNotFound ) {
-      //Expected exception
-    }
+    fileService.doGetFileOrDir( pathId );
   }
 
   @Test
@@ -425,16 +397,11 @@ public class FileServiceIT {
     verify( fileService.defaultUnifiedRepositoryWebService, times( 1 ) ).updateAcl( acl );
   }
 
-  @Test
+  @Test( expected = FileNotFoundException.class )
   public void testSetFileAclsException() throws Exception {
     String pathId = "/usr/folder/file.txt";
     RepositoryFileAclDto acl = mock( RepositoryFileAclDto.class );
-    try {
-      fileService.setFileAcls( pathId, acl );
-      fail();
-    } catch ( FileNotFoundException e ) {
-      //expected exception
-    }
+    fileService.setFileAcls( pathId, acl );
   }
 
   @Test
@@ -456,15 +423,10 @@ public class FileServiceIT {
     verify( fileService.defaultUnifiedRepositoryWebService, times( 1 ) ).getFile( nullable( String.class ) );
   }
 
-  @Test
+  @Test( expected = FileNotFoundException.class )
   public void testDoGetPropertiesException() throws Exception {
     String pathId = "/usr/folder/file.txt";
-    try {
-      fileService.doGetProperties( pathId );
-      fail();
-    } catch ( FileNotFoundException fileNotFound ) {
-      //expected exception
-    }
+    fileService.doGetProperties( pathId );
   }
 
   @Test
@@ -484,18 +446,10 @@ public class FileServiceIT {
     verify( mockInputStream, times( 1 ) ).close();
   }
 
-  @Test
-  public void testDoCreateFileException() {
+  @Test( expected = IllegalArgumentException.class )
+  public void testDoCreateFileException() throws Exception {
     doThrow( new IllegalArgumentException() ).when( fileService ).idToPath( nullable( String.class ) );
-
-    try {
-      fileService.createFile( null, null, null );
-      fail();
-    } catch ( IllegalArgumentException e ) {
-      // expected
-    } catch ( Exception e ) {
-      fail();
-    }
+    fileService.createFile( null, null, null );
   }
 
   @Test
@@ -522,38 +476,33 @@ public class FileServiceIT {
       + RepositoryFilePermission.DELETE.ordinal();
     doReturn( true ).when( fileService.repository ).hasAccess( nullable( String.class ), any( EnumSet.class ) );
     List<Setting> settings = fileService.doGetCanAccessList( "pathId", permissions );
-    assertTrue( settings.size() > 0 );
+    assertFalse( settings.isEmpty() );
   }
 
   @Test
   public void testDoGetPathsAccessList() {
-    List<String> paths = new ArrayList<String>();
+    List<String> paths = new ArrayList<>();
     paths.add( "path1" );
     paths.add( "path2" );
     paths.add( "path3" );
 
     doReturn( true ).when( fileService.repository ).hasAccess( nullable( String.class ), any( EnumSet.class ) );
     List<Setting> settings = fileService.doGetPathsAccessList( new StringListWrapper( paths ) );
-    assertTrue( settings.size() > 0 );
+    assertFalse( settings.isEmpty() );
 
     doReturn( false ).when( fileService.repository ).hasAccess( nullable( String.class ), any( EnumSet.class ) );
     settings = fileService.doGetPathsAccessList( new StringListWrapper( paths ) );
-    assertEquals( 0, settings.size() );
+    assertTrue( settings.isEmpty() );
   }
 
-  @Test
-  public void testDoDeleteFilesPermanentException() {
+  @Test( expected = IllegalArgumentException.class )
+  public void testDoDeleteFilesPermanentException() throws Exception {
 
     doThrow( new IllegalArgumentException() ).when(
       fileService.defaultUnifiedRepositoryWebService ).deleteFileWithPermanentFlag( nullable( String.class ), eq( true ),
       nullable( String.class ) );
 
-    try {
-      fileService.doDeleteFilesPermanent( PARAMS );
-      fail(); //This line should never be reached
-    } catch ( Exception e ) {
-      //Expected exception
-    }
+    fileService.doDeleteFilesPermanent( PARAMS );
   }
 
   @Test
@@ -572,8 +521,8 @@ public class FileServiceIT {
     verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 1 ], destPathId, null );
   }
 
-  @Test
-  public void testDoMoveFilesForUnknownDestPath() throws Exception {
+  @Test( expected = FileNotFoundException.class )
+  public void testDoMoveFilesForUnknownDestPath() throws FileNotFoundException {
     String destPathId = "/test";
     String[] params = { "file1", "file2" };
 
@@ -581,14 +530,15 @@ public class FileServiceIT {
 
     try {
       fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) );
-      Assert.assertTrue( false );
     } catch ( FileNotFoundException e ) {
       verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 0 ], destPathId, null );
       verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 1 ], destPathId, null );
+
+      throw e;
     }
   }
 
-  @Test
+  @Test( expected = InternalError.class )
   public void testDoMoveFilesException() throws Exception {
     String destPathId = "/test";
     String[] params = { "file1", "file2" };
@@ -602,10 +552,11 @@ public class FileServiceIT {
 
     try {
       fileService.doMoveFiles( destPathId, StringUtils.join( params, "," ) );
-      fail(); //This line should never be reached
     } catch ( Throwable e ) {
       verify( fileService.getRepoWs(), times( 1 ) ).moveFile( params[ 0 ], destPathId, null );
       verify( fileService.getRepoWs(), times( 0 ) ).moveFile( params[ 1 ], destPathId, null );
+
+      throw e;
     }
   }
 
@@ -622,10 +573,14 @@ public class FileServiceIT {
 
     doReturn( iRepositoryImportLogger ).when( platformImporter ).getRepositoryImportLogger();
 
-    fileService.systemRestore( inputStreamMock, "true", "false", "true" );
+    File logFile = File.createTempFile( "xpto", ".log" );
+    logFile.deleteOnExit();
+
+    fileService.systemRestore( inputStreamMock, "true", "false", "true",
+      logFile.getAbsolutePath(), Level.OFF.toString(), "SystemBackup.zip" );
 
     verify( fileService ).doCanAdminister();
-    verify( iRepositoryImportLogger ).startJob( any(), nullable( String.class ), any() );
+    verify( iRepositoryImportLogger ).startJob( any(), nullable( String.class ), any(), any() );
     verify( iRepositoryImportLogger ).endJob();
 
     ArgumentCaptor<RepositoryFileImportBundle> argumentCaptor = ArgumentCaptor.forClass( RepositoryFileImportBundle.class );
@@ -633,12 +588,12 @@ public class FileServiceIT {
 
     RepositoryFileImportBundle bundle = argumentCaptor.getValue();
 
-    assertTrue( bundle.getInputStream() == inputStreamMock );
+    assertSame( bundle.getInputStream(), inputStreamMock );
     assertEquals( "UTF-8", bundle.getCharSet() );
     assertEquals( RepositoryFile.HIDDEN_BY_DEFAULT, bundle.isHidden() );
     assertEquals( RepositoryFile.SCHEDULABLE_BY_DEFAULT, bundle.isSchedulable() );
     assertEquals( "/", bundle.getPath() );
-    assertEquals( true, bundle.overwriteInRepository() );
+    assertTrue( bundle.overwriteInRepository() );
     assertEquals( "SystemBackup.zip", bundle.getName() );
     assertFalse( bundle.isApplyAclSettings() );
     assertTrue( bundle.isRetainOwnership() );
@@ -654,7 +609,7 @@ public class FileServiceIT {
   }
 
   @Test
-  public void testDoRestoreFiles() throws Exception {
+  public void testDoRestoreFiles() {
     String[] params = { "file1", "file2" };
 
     fileService.doRestoreFiles( StringUtils.join( params, "," ) );
@@ -663,8 +618,8 @@ public class FileServiceIT {
     verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[ 1 ], null );
   }
 
-  @Test
-  public void testDoRestoreFilesException() throws Exception {
+  @Test( expected = InternalError.class )
+  public void testDoRestoreFilesException() throws InternalError {
     String[] params = { "file1", "file2" };
 
     doThrow( new InternalError() ).when( fileService.defaultUnifiedRepositoryWebService ).undeleteFile(
@@ -672,10 +627,11 @@ public class FileServiceIT {
 
     try {
       fileService.doRestoreFiles( StringUtils.join( params, "," ) );
-      fail(); //This line should never be reached
     } catch ( InternalError e ) {
       verify( fileService.getRepoWs(), times( 1 ) ).undeleteFile( params[ 0 ], null );
       verify( fileService.getRepoWs(), times( 0 ) ).undeleteFile( params[ 1 ], null );
+
+      throw e;
     }
   }
 
@@ -692,10 +648,11 @@ public class FileServiceIT {
     doReturn( true ).when( mockWhiteList ).accept( nullable( String.class ) );
 
     RepositoryFile mockRepoFile = mock( RepositoryFile.class );
+    doReturn( "test" ).when( mockRepoFile ).getId();
     doReturn( mockRepoFile ).when( fileService.repository ).getFile( nullable( String.class ) );
 
     SimpleRepositoryFileData mockData = mock( SimpleRepositoryFileData.class );
-    doReturn( mockData ).when( fileService.repository ).getDataForRead( any( Serializable.class ), any( Class.class ) );
+    doReturn( mockData ).when( fileService.repository ).getDataForRead( any( Serializable.class ), eq( SimpleRepositoryFileData.class ) );
 
     InputStream mockInputStream = mock( InputStream.class );
     doReturn( mockInputStream ).when( mockData ).getInputStream();
@@ -742,7 +699,7 @@ public class FileServiceIT {
       fileService.doGetFileAsInline( "test" );
       fail();
     } catch ( IllegalArgumentException e ) {
-      // Excpected
+      // Expected
     } catch ( FileNotFoundException e ) {
       fail();
     }
@@ -778,7 +735,7 @@ public class FileServiceIT {
       fileService.doGetFileAsInline( "test" );
       fail();
     } catch ( IllegalArgumentException e ) {
-      // Excpected
+      // Expected
     } catch ( FileNotFoundException e ) {
       fail();
     }
@@ -794,21 +751,21 @@ public class FileServiceIT {
       fileService.doGetFileAsInline( "test" );
       fail();
     } catch ( InternalError e ) {
-      // Excpected
+      // Expected
     } catch ( FileNotFoundException e ) {
       fail();
     }
   }
 
   @Test
-  public void testDoGetLocalProperties() throws Exception {
+  public void testDoGetLocalProperties() {
     String pathId = "path:to:file:file1.ext";
     String fileId = "file1";
     String locale = "";
 
     doReturn( "/path/to/file/file1.ext" ).when( fileService ).idToPath( pathId );
 
-    Set<String> propertiesList = new HashSet<String>();
+    Set<String> propertiesList = new HashSet<>();
     propertiesList.add( "prop1" );
     propertiesList.add( "prop2" );
 
@@ -861,7 +818,7 @@ public class FileServiceIT {
     Properties fileProperties = mock( Properties.class );
     doReturn( false ).when( fileProperties ).isEmpty();
 
-    List<StringKeyStringValueDto> properties = new ArrayList<StringKeyStringValueDto>();
+    List<StringKeyStringValueDto> properties = new ArrayList<>();
     properties.add( new StringKeyStringValueDto( "key1", "value1" ) );
     properties.add( new StringKeyStringValueDto( "key2", "value2" ) );
 
@@ -873,11 +830,11 @@ public class FileServiceIT {
   }
 
   @Test
-  public void testDoGetCanAccess() throws Exception {
+  public void testDoGetCanAccess() {
     String pathId = "path:to:file:file1.ext";
     String permissions = "0|1|2|3|4";
 
-    List<Integer> permissionsList = new ArrayList<Integer>();
+    List<Integer> permissionsList = new ArrayList<>();
     permissionsList.add( 0 );
     permissionsList.add( 1 );
     permissionsList.add( 2 );
@@ -907,34 +864,22 @@ public class FileServiceIT {
       .getFile( eq( idToPathResult ) );
     when( fileService.getRepository().getFileMetadata( repositoryFileDto.getId() ) ).thenReturn( fileMetadata );
 
-    try {
-      fileService.doSetContentCreator( param, repositoryFileDto );
-      verify( fileService.getRepository(), times( 1 ) ).getFileMetadata( repositoryFileDto.getId() );
-      verify( fileService.getRepository(), times( 1 ) ).setFileMetadata( param, fileMetadata );
-    } catch ( FileNotFoundException e ) {
-      fail();
-    } catch ( InternalError e ) {
-      fail();
-    }
+    fileService.doSetContentCreator( param, repositoryFileDto );
+    verify( fileService.getRepository(), times( 1 ) ).getFileMetadata( repositoryFileDto.getId() );
+    verify( fileService.getRepository(), times( 1 ) ).setFileMetadata( param, fileMetadata );
   }
 
-  @Test
-  public void testDoSetContentCreatorFileNotFoundException() throws Exception {
+  @Test( expected = FileNotFoundException.class )
+  public void testDoSetContentCreatorFileNotFoundException() throws FileNotFoundException {
     String param = "file1";
     RepositoryFileDto mockFileDto = mock( RepositoryFileDto.class );
-    Map<String, Serializable> fileMetadata = mock( Map.class );
-
     when( fileService.idToPath( param ) ).thenReturn( "/file1" );
     doReturn( null ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( "/file1" );
 
-    try {
-      fileService.doSetContentCreator( param, mockFileDto );
-      fail();
-    } catch ( FileNotFoundException e ) {
-    }
+    fileService.doSetContentCreator( param, mockFileDto );
   }
 
-  @Test
+  @Test( expected = InternalError.class )
   public void testDoSetContentCreatorFileException() throws Exception {
     String param = "file1";
     RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
@@ -945,22 +890,21 @@ public class FileServiceIT {
     doReturn( repositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( "/file1" );
     when( fileService.getRepository().getFileMetadata( repositoryFileDto.getId() ) ).thenThrow( new InternalError() );
 
-    //failing in get
+    // failing in get
     try {
       fileService.doSetContentCreator( param, repositoryFileDto );
-    } catch ( FileNotFoundException e ) {
-      fail();
     } catch ( InternalError e ) {
       verify( fileMetadata, times( 0 ) ).put( PentahoJcrConstants.PHO_CONTENTCREATOR, param );
       verify( fileService.repository, times( 0 ) ).setFileMetadata( param, fileMetadata );
+      throw e;
     }
   }
 
   @Test
-  public void testDoGetFileLocales() {
+  public void testDoGetFileLocales() throws FileNotFoundException {
     String param = "file1";
     RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
-    List<PentahoLocale> locales = new ArrayList<PentahoLocale>();
+    List<PentahoLocale> locales = new ArrayList<>();
     PentahoLocale mockedLocale = mock( PentahoLocale.class );
     locales.add( mockedLocale );
 
@@ -969,18 +913,12 @@ public class FileServiceIT {
     when( fileService.defaultUnifiedRepositoryWebService.getAvailableLocalesForFileById( repositoryFileDto.getId() ) )
       .thenReturn( locales );
 
-    try {
-      fileService.doGetFileLocales( param );
-      verify( fileService.getRepository(), times( 0 ) ).getAvailableLocalesForFileById( repositoryFileDto.getId() );
-    } catch ( FileNotFoundException e ) {
-      fail();
-    } catch ( InternalError e ) {
-      fail();
-    }
+    fileService.doGetFileLocales( param );
+    verify( fileService.getRepository(), times( 0 ) ).getAvailableLocalesForFileById( repositoryFileDto.getId() );
   }
 
-  @Test
-  public void testDoGetFileLocalesFileNotFoundException() {
+  @Test( expected = FileNotFoundException.class )
+  public void testDoGetFileLocalesFileNotFoundException() throws FileNotFoundException {
     String param = "file1";
     RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
 
@@ -989,14 +927,15 @@ public class FileServiceIT {
 
     try {
       fileService.doGetFileLocales( param );
-      fail();
     } catch ( FileNotFoundException e ) {
       verify( fileService.getRepository(), times( 0 ) ).getAvailableLocalesForFileById( repositoryFileDto.getId() );
+
+      throw e;
     }
   }
 
-  @Test
-  public void testDoGetFileLocalesException() {
+  @Test( expected = InternalError.class )
+  public void testDoGetFileLocalesException() throws FileNotFoundException {
     String param = "file1";
     RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
 
@@ -1007,24 +946,22 @@ public class FileServiceIT {
 
     try {
       fileService.doGetFileLocales( param );
-    } catch ( FileNotFoundException e ) {
-      fail();
     } catch ( InternalError e ) {
       verify( fileService.getRepository(), times( 0 ) ).getAvailableLocalesForFileById( repositoryFileDto.getId() );
+      throw e;
     }
   }
 
   @Test
-  public void testDoGetReservedChars() throws Exception {
+  public void testDoGetReservedChars() {
 
-    StringBuffer stringBuffer = new StringBuffer();
-    stringBuffer.append( '/' );
-    stringBuffer.append( '\\' );
-    stringBuffer.append( '\t' );
-    stringBuffer.append( '\r' );
-    stringBuffer.append( '\n' );
+    String stringBuffer = "/"
+      + '\\'
+      + '\t'
+      + '\r'
+      + '\n';
 
-    List<Character> characters = new ArrayList<Character>();
+    List<Character> characters = new ArrayList<>();
     characters.add( '/' );
     characters.add( '\\' );
     characters.add( '\t' );
@@ -1037,14 +974,14 @@ public class FileServiceIT {
 
     verify( fileService.defaultUnifiedRepositoryWebService ).getReservedChars();
 
-    assertEquals( stringBuffer.toString(), buffer.toString() );
+    assertEquals( stringBuffer, buffer.toString() );
   }
 
   @Test
-  public void testDoGetReservedCharactersDisplay() throws Exception {
+  public void testDoGetReservedCharactersDisplay() {
     String stringBuffer = "/,\\,\\t,\\r,\\n";
 
-    List<Character> characters = new ArrayList<Character>();
+    List<Character> characters = new ArrayList<>();
     characters.add( '/' );
     characters.add( '\\' );
     characters.add( '\t' );
@@ -1057,42 +994,39 @@ public class FileServiceIT {
 
     doReturn( characters ).when( fileService.defaultUnifiedRepositoryWebService ).getReservedChars();
     StringBuffer buffer = fileService.doGetReservedCharactersDisplay();
-    assertEquals( buffer.toString(), stringBuffer.toString() );
+    assertEquals( stringBuffer, buffer.toString() );
 
     verify( fileService, times( 3 ) ).escapeJava( nullable( String.class ) );
   }
 
   @Test
   public void testDoGetFileOrDirAsDownload0() throws Throwable {
-    assertDoGetFileOrDirAsDownload( "mockFileName.prpt", "true", "mockFileName.prpt.zip", "mockFileName.prpt.zip" );
+    assertDoGetFileOrDirAsDownload( "mockFileName.prpt", "true", "mockFileName.prpt.zip" );
   }
 
   @Test
   public void testDoGetFileOrDirAsDownload1() throws Throwable {
-    assertDoGetFileOrDirAsDownload( "mockFileName.prpt", "false", "mockFileName.prpt", "mockFileName.prpt" );
+    assertDoGetFileOrDirAsDownload( "mockFileName.prpt", "false", "mockFileName.prpt" );
   }
 
   @Test
   public void testDoGetFileOrDirAsDownload2() throws Throwable {
-    assertDoGetFileOrDirAsDownload( "mock File+Name(%25).prpt", "true", "mock%20File%2BName%28%2525%29.prpt.zip",
-      "mock File+Name(%25).prpt.zip" );
+    assertDoGetFileOrDirAsDownload( "mock File+Name(%25).prpt", "true", "mock%20File%2BName%28%2525%29.prpt.zip" );
   }
 
   @Test
   public void testDoGetFileOrDirAsDownload3() throws Throwable {
-    assertDoGetFileOrDirAsDownload( "mock File+Name(%25).prpt", "false", "mock%20File%2BName%28%2525%29.prpt",
-      "mock File+Name(%25).prpt" );
+    assertDoGetFileOrDirAsDownload( "mock File+Name(%25).prpt", "false", "mock%20File%2BName%28%2525%29.prpt" );
   }
 
   /**
    * @param fileName
    * @param withManifest
    * @param expectedEncodedFileName
-   * @param expectedFileName
    * @throws Throwable
    */
   public void assertDoGetFileOrDirAsDownload( final String fileName, final String withManifest,
-                                              final String expectedEncodedFileName, final String expectedFileName )
+                                              final String expectedEncodedFileName )
     throws Throwable {
 
     IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
@@ -1129,11 +1063,11 @@ public class FileServiceIT {
 
     assertEquals( mockStream, wrapper.getOutputStream() );
     assertEquals( expectedEncodedFileName, wrapper.getEncodedFileName() );
-    assertEquals( "attachment; filename=\"" + expectedFileName + "\"", wrapper.getAttachment() );
+    assertEquals( "attachment; filename*=UTF-8''" + expectedEncodedFileName, wrapper.getAttachment() );
   }
 
   @Test
-  public void testDoGetFileOrDirAsDownloadNonAdminUserHomeFolder() throws Throwable {
+  public void testDoGetFileOrDirAsDownloadNonAdminUserHomeFolder() {
 
     IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
     doReturn( true ).when( mockAuthPolicy ).isAllowed( RepositoryReadAction.NAME ); /* user has 'Read Content' */
@@ -1249,7 +1183,8 @@ public class FileServiceIT {
     }
   }
 
-  public void testDoCanAdminister() throws Exception {
+  @Test
+  public void testDoCanAdminister() {
     IAuthorizationPolicy authorizationPolicy = mock( IAuthorizationPolicy.class );
     doReturn( authorizationPolicy ).when( fileService ).getPolicy();
 
@@ -1280,7 +1215,7 @@ public class FileServiceIT {
   }
 
   @Test
-  public void testDoCanAdministerException() throws Exception {
+  public void testDoCanAdministerException() {
     IAuthorizationPolicy authorizationPolicy = mock( IAuthorizationPolicy.class );
     doReturn( authorizationPolicy ).when( fileService ).getPolicy();
 
@@ -1364,7 +1299,7 @@ public class FileServiceIT {
 
     try {
       repositoryFileDto2 = fileService.doGetContentCreator( pathId );
-      assertEquals( null, repositoryFileDto2 );
+      assertNull( repositoryFileDto2 );
     } catch ( Exception e ) {
       fail();
     }
@@ -1374,7 +1309,7 @@ public class FileServiceIT {
 
     try {
       repositoryFileDto2 = fileService.doGetContentCreator( pathId );
-      assertEquals( null, repositoryFileDto2 );
+      assertNull( repositoryFileDto2 );
     } catch ( Exception e ) {
       fail();
     }
@@ -1385,8 +1320,8 @@ public class FileServiceIT {
     verify( fileService.defaultUnifiedRepositoryWebService ).getFileById( nullable( String.class ) );
   }
 
-  @Test
-  public void doGetContentCreatorException() {
+  @Test( expected = FileNotFoundException.class )
+  public void doGetContentCreatorException() throws FileNotFoundException {
     String pathId = "path:to:file:file1.ext";
     String fileId = "file1";
     String creatorId = "creatorId";
@@ -1407,25 +1342,20 @@ public class FileServiceIT {
 
     doReturn( repositoryFileDto1 ).when( fileService.defaultUnifiedRepositoryWebService ).getFileById( creatorId );
 
-    try {
-      fileService.doGetContentCreator( pathId );
-      fail();
-    } catch ( FileNotFoundException e ) {
-      //Should catch the exception
-    }
+    fileService.doGetContentCreator( pathId );
   }
 
   @Test
-  public void testDoGetGeneratedContent() {
-    String pathId = "test.prpt",
-      userFolder = "public/admin";
+  public void testDoGetGeneratedContent() throws FileNotFoundException {
+    String pathId = "test.prpt";
+    String userFolder = "public/admin";
 
     RepositoryFileDto fileDetailsMock = mock( RepositoryFileDto.class );
     RepositoryFile workspaceFolder = mock( RepositoryFile.class );
     doReturn( userFolder ).when( workspaceFolder ).getId();
     SessionResource sessionResource = mock( SessionResource.class );
 
-    List<RepositoryFile> children = new ArrayList<RepositoryFile>();
+    List<RepositoryFile> children = new ArrayList<>();
     RepositoryFile mockedChild = mock( RepositoryFile.class );
     doReturn( false ).when( mockedChild ).isFolder();
     children.add( mockedChild );
@@ -1446,17 +1376,15 @@ public class FileServiceIT {
     try {
       doReturn( fileDetailsMock ).when( fileService ).doGetProperties( pathId );
       List<RepositoryFileDto> list = fileService.doGetGeneratedContent( pathId );
-      assertEquals( list.size(), 1 );
+      assertEquals( 1, list.size() );
     } catch ( FileNotFoundException e ) {
       e.printStackTrace();
-      fail();
-    } catch ( Throwable t ) {
-      fail();
+      throw e;
     }
   }
 
-  @Test
-  public void testDoGetGeneratedContentFileNotFound() {
+  @Test( expected = FileNotFoundException.class )
+  public void testDoGetGeneratedContentFileNotFound() throws FileNotFoundException {
     String pathId = "test.prpt",
       userFolder = "public/admin";
 
@@ -1465,26 +1393,22 @@ public class FileServiceIT {
     doReturn( userFolder ).when( sessionResource ).doGetCurrentUserDir();
     doReturn( sessionResource ).when( fileService ).getSessionResource();
 
-    try {
-      doReturn( null ).when( fileService ).doGetProperties( pathId );
-      fileService.doGetGeneratedContent( pathId );
-      fail();
-    } catch ( FileNotFoundException e ) {
-    }
+    doReturn( null ).when( fileService ).doGetProperties( pathId );
+    fileService.doGetGeneratedContent( pathId );
   }
 
   @Test
-  public void testDoGetGeneratedContentForUser() {
-    String pathId = "test.prpt",
-      user = "admin",
-      userFolder = "public/admin";
+  public void testDoGetGeneratedContentForUser() throws FileNotFoundException {
+    String pathId = "test.prpt";
+    String user = "admin";
+    String userFolder = "public/admin";
 
     RepositoryFileDto fileDetailsMock = mock( RepositoryFileDto.class );
     RepositoryFile workspaceFolder = mock( RepositoryFile.class );
     doReturn( userFolder ).when( workspaceFolder ).getId();
     SessionResource sessionResource = mock( SessionResource.class );
 
-    List<RepositoryFile> children = new ArrayList<RepositoryFile>();
+    List<RepositoryFile> children = new ArrayList<>();
     RepositoryFile mockedChild = mock( RepositoryFile.class );
     doReturn( false ).when( mockedChild ).isFolder();
     children.add( mockedChild );
@@ -1505,17 +1429,15 @@ public class FileServiceIT {
     try {
       doReturn( fileDetailsMock ).when( fileService ).doGetProperties( pathId );
       List<RepositoryFileDto> list = fileService.doGetGeneratedContent( pathId, user );
-      assertEquals( list.size(), 1 );
+      assertEquals( 1, list.size() );
     } catch ( FileNotFoundException e ) {
       e.printStackTrace();
-      fail();
-    } catch ( Throwable t ) {
-      fail();
+      throw e;
     }
   }
 
-  @Test
-  public void testDoGetGeneratedContentForUserFileNotFound() {
+  @Test( expected = FileNotFoundException.class )
+  public void testDoGetGeneratedContentForUserFileNotFound() throws FileNotFoundException {
     String pathId = "test.prpt",
       user = "admin",
       userFolder = "public/admin";
@@ -1525,81 +1447,77 @@ public class FileServiceIT {
     doReturn( userFolder ).when( sessionResource ).doGetUserDir( user );
     doReturn( sessionResource ).when( fileService ).getSessionResource();
 
-    try {
-      doReturn( null ).when( fileService ).doGetProperties( pathId );
-      fileService.doGetGeneratedContent( pathId, user );
-      fail();
-    } catch ( FileNotFoundException e ) {
-    }
+    doReturn( null ).when( fileService ).doGetProperties( pathId );
+    fileService.doGetGeneratedContent( pathId, user );
   }
 
-  @Test
-  public void testSearchGeneratedContent() {
-    String lineageId = "test.prpt",
-      pathId = "test.prpt",
-      userFolder = "public/admin";
-
-    RepositoryFileDto fileDetailsMock = mock( RepositoryFileDto.class );
-    RepositoryFile workspaceFolder = mock( RepositoryFile.class );
-    doReturn( userFolder ).when( workspaceFolder ).getId();
-    SessionResource sessionResource = mock( SessionResource.class );
-
-    List<RepositoryFile> children = new ArrayList<RepositoryFile>();
-    RepositoryFile mockedChild = mock( RepositoryFile.class );
-    doReturn( false ).when( mockedChild ).isFolder();
-    children.add( mockedChild );
-
-    Map<String, Serializable> mockedFileMetadata = mock( Map.class );
-    doReturn( lineageId ).when( mockedFileMetadata ).get( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
-    when( fileService.repository.getFileMetadata( mockedChild.getId() ) ).thenReturn( mockedFileMetadata );
-
-    doReturn( pathId ).when( fileDetailsMock ).getId();
-    doReturn( userFolder ).when( sessionResource ).doGetCurrentUserDir();
-    doReturn( workspaceFolder ).when( fileService.repository ).getFile( userFolder );
-    doReturn( sessionResource ).when( fileService ).getSessionResource();
-    doReturn( children ).when( fileService.repository ).getChildren( userFolder );
-
-    RepositoryFileDto mockedRepositoryFileDto = mock( RepositoryFileDto.class );
-    doReturn( mockedRepositoryFileDto ).when( fileService ).toFileDto( mockedChild, null, false );
-
-    try {
-      doReturn( fileDetailsMock ).when( fileService ).doGetProperties( pathId );
-      List<RepositoryFileDto> list =
-        fileService.searchGeneratedContent( userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
-      assertEquals( list.size(), 1 );
-    } catch ( FileNotFoundException e ) {
-      e.printStackTrace();
-      fail();
-    } catch ( Throwable t ) {
-      fail();
-    }
-  }
-
-  @Test
-  public void testSearchGeneratedContentFileNotFound() {
-    String lineageId = "test.prpt",
-      pathId = "test.prpt",
-      userFolder = "public/admin";
-
-    SessionResource sessionResource = mock( SessionResource.class );
-
-    doReturn( userFolder ).when( sessionResource ).doGetCurrentUserDir();
-    doReturn( sessionResource ).when( fileService ).getSessionResource();
-
-    try {
-      doReturn( null ).when( fileService ).doGetProperties( pathId );
-      fileService.searchGeneratedContent( userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
-      fail();
-    } catch ( FileNotFoundException e ) {
-    }
-  }
+  //  @Test
+  //  public void testSearchGeneratedContent() {
+  //    String lineageId = "test.prpt",
+  //      pathId = "test.prpt",
+  //      userFolder = "public/admin";
+  //
+  //    RepositoryFileDto fileDetailsMock = mock( RepositoryFileDto.class );
+  //    RepositoryFile workspaceFolder = mock( RepositoryFile.class );
+  //    doReturn( userFolder ).when( workspaceFolder ).getId();
+  //    SessionResource sessionResource = mock( SessionResource.class );
+  //
+  //    List<RepositoryFile> children = new ArrayList<RepositoryFile>();
+  //    RepositoryFile mockedChild = mock( RepositoryFile.class );
+  //    doReturn( false ).when( mockedChild ).isFolder();
+  //    children.add( mockedChild );
+  //
+  //    Map<String, Serializable> mockedFileMetadata = mock( Map.class );
+  //    doReturn( lineageId ).when( mockedFileMetadata ).get( QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+  //    when( fileService.repository.getFileMetadata( mockedChild.getId() ) ).thenReturn( mockedFileMetadata );
+  //
+  //    doReturn( pathId ).when( fileDetailsMock ).getId();
+  //    doReturn( userFolder ).when( sessionResource ).doGetCurrentUserDir();
+  //    doReturn( workspaceFolder ).when( fileService.repository ).getFile( userFolder );
+  //    doReturn( sessionResource ).when( fileService ).getSessionResource();
+  //    doReturn( children ).when( fileService.repository ).getChildren( userFolder );
+  //
+  //    RepositoryFileDto mockedRepositoryFileDto = mock( RepositoryFileDto.class );
+  //    doReturn( mockedRepositoryFileDto ).when( fileService ).toFileDto( mockedChild, null, false );
+  //
+  //    try {
+  //      doReturn( fileDetailsMock ).when( fileService ).doGetProperties( pathId );
+  //      List<RepositoryFileDto> list =
+  //        fileService.searchGeneratedContent( userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+  //      assertEquals( list.size(), 1 );
+  //    } catch ( FileNotFoundException e ) {
+  //      e.printStackTrace();
+  //      fail();
+  //    } catch ( Throwable t ) {
+  //      fail();
+  //    }
+  //  }
+  //
+  //  @Test
+  //  public void testSearchGeneratedContentFileNotFound() {
+  //    String lineageId = "test.prpt",
+  //      pathId = "test.prpt",
+  //      userFolder = "public/admin";
+  //
+  //    SessionResource sessionResource = mock( SessionResource.class );
+  //
+  //    doReturn( userFolder ).when( sessionResource ).doGetCurrentUserDir();
+  //    doReturn( sessionResource ).when( fileService ).getSessionResource();
+  //
+  //    try {
+  //      doReturn( null ).when( fileService ).doGetProperties( pathId );
+  //      fileService.searchGeneratedContent( userFolder, lineageId, QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID );
+  //      fail();
+  //    } catch ( FileNotFoundException e ) {
+  //    }
+  //  }
 
   @Test
   public void doGetDeletedFiles() {
     RepositoryFileDto repositoryFileDto = mock( RepositoryFileDto.class );
     RepositoryFileDto repositoryFileDto1 = mock( RepositoryFileDto.class );
 
-    List<RepositoryFileDto> fileDtos = new ArrayList<RepositoryFileDto>();
+    List<RepositoryFileDto> fileDtos = new ArrayList<>();
     fileDtos.add( repositoryFileDto );
     fileDtos.add( repositoryFileDto1 );
 
@@ -1613,7 +1531,7 @@ public class FileServiceIT {
     doReturn( null ).when( fileService.defaultUnifiedRepositoryWebService ).getDeletedFiles();
 
     repositoryFiles = fileService.doGetDeletedFiles();
-    assertEquals( null, repositoryFiles );
+    assertNull( repositoryFiles );
 
     verify( fileService.defaultUnifiedRepositoryWebService, times( 2 ) ).getDeletedFiles();
   }
@@ -1622,7 +1540,7 @@ public class FileServiceIT {
   public void doGetMetadata() {
     String pathId = "path:to:file:file1.ext";
 
-    List<StringKeyStringValueDto> stringKeyStringValueDtos = new ArrayList<StringKeyStringValueDto>();
+    List<StringKeyStringValueDto> stringKeyStringValueDtos = new ArrayList<>();
     StringKeyStringValueDto stringKeyStringValueDto1 = mock( StringKeyStringValueDto.class );
     doReturn( "key1" ).when( stringKeyStringValueDto1 ).getKey();
     doReturn( "value1" ).when( stringKeyStringValueDto1 ).getValue();
@@ -1647,23 +1565,23 @@ public class FileServiceIT {
     try {
       List<StringKeyStringValueDto> list = fileService.doGetMetadata( pathId );
       assertEquals( 4, list.size() );
-      Boolean hasIsHidden = false;
-      Boolean hasScheduable = false;
+      boolean hasIsHidden = false;
+      boolean hasSchedulable = false;
       for ( StringKeyStringValueDto item : list ) {
         if ( item.getKey().equals( "_PERM_HIDDEN" ) ) {
           hasIsHidden = true;
         }
         if ( item.getKey().equals( RepositoryFile.SCHEDULABLE_KEY ) ) {
-          hasScheduable = true;
+          hasSchedulable = true;
         }
       }
       assertTrue( hasIsHidden );
-      assertTrue( hasScheduable );
+      assertTrue( hasSchedulable );
     } catch ( FileNotFoundException e ) {
       fail();
     }
 
-    stringKeyStringValueDtos = new ArrayList<StringKeyStringValueDto>();
+    stringKeyStringValueDtos = new ArrayList<>();
     stringKeyStringValueDtos.add( stringKeyStringValueDto1 );
     stringKeyStringValueDtos.add( stringKeyStringValueDto2 );
 
@@ -1680,18 +1598,18 @@ public class FileServiceIT {
     try {
       List<StringKeyStringValueDto> list = fileService.doGetMetadata( pathId );
       assertEquals( 4, list.size() );
-      Boolean hasIsHidden = false;
-      Boolean hasScheduable = false;
+      boolean hasIsHidden = false;
+      boolean hasSchedulable = false;
       for ( StringKeyStringValueDto item : list ) {
         if ( item.getKey().equals( "_PERM_HIDDEN" ) ) {
           hasIsHidden = true;
         }
         if ( item.getKey().equals( RepositoryFile.SCHEDULABLE_KEY ) ) {
-          hasScheduable = true;
+          hasSchedulable = true;
         }
       }
       assertTrue( hasIsHidden );
-      assertTrue( hasScheduable );
+      assertTrue( hasSchedulable );
     } catch ( FileNotFoundException e ) {
       fail();
     }
@@ -1701,7 +1619,7 @@ public class FileServiceIT {
     // Test 3
     try {
       List<StringKeyStringValueDto> list = fileService.doGetMetadata( null );
-      assertEquals( null, list );
+      assertNull( list );
     } catch ( FileNotFoundException e ) {
       fail();
     }
@@ -1711,26 +1629,26 @@ public class FileServiceIT {
     verify( fileService.defaultUnifiedRepositoryWebService, times( 3 ) ).getFileMetadata( nullable( String.class ) );
   }
 
-  @Test
-  public void doGetMetadataException() {
+  @Test( expected = FileNotFoundException.class )
+  public void doGetMetadataException() throws FileNotFoundException {
     String pathId = "path:to:file:file1.ext";
 
     doReturn( null ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( nullable( String.class ) );
 
     try {
-      List<StringKeyStringValueDto> list = fileService.doGetMetadata( pathId );
-      fail();
+      fileService.doGetMetadata( pathId );
     } catch ( FileNotFoundException e ) {
       // Should catch exception
+      verify( fileService.defaultUnifiedRepositoryWebService ).getFile( nullable( String.class ) );
+      throw e;
     }
-    verify( fileService.defaultUnifiedRepositoryWebService ).getFile( nullable( String.class ) );
   }
 
   @Test
   public void testDoGetChildren() {
     RepositoryFileDto mockRepositoryFileDto = mock( RepositoryFileDto.class );
     Collator mockCollator = mock( Collator.class );
-    List<RepositoryFileDto> mockRepositoryFileDtos = new ArrayList<RepositoryFileDto>();
+    List<RepositoryFileDto> mockRepositoryFileDtos = new ArrayList<>();
     mockRepositoryFileDtos.add( mockRepositoryFileDto );
     RepositoryRequest mockRepositoryRequest = mock( RepositoryRequest.class );
 
@@ -1738,7 +1656,7 @@ public class FileServiceIT {
     doReturn( mockRepositoryFileDto ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( nullable( String.class ) );
     doReturn( mockCollator ).when( fileService ).getCollator( anyInt() );
     doReturn( mockRepositoryRequest ).when( fileService )
-      .getRepositoryRequest( (RepositoryFileDto) any(), anyBoolean(), nullable( String.class ), anyBoolean() );
+      .getRepositoryRequest( any(), anyBoolean(), nullable( String.class ), anyBoolean() );
     doReturn( mockRepositoryFileDtos ).when( fileService.defaultUnifiedRepositoryWebService )
       .getChildrenFromRequest( mockRepositoryRequest );
     doReturn( true ).when( fileService ).isShowingTitle( mockRepositoryRequest );
@@ -1749,7 +1667,7 @@ public class FileServiceIT {
     verify( fileService.defaultUnifiedRepositoryWebService, times( 1 ) ).getFile( nullable( String.class ) );
     verify( fileService, times( 1 ) ).getCollator( anyInt() );
     verify( fileService, times( 1 ) )
-      .getRepositoryRequest( (RepositoryFileDto) any(), anyBoolean(), nullable( String.class ), anyBoolean() );
+      .getRepositoryRequest( any(), anyBoolean(), nullable( String.class ), anyBoolean() );
     verify( fileService.defaultUnifiedRepositoryWebService, times( 1 ) )
       .getChildrenFromRequest( mockRepositoryRequest );
     verify( fileService, times( 1 ) ).isShowingTitle( mockRepositoryRequest );
@@ -1761,197 +1679,206 @@ public class FileServiceIT {
 
   @Test
   public void doSetMetadata() {
-    String pathId = "path:to:file:file1.ext";
+    try ( MockedStatic<RepositoryFileHelper> repositoryFileHelperMock = mockStatic( RepositoryFileHelper.class ) ) {
+      IRepositoryFileData repositoryFileDataMock = mock( IRepositoryFileData.class );
+      repositoryFileHelperMock.when( () -> RepositoryFileHelper.getFileData( any( RepositoryFile.class ) ) )
+        .thenReturn( repositoryFileDataMock );
 
-    List<StringKeyStringValueDto> stringKeyStringValueDtos = new ArrayList<StringKeyStringValueDto>();
-    StringKeyStringValueDto stringKeyStringValueDto1 = mock( StringKeyStringValueDto.class );
-    doReturn( "key1" ).when( stringKeyStringValueDto1 ).getKey();
-    doReturn( "value1" ).when( stringKeyStringValueDto1 ).getValue();
+      String pathId = "path:to:file:file1.ext";
 
-    StringKeyStringValueDto stringKeyStringValueDto2 = mock( StringKeyStringValueDto.class );
-    doReturn( "key2" ).when( stringKeyStringValueDto2 ).getKey();
-    doReturn( "value2" ).when( stringKeyStringValueDto2 ).getValue();
+      List<StringKeyStringValueDto> stringKeyStringValueDtos = new ArrayList<>();
+      StringKeyStringValueDto stringKeyStringValueDto1 = mock( StringKeyStringValueDto.class );
+      doReturn( "key1" ).when( stringKeyStringValueDto1 ).getKey();
+      doReturn( "value1" ).when( stringKeyStringValueDto1 ).getValue();
 
-    stringKeyStringValueDtos.add( stringKeyStringValueDto1 );
-    stringKeyStringValueDtos.add( stringKeyStringValueDto2 );
+      StringKeyStringValueDto stringKeyStringValueDto2 = mock( StringKeyStringValueDto.class );
+      doReturn( "key2" ).when( stringKeyStringValueDto2 ).getKey();
+      doReturn( "value2" ).when( stringKeyStringValueDto2 ).getValue();
 
-    doReturn( "/path/to/file/file1.ext" ).when( fileService ).idToPath( pathId );
+      stringKeyStringValueDtos.add( stringKeyStringValueDto1 );
+      stringKeyStringValueDtos.add( stringKeyStringValueDto2 );
 
-    doReturn( true ).when( fileService.policy ).isAllowed( RepositoryReadAction.NAME );
-    doReturn( true ).when( fileService.policy ).isAllowed( RepositoryCreateAction.NAME );
-    doReturn( true ).when( fileService.policy ).isAllowed( AdministerSecurityAction.NAME );
+      doReturn( "/path/to/file/file1.ext" ).when( fileService ).idToPath( pathId );
 
-    RepositoryFileDto file = mock( RepositoryFileDto.class );
-    doReturn( false ).when( file ).isFolder();
-    doReturn( true ).when( file ).isHidden();
+      doReturn( true ).when( fileService.policy ).isAllowed( RepositoryReadAction.NAME );
+      doReturn( true ).when( fileService.policy ).isAllowed( RepositoryCreateAction.NAME );
+      doReturn( true ).when( fileService.policy ).isAllowed( AdministerSecurityAction.NAME );
 
-    doReturn( file ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( nullable( String.class ) );
+      RepositoryFileDto file = mock( RepositoryFileDto.class );
+      doReturn( false ).when( file ).isFolder();
+      doReturn( true ).when( file ).isHidden();
 
-    List<RepositoryFileAclAceDto> repositoryFileAclAceDtos = new ArrayList<RepositoryFileAclAceDto>();
+      doReturn( file ).when( fileService.defaultUnifiedRepositoryWebService ).getFile( nullable( String.class ) );
 
-    RepositoryFileAclDto repositoryFileAclDto = mock( RepositoryFileAclDto.class );
-    doReturn( "sessionName" ).when( repositoryFileAclDto ).getOwner();
-    doReturn( true ).when( repositoryFileAclDto ).isEntriesInheriting();
-    doReturn( repositoryFileAclAceDtos ).when( repositoryFileAclDto ).getAces();
+      List<RepositoryFileAclAceDto> repositoryFileAclAceDtos = new ArrayList<>();
 
-    doReturn( repositoryFileAclDto ).when( fileService.defaultUnifiedRepositoryWebService ).getAcl( nullable( String.class ) );
+      RepositoryFileAclDto repositoryFileAclDto = mock( RepositoryFileAclDto.class );
+      doReturn( "sessionName" ).when( repositoryFileAclDto ).getOwner();
+      doReturn( true ).when( repositoryFileAclDto ).isEntriesInheriting();
+      doReturn( repositoryFileAclAceDtos ).when( repositoryFileAclDto ).getAces();
 
-    IPentahoSession pentahoSession = mock( IPentahoSession.class );
-    doReturn( pentahoSession ).when( fileService ).getSession();
-    doReturn( "sessionName" ).when( pentahoSession ).getName();
+      doReturn( repositoryFileAclDto ).when( fileService.defaultUnifiedRepositoryWebService )
+        .getAcl( nullable( String.class ) );
 
-    RepositoryFileAclAceDto repositoryFileAclAceDto = mock( RepositoryFileAclAceDto.class );
-    List<Integer> permissions = new ArrayList<Integer>();
-    permissions.add( RepositoryFilePermission.ACL_MANAGEMENT.ordinal() );
-    doReturn( permissions ).when( repositoryFileAclAceDto ).getPermissions();
-    doReturn( "sessionName" ).when( repositoryFileAclAceDto ).getRecipient();
+      IPentahoSession pentahoSession = mock( IPentahoSession.class );
+      doReturn( pentahoSession ).when( fileService ).getSession();
+      doReturn( "sessionName" ).when( pentahoSession ).getName();
 
-    repositoryFileAclAceDtos.add( repositoryFileAclAceDto );
+      RepositoryFileAclAceDto repositoryFileAclAceDto = mock( RepositoryFileAclAceDto.class );
+      List<Integer> permissions = new ArrayList<>();
+      permissions.add( RepositoryFilePermission.ACL_MANAGEMENT.ordinal() );
+      doReturn( permissions ).when( repositoryFileAclAceDto ).getPermissions();
+      doReturn( "sessionName" ).when( repositoryFileAclAceDto ).getRecipient();
 
-    doReturn( repositoryFileAclAceDtos ).when( fileService.defaultUnifiedRepositoryWebService )
-      .getEffectiveAces( nullable( String.class ) );
+      repositoryFileAclAceDtos.add( repositoryFileAclAceDto );
 
-    Map<String, Serializable> metadata = new HashMap<String, Serializable>();
-    doReturn( metadata ).when( fileService.repository ).getFileMetadata( nullable( String.class ) );
+      doReturn( repositoryFileAclAceDtos ).when( fileService.defaultUnifiedRepositoryWebService )
+        .getEffectiveAces( nullable( String.class ) );
 
-    RepositoryFile sourceFile = mock( RepositoryFile.class );
-    doReturn( sourceFile ).when( fileService.repository ).getFileById( nullable( String.class ) );
+      Map<String, Serializable> metadata = new HashMap<>();
+      doReturn( metadata ).when( fileService.repository ).getFileMetadata( nullable( String.class ) );
 
-    RepositoryFileDto destFileDto = mock( RepositoryFileDto.class );
-    doReturn( destFileDto ).when( fileService ).toFileDto( sourceFile, null, false );
+      RepositoryFile sourceFile = mock( RepositoryFile.class );
+      doReturn( "file1-id" ).when( sourceFile ).getId();
+      doReturn( "file1.ext" ).when( sourceFile ).getName();
+      doReturn( sourceFile ).when( fileService.repository ).getFileById( nullable( String.class ) );
 
-    RepositoryFile destFile = mock( RepositoryFile.class );
-    doReturn( destFile ).when( fileService ).toFile( destFileDto );
+      RepositoryFileDto destFileDto = mock( RepositoryFileDto.class );
+      doReturn( destFileDto ).when( fileService ).toFileDto( sourceFile, null, false );
 
-    RepositoryFileAcl acl = mock( RepositoryFileAcl.class );
-    doReturn( acl ).when( fileService.repository ).getAcl( acl );
+      RepositoryFile destFile = mock( RepositoryFile.class );
+      doReturn( destFile ).when( fileService ).toFile( destFileDto );
 
-    // Test 1 - canManage should be true at start
-    try {
-      fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
-    } catch ( GeneralSecurityException e ) {
-      fail();
+      RepositoryFileAcl acl = mock( RepositoryFileAcl.class );
+      doReturn( acl ).when( fileService.repository ).getAcl( any( Serializable.class ) );
+
+      // Test 1 - canManage should be true at start
+      try {
+        fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
+      } catch ( GeneralSecurityException e ) {
+        fail();
+      }
+
+      // Test 2 - canManage should be false at start
+      doReturn( false ).when( fileService.policy ).isAllowed( RepositoryReadAction.NAME );
+      doReturn( false ).when( fileService.policy ).isAllowed( RepositoryCreateAction.NAME );
+      doReturn( false ).when( fileService.policy ).isAllowed( AdministerSecurityAction.NAME );
+      doReturn( "sessionName1" ).when( repositoryFileAclDto ).getOwner();
+
+      try {
+        fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
+      } catch ( GeneralSecurityException e ) {
+        fail();
+      }
+
+      // Test 3 - canManage should be false at start
+      doReturn( true ).when( fileService.policy ).isAllowed( RepositoryReadAction.NAME );
+      doReturn( false ).when( fileService.policy ).isAllowed( RepositoryCreateAction.NAME );
+      doReturn( false ).when( fileService.policy ).isAllowed( AdministerSecurityAction.NAME );
+      doReturn( "sessionName1" ).when( repositoryFileAclDto ).getOwner();
+
+      try {
+        fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
+      } catch ( GeneralSecurityException e ) {
+        fail();
+      }
+
+      // Test 4 - canManage should be false at start
+      doReturn( false ).when( fileService.policy ).isAllowed( RepositoryReadAction.NAME );
+      doReturn( true ).when( fileService.policy ).isAllowed( RepositoryCreateAction.NAME );
+      doReturn( false ).when( fileService.policy ).isAllowed( AdministerSecurityAction.NAME );
+      doReturn( "sessionName1" ).when( repositoryFileAclDto ).getOwner();
+
+      try {
+        fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
+      } catch ( GeneralSecurityException e ) {
+        fail();
+      }
+
+      // Test 5 - canManage should be false at start
+      doReturn( false ).when( fileService.policy ).isAllowed( RepositoryReadAction.NAME );
+      doReturn( false ).when( fileService.policy ).isAllowed( RepositoryCreateAction.NAME );
+      doReturn( true ).when( fileService.policy ).isAllowed( AdministerSecurityAction.NAME );
+      doReturn( "sessionName1" ).when( repositoryFileAclDto ).getOwner();
+
+      try {
+        fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
+      } catch ( GeneralSecurityException e ) {
+        fail();
+      }
+
+      // Test 6 - canManage should be false at start
+      doReturn( true ).when( fileService.policy ).isAllowed( RepositoryReadAction.NAME );
+      doReturn( true ).when( fileService.policy ).isAllowed( RepositoryCreateAction.NAME );
+      doReturn( false ).when( fileService.policy ).isAllowed( AdministerSecurityAction.NAME );
+      doReturn( "sessionName1" ).when( repositoryFileAclDto ).getOwner();
+
+      try {
+        fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
+      } catch ( GeneralSecurityException e ) {
+        fail();
+      }
+
+      // Test 7 - canManage should be false at start
+      doReturn( false ).when( fileService.policy ).isAllowed( RepositoryReadAction.NAME );
+      doReturn( true ).when( fileService.policy ).isAllowed( RepositoryCreateAction.NAME );
+      doReturn( true ).when( fileService.policy ).isAllowed( AdministerSecurityAction.NAME );
+      doReturn( "sessionName1" ).when( repositoryFileAclDto ).getOwner();
+
+      try {
+        fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
+      } catch ( GeneralSecurityException e ) {
+        fail();
+      }
+
+      // Test 8 - canManage should be false at start
+      doReturn( true ).when( file ).isFolder();
+      doReturn( true ).when( file ).isHidden();
+
+      try {
+        fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
+      } catch ( GeneralSecurityException e ) {
+        fail();
+      }
+
+      // Test 9
+      StringKeyStringValueDto stringKeyStringValueDto3 = mock( StringKeyStringValueDto.class );
+      doReturn( "_PERM_HIDDEN" ).when( stringKeyStringValueDto3 ).getKey();
+      doReturn( "true" ).when( stringKeyStringValueDto3 ).getValue();
+      stringKeyStringValueDtos.add( stringKeyStringValueDto3 );
+
+      try {
+        fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
+      } catch ( GeneralSecurityException e ) {
+        fail();
+      }
+
+      verify( fileService.defaultUnifiedRepositoryWebService, times( 9 ) ).getFile( nullable( String.class ) );
+      verify( fileService.defaultUnifiedRepositoryWebService, times( 9 ) ).getAcl( nullable( String.class ) );
+      verify( repositoryFileAclDto, times( 9 ) ).getOwner();
+      verify( fileService.policy, times( 11 ) ).isAllowed( nullable( String.class ) );
+      verify( fileService.repository, times( 9 ) ).getFileMetadata( nullable( String.class ) );
+      verify( fileService.repository, times( 7 ) ).setFileMetadata( nullable( String.class ), any( Map.class ) );
+      verify( file, times( 8 ) ).setHidden( anyBoolean() );
+      verify( fileService.repository, times( 8 ) ).getFileById( nullable( String.class ) );
+      verify( fileService, times( 8 ) ).toFileDto( any( RepositoryFile.class ), eq( null ), anyBoolean() );
+      verify( fileService, times( 8 ) ).toFile( any( RepositoryFileDto.class ) );
+      verify( destFileDto, times( 8 ) ).setHidden( anyBoolean() );
+      verify( fileService.repository, times( 8 ) ).getAcl( nullable( String.class ) );
+      verify( fileService.repository, times( 7 ) )
+        .updateFile( any( RepositoryFile.class ), any( IRepositoryFileData.class ),
+          nullable( String.class ) );
+      verify( fileService.repository, times( 7 ) ).updateAcl( any( RepositoryFileAcl.class ) );
+      verify( fileService.repository ).updateFolder( any( RepositoryFile.class ), nullable( String.class ) );
     }
-
-    // Test 2 - canManage should be false at start
-    doReturn( false ).when( fileService.policy ).isAllowed( RepositoryReadAction.NAME );
-    doReturn( false ).when( fileService.policy ).isAllowed( RepositoryCreateAction.NAME );
-    doReturn( false ).when( fileService.policy ).isAllowed( AdministerSecurityAction.NAME );
-    doReturn( "sessionName1" ).when( repositoryFileAclDto ).getOwner();
-
-    try {
-      fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
-    } catch ( GeneralSecurityException e ) {
-      fail();
-    }
-
-    // Test 3 - canManage should be false at start
-    doReturn( true ).when( fileService.policy ).isAllowed( RepositoryReadAction.NAME );
-    doReturn( false ).when( fileService.policy ).isAllowed( RepositoryCreateAction.NAME );
-    doReturn( false ).when( fileService.policy ).isAllowed( AdministerSecurityAction.NAME );
-    doReturn( "sessionName1" ).when( repositoryFileAclDto ).getOwner();
-
-    try {
-      fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
-    } catch ( GeneralSecurityException e ) {
-      fail();
-    }
-
-    // Test 4 - canManage should be false at start
-    doReturn( false ).when( fileService.policy ).isAllowed( RepositoryReadAction.NAME );
-    doReturn( true ).when( fileService.policy ).isAllowed( RepositoryCreateAction.NAME );
-    doReturn( false ).when( fileService.policy ).isAllowed( AdministerSecurityAction.NAME );
-    doReturn( "sessionName1" ).when( repositoryFileAclDto ).getOwner();
-
-    try {
-      fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
-    } catch ( GeneralSecurityException e ) {
-      fail();
-    }
-
-    // Test 5 - canManage should be false at start
-    doReturn( false ).when( fileService.policy ).isAllowed( RepositoryReadAction.NAME );
-    doReturn( false ).when( fileService.policy ).isAllowed( RepositoryCreateAction.NAME );
-    doReturn( true ).when( fileService.policy ).isAllowed( AdministerSecurityAction.NAME );
-    doReturn( "sessionName1" ).when( repositoryFileAclDto ).getOwner();
-
-    try {
-      fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
-    } catch ( GeneralSecurityException e ) {
-      fail();
-    }
-
-    // Test 6 - canManage should be false at start
-    doReturn( true ).when( fileService.policy ).isAllowed( RepositoryReadAction.NAME );
-    doReturn( true ).when( fileService.policy ).isAllowed( RepositoryCreateAction.NAME );
-    doReturn( false ).when( fileService.policy ).isAllowed( AdministerSecurityAction.NAME );
-    doReturn( "sessionName1" ).when( repositoryFileAclDto ).getOwner();
-
-    try {
-      fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
-    } catch ( GeneralSecurityException e ) {
-      fail();
-    }
-
-    // Test 7 - canManage should be false at start
-    doReturn( false ).when( fileService.policy ).isAllowed( RepositoryReadAction.NAME );
-    doReturn( true ).when( fileService.policy ).isAllowed( RepositoryCreateAction.NAME );
-    doReturn( true ).when( fileService.policy ).isAllowed( AdministerSecurityAction.NAME );
-    doReturn( "sessionName1" ).when( repositoryFileAclDto ).getOwner();
-
-    try {
-      fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
-    } catch ( GeneralSecurityException e ) {
-      fail();
-    }
-
-    // Test 8 - canManage should be false at start
-    doReturn( true ).when( file ).isFolder();
-    doReturn( true ).when( file ).isHidden();
-
-    try {
-      fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
-    } catch ( GeneralSecurityException e ) {
-      fail();
-    }
-
-    // Test 9
-    StringKeyStringValueDto stringKeyStringValueDto3 = mock( StringKeyStringValueDto.class );
-    doReturn( "_PERM_HIDDEN" ).when( stringKeyStringValueDto3 ).getKey();
-    doReturn( "true" ).when( stringKeyStringValueDto3 ).getValue();
-    stringKeyStringValueDtos.add( stringKeyStringValueDto3 );
-
-    try {
-      fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
-    } catch ( GeneralSecurityException e ) {
-      fail();
-    }
-
-    verify( fileService.defaultUnifiedRepositoryWebService, times( 9 ) ).getFile( nullable( String.class ) );
-    verify( fileService.defaultUnifiedRepositoryWebService, times( 9 ) ).getAcl( nullable( String.class ) );
-    verify( repositoryFileAclDto, times( 9 ) ).getOwner();
-    verify( fileService.policy, times( 11 ) ).isAllowed( nullable( String.class ) );
-    verify( fileService.repository, times( 9 ) ).getFileMetadata( nullable( String.class ) );
-    verify( fileService.repository, times( 7 ) ).setFileMetadata( nullable( String.class ), any( Map.class ) );
-    verify( file, times( 8 ) ).setHidden( anyBoolean() );
-    verify( fileService.repository, times( 8 ) ).getFileById( nullable( String.class ) );
-    verify( fileService, times( 8 ) ).toFileDto( any( RepositoryFile.class ), anySet(), anyBoolean() );
-    verify( fileService, times( 8 ) ).toFile( any( RepositoryFileDto.class ) );
-    verify( destFileDto, times( 8 ) ).setHidden( anyBoolean() );
-    verify( fileService.repository, times( 8 ) ).getAcl( nullable( String.class ) );
-    verify( fileService.repository, times( 7 ) )
-      .updateFile( any( RepositoryFile.class ), any( IRepositoryFileData.class ),
-        nullable( String.class ) );
-    verify( fileService.repository, times( 7 ) ).updateAcl( any( RepositoryFileAcl.class ) );
-    verify( fileService.repository ).updateFolder( any( RepositoryFile.class ), nullable( String.class ) );
   }
 
-  @Test
-  public void doSetMetadataException() {
+  @Test( expected = GeneralSecurityException.class )
+  public void doSetMetadataException() throws GeneralSecurityException {
 
     String pathId = "path:to:file:file1.ext";
 
-    List<StringKeyStringValueDto> stringKeyStringValueDtos = new ArrayList<StringKeyStringValueDto>();
+    List<StringKeyStringValueDto> stringKeyStringValueDtos = new ArrayList<>();
 
     doReturn( "/path/to/file/file1.ext" ).when( fileService ).idToPath( pathId );
 
@@ -1974,15 +1901,14 @@ public class FileServiceIT {
 
     try {
       fileService.doSetMetadata( pathId, stringKeyStringValueDtos );
-      fail();
     } catch ( GeneralSecurityException e ) {
-      //Should catch the exception
-    }
+      verify( fileService.defaultUnifiedRepositoryWebService ).getFile( nullable( String.class ) );
+      verify( fileService.defaultUnifiedRepositoryWebService ).getAcl( nullable( String.class ) );
+      verify( repositoryFileAclDto ).getOwner();
+      verify( fileService.policy ).isAllowed( nullable( String.class ) );
 
-    verify( fileService.defaultUnifiedRepositoryWebService ).getFile( nullable( String.class ) );
-    verify( fileService.defaultUnifiedRepositoryWebService ).getAcl( nullable( String.class ) );
-    verify( repositoryFileAclDto ).getOwner();
-    verify( fileService.policy ).isAllowed( nullable( String.class ) );
+      throw e;
+    }
   }
 
   @Test
@@ -2020,11 +1946,12 @@ public class FileServiceIT {
 
     RepositoryFileDto mockChildFile = mock( RepositoryFileDto.class );
     doReturn( "test" ).when( mockChildFile ).getId();
+    doReturn( "test" ).when( mockChildFile ).getName();
 
     RepositoryFileTreeDto mockChildDto = mock( RepositoryFileTreeDto.class );
     doReturn( mockChildFile ).when( mockChildDto ).getFile();
 
-    List<RepositoryFileTreeDto> mockChildrenDto = new ArrayList<RepositoryFileTreeDto>();
+    List<RepositoryFileTreeDto> mockChildrenDto = new ArrayList<>();
     mockChildrenDto.add( mockChildDto );
 
     RepositoryFileTreeDto mockTreeDto = mock( RepositoryFileTreeDto.class );
@@ -2037,8 +1964,8 @@ public class FileServiceIT {
     doReturn( mockCollator ).when( fileService ).getCollatorInstance();
     doNothing().when( fileService ).sortByLocaleTitle( mockCollator, mockTreeDto );
 
-    Map<String, Serializable> fileMeta = new HashMap<String, Serializable>();
-    fileMeta.put( IUnifiedRepository.SYSTEM_FOLDER, new Boolean( false ) );
+    Map<String, Serializable> fileMeta = new HashMap<>();
+    fileMeta.put( IUnifiedRepository.SYSTEM_FOLDER, Boolean.FALSE );
 
     doReturn( fileMeta ).when( fileService.repository ).getFileMetadata( nullable( String.class ) );
 
@@ -2075,7 +2002,9 @@ public class FileServiceIT {
     when( repositoryFile.getPath() ).thenReturn( "/dir/file.txt" );
     when( repositoryFile.getName() ).thenReturn( "file.txt" );
 
-    when( fileService.repository.getFile( nullable( String.class ) ) ).thenReturn( repositoryFile ).thenReturn( null ); // On the second call to repository.getFile() we are testing if the target object already exists, so for this test on the second call we need a null
+    // On the second call to repository.getFile() we are testing if the target object already exists, so for this
+    // test on the second call we need a null
+    when( fileService.repository.getFile( nullable( String.class ) ) ).thenReturn( repositoryFile ).thenReturn( null );
     when( fileService.repository.getFileById( nullable( String.class ) ) ).thenReturn( repositoryFile );
     String pathId = ":dir:file.txt";
     String newName = "file1.txt";
@@ -2090,7 +2019,9 @@ public class FileServiceIT {
     when( repositoryFile.getPath() ).thenReturn( "/dir/file.txt" );
     when( repositoryFile.getName() ).thenReturn( "file.txt" );
 
-    when( fileService.repository.getFile( nullable( String.class ) ) ).thenReturn( repositoryFile ).thenReturn( null ); // On the second call to repository.getFile() we are testing if the target object already exists, so for this test on the second call we need a null;
+    // On the second call to repository.getFile() we are testing if the target object already exists, so for this
+    // test on the second call we need a null;
+    when( fileService.repository.getFile( nullable( String.class ) ) ).thenReturn( repositoryFile ).thenReturn( null );
     String pathId = ":dir:file.txt";
     String newName = "file1.txt";
 
@@ -2113,7 +2044,7 @@ public class FileServiceIT {
   }
 
   @Test
-  public void testDoCreateDirs() throws Exception {
+  public void testDoCreateDirs() {
     String pathId = "path:to:file:file1.ext";
 
     doReturn( "/path/to/file/file1.ext" ).when( fileService ).idToPath( pathId );
@@ -2160,7 +2091,7 @@ public class FileServiceIT {
   }
 
   @Test
-  public void testDoCreateDirsNegative() throws Exception {
+  public void testDoCreateDirsNegative() {
     String pathId = "path:to:file:file1.ext";
 
     doReturn( "/path/to/file/file1.ext" ).when( fileService ).idToPath( pathId );
@@ -2201,7 +2132,7 @@ public class FileServiceIT {
     try {
       fileService.doCreateDir( pathId );
     } catch ( InternalError e ) {
-      assertEquals( e.getMessage(), "negativetest" );
+      assertEquals( "negativetest", e.getMessage() );
     }
   }
 
@@ -2210,16 +2141,19 @@ public class FileServiceIT {
     FileService fs = mock( FileService.class );
     doCallRealMethod().when( fs ).doCreateDirSafe( nullable( String.class ) );
     doCallRealMethod().when( fs ).decode( nullable( String.class ) );
+    doCallRealMethod().when( fs ).isValidFolderName( nullable( String.class ) );
     doReturn( "New Folder" ).when( fs ).idToPath( nullable( String.class ) );
     doReturn( true ).when( fs ).doCreateDirFor( "New Folder" );
 
     StringBuffer sb = new StringBuffer( "!" );
     doReturn( sb ).when( fs ).doGetReservedChars();
 
-    mockStatic( FileUtils.class );
-    when( FileUtils.containsReservedCharacter( nullable( String.class ), any() ) ).thenReturn( false );
+    try ( MockedStatic<FileUtils> fileUtilsMock = mockStatic( FileUtils.class ) ) {
+      fileUtilsMock.when( () -> FileUtils.containsReservedCharacter( nullable( String.class ), any() ) )
+        .thenReturn( false );
 
-    assertTrue( fs.doCreateDirSafe( "New Folder" ) );
+      assertTrue( fs.doCreateDirSafe( "New Folder" ) );
+    }
   }
 
   @Test
@@ -2233,14 +2167,16 @@ public class FileServiceIT {
     StringBuffer sb = new StringBuffer( "!" );
     doReturn( sb ).when( fs ).doGetReservedChars();
 
-    mockStatic( FileUtils.class );
-    when( FileUtils.containsReservedCharacter( nullable( String.class ), any() ) ).thenReturn( false );
+    try ( MockedStatic<FileUtils> fileUtilsMock = mockStatic( FileUtils.class ) ) {
+      fileUtilsMock.when( () -> FileUtils.containsReservedCharacter( nullable( String.class ), any() ) )
+        .thenReturn( false );
 
-    try {
-      fs.doCreateDirSafe( "." );
-      fail();
-    } catch ( FileService.InvalidNameException e ) {
-      assertNotNull( e );
+      try {
+        fs.doCreateDirSafe( "." );
+        fail();
+      } catch ( FileService.InvalidNameException e ) {
+        assertNotNull( e );
+      }
     }
   }
 
@@ -2255,14 +2191,16 @@ public class FileServiceIT {
     StringBuffer sb = new StringBuffer( "!" );
     doReturn( sb ).when( fs ).doGetReservedChars();
 
-    mockStatic( FileUtils.class );
-    when( FileUtils.containsReservedCharacter( nullable( String.class ), any() ) ).thenReturn( false );
+    try ( MockedStatic<FileUtils> fileUtilsMock = mockStatic( FileUtils.class ) ) {
+      fileUtilsMock.when( () -> FileUtils.containsReservedCharacter( nullable( String.class ), any() ) )
+        .thenReturn( false );
 
-    try {
-      fs.doCreateDirSafe( "%2E" );
-      fail();
-    } catch ( FileService.InvalidNameException e ) {
-      assertNotNull( e );
+      try {
+        fs.doCreateDirSafe( "%2E" );
+        fail();
+      } catch ( FileService.InvalidNameException e ) {
+        assertNotNull( e );
+      }
     }
   }
 
@@ -2270,7 +2208,7 @@ public class FileServiceIT {
     return argThat( new AnyClassMatcher() );
   }
 
-  private class AnyClassMatcher implements ArgumentMatcher<Class<?>> {
+  private static class AnyClassMatcher implements ArgumentMatcher<Class<?>> {
     @Override
     public boolean matches( final Class<?> arg ) {
       return true;

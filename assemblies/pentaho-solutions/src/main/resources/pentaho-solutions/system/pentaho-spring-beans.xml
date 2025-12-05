@@ -87,7 +87,6 @@ http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/penta
 
   
   <import resource="pentahoObjects.spring.xml" />
-  <import resource="GettingStartedDB-spring.xml" /> <!-- Remove this line to unhook the Getting Started DB -->
   <import resource="importExport.xml" />
   <import resource="defaultUser.spring.xml"/>
   <import resource="sessionStartupActions.xml" />
