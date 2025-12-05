@@ -989,7 +989,7 @@ define([
             id = $(model.getFileClicked()[0]).attr("id");
           } else if (model.getLastClick() == "folder") {
             path = $(model.getFolderClicked()[0]).attr("path");
-            title = $(model.getFolderClicked()[0]).children('.title').text();
+            title = $(model.getFolderClicked()[0]).find("> .element .title").text();
           } else if (model.getLastClick() == "trash") {
             fileList = model.get("fileListModel").get("deletedFiles");
             mode = "purge";
@@ -1056,7 +1056,7 @@ define([
             }
           } else if (model.getLastClick() == "folder") {
             path = $(model.getFolderClicked()[0]).attr("path");
-            title = $(model.getFolderClicked()[0]).children('.title')
+            title = $(model.getFolderClicked()[0]).find("> .element .title").text();
           } else if (model.getLastClick() == "trash") {
             fileList = model.get("fileListModel").get("deletedFiles");
             mode = "purge";
@@ -1460,7 +1460,11 @@ define([
         if (showDescriptions && desc != "") {
           $this.attr("title", desc);
         } else {
-          $this.attr("title", $this.attr("ext"));
+          var displayTitle = $this.find("> .element .title").text();
+          var filename = $this.attr("ext");
+          var fallbackDisplayTitle = (displayTitle && displayTitle.trim().length > 0 && displayTitle !== filename) ? displayTitle : "-";
+          var tooltip = "Display name: " + fallbackDisplayTitle + "\n" + "Filename: " + filename;
+          $this.attr("title", tooltip);
         }
       });
     }
@@ -1945,7 +1949,11 @@ define([
           $this.attr("title", desc);
         }
         else {
-          $this.attr("title", $this.attr("ext"));
+          var displayTitle = $this.find("> .element .title").text();
+          var filename = $this.attr("ext");
+          var fallbackDisplayTitle = (displayTitle && displayTitle.trim().length > 0 && displayTitle !== filename) ? displayTitle : "-";
+          var tooltip = "Display name: " + fallbackDisplayTitle + "\n" + "Filename: " + filename;
+          $this.attr("title", tooltip);
         }
       });
 

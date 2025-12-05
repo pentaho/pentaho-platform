@@ -360,8 +360,8 @@ define([
       window.parent.executeCommand("FilePropertiesCommand", this.buildParameter(path));
     },
 
-    renameHandler: function (path) {
-      this.renameDialog.init(path, "file");
+    renameHandler: function (path, title) {
+      this.renameDialog.init(path, title, "file");
     }
   };
 
