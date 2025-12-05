@@ -1288,14 +1288,20 @@ define([
           url: url,
           success: function (response) {
 
-            if (response.children) {
-              response = customSort(response);
-
-              var toAppend = templates.folders(reformatResponse(response));
-              $target.find("> .folders").append(toAppend ? toAppend : "");
-              
-              myself.updateDescriptions();
+            if (!response.children) {
+              // `null` children, despite depth=1, signals an error fetching the children,
+              // on an existing folder (e.g. an invalid/unreachable VFS connection).
+              $target.removeClass(LOADING_FOLDER_CLASS);
+              $target.addClass(ERROR_FOLDER_CLASS);
+              return;
             }
+
+            response = customSort(response);
+
+            var toAppend = templates.folders(reformatResponse(response));
+            $target.find("> .folders").append(toAppend ? toAppend : "");
+
+            myself.updateDescriptions();
 
             // set the widths of new folder descriptions
             $target.find(".element").each(function () {
@@ -1312,6 +1318,7 @@ define([
             $target.addClass("open").find("> .folders").show();
           },
           error: function () {
+            // E.g. folder does not exist (anymore).
             $target.removeClass(LOADING_FOLDER_CLASS);
             $target.addClass(ERROR_FOLDER_CLASS);
             //TODO indicate some failure via dialog?
