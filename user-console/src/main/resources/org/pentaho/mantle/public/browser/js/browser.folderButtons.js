@@ -202,8 +202,8 @@ define([
     postPropertiesHandler: function () {
       $(window.parent.document).find(".pentaho-dialog:not(.modal)").attr("id", "browse-properties-dialog");
     },
-    renameHandler: function (path) {
-      this.renameDialog.init(path, "folder");
+    renameHandler: function (path, title) {
+      this.renameDialog.init(path, title, "folder");
     }
 
   };
