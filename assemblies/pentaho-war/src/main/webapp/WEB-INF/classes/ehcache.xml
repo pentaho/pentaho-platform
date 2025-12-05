@@ -112,8 +112,7 @@
     </expiry>
     <resources>
       <heap unit="entries">10000</heap>
-      <offheap unit="MB">100</offheap>
-      <disk unit="MB" persistent="false">100</disk>
+      <offheap unit="MB">50</offheap>
     </resources>
   </cache>
 
@@ -125,8 +124,7 @@
     </expiry>
     <resources>
       <heap unit="entries">10000</heap>
-      <offheap unit="MB">100</offheap>
-      <disk unit="MB" persistent="false">100</disk>
+      <offheap unit="MB">50</offheap>
     </resources>
   </cache>
 
@@ -138,8 +136,7 @@
     </expiry>
     <resources>
       <heap unit="entries">10000</heap>
-      <offheap unit="MB">100</offheap>
-      <disk unit="MB" persistent="false">100</disk>
+      <offheap unit="MB">50</offheap>
     </resources>
   </cache>
 
