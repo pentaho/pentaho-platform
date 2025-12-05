@@ -5,10 +5,10 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>9.3.0.10-886</version>
+    <version>9.3.0.10-888</version>
   </parent>
   <artifactId>pentaho-platform-scheduler</artifactId>
-  <version>9.3.0.10-886</version>
+  <version>9.3.0.10-888</version>
   <properties>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
@@ -66,19 +66,19 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-versionchecker</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -144,7 +144,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>9.3.0.10-886</version>
+      <version>9.3.0.10-888</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
