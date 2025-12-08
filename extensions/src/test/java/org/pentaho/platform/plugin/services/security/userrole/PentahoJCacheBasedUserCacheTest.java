@@ -52,8 +52,8 @@ public class PentahoJCacheBasedUserCacheTest {
     CacheManager cacheManager = mock( CacheManager.class );
 
     when( Caching.getCachingProvider() ).thenReturn( provider );
-    when( provider.getCacheManager() ).thenReturn( cacheManager );
-    when( cacheManager.createCache( anyString(), any() ) ).thenReturn( jcache );
+    when( provider.getCacheManager(any(), any()) ).thenReturn( cacheManager );
+    when( cacheManager.getCache( anyString() ) ).thenReturn( jcache );
     userCache = new PentahoJCacheBasedUserCache( true );
   }
 
