@@ -1456,7 +1456,7 @@ define([
           var displayTitle = $this.find("> .element .title").text();
           var filename = $this.attr("ext");
           var fallbackDisplayTitle = (displayTitle && displayTitle.trim().length > 0 && displayTitle !== filename) ? displayTitle : "-";
-          var tooltip = "Display name: " + fallbackDisplayTitle + "\n" + "Folder name: " + filename;
+          var tooltip = "Display name: " + fallbackDisplayTitle + "\n" + "File name: " + filename;
           $this.attr("title", tooltip);
         }
       });
