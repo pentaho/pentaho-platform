@@ -27,7 +27,7 @@ define(["common-ui/handlebars"],
       templates.dialogDoRename = Handlebars.compile(
           "<p>{{i18n 'renameName'}}</p>" +
               "<input id='rename-field' type='text'>" +
-              "<p style='margin-top: 15px;'>{{i18n 'renameTitle'}}</p>" +
+              "<p style='margin-top: 15px;'>{{i18n 'renameDisplayName'}}</p>" +
               "<input id='title-field' type='text' readonly='readonly' style='background-color: #f5f5f5; cursor: not-allowed;'>");
 
       return templates;

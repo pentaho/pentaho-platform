@@ -1942,9 +1942,10 @@ define([
           $this.attr("title", desc);
         }
         else {
-          var displayTitle = $this.find("> .element .title").text();
+          var displayTitle = $this.children('.title').text();
           var filename = $this.attr("ext");
-          var fallbackDisplayTitle = (displayTitle && displayTitle.trim().length > 0 && displayTitle !== filename) ? displayTitle : "-";
+          var filenameNoExt = filename.replace(/\.[^.]+$/, "");
+          var fallbackDisplayTitle = (displayTitle && displayTitle.trim().length > 0 && displayTitle !== filenameNoExt && displayTitle !== filename) ? displayTitle : "-";
           var tooltip = "Display name: " + fallbackDisplayTitle + "\n" + "File name: " + filename;
           $this.attr("title", tooltip);
         }
