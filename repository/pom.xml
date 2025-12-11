@@ -431,6 +431,10 @@
           <artifactId>commons-pool</artifactId>
           <groupId>commons-pool</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>tika-core</artifactId>
+          <groupId>org.apache.tika</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
