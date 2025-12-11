@@ -329,7 +329,9 @@ define([
             });
 
         var titleValue = me.model.get("title");
-        this.$dialog.find("#title-field").val((titleValue && titleValue.trim().length > 0 && titleValue !== me.model.get("name")) ? titleValue : "-");
+        var titleNoExt = titleValue.replace(/\.[^.]+$/, ""); // needed because of upload bug
+        var name = me.model.get("name") || "";
+        this.$dialog.find("#title-field").val((titleValue && titleValue.trim().length > 0 && titleNoExt !== name && titleValue !== name) ? titleValue : "-");
       };
 
       this.RenameDialog = new Dialog(cfg, onShow);
