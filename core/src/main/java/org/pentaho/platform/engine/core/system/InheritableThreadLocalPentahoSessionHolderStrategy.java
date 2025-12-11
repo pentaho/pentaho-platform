@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.engine.core.system;
 
@@ -79,7 +80,7 @@ public class InheritableThreadLocalPentahoSessionHolderStrategy implements IPent
 
   /**
    * Removes the IPentahoSession for the current thread. It is important that the framework calls this to prevent
-   * session bleed- through between requests as threads are re-used by the server.
+   * session bleed-through between requests as threads are re-used by the server.
    */
   public void removeSession() {
     IPentahoSession sess = perThreadSession.get();

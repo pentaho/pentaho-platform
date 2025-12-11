@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importexport.legacy;
 
@@ -83,9 +84,9 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
   public DbSolutionRepositoryImportSource( final DataSource dataSource, final String srcCharset,
       final String requiredCharset, final String ownerName ) {
     super();
-    Assert.notNull( dataSource );
+    Assert.notNull( dataSource, "DataSource must not be null" );
     this.jdbcTemplate = new JdbcTemplate( dataSource );
-    Assert.hasLength( srcCharset );
+    Assert.hasLength( srcCharset, "Source charset must not be null or empty" );
     this.srcCharset = srcCharset;
     this.requiredCharset = requiredCharset;
     this.ownerName = ownerName;
@@ -105,7 +106,7 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
    * @return
    */
   public Iterable<IRepositoryFileBundle> getFiles() {
-    Assert.hasLength( requiredCharset );
+    Assert.hasLength( requiredCharset, "Required charset must not be null or empty" );
     return new Iterable<IRepositoryFileBundle>() {
       public Iterator<IRepositoryFileBundle> iterator() {
         return new RepositoryFileBundleIterator();
@@ -364,7 +365,7 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
       }
 
       private String getExtension( final String name ) {
-        Assert.notNull( name );
+        Assert.notNull( name, "File name must not be null" );
         int lastDot = name.lastIndexOf( '.' );
         if ( lastDot > -1 ) {
           return name.substring( lastDot + 1 ).toLowerCase();

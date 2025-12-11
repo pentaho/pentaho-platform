@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.jcr;
 
@@ -349,6 +350,14 @@ public class RepositoryFileProxy extends RepositoryFile {
       Calendar tmpCal = node.getProperty( getPentahoJcrConstants().getPHO_LASTMODIFIED() ).getDate();
       if ( tmpCal != null ) {
         lastModified = tmpCal.getTime();
+      }
+    } else if ( JcrRepositoryFileUtils.isPentahoFolder( getPentahoJcrConstants(), node ) && node.hasNode( getPentahoJcrConstants().getPHO_METADATA() ) ) {
+      Node metadataNode = node.getNode( getPentahoJcrConstants().getPHO_METADATA() );
+      if ( metadataNode.hasProperty( getPentahoJcrConstants().getPHO_LASTMODIFIED() ) ) {
+        Calendar tmpCal = metadataNode.getProperty( getPentahoJcrConstants().getPHO_LASTMODIFIED() ).getDate();
+        if ( tmpCal != null ) {
+          lastModified = tmpCal.getTime();
+        }
       }
     }
     return lastModified;
