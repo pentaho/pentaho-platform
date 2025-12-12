@@ -178,9 +178,11 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
 
     HttpSession httpSession = httpRequest.getSession( false );
     if ( httpSession != null ) {
+      logger.debug( String.format( "generating new Pentaho session %s", httpSession.getId() ));
       pentahoSession = new PentahoHttpSession( null, httpSession, httpRequest.getLocale(), null );
     } else {
       pentahoSession = new NoDestroyStandaloneSession( null );
+      logger.debug( String.format( "generating new STANDALONE Pentaho session %s", pentahoSession.getId() ) );
     }
 
     if ( callSetAuthenticatedForAnonymousUsers ) {
@@ -236,6 +238,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     }
 
     HttpSession httpSession = safeGetSession( httpRequest, forceEagerSessionCreation );
+    logger.debug( String.format( "HttpSession obtained: %s", httpSession == null ? "null" : httpSession.getId() ) );
     boolean httpSessionExistedAtStartOfRequest = httpSession != null;
     IPentahoSession pentahoSessionBeforeChainExecution = readPentahoSessionFromHttpSession( httpSession );
 
@@ -254,11 +257,15 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
 
       if ( logger.isDebugEnabled() ) {
         logger.debug( "Found no IPentahoSession in HTTP session; created new IPentahoSession" );
+        logger.debug( String.format( "New session created %s %s %s ", pentahoSessionBeforeChainExecution.getId(),
+          pentahoSessionBeforeChainExecution.getName(), pentahoSessionBeforeChainExecution.getActionName() ) );
       }
     } else {
       if ( logger.isDebugEnabled() ) {
         logger.debug( "Obtained a valid IPentahoSession from HTTP session to "
           + "associate with PentahoSessionHolder: '" + pentahoSessionBeforeChainExecution + "'" );
+        logger.debug( String.format( "Existing session %s %s %s ", pentahoSessionBeforeChainExecution.getId(),
+          pentahoSessionBeforeChainExecution.getName(), pentahoSessionBeforeChainExecution.getActionName() ) );
       }
     }
 

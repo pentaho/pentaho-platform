@@ -157,4 +157,6 @@ public interface IUnifiedRepositoryWebService {
   void setLocalePropertiesForFileByFileId( final String fileId, final String locale, final Properties properties );
 
   void deleteLocalePropertiesForFile( final String fileId, final String locale );
+
+  default void logout() { }
 }

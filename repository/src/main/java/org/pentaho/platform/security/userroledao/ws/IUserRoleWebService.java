@@ -159,4 +159,6 @@ public interface IUserRoleWebService {
    * @throws UserRoleException
    */
   public void updateRole( String roleName, String description, List<String> usernames ) throws UserRoleException;
+
+  public default void logout() { }
 }

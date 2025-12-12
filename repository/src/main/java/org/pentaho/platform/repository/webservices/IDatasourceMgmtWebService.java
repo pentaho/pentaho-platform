@@ -37,4 +37,6 @@ public interface IDatasourceMgmtWebService {
 
   public String updateDatasourceById( String id, DatabaseConnectionDto databaseConnection );
 
+  public default void logout() { }
+
 }

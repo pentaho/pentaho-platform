@@ -46,4 +46,9 @@ public class DiUnifiedRepositoryJaxwsWebService extends DefaultUnifiedRepository
   public List<RepositoryFileDto> getDeletedFiles() {
     return marshalFiles( repo.getAllDeletedFiles() );
   }
+
+  @Override
+  public void logout() {
+    // no-op, handled in PentahoWSSpringServlet
+  }
 }

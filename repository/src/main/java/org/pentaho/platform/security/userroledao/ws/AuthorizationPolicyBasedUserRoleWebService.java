@@ -40,4 +40,9 @@ public class AuthorizationPolicyBasedUserRoleWebService extends UserRoleWebServi
     }
     return policy.isAllowed( AdministerSecurityAction.NAME ); //$NON-NLS-1$
   }
+
+  @Override
+  public void logout() {
+    // no-op, handled in PentahoWSSpringServlet
+  }
 }

@@ -18,4 +18,6 @@ import jakarta.jws.WebService;
 @WebService
 public interface IRepositorySyncWebService {
   public RepositorySyncStatus sync( String repositoryId, String repositoryUrl ) throws RepositorySyncException;
+
+  public default void logout() { }
 }
