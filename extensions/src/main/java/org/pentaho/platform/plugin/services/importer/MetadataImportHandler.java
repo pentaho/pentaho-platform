@@ -52,9 +52,9 @@ public class MetadataImportHandler implements IPlatformImportHandler {
   private static final String AGILE_BI_VERSION_PROPERTY = "AGILE_BI_VERSION";
   private static final String WIZARD_GENERATED_PROPERTY = "WIZARD_GENERATED_SCHEMA";
 
-  private List<IMimeType> mimeTypes;
+  private final List<IMimeType> mimeTypes;
 
-  IPentahoMetadataDomainRepositoryImporter metadataRepositoryImporter;
+  private final IPentahoMetadataDomainRepositoryImporter metadataRepositoryImporter;
 
   public MetadataImportHandler( List<IMimeType> mimeTypes,
                                 final IPentahoMetadataDomainRepositoryImporter metadataImporter ) {
