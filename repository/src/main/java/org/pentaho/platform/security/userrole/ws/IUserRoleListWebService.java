@@ -56,4 +56,5 @@ public interface IUserRoleListWebService {
 
   public List<String> getAllUsersForTenant( Tenant tenant );
 
+  public default void logout() { }
 }

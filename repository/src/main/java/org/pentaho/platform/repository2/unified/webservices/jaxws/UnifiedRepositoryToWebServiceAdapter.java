@@ -536,4 +536,9 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
         versionMessage ) );
   }
 
+  @Override
+  public void logout() {
+    repoWebService.logout();
+  }
+
 }

@@ -70,4 +70,8 @@ public class DefaultAuthorizationPolicyWebService implements IAuthorizationPolic
     return policy.isAllowed( actionName );
   }
 
+  @Override
+  public void logout() {
+    // no-op, handled in PentahoWSSpringServlet
+  }
 }

@@ -96,4 +96,9 @@ public class DefaultRoleAuthorizationPolicyRoleBindingDaoWebService implements
   public void setRoleBindingsForTenant( Tenant tenant, String runtimeRoleName, List<String> logicalRolesNames ) {
     roleBindingDao.setRoleBindings( tenant, runtimeRoleName, logicalRolesNames );
   }
+
+  @Override
+  public void logout() {
+    // no-op, handled in PentahoWSSpringServlet
+  }
 }
