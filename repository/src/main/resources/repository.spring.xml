@@ -606,6 +606,8 @@
         <value>org.pentaho.repository.read</value>
         <value>org.pentaho.repository.create</value>
         <value>org.pentaho.scheduler.manage</value>
+        <value>com.pentaho.userconsole.plugins.pas-home.display</value>
+        <value>com.pentaho.userconsole.plugins.pas-browse-files.display</value>
       </util:list>
     </entry>
     <!-- for single tenant mode -->
@@ -615,6 +617,8 @@
     <value>org.pentaho.repository.read</value>
     <value>org.pentaho.repository.create</value>
     <value>org.pentaho.scheduler.manage</value>
+    <value>com.pentaho.userconsole.plugins.pas-home.display</value>
+    <value>com.pentaho.userconsole.plugins.pas-browse-files.display</value>
   </util:list>
 
   <bean id="roleAuthorizationPolicyRoleBindingDaoTxn" class="org.springframework.aop.framework.ProxyFactoryBean">
