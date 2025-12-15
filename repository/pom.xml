@@ -20,6 +20,7 @@
     <hamcrest-library.version>2.2</hamcrest-library.version>
     <hamcrest-core.version>2.2</hamcrest-core.version>
     <xmlunit.version>1.3</xmlunit.version>
+    <tika-core.version>3.2.3</tika-core.version>
     <maven-surefire-plugin.argLine> --add-opens=java.base/java.lang=ALL-UNNAMED </maven-surefire-plugin.argLine>
     <maven-failsafe-plugin.argLine> --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.management/javax.management.openmbean=ALL-UNNAMED --add-opens=java.management/javax.management=ALL-UNNAMED </maven-failsafe-plugin.argLine>
   </properties>
@@ -502,7 +503,16 @@
           <artifactId>commons-pool</artifactId>
           <groupId>commons-pool</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>tika-core</artifactId>
+          <groupId>org.apache.tika</groupId>
+        </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <artifactId>tika-core</artifactId>
+      <groupId>org.apache.tika</groupId>
+      <version>${tika-core.version}</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
