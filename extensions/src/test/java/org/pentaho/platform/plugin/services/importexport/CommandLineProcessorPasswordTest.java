@@ -45,7 +45,8 @@ public class CommandLineProcessorPasswordTest {
   private static MockedStatic<EnvUtil>  envUtilMock;
 
   @BeforeClass
-  public static void beforeAll() {
+  public static void beforeAll() throws Exception {
+    KettleClientEnvironment.init();
     envUtilMock = mockStatic( EnvUtil.class );
     envUtilMock.when( () -> EnvUtil.getSystemProperty( Const.KETTLE_REDIRECT_STDOUT, "N" ) ).thenReturn( "N" );
     envUtilMock.when( () -> EnvUtil.getSystemProperty( Const.KETTLE_REDIRECT_STDERR, "N" ) ).thenReturn( "N" );
