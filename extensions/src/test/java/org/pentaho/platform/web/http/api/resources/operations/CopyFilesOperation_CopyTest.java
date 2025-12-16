@@ -19,6 +19,7 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
@@ -30,6 +31,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doNothing;
@@ -72,7 +75,7 @@ public class CopyFilesOperation_CopyTest {
   private static final String NAME_DIR_2 = "dir-2";
 
   private static final String PATH_DIR_1 = "path/to/dir1/" + NAME_DIR_1;
-  private static final String PATH_DIR_2 = "path/to/dir1/" + NAME_DIR_2;
+  private static final String PATH_DIR_2 = "path/to/dir2/" + NAME_DIR_2;
 
   @Before
   public void init() {
@@ -103,7 +106,7 @@ public class CopyFilesOperation_CopyTest {
     List<String> listOfFiles = new ArrayList<>();
     listOfFiles.add( DEFAULT );
 
-    String destDirPath = "/destintion";
+    String destDirPath = "/destination";
     mockFile( generateID(), DEFAULT, destDirPath );
     new CopyFilesOperation( repo, webService, listOfFiles, destDirPath, 2 );
   }
@@ -119,13 +122,14 @@ public class CopyFilesOperation_CopyTest {
       new CopyFilesOperation( repo, webService, getIdList( file1, file2 ), PATH_DEST_DIR,
         FileService.MODE_OVERWRITE );
 
-    // emulate, file with the same name exists.
+    // emulate, file with the same name exists (file1).
     RepositoryFile conflictFile = mockFile( generateID(), DEFAULT, PATH_DEST_DIR + SEPARATOR + NAME_FILE_1 );
 
     operation = spy( operation );
 
     RepositoryFileDto fileDto = mock( RepositoryFileDto.class );
     doReturn( conflictFile ).when( operation ).toFile( fileDto );
+    //noinspection unchecked
     doReturn( fileDto ).when( operation ).toFileDto( eq( conflictFile ), nullable( Set.class ), nullable( Boolean.class ) );
 
     doReturn( conflictFile ).when( repo )
@@ -133,7 +137,18 @@ public class CopyFilesOperation_CopyTest {
 
     operation.execute();
 
-    verify( repo ).updateFile( eq( conflictFile ), nullable( IRepositoryFileData.class ), nullable( String.class ) );
+    verify( repo, times( 1 ) )
+      .updateFile( notNull( RepositoryFile.class ), nullable( IRepositoryFileData.class ), nullable( String.class ) );
+    verify( repo )
+      .updateFile( eq( conflictFile ), nullable( IRepositoryFileData.class ), nullable( String.class ) );
+
+    verify( repo, times( 1 ) )
+      .createFile( notNull( Serializable.class ), nullable( RepositoryFile.class ),
+        nullable( IRepositoryFileData.class ), nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+    verify( repo )
+      .createFile( eq( destFolder.getId() ),
+        argThat( file -> file != null && NAME_FILE_2.equals( file.getName() ) ),
+        nullable( IRepositoryFileData.class ), nullable( RepositoryFileAcl.class ), nullable( String.class ) );
   }
 
   @Test
@@ -142,20 +157,23 @@ public class CopyFilesOperation_CopyTest {
       new CopyFilesOperation( repo, webService, getIdList( file1, file2 ), PATH_DEST_DIR,
         FileService.MODE_NO_OVERWRITE );
 
-    // emulate, file with the same name exists.
+    // emulate, file with the same name exists (file1).
     mockFile( generateID(), DEFAULT, PATH_DEST_DIR + SEPARATOR + NAME_FILE_1 );
 
     operation.execute();
 
-    Serializable destFolderId = destFolder.getId();
-
     // one file should be created, as there was 2 files, and 1 conflict
     verify( repo, times( 1 ) )
-      .createFile( eq( destFolderId ), nullable( RepositoryFile.class ), nullable( IRepositoryFileData.class ), nullable(
-        RepositoryFileAcl.class ), nullable( String.class ) );
+      .createFile( notNull( Serializable.class ), nullable( RepositoryFile.class ),
+        nullable( IRepositoryFileData.class ), nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+    verify( repo )
+      .createFile( eq( destFolder.getId() ),
+        argThat( file -> file != null && NAME_FILE_2.equals( file.getName() ) ),
+        nullable( IRepositoryFileData.class ), nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+
     verify( repo, never() )
-      .createFolder( nullable( Serializable.class ), nullable( RepositoryFile.class ), nullable( RepositoryFileAcl.class ),
-        nullable( String.class ) );
+      .createFolder( nullable( Serializable.class ), nullable( RepositoryFile.class ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
   }
 
   @Test
@@ -164,8 +182,22 @@ public class CopyFilesOperation_CopyTest {
       new CopyFilesOperation( repo, webService, getIdList( folder1, folder2 ), PATH_DEST_DIR,
         FileService.MODE_NO_OVERWRITE );
 
-    // emulate, file with the same name exists.
+    // emulate, folder with the same name exists (folder1).
     mockFolder( generateID(), DEFAULT, PATH_DEST_DIR + SEPARATOR + NAME_DIR_1 );
+
+    // spy clone method to return the same folder
+    doReturn( folder2 ).when( folder2 ).clone();
+
+    RepositoryFile newFolder2 = mock( RepositoryFile.class );
+    doReturn( generateID() ).when( newFolder2 ).getId();
+    doReturn( true ).when( newFolder2 ).isFolder();
+    doReturn( NAME_DIR_2 ).when( newFolder2 ).getName();
+    doReturn( PATH_DEST_DIR + SEPARATOR + NAME_DIR_2 ).when( newFolder2 ).getPath();
+
+    doReturn( newFolder2 ).when( repo )
+      .createFolder( notNull( Serializable.class ),
+        argThat( folder -> folder != null && ( NAME_DIR_2 ).equals( folder.getName() ) ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
 
     operation = spy( operation );
     doNothing().when( operation )
@@ -173,17 +205,73 @@ public class CopyFilesOperation_CopyTest {
 
     operation.execute();
 
-    Serializable destFolderId = destFolder.getId();
-
-    verify( repo, times( 1 ) ).createFolder( eq( destFolderId ), nullable( RepositoryFile.class ),
-      nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+    verify( repo, times( 1 ) )
+      .createFolder( notNull( Serializable.class ), nullable( RepositoryFile.class ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+    verify( repo )
+      .createFolder( eq( destFolder.getId() ),
+        argThat( folder -> folder != null && ( NAME_DIR_2 ).equals( folder.getName() ) ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
 
     verify( operation, times( 1 ) )
       .performFolderDeepCopy( nullable( RepositoryFile.class ), nullable( RepositoryFile.class ), anyInt() );
+    verify( operation, times( 1 ) )
+      .performFolderDeepCopy(
+        argThat( folder -> folder != null && ( NAME_DIR_2 ).equals( folder.getName() ) ),
+        argThat( folder -> folder != null && ( PATH_DEST_DIR + SEPARATOR + NAME_DIR_2 ).equals( folder.getPath() ) ), anyInt() );
 
     verify( repo, never() )
-      .createFile( nullable( RepositoryFile.class ), nullable( RepositoryFile.class ), nullable( IRepositoryFileData.class ), any(
-        RepositoryFileAcl.class ), nullable( String.class ) );
+      .createFile( nullable( RepositoryFile.class ), nullable( RepositoryFile.class ),
+        nullable( IRepositoryFileData.class ), any( RepositoryFileAcl.class ), nullable( String.class ) );
+  }
+
+  @Test
+  public void copyFolders_NoOverwriteMode_NestedSelfCopy() {
+    CopyFilesOperation operation =
+      new CopyFilesOperation( repo, webService, getIdList( destFolder ), PATH_DEST_DIR,
+        FileService.MODE_NO_OVERWRITE );
+
+    // spy clone method to return the same folder
+    doReturn( destFolder ).when( destFolder ).clone();
+
+    RepositoryFile newDestFolder = mock( RepositoryFile.class );
+    doReturn( generateID() ).when( newDestFolder ).getId();
+    doReturn( true ).when( newDestFolder ).isFolder();
+    doReturn( NAME_DEST_DIR ).when( newDestFolder ).getName();
+    doReturn( PATH_DEST_DIR + SEPARATOR + NAME_DEST_DIR ).when( newDestFolder ).getPath();
+
+    doReturn( newDestFolder ).when( repo )
+      .createFolder( notNull( Serializable.class ),
+        argThat( folder -> folder != null && ( NAME_DEST_DIR ).equals( folder.getName() ) ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+
+    // newDestFolder is a child of the mocked destFolder
+    // allows testing for infinite recursion protection when copying a folder into itself
+    doReturn( List.of( newDestFolder ) ).when( repo )
+      .getChildren( notNull( RepositoryRequest.class ) );
+
+    operation = spy( operation );
+
+    operation.execute();
+
+    verify( repo, times( 1 ) )
+      .createFolder( notNull( Serializable.class ), nullable( RepositoryFile.class ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+    verify( repo )
+      .createFolder( eq( destFolder.getId() ),
+        argThat( folder -> folder != null && ( NAME_DEST_DIR ).equals( folder.getName() ) ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+
+    verify( operation, times( 1 ) )
+      .performFolderDeepCopy( nullable( RepositoryFile.class ), nullable( RepositoryFile.class ), anyInt() );
+    verify( operation, times( 1 ) )
+      .performFolderDeepCopy(
+        argThat( folder -> folder != null && ( NAME_DEST_DIR ).equals( folder.getName() ) ),
+        argThat( folder -> folder != null && ( PATH_DEST_DIR + SEPARATOR + NAME_DEST_DIR ).equals( folder.getPath() ) ), anyInt() );
+
+    verify( repo, never() )
+      .createFile( nullable( RepositoryFile.class ), nullable( RepositoryFile.class ),
+        nullable( IRepositoryFileData.class ), any( RepositoryFileAcl.class ), nullable( String.class ) );
   }
 
   @Test
@@ -192,22 +280,30 @@ public class CopyFilesOperation_CopyTest {
       new CopyFilesOperation( repo, webService, getIdList( file1, file2 ), PATH_DEST_DIR,
         FileService.MODE_RENAME );
 
-    // emulate, file with the same name exists.
+    // emulate, file with the same name exists (file1).
     RepositoryFile conflict = mockFile( generateID(), DEFAULT, PATH_DEST_DIR + SEPARATOR + NAME_FILE_1 );
     String conflictFilePath = conflict.getPath();
     RepositoryFileDto dtoConflictFile = mock( RepositoryFileDto.class );
 
-    doReturn( dtoConflictFile ).when( webService ).getFile( eq( conflictFilePath ) );
+    doReturn( dtoConflictFile ).when( webService ).getFile( conflictFilePath );
 
     operation.execute();
 
     verify( repo, times( 2 ) )
-      .createFile( eq( destFolder.getId() ), nullable( RepositoryFile.class ), nullable( IRepositoryFileData.class ),
-        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+      .createFile( notNull( Serializable.class ), nullable( RepositoryFile.class ),
+        nullable( IRepositoryFileData.class ), nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+    verify( repo )
+      .createFile( eq( destFolder.getId() ),
+        argThat( file -> file != null && "file-1-Copy.prpt".equals( file.getName() ) ),
+        nullable( IRepositoryFileData.class ), nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+    verify( repo )
+      .createFile( eq( destFolder.getId() ),
+        argThat( file -> file != null && NAME_FILE_2.equals( file.getName() ) ),
+        nullable( IRepositoryFileData.class ), nullable( RepositoryFileAcl.class ), nullable( String.class ) );
 
     verify( repo, never() )
-      .createFolder( nullable( RepositoryFile.class ), nullable( RepositoryFile.class ), nullable( RepositoryFileAcl.class ),
-        nullable( String.class ) );
+      .createFolder( nullable( RepositoryFile.class ), nullable( RepositoryFile.class ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
   }
 
   @Test
@@ -216,31 +312,103 @@ public class CopyFilesOperation_CopyTest {
       new CopyFilesOperation( repo, webService, getIdList( folder1, folder2 ), PATH_DEST_DIR,
         FileService.MODE_RENAME );
 
-    // emulate, file with the same name exists.
+    // emulate, folder with the same name exists (folder2).
     RepositoryFile conflict = mockFolder( generateID(), DEFAULT, PATH_DEST_DIR + SEPARATOR + NAME_DIR_2 );
     String conflictFolderPath = conflict.getPath();
     RepositoryFileDto dtoConflictFolder = mock( RepositoryFileDto.class );
 
-    doReturn( dtoConflictFolder ).when( webService ).getFile( eq( conflictFolderPath ) );
+    doReturn( dtoConflictFolder ).when( webService ).getFile( conflictFolderPath );
+
+    doReturn( mockFolder( generateID(), NAME_DIR_1, PATH_DEST_DIR + SEPARATOR + NAME_DIR_1 ) ).when( repo )
+      .createFolder( notNull( Serializable.class ),
+        argThat( folder -> folder != null && ( NAME_DIR_1 ).equals( folder.getName() ) ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+
+    doReturn( mockFolder( generateID(), NAME_DIR_2 + "-Copy", PATH_DEST_DIR + SEPARATOR + NAME_DIR_2 + "-Copy" ) ).when( repo )
+      .createFolder( notNull( Serializable.class ),
+        argThat( folder -> folder != null && ( NAME_DIR_2 + "-Copy" ).equals( folder.getName() ) ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
 
     operation = spy( operation );
 
     operation.execute();
 
     verify( repo, times( 2 ) )
-      .createFolder( eq( destFolder.getId() ), nullable( RepositoryFile.class ), nullable( RepositoryFileAcl.class ),
-        nullable( String.class ) );
+      .createFolder( notNull( Serializable.class ), nullable( RepositoryFile.class ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+    verify( repo )
+      .createFolder( eq( destFolder.getId() ),
+        argThat( folder -> folder != null && ( NAME_DIR_1 ).equals( folder.getName() ) ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+    verify( repo )
+      .createFolder( eq( destFolder.getId() ),
+        argThat( folder -> folder != null && ( NAME_DIR_2 + "-Copy" ).equals( folder.getName() ) ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
 
     verify( operation, times( 2 ) )
       .performFolderDeepCopy( nullable( RepositoryFile.class ), nullable( RepositoryFile.class ), anyInt() );
+    verify( operation )
+      .performFolderDeepCopy(
+        argThat( folder -> folder != null && ( NAME_DIR_1 ).equals( folder.getName() ) ),
+        argThat( folder -> folder != null && ( PATH_DEST_DIR + SEPARATOR + NAME_DIR_1 ).equals( folder.getPath() ) ), anyInt() );
+    verify( operation )
+      .performFolderDeepCopy(
+        argThat( folder -> folder != null && ( NAME_DIR_2 ).equals( folder.getName() ) ),
+        argThat( folder -> folder != null && ( PATH_DEST_DIR + SEPARATOR + NAME_DIR_2 + "-Copy" ).equals( folder.getPath() ) ), anyInt() );
 
     verify( repo, never() )
-      .createFile( nullable( Serializable.class ), nullable( RepositoryFile.class ), nullable( IRepositoryFileData.class ),
+      .createFile( nullable( Serializable.class ), nullable( RepositoryFile.class ),
+        nullable( IRepositoryFileData.class ), nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+  }
+
+  @Test
+  public void copyFolders_RenameMode_NestedSelfCopy() {
+    CopyFilesOperation operation =
+      new CopyFilesOperation( repo, webService, getIdList( destFolder ), PATH_DEST_DIR,
+        FileService.MODE_RENAME );
+
+    RepositoryFile newDestFolder = mock( RepositoryFile.class );
+    doReturn( generateID() ).when( newDestFolder ).getId();
+    doReturn( true ).when( newDestFolder ).isFolder();
+    doReturn( NAME_DEST_DIR ).when( newDestFolder ).getName();
+    doReturn( PATH_DEST_DIR + SEPARATOR + NAME_DEST_DIR ).when( newDestFolder ).getPath();
+
+    doReturn( newDestFolder ).when( repo )
+      .createFolder( notNull( Serializable.class ),
+        argThat( folder -> folder != null && ( NAME_DEST_DIR ).equals( folder.getName() ) ),
         nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+
+    // newDestFolder is a child of the mocked destFolder
+    // allows testing for infinite recursion protection when copying a folder into itself
+    doReturn( List.of( newDestFolder ) ).when( repo )
+      .getChildren( notNull( RepositoryRequest.class ) );
+
+    operation = spy( operation );
+
+    operation.execute();
+
+    verify( repo, times( 1 ) )
+      .createFolder( notNull( Serializable.class ), nullable( RepositoryFile.class ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+    verify( repo )
+      .createFolder( eq( destFolder.getId() ),
+        argThat( folder -> folder != null && ( NAME_DEST_DIR ).equals( folder.getName() ) ),
+        nullable( RepositoryFileAcl.class ), nullable( String.class ) );
+
+    verify( operation, times( 1 ) )
+      .performFolderDeepCopy( nullable( RepositoryFile.class ), nullable( RepositoryFile.class ), anyInt() );
+    verify( operation )
+      .performFolderDeepCopy(
+        argThat( folder -> folder != null && ( NAME_DEST_DIR ).equals( folder.getName() ) ),
+        argThat( folder -> folder != null && ( PATH_DEST_DIR + SEPARATOR + NAME_DEST_DIR ).equals( folder.getPath() ) ), anyInt() );
+
+    verify( repo, never() )
+      .createFile( nullable( Serializable.class ), nullable( RepositoryFile.class ),
+        nullable( IRepositoryFileData.class ), nullable( RepositoryFileAcl.class ), nullable( String.class ) );
   }
 
   private List<String> getIdList( final RepositoryFile... files ) {
-    return new ArrayList<String>() {
+    return new ArrayList<>() {
       {
         for ( RepositoryFile file : files ) {
           add( file.getId().toString() );
