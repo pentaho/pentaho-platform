@@ -1542,12 +1542,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>${h2.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>infobright</groupId>
       <artifactId>infobright-core</artifactId>
       <version>${infobright-core.version}</version>
