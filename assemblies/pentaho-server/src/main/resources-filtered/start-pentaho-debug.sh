@@ -35,7 +35,18 @@ setPentahoEnv "$DIR/jre"
 DI_HOME="$DIR"/pentaho-solutions/system/kettle
 
 cd "$DIR/tomcat/bin"
-CATALINA_OPTS="-Xms2048m -Xmx6144m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8044 -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dfile.encoding=utf8 -Djava.locale.providers=COMPAT,SPI -DDI_HOME=\"$DI_HOME\""
+# Defaults (can be overridden by env vars)
+: "${JAVA_XMS:=2048m}"
+: "${JAVA_XMX:=6144m}"
+: "${JAVA_OPTS_EXTRA:=}"
+
+DEFAULT_CATALINA_OPTS="-Xms${JAVA_XMS} -Xmx${JAVA_XMX} -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8044 -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dfile.encoding=utf8 -Djava.locale.providers=COMPAT,SPI -DDI_HOME=\"$DI_HOME\""
+CATALINA_OPTS="$DEFAULT_CATALINA_OPTS"
+
+# Allow extras from docker-compose without replacing defaults
+if [ -n "$JAVA_OPTS_EXTRA" ]; then
+  CATALINA_OPTS="$CATALINA_OPTS $JAVA_OPTS_EXTRA"
+fi
   #Add this property to CATALINA_OPTS change the equivalent value of "SaveOnlyUsedConnectionsToXML" property on the server. Please see JIRA PDI-20078 for more information
   #-DSTRING_ONLY_USED_DB_TO_XML=N"
 
