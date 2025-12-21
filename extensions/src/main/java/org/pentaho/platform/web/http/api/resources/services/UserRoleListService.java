@@ -7,25 +7,26 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources.services;
 
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.web.http.api.resources.RoleListWrapper;
 import org.pentaho.platform.web.http.api.resources.UserListWrapper;
+import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class UserRoleListService {
 
@@ -48,7 +49,7 @@ public class UserRoleListService {
       throw new UnauthorizedException();
     }
 
-    return getRolesForUser( user );
+    return sortRoles( getRolesForUser( user ) );
   }
 
   public List<String> doGetUsersInRole( String role ) throws UnauthorizedException {
@@ -56,18 +57,15 @@ public class UserRoleListService {
       throw new UnauthorizedException();
     }
 
-    return getUsersInRole( role );
+    return sortUsers( getUsersInRole( role ) );
   }
 
   public UserListWrapper getUsers() {
     IUserRoleListService service = getUserRoleListService();
 
-    List<String> allUsers = service.getAllUsers();
-    if ( userComparator != null ) {
-      allUsers.sort( userComparator );
-    }
+    List<String> allUsers = new ArrayList<>( service.getAllUsers() );
 
-    return new UserListWrapper( allUsers );
+    return new UserListWrapper( sortUsers( allUsers ) );
   }
 
   public RoleListWrapper getRoles() {
@@ -75,17 +73,18 @@ public class UserRoleListService {
   }
 
   public RoleListWrapper getRoles( boolean includeExtraRoles ) {
-    List<String> roles = getUserRoleListService().getAllRoles();
+    List<String> roles = new ArrayList<>( getUserRoleListService().getAllRoles() );
     /* If we need to exclude extra roles from the list of roles, we will remove it here.
     /  One thing to note that if a user has a role which is same as the extra role, that
     /  role will be removed as well. So we do not recommend user having same roles as the
     /  extra roles */
-    if ( !includeExtraRoles ) {
-      for ( String role : getExtraRoles() ) {
+    if ( !includeExtraRoles && extraRoles != null ) {
+      for ( String role : extraRoles ) {
         roles.remove( role );
       }
     }
-    return new RoleListWrapper( roles );
+
+    return new RoleListWrapper( sortRoles( roles ) );
   }
 
   public RoleListWrapper getAllRoles() {
@@ -95,26 +94,23 @@ public class UserRoleListService {
   public RoleListWrapper getAllRoles( boolean excludeAnonymous ) {
     Set<String> existingRoles = new HashSet<>( getUserRoleListService().getAllRoles() );
 
-    List<String> allRoles = getExtraRoles();
-    if ( allRoles == null ) {
-      allRoles = new ArrayList<>();
+    if ( extraRoles != null ) {
+      existingRoles.addAll( extraRoles );
     }
 
     if ( systemRoles != null ) {
-      allRoles.addAll( systemRoles );
+      existingRoles.addAll( systemRoles );
     }
-
-    existingRoles.addAll( allRoles );
 
     if ( excludeAnonymous && getAnonymousRole() != null ) {
       existingRoles.remove( getAnonymousRole() );
     }
 
-    return new RoleListWrapper( existingRoles );
+    return new RoleListWrapper( sortRoles( existingRoles ) );
   }
 
   public RoleListWrapper getSystemRoles() {
-    return new RoleListWrapper( systemRoles );
+    return new RoleListWrapper( sortRoles( systemRoles ) );
   }
 
   /**
@@ -123,7 +119,7 @@ public class UserRoleListService {
    * @return A list of roles.
    */
   public RoleListWrapper getPermissionRoles() {
-    List<String> allRoles = getUserRoleListService().getAllRoles();
+    List<String> allRoles = new ArrayList<>( getUserRoleListService().getAllRoles() );
 
     // We will not allow user to update permission for Administrator.
     // Using getAdminRole() to support mocking in unit tests.
@@ -141,22 +137,15 @@ public class UserRoleListService {
       }
     }
 
-    if ( roleComparator != null ) {
-      allRoles.sort( roleComparator );
-    }
-
-    return new RoleListWrapper( allRoles );
+    return new RoleListWrapper( sortRoles( allRoles ) );
   }
 
   public RoleListWrapper getExtraRolesList() {
-    return new RoleListWrapper( getExtraRoles() );
+    return new RoleListWrapper( sortRoles( getExtraRoles() ) );
   }
 
   protected boolean canAdminister() {
-    IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
-    return policy.isAllowed( RepositoryReadAction.NAME )
-      && policy.isAllowed( RepositoryCreateAction.NAME )
-      && ( policy.isAllowed( AdministerSecurityAction.NAME ) );
+    return SystemUtils.canAdminister();
   }
 
   public IUserRoleListService getUserRoleListService() {
@@ -209,6 +198,26 @@ public class UserRoleListService {
 
   public void setAnonymousRole( String anonymousRole ) {
     this.anonymousRole = anonymousRole;
+  }
+
+  protected List<String> sortRoles( Collection<String> roles ) {
+    Stream<String> rolesStream = roles.stream();
+
+    if ( roleComparator != null ) {
+      rolesStream = rolesStream.sorted( roleComparator );
+    }
+
+    return rolesStream.collect( Collectors.toList() );
+  }
+
+  protected List<String> sortUsers( Collection<String> users ) {
+    Stream<String> usersStream = users.stream();
+
+    if ( userComparator != null ) {
+      usersStream = usersStream.sorted( userComparator );
+    }
+
+    return usersStream.collect( Collectors.toList() );
   }
 
   public static class UnauthorizedException extends Exception {

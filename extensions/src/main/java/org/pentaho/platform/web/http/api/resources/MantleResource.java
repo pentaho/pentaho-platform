@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources;
 
@@ -17,9 +18,9 @@ import org.pentaho.platform.config.PropertiesFileConfiguration;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
  * This service provides methods related to mantle deeplink allowed hosts

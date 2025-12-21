@@ -4,14 +4,14 @@
        xmlns:util="http://www.springframework.org/schema/util"
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
        xmlns:sec="http://www.springframework.org/schema/security"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
-                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd
-                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-5.8.xsd
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
                            http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
        default-lazy-init="true">
 
-  <!-- <bean class="org.pentaho.platform.engine.core.system.objfac.spring.ApplicationContextPentahoSystemRegisterer"
-      lazy-init="false"/> -->
+  <bean class="org.pentaho.platform.engine.core.system.objfac.spring.ApplicationContextPentahoSystemRegisterer"
+      lazy-init="false"/>
 
 
   <bean id="propertyPlaceholderConfigurerRepository"
@@ -541,10 +541,9 @@
     <constructor-arg ref="bootstrapRoleBindingMap"/>
     <constructor-arg ref="superAdminAuthorityName"/>
     <constructor-arg ref="tenantedRoleNameUtils"/>
-    <!-- <constructor-arg>
+    <constructor-arg>
       <pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/>
-    </constructor-arg> -->
-    <constructor-arg ref="AuthorizationActions" />
+    </constructor-arg>
   </bean>
 
 
@@ -592,23 +591,12 @@
     </pen:publish>
   </bean>
 
-    <!-- This is a temporary workaround for a problem where the Actions are not
-    being registered with Pentaho system for unit tests -->
-    <util:list id="AuthorizationActions">
-        <ref bean="RepositoryReadAction"/>
-        <ref bean="RepositoryCreateAction"/>
-        <ref bean="SchedulerExecuteAction"/>
-        <ref bean="SchedulerAction"/>
-        <ref bean="AdministerSecurityAction"/>
-        <ref bean="PublishAction"/>
-    </util:list>
-
   <util:map id="immutableRoleBindingMap">
     <entry key-ref="singleTenantAdminAuthorityName">
-        <ref bean="AuthorizationActions"/>
+      <pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/>
     </entry>
     <entry key-ref="superAdminAuthorityName">
-      <ref bean="AuthorizationActions"/>
+      <pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/>
     </entry>
   </util:map>
 
@@ -618,6 +606,8 @@
         <value>org.pentaho.repository.read</value>
         <value>org.pentaho.repository.create</value>
         <value>org.pentaho.scheduler.manage</value>
+        <value>com.pentaho.userconsole.plugins.pas-home.display</value>
+        <value>com.pentaho.userconsole.plugins.pas-browse-files.display</value>
       </util:list>
     </entry>
     <!-- for single tenant mode -->
@@ -627,6 +617,8 @@
     <value>org.pentaho.repository.read</value>
     <value>org.pentaho.repository.create</value>
     <value>org.pentaho.scheduler.manage</value>
+    <value>com.pentaho.userconsole.plugins.pas-home.display</value>
+    <value>com.pentaho.userconsole.plugins.pas-browse-files.display</value>
   </util:list>
 
   <bean id="roleAuthorizationPolicyRoleBindingDaoTxn" class="org.springframework.aop.framework.ProxyFactoryBean">

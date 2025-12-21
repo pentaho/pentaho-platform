@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 define([
   "common-ui/jquery-pentaho-i18n",
@@ -201,8 +202,8 @@ define([
     postPropertiesHandler: function () {
       $(window.parent.document).find(".pentaho-dialog:not(.modal)").attr("id", "browse-properties-dialog");
     },
-    renameHandler: function (path) {
-      this.renameDialog.init(path, "folder");
+    renameHandler: function (path, title) {
+      this.renameDialog.init(path, title, "folder");
     }
 
   };

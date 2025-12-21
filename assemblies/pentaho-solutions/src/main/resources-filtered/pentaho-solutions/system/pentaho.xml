@@ -30,12 +30,13 @@
     System admins must change what are the users/roles that have permissions for download action.
     If not defined here, the default value is set to 'Administrator'.
   -->
-  <download-roles>Administrator</download-roles>
+  <download-roles>Administrator,Authenticated</download-roles>
 
   <!--
     This is the URL to the user guide
+    TODO: URL may need to include version number.
   -->
-  <documentation-url>${doc.base.url}/mk-95pdia004/pentaho-user-console</documentation-url>
+  <documentation-url>https://docs.pentaho.com/pba/11.0-pba/pentaho-user-console</documentation-url>
 
   <log-file>server.log</log-file>
   <log-level>DEBUG</log-level>
@@ -63,17 +64,18 @@
 		or interpret an XML document.
 	-->
 
-        <cache-provider>
-          <class>org.pentaho.platform.plugin.services.cache.HvCacheRegionFactory</class>
-          <region>pentahoCache</region>
-          <!--
-          Uncomment this block to specify some parameters for your cache provider. EHCache has no parameters
-          other than what are provided in the ehcache.xml.
-          <properties>
-              <property name="someProperty">someValue</property>
-          </properties>
-          -->
-        </cache-provider>
+    <cache-provider>
+      <!-- Not using this anymore since pentaho uses JCache. Underlying implementation will be chosen by JCache  -->
+      <class>org.pentaho.platform.plugin.services.cache.HvCacheRegionFactory</class>
+      <region>pentahoCache</region>
+      <!--
+      Uncomment this block to specify some parameters for your cache provider. EHCache has no parameters
+      other than what are provided in the ehcache.xml.
+      <properties>
+          <property name="someProperty">someValue</property>
+      </properties>
+      -->
+    </cache-provider>
 	<!-- Insert additional pentaho-system -->
 
     <audit>

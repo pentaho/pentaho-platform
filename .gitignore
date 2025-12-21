@@ -1,5 +1,6 @@
 bin/
 .idea/
+.vscode/
 *.iml
 .settings
 .metadata/
@@ -26,3 +27,8 @@ extensions/localhost.tmp/
 logs/
 target/
 http:/
+c:/
+derby.log
+dumpTestAdminCreate.zip
+repository/src/test/resources/solution/system/data/hibernate.log
+repository/src/test/resources/solution/system/data/hibernate.properties
