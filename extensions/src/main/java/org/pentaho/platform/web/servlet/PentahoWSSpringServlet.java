@@ -15,11 +15,15 @@ package org.pentaho.platform.web.servlet;
 
 import com.sun.xml.ws.transport.http.servlet.ServletAdapterList;
 import com.sun.xml.ws.transport.http.servlet.WSServletDelegate;
+
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.jaxws.spring.SpringBinding;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
@@ -88,7 +92,15 @@ public class PentahoWSSpringServlet extends HttpServlet {
   }
 
   protected void doPost( HttpServletRequest request, HttpServletResponse response ) throws ServletException {
+    String soapAction = request.getHeader("SOAPAction");
+    // Handle logout requests by invoking Spring Security logout handler
     delegate.doPost( request, response, getServletContext() );
+    if ( soapAction.endsWith( "logoutRequest\"" ) ) {
+      IPentahoSession userSession = PentahoSessionHolder.getSession();
+      PentahoSystem.invokeLogoutListeners( userSession );
+      SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+      logoutHandler.logout( request, response, null );
+    }
   }
 
   protected void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException {

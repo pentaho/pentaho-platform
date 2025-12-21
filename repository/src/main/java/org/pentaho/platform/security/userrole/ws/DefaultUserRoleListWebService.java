@@ -97,4 +97,8 @@ public class DefaultUserRoleListWebService implements IUserRoleListWebService {
     return userRoleListService.getAllUsers( tenant );
   }
 
+  @Override
+  public void logout() {
+    // no-op, handled in PentahoWSSpringServlet
+  }
 }

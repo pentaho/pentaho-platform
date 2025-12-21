@@ -70,4 +70,6 @@ public interface IRoleAuthorizationPolicyRoleBindingDaoWebService {
 
   List<String> getBoundLogicalRoleNamesForTenant( final Tenant tenant, final List<String> runtimeRoleNames );
 
+  public default void logout() { }
+
 }
