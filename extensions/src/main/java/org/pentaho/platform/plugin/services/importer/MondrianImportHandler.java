@@ -67,8 +67,8 @@ public class MondrianImportHandler implements IPlatformImportHandler {
 
   protected static final String DEFAULT_PROVIDER = "mondrian";
 
-  private List<IMimeType> mimeTypes;
-  IMondrianCatalogService mondrianRepositoryImporter;
+  private final List<IMimeType> mimeTypes;
+  private final IMondrianCatalogService mondrianRepositoryImporter;
 
   public MondrianImportHandler( List<IMimeType> mimeTypes, final IMondrianCatalogService mondrianImporter ) {
     if ( mondrianImporter == null ) {

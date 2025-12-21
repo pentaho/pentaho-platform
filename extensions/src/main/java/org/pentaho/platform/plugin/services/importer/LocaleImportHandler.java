@@ -60,9 +60,9 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
   private static final String TITLE_PROPERTY_NAME = "name";
   private static final String DESC_PROPERTY_NAME = "description";
 
-  private List<String> artifacts; // spring injected file extensions
+  private final List<String> artifacts; // spring injected file extensions
 
-  private IUnifiedRepository unifiedRepository;
+  private final IUnifiedRepository unifiedRepository;
 
   public LocaleImportHandler( List<IMimeType> mimeTypes, List<String> artifacts ) {
     super( mimeTypes );
