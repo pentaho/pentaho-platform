@@ -18,7 +18,27 @@ cd tomcat\bin
 SET "CATALINA_HOME=%~dp0tomcat"
 SET "DI_HOME=%~dp0pentaho-solutions\system\kettle"
 
-SET "CATALINA_OPTS=-Xms2048m -Xmx6144m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8044 -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dfile.encoding=utf8 -Djava.locale.providers=COMPAT,SPI -DDI_HOME="%DI_HOME%""
+REM =========================================================
+REM Defaults (can be overridden by environment variables)
+REM =========================================================
+IF NOT DEFINED JAVA_XMS set "JAVA_XMS=2048m"
+IF NOT DEFINED JAVA_XMX set "JAVA_XMX=6144m"
+IF NOT DEFINED JAVA_OPTS_EXTRA set "JAVA_OPTS_EXTRA="
+
+REM =========================================================
+REM Build default CATALINA_OPTS from defaults
+REM (Keep this as close to your original as possible)
+REM =========================================================
+set "DEFAULT_CATALINA_OPTS=-Xms%JAVA_XMS% -Xmx%JAVA_XMX% -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8044 -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dfile.encoding=utf8 -Djava.locale.providers=COMPAT,SPI -DDI_HOME="%DI_HOME%""
+set "CATALINA_OPTS=%DEFAULT_CATALINA_OPTS%"
+REM =========================================================
+REM Allow extras (append only; do not replace defaults)
+REM =========================================================
+IF DEFINED JAVA_OPTS_EXTRA (
+  IF NOT "%JAVA_OPTS_EXTRA%"=="" (
+    set "CATALINA_OPTS=%CATALINA_OPTS% %JAVA_OPTS_EXTRA%"
+  )
+)
 
 REM Add this property to change the equivalent value of "SaveOnlyUsedConnectionsToXML" property on the server. Please see JIRA PDI-20078 for more information
 REM set CATALINA_OPTS=%CATALINA_OPTS% -DSTRING_ONLY_USED_DB_TO_XML=N
