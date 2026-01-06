@@ -114,10 +114,11 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     importHelpers.add( helper );
   }
 
-  public void runImportHelpers() {
+
+  private void runImportHelpers( IImportHelper.ImportContext context )  {
     for ( IImportHelper helper : importHelpers ) {
       try {
-        helper.doImport( this );
+        helper.doImport( context );
       } catch ( ImportException exportException ) {
         logger.error( "Error performing backup of component [ " + helper.getName() + " ] Cause [ " + exportException.getLocalizedMessage() + " ]" );
         System.out.println( exportException.getLocalizedMessage() );
@@ -177,12 +178,32 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     if ( manifest != null ) {
       // to be removed when interfaces are updated
       overwriteFile = bundle.overwriteInRepository();
-      runImportHelpers();
+      runImportHelpers( getImportCtx( importState ) );
     }
     if ( importState.partialImport ) {
       throw new PlatformImportException( "Some files have invalid mime types",
         PlatformImportException.PUBLISH_PARTIAL_UPLOAD );
     }
+  }
+
+  private IImportHelper.ImportContext getImportCtx( ImportState state ) {
+    return new IImportHelper.ImportContext() {
+
+      @Override
+      public Log getLogger() {
+        return getImportSession().getLogger();
+      }
+
+      @Override
+      public boolean isPerformingRestore() {
+        return state.isPerformingRestore;
+      }
+
+      @Override
+      public boolean isOverwriteFile() {
+        return state.overwriteFile;
+      }
+    };
   }
 
   protected void importRepositoryFilesAndFolders( ExportManifest manifest, IPlatformImportBundle bundle, ImportState importState ) throws IOException {
