@@ -297,12 +297,12 @@
         Search index and the file system it uses.
         class: FQN of class implementing the QueryHandler interface
     -->
-    <!--
-    <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
-      <param name="path" value="${wsp.home}/index"/>
-      <param name="supportHighlighting" value="true"/>
-    </SearchIndex>
-    -->
+  <!--
+  <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
+    <param name="path" value="${wsp.home}/index"/>
+    <param name="supportHighlighting" value="true"/>
+  </SearchIndex>
+  -->
 
 
   <WorkspaceSecurity>
