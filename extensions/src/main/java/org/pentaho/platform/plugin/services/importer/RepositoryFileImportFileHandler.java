@@ -387,20 +387,21 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       } else {
         getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.ExtraMetaDataToExistingFile" ) );
       }
-      // Reverse conversion for Calendar values serialized as ISO-8601 strings in the manifest
-      Map<String, Serializable> metadata = repositoryFileExtraMetaData.getExtraMetaData();
-      for ( Map.Entry<String, Serializable> entry : metadata.entrySet() ) {
-        Serializable val = entry.getValue();
-        if ( val instanceof String stringVal ) {
+      // Convert lastModified from ISO-8601 string back to Calendar
+      Map<String, Serializable> convertedMetadata = new HashMap<>();
+      for ( Map.Entry<String, Serializable> entry : repositoryFileExtraMetaData.getExtraMetaData().entrySet() ) {
+        if ( "lastModified".equals( entry.getKey() ) && entry.getValue() instanceof String stringVal ) {
           try {
             XMLGregorianCalendar xgc = DatatypeFactory.newInstance().newXMLGregorianCalendar( stringVal );
-            entry.setValue( xgc.toGregorianCalendar() );
+            convertedMetadata.put( entry.getKey(), xgc.toGregorianCalendar() );
           } catch ( Exception e ) {
             throw new PlatformImportException( "Failed to parse lastModified value", e );
           }
+        } else {
+          convertedMetadata.put( entry.getKey(), entry.getValue() );
         }
       }
-      repository.setFileMetadata( repositoryFile.getId(), metadata );
+      repository.setFileMetadata( repositoryFile.getId(), convertedMetadata );
     }
   }
 
