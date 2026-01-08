@@ -85,7 +85,7 @@ public class UserRoleDaoServiceTest {
 
     SecurityHelper.setMockInstance( mock( ISecurityHelper.class ) );
     Properties props = mock( Properties.class );
-    when( props.getProperty( UserRoleDaoService.PUC_USER_PASSWORD_LENGTH ) ).thenReturn( "0" );
+    when( props.getProperty( UserRoleDaoService.PUC_USER_PASSWORD_MIN_LENGTH ) ).thenReturn( "0" );
     when( props.getProperty( UserRoleDaoService.PUC_USER_PASSWORD_REQUIRE_SPECIAL_CHARACTER ) ).thenReturn( "false" );
     IConfiguration config = mock( IConfiguration.class );
     when( config.getProperties() ).thenReturn( props );

@@ -63,7 +63,8 @@ import java.util.regex.Pattern;
 
 public class UserRoleDaoService {
   private static final String PASS_VALIDATION_ERROR_WRONG_PASS = "UserRoleDaoService.PassValidationError_WrongPass";
-  public static final String PUC_USER_PASSWORD_LENGTH = "PUC_USER_PASSWORD_LENGTH";
+  public static final String PUC_USER_PASSWORD_MIN_LENGTH = "PUC_USER_PASSWORD_LENGTH";
+  private static final int PUC_USER_PASSWORD_MAX_LENGTH = 72;
   public static final String PUC_USER_PASSWORD_REQUIRE_SPECIAL_CHARACTER = "PUC_USER_PASSWORD_REQUIRE_SPECIAL_CHARACTER";
   private static final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]-]+$";
   private static final String ALLOWED_CHARS_LIST = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ] -";
@@ -218,7 +219,7 @@ public class UserRoleDaoService {
     boolean isSpecCharReq = false;
     IConfiguration securityConfig = this.systemConfig.getConfiguration( "security" );
     try {
-      String reqPassLengthStr = securityConfig.getProperties().getProperty( PUC_USER_PASSWORD_LENGTH );
+      String reqPassLengthStr = securityConfig.getProperties().getProperty( PUC_USER_PASSWORD_MIN_LENGTH );
       if ( !StringUtils.isEmpty( reqPassLengthStr ) ) {
         reqPassLength = Integer.parseInt( reqPassLengthStr );
       }
@@ -237,8 +238,9 @@ public class UserRoleDaoService {
     ArrayList<String> validationCriteria = new ArrayList<>();
 
     if ( reqPassLength > 0 ) {
-      validationCriteria.add( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_Length", Integer.toString( reqPassLength ) ) );
+      validationCriteria.add( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_MinLength", Integer.toString( reqPassLength ) ) );
     }
+    validationCriteria.add( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_MaxLength", Integer.toString( PUC_USER_PASSWORD_MAX_LENGTH ) ) );
     if ( isSpecCharReq ) {
       validationCriteria.add( Messages.getInstance().getString( "UserRoleDaoService.PassValidationError_SpecChar" ) );
     }
@@ -250,6 +252,7 @@ public class UserRoleDaoService {
     errorMsg = errorMsg + String.join( ", ", validationCriteria ) + ".";
 
     if ( ( password.length() >= reqPassLength )
+      && ( password.length() <= PUC_USER_PASSWORD_MAX_LENGTH )
       && allowedCharsMatcher.matches()
       && ( !isSpecCharReq || specCharsMatcher.matches() ) ) {
 
