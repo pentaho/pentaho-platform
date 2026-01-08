@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified;
 
@@ -69,7 +70,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   public ExceptionLoggingDecorator( final IUnifiedRepository delegatee,
       final Map<String, ExceptionConverter> exceptionConverterMap ) {
     super();
-    Assert.notNull( delegatee );
+    Assert.notNull( delegatee, "Delegatee must not be null" );
     this.delegatee = delegatee;
     this.exceptionConverterMap = exceptionConverterMap;
   }

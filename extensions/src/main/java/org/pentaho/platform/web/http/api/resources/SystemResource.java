@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources;
 
@@ -25,6 +26,7 @@ import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.IPluginOperation;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDtoWrapper;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -36,14 +38,14 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.services.SystemService;
 import org.pentaho.platform.web.http.messages.Messages;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.GenericEntity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,9 +53,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 /**
  * This api provides methods for discovering information about the system
@@ -141,7 +143,12 @@ public class SystemResource extends AbstractJaxRSResource {
         timeZones.put( tzId, formatTimezoneIdToDisplayName( tzId ) );
       }
     }
-    return new TimeZoneWrapper( timeZones, TimeZone.getDefault().getID() );
+    List<TimeZoneEntry> entries = new ArrayList<>();
+    timeZones.keySet().stream().forEach( tzId -> {
+      entries.add( new TimeZoneEntry( tzId, timeZones.get( tzId ) ) );
+    } );
+
+    return new TimeZoneWrapper( new TimeZoneWrapper.TimeZonesEntries( entries ), TimeZone.getDefault().getID() );
   }
 
   private String formatTimezoneIdToDisplayName( String tzId ) {
@@ -206,7 +213,7 @@ public class SystemResource extends AbstractJaxRSResource {
   @GET
   @Produces( { APPLICATION_XML, APPLICATION_JSON } )
   @Facet ( name = "Unsupported" )
-  public Response getExecutableTypes() {
+  public ExecutableFileTypeDtoWrapper getExecutableTypes() {
     ArrayList<ExecutableFileTypeDto> executableTypes = new ArrayList<ExecutableFileTypeDto>();
     for ( String contentType : pluginManager.getContentTypes() ) {
       IContentInfo contentInfo = pluginManager.getContentTypeInfo( contentType );
@@ -222,7 +229,7 @@ public class SystemResource extends AbstractJaxRSResource {
     final GenericEntity<List<ExecutableFileTypeDto>> entity =
       new GenericEntity<List<ExecutableFileTypeDto>>( executableTypes ) {
       };
-    return Response.ok( entity ).build();
+    return new ExecutableFileTypeDtoWrapper( executableTypes );
   }
 
   private boolean hasOperationId( final List<IPluginOperation> operations, final String operationId ) {
