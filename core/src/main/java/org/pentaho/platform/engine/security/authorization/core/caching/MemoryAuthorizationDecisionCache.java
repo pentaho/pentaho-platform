@@ -470,6 +470,12 @@ public class MemoryAuthorizationDecisionCache implements
   // region Per-session cache management
   @NonNull
   protected Cache<IAuthorizationDecisionCacheKey, IAuthorizationDecision> createSessionCache() {
+    return createSessionCacheBuilder().build();
+  }
+
+  @VisibleForTesting
+  @NonNull
+  protected CacheBuilder<Object, Object> createSessionCacheBuilder() {
     final var cacheBuilder = CacheBuilder.newBuilder()
       .expireAfterWrite( expireAfterWrite, TimeUnit.SECONDS )
       .maximumSize( maximumSize );
@@ -478,7 +484,7 @@ public class MemoryAuthorizationDecisionCache implements
       cacheBuilder.recordStats();
     }
 
-    return cacheBuilder.build();
+    return cacheBuilder;
   }
 
   @NonNull
