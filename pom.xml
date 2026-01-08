@@ -35,7 +35,6 @@
     <activation.version>1.1</activation.version>
     <enunciate-jersey-rt.version>1.27</enunciate-jersey-rt.version>
     <pentaho-json.version>11.1.0.0-SNAPSHOT</pentaho-json.version>
-    <poi.version>5.2.5</poi.version>
     <commons-math3.version>3.6.1</commons-math3.version>
     <curvesapi.version>1.06</curvesapi.version>
     <groovy-all.version>2.4.21</groovy-all.version>
@@ -181,6 +180,9 @@
     <com.github.spotbugs.annotations.version>4.2.3</com.github.spotbugs.annotations.version>
     <jboss-logging.version>3.4.3.Final</jboss-logging.version>
     <classmate.version>1.6.0</classmate.version>
+    <xmlbeans.version>5.3.0</xmlbeans.version>
+    <commons-compress.version>1.28.0</commons-compress.version>
+    <commons-io.version>2.21.0</commons-io.version>
   </properties>
 
   <dependencyManagement>
