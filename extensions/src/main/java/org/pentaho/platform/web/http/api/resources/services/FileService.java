@@ -21,6 +21,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.logging.log4j.Level;
+import org.pentaho.di.core.bowl.Bowl;
+import org.pentaho.di.core.bowl.DefaultBowl;
+import org.pentaho.di.core.vfs.IKettleVFS;
+import org.pentaho.di.core.vfs.KettleVFS;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISystemConfig;
@@ -1001,7 +1005,23 @@ public class FileService {
         }
       }
     }
-    return getRepoWs().hasAccess( idToPath( pathId ), permissionList ) ? "true" : "false";
+    if ( pathId.startsWith( "pvfs/" ) ) {
+      //TODO: do we need to encode the / to : on the UI?
+      pathId = pathId.replaceFirst( "pvfs/", "pvfs://" );
+      IKettleVFS vfs = KettleVFS.getInstance( getBowl() );
+      try {
+        // TODO: also need to make sure this user has access to the connection
+        return vfs.fileExists( pathId ) ? "true" : "false";
+      } catch ( Exception e ) {
+        return "false";
+      }
+    } else {
+      return getRepoWs().hasAccess( idToPath( pathId ), permissionList ) ? "true" : "false";
+    }
+  }
+
+  protected Bowl getBowl() {
+    return DefaultBowl.getInstance();
   }
 
   public StringBuffer doGetReservedChars() {
