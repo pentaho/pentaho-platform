@@ -13,6 +13,9 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
@@ -263,7 +266,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   }
 
   private void updateExtraMetaDataFromBundleHelper( RepositoryFileImportBundle bundle,
-                                                    RepositoryFile file, boolean isNew ) {
+                                                    RepositoryFile file, boolean isNew ) throws PlatformImportException {
     if ( bundle.getExtraMetaData() != null && bundle.getExtraMetaData().getExtraMetaData().size() > 0 ) {
       updateExtraMetaDataFromBundle( isNew, bundle, file );
     }
@@ -360,8 +363,9 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    *          The RepositoryImportBundle (which contains the effective manifest extraMetaData)
    * @param repositoryFile
    *          The <code>RepositoryFile</code> of the target file
+   * @throws PlatformImportException 
    */
-  private void updateExtraMetaDataFromBundle( boolean newFile, RepositoryFileImportBundle bundle, RepositoryFile repositoryFile ) {
+  private void updateExtraMetaDataFromBundle( boolean newFile, RepositoryFileImportBundle bundle, RepositoryFile repositoryFile ) throws PlatformImportException {
     updateExtraMetaData( newFile, repositoryFile, bundle.getExtraMetaData() );
   }
 
@@ -374,16 +378,30 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    *          The effect extraMetaData as defined in the manifest
    * @param repositoryFile
    *          The <code>RepositoryFile</code> of the target file
+   * @throws PlatformImportException 
    */
-  private void updateExtraMetaData( boolean newFile, RepositoryFile repositoryFile, RepositoryFileExtraMetaData repositoryFileExtraMetaData ) {
+  private void updateExtraMetaData( boolean newFile, RepositoryFile repositoryFile, RepositoryFileExtraMetaData repositoryFileExtraMetaData ) throws PlatformImportException {
     if ( repositoryFileExtraMetaData != null && !repositoryFileExtraMetaData.getExtraMetaData().isEmpty() ) {
       if ( newFile ) {
         getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.ExtraMetaDataToNewFile" ) );
       } else {
         getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.ExtraMetaDataToExistingFile" ) );
       }
-      RepositoryFileExtraMetaData manifestExtraMetaData = repositoryFileExtraMetaData;
-      repository.setFileMetadata( repositoryFile.getId(), manifestExtraMetaData.getExtraMetaData() );
+      // Convert lastModified from ISO-8601 string back to Calendar
+      Map<String, Serializable> convertedMetadata = new HashMap<>();
+      for ( Map.Entry<String, Serializable> entry : repositoryFileExtraMetaData.getExtraMetaData().entrySet() ) {
+        if ( "lastModified".equals( entry.getKey() ) && entry.getValue() instanceof String ) {
+          try {
+            XMLGregorianCalendar xgc = DatatypeFactory.newInstance().newXMLGregorianCalendar( (String) entry.getValue() );
+            convertedMetadata.put( entry.getKey(), xgc.toGregorianCalendar() );
+          } catch ( Exception e ) {
+            throw new PlatformImportException( "Failed to parse lastModified value", e );
+          }
+        } else {
+          convertedMetadata.put( entry.getKey(), entry.getValue() );
+        }
+      }
+      repository.setFileMetadata( repositoryFile.getId(), convertedMetadata );
     }
   }
 
