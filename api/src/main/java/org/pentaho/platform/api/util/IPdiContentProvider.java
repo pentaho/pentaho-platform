@@ -13,6 +13,7 @@
 
 package org.pentaho.platform.api.util;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public interface IPdiContentProvider {
@@ -41,7 +42,7 @@ public interface IPdiContentProvider {
    *          ktr/kjb filePath
    * @return list of user input parameters' name
    */
-  Map<String, String> getUserParameters(String kettleFilePath );
+  Map<String, String> getUserParameters( String kettleFilePath );
 
   /**
    * lists variables for a given a ktr/kjb filePath
@@ -51,4 +52,26 @@ public interface IPdiContentProvider {
    * @return list of variables' name
    */
   Map<String, String> getVariables( String kettleFilePath );
+
+  /**
+   * lists user input parameters for a given FileObject
+   * 
+   * @param fileObject
+   *                       ktr/kjb FileObject
+   * @return list of user input parameters' name
+   */
+  default Map<String, String> getUserParameters( Object fileObject ) {
+    return new HashMap<>();
+  }
+
+  /**
+   * lists variables for a given ktr/kjb FileObject
+   *
+   * @param fileObject
+   *                       ktr/kjb FileObject
+   * @return list of variables' name
+   */
+  default Map<String, String> getVariables( Object fileObject ) {
+    return new HashMap<>();
+  }
 }
