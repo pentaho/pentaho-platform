@@ -26,7 +26,6 @@
     <dependency>
       <groupId>jakarta.mail</groupId>
       <artifactId>jakarta.mail-api</artifactId>
-      <version>${jakarta.mail.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -38,7 +37,6 @@
     <dependency>
       <groupId>org.eclipse.angus</groupId>
       <artifactId>jakarta.mail</artifactId>
-      <version>${jakarta.mail-api.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
