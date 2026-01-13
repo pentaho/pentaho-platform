@@ -39,8 +39,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IConfiguration;
-import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
@@ -57,7 +57,6 @@ import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
-import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
@@ -109,6 +108,8 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
   private static MicroPlatform mp = new MicroPlatform();
 
   public static final String MAIN_TENANT_1 = "maintenant1";
+
+  private IPluginManager pluginManager;
 
   private IUnifiedRepository repo;
 
@@ -191,7 +192,7 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
     System.setProperty( SYSTEM_PROPERTY, "MODE_INHERITABLETHREADLOCAL" );
     mp = new MicroPlatform();
     mp.defineInstance( "tenantedUserNameUtils", tenantedUserNameUtils );
-    mp.define( IPluginManager.class, DefaultPluginManager.class, Scope.GLOBAL );
+    mp.defineInstance( IPluginManager.class, pluginManager );
     mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
     mp.defineInstance( ITenantManager.class, tenantManager );
     mp.define( ITenant.class, Tenant.class );
@@ -234,6 +235,7 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
       repositoryAdminUsername = null;
       adminAuthorityName = null;
       tenantAuthenticatedAuthorityName = null;
+      pluginManager = null;
       authorizationPolicy = null;
       testJcrTemplate = null;
     } finally {
@@ -328,6 +330,7 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
     testJcrTemplate = new JcrTemplate( jcrSessionFactory );
     testJcrTemplate.setAllowCreate( true );
     testJcrTemplate.setExposeNativeSession( true );
+    pluginManager = (IPluginManager) applicationContext.getBean( "IPluginManager" );
     repositoryAdminUsername = (String) applicationContext.getBean( "repositoryAdminUsername" );
     tenantAuthenticatedAuthorityName = (String) applicationContext.getBean( "singleTenantAuthenticatedAuthorityName" );
     adminAuthorityName = (String) applicationContext.getBean( "singleTenantAdminAuthorityName" );

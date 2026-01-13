@@ -56,6 +56,7 @@ import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -153,6 +154,7 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
 
   private IBackingRepositoryLifecycleManager manager;
 
+  private IPluginManager pluginManager;
   private IAuthorizationPolicy authorizationPolicy;
 
   IUserRoleDao userRoleDao;
@@ -227,6 +229,7 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
     mp = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/solution" );
     mp.setFullyQualifiedServerUrl( getBaseUri() + API_CONTEXT_PATH + "/" );
     // used by DefaultPentahoJackrabbitAccessControlHelper
+    mp.defineInstance( IPluginManager.class, pluginManager );
     mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
     mp.defineInstance( ITenantManager.class, tenantManager );
     mp.define( ITenant.class, Tenant.class );
@@ -271,6 +274,7 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
   public void tearDown() throws Exception {
     try {
       clearRoleBindings();
+      pluginManager = null;
       authorizationPolicy = null;
       loginAsRepositoryAdmin();
       SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
@@ -733,6 +737,7 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
     adminAuthorityName = (String) applicationContext.getBean( "singleTenantAdminAuthorityName" );
     sysAdminAuthorityName = (String) applicationContext.getBean( "superAdminAuthorityName" );
     sysAdminUserName = (String) applicationContext.getBean( "superAdminUserName" );
+    pluginManager = (IPluginManager) applicationContext.getBean( "IPluginManager" );
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean( "authorizationPolicy" );
     roleBindingDaoTarget =
       (IRoleAuthorizationPolicyRoleBindingDao) applicationContext

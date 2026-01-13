@@ -1,12 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<beans xmlns="http://www.springframework.org/schema/beans" 
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util"
        xmlns:sec="http://www.springframework.org/schema/security"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+                           http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd">
 
   <!-- Bean definitions in this file override bean definitions in repository.spring.xml. -->
+
+  <bean id="IPluginManager" class="org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager" />
+
+  <bean id="authorizationPolicy"
+        class="org.pentaho.platform.engine.security.authorization.AuthorizationServiceAuthorizationPolicy">
+    <constructor-arg ref="authorizationActionService"/>
+    <constructor-arg ref="authorizationService"/>
+    <constructor-arg ref="currentAuthorizationUserSupplier"/>
+  </bean>
+
+  <bean id="authorizationActionService"
+        class="org.pentaho.platform.engine.security.authorization.PentahoSystemAuthorizationActionService">
+    <constructor-arg ref="IPluginManager" />
+    <pen:publish as-type="INTERFACES" />
+  </bean>
+
+  <bean id="currentAuthorizationUserSupplier"
+        class="org.pentaho.platform.engine.security.authorization.spring.SpringSecurityContextAuthorizationUserSupplier">
+  </bean>
+
+  <bean id="authorizationDecisionCache"
+        class="org.pentaho.platform.engine.security.authorization.core.caching.MemoryAuthorizationDecisionCache">
+    <constructor-arg value="300" />
+    <constructor-arg value="100" />
+    <constructor-arg value="false" />
+    <constructor-arg value="240" />
+    <pen:publish as-type="INTERFACES" />
+  </bean>
+
+  <bean id="authorizationService"
+        class="org.pentaho.platform.engine.security.authorization.core.CachingAuthorizationService">
+    <constructor-arg ref="authorizationActionService" />
+    <constructor-arg ref="authorizationDecisionCache" />
+    <!-- Setting the rootRule as a property, instead of as a constructor arg, allows rules themselves to depend on the
+         authorizationService. While this does not appear to be a useful scenario, it is provided for flexibility, and
+         might avoid some third-party usage issues implementing rules. -->
+    <property name="rootRule" ref="rootAuthorizationRule" />
+    <pen:publish as-type="INTERFACES" />
+  </bean>
+
+  <bean id="rootAuthorizationRule"
+        class="org.pentaho.platform.engine.security.authorization.PentahoAuthorizationRuleLevel">
+    <constructor-arg ref="IPluginManager" />
+    <constructor-arg value="ANY" />
+    <constructor-arg value="absolute-grant" />
+    <constructor-arg>
+      <util:list>
+
+        <bean class="org.pentaho.platform.engine.security.authorization.PentahoAuthorizationRuleLevel">
+          <constructor-arg ref="IPluginManager" />
+          <constructor-arg value="ALL" />
+          <constructor-arg value="veto" />
+          <constructor-arg>
+            <util:list>
+
+              <bean class="org.pentaho.platform.engine.security.authorization.PentahoAuthorizationRuleLevel">
+                <constructor-arg ref="IPluginManager" />
+                <constructor-arg value="ANY" />
+                <constructor-arg value="grant" />
+                <constructor-arg value="true" type="boolean" />
+              </bean>
+            </util:list>
+          </constructor-arg>
+        </bean>
+      </util:list>
+    </constructor-arg>
+  </bean>
 
   <sec:authentication-manager alias="authenticationManager">
     <sec:authentication-provider>

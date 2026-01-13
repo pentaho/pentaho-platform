@@ -51,13 +51,10 @@ import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDtoWrapper;
 import org.pentaho.platform.api.util.LogUtil;
 import org.pentaho.platform.engine.core.solution.ContentInfo;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.BaseContentGenerator;
-import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
 import org.pentaho.platform.plugin.services.pluginmgr.PlatformPlugin;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
@@ -101,6 +98,7 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
   public static final String SYSTEM_PROPERTY = "spring.security.strategy";
 
   private final DefaultUnifiedRepositoryBase repositoryBase;
+  private IPluginManager pluginManager;
   private ITenant mainTenant_1;
   private String publicFolderPath;
 
@@ -153,14 +151,14 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
   @Before
   public void beforeTest() throws Exception {
     repositoryBase.setUp();
-    repositoryBase.getMp().define( IPluginManager.class, DefaultPluginManager.class, Scope.GLOBAL );
+    repositoryBase.getMp().defineInstance( IPluginManager.class, pluginManager );
     repositoryBase.getMp().defineInstance( IPluginResourceLoader.class, new PluginResourceLoader() {
       protected PluginClassLoader getOverrideClassloader() {
         return new PluginClassLoader( new File( TestResourceLocation.TEST_RESOURCES + "/PluginResourceTest/system/test-plugin" ), this );
       }
     } );
     repositoryBase.getMp().define( IPluginProvider.class, TestPlugin.class, Scope.GLOBAL );
-    PentahoSystem.get( IPluginManager.class ).reload();
+    pluginManager.reload();
     SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
 
     repositoryBase.loginAsRepositoryAdmin();
@@ -177,6 +175,7 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
   public void afterTest() throws Exception {
     repositoryBase.cleanupUserAndRoles( mainTenant_1 );
     repositoryBase.tearDown();
+    pluginManager = null;
   }
 
   @Test
@@ -535,6 +534,7 @@ public class RepositoryResourceIT extends JerseyTest implements ApplicationConte
   @Override
   public void setApplicationContext( final ApplicationContext applicationContext ) throws BeansException {
     repositoryBase.setApplicationContext( applicationContext );
+    pluginManager = (IPluginManager) applicationContext.getBean( "IPluginManager" );
   }
 
   protected void createTestFile( String pathId, String text ) {

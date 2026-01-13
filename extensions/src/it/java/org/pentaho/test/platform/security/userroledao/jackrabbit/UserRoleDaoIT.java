@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -207,6 +208,7 @@ public class UserRoleDaoIT implements ApplicationContextAware {
   private IBackingRepositoryLifecycleManager manager;
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
   private IAuthorizationPolicy authorizationPolicy;
+  private IPluginManager pluginManager;
   private MicroPlatform mp;
   private IRepositoryFileDao repositoryFileDao;
   private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
@@ -251,6 +253,7 @@ public class UserRoleDaoIT implements ApplicationContextAware {
   public void setUp() throws Exception {
     mp = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/solution" );
     // used by DefaultPentahoJackrabbitAccessControlHelper
+    mp.defineInstance( IPluginManager.class, pluginManager );
     mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
     mp.defineInstance( ITenantManager.class, tenantManager );
     mp.define( ITenant.class, Tenant.class );
@@ -288,6 +291,7 @@ public class UserRoleDaoIT implements ApplicationContextAware {
       cleanupTenant( mainTenant_1 );
       cleanupTenant( systemTenant );
 
+      pluginManager = null;
       authorizationPolicy = null;
       loginAsRepositoryAdmin();
       logout();
@@ -377,6 +381,7 @@ public class UserRoleDaoIT implements ApplicationContextAware {
     sysAdminRoleName = (String) applicationContext.getBean( "superAdminAuthorityName" );
     sysAdminUserName = (String) applicationContext.getBean( "superAdminUserName" );
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean( "authorizationPolicy" );
+    pluginManager = (IPluginManager) applicationContext.getBean( "IPluginManager" );
     tenantManager = (ITenantManager) applicationContext.getBean( "tenantMgrProxy" );
     repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean( "repositoryFileDao" );
     userRoleDaoProxy = (IUserRoleDao) applicationContext.getBean( "userRoleDaoTxn" );

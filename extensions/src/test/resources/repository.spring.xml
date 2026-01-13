@@ -512,14 +512,6 @@
 
   <!-- begin authorization policy -->
 
-  <bean id="authorizationPolicy" class="org.pentaho.platform.security.policy.rolebased.RoleAuthorizationPolicy">
-    <!--
-      authorization policy should not be blocked by security checks (because it is involved in doing the security
-      checks!)
-    -->
-    <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn"/>
-  </bean>
-
   <bean id="roleBindingDaoTransactionInterceptor"
         class="org.springframework.transaction.interceptor.TransactionInterceptor">
     <property name="transactionManager" ref="jcrTransactionManager"/>
@@ -544,49 +536,77 @@
     </constructor-arg>
   </bean>
 
-
   <!-- Built-In ABS Logical Roles -->
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction" id="RepositoryReadAction">
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction" id="repositoryReadAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="50"/>
       </pen:attributes>
     </pen:publish>
   </bean>
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction" id="RepositoryCreateAction">
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction" id="repositoryCreateAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="40"/>
       </pen:attributes>
     </pen:publish>
   </bean>
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.SchedulerExecuteAction" id="SchedulerExecuteAction">
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.SchedulerExecuteAction" id="schedulerExecuteAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="35"/>
       </pen:attributes>
     </pen:publish>
   </bean>
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction" id="SchedulerAction">
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction" id="schedulerAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="30"/>
       </pen:attributes>
     </pen:publish>
   </bean>
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction" id="AdministerSecurityAction">
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction" id="administerSecurityAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="20"/>
       </pen:attributes>
     </pen:publish>
   </bean>
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.PublishAction" id="PublishAction">
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.PublishAction" id="publishAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
         <pen:attr key="priority" value="0"/>
       </pen:attributes>
     </pen:publish>
+  </bean>
+
+  <!-- Rule that grants/denies based on explicit <Role, Action> bindings stored in the repository -->
+  <bean class="org.pentaho.platform.security.policy.rolebased.ActionRoleBindingAuthorizationRule">
+    <!--
+      authorization rule should not be blocked by security checks
+      (because it is involved in doing the security checks!)
+    -->
+    <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <!-- For performance reasons, evaluated this rule first, compared to e.g. derived action rules. -->
+        <pen:attr key="priority" value="20" />
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
+  <!-- AdministerSecurity => CreateContent  -->
+  <bean class="org.pentaho.platform.engine.security.authorization.core.rules.DerivedActionAuthorizationRule">
+    <constructor-arg ref="administerSecurityAction"/>
+    <constructor-arg ref="repositoryCreateAction"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+  <!-- CreateContent => ReadContent -->
+  <bean class="org.pentaho.platform.engine.security.authorization.core.rules.DerivedActionAuthorizationRule">
+    <constructor-arg ref="repositoryCreateAction"/>
+    <constructor-arg ref="repositoryReadAction"/>
+    <pen:publish as-type="INTERFACES"/>
   </bean>
 
   <util:map id="immutableRoleBindingMap">
