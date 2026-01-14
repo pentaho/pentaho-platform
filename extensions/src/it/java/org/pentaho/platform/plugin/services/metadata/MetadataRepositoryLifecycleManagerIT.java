@@ -13,21 +13,6 @@
 
 package org.pentaho.platform.plugin.services.metadata;
 
-import static junit.framework.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Workspace;
-import javax.jcr.security.AccessControlException;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.api.JackrabbitWorkspace;
 import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
@@ -39,7 +24,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IConfiguration;
-import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IUserRoleListService;
@@ -57,7 +41,6 @@ import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
-import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
@@ -78,16 +61,30 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactory;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
+import javax.jcr.security.AccessControlException;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import static junit.framework.Assert.assertTrue;
 
 /**
  * Class Description User: dkincade
@@ -108,6 +105,8 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
   private static MicroPlatform mp = new MicroPlatform();
 
   public static final String MAIN_TENANT_1 = "maintenant1";
+
+  private IPluginManager pluginManager;
 
   private IUnifiedRepository repo;
 
@@ -175,7 +174,7 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
     System.setProperty( SYSTEM_PROPERTY, "MODE_INHERITABLETHREADLOCAL" );
     mp = new MicroPlatform();
     mp.defineInstance( "tenantedUserNameUtils", tenantedUserNameUtils );
-    mp.define( IPluginManager.class, DefaultPluginManager.class, Scope.GLOBAL );
+    mp.defineInstance( IPluginManager.class, pluginManager );
     mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
     mp.defineInstance( ITenantManager.class, tenantManager );
     mp.define( ITenant.class, Tenant.class );
@@ -218,6 +217,7 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
     tenantAuthenticatedAuthorityName = null;
     authorizationPolicy = null;
     testJcrTemplate = null;
+    pluginManager = null;
     if ( startupCalled ) {
       manager.shutdown();
     }
@@ -297,6 +297,7 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
     testJcrTemplate = new JcrTemplate( jcrSessionFactory );
     testJcrTemplate.setAllowCreate( true );
     testJcrTemplate.setExposeNativeSession( true );
+    pluginManager = (IPluginManager) applicationContext.getBean( "IPluginManager" );
     repositoryAdminUsername = (String) applicationContext.getBean( "repositoryAdminUsername" );
     tenantAuthenticatedAuthorityName = (String) applicationContext.getBean( "singleTenantAuthenticatedAuthorityName" );
     adminAuthorityName = (String) applicationContext.getBean( "singleTenantAdminAuthorityName" );
