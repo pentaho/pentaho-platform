@@ -5,10 +5,10 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>10.2.0.0-SNAPSHOT</version>
+    <version>10.2.0.7-395</version>
   </parent>
   <artifactId>pentaho-solutions</artifactId>
-  <version>10.2.0.0-SNAPSHOT</version>
+  <version>10.2.0.7-395</version>
   <packaging>pom</packaging>
   <properties>
     <prepared.samples.directory>${project.build.directory}/dependency/plugin-samples</prepared.samples.directory>
