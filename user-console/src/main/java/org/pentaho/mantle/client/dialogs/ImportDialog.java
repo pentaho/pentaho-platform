@@ -415,7 +415,8 @@ public class ImportDialog extends PromptDialogBox {
     var files = upload.@com.google.gwt.user.client.ui.FileUpload::getElement()().files;
     var selectedFiles = [];
     for (var i = 0; i < files.length; i++) {
-      selectedFiles.push( files[i].name );
+      // URL-encode each filename to handle special characters like commas
+      selectedFiles.push( encodeURIComponent(files[i].name) );
     }
     return selectedFiles.join(",");
   }-*/;
