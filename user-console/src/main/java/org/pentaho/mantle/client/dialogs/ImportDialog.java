@@ -177,8 +177,9 @@ public class ImportDialog extends PromptDialogBox {
     final TextBox fileTextBox = new TextBox();
     fileTextBox.setEnabled( false );
 
-    //We use an fileNameOverride because FileUpload can only handle US character set reliably.
-    final Hidden fileNameOverride = new Hidden( "fileNameOverride" );
+    //We use fileNameOverride fields because FileUpload can only handle US character set reliably.
+    //We create one Hidden field per file to avoid delimiter issues with filenames containing special characters.
+    final VerticalPanel fileNameOverrideContainer = new VerticalPanel();
 
     final FileUpload upload = new FileUpload();
     upload.setName( "fileUpload" );
@@ -187,12 +188,18 @@ public class ImportDialog extends PromptDialogBox {
       @Override
       public void onChange( ChangeEvent event ) {
         if ( !"".equals( importDir.getValue() ) ) {
-          String selectedFiles = getSelectedFiles( upload );
+          String[] selectedFiles = getSelectedFilesArray( upload );
           //Set the fileNameOverride because the fileUpload object can only reliably transmit US-ASCII
           //character set.  See RFC283 section 2.3 for details
-          fileNameOverride.setValue( selectedFiles );
-          fileTextBox.setText( selectedFiles );
-          okButton.setEnabled( !selectedFiles.isEmpty() );
+          //Clear previous fields and create one Hidden field per file
+          fileNameOverrideContainer.clear();
+          for ( String fileName : selectedFiles ) {
+            Hidden fileNameOverride = new Hidden( "fileNameOverride" );
+            fileNameOverride.setValue( fileName );
+            fileNameOverrideContainer.add( fileNameOverride );
+          }
+          fileTextBox.setText( String.join( ", ", selectedFiles ) );
+          okButton.setEnabled( selectedFiles.length > 0 );
         } else {
           okButton.setEnabled( false );
         }
@@ -249,7 +256,7 @@ public class ImportDialog extends PromptDialogBox {
     rootPanel.add( overwriteFile );
     rootPanel.add( logLevel );
     rootPanel.add( retainOwnership );
-    rootPanel.add( fileNameOverride );
+    rootPanel.add( fileNameOverrideContainer );
     rootPanel.add( csrfTokenParameter );
 
     spacer = new VerticalPanel();
@@ -411,13 +418,13 @@ public class ImportDialog extends PromptDialogBox {
   }-*/;
 
   // Method to extract selected filenames from FileUpload widget using JavaScript
-  private native String getSelectedFiles(FileUpload upload) /*-{
+  private native String[] getSelectedFilesArray(FileUpload upload) /*-{
     var files = upload.@com.google.gwt.user.client.ui.FileUpload::getElement()().files;
     var selectedFiles = [];
     for (var i = 0; i < files.length; i++) {
       selectedFiles.push( files[i].name );
     }
-    return selectedFiles.join(",");
+    return selectedFiles;
   }-*/;
 
   /**

@@ -170,7 +170,7 @@ public class RepositoryImportResource {
                                 @FormDataParam( "fileUpload" ) FormDataContentDisposition fileInfo,
                                 @FormDataParam( "fileNameOverride" ) String fileNameOverride ) {
     return doPostImportCommon( importDir, Arrays.asList( fileUpload ), overwriteFile, overwriteAclPermissions, applyAclPermission,
-        retainOwnership, charSet, logLevel, fileInfo, fileNameOverride );
+        retainOwnership, charSet, logLevel, fileInfo, Arrays.asList( fileNameOverride ) );
   }
 
   protected void validateImportAccess( String importDir ) throws PentahoAccessControlException {
@@ -211,12 +211,12 @@ public class RepositoryImportResource {
                                 @FormDataParam( "charSet" ) String charSet,
                                 @FormDataParam( "logLevel" ) String logLevel,
                                 @FormDataParam( "fileUpload" ) FormDataContentDisposition fileInfo,
-                                @FormDataParam( "fileNameOverride" ) String fileNameOverride ) {
+                                @FormDataParam( "fileNameOverride" ) List<String> fileNameOverrides ) {
     List<InputStream> fileUploads = fileParts.stream()
         .map( part -> part.getValueAs( InputStream.class ) )
         .collect( Collectors.toList() );
     return doPostImportCommon( importDir, fileUploads, overwriteFile, overwriteAclPermissions, applyAclPermission,
-        retainOwnership, charSet, logLevel, fileInfo, fileNameOverride );
+        retainOwnership, charSet, logLevel, fileInfo, fileNameOverrides );
   }
 
   /**
@@ -237,7 +237,7 @@ public class RepositoryImportResource {
   private Response doPostImportCommon( String importDir, List<InputStream> fileUploads, String overwriteFile,
                                        String overwriteAclPermissions, String applyAclPermission, String retainOwnership,
                                        String charSet, String logLevel, FormDataContentDisposition fileInfo,
-                                       String fileNameOverride ) {
+                                       List<String> fileNameOverrides ) {
     IRepositoryImportLogger importLogger = null;
     ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
     boolean logJobStarted = false;
@@ -272,8 +272,6 @@ public class RepositoryImportResource {
       IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
       importLogger = importer.getRepositoryImportLogger();
       importLogger.startJob( importLoggerStream, importDir, level );
-
-      List<String> fileNameOverrides = Arrays.asList( fileNameOverride.split( "," ) );
 
       for ( int i = 0; i < fileNameOverrides.size(); i++ ) {
         InputStream fileUpload = fileUploads.get( i );

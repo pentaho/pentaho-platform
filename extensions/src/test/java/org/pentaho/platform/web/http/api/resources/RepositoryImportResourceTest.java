@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
@@ -162,7 +163,7 @@ public class RepositoryImportResourceTest {
     fileParts.add( mockInputStream2 );
     FormDataContentDisposition formDataContentDisposition =  mock( FormDataContentDisposition.class );
     when( policy.isAllowed( nullable( String.class ) ) ).thenAnswer( (Answer<Boolean>) invocation -> true );
-    importResource.doPostImport( IMPORT_DIR, fileParts, "true", "true", "true", "true", "UTF-8", "WARN", formDataContentDisposition, "" );
+    importResource.doPostImport( IMPORT_DIR, fileParts, "true", "true", "true", "true", "UTF-8", "WARN", formDataContentDisposition, Arrays.asList( "", "" ) );
     Assert.assertNull( ImportSession.getSession().getManifest()  );
   }
 
