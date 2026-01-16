@@ -20,7 +20,6 @@
     <url>https://github.com/pentaho/pentaho-platform</url>
   </scm>
   <properties>
-    <jakarta.mail-api.version>2.0.1</jakarta.mail-api.version>
     <urlrewrite.version>3.2.0</urlrewrite.version>
     <jsr305.version>1.3.9</jsr305.version>
     <aopalliance.version>1.0</aopalliance.version>
