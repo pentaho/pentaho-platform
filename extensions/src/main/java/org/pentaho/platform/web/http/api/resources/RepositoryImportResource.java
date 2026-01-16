@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources;
 
@@ -16,14 +17,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
-import com.sun.jersey.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -36,20 +37,21 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
+import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Path ( "/repo/files/import" )
+@Path( "/repo/files/import" )
 public class RepositoryImportResource {
 
   private static final Logger LOGGER = LogManager.getLogger( RepositoryImportResource.class );
@@ -60,9 +62,9 @@ public class RepositoryImportResource {
    * Attempts to import all files from the zip archive or single file. A log file is produced at the end of import.
    *
    * <p><b>Example Request:</b><br />
-   *    POST pentaho/api/repo/files/import
-   *    <br /><b>POST data:</b>
-   *    <pre function="syntax.xml">
+   * POST pentaho/api/repo/files/import
+   * <br /><b>POST data:</b>
+   * <pre function="syntax.xml">
    *      ------WebKitFormBoundaryB9hzsGp4wR5SGAZD
    *      Content-Disposition: form-data; name="importDir"
    *
@@ -107,14 +109,13 @@ public class RepositoryImportResource {
    * @param fileUpload              Input stream for the file.
    * @param overwriteFile           The flag indicates ability to overwrite existing file.
    * @param overwriteAclPermissions The flag indicates ability to overwrite Acl permissions.
-   * @param applyAclPermissions     The flag indicates ability to apply Acl permissions.
+   * @param applyAclPermission      The flag indicates ability to apply ACL permissions.
    * @param retainOwnership         The flag indicates ability to retain ownership.
    * @param charSet                 The charset for imported file.
    * @param logLevel                The level of logging.
    * @param fileNameOverride        If present and the content represents a single file, this parameter contains the filename to use
    *                                when storing the file in the repository. If not present, the fileInfo.getFileName will be used.
    *                                Note that the later cannot reliably handle foreign character sets.
-   *
    * @return A jax-rs Response object with the appropriate header and body.
    *
    * <p><b>Example Response:</b></p>
@@ -155,25 +156,26 @@ public class RepositoryImportResource {
    * </pre>
    */
   @POST
-  @Consumes ( MediaType.MULTIPART_FORM_DATA )
-  @Produces ( MediaType.TEXT_HTML )
+  @Consumes( MediaType.MULTIPART_FORM_DATA )
+  @Produces( MediaType.TEXT_HTML )
   @Facet( name = "Unsupported" )
-  public Response doPostImport( @FormDataParam ( "importDir" ) String importDir,
-                                @FormDataParam ( "fileUpload" ) InputStream fileUpload,
-                                @FormDataParam ( "overwriteFile" ) String overwriteFile,
-                                @FormDataParam ( "overwriteAclPermissions" ) String overwriteAclPermissions,
-                                @FormDataParam ( "applyAclPermissions" ) String applyAclPermission,
-                                @FormDataParam ( "retainOwnership" ) String retainOwnership,
-                                @FormDataParam ( "charSet" ) String charSet,
-                                @FormDataParam ( "logLevel" ) String logLevel,
-                                @FormDataParam ( "fileUpload" ) FormDataContentDisposition fileInfo,
-                                @FormDataParam ( "fileNameOverride" ) String fileNameOverride ) {
-    return  doPostImportCommon( importDir, Arrays.asList( fileUpload ), overwriteFile, overwriteAclPermissions, applyAclPermission,
-            retainOwnership, charSet, logLevel, fileInfo, fileNameOverride );
+  public Response doPostImport( @FormDataParam( "importDir" ) String importDir,
+                                @FormDataParam( "fileUpload" ) InputStream fileUpload,
+                                @FormDataParam( "overwriteFile" ) String overwriteFile,
+                                @FormDataParam( "overwriteAclPermissions" ) String overwriteAclPermissions,
+                                @FormDataParam( "applyAclPermissions" ) String applyAclPermission,
+                                @FormDataParam( "retainOwnership" ) String retainOwnership,
+                                @FormDataParam( "charSet" ) String charSet,
+                                @FormDataParam( "logLevel" ) String logLevel,
+                                @FormDataParam( "fileUpload" ) FormDataContentDisposition fileInfo,
+                                @FormDataParam( "fileNameOverride" ) String fileNameOverride ) {
+    return doPostImportCommon( importDir, Arrays.asList( fileUpload ), overwriteFile, overwriteAclPermissions, applyAclPermission,
+        retainOwnership, charSet, logLevel, fileInfo, fileNameOverride );
   }
 
   protected void validateImportAccess( String importDir ) throws PentahoAccessControlException {
-    boolean canUpload = SystemUtils.canUpload( importDir );
+    // upload directory might be created or its permissions changed so skip existence and write permission checks
+    boolean canUpload = SystemUtils.canUpload( importDir, true );
     if ( !canUpload ) {
       throw new PentahoAccessControlException( "User is not authorized to perform this operation" );
     }
@@ -196,25 +198,25 @@ public class RepositoryImportResource {
    * @return
    */
   @POST()
-  @Path ( "/multiple" )
-  @Consumes ( MediaType.MULTIPART_FORM_DATA )
-  @Produces ( MediaType.TEXT_HTML )
+  @Path( "/multiple" )
+  @Consumes( MediaType.MULTIPART_FORM_DATA )
+  @Produces( MediaType.TEXT_HTML )
   @Facet( name = "Unsupported" )
-  public Response doPostImport( @FormDataParam ( "importDir" ) String importDir,
-                                @FormDataParam ( "fileUpload" ) List<FormDataBodyPart> fileParts,
-                                @FormDataParam ( "overwriteFile" ) String overwriteFile,
-                                @FormDataParam ( "overwriteAclPermissions" ) String overwriteAclPermissions,
-                                @FormDataParam ( "applyAclPermissions" ) String applyAclPermission,
-                                @FormDataParam ( "retainOwnership" ) String retainOwnership,
-                                @FormDataParam ( "charSet" ) String charSet,
-                                @FormDataParam ( "logLevel" ) String logLevel,
-                                @FormDataParam ( "fileUpload" ) FormDataContentDisposition fileInfo,
-                                @FormDataParam ( "fileNameOverride" ) String fileNameOverride ) {
+  public Response doPostImport( @FormDataParam( "importDir" ) String importDir,
+                                @FormDataParam( "fileUpload" ) List<FormDataBodyPart> fileParts,
+                                @FormDataParam( "overwriteFile" ) String overwriteFile,
+                                @FormDataParam( "overwriteAclPermissions" ) String overwriteAclPermissions,
+                                @FormDataParam( "applyAclPermissions" ) String applyAclPermission,
+                                @FormDataParam( "retainOwnership" ) String retainOwnership,
+                                @FormDataParam( "charSet" ) String charSet,
+                                @FormDataParam( "logLevel" ) String logLevel,
+                                @FormDataParam( "fileUpload" ) FormDataContentDisposition fileInfo,
+                                @FormDataParam( "fileNameOverride" ) String fileNameOverride ) {
     List<InputStream> fileUploads = fileParts.stream()
-            .map(part -> part.getValueAs( InputStream.class ))
-            .collect( Collectors.toList() );
+        .map( part -> part.getValueAs( InputStream.class ) )
+        .collect( Collectors.toList() );
     return doPostImportCommon( importDir, fileUploads, overwriteFile, overwriteAclPermissions, applyAclPermission,
-            retainOwnership, charSet, logLevel, fileInfo, fileNameOverride );
+        retainOwnership, charSet, logLevel, fileInfo, fileNameOverride );
   }
 
   /**
@@ -233,14 +235,14 @@ public class RepositoryImportResource {
    * @return
    */
   private Response doPostImportCommon( String importDir, List<InputStream> fileUploads, String overwriteFile,
-                                      String overwriteAclPermissions, String applyAclPermission, String retainOwnership,
-                                      String charSet, String logLevel, FormDataContentDisposition fileInfo,
-                                      String fileNameOverride ) {
+                                       String overwriteAclPermissions, String applyAclPermission, String retainOwnership,
+                                       String charSet, String logLevel, FormDataContentDisposition fileInfo,
+                                       String fileNameOverride ) {
     IRepositoryImportLogger importLogger = null;
     ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
     boolean logJobStarted = false;
 
-    if (StringUtils.isBlank( charSet )) {
+    if ( StringUtils.isBlank( charSet ) ) {
       charSet = DEFAULT_CHAR_SET;
     }
 
@@ -271,12 +273,13 @@ public class RepositoryImportResource {
       importLogger = importer.getRepositoryImportLogger();
       importLogger.startJob( importLoggerStream, importDir, level );
 
-      List<String> fileNameOverrides = Arrays.asList( fileNameOverride.split(",") );
+      List<String> fileNameOverrides = Arrays.asList( fileNameOverride.split( "," ) );
 
       for ( int i = 0; i < fileNameOverrides.size(); i++ ) {
-        InputStream fileUpload = fileUploads.get(i);
+        InputStream fileUpload = fileUploads.get( i );
 
-        String fileName = fileNameOverrides.get(i);
+        // URL-decode the filename to restore original name with special characters
+        String fileName = java.net.URLDecoder.decode( fileNameOverrides.get( i ), charSet );
 
         RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
         bundleBuilder.input( fileUpload );
@@ -296,12 +299,21 @@ public class RepositoryImportResource {
         }
 
         bundleBuilder.mime( mimeTypeFromFile );
-        importer.importFile( bundle );
+        importer.getRepositoryImportLogger().setPerformingRestore( false );
+        try {
+          importer.importFile( bundle );
+        } catch ( PlatformImportException ex ) {
+          if ( ex.getErrorStatus() == PlatformImportException.PUBLISH_PARTIAL_UPLOAD ) {
+            return Response.ok( "INVALID_MIME_TYPE_PARTIAL", MediaType.TEXT_HTML ).build();
+          } else {
+            throw ex;
+          }
+        }
       }
 
       // Flush the Mondrian cache to show imported data-sources.
       IMondrianCatalogService mondrianCatalogService = PentahoSystem.get( IMondrianCatalogService.class, "IMondrianCatalogService",
-              PentahoSessionHolder.getSession() );
+          PentahoSessionHolder.getSession() );
       mondrianCatalogService.reInit( PentahoSessionHolder.getSession() );
       logJobStarted = true;
     } catch ( Exception e ) {

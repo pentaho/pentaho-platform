@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository.webservices;
 
@@ -19,7 +20,7 @@ import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository.datasource.NonExistingDatasourceException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -139,6 +140,11 @@ public class DefaultDatasourceMgmtWebService implements IDatasourceMgmtWebServic
     } catch ( Exception e ) {
       throw new RuntimeException( e );
     }
+  }
+
+  @Override
+  public void logout() {
+    // no-op, handled in PentahoWSSpringServlet
   }
 
 }

@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.api.util;
 
@@ -50,9 +51,4 @@ public interface IPdiContentProvider {
    * @return list of variables' name
    */
   Map<String, String> getVariables( String kettleFilePath );
-
-  /**
-   * Pentaho Hide internal variable is to show/hide internal variables.
-   */
-  String getHideInternalVariable();
 }

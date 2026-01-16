@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
@@ -38,13 +39,14 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
  * This Object represents the information stored in the ExportManifest for one file or folder. The
@@ -95,8 +97,10 @@ public class ExportManifestEntity {
       try {
         for ( Map.Entry<String, Serializable> entry : repositoryFileProxy.getMetadata().entrySet() ) {
           if ( isExtraMetaDataKey( entry.getKey() ) ) {
-            entityExtraMetaData
-              .addMetadata( new EntityExtraMetaDataEntry( entry.getKey(), String.valueOf( entry.getValue() ) ) );
+            String key = entry.getKey();
+            Serializable val = entry.getValue();
+            String serialized = serializeCalendarValue( key, val );
+            entityExtraMetaData.addMetadata( new EntityExtraMetaDataEntry( key, serialized ) );
           }
         }
       } catch ( Exception e ) {
@@ -104,6 +108,19 @@ public class ExportManifestEntity {
       }
     }
 
+  }
+
+  private String serializeCalendarValue( String key, Serializable val ) {
+    if ( val instanceof Calendar calendarVal ) {
+      Calendar c = calendarVal;
+      XMLGregorianCalendar xgc = XmlGregorianCalendarConverter.asXMLGregorianCalendar( new Date( c.getTimeInMillis() ) );
+      if ( xgc == null ) {
+        throw new ExportManifestRepositoryException(
+          "Failed to serialize Calendar metadata value for key: " + key );
+      }
+      return xgc.toXMLFormat();
+    }
+    return String.valueOf( val );
   }
 
   private boolean isExtraMetaDataKey( String key ) {

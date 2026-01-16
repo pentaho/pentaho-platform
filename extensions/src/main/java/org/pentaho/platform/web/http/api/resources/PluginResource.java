@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources;
 
@@ -24,16 +25,16 @@ import org.pentaho.platform.util.web.MimeHelper;
 import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -44,7 +45,7 @@ import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.List;
 
-import static javax.ws.rs.core.MediaType.WILDCARD;
+import static jakarta.ws.rs.core.MediaType.WILDCARD;
 
 /**
  * Represents the public files available in a plugin.
@@ -139,14 +140,28 @@ public class PluginResource {
   @Facet( name = "Unsupported" )
   public Response readFile( @PathParam( "pluginId" ) String pluginId, @PathParam( "path" ) String path )
     throws IOException {
+    return readFile( pluginId, path, true );
+  }
+
+  /**
+   * Retrieve the file from the selected plugin, optionally not affecting the current HTTP response headers.
+   * @param pluginId The plugin id.
+   * @param path The file path.
+   * @param changeResponseHeaders Whether to change the HTTP response headers to reflect aspects such as cache control.
+   * @return The response containing the file content.
+   */
+  public Response readFile( String pluginId, String path, boolean changeResponseHeaders ) throws IOException {
     List<String> pluginRestPerspectives = pluginManager.getPluginRESTPerspectivesForId( pluginId );
     boolean useCache = "true".equals( pluginManager.getPluginSetting( pluginId, "settings/cache", "false" ) ); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-    String maxAge = (String) pluginManager.getPluginSetting( pluginId, "settings/max-age", null ); //$NON-NLS-1$
-    // //
-    // Set browser cache if valid value and if the path is not one of the plugin REST perspectives. (/viewer, /editor,
-    // /scheduler)
-    if ( !pluginRestPerspectives.contains( path ) && maxAge != null && !"0".equals( maxAge ) ) { //$NON-NLS-1$
-      httpServletResponse.setHeader( "Cache-Control", "max-age=" + maxAge ); //$NON-NLS-1$ //$NON-NLS-2$
+
+    if ( changeResponseHeaders ) {
+      String maxAge = (String) pluginManager.getPluginSetting( pluginId, "settings/max-age", null ); //$NON-NLS-1$
+      // //
+      // Set browser cache if valid value and if the path is not one of the plugin REST perspectives. (/viewer, /editor,
+      // /scheduler)
+      if ( !pluginRestPerspectives.contains( path ) && maxAge != null && !"0".equals( maxAge ) ) { //$NON-NLS-1$
+        httpServletResponse.setHeader( "Cache-Control", "max-age=" + maxAge ); //$NON-NLS-1$ //$NON-NLS-2$
+      }
     }
 
     if ( !pluginManager.getRegisteredPlugins().contains( pluginId ) ) {
