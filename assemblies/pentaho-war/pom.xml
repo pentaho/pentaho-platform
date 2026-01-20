@@ -881,7 +881,6 @@
     <dependency>
       <groupId>jakarta.mail</groupId>
       <artifactId>jakarta.mail-api</artifactId>
-      <version>${jakarta.mail.version}</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish</groupId>
