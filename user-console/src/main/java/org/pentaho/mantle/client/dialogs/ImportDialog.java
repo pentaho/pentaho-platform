@@ -190,7 +190,7 @@ public class ImportDialog extends PromptDialogBox {
           String selectedFiles = getSelectedFiles( upload );
           //Set the fileNameOverride because the fileUpload object can only reliably transmit US-ASCII
           //character set.  See RFC283 section 2.3 for details
-          fileNameOverride.setValue( selectedFiles );
+          fileNameOverride.setValue( getEncodedFilenames( upload ) );
           fileTextBox.setText( selectedFiles );
           okButton.setEnabled( !selectedFiles.isEmpty() );
         } else {
@@ -415,7 +415,16 @@ public class ImportDialog extends PromptDialogBox {
     var files = upload.@com.google.gwt.user.client.ui.FileUpload::getElement()().files;
     var selectedFiles = [];
     for (var i = 0; i < files.length; i++) {
-      // URL-encode each filename to handle special characters like commas
+      selectedFiles.push( files[i].name );
+    }
+    return selectedFiles.join(", ");
+  }-*/;
+
+  // Get URL-encoded filenames for server submission
+  private native String getEncodedFilenames(FileUpload upload) /*-{
+    var files = upload.@com.google.gwt.user.client.ui.FileUpload::getElement()().files;
+    var selectedFiles = [];
+    for (var i = 0; i < files.length; i++) {
       selectedFiles.push( encodeURIComponent(files[i].name) );
     }
     return selectedFiles.join(",");
