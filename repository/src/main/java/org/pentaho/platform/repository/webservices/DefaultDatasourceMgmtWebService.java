@@ -142,4 +142,9 @@ public class DefaultDatasourceMgmtWebService implements IDatasourceMgmtWebServic
     }
   }
 
+  @Override
+  public void logout() {
+    // no-op, handled in PentahoWSSpringServlet
+  }
+
 }

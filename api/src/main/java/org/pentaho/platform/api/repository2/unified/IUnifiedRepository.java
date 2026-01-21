@@ -700,4 +700,6 @@ public interface IUnifiedRepository {
   void setLocalePropertiesForFile( final RepositoryFile repoFile, final String locale, final Properties properties );
 
   void deleteLocalePropertiesForFile( final RepositoryFile repositoryFile, final String locale );
+
+  default void logout() { }
 }

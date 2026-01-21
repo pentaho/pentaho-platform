@@ -147,4 +147,9 @@ public class RepositorySyncWebService implements IRepositorySyncWebService, Seri
     repMeta.loadXML( node, null );
     return repMeta;
   }
+
+  @Override
+  public void logout() {
+    // no-op, handled in PentahoWSSpringServlet
+  }
 }

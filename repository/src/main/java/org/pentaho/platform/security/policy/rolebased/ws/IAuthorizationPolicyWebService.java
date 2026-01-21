@@ -25,5 +25,5 @@ import jakarta.jws.WebService;
  */
 @WebService
 public interface IAuthorizationPolicyWebService extends IAuthorizationPolicy {
-
+  public default void logout() { }
 }
