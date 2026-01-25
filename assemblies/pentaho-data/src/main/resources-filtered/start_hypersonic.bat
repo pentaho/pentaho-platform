@@ -19,6 +19,7 @@ SET "tempclasspath="
 SET "libdir=.\lib"
 
 FOR /f "delims=" %%a IN ('dir "%libdir%\hsqldb*.jar" /b /a-d') DO call :addToClasspath %%a
+FOR /f "delims=" %%a IN ('dir "%libdir%\sqltool*.jar" /b /a-d') DO call :addToClasspath %%a
 GOTO :startApp
 
 :addToClasspath
@@ -33,9 +34,17 @@ REM -----------------------
 
 call set-pentaho-env.bat "%~dp0..\jre"
 
-"%_PENTAHO_JAVA%" -cp "%tempclasspath%" org.hsqldb.Server -database.0 hsqldb\sampledata -dbname.0 sampledata -database.1 hsqldb\hibernate -dbname.1 hibernate -database.2 hsqldb\quartz -dbname.2 quartz
-echo %command%
-%command%
-exit
+REM Start HSQLDB server in background
+start "HSQLDB Server" "%_PENTAHO_JAVA%" -cp "%tempclasspath%" org.hsqldb.Server -database.0 mem:sampledata -dbname.0 sampledata -database.1 mem:hibernate -dbname.1 hibernate -database.2 mem:quartz -dbname.2 quartz -port 9001
+
+REM Wait for server to start
+echo Waiting for server to start...
+timeout /t 5 /nobreak
+
+REM Load data in background
+start "Load HSQLDB Data" cmd /c "%~dp0load-hypersonic-data.bat"
+
+echo Server started. Data loading in background.
+exit /b 0
 
 :end

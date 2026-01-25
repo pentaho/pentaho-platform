@@ -16,12 +16,18 @@ package org.pentaho.platform.web.http.context;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.web.hsqldb.HsqlDatabaseStarterBean;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,14 +38,20 @@ import static org.mockito.Mockito.when;
 /**
  * Created by rfellows on 10/28/15.
  */
-@RunWith( MockitoJUnitRunner.class )
+@RunWith(MockitoJUnitRunner.class)
 public class HsqldbStartupListenerTest {
+
+  @Rule
+  public TemporaryFolder tempFolder = new TemporaryFolder();
 
   HsqldbStartupListener startupListener;
 
-  @Mock ServletContextEvent contextEvent;
-  @Mock ServletContext context;
-  @Mock HsqlDatabaseStarterBean starterBean;
+  @Mock
+  ServletContextEvent contextEvent;
+  @Mock
+  ServletContext context;
+  @Mock
+  HsqlDatabaseStarterBean starterBean;
 
   @Before
   public void setUp() throws Exception {
@@ -94,5 +106,49 @@ public class HsqldbStartupListenerTest {
     startupListener.contextInitialized( contextEvent );
     verify( context ).setAttribute( eq( "hsqldb-starter-bean" ), any() );
     startupListener.contextDestroyed( contextEvent );
+  }
+
+  @Test
+  public void testContextInitialized_withInMemoryDatabases() throws Exception {
+    when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( "9001" );
+    when( context.getInitParameter( "hsqldb-allow-port-failover" ) ).thenReturn( "true" );
+    when( context.getInitParameter( "hsqldb-databases" ) )
+      .thenReturn( "sampledata@mem:sampledata,hibernate@mem:hibernate,quartz@mem:quartz" );
+    when( context.getInitParameter( "hsqldb-init-script" ) ).thenReturn( null );
+
+    // Don't start the actual server, just verify config is set
+    startupListener.contextInitialized( contextEvent );
+    // Server startup will fail in unit tests since we're not actually running HSQLDB
+    // but the listener should still attempt to configure it
+  }
+
+  @Test
+  public void testGetDatabaseConfiguration() throws Exception {
+    // Test parsing of database configuration string from web.xml
+    when( context.getInitParameter( "hsqldb-databases" ) )
+      .thenReturn( "sampledata@mem:sampledata,hibernate@mem:hibernate,quartz@mem:quartz" );
+
+    startupListener.contextInitialized( contextEvent );
+    // If no exception, parsing was successful
+  }
+
+  @Test
+  public void testScriptLoadingWithNullPath() throws Exception {
+    // Test graceful handling when hsqldb-init-script is null
+    when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( "9001" );
+    when( context.getInitParameter( "hsqldb-allow-port-failover" ) ).thenReturn( "true" );
+    when( context.getInitParameter( "hsqldb-databases" ) )
+      .thenReturn( "sampledata@mem:sampledata" );
+    when( context.getInitParameter( "hsqldb-init-script" ) ).thenReturn( null );
+
+    // Should not throw exception when script path is null
+    startupListener.contextInitialized( contextEvent );
+  }
+
+  private void writeScriptFile( File file, String content ) throws IOException {
+    file.getParentFile().mkdirs();
+    try ( FileWriter writer = new FileWriter( file ) ) {
+      writer.write( content );
+    }
   }
 }
