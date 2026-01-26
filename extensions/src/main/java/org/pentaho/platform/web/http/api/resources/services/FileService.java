@@ -1693,8 +1693,9 @@ public class FileService {
     buf.append( getParentPath( fileToBeRenamed.getPath() ) );
     buf.append( RepositoryFile.SEPARATOR );
     buf.append( newName );
+    String extension = "";
     if ( !fileToBeRenamed.isFolder() ) {
-      String extension = getExtension( fileToBeRenamed.getName() );
+      extension = getExtension( fileToBeRenamed.getName() );
       if ( extension != null ) {
         buf.append( extension );
       }
@@ -1702,33 +1703,38 @@ public class FileService {
     // If destination already exists throw
     if ( repository.getFile( buf.toString() ) != null ) {
       throw new IllegalArgumentException( org.pentaho.platform.repository2.messages.Messages.getInstance().getString(
-          "JcrRepositoryFileDao.ERROR_0003_ILLEGAL_DEST_PATH" ) );
+        "JcrRepositoryFileDao.ERROR_0003_ILLEGAL_DEST_PATH" ) );
     }
     repository.moveFile( fileToBeRenamed.getId(), buf.toString(), "Renaming the file" );
     RepositoryFile movedFile = repository.getFileById( fileToBeRenamed.getId() );
     if ( movedFile != null ) {
       if ( !movedFile.isFolder() ) {
         Map<String, Properties> localePropertiesMap = movedFile.getLocalePropertiesMap();
+        String titleName = newName;
+        @SuppressWarnings( "unchecked" ) List<String> knownExtensions = PentahoSystem.get( List.class, "extensions", null );
+        if ( extension.length() > 1 && knownExtensions != null && !knownExtensions.contains( extension.substring( 1 ) ) ) {
+          titleName = newName + extension;
+        }
         if ( localePropertiesMap == null ) {
           localePropertiesMap = new HashMap<String, Properties>();
           Properties properties = new Properties();
-          properties.setProperty( "file.title", newName );
-          properties.setProperty( "title", newName );
+          properties.setProperty( "file.title", titleName );
+          properties.setProperty( "title", titleName );
           localePropertiesMap.put( "default", properties );
         } else {
           for ( Map.Entry<String, Properties> entry : localePropertiesMap.entrySet() ) {
             Properties properties = entry.getValue();
             if ( properties.containsKey( "file.title" ) ) {
-              properties.setProperty( "file.title", newName );
+              properties.setProperty( "file.title", titleName );
             }
             if ( properties.containsKey( "title" ) ) {
-              properties.setProperty( "title", newName );
+              properties.setProperty( "title", titleName );
             }
           }
         }
         RepositoryFile updatedFile =
-            new RepositoryFile.Builder( movedFile ).localePropertiesMap( localePropertiesMap ).name( newName ).title(
-                newName ).build();
+          new RepositoryFile.Builder( movedFile ).localePropertiesMap( localePropertiesMap ).name( newName ).title(
+            newName ).build();
         repository.updateFile( updatedFile, RepositoryFileHelper.getFileData( movedFile ), "Updating the file" );
       }
       return true;
