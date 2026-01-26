@@ -1712,7 +1712,7 @@ public class FileService {
         Map<String, Properties> localePropertiesMap = movedFile.getLocalePropertiesMap();
         String titleName = newName;
         @SuppressWarnings( "unchecked" ) List<String> knownExtensions = PentahoSystem.get( List.class, "extensions", null );
-        if ( extension.length() > 1 && knownExtensions != null && !knownExtensions.contains( extension.substring( 1 ) ) ) {
+        if ( extension != null && extension.length() > 1 && knownExtensions != null && !knownExtensions.contains( extension.substring( 1 ) ) ) {
           titleName = newName + extension;
         }
         if ( localePropertiesMap == null ) {
