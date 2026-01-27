@@ -30,6 +30,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
+/***
+ * Normalizes authorization decisions into Disjunctive Normal Form (DNF).
+ * <p>
+ * The normalization process involves:
+ * 1. Moving NOTs inwards, by applying De Morgan's laws and eliminating double negations.
+ * 2. Moving ANDs inwards, by distributing them over ORs.
+ * 3. Flattening nested composites of the same type, i.e. ANDs and ORs.
+ * <p>
+ * The resulting decision structure is such that:
+ * - The top-level decision is always an OR (IAnyAuthorizationDecision).
+ * - Each child of the top-level OR is an AND (IAllAuthorizationDecision).
+ * - Each child of the ANDs are terminal decisions (not composites),
+ *   possibly negated (i.e. wrapped in NOT/IOpposedAuthorizationDecision).
+ */
 public class AuthorizationDecisionDNFNormalizer {
 
   /**
@@ -324,8 +338,8 @@ public class AuthorizationDecisionDNFNormalizer {
 
       Set<IAuthorizationDecision> newChildren = new LinkedHashSet<>( visitedChildren.size() );
       for ( IAuthorizationDecision visitedChild : visitedChildren ) {
-        if ( compositeTypePredicate.test(  visitedChild ) ) {
-          newChildren.addAll( ((ICompositeAuthorizationDecision) visitedChild).getDecisions() );
+        if ( compositeTypePredicate.test( visitedChild ) ) {
+          newChildren.addAll( ( (ICompositeAuthorizationDecision) visitedChild ).getDecisions() );
         } else {
           newChildren.add( visitedChild );
         }
@@ -336,9 +350,51 @@ public class AuthorizationDecisionDNFNormalizer {
     }
   }
 
-  // NOTE: Consider an option for strict DNF output, enforcing OR(And(...)) structure.
+  /**
+   * As a final pass, ensure that all children of the top-level OR are ANDs.
+   * Any terminal children are wrapped into single-child ANDs.
+   */
+  private static class EnsureChildOfOrIsAndTransformer implements IAuthorizationDecisionVisitor {
+
+    @NonNull
+    @Override
+    public IAuthorizationDecision visit( @NonNull IAuthorizationDecision decision ) {
+      if ( !( decision instanceof IAnyAuthorizationDecision ) ) {
+        throw new IllegalStateException( "IAnyAuthorizationDecision expected" );
+      }
+
+      return visitOr( (IAnyAuthorizationDecision) decision );
+    }
+
+    @NonNull
+    private IAnyAuthorizationDecision visitOr( @NonNull IAnyAuthorizationDecision decision ) {
+      Set<IAuthorizationDecision> newChildren = new LinkedHashSet<>( decision.getDecisions().size() );
+
+      boolean hasModifiedChildren = false;
+
+      for ( var child : decision.getDecisions() ) {
+        if ( child instanceof IAllAuthorizationDecision ) {
+          newChildren.add( child );
+        } else {
+          hasModifiedChildren = true;
+          // Wrap terminal decision into an AND
+          newChildren.add(
+            new AllAuthorizationDecision(
+              decision.getRequest(),
+              Set.of( child )
+            )
+          );
+        }
+      }
+
+      return !hasModifiedChildren
+        ? decision
+        : new AnyAuthorizationDecision( decision.getRequest(), newChildren );
+    }
+  }
+
   @NonNull
-  public IAuthorizationDecision normalize( @NonNull IAuthorizationDecision decision ) {
+  public IAnyAuthorizationDecision normalize( @NonNull IAuthorizationDecision decision ) {
     Assert.notNull( decision, "Argument 'decision' is required" );
 
     decision = new MoveNotInwardsTransformer().visit( decision );
@@ -351,6 +407,8 @@ public class AuthorizationDecisionDNFNormalizer {
       decision = new AnyAuthorizationDecision( decision.getRequest(), Set.of( decision ) );
     }
 
-    return decision;
+    decision = new EnsureChildOfOrIsAndTransformer().visit( decision );
+
+    return (IAnyAuthorizationDecision) decision;
   }
 }
