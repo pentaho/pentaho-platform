@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.test.platform.repository;
 
@@ -67,7 +68,7 @@ public class RepositoryTestCase extends BaseTest {
 
   /**
    * Constructor for RepositoryTestCase.
-   * 
+   *
    * @param arg0
    */
   public RepositoryTestCase( String arg0 ) {

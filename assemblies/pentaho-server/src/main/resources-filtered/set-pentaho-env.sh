@@ -1,22 +1,16 @@
 #!/bin/sh
+# ******************************************************************************
+#
+# Pentaho
+#
+# Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+#
+# Use of this software is governed by the Business Source License included
+# in the LICENSE.TXT file.
+#
+# Change Date: 2029-07-20
+# ******************************************************************************
 
-# *******************************************************************************************
-# This program is free software; you can redistribute it and/or modify it under the
-# terms of the GNU General Public License, version 2 as published by the Free Software
-# Foundation.
-#
-# You should have received a copy of the GNU General Public License along with this
-# program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-# or from the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
-#
-#
-# Copyright 2011 - ${copyright.year} Hitachi Vantara. All rights reserved.
-# *******************************************************************************************
 
 # -----------------------------------------------------------------------------
 # Finds a suitable Java
@@ -55,8 +49,8 @@
 # -----------------------------------------------------------------------------
 
 setPentahoEnv() {
-  DIR_REL=`dirname $0`
-  cd $DIR_REL
+  DIR_REL=`dirname "$0"`
+  cd "$DIR_REL"
   DIR=`pwd`
   #cd -
 	
@@ -65,50 +59,50 @@ setPentahoEnv() {
   else
     __LAUNCHER="java"
   fi
-  if [ -n "$1" ] && [ -d "$1" ] && [ -x "$1"/bin/$__LAUNCHER ]; then
+  if [ -n "$1" ] && [ -d "$1" ] && [ -x "$1/bin/$__LAUNCHER" ]; then
     echo "DEBUG: Using value ($1) from calling script"
     _PENTAHO_JAVA_HOME="$1"
-    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME"/bin/$__LAUNCHER  
+    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME/bin/$__LAUNCHER"  
   elif [ -n "$PENTAHO_JAVA_HOME" ]; then
     echo "DEBUG: Using PENTAHO_JAVA_HOME"
     _PENTAHO_JAVA_HOME="$PENTAHO_JAVA_HOME"
-    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME"/bin/$__LAUNCHER
+    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME/bin/$__LAUNCHER"
   elif [ -x "$DIR/jre/bin/$__LAUNCHER" ]; then
     echo DEBUG: Found JRE at the current folder
     _PENTAHO_JAVA_HOME="$DIR/jre"
-    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME"/bin/$__LAUNCHER
+    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME/bin/$__LAUNCHER"
   elif [ -x "$DIR/java/bin/$__LAUNCHER" ]; then
     echo DEBUG: Found JAVA at the current folder
     _PENTAHO_JAVA_HOME="$DIR/java"
-    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME"/bin/$__LAUNCHER
+    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME/bin/$__LAUNCHER"
   elif [ -x "$DIR/../jre/bin/$__LAUNCHER" ]; then
     echo DEBUG: Found JRE one folder up
     _PENTAHO_JAVA_HOME="$DIR/../jre"
-    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME"/bin/$__LAUNCHER
+    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME/bin/$__LAUNCHER"
   elif [ -x "$DIR/../java/bin/$__LAUNCHER" ]; then
     echo DEBUG: Found JAVA one folder up
     _PENTAHO_JAVA_HOME="$DIR/../java"
-    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME"/bin/$__LAUNCHER
+    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME/bin/$__LAUNCHER"
   elif [ -x "$DIR/../../jre/bin/$__LAUNCHER" ]; then
     echo DEBUG: Found JRE two folders up
     _PENTAHO_JAVA_HOME="$DIR/../../jre"
-    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME"/bin/$__LAUNCHER
+    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME/bin/$__LAUNCHER"
   elif [ -x "$DIR/../../java/bin/$__LAUNCHER" ]; then
     echo DEBUG: Found JAVA two folders up
     _PENTAHO_JAVA_HOME="$DIR/../../java"
-    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME"/bin/$__LAUNCHER
+    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME/bin/$__LAUNCHER"
   elif [ -n "$JAVA_HOME" ]; then
     echo "DEBUG: Using JAVA_HOME"
     _PENTAHO_JAVA_HOME="$JAVA_HOME"
-    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME"/bin/$__LAUNCHER
+    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME/bin/$__LAUNCHER"
   elif [ -n "$JRE_HOME" ]; then
     echo "DEBUG: Using JRE_HOME"
     _PENTAHO_JAVA_HOME="$JRE_HOME"
-    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME"/bin/$__LAUNCHER
+    _PENTAHO_JAVA="$_PENTAHO_JAVA_HOME/bin/$__LAUNCHER"
   else
     echo "WARNING: Using java from path"
     _PENTAHO_JAVA_HOME=
-    _PENTAHO_JAVA=$__LAUNCHER
+    _PENTAHO_JAVA="$__LAUNCHER"
   fi
   echo "DEBUG: _PENTAHO_JAVA_HOME=$_PENTAHO_JAVA_HOME"
   echo "DEBUG: _PENTAHO_JAVA=$_PENTAHO_JAVA"

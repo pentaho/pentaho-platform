@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.osgi;
 
@@ -60,8 +61,8 @@ public class SystemPackageExtrapolatorTest {
     assertTrue( "org.apache package should have been added", processedPackages
         .contains( "org.apache" ) );
 
-    assertTrue( "pentaho package should have been added with versioning", processedPackages
-        .contains( "org.slf4j.impl; version=\"1.7.7\"" ) );
+    assertTrue( "org.slf4j package should have been added with versioning", processedPackages
+        .contains( "org.slf4j; version=\"1.7.7\"" ) );
 
   }
 

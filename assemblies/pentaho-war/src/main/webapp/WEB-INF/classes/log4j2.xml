@@ -10,7 +10,7 @@
    | website: https://logging.apache.org/log4j/2.x/manual/configuration.html
  -->
 
-<Configuration name="PentahoPlatform" status="ERROR" dest="out">
+<Configuration name="PentahoPlatform" status="ERROR" dest="out" monitorInterval="30">
     <Appenders>
         <!-- ================================= -->
         <!-- Preserve messages in a local file -->
@@ -110,9 +110,8 @@
     <!-- Limit loggers    -->
     <!-- ================ -->
     <Loggers>
-        <Logger name="org.apache.hadoop.io.retry" level="INFO"/>
         <Logger name="org.hibernate" level="ERROR"/>
-        <Logger name="net.sf.ehcache" level="ERROR"/>
+        <Logger name="org.ehcache" level="ERROR"/>
         <Logger name="org.quartz" level="ERROR"/>
         <Logger name="org.springframework" level="ERROR"/>
         <Logger name="org.springframework.security" level="ERROR"/>
@@ -125,8 +124,8 @@
         <Logger name="org.pentaho.di.osgi" level="ERROR"/>
         <Logger name="org.pentaho.di.monitor" level="ERROR"/>
         <Logger name="org.pentaho.platform.engine.core.system.status" level="INFO"/>
-        <Logger name="org.pentaho.hadoop.shim.DriverManager" level="INFO"/>
         <Logger name="org.pentaho.reporting.engine.classic.core.modules.output.fast.validator.ReportStructureValidator" level="INFO"/>
+        <Logger name="org.pentaho.platform.engine.security.authorization" level="ERROR"/>
 
         <!-- =========================== -->
         <!-- Repository Import Log Level -->
@@ -145,6 +144,7 @@
         <!-- Set these to WARN to enable logging of scheduler output location validation and fallback process. -->
         <Logger name="org.pentaho.platform.scheduler2.action.SchedulerOutputPathResolver" level="WARN"/>
         <Logger name="org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver" level="WARN"/>
+        <Logger name="org.pentaho.platform.web.http.api.resources.SchedulerResource" level="WARN"/>
 
         <!-- =========================== -->
         <!-- Mondrian Log Levels         -->

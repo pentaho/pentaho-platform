@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.metadata;
 
@@ -44,7 +45,7 @@ class PentahoMetadataInformationMap {
   }
 
   public RepositoryFile getDomainFile( final String domainId ) {
-    Assert.notNull( domainId );
+    Assert.notNull( domainId, "Domain ID must not be null" );
     final Map<String, RepositoryFile> details = getDetails( domainId, false );
     if ( details != null ) {
       return details.get( DOMAIN_ID_KEY );

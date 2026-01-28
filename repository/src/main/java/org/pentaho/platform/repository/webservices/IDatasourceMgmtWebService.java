@@ -7,12 +7,13 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository.webservices;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 import java.util.List;
 
 @WebService
@@ -35,5 +36,7 @@ public interface IDatasourceMgmtWebService {
   public List<String> getDatasourceIds();
 
   public String updateDatasourceById( String id, DatabaseConnectionDto databaseConnection );
+
+  public default void logout() { }
 
 }

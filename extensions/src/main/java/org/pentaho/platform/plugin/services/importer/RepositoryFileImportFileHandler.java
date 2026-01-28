@@ -7,10 +7,24 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
 
+
 package org.pentaho.platform.plugin.services.importer;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -34,13 +48,6 @@ import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.springframework.util.Assert;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * User: nbaker Date: 5/29/12
@@ -151,7 +158,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   private void validateName( RepositoryFileImportBundle bundle ) throws PlatformImportException {
     if ( null != bundle ) {
       FileService fileService = new FileService();
-      String name = bundle.getName();
+      String name = getEncodedBundleName( bundle, StandardCharsets.UTF_8 );
       if ( bundle.isFolder() ) {
         if ( !fileService.isValidFolderName( name ) ) {
           throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0012_INVALID_FOLDER_NAME",
@@ -262,7 +269,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   }
 
   private void updateExtraMetaDataFromBundleHelper( RepositoryFileImportBundle bundle,
-                                                    RepositoryFile file, boolean isNew ) {
+                                                    RepositoryFile file, boolean isNew ) throws PlatformImportException {
     if ( bundle.getExtraMetaData() != null && bundle.getExtraMetaData().getExtraMetaData().size() > 0 ) {
       updateExtraMetaDataFromBundle( isNew, bundle, file );
     }
@@ -359,8 +366,9 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    *          The RepositoryImportBundle (which contains the effective manifest extraMetaData)
    * @param repositoryFile
    *          The <code>RepositoryFile</code> of the target file
+   * @throws PlatformImportException 
    */
-  private void updateExtraMetaDataFromBundle( boolean newFile, RepositoryFileImportBundle bundle, RepositoryFile repositoryFile ) {
+  private void updateExtraMetaDataFromBundle( boolean newFile, RepositoryFileImportBundle bundle, RepositoryFile repositoryFile ) throws PlatformImportException {
     updateExtraMetaData( newFile, repositoryFile, bundle.getExtraMetaData() );
   }
 
@@ -373,16 +381,30 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    *          The effect extraMetaData as defined in the manifest
    * @param repositoryFile
    *          The <code>RepositoryFile</code> of the target file
+   * @throws PlatformImportException 
    */
-  private void updateExtraMetaData( boolean newFile, RepositoryFile repositoryFile, RepositoryFileExtraMetaData repositoryFileExtraMetaData ) {
+  private void updateExtraMetaData( boolean newFile, RepositoryFile repositoryFile, RepositoryFileExtraMetaData repositoryFileExtraMetaData ) throws PlatformImportException {
     if ( repositoryFileExtraMetaData != null && !repositoryFileExtraMetaData.getExtraMetaData().isEmpty() ) {
       if ( newFile ) {
         getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.ExtraMetaDataToNewFile" ) );
       } else {
         getLogger().debug( messages.getString( "RepositoryFileImportFileHandler.ExtraMetaDataToExistingFile" ) );
       }
-      RepositoryFileExtraMetaData manifestExtraMetaData = repositoryFileExtraMetaData;
-      repository.setFileMetadata( repositoryFile.getId(), manifestExtraMetaData.getExtraMetaData() );
+      // Convert lastModified from ISO-8601 string back to Calendar
+      Map<String, Serializable> convertedMetadata = new HashMap<>();
+      for ( Map.Entry<String, Serializable> entry : repositoryFileExtraMetaData.getExtraMetaData().entrySet() ) {
+        if ( "lastModified".equals( entry.getKey() ) && entry.getValue() instanceof String stringVal ) {
+          try {
+            XMLGregorianCalendar xgc = DatatypeFactory.newInstance().newXMLGregorianCalendar( stringVal );
+            convertedMetadata.put( entry.getKey(), xgc.toGregorianCalendar() );
+          } catch ( Exception e ) {
+            throw new PlatformImportException( "Failed to parse lastModified value", e );
+          }
+        } else {
+          convertedMetadata.put( entry.getKey(), entry.getValue() );
+        }
+      }
+      repository.setFileMetadata( repositoryFile.getId(), convertedMetadata );
     }
   }
 
@@ -446,7 +468,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
           }
         }
         Serializable parentFileId = parentFile.getId();
-        Assert.notNull( parentFileId );
+        Assert.notNull( parentFileId, "Parent file ID must not be null" );
       }
     }
     return getParentId( repositoryPath );
@@ -478,14 +500,14 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    * @return
    */
   protected Serializable getParentId( final String repositoryPath ) {
-    Assert.notNull( repositoryPath );
+    Assert.notNull( repositoryPath, "Repository Path must not be null" );
     final String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator( repositoryPath );
     final RepositoryFile parentFile = repository.getFile( parentPath );
     if ( parentFile == null ) {
       return null;
     }
     Serializable parentFileId = parentFile.getId();
-    Assert.notNull( parentFileId );
+    Assert.notNull( parentFileId, "Parent file ID must not be null" );
     return parentFileId;
   }
 
@@ -506,7 +528,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     // The file doesn't exist and it is a folder. Create folder.
     getLogger().trace( messages.getString( "RepositoryFileImportFileHandler.CreatingImpliedFolder", folderPath ) );
     final Serializable parentId = getParentId( folderPath );
-    Assert.notNull( parentId );
+    Assert.notNull( parentId, "Parent ID must not be null" );
     boolean isHidden;
     if ( getImportSession().isFileHidden( manifestKey ) == null ) {
       isHidden = false;
@@ -552,5 +574,20 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   public List<String> getKnownExtensions() {
     return knownExtensions;
+  }
+
+  protected String getEncodedBundleName( RepositoryFileImportBundle bundle, Charset charset  ) throws PlatformImportException {
+    String name = bundle.getName();
+    try {
+      return URLEncoder.encode( name, charset );
+    } catch ( Exception ex ) {
+      if ( bundle.isFolder() ) {
+        throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0012_INVALID_FOLDER_NAME",
+          name ), PlatformImportException.PUBLISH_NAME_ERROR );
+      } else {
+        throw new PlatformImportException( messages.getString( "DefaultImportHandler.ERROR_0011_INVALID_FILE_NAME",
+          name ), PlatformImportException.PUBLISH_NAME_ERROR );
+      }
+    }
   }
 }
