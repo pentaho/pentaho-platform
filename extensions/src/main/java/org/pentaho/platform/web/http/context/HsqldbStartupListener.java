@@ -22,11 +22,13 @@ import org.pentaho.platform.web.hsqldb.messages.Messages;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -41,7 +43,7 @@ public class HsqldbStartupListener implements ServletContextListener {
     Object obj = ctx.getAttribute( "hsqldb-starter-bean" ); //$NON-NLS-1$
     if ( obj != null ) {
       logger.debug( "Context listener stopping Embedded HSQLDB" ); //$NON-NLS-1$
-      HsqlDatabaseStarterBean starterBean = (HsqlDatabaseStarterBean) obj;
+      HsqlDatabaseStarterBean starterBean = ( HsqlDatabaseStarterBean ) obj;
       starterBean.stop();
     }
   }
@@ -52,13 +54,13 @@ public class HsqldbStartupListener implements ServletContextListener {
     if ( dbs != null ) {
       String[] dbEntries = dbs.split( "," ); //$NON-NLS-1$
       for ( int i = 0; i < dbEntries.length; i++ ) {
-        String[] entry = dbEntries[ i ].split( "@" ); //$NON-NLS-1$
-        if ( ( entry.length != 2 ) || ( StringUtils.isEmpty( entry[ 0 ] ) ) || ( StringUtils.isEmpty( entry[ 1 ] ) ) ) {
+        String[] entry = dbEntries[i].split( "@" ); //$NON-NLS-1$
+        if ( ( entry.length != 2 ) || ( StringUtils.isEmpty( entry[0] ) ) || ( StringUtils.isEmpty( entry[1] ) ) ) {
           logger.error(
             Messages.getErrorString( "HsqlDatabaseStartupListener.ERROR_0001_HSQLDB_ENTRY_MALFORMED" ) ); //$NON-NLS-1$
           continue;
         }
-        map.put( entry[ 0 ], entry[ 1 ] );
+        map.put( entry[0], entry[1] );
       }
     }
     return map;
@@ -67,72 +69,93 @@ public class HsqldbStartupListener implements ServletContextListener {
   /**
    * Load data from .script file into an in-memory HSQLDB database
    * For in-memory databases, we connect directly without a server port.
-   * @param dbName The database name (e.g., "sampledata")
+   *
+   * @param dbName     The database name (e.g., "sampledata")
    * @param scriptPath The path to the .script file
    */
   private void loadDatabaseFromScript( String dbName, String scriptPath ) {
+    File scriptFile = new File( scriptPath );
+    if ( !scriptFile.exists() ) {
+      logger.warn( String.format( "Script file not found for database %s: %s", dbName, scriptPath ) ); //$NON-NLS-1$
+      return;
+    }
+
+    String jdbcUrl = String.format( "jdbc:hsqldb:mem:%s", dbName ); //$NON-NLS-1$
     try {
-      File scriptFile = new File( scriptPath );
-      if ( !scriptFile.exists() ) {
-        logger.warn( String.format( "Script file not found for database %s: %s", dbName, scriptPath ) ); //$NON-NLS-1$
-        return;
-      }
-
-      // Connect to the in-memory database directly (no server needed)
-      String jdbcUrl = String.format( "jdbc:hsqldb:mem:%s", dbName ); //$NON-NLS-1$
-      Connection conn = null;
-      try {
-        conn = DriverManager.getConnection( jdbcUrl, "sa", "" ); //$NON-NLS-1$ //$NON-NLS-2$
-        Statement stmt = conn.createStatement();
-
-        // Read and execute SQL from script file
-        try ( BufferedReader reader = new BufferedReader( new FileReader( scriptFile ) ) ) {
-          StringBuilder sqlBuilder = new StringBuilder();
-          String line;
-          int lineNum = 0;
-
-          while ( ( line = reader.readLine() ) != null ) {
-            lineNum++;
-            line = line.trim();
-
-            // Skip empty lines and comments
-            if ( line.isEmpty() || line.startsWith( "--" ) ) {
-              continue;
-            }
-
-            sqlBuilder.append( line ).append( "\n" ); //$NON-NLS-1$
-
-            // Execute statement when we hit a semicolon
-            if ( line.endsWith( ";" ) ) {
-              String sql = sqlBuilder.toString().trim();
-              if ( !sql.isEmpty() ) {
-                try {
-                  stmt.execute( sql );
-                } catch ( Exception e ) {
-                  logger.warn( String.format( "Error executing SQL at line %d in %s: %s", lineNum, scriptPath, e.getMessage() ) ); //$NON-NLS-1$
-                  // Continue processing despite errors
-                }
-              }
-              sqlBuilder = new StringBuilder();
-            }
-          }
-
-          stmt.close();
-          logger.info( String.format( "Successfully loaded data for database %s from %s", dbName, scriptPath ) ); //$NON-NLS-1$
-        }
-      } catch ( Exception e ) {
-        logger.warn( String.format( "Failed to load data for database %s: %s", dbName, e.getMessage() ) ); //$NON-NLS-1$
-      } finally {
-        if ( conn != null ) {
-          try {
-            conn.close();
-          } catch ( Exception e ) {
-            // Ignore
-          }
-        }
-      }
+      loadScriptIntoDatabase( dbName, jdbcUrl, scriptFile );
     } catch ( Exception e ) {
-      logger.warn( String.format( "Error loading database %s: %s", dbName, e.getMessage() ) ); //$NON-NLS-1$
+      logger.warn( String.format( "Failed to load data for database %s: %s", dbName, e.getMessage() ) ); //$NON-NLS-1$
+    }
+  }
+
+  /**
+   * Executes SQL statements from a script file against a database connection
+   *
+   * @param dbName     The database name for logging
+   * @param jdbcUrl    The JDBC connection URL
+   * @param scriptFile The script file to load
+   * @throws SQLException if an error occurs during script execution
+   */
+  private void loadScriptIntoDatabase( String dbName, String jdbcUrl, File scriptFile ) throws SQLException {
+    try ( Connection conn = DriverManager.getConnection( jdbcUrl, "sa", "password" ); //$NON-NLS-1$ //$NON-NLS-2$
+          Statement stmt = conn.createStatement() ) {
+      executeSqlStatements( dbName, scriptFile, stmt );
+      logger.info( String.format( "Successfully loaded data for database %s from %s", dbName, scriptFile.getAbsolutePath() ) ); //$NON-NLS-1$
+    }
+  }
+
+  /**
+   * Reads and executes SQL statements from a script file
+   *
+   * @param dbName     The database name for logging
+   * @param scriptFile The script file to read from
+   * @param stmt       The Statement to execute SQL with
+   * @throws Exception if an error occurs during file reading
+   */
+  private void executeSqlStatements( String dbName, File scriptFile, Statement stmt ) throws Exception {
+    try ( BufferedReader reader = new BufferedReader( new FileReader( scriptFile ) ) ) {
+      StringBuilder sqlBuilder = new StringBuilder();
+      String line;
+      int lineNum = 0;
+
+      while ( ( line = reader.readLine() ) != null ) {
+        lineNum++;
+        line = line.trim();
+
+        // Skip empty lines and comments
+        if ( line.isEmpty() || line.startsWith( "--" ) ) {
+          continue;
+        }
+
+        sqlBuilder.append( line ).append( "\n" ); //$NON-NLS-1$
+
+        // Execute statement when we hit a semicolon
+        if ( line.endsWith( ";" ) ) {
+          executeSingleStatement( stmt, sqlBuilder, lineNum, dbName, scriptFile.getAbsolutePath() );
+          sqlBuilder = new StringBuilder();
+        }
+      }
+    }
+  }
+
+  /**
+   * Executes a single SQL statement and logs any errors
+   *
+   * @param stmt       The Statement to execute
+   * @param sqlBuilder The StringBuilder containing the SQL
+   * @param lineNum    The line number for error reporting
+   * @param dbName     The database name for logging
+   * @param scriptPath The script file path for logging
+   */
+  private void executeSingleStatement( Statement stmt, StringBuilder sqlBuilder, int lineNum, String dbName, String scriptPath ) {
+    String sql = sqlBuilder.toString().trim();
+    if ( !sql.isEmpty() ) {
+      try {
+        stmt.execute( sql );
+      } catch ( SQLException e ) {
+        logger.warn( String.format( "Error executing SQL at line %d in %s for database %s: %s", lineNum, scriptPath, dbName, e.getMessage() ) ); //$NON-NLS-1$
+        // Continue processing despite errors
+      }
     }
   }
 
@@ -197,10 +220,10 @@ public class HsqldbStartupListener implements ServletContextListener {
 
     if ( starterBean.start() ) {
       ctx.setAttribute( "hsqldb-starter-bean", starterBean ); //$NON-NLS-1$
-      
+
       // Load database scripts synchronously for in-memory databases before other components initialize
       loadAllDatabaseScripts( ctx, databases );
-      
+
       logger.info( "HSQLDB data loading completed. Proceeding with application initialization." ); //$NON-NLS-1$
     }
 
