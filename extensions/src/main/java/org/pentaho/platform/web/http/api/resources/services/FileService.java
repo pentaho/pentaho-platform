@@ -1710,11 +1710,7 @@ public class FileService {
     if ( movedFile != null ) {
       if ( !movedFile.isFolder() ) {
         Map<String, Properties> localePropertiesMap = movedFile.getLocalePropertiesMap();
-        String titleName = newName;
-        @SuppressWarnings( "unchecked" ) List<String> knownExtensions = PentahoSystem.get( List.class, "extensions", null );
-        if ( extension != null && extension.length() > 1 && knownExtensions != null && !knownExtensions.contains( extension.substring( 1 ) ) ) {
-          titleName = newName + extension;
-        }
+        String titleName = getFileNameWithExtension( newName, extension );
         if ( localePropertiesMap == null ) {
           localePropertiesMap = new HashMap<String, Properties>();
           Properties properties = new Properties();
@@ -1742,6 +1738,15 @@ public class FileService {
       return false;
       //return Response.ok( "File to be renamed does not exist" ).build();
     }
+  }
+
+  private static String getFileNameWithExtension( String newName, String extension ) {
+    String titleName = newName;
+    @SuppressWarnings( "unchecked" ) List<String> knownExtensions = PentahoSystem.get( List.class, "extensions", null );
+    if ( extension != null && extension.length() > 1 && knownExtensions != null && !knownExtensions.contains( extension.substring( 1 ) ) ) {
+      titleName = newName + extension;
+    }
+    return titleName;
   }
 
   /**
