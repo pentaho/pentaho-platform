@@ -508,7 +508,6 @@
     <dependency>
       <groupId>org.eclipse.angus</groupId>
       <artifactId>jakarta.mail</artifactId>
-      <version>${jakarta.mail-api.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
