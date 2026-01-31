@@ -5,20 +5,20 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>11.1.0.0-SNAPSHOT</version>
+    <version>11.1.0.0-125</version>
   </parent>
   <artifactId>pentaho-platform-api</artifactId>
-  <version>11.1.0.0-SNAPSHOT</version>
+  <version>11.1.0.0-125</version>
   <properties>
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
     <commons-lang.version>2.6</commons-lang.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
-    <pentaho-connections.version>11.1.0.0-SNAPSHOT</pentaho-connections.version>
-    <pentaho-actionsequence-dom.version>11.1.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
-    <commons-xul.version>11.1.0.0-SNAPSHOT</commons-xul.version>
-    <commons-database.version>11.1.0.0-SNAPSHOT</commons-database.version>
-    <pentaho-osgi-bundles.version>11.1.0.0-SNAPSHOT</pentaho-osgi-bundles.version>
+    <pentaho-connections.version>11.1.0.0-125</pentaho-connections.version>
+    <pentaho-actionsequence-dom.version>11.1.0.0-125</pentaho-actionsequence-dom.version>
+    <commons-xul.version>11.1.0.0-125</commons-xul.version>
+    <commons-database.version>11.1.0.0-125</commons-database.version>
+    <pentaho-osgi-bundles.version>11.1.0.0-125</pentaho-osgi-bundles.version>
     <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
   </properties>
   <dependencies>
