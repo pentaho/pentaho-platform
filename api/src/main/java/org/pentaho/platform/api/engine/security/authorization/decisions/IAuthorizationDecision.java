@@ -91,6 +91,22 @@ public interface IAuthorizationDecision {
   String getShortJustification();
 
   /**
+   * Gets a short, human-readable justification for the opposed authorization decision.
+   * <p>
+   * The default implementation of this method returns "Not " + {@link #getShortJustification()} and is intended for
+   * backward compatibility.
+   * <p>
+   * Implementations should override this method to provide a more meaningful, localized justification.
+   *
+   * @return A short justification for the opposed decision.
+   */
+  @NonNull
+  default String getOpposedShortJustification() {
+    // Example: "Not From action 'Other'"
+    return "Not " + getShortJustification();
+  }
+
+  /**
    * Gets the base decision type.
    *
    * @return The base decision type class; one of {@link IAllAuthorizationDecision}, {@link IAnyAuthorizationDecision},
