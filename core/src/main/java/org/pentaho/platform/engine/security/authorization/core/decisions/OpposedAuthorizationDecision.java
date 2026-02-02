@@ -15,15 +15,9 @@ package org.pentaho.platform.engine.security.authorization.core.decisions;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IOpposedAuthorizationDecision;
-import org.pentaho.platform.engine.security.messages.Messages;
-
-import java.text.MessageFormat;
 
 public class OpposedAuthorizationDecision extends AbstractAuthorizationDecision
   implements IOpposedAuthorizationDecision {
-
-  private static final String JUSTIFICATION =
-    Messages.getInstance().getString( "OpposedAuthorizationDecision.JUSTIFICATION" );
 
   @NonNull
   private final IAuthorizationDecision opposedToDecision;
@@ -44,8 +38,9 @@ public class OpposedAuthorizationDecision extends AbstractAuthorizationDecision
   @NonNull
   @Override
   public String getShortJustification() {
-    // Example: "Opposing: <opposed decision justification>"
-    return MessageFormat.format( JUSTIFICATION, opposedToDecision );
+    // The opposed decision's justification explains WHY it has its status,
+    // which is the same condition that the base decision evaluated.
+    return opposedToDecision.getShortJustification();
   }
 
   @Override
