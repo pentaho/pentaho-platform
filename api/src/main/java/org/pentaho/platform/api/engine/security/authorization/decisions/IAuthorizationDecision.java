@@ -77,11 +77,22 @@ public interface IAuthorizationDecision {
    * <p>
    * Can be empty, for degenerate decision objects with no additional information, or for composite decisions.
    * <p>
-   * Examples;
+   * Text can contain simple markdown-like syntax, that UIs should attempt to honor if possible:
+   * <ul>
+   *   <li>{@code *text*} or {@code _text_} for italic</li>
+   *   <li>{@code **text**} or {@code __text__} for bold</li>
+   *   <li>{@code ***text***} or {@code ___text___} for bold and italic</li>
+   *   <li>{@code \*} for literal {@code *}</li>
+   *   <li>{@code \_} for literal {@code _}</li>
+   *   <li>{@code *unbalanced}, {@code *mismatch_ed} or empty delimiters, {@code __} and {@code **}, are left as is</li>
+   * </ul>
+   * <p>
+   * Examples:
    * <ul>
    *   <li>"" - degenerate, empty, or composite</li>
-   *   <li>"From action 'Other'"</li>
-   *   <li>"Requires action 'Other'" - for a decision denied due to requiring a grant for another action (if !A then !C)</li>
+   *   <li>"From action _Other_"</li>
+   *   <li>"Requires action **Other**" - for a decision denied due to requiring a grant for another action (if !A
+   *   then !C)</li>
    *   <li>"From role 'Administrator'"</li>
    * </ul>
    *
@@ -103,14 +114,14 @@ public interface IAuthorizationDecision {
   @NonNull
   default String getOpposedShortJustification() {
     // Example: "Not From action 'Other'"
-    return "Not " + getShortJustification();
+    return "_Not_ " + getShortJustification();
   }
 
   /**
    * Gets the base decision type.
    *
    * @return The base decision type class; one of {@link IAllAuthorizationDecision}, {@link IAnyAuthorizationDecision},
-   *         {@link IOpposedAuthorizationDecision}, or {@link IAuthorizationDecision}.
+   * {@link IOpposedAuthorizationDecision}, or {@link IAuthorizationDecision}.
    */
   @NonNull
   default Class<? extends IAuthorizationDecision> getBaseType() {
