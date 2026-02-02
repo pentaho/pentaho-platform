@@ -45,11 +45,13 @@ public class OpposedAuthorizationDecisionTest {
     when( grantedDecision.isGranted() ).thenReturn( true );
     when( grantedDecision.getRequest() ).thenReturn( request );
     when( grantedDecision.toString() ).thenReturn( "GrantedDecision" );
+    when( grantedDecision.getShortJustification() ).thenReturn( "Because yes" );
 
     deniedDecision = mock( IAuthorizationDecision.class );
     when( deniedDecision.isGranted() ).thenReturn( false );
     when( deniedDecision.getRequest() ).thenReturn( request );
     when( deniedDecision.toString() ).thenReturn( "DeniedDecision" );
+    when( deniedDecision.getShortJustification() ).thenReturn( "Because not" );
   }
 
   @Test

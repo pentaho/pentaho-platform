@@ -48,6 +48,22 @@ public abstract class AbstractAuthorizationDecision implements IAuthorizationDec
   @NonNull
   @Override
   public String getShortJustification() {
+    return getShortJustification( isGranted() );
+  }
+
+  @NonNull
+  @Override
+  public String getOpposedShortJustification() {
+    return getShortJustification( isDenied() );
+  }
+
+  /**
+   * Gets a short justification string based on whether the decision is granted or denied.
+   * @param granted {@code true}, to get the justification for a granted decision; {@code false}, for a denied decision.
+   * @return The short justification string.
+   */
+  @NonNull
+  protected String getShortJustification( boolean granted ) {
     return "";
   }
 
