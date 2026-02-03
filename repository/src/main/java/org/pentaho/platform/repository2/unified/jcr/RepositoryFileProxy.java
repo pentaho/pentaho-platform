@@ -351,14 +351,6 @@ public class RepositoryFileProxy extends RepositoryFile {
       if ( tmpCal != null ) {
         lastModified = tmpCal.getTime();
       }
-    } else if ( JcrRepositoryFileUtils.isPentahoFolder( getPentahoJcrConstants(), node ) && node.hasNode( getPentahoJcrConstants().getPHO_METADATA() ) ) {
-      Node metadataNode = node.getNode( getPentahoJcrConstants().getPHO_METADATA() );
-      if ( metadataNode.hasProperty( getPentahoJcrConstants().getPHO_LASTMODIFIED() ) ) {
-        Calendar tmpCal = metadataNode.getProperty( getPentahoJcrConstants().getPHO_LASTMODIFIED() ).getDate();
-        if ( tmpCal != null ) {
-          lastModified = tmpCal.getTime();
-        }
-      }
     }
     return lastModified;
   }

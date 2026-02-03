@@ -665,7 +665,6 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         Serializable parentFolderId = JcrRepositoryFileUtils.getParentId( session, fileId );
         JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants, parentFolderId );
         deleteHelper.deleteFile( session, pentahoJcrConstants, fileId );
-        JcrRepositoryFileUtils.updateParentFolderLastModified( session, pentahoJcrConstants, parentFolderId );
         session.save();
         JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants, parentFolderId,
             versionMessage );
@@ -936,9 +935,6 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
               srcParentFolderId );
         }
-        if ( destParentFolderNode == null ) {
-          throw new UnifiedRepositoryException( "Destination parent folder node is null." );
-        }
         JcrRepositoryFileUtils.checkoutNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
             destParentFolderNode );
         String finalEncodedSrcAbsPath = srcFileNode.getPath();
@@ -962,19 +958,6 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         } catch ( ItemExistsException iae ) {
           throw new UnifiedRepositoryException( ( file.isFolder() ? "Folder " : "File " ) + "with path ["
               + cleanDestAbsPath + "] already exists in the repository" );
-        }
-
-        // Always update the destination parent folder's lastModified (for both move and copy).
-        JcrRepositoryFileUtils.updateParentFolderLastModified( session, pentahoJcrConstants, destParentFolderNode.getIdentifier() );
-
-        // If moving (not copying) and the source parent is different from the destination parent, update the source parent's lastModified.
-        if ( !copy && !destParentFolderNode.getIdentifier().equals( srcParentFolderId.toString() ) ) {
-          JcrRepositoryFileUtils.updateParentFolderLastModified( session, pentahoJcrConstants, srcParentFolderId );
-        }
-
-        // If this is a rename (move within the same parent), update the folder's own lastModified
-        if (!copy && file.isFolder() && destParentFolderNode.getIdentifier().equals(srcParentFolderId.toString())) {
-          JcrRepositoryFileUtils.updateParentFolderLastModified(session, pentahoJcrConstants, fileId);
         }
 
         JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
