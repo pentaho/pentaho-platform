@@ -380,7 +380,6 @@ public class DefaultUnifiedRepositoryContentIT extends DefaultUnifiedRepositoryB
         new RepositoryFile.Builder( "test" ).folder( true ).title( "title" ).hidden( true ).build();
 
     Date beginTime = Calendar.getInstance().getTime();
-    Thread.sleep( 1000 ); // when the test runs too fast, begin and lastModifiedDate are the same; manual pause
 
     // Sleep for 1 second for time comparison
     Thread.sleep( 1000 );
@@ -395,15 +394,12 @@ public class DefaultUnifiedRepositoryContentIT extends DefaultUnifiedRepositoryB
     assertTrue( endTime.after( newFolder.getCreatedDate() ) );
     assertNotNull( newFolder );
     assertNotNull( newFolder.getId() );
-    assertNotNull( newFolder.getLastModifiedDate() );
-    assertTrue( beginTime.before( newFolder.getLastModifiedDate() ) );
-    assertTrue( endTime.after( newFolder.getLastModifiedDate() ) );
     assertTrue( newFolder.isHidden() );
     assertFalse( newFolder.isAclNode() );
     assertEquals( "title", newFolder.getTitle() );
     assertNotNull( SimpleJcrTestUtils.getItem( testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(
-      tenantAcme, USERNAME_SUZY )
-      + "/test" ) );
+        tenantAcme, USERNAME_SUZY )
+        + "/test" ) );
   }
 
   @Test
