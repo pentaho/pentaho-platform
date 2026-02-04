@@ -25,6 +25,7 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationCont
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationOptions;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRuleOverrider;
 import org.pentaho.platform.api.engine.security.authorization.caching.IAuthorizationDecisionCache;
 import org.pentaho.platform.api.engine.security.authorization.caching.IAuthorizationDecisionCacheKey;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
@@ -38,11 +39,13 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.pentaho.platform.engine.security.authorization.core.AuthorizationTestHelpers.createMockRule;
 import static org.pentaho.platform.engine.security.authorization.core.AuthorizationTestHelpers.createTestAction;
@@ -409,6 +412,28 @@ public class CachingAuthorizationServiceTest {
     // Logging is verified through the LogFactory mock setup in @BeforeClass
   }
 
+  @Test
+  public void testNoCachingWhenRuleOverridesExist() {
+    IAuthorizationRuleOverrider mockOverrider = mock( IAuthorizationRuleOverrider.class );
+    IAuthorizationRule<IAuthorizationRequest> overriddenRule = createMockRule();
+    IAuthorizationDecision overrideDecision = mock( IAuthorizationDecision.class );
+
+    doReturn( overriddenRule ).when( mockOverrider ).override( any() );
+    doReturn( Optional.of( overrideDecision ) )
+      .when( overriddenRule )
+      .authorize( any( IAuthorizationRequest.class ), any( IAuthorizationContext.class ) );
+
+    // Configure options to specify the override rule overrider.
+    IAuthorizationOptions mockOptions = mock( IAuthorizationOptions.class );
+    when( mockOptions.getAuthorizationRuleOverrider() ).thenReturn( mockOverrider );
+
+    // Use the existing service instance.
+    service.authorize( request, mockOptions );
+
+    // Verify that no caching occurred.
+    verify( mockOverrider, times( 1 ) ).override( any() );
+    verifyNoInteractions( decisionCache );
+  }
   // endregion
 
   // region Helper Methods

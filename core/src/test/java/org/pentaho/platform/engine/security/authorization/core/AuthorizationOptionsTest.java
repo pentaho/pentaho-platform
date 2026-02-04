@@ -14,10 +14,13 @@ package org.pentaho.platform.engine.security.authorization.core;
 
 import org.junit.Test;
 import org.pentaho.platform.api.engine.security.authorization.AuthorizationDecisionReportingMode;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRuleOverrider;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 public class AuthorizationOptionsTest {
 
@@ -25,12 +28,22 @@ public class AuthorizationOptionsTest {
   public void testDefaultConstructor() {
     var options = new AuthorizationOptions();
     assertEquals( AuthorizationDecisionReportingMode.SETTLED, options.getDecisionReportingMode() );
+    assertNull( options.getAuthorizationRuleOverrider() );
   }
 
   @Test
   public void testConstructorWithDecisionReportingMode() {
     var options = new AuthorizationOptions( AuthorizationDecisionReportingMode.FULL );
     assertEquals( AuthorizationDecisionReportingMode.FULL, options.getDecisionReportingMode() );
+  }
+
+  @Test
+  public void testConstructorWithAllArguments() {
+    var overrider = mock( IAuthorizationRuleOverrider.class );
+    var options = new AuthorizationOptions( AuthorizationDecisionReportingMode.FULL, overrider );
+
+    assertEquals( AuthorizationDecisionReportingMode.FULL, options.getDecisionReportingMode() );
+    assertEquals( overrider, options.getAuthorizationRuleOverrider() );
   }
 
   @Test( expected = IllegalArgumentException.class )
@@ -40,10 +53,19 @@ public class AuthorizationOptionsTest {
   }
 
   @Test
+  public void testConstructorWithNullAuthorizationRuleOverrider() {
+    var options = new AuthorizationOptions( AuthorizationDecisionReportingMode.FULL, null );
+    assertNull( options.getAuthorizationRuleOverrider() );
+  }
+
+  @Test
   public void testEqualsAndHashCode() {
-    var options1 = new AuthorizationOptions( AuthorizationDecisionReportingMode.FULL );
-    var options2 = new AuthorizationOptions( AuthorizationDecisionReportingMode.FULL );
-    var options3 = new AuthorizationOptions( AuthorizationDecisionReportingMode.SETTLED );
+    var overrider1 = mock( IAuthorizationRuleOverrider.class );
+    var overrider2 = mock( IAuthorizationRuleOverrider.class );
+
+    var options1 = new AuthorizationOptions( AuthorizationDecisionReportingMode.FULL, overrider1 );
+    var options2 = new AuthorizationOptions( AuthorizationDecisionReportingMode.FULL, overrider1 );
+    var options3 = new AuthorizationOptions( AuthorizationDecisionReportingMode.SETTLED, overrider2 );
 
     var notOptions = new Object();
     assertNotEquals( options1, notOptions );
@@ -56,7 +78,11 @@ public class AuthorizationOptionsTest {
 
   @Test
   public void testToStringFormat() {
-    var options = new AuthorizationOptions( AuthorizationDecisionReportingMode.FULL );
-    assertTrue( options.toString().contains( "FULL" ) );
+    var overrider = mock( IAuthorizationRuleOverrider.class );
+    var options = new AuthorizationOptions( AuthorizationDecisionReportingMode.FULL, overrider );
+    String toString = options.toString();
+
+    assertTrue( toString.contains( "FULL" ) );
+    assertTrue( toString.contains( overrider.toString() ) );
   }
 }
