@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -47,6 +48,24 @@ class IAuthorizationOptionsTest {
 
     assertSame( mode1, mode2 );
     assertEquals( AuthorizationDecisionReportingMode.SETTLED, mode1 );
+  }
+
+  @Test
+  void testGetDefaultReturnsNullAuthorizationRuleOverrider() {
+    IAuthorizationOptions options = IAuthorizationOptions.getDefault();
+    assertNull( options.getAuthorizationRuleOverrider() );
+  }
+
+  @Test
+  void testGetDefaultAuthorizationRuleOverriderConsistentBehavior() {
+    IAuthorizationOptions options = IAuthorizationOptions.getDefault();
+
+    // Test that multiple calls to getAuthorizationRuleOverrider return the same value (null)
+    IAuthorizationRuleOverrider overrider1 = options.getAuthorizationRuleOverrider();
+    IAuthorizationRuleOverrider overrider2 = options.getAuthorizationRuleOverrider();
+
+    assertSame( overrider1, overrider2 );
+    assertNull( overrider1 );
   }
 
   // endregion
@@ -114,6 +133,16 @@ class IAuthorizationOptionsTest {
 
     assertNotNull( result );
     assertTrue( result.contains( AuthorizationDecisionReportingMode.SETTLED.toString() ) );
+  }
+
+  @Test
+  void testToStringContainsAuthorizationRuleOverrider() {
+    var options = IAuthorizationOptions.getDefault();
+
+    var result = options.toString();
+
+    assertNotNull( result );
+    assertTrue( result.contains( "authorizationRuleOverrider" ) );
   }
   // endregion
 }
