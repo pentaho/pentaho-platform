@@ -5,22 +5,22 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>11.1.0.0-SNAPSHOT</version>
+    <version>11.1.0.0-129</version>
   </parent>
   <artifactId>pentaho-platform-core</artifactId>
-  <version>11.1.0.0-SNAPSHOT</version>
+  <version>11.1.0.0-129</version>
   <properties>
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <powermock.version>1.6.3</powermock.version>
     <jcommon.version>1.0.14</jcommon.version>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
     <license.header.file>${basedir}/../license/templates/GPL-2.0.txt</license.header.file>
-    <commons-xul.version>11.1.0.0-SNAPSHOT</commons-xul.version>
-    <pentaho-connections.version>11.1.0.0-SNAPSHOT</pentaho-connections.version>
-    <pentaho-actionsequence-dom.version>11.1.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
-    <pentaho-metadata.version>11.1.0.0-SNAPSHOT</pentaho-metadata.version>
-    <pentaho-versionchecker.version>11.1.0.0-SNAPSHOT</pentaho-versionchecker.version>
-    <pdi.version>11.1.0.0-SNAPSHOT</pdi.version>
+    <commons-xul.version>11.1.0.0-129</commons-xul.version>
+    <pentaho-connections.version>11.1.0.0-129</pentaho-connections.version>
+    <pentaho-actionsequence-dom.version>11.1.0.0-129</pentaho-actionsequence-dom.version>
+    <pentaho-metadata.version>11.1.0.0-129</pentaho-metadata.version>
+    <pentaho-versionchecker.version>11.1.0.0-129</pentaho-versionchecker.version>
+    <pdi.version>11.1.0.0-129</pdi.version>
   </properties>
   <dependencies>
     <dependency>
