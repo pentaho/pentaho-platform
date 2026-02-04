@@ -7,15 +7,16 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.servlet;
 
 import com.ice.tar.TarEntry;
 import com.ice.tar.TarInputStream;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.pentaho.di.core.util.StringUtil;
@@ -24,7 +25,7 @@ import org.pentaho.platform.api.util.ITempFileDeleter;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.servlet.messages.Messages;
 
-import javax.servlet.http.Part;
+import jakarta.servlet.http.Part;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;

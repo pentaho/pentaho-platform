@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.commons.util.repository;
 
@@ -30,7 +31,7 @@ public class GetCheckedoutDocsResponseTest {
     GetCheckedoutDocsResponse response = new GetCheckedoutDocsResponse();
     List<CmisObject> docList = Arrays.asList( new CmisObject[] { mock( CmisObject.class ), mock( CmisObject.class ), mock( CmisObject.class ) } );
     response.setDocs( docList );
-    Assert.notEmpty( response.getDocs() );
+    Assert.notEmpty( response.getDocs(), "The document list must not be empty" );
   }
 
   @Test

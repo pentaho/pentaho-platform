@@ -7,14 +7,15 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
 import java.util.List;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -44,5 +45,10 @@ public class DiUnifiedRepositoryJaxwsWebService extends DefaultUnifiedRepository
   @Override
   public List<RepositoryFileDto> getDeletedFiles() {
     return marshalFiles( repo.getAllDeletedFiles() );
+  }
+
+  @Override
+  public void logout() {
+    // no-op, handled in PentahoWSSpringServlet
   }
 }

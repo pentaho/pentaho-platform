@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package com.pentaho.pdi.ws;
 
@@ -25,7 +26,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 import java.io.Serializable;
 import java.io.StringBufferInputStream;
 
@@ -145,5 +146,10 @@ public class RepositorySyncWebService implements IRepositorySyncWebService, Seri
     }
     repMeta.loadXML( node, null );
     return repMeta;
+  }
+
+  @Override
+  public void logout() {
+    // no-op, handled in PentahoWSSpringServlet
   }
 }

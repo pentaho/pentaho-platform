@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources;
 
@@ -20,6 +21,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
@@ -29,12 +31,7 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterH
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
-import org.pentaho.platform.api.repository2.unified.webservices.LocaleMapDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclAceDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
-import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.api.repository2.unified.webservices.*;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
@@ -46,17 +43,18 @@ import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedReposi
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 import org.pentaho.platform.web.http.api.resources.utils.FileUtils;
+import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.stream.StreamSource;
@@ -68,6 +66,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLDecoder;
 import java.nio.channels.IllegalSelectorException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
@@ -75,9 +74,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.OK;
+import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
+import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.OK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -86,6 +85,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -96,6 +96,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -715,6 +716,33 @@ public class FileResourceTest {
   }
 
   @Test
+  public void testDoesFileExists() throws Exception {
+    // Test Case 1: File exists, expect 200 (OK)
+    String validPathId = "validPathId";
+    doReturn( true ).when( fileResource.fileService ).doesExist( URLDecoder.decode(
+            validPathId, "UTF-8" ) );
+
+    Response response = fileResource.doesFileExists( validPathId );
+    assertEquals( Response.Status.OK.getStatusCode(), response.getStatus() );
+
+    // Test Case 2: File does not exist, expect 404 ( not found)
+    String invalidPathId = "invalidPathId";
+    doReturn( false ).when( fileResource.fileService ).doesExist( URLDecoder.decode(
+            invalidPathId, "UTF-8" ) );
+
+    response = fileResource.doesFileExists( invalidPathId );
+    assertEquals( Response.Status.NOT_FOUND.getStatusCode(), response.getStatus() );
+
+    // Test Case 3: Unexpected exception occurs, expect 500 (internal server error)
+    String pathIdForError = "pathForError";
+    doThrow( new RuntimeException( "Unexpected error" ) ).when( fileResource.fileService ).doesExist( URLDecoder.decode(
+            pathIdForError, "UTF-8" ) );
+
+    response = fileResource.doesFileExists( pathIdForError );
+    assertEquals( Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus( ) );
+  }
+
+  @Test
   public void testDoIsParameterizableError() throws Exception {
 
 
@@ -1231,8 +1259,8 @@ public class FileResourceTest {
     List<LocaleMapDto> mockList = mock( List.class );
     doReturn( mockList ).when( fileResource.fileService ).doGetFileLocales( PATH_ID );
 
-    List<LocaleMapDto> testLocales = fileResource.doGetFileLocales( PATH_ID );
-    assertEquals( mockList, testLocales );
+    LocaleMapDtoWrapper testLocales = fileResource.doGetFileLocales( PATH_ID );
+    assertEquals( mockList, testLocales.getLocalePropertiesMapEntries() );
 
     verify( fileResource.fileService, times( 1 ) ).doGetFileLocales( PATH_ID );
   }
@@ -1248,15 +1276,15 @@ public class FileResourceTest {
     Exception mockFileNotFoundException = mock( FileNotFoundException.class );
     doThrow( mockFileNotFoundException ).when( fileResource.fileService ).doGetFileLocales( PATH_ID );
 
-    List<LocaleMapDto> testLocales = fileResource.doGetFileLocales( PATH_ID );
-    assertEquals( 0, testLocales.size() );
+    LocaleMapDtoWrapper testLocales = fileResource.doGetFileLocales( PATH_ID );
+    assertEquals( 0, testLocales.getLocalePropertiesMapEntries().size() );
 
     // Test 2
     Throwable mockThrowable = mock( RuntimeException.class );
     doThrow( mockThrowable ).when( fileResource.fileService ).doGetFileLocales( PATH_ID );
 
     testLocales = fileResource.doGetFileLocales( PATH_ID );
-    assertEquals( 0, testLocales.size() );
+    assertEquals( 0, testLocales.getLocalePropertiesMapEntries().size() );
 
     verify( fileResource, times( 2 ) ).getMessagesInstance();
     verify( mockMessages, times( 1 ) ).getErrorString( "FileResource.FILE_NOT_FOUND", PATH_ID );
@@ -1271,8 +1299,8 @@ public class FileResourceTest {
     List<StringKeyStringValueDto> mockList = mock( List.class );
     doReturn( mockList ).when( fileResource.fileService ).doGetLocaleProperties( PATH_ID, locale );
 
-    List<StringKeyStringValueDto> testList = fileResource.doGetLocaleProperties( PATH_ID, locale );
-    assertEquals( testList, mockList );
+   StringKeyStringValueDtoWrapper testList = fileResource.doGetLocaleProperties( PATH_ID, locale );
+    assertEquals( testList.getStringKeyStringValueDtoes(), mockList );
   }
 
   @Test
@@ -1328,8 +1356,8 @@ public class FileResourceTest {
     List<Setting> mockList = mock( List.class );
     doReturn( mockList ).when( fileResource.fileService ).doGetPathsAccessList( pathsWrapper );
 
-    List<Setting> testList = fileResource.doGetPathsAccessList( pathsWrapper );
-    assertEquals( mockList, testList );
+    SettingsWrapper testList = fileResource.doGetPathsAccessList( pathsWrapper );
+    assertEquals( mockList, testList.getSettings() );
 
     verify( fileResource.fileService, times( 1 ) ).doGetPathsAccessList( pathsWrapper );
   }
@@ -1342,8 +1370,8 @@ public class FileResourceTest {
     List<Setting> mockList = mock( List.class );
     doReturn( mockList ).when( fileResource.fileService ).doGetCanAccessList( PATH_ID, permissions );
 
-    List<Setting> testList = fileResource.doGetCanAccessList( PATH_ID, permissions );
-    assertEquals( mockList, testList );
+    SettingsWrapper testList = fileResource.doGetCanAccessList( PATH_ID, permissions );
+    assertEquals( mockList, testList.getSettings() );
 
     verify( fileResource.fileService, times( 1 ) ).doGetCanAccessList( PATH_ID, permissions );
   }
@@ -1503,8 +1531,8 @@ public class FileResourceTest {
     List<RepositoryFileDto> mockList = mock( List.class );
     doReturn( mockList ).when( fileResource.fileService ).doGetGeneratedContent( PATH_ID );
 
-    List<RepositoryFileDto> testList = fileResource.doGetGeneratedContent( PATH_ID );
-    assertEquals( mockList, testList );
+    RepositoryFileDtoWrapper testList = fileResource.doGetGeneratedContent( PATH_ID );
+    assertEquals( mockList, testList.getRepositoryFileDto() );
 
     verify( fileResource.fileService, times( 1 ) ).doGetGeneratedContent( PATH_ID );
   }
@@ -1520,15 +1548,15 @@ public class FileResourceTest {
     doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
 
     // Test 1
-    List<RepositoryFileDto> testList = fileResource.doGetGeneratedContent( PATH_ID );
-    assertEquals( 0, testList.size() );
+    RepositoryFileDtoWrapper testList = fileResource.doGetGeneratedContent( PATH_ID );
+    assertNull( testList.getRepositoryFileDto() );
 
     // Test 2
     Throwable mockThrowable = mock( RuntimeException.class );
     doThrow( mockThrowable ).when( fileResource.fileService ).doGetGeneratedContent( PATH_ID );
 
     testList = fileResource.doGetGeneratedContent( PATH_ID );
-    assertEquals( 0, testList.size() );
+    assertNull( testList.getRepositoryFileDto() );
 
     verify( fileResource.fileService, times( 2 ) ).doGetGeneratedContent( PATH_ID );
     verify( fileResource, times( 1 ) ).getMessagesInstance();
@@ -1543,8 +1571,8 @@ public class FileResourceTest {
     List<RepositoryFileDto> mockList = mock( List.class );
     doReturn( mockList ).when( fileResource.fileService ).doGetGeneratedContent( PATH_ID, user );
 
-    List<RepositoryFileDto> testList = fileResource.doGetGeneratedContentForUser( PATH_ID, user );
-    assertEquals( mockList, testList );
+    RepositoryFileDtoWrapper testList = fileResource.doGetGeneratedContentForUser( PATH_ID, user );
+    assertEquals( mockList, testList.getRepositoryFileDto() );
 
     verify( fileResource.fileService, times( 1 ) ).doGetGeneratedContent( PATH_ID, user );
   }
@@ -1561,15 +1589,15 @@ public class FileResourceTest {
     doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
 
     // Test 1
-    List<RepositoryFileDto> testList = fileResource.doGetGeneratedContentForUser( PATH_ID, user );
-    assertEquals( 0, testList.size() );
+   RepositoryFileDtoWrapper testList = fileResource.doGetGeneratedContentForUser( PATH_ID, user );
+    assertNull( testList.getRepositoryFileDto() );
 
     // Test 2
     Throwable mockThrowable = mock( RuntimeException.class );
     doThrow( mockThrowable ).when( fileResource.fileService ).doGetGeneratedContent( PATH_ID, user );
 
     testList = fileResource.doGetGeneratedContentForUser( PATH_ID, user );
-    assertEquals( 0, testList.size() );
+    assertNull( testList.getRepositoryFileDto() );
 
     verify( fileResource.fileService, times( 2 ) ).doGetGeneratedContent( PATH_ID, user );
     verify( fileResource, times( 1 ) ).getMessagesInstance();
@@ -1600,12 +1628,12 @@ public class FileResourceTest {
     Boolean showHidden = Boolean.TRUE;
     Boolean includeAcls = Boolean.TRUE;
 
-    List<RepositoryFileDto> mockList = mock( List.class );
+   List<RepositoryFileDto> mockList = new ArrayList<>();
     doReturn( mockList ).when( fileResource.fileService )
       .doGetChildren( FileUtils.PATH_SEPARATOR, filter, showHidden, includeAcls );
 
-    List<RepositoryFileDto> testList = fileResource.doGetRootChildren( filter, showHidden, includeAcls );
-    assertEquals( mockList, testList );
+    RepositoryFileDtoWrapper testList = fileResource.doGetRootChildren( filter, showHidden, includeAcls );
+    assertNull( testList.getRepositoryFileDto() );
 
     verify( fileResource.fileService, times( 1 ) ).doGetChildren( FileUtils.PATH_SEPARATOR, filter, showHidden,
       includeAcls );
@@ -1642,8 +1670,8 @@ public class FileResourceTest {
     doReturn( mockList ).when( fileResource.fileService )
       .doGetChildren( PATH_ID, filter, showHidden, includeAcls );
 
-    List<RepositoryFileDto> testList = fileResource.doGetChildren( PATH_ID, filter, showHidden, includeAcls );
-    assertEquals( mockList, testList );
+   RepositoryFileDtoWrapper testList = fileResource.doGetChildren( PATH_ID, filter, showHidden, includeAcls );
+    assertEquals( mockList, testList.getRepositoryFileDto() );
 
     verify( fileResource.fileService, times( 1 ) ).doGetChildren( PATH_ID, filter, showHidden,
       includeAcls );
@@ -1654,8 +1682,8 @@ public class FileResourceTest {
     List<RepositoryFileDto> mockList = mock( List.class );
     doReturn( mockList ).when( fileResource.fileService ).doGetDeletedFiles();
 
-    List<RepositoryFileDto> testList = fileResource.doGetDeletedFiles();
-    assertEquals( mockList, testList );
+    RepositoryFileDtoWrapper testList = fileResource.doGetDeletedFiles();
+    assertEquals( mockList, testList.getRepositoryFileDto() );
 
     verify( fileResource.fileService, times( 1 ) ).doGetDeletedFiles();
   }
@@ -1667,8 +1695,8 @@ public class FileResourceTest {
     List<StringKeyStringValueDto> mockList = mock( List.class );
     doReturn( mockList ).when( fileResource.fileService ).doGetMetadata( PATH_ID );
 
-    List<StringKeyStringValueDto> testList = fileResource.doGetMetadata( PATH_ID );
-    assertEquals( mockList, testList );
+   StringKeyStringValueDtoWrapper testList = fileResource.doGetMetadata( PATH_ID );
+    assertEquals( mockList, testList.getStringKeyStringValueDtoes() );
 
     verify( fileResource.fileService, times( 1 ) ).doGetMetadata( PATH_ID );
   }
@@ -1683,7 +1711,7 @@ public class FileResourceTest {
     Messages mockMessages = mock( Messages.class );
     doReturn( mockMessages ).when( fileResource ).getMessagesInstance();
 
-    List<StringKeyStringValueDto> testList = fileResource.doGetMetadata( PATH_ID );
+    StringKeyStringValueDtoWrapper testList = fileResource.doGetMetadata( PATH_ID );
     assertNull( testList );
 
     verify( fileResource.fileService, times( 1 ) ).doGetMetadata( PATH_ID );
@@ -1775,12 +1803,14 @@ public class FileResourceTest {
   public void testDoSetMetadata() throws Exception {
     List<StringKeyStringValueDto> metadata = mock( List.class );
 
+    StringKeyStringValueDtoWrapper metadataWrapper = new StringKeyStringValueDtoWrapper();
+    metadataWrapper.setStringKeyStringValueDtoes( metadata );
     doNothing().when( fileResource.fileService ).doSetMetadata( PATH_ID, metadata );
 
     Response mockResponse = mock( Response.class );
     doReturn( mockResponse ).when( fileResource ).buildOkResponse();
 
-    Response testResponse = fileResource.doSetMetadata( PATH_ID, metadata );
+    Response testResponse = fileResource.doSetMetadata( PATH_ID, metadataWrapper );
     assertEquals( mockResponse, testResponse );
 
     verify( fileResource.fileService, times( 1 ) ).doSetMetadata( PATH_ID, metadata );
@@ -1789,7 +1819,10 @@ public class FileResourceTest {
 
   @Test
   public void testDoSetMetadataError() throws Exception {
-    List<StringKeyStringValueDto> metadata = mock( List.class );
+    List<StringKeyStringValueDto> metadata =  mock( List.class );
+
+    StringKeyStringValueDtoWrapper metadataWrapper = new StringKeyStringValueDtoWrapper();
+    metadataWrapper.setStringKeyStringValueDtoes( metadata );
 
     Response mockUnauthorizedResponse = mock( Response.class );
     doReturn( mockUnauthorizedResponse ).when( fileResource ).buildStatusResponse( Response.Status.UNAUTHORIZED );
@@ -1804,15 +1837,15 @@ public class FileResourceTest {
 
     // Test 1
     Exception mockGeneralSecurityException = mock( GeneralSecurityException.class );
-    doThrow( mockGeneralSecurityException ).when( fileResource.fileService ).doSetMetadata( PATH_ID, metadata );
+    doThrow( mockGeneralSecurityException ).when( fileResource.fileService ).doSetMetadata( PATH_ID, metadataWrapper.getStringKeyStringValueDtoes() );
 
-    Response testResponse = fileResource.doSetMetadata( PATH_ID, metadata );
+    Response testResponse = fileResource.doSetMetadata( PATH_ID, metadataWrapper );
     assertEquals( mockUnauthorizedResponse, testResponse );
 
     // Test 2
     doThrow( mockThrowable ).when( fileResource.fileService ).doSetMetadata( PATH_ID, metadata );
 
-    testResponse = fileResource.doSetMetadata( PATH_ID, metadata );
+    testResponse = fileResource.doSetMetadata( PATH_ID, metadataWrapper );
     assertEquals( mockThrowableResponse, testResponse );
 
     verify( fileResource.fileService, times( 2 ) ).doSetMetadata( PATH_ID, metadata );
@@ -1939,5 +1972,17 @@ public class FileResourceTest {
     assertFalse( fileResource.validateSecurityPrincipal( "Ad,min" ) );
     assertFalse( fileResource.validateSecurityPrincipal( ",Admin" ) );
     assertFalse( fileResource.validateSecurityPrincipal( "Admin\"" ) );
+  }
+
+  @Test
+  public void testCanUpload() {
+    try ( MockedStatic<SystemUtils> systemUtils = mockStatic( SystemUtils.class ) ) {
+      systemUtils.when( () -> SystemUtils.canUpload( anyString(), anyBoolean() ) ).thenReturn( true );
+
+      try ( var response = fileResource.canUpload( "/mock/path/", false ) ) {
+
+        assertEquals( "true", response.getEntity() );
+      }
+    }
   }
 }
