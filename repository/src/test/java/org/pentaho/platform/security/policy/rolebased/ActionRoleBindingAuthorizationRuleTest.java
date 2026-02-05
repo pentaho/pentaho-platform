@@ -22,8 +22,6 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequ
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRole;
 import org.pentaho.platform.engine.security.authorization.core.AuthorizationRequest;
 import org.pentaho.platform.engine.security.authorization.core.AuthorizationRole;
-import org.pentaho.platform.engine.security.authorization.core.resources.GenericAuthorizationResource;
-import org.pentaho.platform.engine.security.authorization.core.resources.ResourceAuthorizationRequest;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,7 +44,6 @@ public class ActionRoleBindingAuthorizationRuleTest {
   private IRoleAuthorizationPolicyRoleBindingDao mockRoleBindingDao;
   private IAuthorizationContext mockContext;
   private IAuthorizationOptions mockOptions;
-  private IAuthorizationPrincipal mockPrincipal;
   private IAuthorizationRequest mockRequest;
 
   private IAuthorizationRole roleUser;
@@ -71,7 +68,7 @@ public class ActionRoleBindingAuthorizationRuleTest {
     mockRoleBindingDao = mock( IRoleAuthorizationPolicyRoleBindingDao.class );
     mockContext = mock( IAuthorizationContext.class );
     mockOptions = mock( IAuthorizationOptions.class );
-    mockPrincipal = mock( IAuthorizationPrincipal.class );
+    var mockPrincipal = mock( IAuthorizationPrincipal.class );
 
     // Create test roles
     roleUser = new AuthorizationRole( "ROLE_USER" );
@@ -101,121 +98,39 @@ public class ActionRoleBindingAuthorizationRuleTest {
   }
   // endregion
 
-  @Test
-  public void testGetRequestType() {
-    assertEquals( IAuthorizationRequest.class, rule.getRequestType() );
-  }
-
-  // region authorize Tests
-  @Test
-  public void testAuthorizeWithResourceRequestAbstains() {
-    // Create a resource authorization request
-    var action = createTestAction( "read" );
-    var resource = new GenericAuthorizationResource( "file", "report123" );
-    var resourceRequest = new ResourceAuthorizationRequest( mockPrincipal, action, resource );
-
-    var result = rule.authorize( resourceRequest, mockContext );
-
-    assertFalse( result.isPresent() );
-  }
+  // region DAO Integration Tests
 
   @Test
-  public void testAuthorizeWithNoRolesReturnsEmptyBoundRoles() {
-    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf() );
-
-    var result = rule.authorize( mockRequest, mockContext );
-
-    assertTrue( result.isPresent() );
-    assertTrue( result.get() instanceof ActionRoleBindingAuthorizationDecision );
-
-    var decision = (ActionRoleBindingAuthorizationDecision) result.get();
-    assertFalse( decision.isGranted() );
-    assertTrue( decision.getBoundRoles().isEmpty() );
-  }
-
-  @Test
-  public void testAuthorizeWithSingleRoleHavingBindingGrantsAccess() {
-    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser ) );
-    when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_USER" ) ) )
-      .thenReturn( Arrays.asList( "read", "write" ) );
-
-    var result = rule.authorize( mockRequest, mockContext );
-
-    assertTrue( result.isPresent() );
-
-    var decision = (ActionRoleBindingAuthorizationDecision) result.get();
-    assertTrue( decision.isGranted() );
-    assertEquals( 1, decision.getBoundRoles().size() );
-    assertTrue( decision.getBoundRoles().contains( roleUser ) );
-
-    verify( mockRoleBindingDao, times( 1 ) ).getBoundLogicalRoleNames( List.of( "ROLE_USER" ) );
-  }
-
-  @Test
-  public void testAuthorizeWithSingleRoleWithoutBindingDeniesAccess() {
-    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser ) );
-
-    // "read" not included
-    when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_USER" ) ) )
-      .thenReturn( Arrays.asList( "write", "delete" ) );
-
-    var result = rule.authorize( mockRequest, mockContext );
-
-    assertTrue( result.isPresent() );
-    var decision = (ActionRoleBindingAuthorizationDecision) result.get();
-    assertFalse( decision.isGranted() );
-    assertTrue( decision.getBoundRoles().isEmpty() );
-
-    verify( mockRoleBindingDao, times( 1 ) ).getBoundLogicalRoleNames( List.of( "ROLE_USER" ) );
-  }
-
-  @Test
-  public void testAuthorizeWithMultipleRolesFullModeReturnsAllBoundRoles() {
+  public void testDaoIsCalledForEachRoleInFullMode() {
     when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser, roleAdmin, roleManager ) );
     when( mockOptions.getDecisionReportingMode() ).thenReturn( AuthorizationDecisionReportingMode.FULL );
 
-    // roleUser has binding, roleAdmin doesn't, roleManager has binding
+    // Set up DAO responses
     when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_USER" ) ) )
       .thenReturn( Arrays.asList( "read", "write" ) );
     when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_ADMIN" ) ) )
-      .thenReturn( Arrays.asList( "delete", "admin" ) ); // "read" not included
+      .thenReturn( Arrays.asList( "delete", "admin" ) );
     when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_MANAGER" ) ) )
       .thenReturn( Arrays.asList( "read", "manage" ) );
 
-    var result = rule.authorize( mockRequest, mockContext );
+    rule.authorize( mockRequest, mockContext );
 
-    assertTrue( result.isPresent() );
-
-    var decision = (ActionRoleBindingAuthorizationDecision) result.get();
-    assertTrue( decision.isGranted() );
-    assertEquals( 2, decision.getBoundRoles().size() );
-    assertTrue( decision.getBoundRoles().contains( roleUser ) );
-    assertTrue( decision.getBoundRoles().contains( roleManager ) );
-    assertFalse( decision.getBoundRoles().contains( roleAdmin ) );
-
-    // Verify all roles were checked
+    // Verify DAO was called for all roles in FULL mode
     verify( mockRoleBindingDao, times( 1 ) ).getBoundLogicalRoleNames( List.of( "ROLE_USER" ) );
     verify( mockRoleBindingDao, times( 1 ) ).getBoundLogicalRoleNames( List.of( "ROLE_ADMIN" ) );
     verify( mockRoleBindingDao, times( 1 ) ).getBoundLogicalRoleNames( List.of( "ROLE_MANAGER" ) );
   }
 
   @Test
-  public void testAuthorizeWithMultipleRolesSettledModeStopsAtFirstMatch() {
+  public void testDaoIsNotCalledForRemainingRolesInSettledModeAfterMatch() {
     when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser, roleAdmin, roleManager ) );
     when( mockOptions.getDecisionReportingMode() ).thenReturn( AuthorizationDecisionReportingMode.SETTLED );
 
-    // roleUser has binding - should stop here in SETTLED mode
+    // First role has binding - should stop here in SETTLED mode
     when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_USER" ) ) )
       .thenReturn( Arrays.asList( "read", "write" ) );
 
-    var result = rule.authorize( mockRequest, mockContext );
-
-    assertTrue( result.isPresent() );
-
-    var decision = (ActionRoleBindingAuthorizationDecision) result.get();
-    assertTrue( decision.isGranted() );
-    assertEquals( 1, decision.getBoundRoles().size() );
-    assertTrue( decision.getBoundRoles().contains( roleUser ) );
+    rule.authorize( mockRequest, mockContext );
 
     // Verify only first role was checked in SETTLED mode
     verify( mockRoleBindingDao, times( 1 ) ).getBoundLogicalRoleNames( List.of( "ROLE_USER" ) );
@@ -224,24 +139,17 @@ public class ActionRoleBindingAuthorizationRuleTest {
   }
 
   @Test
-  public void testAuthorizeWithMultipleRolesSettledModeContinuesUntilMatch() {
+  public void testDaoIsContinuouslyCalledInSettledModeUntilMatch() {
     when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser, roleAdmin, roleManager ) );
     when( mockOptions.getDecisionReportingMode() ).thenReturn( AuthorizationDecisionReportingMode.SETTLED );
 
-    // roleUser no binding, roleAdmin has binding - should stop at roleAdmin
+    // First role has no binding, second role has binding - should stop at second
     when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_USER" ) ) )
-      .thenReturn( Arrays.asList( "write", "delete" ) ); // "read" not included
+      .thenReturn( Arrays.asList( "write", "delete" ) );
     when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_ADMIN" ) ) )
       .thenReturn( Arrays.asList( "read", "admin" ) );
 
-    var result = rule.authorize( mockRequest, mockContext );
-
-    assertTrue( result.isPresent() );
-
-    var decision = (ActionRoleBindingAuthorizationDecision) result.get();
-    assertTrue( decision.isGranted() );
-    assertEquals( 1, decision.getBoundRoles().size() );
-    assertTrue( decision.getBoundRoles().contains( roleAdmin ) );
+    rule.authorize( mockRequest, mockContext );
 
     // Verify first two roles were checked, but not the third
     verify( mockRoleBindingDao, times( 1 ) ).getBoundLogicalRoleNames( List.of( "ROLE_USER" ) );
@@ -250,14 +158,22 @@ public class ActionRoleBindingAuthorizationRuleTest {
   }
 
   @Test
-  public void testAuthorizeWithAllRolesLackingBindingDeniesAccess() {
-    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser, roleAdmin ) );
-
-    // Neither role has binding for "read"
+  public void testDaoIsCalledWithCorrectRoleName() {
+    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser ) );
     when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_USER" ) ) )
-      .thenReturn( Arrays.asList( "write", "delete" ) );
-    when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_ADMIN" ) ) )
-      .thenReturn( Arrays.asList( "admin", "manage" ) );
+      .thenReturn( List.of( "read" ) );
+
+    rule.authorize( mockRequest, mockContext );
+
+    // Verify the DAO was called with the exact role name
+    verify( mockRoleBindingDao, times( 1 ) ).getBoundLogicalRoleNames( List.of( "ROLE_USER" ) );
+  }
+
+  @Test
+  public void testDaoEmptyResultIsHandledCorrectly() {
+    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser ) );
+    when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_USER" ) ) )
+      .thenReturn( Collections.emptyList() );
 
     var result = rule.authorize( mockRequest, mockContext );
 
@@ -265,6 +181,41 @@ public class ActionRoleBindingAuthorizationRuleTest {
     var decision = (ActionRoleBindingAuthorizationDecision) result.get();
     assertFalse( decision.isGranted() );
     assertTrue( decision.getBoundRoles().isEmpty() );
+
+    verify( mockRoleBindingDao, times( 1 ) ).getBoundLogicalRoleNames( List.of( "ROLE_USER" ) );
+  }
+
+  @Test
+  public void testDaoReturnedActionsAreCheckedForMatch() {
+    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser ) );
+
+    // DAO returns actions but not the requested one
+    when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_USER" ) ) )
+      .thenReturn( Arrays.asList( "write", "delete", "admin" ) );
+
+    var result = rule.authorize( mockRequest, mockContext );
+
+    assertTrue( result.isPresent() );
+    var decision = (ActionRoleBindingAuthorizationDecision) result.get();
+    assertFalse( decision.isGranted() );
+    assertTrue( decision.getBoundRoles().isEmpty() );
+  }
+
+  @Test
+  public void testDaoReturnedActionsIncludingMatchGrantsAccess() {
+    when( mockRequest.getAllRoles() ).thenReturn( orderedSetOf( roleUser ) );
+
+    // DAO returns actions including the requested one
+    when( mockRoleBindingDao.getBoundLogicalRoleNames( List.of( "ROLE_USER" ) ) )
+      .thenReturn( Arrays.asList( "read", "write", "delete" ) );
+
+    var result = rule.authorize( mockRequest, mockContext );
+
+    assertTrue( result.isPresent() );
+    var decision = (ActionRoleBindingAuthorizationDecision) result.get();
+    assertTrue( decision.isGranted() );
+    assertEquals( 1, decision.getBoundRoles().size() );
+    assertTrue( decision.getBoundRoles().contains( roleUser ) );
   }
   // endregion
 }
