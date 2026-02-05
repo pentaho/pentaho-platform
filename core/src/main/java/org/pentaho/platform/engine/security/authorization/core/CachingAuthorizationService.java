@@ -93,9 +93,19 @@ public class CachingAuthorizationService extends AuthorizationService {
     return decision;
   }
 
+  /**
+   * Determines whether an authorization request with given options should use caching.
+   *
+   * @param options The authorization options.
+   * @return {@code true}, if caching should be used; {@code false}, otherwise
+   */
+  protected boolean shouldUseCache( @NonNull IAuthorizationOptions options ) {
+    return options.getAuthorizationRuleOverrider() == null;
+  }
+
   @NonNull
   @Override
   protected AuthorizationContext createContext( @NonNull IAuthorizationOptions options ) {
-    return new CachingAuthorizationContext( options );
+    return shouldUseCache( options ) ? new CachingAuthorizationContext( options ) : super.createContext( options );
   }
 }

@@ -13,6 +13,7 @@
 package org.pentaho.platform.api.engine.security.authorization;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.pentaho.platform.api.engine.security.authorization.impl.DefaultAuthorizationOptions;
 
 /**
@@ -45,4 +46,16 @@ public interface IAuthorizationOptions {
    */
   @NonNull
   AuthorizationDecisionReportingMode getDecisionReportingMode();
+
+  /**
+   * Gets the authorization rule overrider, if any.
+   * <p>
+   * The default implementation returns {@code null}.
+   *
+   * @return The authorization rule overrider, or {@code null} if none is set.
+   */
+  @Nullable
+  default IAuthorizationRuleOverrider getAuthorizationRuleOverrider() {
+    return null;
+  }
 }

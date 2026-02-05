@@ -26,8 +26,11 @@ import java.text.MessageFormat;
  */
 public class DerivedActionAuthorizationDecision extends DerivedAuthorizationDecision {
 
-  private static final String JUSTIFICATION =
+  private static final String GRANTED_JUSTIFICATION =
     Messages.getInstance().getString( "DerivedActionAuthorizationDecision.JUSTIFICATION" );
+
+  private static final String DENIED_JUSTIFICATION =
+    Messages.getInstance().getString( "DerivedActionAuthorizationDecision.Denied.JUSTIFICATION" );
 
 
   public DerivedActionAuthorizationDecision( @NonNull IAuthorizationRequest request,
@@ -48,9 +51,11 @@ public class DerivedActionAuthorizationDecision extends DerivedAuthorizationDeci
 
   @NonNull
   @Override
-  public String getShortJustification() {
+  public String getShortJustification( boolean granted ) {
     // Example: "From operation Read Content"
-    return MessageFormat.format( JUSTIFICATION, getDerivedFromAction().getLocalizedDisplayName() );
+    return MessageFormat.format(
+      granted ? GRANTED_JUSTIFICATION : DENIED_JUSTIFICATION,
+      getDerivedFromAction().getLocalizedDisplayName() );
   }
 
   @Override

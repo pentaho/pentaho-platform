@@ -16,6 +16,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.pentaho.platform.api.engine.security.authorization.AuthorizationDecisionReportingMode;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationOptions;
 
+import java.util.Objects;
+
 /**
  * The {@code DefaultAuthorizationOptions} class provides an implementation of {@link IAuthorizationOptions} with the
  * default option values.
@@ -47,18 +49,23 @@ public class DefaultAuthorizationOptions implements IAuthorizationOptions {
       return false;
     }
 
-    return getDecisionReportingMode() == other.getDecisionReportingMode();
+    if ( getDecisionReportingMode() != other.getDecisionReportingMode() ) {
+      return false;
+    }
+
+    return Objects.equals( getAuthorizationRuleOverrider(), other.getAuthorizationRuleOverrider() );
   }
 
   @Override
   public int hashCode() {
-    return getDecisionReportingMode().hashCode();
+    return Objects.hash( getDecisionReportingMode(), getAuthorizationRuleOverrider() );
   }
 
   @Override
   public String toString() {
     return String.format(
-      "IAuthorizationOptions{decisionReportingMode=%s}",
-      getDecisionReportingMode() );
+      "IAuthorizationOptions{decisionReportingMode=%s, authorizationRuleOverrider=%s}",
+      getDecisionReportingMode(),
+      getAuthorizationRuleOverrider() );
   }
 }
