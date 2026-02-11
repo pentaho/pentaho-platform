@@ -103,10 +103,10 @@ define([
 
 
         Handlebars.registerHelper('encodeUri', function(stringInput) {
-            if (!stringInput) {
-              return '';
-            }
-            return encodeURIComponent(stringInput);
+          if (!stringInput) {
+            return '';
+          }
+          return encodeURIComponent(stringInput);
         });
 
         this.helperRegistered = true;
