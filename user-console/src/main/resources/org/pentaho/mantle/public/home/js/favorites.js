@@ -92,7 +92,21 @@ define([
         });
 
         Handlebars.registerHelper('escapeQuotes', function(stringInput) {
-          return stringInput.replace(/(['"])/g, '\\$1');
+          if (!stringInput) {
+            return '';
+          }
+          return stringInput
+            .replace(/\\/g, '\\\\')
+            .replace(/'/g, "\\'")
+            .replace(/"/g, '\\"');
+        });
+
+
+        Handlebars.registerHelper('encodeUri', function(stringInput) {
+          if (!stringInput) {
+            return '';
+          }
+          return encodeURIComponent(stringInput);
         });
 
         this.helperRegistered = true;
