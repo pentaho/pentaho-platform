@@ -25,9 +25,15 @@
   <!-- [BEGIN HSQLDB DATABASES] -->
   <context-param>
     <param-name>hsqldb-databases</param-name>
-    <param-value>sampledata@../../data/hsqldb/sampledata,hibernate@../../data/hsqldb/hibernate,quartz@../../data/hsqldb/quartz</param-value>
+    <param-value>sampledata@mem:sampledata,hibernate@mem:hibernate,quartz@mem:quartz</param-value>
   </context-param>
   <!-- [END HSQLDB DATABASES] -->
+  
+  <!-- Load data into HSQLDB databases after server starts -->
+  <context-param>
+    <param-name>hsqldb-init-script</param-name>
+    <param-value>../../../data/hsqldb</param-value>
+  </context-param>
 
   <!-- insert additional context-params -->
 
