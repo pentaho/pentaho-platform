@@ -25,7 +25,7 @@ import java.text.MessageFormat;
  * of an authorization request has a specific role, and denied otherwise.
  */
 public class MatchedRoleAuthorizationDecision extends AbstractAuthorizationDecision {
-  private static final String JUSTIFICATION =
+  private static final String GRANTED_JUSTIFICATION =
     Messages.getInstance().getString( "MatchedRoleAuthorizationDecision.JUSTIFICATION" );
 
   @NonNull
@@ -48,9 +48,9 @@ public class MatchedRoleAuthorizationDecision extends AbstractAuthorizationDecis
 
   @NonNull
   @Override
-  public String getShortJustification() {
+  protected String getShortJustificationGranted() {
     // Example: "Has role 'Administrator'".
-    return MessageFormat.format( JUSTIFICATION, role.getName() );
+    return MessageFormat.format( GRANTED_JUSTIFICATION, role.getName() );
   }
 
   @Override

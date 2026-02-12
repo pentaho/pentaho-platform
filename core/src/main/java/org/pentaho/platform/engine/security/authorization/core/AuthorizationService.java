@@ -156,11 +156,40 @@ public class AuthorizationService implements IAuthorizationService {
         .orElseGet( () -> getDefaultDecision( request ) );
     }
 
+    /**
+     * Allows overriding of authorization rules before they are evaluated.
+     * <p>
+     * The default implementation checks the {@link IAuthorizationOptions#getAuthorizationRuleOverrider()} option,
+     * and uses it
+     * to override the rule if present.
+     *
+     * @param rule The original authorization rule.
+     * @return The overridden authorization rule, or the original rule if no overrider is present
+     */
+    @NonNull
+    protected IAuthorizationRule<? extends IAuthorizationRequest> overrideRule(
+      @NonNull IAuthorizationRule<? extends IAuthorizationRequest> rule ) {
+      var authorizationRuleOverrider = options.getAuthorizationRuleOverrider();
+      if ( authorizationRuleOverrider != null ) {
+        var overriddenRule = authorizationRuleOverrider.override( rule );
+
+        if ( logger.isDebugEnabled() && overriddenRule != rule ) {
+          logger.debug( String.format( "Overriding rule: %s by: %s", rule, overriddenRule ) );
+        }
+
+        return overriddenRule;
+      }
+
+      return rule;
+    }
+
     @NonNull
     @Override
     public Optional<IAuthorizationDecision> authorizeRule(
       @NonNull IAuthorizationRequest request,
       @NonNull IAuthorizationRule<? extends IAuthorizationRequest> rule ) {
+
+      rule = overrideRule( rule );
 
       if ( logger.isDebugEnabled() ) {
         logger.debug( String.format( "AuthorizeRule BEGIN - request: %s rule: %s", request, rule ) );

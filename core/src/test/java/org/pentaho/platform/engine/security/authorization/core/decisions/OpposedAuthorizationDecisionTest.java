@@ -20,7 +20,6 @@ import org.pentaho.platform.engine.security.authorization.core.AuthorizationRequ
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,16 +39,17 @@ public class OpposedAuthorizationDecisionTest {
     var action = createTestAction( "read" );
     request = new AuthorizationRequest( user, action );
 
-
     grantedDecision = mock( IAuthorizationDecision.class );
     when( grantedDecision.isGranted() ).thenReturn( true );
     when( grantedDecision.getRequest() ).thenReturn( request );
     when( grantedDecision.toString() ).thenReturn( "GrantedDecision" );
+    when( grantedDecision.getShortJustification() ).thenReturn( "Has role admin" );
 
     deniedDecision = mock( IAuthorizationDecision.class );
     when( deniedDecision.isGranted() ).thenReturn( false );
     when( deniedDecision.getRequest() ).thenReturn( request );
     when( deniedDecision.toString() ).thenReturn( "DeniedDecision" );
+    when( deniedDecision.getShortJustification() ).thenReturn( "_Not_ Has role admin" );
   }
 
   @Test
@@ -75,13 +75,47 @@ public class OpposedAuthorizationDecisionTest {
     new OpposedAuthorizationDecision( null );
   }
 
+  // region getShortJustification() Tests
+
   @Test
-  public void testGetShortJustification() {
-    var opposedDecision = new OpposedAuthorizationDecision( grantedDecision );
-    var justification = opposedDecision.getShortJustification();
-    assertNotNull( justification );
-    assertFalse( justification.isEmpty() );
+  public void testGetShortJustificationReturnsBaseJustification() {
+    // Opposed to GRANTED = DENIED, but justification is the same as base
+    // Example: "Opposed to Has-role-admin" when user HAS role:
+    //   Base: GRANTED, "Has role admin"
+    //   Opposed: DENIED, "Has role admin" (denied BECAUSE they have it)
+    var opposedToGranted = new OpposedAuthorizationDecision( grantedDecision );
+    assertEquals( "Has role admin", opposedToGranted.getShortJustification() );
+
+    // Opposed to DENIED = GRANTED, but justification is the same as base
+    // Example: "Opposed to Has-role-admin" when user LACKS role:
+    //   Base: DENIED, "_Not_ Has role admin"
+    //   Opposed: GRANTED, "_Not_ Has role admin" (granted BECAUSE they don't have it)
+    var opposedToDenied = new OpposedAuthorizationDecision( deniedDecision );
+    assertEquals( "_Not_ Has role admin", opposedToDenied.getShortJustification() );
   }
+
+  @Test
+  public void testGetShortJustificationWithEmptyBaseJustification() {
+    when( grantedDecision.getShortJustification() ).thenReturn( "" );
+
+    var opposedDecision = new OpposedAuthorizationDecision( grantedDecision );
+
+    assertEquals( "", opposedDecision.getShortJustification() );
+  }
+
+  @Test
+  public void testDoubleOpposedDecisionJustification() {
+    when( grantedDecision.getShortJustification() ).thenReturn( "Has role X" );
+
+    var opposedOnce = new OpposedAuthorizationDecision( grantedDecision );
+    var opposedTwice = new OpposedAuthorizationDecision( opposedOnce );
+
+    // Double opposed returns to original status AND same justifications
+    assertTrue( opposedTwice.isGranted() );
+    assertEquals( "Has role X", opposedTwice.getShortJustification() );
+  }
+
+  // endregion
 
   @Test
   public void testToStringFormat() {
