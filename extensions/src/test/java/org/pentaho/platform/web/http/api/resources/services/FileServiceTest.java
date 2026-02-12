@@ -24,26 +24,39 @@ import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
+import org.pentaho.platform.plugin.services.importexport.ExportHandler;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+
+import javax.ws.rs.core.StreamingOutput;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.channels.IllegalSelectorException;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidParameterException;
 import java.util.LinkedList;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -145,6 +158,263 @@ public class FileServiceTest {
 
     assertTrue( fileService.doCreateDirSafe( PATH_JAPANESE_CHARACTERS ) );
   }
+
+  // region doGetFileOrDirAsDownload
+
+  private void setupRepositoryMock( String path, RepositoryFile file ) {
+    org.pentaho.platform.api.repository2.unified.IUnifiedRepository mockRepo =
+      mock( org.pentaho.platform.api.repository2.unified.IUnifiedRepository.class );
+    when( mockRepo.getFile( path ) ).thenReturn( file );
+    doReturn( mockRepo ).when( fileService ).getRepository();
+  }
+
+  @Test( expected = InvalidParameterException.class )
+  public void testDoGetFileOrDirAsDownload_NullPathId() throws Throwable {
+    fileService.doGetFileOrDirAsDownload( "userAgent", null, "true" );
+  }
+
+  @Test( expected = InvalidParameterException.class )
+  public void testDoGetFileOrDirAsDownload_EmptyPathId() throws Throwable {
+    fileService.doGetFileOrDirAsDownload( "userAgent", "", "false" );
+  }
+
+  @Test( expected = IllegalSelectorException.class )
+  public void testDoGetFileOrDirAsDownload_InvalidPath() throws Throwable {
+    String pathId = ":invalid:path";
+    String path = fileService.idToPath( pathId );
+    doReturn( false ).when( fileService ).isPathValid( path );
+
+    fileService.doGetFileOrDirAsDownload( "userAgent", pathId, "true" );
+  }
+
+  @Test( expected = FileNotFoundException.class )
+  public void testDoGetFileOrDirAsDownload_FileNotFound() throws Throwable {
+    String pathId = ":home:user:file.txt";
+    String path = fileService.idToPath( pathId );
+
+    doReturn( true ).when( fileService ).isPathValid( path );
+    setupRepositoryMock( path, null );
+
+    fileService.doGetFileOrDirAsDownload( "userAgent", pathId, "true" );
+  }
+
+  @Test( expected = PentahoAccessControlException.class )
+  public void testDoGetFileOrDirAsDownload_NoDownloadPermission() throws Throwable {
+    String pathId = ":home:user:file.txt";
+    String path = fileService.idToPath( pathId );
+    RepositoryFile mockFile = mock( RepositoryFile.class );
+
+    doReturn( true ).when( fileService ).isPathValid( path );
+    setupRepositoryMock( path, mockFile );
+
+    doThrow( new PentahoAccessControlException( "Access denied" ) )
+      .when( fileService ).validateDownloadAccess( path );
+
+    fileService.doGetFileOrDirAsDownload( "userAgent", pathId, "true" );
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownload_File_WithManifest() throws Throwable {
+    String pathId = ":home:user:file.txt";
+    String path = fileService.idToPath( pathId );
+    RepositoryFile mockFile = mock( RepositoryFile.class );
+    when( mockFile.isFolder() ).thenReturn( false );
+    when( mockFile.getName() ).thenReturn( "file.txt" );
+
+    BaseExportProcessor mockProcessor = mock( BaseExportProcessor.class );
+    ExportHandler mockHandler = mock( ExportHandler.class );
+    StreamingOutput mockStream = mock( StreamingOutput.class );
+
+    doReturn( true ).when( fileService ).isPathValid( path );
+    setupRepositoryMock( path, mockFile );
+    doNothing().when( fileService ).validateDownloadAccess( path );
+    doReturn( mockProcessor ).when( fileService ).getDownloadExportProcessor( path, true, true );
+    doReturn( mockHandler ).when( fileService ).getDownloadExportHandler();
+    doReturn( mockStream ).when( fileService ).getDownloadStream( mockFile, mockProcessor );
+
+    FileService.DownloadFileWrapper result = fileService.doGetFileOrDirAsDownload( "userAgent", pathId, "true" );
+
+    assertNotNull( result );
+    assertEquals( mockStream, result.getOutputStream() );
+    assertEquals( "file.txt.zip", result.getEncodedFileName() );
+    verify( mockProcessor ).addExportHandler( mockHandler );
+    verify( fileService ).getDownloadExportProcessor( path, true, true );
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownload_File_WithoutManifest() throws Throwable {
+    String pathId = ":home:user:document.pdf";
+    String path = fileService.idToPath( pathId );
+    RepositoryFile mockFile = mock( RepositoryFile.class );
+    when( mockFile.isFolder() ).thenReturn( false );
+    when( mockFile.getName() ).thenReturn( "document.pdf" );
+
+    BaseExportProcessor mockProcessor = mock( BaseExportProcessor.class );
+    ExportHandler mockHandler = mock( ExportHandler.class );
+    StreamingOutput mockStream = mock( StreamingOutput.class );
+
+    doReturn( true ).when( fileService ).isPathValid( path );
+    setupRepositoryMock( path, mockFile );
+    doNothing().when( fileService ).validateDownloadAccess( path );
+    doReturn( mockProcessor ).when( fileService ).getDownloadExportProcessor( path, false, false );
+    doReturn( mockHandler ).when( fileService ).getDownloadExportHandler();
+    doReturn( mockStream ).when( fileService ).getDownloadStream( mockFile, mockProcessor );
+
+    FileService.DownloadFileWrapper result = fileService.doGetFileOrDirAsDownload( "userAgent", pathId, "false" );
+
+    assertNotNull( result );
+    assertEquals( mockStream, result.getOutputStream() );
+    assertEquals( "document.pdf", result.getEncodedFileName() );
+    verify( mockProcessor ).addExportHandler( mockHandler );
+    verify( fileService ).getDownloadExportProcessor( path, false, false );
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownload_Folder_WithManifest() throws Throwable {
+    String pathId = ":home:user:myFolder";
+    String path = fileService.idToPath( pathId );
+    RepositoryFile mockFolder = mock( RepositoryFile.class );
+    when( mockFolder.isFolder() ).thenReturn( true );
+    when( mockFolder.getName() ).thenReturn( "myFolder" );
+
+    BaseExportProcessor mockProcessor = mock( BaseExportProcessor.class );
+    ExportHandler mockHandler = mock( ExportHandler.class );
+    StreamingOutput mockStream = mock( StreamingOutput.class );
+
+    doReturn( true ).when( fileService ).isPathValid( path );
+    setupRepositoryMock( path, mockFolder );
+    doNothing().when( fileService ).validateDownloadAccess( path );
+    doReturn( mockProcessor ).when( fileService ).getDownloadExportProcessor( path, true, true );
+    doReturn( mockHandler ).when( fileService ).getDownloadExportHandler();
+    doReturn( mockStream ).when( fileService ).getDownloadStream( mockFolder, mockProcessor );
+
+    FileService.DownloadFileWrapper result = fileService.doGetFileOrDirAsDownload( "userAgent", pathId, "true" );
+
+    assertNotNull( result );
+    assertEquals( mockStream, result.getOutputStream() );
+    assertEquals( "myFolder.zip", result.getEncodedFileName() );
+    verify( mockProcessor ).addExportHandler( mockHandler );
+    verify( fileService ).getDownloadExportProcessor( path, true, true );
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownload_Folder_WithoutManifest() throws Throwable {
+    String pathId = ":public:reports";
+    String path = fileService.idToPath( pathId );
+    RepositoryFile mockFolder = mock( RepositoryFile.class );
+    when( mockFolder.isFolder() ).thenReturn( true );
+    when( mockFolder.getName() ).thenReturn( "reports" );
+
+    BaseExportProcessor mockProcessor = mock( BaseExportProcessor.class );
+    ExportHandler mockHandler = mock( ExportHandler.class );
+    StreamingOutput mockStream = mock( StreamingOutput.class );
+
+    doReturn( true ).when( fileService ).isPathValid( path );
+    setupRepositoryMock( path, mockFolder );
+    doNothing().when( fileService ).validateDownloadAccess( path );
+    doReturn( mockProcessor ).when( fileService ).getDownloadExportProcessor( path, true, false );
+    doReturn( mockHandler ).when( fileService ).getDownloadExportHandler();
+    doReturn( mockStream ).when( fileService ).getDownloadStream( mockFolder, mockProcessor );
+
+    FileService.DownloadFileWrapper result = fileService.doGetFileOrDirAsDownload( "userAgent", pathId, "false" );
+
+    assertNotNull( result );
+    assertEquals( mockStream, result.getOutputStream() );
+    assertEquals( "reports.zip", result.getEncodedFileName() );
+    verify( mockProcessor ).addExportHandler( mockHandler );
+    verify( fileService ).getDownloadExportProcessor( path, true, false );
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownload_File_SpecialCharacters() throws Throwable {
+    String fileName = "file name with spaces & special.txt";
+    String pathId = ":home:user:" + fileName;
+    String path = fileService.idToPath( pathId );
+    RepositoryFile mockFile = mock( RepositoryFile.class );
+    when( mockFile.isFolder() ).thenReturn( false );
+    when( mockFile.getName() ).thenReturn( fileName );
+
+    BaseExportProcessor mockProcessor = mock( BaseExportProcessor.class );
+    ExportHandler mockHandler = mock( ExportHandler.class );
+    StreamingOutput mockStream = mock( StreamingOutput.class );
+
+    doReturn( true ).when( fileService ).isPathValid( path );
+    setupRepositoryMock( path, mockFile );
+    doNothing().when( fileService ).validateDownloadAccess( path );
+    doReturn( mockProcessor ).when( fileService ).getDownloadExportProcessor( path, false, false );
+    doReturn( mockHandler ).when( fileService ).getDownloadExportHandler();
+    doReturn( mockStream ).when( fileService ).getDownloadStream( mockFile, mockProcessor );
+
+    FileService.DownloadFileWrapper result = fileService.doGetFileOrDirAsDownload( "userAgent", pathId, "false" );
+
+    assertNotNull( result );
+    assertEquals( mockStream, result.getOutputStream() );
+
+    // Derive expected encoding using the same logic as production (URLEncoder + replace + with %20)
+    String expectedEncodedFileName = URLEncoder.encode( fileName, StandardCharsets.UTF_8 )
+      .replaceAll( "\\+", "%20" );
+    assertEquals( expectedEncodedFileName, result.getEncodedFileName() );
+
+    // Validate round-trip: decode and compare back to original
+    String decodedFileName = URLDecoder.decode( result.getEncodedFileName(), StandardCharsets.UTF_8 );
+    assertEquals( fileName, decodedFileName );
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownload_File_NullStrWithManifest() throws Throwable {
+    String pathId = ":home:user:file.txt";
+    String path = fileService.idToPath( pathId );
+    RepositoryFile mockFile = mock( RepositoryFile.class );
+    when( mockFile.isFolder() ).thenReturn( false );
+    when( mockFile.getName() ).thenReturn( "file.txt" );
+
+    BaseExportProcessor mockProcessor = mock( BaseExportProcessor.class );
+    ExportHandler mockHandler = mock( ExportHandler.class );
+    StreamingOutput mockStream = mock( StreamingOutput.class );
+
+    doReturn( true ).when( fileService ).isPathValid( path );
+    setupRepositoryMock( path, mockFile );
+    doNothing().when( fileService ).validateDownloadAccess( path );
+    doReturn( mockProcessor ).when( fileService ).getDownloadExportProcessor( path, true, true );
+    doReturn( mockHandler ).when( fileService ).getDownloadExportHandler();
+    doReturn( mockStream ).when( fileService ).getDownloadStream( mockFile, mockProcessor );
+
+    FileService.DownloadFileWrapper result = fileService.doGetFileOrDirAsDownload( "userAgent", pathId, null );
+
+    assertNotNull( result );
+    assertEquals( mockStream, result.getOutputStream() );
+    assertEquals( "file.txt.zip", result.getEncodedFileName() );
+    verify( fileService ).getDownloadExportProcessor( path, true, true );
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownload_File_EmptyStrWithManifest() throws Throwable {
+    String pathId = ":home:user:test.xml";
+    String path = fileService.idToPath( pathId );
+    RepositoryFile mockFile = mock( RepositoryFile.class );
+    when( mockFile.isFolder() ).thenReturn( false );
+    when( mockFile.getName() ).thenReturn( "test.xml" );
+
+    BaseExportProcessor mockProcessor = mock( BaseExportProcessor.class );
+    ExportHandler mockHandler = mock( ExportHandler.class );
+    StreamingOutput mockStream = mock( StreamingOutput.class );
+
+    doReturn( true ).when( fileService ).isPathValid( path );
+    setupRepositoryMock( path, mockFile );
+    doNothing().when( fileService ).validateDownloadAccess( path );
+    doReturn( mockProcessor ).when( fileService ).getDownloadExportProcessor( path, true, true );
+    doReturn( mockHandler ).when( fileService ).getDownloadExportHandler();
+    doReturn( mockStream ).when( fileService ).getDownloadStream( mockFile, mockProcessor );
+
+    FileService.DownloadFileWrapper result = fileService.doGetFileOrDirAsDownload( "userAgent", pathId, "" );
+
+    assertNotNull( result );
+    assertEquals( mockStream, result.getOutputStream() );
+    assertEquals( "test.xml.zip", result.getEncodedFileName() );
+    verify( fileService ).getDownloadExportProcessor( path, true, true );
+  }
+
+  // endregion
 
   @Test
   public void testIsValidFolderName_DecodedControl_Characters() throws Exception {
