@@ -90,6 +90,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   private static final Log logger = LogFactory.getLog( RepositoryResource.class );
   public static final String GENERATED_CONTENT_PERSPECTIVE = "generatedContent"; //$NON-NLS-1$
+  private static final String XACTION = "xaction";
+  private static final String OUTPUT_TARGET = "output-target";
 
   protected IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
   protected IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class );
@@ -744,49 +746,66 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
       final RepositoryFile file = repository.getFile( FileResource.idToPath( contextId ) );
       if ( file == null ) {
-        logger.error( MessageFormat.format( "Repository file [{0}] not found", contextId ) );
-        return Response.serverError().build();
+        // File not found - could be a system job,
+        // so continue trying content generators instead of immediately returning error
+        if ( !"parameter".equals( resourceId ) ) {
+          logger.error( MessageFormat.format( "Repository file [{0}] not found", contextId ) );
+          return Response.serverError().build();
+        } else {
+          ctxt( "Repository file [{0}] not found, but continuing to content generators for parameter request", contextId );
+        }
       }
-      if ( FileResource.idToPath( contextId ).endsWith( ".prpti" ) && !validatePrptiOutputFormat() ) {
+
+      if ( file != null
+        && FileResource.idToPath( contextId ).endsWith( ".prpti" )
+        && !validatePrptiOutputFormat() ) {
         logger.error( MessageFormat.format( "Output Format [{0}] for PIR report not allowed for file [{1}]",
-          this.httpServletRequest.getParameterMap().get( "output-target" )[ 0 ], FileResource.idToPath( contextId ) ) );
+          this.httpServletRequest.getParameterMap().get( OUTPUT_TARGET )[ 0 ], FileResource.idToPath( contextId ) ) );
         return Response.serverError().status( Status.BAD_REQUEST ).build();
       }
 
       Response response = null;
 
-      ctxt( "Yep, [{0}] is a repository file id", contextId ); //$NON-NLS-1$
-      final String ext = RepositoryFilenameUtils.getExtension( file.getName() );
-      String pluginId = pluginManager.getPluginIdForType( ext );
-      if ( pluginId == null ) {
+      if ( file != null ) {
+        ctxt( "Yep, [{0}] is a repository file id", contextId ); //$NON-NLS-1$
+        final String ext = RepositoryFilenameUtils.getExtension( file.getName() );
+        String pluginId = pluginManager.getPluginIdForType( ext );
+        if ( pluginId == null ) {
 
-        // A.3.a (faux content generator for .url files)
-        response = getUrlResponse( file, resourceId );
+          // A.3.a (faux content generator for .url files)
+          response = getUrlResponse( file, resourceId );
+          if ( response != null ) {
+            return response;
+          } else {
+            logger.error( MessageFormat.format( "No plugin was found to service content of type [{0}]", ext ) );
+            return Response.serverError().build();
+          }
+        }
+
+        // A.1.
+        response = getPluginFileResponse( pluginId, resourceId );
         if ( response != null ) {
           return response;
-        } else {
-          logger.error( MessageFormat.format( "No plugin was found to service content of type [{0}]", ext ) );
-          return Response.serverError().build();
         }
-      }
 
-      // A.1.
-      response = getPluginFileResponse( pluginId, resourceId );
-      if ( response != null ) {
-        return response;
-      }
+        // A.2.
+        response = getRepositoryFileResponse( file.getPath(), resourceId );
+        if ( response != null ) {
+          return response;
+        }
 
-      // A.2.
-      response = getRepositoryFileResponse( file.getPath(), resourceId );
-      if ( response != null ) {
-        return response;
-      }
-
-      // A.3.b (real content generator)
-      CGFactory fac = new RepositoryFileCGFactory( resourceId, file );
-      response = getContentGeneratorResponse( fac );
-      if ( response != null ) {
-        return response;
+        // A.3.b (real content generator)
+        CGFactory fac = new RepositoryFileCGFactory( resourceId, file );
+        response = getContentGeneratorResponse( fac );
+        if ( response != null ) {
+          return response;
+        }
+      } else {
+        // No file but we're allowing parameter requests to continue
+        response = tryParameterContentGenerator( resourceId );
+        if ( response != null ) {
+          return response;
+        }
       }
 
     } else {
@@ -835,6 +854,13 @@ public class RepositoryResource extends AbstractJaxRSResource {
           }
         } else {
           ctxt( "Nope, [{0}] is not a plugin id", contextId ); //$NON-NLS-1$
+          // Check if this is a parameter request - could be for a system job
+          if ( "parameter".equals( resourceId ) ) {
+            Response response = tryParameterContentGenerator( resourceId );
+            if ( response != null ) {
+              return response;
+            }
+          }
           logger.warn( MessageFormat.format( "Failed to resolve context [{0}]", contextId ) ); //$NON-NLS-1$
         }
       }
@@ -847,8 +873,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   private boolean validatePrptiOutputFormat() {
     boolean valid = true;
-    if ( this.httpServletRequest.getParameterMap() != null && this.httpServletRequest.getParameterMap().containsKey( "output-target" ) ) {
-      String outputFormat = this.httpServletRequest.getParameterMap().get( "output-target" )[0];
+    if ( this.httpServletRequest.getParameterMap() != null && this.httpServletRequest.getParameterMap().containsKey( OUTPUT_TARGET ) ) {
+      String outputFormat = this.httpServletRequest.getParameterMap().get( OUTPUT_TARGET )[0];
       valid = AllowedPrptiTypes.getByType( outputFormat ) != null;
     }
     return valid;
@@ -1059,6 +1085,16 @@ public class RepositoryResource extends AbstractJaxRSResource {
       return response;
     }
     rsc( "Nope, [{0}] is not a repository file", path ); //$NON-NLS-1$
+    return null;
+  }
+
+  protected Response tryParameterContentGenerator( String resourceId ) {
+    ctxt( "This is a parameter request, attempting content generator" );
+    String pluginId = pluginManager.getPluginIdForType( XACTION );
+    if ( pluginId != null ) {
+      CGFactory fac = new ContentTypeCGFactory( resourceId, XACTION );
+      return getContentGeneratorResponse( fac );
+    }
     return null;
   }
 
