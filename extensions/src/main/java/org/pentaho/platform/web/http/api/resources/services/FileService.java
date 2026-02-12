@@ -649,8 +649,6 @@ public class FileService {
       throw new IllegalSelectorException();
     }
 
-    validateDownloadAccess( path );
-
     // check if entity exists in repo
     RepositoryFile repositoryFile = getRepository().getFile( path );
 
@@ -658,6 +656,9 @@ public class FileService {
       // file does not exist or is not readable but we can't tell at this point
       throw new FileNotFoundException( path );
     }
+
+    // validate if the user has permissions to download the file/folder
+    validateDownloadAccess( path );
 
     // send zip with manifest by default
     boolean withManifest = "false".equals( strWithManifest ) ? false : true;
