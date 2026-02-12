@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 define([
   "./browser.fileButtons",
   "./browser.folderButtons",
@@ -22,11 +23,13 @@ define([
   "./browser.templates",
   "common-ui/util/URLEncoder",
   "common-ui/util/_a11y",
+  "backbone",
+  "common-ui/underscore",
   "common-ui/bootstrap",
   "common-ui/handlebars",
   "common-ui/jquery-pentaho-i18n",
   "common-ui/jquery"
-], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder, a11yUtil) {
+], function (FileButtons, FolderButtons, TrashButtons, TrashItemButtons, BrowserUtils, MultiSelectButtons, RenameDialog, Spinner, spin, templates, Encoder, a11yUtil, Backbone, _) {
 
   const REPOSITORY_ROOT_PATH = "/";
 
@@ -986,7 +989,7 @@ define([
             id = $(model.getFileClicked()[0]).attr("id");
           } else if (model.getLastClick() == "folder") {
             path = $(model.getFolderClicked()[0]).attr("path");
-            title = $(model.getFolderClicked()[0]).children('.title').text();
+            title = $(model.getFolderClicked()[0]).find("> .element .title").text();
           } else if (model.getLastClick() == "trash") {
             fileList = model.get("fileListModel").get("deletedFiles");
             mode = "purge";
@@ -1053,7 +1056,7 @@ define([
             }
           } else if (model.getLastClick() == "folder") {
             path = $(model.getFolderClicked()[0]).attr("path");
-            title = $(model.getFolderClicked()[0]).children('.title')
+            title = $(model.getFolderClicked()[0]).find("> .element .title").text();
           } else if (model.getLastClick() == "trash") {
             fileList = model.get("fileListModel").get("deletedFiles");
             mode = "purge";
@@ -1285,12 +1288,20 @@ define([
           url: url,
           success: function (response) {
 
-            if (response.children) {
-              response = customSort(response);
-
-              var toAppend = templates.folders(reformatResponse(response));
-              $target.find("> .folders").append(toAppend ? toAppend : "");
+            if (!response.children) {
+              // `null` children, despite depth=1, signals an error fetching the children,
+              // on an existing folder (e.g. an invalid/unreachable VFS connection).
+              $target.removeClass(LOADING_FOLDER_CLASS);
+              $target.addClass(ERROR_FOLDER_CLASS);
+              return;
             }
+
+            response = customSort(response);
+
+            var toAppend = templates.folders(reformatResponse(response));
+            $target.find("> .folders").append(toAppend ? toAppend : "");
+
+            myself.updateDescriptions();
 
             // set the widths of new folder descriptions
             $target.find(".element").each(function () {
@@ -1307,6 +1318,7 @@ define([
             $target.addClass("open").find("> .folders").show();
           },
           error: function () {
+            // E.g. folder does not exist (anymore).
             $target.removeClass(LOADING_FOLDER_CLASS);
             $target.addClass(ERROR_FOLDER_CLASS);
             //TODO indicate some failure via dialog?
@@ -1448,7 +1460,11 @@ define([
         if (showDescriptions && desc != "") {
           $this.attr("title", desc);
         } else {
-          $this.attr("title", $this.attr("ext"));
+          var displayTitle = $this.find("> .element .title").text();
+          var filename = $this.attr("ext");
+          var fallbackDisplayTitle = (displayTitle && displayTitle.trim().length > 0 && displayTitle !== filename) ? displayTitle : "-";
+          var tooltip = "Display name: " + fallbackDisplayTitle + "\n" + "File name: " + filename;
+          $this.attr("title", tooltip);
         }
       });
     }
@@ -1933,7 +1949,12 @@ define([
           $this.attr("title", desc);
         }
         else {
-          $this.attr("title", $this.attr("ext"));
+          var displayTitle = $this.children('.title').text();
+          var filename = $this.attr("ext");
+          var filenameNoExt = filename.replace(/\.[^.]+$/, "");
+          var fallbackDisplayTitle = (displayTitle && displayTitle.trim().length > 0 && displayTitle !== filenameNoExt && displayTitle !== filename) ? displayTitle : "-";
+          var tooltip = "Display name: " + fallbackDisplayTitle + "\n" + "File name: " + filename;
+          $this.attr("title", tooltip);
         }
       });
 

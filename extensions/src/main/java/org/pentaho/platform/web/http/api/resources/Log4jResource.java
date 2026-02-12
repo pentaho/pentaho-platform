@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources;
 
@@ -26,12 +27,13 @@ import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.owasp.encoder.Encode;
 import org.pentaho.platform.api.util.LogUtil;
 
-import javax.ws.rs.FormParam;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
 import java.io.InputStream;
 import java.util.Collection;
 
@@ -66,6 +68,7 @@ public class Log4jResource {
     @ResponseCode( code = 304, condition = "Log level is not modified." )
     } )
   @Produces( { MediaType.TEXT_PLAIN } )
+  @Consumes( MediaType.APPLICATION_FORM_URLENCODED )
   public Response updateLogLevel( @FormParam(  "level" ) String targetLevel, @FormParam( "category" ) String category ) throws Exception {
     LogUtil.setLevel(LOGGER, Level.INFO);
     if ( StringUtils.isBlank( targetLevel ) && StringUtils.isBlank( category ) ) {

@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
@@ -450,8 +451,8 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
 
   @Override
   public void setFileMetadata( final Serializable fileId, Map<String, Serializable> metadataMap ) {
-    Assert.notNull( fileId );
-    Assert.notNull( metadataMap );
+    Assert.notNull( fileId, "The file ID must not be null. Ensure a valid file ID is provided." );
+    Assert.notNull( metadataMap, "The metadata map must not be null. Ensure a valid metadata map is provided." );
     List<StringKeyStringValueDto> fileMetadataMap = new ArrayList<StringKeyStringValueDto>( metadataMap.size() );
     for ( final String key : metadataMap.keySet() ) {
       fileMetadataMap.add( new StringKeyStringValueDto( key, metadataMap.get( key ).toString() ) );
@@ -462,7 +463,7 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
   @Override
   public Map<String, Serializable> getFileMetadata( final Serializable fileId ) {
     final List<StringKeyStringValueDto> fileMetadata = repoWebService.getFileMetadata( fileId.toString() );
-    Assert.notNull( fileMetadata );
+    Assert.notNull( fileMetadata, "The file metadata must not be null. Ensure the metadata exists for the given file ID." );
     final Map<String, Serializable> repoFileMetadata = new HashMap<String, Serializable>( fileMetadata.size() );
     for ( StringKeyStringValueDto entry : fileMetadata ) {
       repoFileMetadata.put( entry.getKey(), entry.getValue() );
@@ -533,6 +534,11 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
   public RepositoryFile updateFolder( RepositoryFile folder, String versionMessage ) {
     return repositoryFileAdapter.unmarshal( repoWebService.updateFolder( repositoryFileAdapter.marshal( folder ),
         versionMessage ) );
+  }
+
+  @Override
+  public void logout() {
+    repoWebService.logout();
   }
 
 }
