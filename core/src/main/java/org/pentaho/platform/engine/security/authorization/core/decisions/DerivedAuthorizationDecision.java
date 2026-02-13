@@ -27,7 +27,7 @@ import java.text.MessageFormat;
 public class DerivedAuthorizationDecision extends AbstractAuthorizationDecision
   implements IDerivedAuthorizationDecision {
 
-  private static final String JUSTIFICATION =
+  private static final String GRANTED_JUSTIFICATION =
     Messages.getInstance().getString( "DerivedAuthorizationDecision.JUSTIFICATION" );
 
   @NonNull
@@ -54,9 +54,9 @@ public class DerivedAuthorizationDecision extends AbstractAuthorizationDecision
 
   @NonNull
   @Override
-  public String getShortJustification() {
+  protected String getShortJustificationGranted() {
     // Example: "From <derived-from decision justification>"
-    return MessageFormat.format( JUSTIFICATION, derivedFromDecision );
+    return MessageFormat.format( GRANTED_JUSTIFICATION, derivedFromDecision );
   }
 
   @Override

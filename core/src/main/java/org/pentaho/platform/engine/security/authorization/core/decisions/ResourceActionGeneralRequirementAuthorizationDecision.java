@@ -6,7 +6,7 @@ import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthori
 import org.pentaho.platform.engine.security.messages.Messages;
 
 public class ResourceActionGeneralRequirementAuthorizationDecision extends DerivedAuthorizationDecision {
-  private static final String JUSTIFICATION =
+  private static final String GRANTED_JUSTIFICATION =
     Messages.getInstance().getString( "ResourceActionGeneralRequirementAuthorizationDecision.JUSTIFICATION" );
 
   public ResourceActionGeneralRequirementAuthorizationDecision( @NonNull
@@ -18,9 +18,9 @@ public class ResourceActionGeneralRequirementAuthorizationDecision extends Deriv
 
   @NonNull
   @Override
-  public String getShortJustification() {
-    // Example: "From general permission"
-    return JUSTIFICATION;
+  protected String getShortJustificationGranted() {
+    // Example: "Has general permission"
+    return GRANTED_JUSTIFICATION;
   }
 
   @Override

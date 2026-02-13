@@ -203,6 +203,11 @@ public class AuthorizationTestHelpers {
 
   /**
    * Creates a mock IAuthorizationDecision for the given request and granted status.
+   * <p>
+   * Note: {@code isDenied()} does not need to be mocked explicitly because it has a default implementation in the
+   * {@link IAuthorizationDecision} interface: {@code default boolean isDenied() { return !isGranted(); }}.
+   * Mockito properly supports default interface methods, so {@code isDenied()} will automatically return the correct
+   * value based on the mocked {@code isGranted()} value.
    *
    * @param request The authorization request.
    * @param granted Whether the decision is granted.
@@ -213,6 +218,7 @@ public class AuthorizationTestHelpers {
     IAuthorizationDecision decision = mock( IAuthorizationDecision.class );
     when( decision.getRequest() ).thenReturn( request );
     when( decision.isGranted() ).thenReturn( granted );
+    // isDenied() is NOT mocked - the interface default method handles it automatically
     return decision;
   }
   // endregion

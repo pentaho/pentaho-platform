@@ -26,6 +26,7 @@ import org.pentaho.platform.api.engine.security.authorization.IAuthorizationCont
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationOptions;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRule;
+import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRuleOverrider;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAuthorizationDecision;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IDerivedAuthorizationDecision;
 import org.pentaho.platform.engine.security.authorization.core.decisions.DerivedAuthorizationDecision;
@@ -44,6 +45,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
@@ -330,6 +332,51 @@ public class AuthorizationServiceTest {
       } );
 
     return rule;
+  }
+  // endregion
+
+  // region Authorization Rule Override Tests
+  @Test
+  public void testAuthorizeWithRuleOverride() {
+    // Mock the override rule overrider and its behavior
+    IAuthorizationRuleOverrider overrider = mock( IAuthorizationRuleOverrider.class );
+    IAuthorizationRule<IAuthorizationRequest> overriddenRule = createMockRule();
+    IAuthorizationDecision overrideDecision = mock( IAuthorizationDecision.class );
+
+    // Adjust the mocking setup to explicitly cast the overridden rule to the expected generic type
+    doReturn( overriddenRule ).when( overrider ).override( rootRule );
+    doReturn( Optional.of( overrideDecision ) )
+      .when( overriddenRule )
+      .authorize( eq( request ), any( IAuthorizationContext.class ) );
+
+    // Configure options to specify the override rule overrider
+    doReturn( overrider ).when( options ).getAuthorizationRuleOverrider();
+
+    // Perform authorization
+    var decision = service.authorize( request, options );
+
+    // Verify that the override rule was applied
+    assertSame( overrideDecision, decision );
+  }
+
+  @Test
+  public void testAuthorizeWithoutRuleOverride() {
+    // Mock the root rule and its decision
+    IAuthorizationDecision rootDecision = mock( IAuthorizationDecision.class );
+
+    doReturn( Optional.of( rootDecision ) )
+      .when( rootRule )
+      .authorize( eq( request ), any( IAuthorizationContext.class ) );
+
+    // Configure options to not specify any override rule overrider
+    doReturn( null ).when( options ).getAuthorizationRuleOverrider();
+
+    // Perform authorization
+    var decision = service.authorize( request, options );
+
+    // Verify that the root rule was applied
+    assertNotNull( decision );
+    assertEquals( rootDecision, decision );
   }
   // endregion
 }

@@ -23,6 +23,9 @@ public abstract class AbstractAuthorizationDecision implements IAuthorizationDec
   protected static final String LIST_SEPARATOR =
     Messages.getInstance().getString( "AbstractAuthorizationDecision.LIST_SEPARATOR" );
 
+  protected static final String DENIED_JUSTIFICATION_PREFIX =
+    Messages.getInstance().getString( "AbstractAuthorizationDecision.DENIED_JUSTIFICATION_PREFIX" );
+
   @NonNull
   private final IAuthorizationRequest request;
   private final boolean granted;
@@ -48,7 +51,35 @@ public abstract class AbstractAuthorizationDecision implements IAuthorizationDec
   @NonNull
   @Override
   public String getShortJustification() {
+    return isGranted() ? getShortJustificationGranted() : getShortJustificationDenied();
+  }
+
+  /**
+   * Gets a short justification string for a granted decision.
+   * <p>
+   * Subclasses should override this method to provide a meaningful justification.
+   * Most subclasses only need to override this method, as {@link #getShortJustificationDenied()}
+   * provides a default implementation that prefixes the granted justification with "_Not_".
+   *
+   * @return The short justification string for a granted decision.
+   */
+  @NonNull
+  protected String getShortJustificationGranted() {
     return "";
+  }
+
+  /**
+   * Gets a short justification string for a denied decision.
+   * <p>
+   * The default implementation returns "_Not_ " + {@link #getShortJustificationGranted()},
+   * which composes well with opposition. Subclasses can override for custom phrasing.
+   *
+   * @return The short justification string for a denied decision.
+   */
+  @NonNull
+  protected String getShortJustificationDenied() {
+    String grantedJustification = getShortJustificationGranted();
+    return grantedJustification.isEmpty() ? "" : DENIED_JUSTIFICATION_PREFIX + grantedJustification;
   }
 
   @Override

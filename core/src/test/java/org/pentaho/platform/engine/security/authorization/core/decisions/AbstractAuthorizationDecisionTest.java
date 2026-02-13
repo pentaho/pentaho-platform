@@ -12,6 +12,7 @@
 
 package org.pentaho.platform.engine.security.authorization.core.decisions;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationRequest;
@@ -29,10 +30,27 @@ public class AbstractAuthorizationDecisionTest {
   private TestAuthorizationDecision grantedDecision;
   private TestAuthorizationDecision deniedDecision;
 
-  // Concrete test implementation of AbstractAuthorizationDecision
+  // Concrete test implementation of AbstractAuthorizationDecision with default behavior
   private static class TestAuthorizationDecision extends AbstractAuthorizationDecision {
     public TestAuthorizationDecision( IAuthorizationRequest request, boolean granted ) {
       super( request, granted );
+    }
+  }
+
+  // Test implementation that overrides getShortJustificationGranted() to provide custom text
+  private static class CustomJustificationDecision extends AbstractAuthorizationDecision {
+    private final String grantedJustification;
+
+    public CustomJustificationDecision( IAuthorizationRequest request, boolean granted,
+                                        String grantedJustification ) {
+      super( request, granted );
+      this.grantedJustification = grantedJustification;
+    }
+
+    @NonNull
+    @Override
+    protected String getShortJustificationGranted() {
+      return grantedJustification;
     }
   }
 
@@ -65,6 +83,35 @@ public class AbstractAuthorizationDecisionTest {
   public void testGetShortJustificationDefaultsToEmptyString() {
     assertEquals( "", grantedDecision.getShortJustification() );
     assertEquals( "", deniedDecision.getShortJustification() );
+  }
+
+  @Test
+  public void testGetShortJustificationGrantedReturnsGrantedTextForGrantedDecision() {
+    var customGranted = new CustomJustificationDecision( request, true, "Has role 'Admin'" );
+
+    assertEquals( "Has role 'Admin'", customGranted.getShortJustification() );
+  }
+
+  @Test
+  public void testGetShortJustificationDeniedReturnsPrefixedTextForDeniedDecision() {
+    var customDenied = new CustomJustificationDecision( request, false, "Has role 'Admin'" );
+
+    // Should return "_Not_ " + grantedJustification
+    assertEquals( "_Not_ Has role 'Admin'", customDenied.getShortJustification() );
+  }
+
+  @Test
+  public void testGetShortJustificationDeniedWithEmptyGrantedJustificationReturnsEmpty() {
+    // When grantedJustification is empty, deniedJustification should also be empty (no prefix)
+    assertEquals( "", deniedDecision.getShortJustification() );
+  }
+
+  @Test
+  public void testGetShortJustificationSupportsMarkdownSyntax() {
+    var markdownDecision = new CustomJustificationDecision( request, true, "Has **Administrator** role" );
+
+    var justification = markdownDecision.getShortJustification();
+    assertTrue( justification.contains( "**Administrator**" ) );
   }
 
   @Test

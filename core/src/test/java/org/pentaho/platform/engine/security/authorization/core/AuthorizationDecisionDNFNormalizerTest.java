@@ -77,7 +77,7 @@ public class AuthorizationDecisionDNFNormalizerTest {
 
   // Input  (F): ~(& (| A B) C)
   // 1:           (| ~(| A B) ~C)   i)  move not inwards
-  // Output (F):  (| (& ~A ~B) ~C)  ii) move not inwards
+  // Output (F):  (| (& ~A ~B) (& ~C))  ii) move not inwards
   @Test
   public void testNormalizeMovesNotInward() {
     var leafA = new DefaultAuthorizationDecision( request, true );
@@ -98,7 +98,9 @@ public class AuthorizationDecisionDNFNormalizerTest {
             new OpposedAuthorizationDecision( leafA ),
             new OpposedAuthorizationDecision( leafB )
           ) ),
-        new OpposedAuthorizationDecision( leafC ) ) );
+        new AllAuthorizationDecision( request, false,
+          orderedSetOf(
+            new OpposedAuthorizationDecision( leafC ) ) ) ) );
 
     var output = new AuthorizationDecisionDNFNormalizer().normalize( input );
 
@@ -106,8 +108,8 @@ public class AuthorizationDecisionDNFNormalizerTest {
   }
 
   // Input  (F): ~(& ~A)
-  // 1:           (| ~~A)           i)  move not inwards
-  // Output (F):  (| A)  ii) eliminate double negation
+  // 1:           (| ~~A)     i)  move not inwards
+  // Output (F):  (| (& A) )  ii) eliminate double negation and ensure strict DNF
   @Test
   public void testNormalizeEliminatesDoubleNegation() {
     var leafA = new DefaultAuthorizationDecision( request, true );
@@ -116,7 +118,14 @@ public class AuthorizationDecisionDNFNormalizerTest {
       new AllAuthorizationDecision( request, false,
         orderedSetOf( new OpposedAuthorizationDecision( leafA ) ) ) );
 
-    var expectedOutput = new AnyAuthorizationDecision( request, true, orderedSetOf( leafA ) );
+    var expectedOutput = new AnyAuthorizationDecision(
+      request,
+      true,
+      orderedSetOf(
+        new AllAuthorizationDecision(
+          request,
+          true,
+          orderedSetOf( leafA ) ) ) );
 
     var output = new AuthorizationDecisionDNFNormalizer().normalize( input );
 
@@ -150,6 +159,7 @@ public class AuthorizationDecisionDNFNormalizerTest {
 
     assertTrue( equals( expectedOutput, output ) );
   }
+
   // Input:  (& A (| B C) D)
   // Input:  (& A (| B C) D (| E F))
   // Output: (| (& A D B E) (& A D B F) (& A D C E) (& A D C F))
@@ -184,7 +194,7 @@ public class AuthorizationDecisionDNFNormalizerTest {
   }
 
   // Input:  (& (| A B))
-  // Output: (| A B)
+  // Output: (| (& A) (& B))
   @Test
   public void testNormalizeDistributesDegenerateAndOverSingleOr() {
     var leafA = new DefaultAuthorizationDecision( request, true );
@@ -194,7 +204,10 @@ public class AuthorizationDecisionDNFNormalizerTest {
       new AnyAuthorizationDecision( request, true, orderedSetOf( leafA, leafB ) )
     ) );
 
-    var expectedOutput = new AnyAuthorizationDecision( request, true, orderedSetOf( leafA, leafB ) );
+    var expectedOutput = new AnyAuthorizationDecision( request, true, orderedSetOf(
+      new AllAuthorizationDecision( request, true, orderedSetOf( leafA ) ),
+      new AllAuthorizationDecision( request, true, orderedSetOf( leafB ) )
+    ) );
 
     var output = new AuthorizationDecisionDNFNormalizer().normalize( input );
 
@@ -266,7 +279,7 @@ public class AuthorizationDecisionDNFNormalizerTest {
   }
 
   // Input:   (| (| A B) (& C D))
-  // Output:  (| A B (& C D))
+  // Output:  (| (& A) (& B) (& C D))
   @Test
   public void testNormalizeFlattensNestedOrs() {
     var leafA = new DefaultAuthorizationDecision( request, true );
@@ -280,8 +293,8 @@ public class AuthorizationDecisionDNFNormalizerTest {
     ) );
 
     var expectedOutput = new AnyAuthorizationDecision( request, true, orderedSetOf(
-      leafA,
-      leafB,
+      new AllAuthorizationDecision( request, true, orderedSetOf( leafA ) ),
+      new AllAuthorizationDecision( request, true, orderedSetOf( leafB ) ),
       new AllAuthorizationDecision( request, true, orderedSetOf( leafC, leafD ) )
     ) );
 
@@ -314,9 +327,9 @@ public class AuthorizationDecisionDNFNormalizerTest {
   }
 
   // Input:   (| (| A (| B C) ) )
-  // Output:  (| A B C)
+  // Output:  (| (& A) (& B) (& C))
   @Test
-  public void testNormalizeFlattensNestedNestedOrs() {
+  public void testNormalizeFlattensDoublyNestedOrs() {
     var leafA = new DefaultAuthorizationDecision( request, true );
     var leafB = new DefaultAuthorizationDecision( request, true );
     var leafC = new DefaultAuthorizationDecision( request, true );
@@ -325,20 +338,16 @@ public class AuthorizationDecisionDNFNormalizerTest {
         leafA,
         new AnyAuthorizationDecision( request, true, orderedSetOf( leafB, leafC ) ) ) )
     ) );
+
     var expectedOutput = new AnyAuthorizationDecision( request, true, orderedSetOf(
-      leafA,
-      leafB,
-      leafC
+      new AllAuthorizationDecision( request, true, orderedSetOf( leafA ) ),
+      new AllAuthorizationDecision( request, true, orderedSetOf( leafB ) ),
+      new AllAuthorizationDecision( request, true, orderedSetOf( leafC ) )
     ) );
 
     var output = new AuthorizationDecisionDNFNormalizer().normalize( input );
-    assertTrue( equals( expectedOutput, output ) );
-  }
 
-  // Use ordered set so that children order is deterministic and comparisons can be made more easily.
-  @NonNull
-  private Set<IAuthorizationDecision> orderedSetOf( IAuthorizationDecision... decisions ) {
-    return new LinkedHashSet<>( List.of( decisions ) );
+    assertTrue( equals( expectedOutput, output ) );
   }
 
   // Input:   (| (& A (& B)))
@@ -359,6 +368,35 @@ public class AuthorizationDecisionDNFNormalizerTest {
     var output = new AuthorizationDecisionDNFNormalizer().normalize( input );
 
     assertTrue( equals( expectedOutput, output ) );
+  }
+
+  // Input:   (| (& A) (& B))
+  // Output:  (| (& A) (& B))
+  @Test
+  public void testNormalizePreservesAndsWithASingleTerminal() {
+    var leafA = new DefaultAuthorizationDecision( request, true );
+    var leafB = new DefaultAuthorizationDecision( request, true );
+
+    var input = new AnyAuthorizationDecision( request, true, orderedSetOf(
+      new AllAuthorizationDecision( request, true, orderedSetOf( leafA ) ),
+      new AllAuthorizationDecision( request, true, orderedSetOf( leafB ) )
+    ) );
+
+    var expectedOutput = new AnyAuthorizationDecision( request, true, orderedSetOf(
+      new AllAuthorizationDecision( request, true, orderedSetOf( leafA ) ),
+      new AllAuthorizationDecision( request, true, orderedSetOf( leafB ) )
+    ) );
+
+    var output = new AuthorizationDecisionDNFNormalizer().normalize( input );
+
+    assertTrue( equals( expectedOutput, output ) );
+    assertSame( input, output );
+  }
+
+  // Use ordered set so that children order is deterministic and comparisons can be made more easily.
+  @NonNull
+  private Set<IAuthorizationDecision> orderedSetOf( IAuthorizationDecision... decisions ) {
+    return new LinkedHashSet<>( List.of( decisions ) );
   }
 
   // region Comparison Helpers
