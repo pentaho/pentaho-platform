@@ -5,11 +5,11 @@
     <parent>
     <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-jar-parent-pom</artifactId>
-    <version>11.1.0.0-SNAPSHOT</version>
+    <version>11.1.0.0-140</version>
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-ce-parent</artifactId>
-  <version>11.1.0.0-SNAPSHOT</version>
+  <version>11.1.0.0-140</version>
   <packaging>pom</packaging>
   <name>Pentaho BI Platform Community Edition</name>
   <description>Parent pom for pentaho-platform projects</description>
@@ -33,7 +33,7 @@
     <sassyreader.version>0.5</sassyreader.version>
     <activation.version>1.1</activation.version>
     <enunciate-jersey-rt.version>1.27</enunciate-jersey-rt.version>
-    <pentaho-json.version>11.1.0.0-SNAPSHOT</pentaho-json.version>
+    <pentaho-json.version>11.1.0.0-140</pentaho-json.version>
     <commons-math3.version>3.6.1</commons-math3.version>
     <curvesapi.version>1.06</curvesapi.version>
     <groovy-all.version>2.4.21</groovy-all.version>
@@ -134,7 +134,7 @@
     <jcommon.version>1.0.16</jcommon.version>
     <drools.version>8.44.0.Final</drools.version>
     <snmp4j.version>1.9.3d</snmp4j.version>
-    <mondrian.version>11.1.0.0-SNAPSHOT</mondrian.version>
+    <mondrian.version>11.1.0.0-140</mondrian.version>
     <wsdl4j-qname.version>1.6.1</wsdl4j-qname.version>
     <javatar.version>2.5</javatar.version>
     <jfreechart.version>1.0.13</jfreechart.version>
@@ -173,7 +173,7 @@
     <sac.version>1.3</sac.version>
     <hsqldb.version>2.3.2</hsqldb.version>
     <websocket-api.version>1.0</websocket-api.version>
-    <encryption-support.version>11.1.0.0-SNAPSHOT</encryption-support.version>
+    <encryption-support.version>11.1.0.0-140</encryption-support.version>
     <org.json.version>3.1.1</org.json.version>
     <!-- @Null @Nullable annotations -->
     <com.github.spotbugs.annotations.version>4.2.3</com.github.spotbugs.annotations.version>
