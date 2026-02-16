@@ -462,6 +462,12 @@
       <groupId>org.pentaho</groupId>
       <artifactId>shim-api</artifactId>
       <version>${pentaho-hadoop-shims.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>pentaho-kettle</groupId>
+          <artifactId>kettle-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
@@ -474,6 +480,12 @@
       <artifactId>pdi-engine-api</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>pentaho-kettle</groupId>
+          <artifactId>kettle-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.pentaho.di.plugins</groupId>

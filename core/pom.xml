@@ -527,6 +527,10 @@
           <artifactId>commons-httpclient</artifactId>
           <groupId>commons-httpclient</groupId>
         </exclusion>
+        <exclusion>
+          <groupId>pentaho-kettle</groupId>
+          <artifactId>kettle-core</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -568,7 +572,7 @@
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-core</artifactId>
-      <version>${pdi.version}</version>
+      <version>11.1.0.0-FUSION-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>

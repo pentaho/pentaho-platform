@@ -1273,7 +1273,7 @@
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-core</artifactId>
-      <version>${pdi.version}</version>
+      <version>11.1.0.0-FUSION-SNAPSHOT</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -1927,6 +1927,10 @@
         <exclusion>
           <artifactId>commons-httpclient</artifactId>
           <groupId>commons-httpclient</groupId>
+        </exclusion>
+        <exclusion>
+          <groupId>pentaho-kettle</groupId>
+          <artifactId>kettle-core</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -2616,7 +2620,7 @@
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-core</artifactId>
-      <version>${project.version}</version>
+      <version>11.1.0.0-FUSION-SNAPSHOT</version>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
