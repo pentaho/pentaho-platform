@@ -273,6 +273,12 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>org.pentaho</groupId>
+      <artifactId>pentaho-registry</artifactId>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-capability-manager</artifactId>
       <version>${project.version}</version>
