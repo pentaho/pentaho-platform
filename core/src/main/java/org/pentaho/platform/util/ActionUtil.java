@@ -35,6 +35,10 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.Messages;
 import org.pentaho.platform.util.web.MimeHelper;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -450,6 +454,8 @@ public class ActionUtil {
     }
   }
 
+
+   
   private static void addAttachment( Map<String, Object> actionParams, Map<String, Serializable> params,
                                      String filePath, Emailer emailer ) {
     IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class );
@@ -463,24 +469,166 @@ public class ActionUtil {
     SimpleRepositoryFileData data = repo.getDataForRead( sourceFile.getId(), SimpleRepositoryFileData.class );
     emailer.setAttachment( data.getInputStream() );
     emailer.setAttachmentName( "attachment" );
-    String attachmentName = (String) actionParams.get( "_SCH_EMAIL_ATTACHMENT_NAME" );
+    String attachmentName = "";
     if ( !StringUtils.isEmpty( attachmentName ) ) {
       String extension = MimeHelper.getExtension( data.getMimeType(), ".bin" );
       emailer.setAttachmentName( attachmentName.endsWith( extension ) ?  attachmentName : attachmentName + extension );
-    } else if ( data != null ) {
+    } else   
+    {
+    if ( data != null ) {
       String path = filePath;
       if ( path.endsWith( ".*" ) ) {
         path = path.replace( ".*", "" );
       }
       String extension = MimeHelper.getExtension( data.getMimeType(), ".bin" );
       path = path.substring( path.lastIndexOf( "/" ) + 1, path.length() );
-      emailer.setAttachmentName( attachmentName.endsWith( extension ) ?  path : path + extension );
+      if(!path.endsWith( extension ) )
+      	{path=path + extension;}
+      emailer.setAttachmentName( path  );
+    }
     }
     if ( data == null || data.getMimeType() == null || "".equals( data.getMimeType() ) ) {
       emailer.setAttachmentMimeType( "binary/octet-stream" );
     } else {
       emailer.setAttachmentMimeType( data.getMimeType() );
     }
+    
+    
+    //TODO put filesystem output here after getting parameter for location
+    SimpleRepositoryFileData mydata = repo.getDataForRead( sourceFile.getId(), SimpleRepositoryFileData.class );
+    
+    String path = filePath;
+    String fname = path.substring( path.lastIndexOf( "/" ) + 1, path.length() );
+    
+   // String outputLocation=(String)actionParams.get("fSystemOutputPath");
+    String outputLocation=(String) actionParams.get( "_SCH_EMAIL_ATTACHMENT_NAME" );
+    if(outputLocation!=null && !outputLocation.equals("")) {//if user doesn't specify report parameter for output location do nothing 
+    	//otherwise write file to outputlocation
+	    if(!outputLocation.endsWith(File.separator)) {
+	    	outputLocation=outputLocation+File.separator;
+	    }
+	    
+	    if ( path.endsWith( ".*" ) ) {
+	      path = path.replace( ".*", "" );
+	    }
+	    
+	    
+	    String paramfilepath = outputLocation + fname; // Specify the desired file path
+	    File file = new File(paramfilepath);
+	    //do nothing if it's not a valid path
+        if(file.isAbsolute()) {
+        	createLocalFolderandFile(file,paramfilepath);
+	    
+		    try (InputStream inputStream = mydata.getInputStream();
+		         FileOutputStream outputStream = new FileOutputStream(paramfilepath)) {
+		
+		        byte[] buffer = new byte[4096]; // Buffer size (adjust as needed)
+		        int bytesRead;
+		        while ((bytesRead = inputStream.read(buffer)) != -1) {
+		            outputStream.write(buffer, 0, bytesRead);
+		        }
+		
+		       // System.out.println("Binary data written to file: " + paramfilepath);
+		    } catch (IOException e) {
+		       logger.warn("Could not write to file "+ paramfilepath, e);
+		  
+		    }
+        }else {
+        	logger.warn("Output path not valid.");
+        }
+    }
+  }
+  
+  private static boolean createLocalFolderandFile(File file, String filePath) {
+	  try {
+          
+          // Create parent directories if they don't exist
+          File parentDir = file.getParentFile();
+          if (!parentDir.exists()) {
+              boolean created = parentDir.mkdirs();
+              if (created) {
+                 // System.out.println("Parent directories created successfully.");
+              } else {
+                  logger.warn("Failed to create parent directories.");
+              }
+          }
+
+          // Create the file if it doesn't exist
+          if (!file.exists()) {
+              boolean created = file.createNewFile();
+              if (created) {
+                 // System.out.println("File created successfully.");
+                  return created;
+              } else {
+                  logger.warn("Failed to create the file with filename: " + file.getName());
+                  return created;
+              }
+          } else {
+             // System.out.println("File already exists.");
+        	  //delete and write again as all files should be written to filesystem from repo.  Repo already adheres to 
+        	  //overwrite flag
+        	  file.delete();
+        	  boolean created = file.createNewFile();
+              if (created) {
+                 // System.out.println("File created successfully.");
+                  return created;
+              } else {
+                  logger.warn("Failed to create the file: " + file.getName());
+                  return created;
+              }
+        	
+          }
+      } catch (IOException e) {
+         logger.warn("Error creating file and directories for :"+ filePath,e);
+          return false;
+      }
+  
+  }
+
+  private static boolean createLocalFolderandFile(File file, String filePath) {
+	  try {
+          
+          // Create parent directories if they don't exist
+          File parentDir = file.getParentFile();
+          if (!parentDir.exists()) {
+              boolean created = parentDir.mkdirs();
+              if (created) {
+                 // System.out.println("Parent directories created successfully.");
+              } else {
+                  logger.warn("Failed to create parent directories.");
+              }
+          }
+  
+          // Create the file if it doesn't exist
+          if (!file.exists()) {
+              boolean created = file.createNewFile();
+              if (created) {
+                 // System.out.println("File created successfully.");
+                  return created;
+              } else {
+                  logger.warn("Failed to create the file with filename: " + file.getName());
+                  return created;
+              }
+          } else {
+             // System.out.println("File already exists.");
+        	  //delete and write again as all files should be written to filesystem from repo.  Repo already adheres to 
+        	  //overwrite flag
+        	  file.delete();
+        	  boolean created = file.createNewFile();
+              if (created) {
+                 // System.out.println("File created successfully.");
+                  return created;
+              } else {
+                  logger.warn("Failed to create the file: " + file.getName());
+                  return created;
+              }
+        	
+          }
+      } catch (IOException e) {
+         logger.warn("Error creating file and directories for :"+ filePath,e);
+          return false;
+      }
+  
   }
 
 }
