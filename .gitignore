@@ -25,3 +25,4 @@ extensions/localhost.tmp/
 logs/
 target/
 http:/
+.DS_Store
