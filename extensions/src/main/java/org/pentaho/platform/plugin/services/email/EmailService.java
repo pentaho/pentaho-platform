@@ -193,6 +193,9 @@ public class EmailService implements IEmailService {
       session = Session.getInstance( emailProperties, new EncryptedPasswordAuthenticator( emailConfig.getUserId(),
               emailConfig.getPassword() ) );
     }
+    // Allow subclasses to configure the session
+    configureSession( session );
+
     String sendEmailMessage = "";
     try {
       MimeMessage msg = new MimeMessage( session );
@@ -209,6 +212,16 @@ public class EmailService implements IEmailService {
       sendEmailMessage = TEST_EMAIL_FAIL;
     }
     return sendEmailMessage;
+  }
+
+  /**
+   * Hook method to configure a Session after it's created. Subclasses can override this
+   * to register custom providers (e.g., for testing with mock mail transports).
+   *
+   * @param session the Session to configure
+   */
+  protected void configureSession( Session session ) {
+    // Default implementation does nothing
   }
 
   public void sendEmail( Session session, MimeMessage msg ) throws EmailServiceException {
