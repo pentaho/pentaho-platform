@@ -1,0 +1,89 @@
+  <bean id="filterInvocationInterceptor"
+        class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+    <property name="authenticationManager" ref="authenticationManager" />
+    <property name="accessDecisionManager" ref="httpRequestAccessDecisionManager" />
+    <!--
+        Note - the "=Nobody" below is saying that resource URLs with those
+        patterns not be available through a web call.
+    -->
+     <property name="securityMetadataSource">
+      <!-- http://stackoverflow.com/questions/30099851/spring-security-samples-preauth-xml-example-fails-to-run#answer-30105317 -->
+      <sec:filter-security-metadata-source request-matcher="ciRegex" use-expressions="false">
+        <sec:intercept-url pattern="\A/osgi/cxf/hadoop-cluster/runTests.*\Z" access="Authenticated" />
+        <sec:intercept-url pattern="\A/osgi/cxf/hadoop-cluster/.*\Z" access="Administrator" />
+        <sec:intercept-url pattern="\A/content/common-ui/resources/web/(.+/)*.+\.js.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/js/require(-js)?(-cfg)?.js(\?.*)?\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/common-ui/resources/web/require(-js)?(-cfg)?.js(\?.*)?\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/common-ui/resources/web/dojo/require(-js)?(-cfg)?.js(\?.*)?\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/config/deploy/client-config-enabler-require-js-cfg.js\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/config/admin-plugin/client-config-enabler-require-js-cfg.js\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/admin-plugin/resources/admin-plugin-require-js-cfg.js\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/data-access/resources/gwt/.*css\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/webcontext.js.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/common-ui/resources/web/cache/cache-service.js.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/cacheexpirationservice.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/js/theme.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/common-ui/resources/themes/.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/common-ui/resources/web/dojo/djconfig.js.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/content/pentaho-mobile/resources/.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/docs/.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/mantlelogin/.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/mantle/mantleloginservice/*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/mantle/.*\Z" access="Authenticated" />
+        <sec:intercept-url pattern="\A/welcome/.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/public/.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/login.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/ping/alive.gif.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/j_spring_security_check.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/getimage.*\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url pattern="\A/getresource.*\Z" access="Anonymous,Authenticated" />
+
+        <!-- New JSP protection ************************************************** -->
+
+        <sec:intercept-url pattern="\A/blockedIPsManagement.*\Z" access="Admin,Administrator" />
+
+        <!-- END **************************************************-->
+
+        <sec:intercept-url pattern="\A/admin.*\Z" access="Admin,Administrator" />
+        <sec:intercept-url pattern="\A/auditreport.*\Z" access="Admin,Administrator" />
+        <sec:intercept-url pattern="\A/auditreportlist.*\Z" access="Admin,Administrator" />
+        <sec:intercept-url pattern="\A/versioncontrol.*\Z" access="Admin,Administrator" />
+        <sec:intercept-url pattern="\A/propertieseditor.*\Z" access="Admin,Administrator" />
+        <sec:intercept-url pattern="\A/propertiespanel.*\Z" access="Admin,Administrator" />
+        <sec:intercept-url pattern="\A/subscriptionadmin.*\Z" access="Admin,Administrator" />
+        <sec:intercept-url pattern="\A/resetrepository.*\Z" access="Admin,Administrator" />
+        <sec:intercept-url pattern="\A/viewaction.*solution.admin.*\Z" access="Admin,Administrator" />
+        <sec:intercept-url pattern="\A/scheduleradmin.*\Z" access="Admin,Administrator" />
+        <sec:intercept-url pattern="\A/publish.*\Z" access="Admin,Administrator" />
+        <sec:intercept-url pattern="\A/logout.*\Z" access="Anonymous" />
+        <sec:intercept-url pattern="\A/solutionrepositoryservice.*component=delete.*solution=system.*\Z" access="Nobody" />
+        <sec:intercept-url pattern="\A/solutionrepositoryservice.*solution=system.*component=delete.*\Z" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*pentaho.xml.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*applicationcontext.*.xml.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*pentahoobjects.spring.xml.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*pentahosystemconfig.xml.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*adminplugins.xml.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*plugin.properties.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*sessionstartupactions.xml.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*systemlisteners.xml.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*hibernate.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*birt/.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*dialects/.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*google/.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*jasperreports/.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*kettle/.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*logs/.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*mondrian/.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*quartz/.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*simple-jndi/.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*smtp-email/.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*ui/.*" access="Nobody" />
+        <sec:intercept-url pattern=".*system.*\.\./.*" access="Nobody" />
+        <sec:intercept-url pattern="\A/plugin/reporting/api/jobs/.*\Z" access="Anonymous,Authenticated" method="OPTIONS" />
+        <sec:intercept-url pattern="\A/plugin/reporting/api/jobs/.*\Z" access="Anonymous,Authenticated" method="HEAD" />
+        <sec:intercept-url pattern="\A/api/repos/.*\Z" access="Anonymous,Authenticated" method="OPTIONS" />
+        <sec:intercept-url pattern="\A/api/repos/.*\Z" access="Anonymous,Authenticated" method="HEAD" />
+        <sec:intercept-url pattern="\A/.*\Z" access="Authenticated" />
+      </sec:filter-security-metadata-source>
+    </property>
+  </bean>
