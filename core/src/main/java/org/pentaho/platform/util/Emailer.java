@@ -178,6 +178,10 @@ public class Emailer {
       props.put( "mail.smtp.quitwait", ObjectUtils.toString( service.getEmailConfig().isSmtpQuitWait() ) );
       props.put( "mail.from.default", service.getEmailConfig().getDefaultFrom() );
 
+      //RKM send to valid recipients even if there are invalid defined.
+      props.put( "mail.smtp.sendpartial", "true" );
+      
+      
       String fromName = service.getEmailConfig().getFromName();
       if ( StringUtils.isEmpty( fromName ) ) {
         fromName = getEmailFromName();
