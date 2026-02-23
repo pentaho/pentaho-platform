@@ -67,7 +67,7 @@ public class EmailServiceTest extends TestCase {
     try ( java.io.FileWriter writer = new java.io.FileWriter( defaultConfigFile ) ) {
       writer.write( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<email-smtp></email-smtp>" );
     }
-    this.emailService = new EmailService( defaultConfigFile );
+    this.emailService = new TestEmailService( defaultConfigFile );
     MockMail.clear();
   }
 
