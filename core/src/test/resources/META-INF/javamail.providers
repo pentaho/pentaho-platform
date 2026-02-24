@@ -1,2 +1,0 @@
-protocol=smtp; type=transport; class=org.pentaho.platform.util.MockMail;
-
