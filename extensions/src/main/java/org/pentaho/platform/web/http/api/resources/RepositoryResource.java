@@ -90,6 +90,9 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   private static final Log logger = LogFactory.getLog( RepositoryResource.class );
   public static final String GENERATED_CONTENT_PERSPECTIVE = "generatedContent"; //$NON-NLS-1$
+  private static final String XACTION = "xaction";
+  private static final String OUTPUT_TARGET = "output-target";
+  private static final String PARAMETER = "parameter";
 
   protected IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
   protected IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class );
@@ -743,17 +746,30 @@ public class RepositoryResource extends AbstractJaxRSResource {
       //
 
       final RepositoryFile file = repository.getFile( FileResource.idToPath( contextId ) );
+      Response response = null;
+
       if ( file == null ) {
-        logger.error( MessageFormat.format( "Repository file [{0}] not found", contextId ) );
-        return Response.serverError().build();
-      }
-      if ( FileResource.idToPath( contextId ).endsWith( ".prpti" ) && !validatePrptiOutputFormat() ) {
-        logger.error( MessageFormat.format( "Output Format [{0}] for PIR report not allowed for file [{1}]",
-          this.httpServletRequest.getParameterMap().get( "output-target" )[ 0 ], FileResource.idToPath( contextId ) ) );
-        return Response.serverError().status( Status.BAD_REQUEST ).build();
+        // File not found - could be a system job,
+        // so continue trying content generators instead of immediately returning error
+        if ( !PARAMETER.equals( resourceId ) ) {
+          logger.error( MessageFormat.format( "Repository file [{0}] not found", contextId ) );
+          return Response.serverError().build();
+        } else {
+          ctxt( "Repository file [{0}] not found, but performing parameter request since it can be a system job", contextId );
+          response = tryParameterContentGenerator( resourceId );
+          if ( response != null ) {
+            return response;
+          }
+          logger.warn( MessageFormat.format( "No resource [{0}] found in context [{1}].", resourceId, contextId ) );
+          return Response.status( NOT_FOUND ).build();
+        }
       }
 
-      Response response = null;
+      if ( FileResource.idToPath( contextId ).endsWith( ".prpti" ) && !validatePrptiOutputFormat() ) {
+        logger.error( MessageFormat.format( "Output Format [{0}] for PIR report not allowed for file [{1}]",
+          this.httpServletRequest.getParameterMap().get( OUTPUT_TARGET )[ 0 ], FileResource.idToPath( contextId ) ) );
+        return Response.serverError().status( Status.BAD_REQUEST ).build();
+      }
 
       ctxt( "Yep, [{0}] is a repository file id", contextId ); //$NON-NLS-1$
       final String ext = RepositoryFilenameUtils.getExtension( file.getName() );
@@ -834,7 +850,15 @@ public class RepositoryResource extends AbstractJaxRSResource {
             return response;
           }
         } else {
-          ctxt( "Nope, [{0}] is not a plugin id", contextId ); //$NON-NLS-1$
+          ctxt( "Nope, [{0}] is not a plugin id, but performing parameter request since it can be a system job",
+            contextId );
+
+          if ( PARAMETER.equals( resourceId ) ) {
+            Response response = tryParameterContentGenerator( resourceId );
+            if ( response != null ) {
+              return response;
+            }
+          }
           logger.warn( MessageFormat.format( "Failed to resolve context [{0}]", contextId ) ); //$NON-NLS-1$
         }
       }
@@ -847,8 +871,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   private boolean validatePrptiOutputFormat() {
     boolean valid = true;
-    if ( this.httpServletRequest.getParameterMap() != null && this.httpServletRequest.getParameterMap().containsKey( "output-target" ) ) {
-      String outputFormat = this.httpServletRequest.getParameterMap().get( "output-target" )[0];
+    if ( this.httpServletRequest.getParameterMap() != null && this.httpServletRequest.getParameterMap().containsKey( OUTPUT_TARGET ) ) {
+      String outputFormat = this.httpServletRequest.getParameterMap().get( OUTPUT_TARGET )[0];
       valid = AllowedPrptiTypes.getByType( outputFormat ) != null;
     }
     return valid;
@@ -1059,6 +1083,16 @@ public class RepositoryResource extends AbstractJaxRSResource {
       return response;
     }
     rsc( "Nope, [{0}] is not a repository file", path ); //$NON-NLS-1$
+    return null;
+  }
+
+  protected Response tryParameterContentGenerator( String resourceId ) {
+    ctxt( "This is a parameter request, attempting content generator" );
+    String pluginId = pluginManager.getPluginIdForType( XACTION );
+    if ( pluginId != null ) {
+      CGFactory fac = new ContentTypeCGFactory( resourceId, XACTION );
+      return getContentGeneratorResponse( fac );
+    }
     return null;
   }
 
