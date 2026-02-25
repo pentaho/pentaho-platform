@@ -6,10 +6,10 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>11.1.0.0-SNAPSHOT</version>
+    <version>11.1.0.0-151</version>
   </parent>
   <artifactId>pentaho-solutions</artifactId>
-  <version>11.1.0.0-SNAPSHOT</version>
+  <version>11.1.0.0-151</version>
   <packaging>pom</packaging>
   <properties>
     <prepared.samples.directory>${project.build.directory}/dependency/plugin-samples</prepared.samples.directory>
