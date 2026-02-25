@@ -44,8 +44,10 @@ public class ActionRoleBindingAuthorizationDecision extends AbstractAuthorizatio
   @NonNull
   @Override
   public String getShortJustification() {
-    // Example: "From role(s): Power User, Business Analyst"
-    return MessageFormat.format( JUSTIFICATION, getBoundRolesText() );
+    // Example: "Has Manage Data Source permission from role(s): Power User, Business Analyst"
+    return MessageFormat.format( JUSTIFICATION,
+      getBoundRolesText(),
+      getRequest().getAction().getLocalizedDisplayName() );
   }
 
   @Override

@@ -148,6 +148,21 @@ public class ActionRoleBindingAuthorizationDecisionTest {
   }
   // endregion
 
+  // region getShortJustification Tests
+  @Test
+  public void testGetShortJustificationGrantedContainsActionDisplayName() {
+    var decision = new ActionRoleBindingAuthorizationDecision( request, orderedSetOf( roleUser ) );
+
+    // Template: "Has **{1}** permission" — {1} is the action's localizedDisplayName ("read-display-name")
+    var justification = decision.getShortJustification();
+
+    assertTrue( decision.isGranted() );
+    assertTrue( justification.contains( "read-display-name" ) );
+    assertTrue( justification.contains( "Has" ) );
+    assertTrue( justification.contains( "permission" ) );
+  }
+  // endregion
+
   // region toString Tests
   @Test
   public void testToStringWithEmptyRoles() {
