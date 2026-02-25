@@ -297,6 +297,104 @@ public class AuthorizationDecisionLockingAnalyzerTest {
     assertTrue( equals( expectedOutput, result.get() ) );
   }
 
+  /**
+   * Guards that a denied AND term inside a granted overall decision is skipped entirely, even when it contains
+   * granted non-reference children that would otherwise appear to be locking justifications.
+   * <p>
+   * Without the {@code allTerm.isGranted() != dnfDecision.isGranted()} guard, the denied alternative would be
+   * passed into {@code analyzeGrantedAlternative}, which would pick up its granted non-reference children and
+   * produce a spurious locking justification.
+   * <pre>
+   *   OR: Granted
+   *     - AND: Denied   &lt;-- must be skipped; its granted children must NOT produce a justification
+   *       - Non-reference: Granted
+   *     - AND: Granted  &lt;-- the only locking alternative
+   *       - Non-reference: Granted
+   * </pre>
+   */
+  @Test
+  public void testAnalyzeGrantedDecisionSkipsDeniedAlternativeEvenWithGrantedNonReferenceChildren() {
+    var grantedDecisionInsideDeniedAlt = new DefaultAuthorizationDecision( request, true );
+    var grantedDecisionInsideGrantedAlt = new DefaultAuthorizationDecision( request, true );
+
+    var input = new AnyAuthorizationDecision( request, true, orderedSetOf(
+      // Denied AND term — must be ignored entirely.
+      new AllAuthorizationDecision( request, false, orderedSetOf( grantedDecisionInsideDeniedAlt ) ),
+      // Granted AND term without reference decision — the real locking alternative.
+      new AllAuthorizationDecision( request, true, orderedSetOf( grantedDecisionInsideGrantedAlt ) )
+    ) );
+
+    var expectedOutput = new AnyAuthorizationDecision( request, true, orderedSetOf(
+      new AllAuthorizationDecision( request, true, orderedSetOf( grantedDecisionInsideGrantedAlt ) )
+    ) );
+
+    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
+
+    assertTrue( result.isPresent() );
+    // Exactly one locking alternative — the denied AND term must NOT have contributed.
+    assertEquals( 1, result.get().getDecisions().size() );
+    assertTrue( equals( expectedOutput, result.get() ) );
+  }
+
+  /**
+   * Guards that a granted AND term inside a denied overall decision is skipped entirely.
+   * The doclet spec states "all child terms are necessarily denied"; a granted AND term must never be passed
+   * into {@code analyzeDeniedAlternative}.
+   * <pre>
+   *   OR: Denied
+   *     - AND: Granted  &lt;-- must be skipped
+   *       - ReferenceDecision: Granted
+   *       - Some Decision: Denied
+   *     - AND: Denied   &lt;-- the real locking alternative
+   *       - ReferenceDecision: Granted
+   *       - Some Decision: Denied
+   * </pre>
+   */
+  @Test
+  public void testAnalyzeDeniedDecisionSkipsGrantedAlternative() {
+    var referenceDecision1 = new ReferenceDecision( request, true );
+    var denyDecision1 = new DefaultAuthorizationDecision( request, false );
+    var referenceDecision2 = new ReferenceDecision( request, true );
+    var denyDecision2 = new DefaultAuthorizationDecision( request, false );
+
+    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
+      // Granted AND term — must be ignored entirely.
+      new AllAuthorizationDecision( request, true, orderedSetOf( referenceDecision1, denyDecision1 ) ),
+      // Denied AND term with reference + deny — the real locking alternative.
+      new AllAuthorizationDecision( request, false, orderedSetOf( referenceDecision2, denyDecision2 ) )
+    ) );
+
+    var expectedOutput = new AnyAuthorizationDecision( request, false, orderedSetOf(
+      new AllAuthorizationDecision( request, false, orderedSetOf( denyDecision2 ) )
+    ) );
+
+    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
+
+    assertTrue( result.isPresent() );
+    // Exactly one locking alternative — the granted AND term must NOT have contributed.
+    assertEquals( 1, result.get().getDecisions().size() );
+    assertTrue( equals( expectedOutput, result.get() ) );
+  }
+
+  /**
+   * When the denied overall decision contains only a granted AND term (and no denied AND terms), the result must
+   * be empty — nothing locks the decision.
+   */
+  @Test
+  public void testAnalyzeDeniedDecisionWithOnlyGrantedAlternativeIsNotLocked() {
+    var referenceDecision = new ReferenceDecision( request, true );
+    var denyDecision = new DefaultAuthorizationDecision( request, false );
+
+    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
+      // Granted AND term — must be skipped; no denied AND terms remain.
+      new AllAuthorizationDecision( request, true, orderedSetOf( referenceDecision, denyDecision ) )
+    ) );
+
+    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
+
+    assertFalse( result.isPresent() );
+  }
+
   // endregion
 
 

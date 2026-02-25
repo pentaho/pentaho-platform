@@ -132,6 +132,10 @@ public class AuthorizationDecisionLockingAnalyzer {
 
     Set<IAuthorizationDecision> lockingAlternatives = new LinkedHashSet<>();
     for ( var allTerm : dnfDecision.getDecisions() ) {
+      if ( allTerm.isGranted() != dnfDecision.isGranted() ) {
+        continue;
+      }
+
       var alternativeDecision = (IAllAuthorizationDecision) allTerm;
 
       var result = dnfDecision.isGranted()
