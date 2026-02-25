@@ -355,16 +355,11 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
   }
 
-  public static String findTitle( final RepositoryFile file ) {
+  private static String findTitle( final RepositoryFile file ) {
     String title = null;
     if ( file.getLocalePropertiesMap() != null ) {
       Properties properties = file.getLocalePropertiesMap().get( Locale.getDefault().toString() );
-      if ( properties != null ) {
-        title = properties.getProperty( RepositoryFile.FILE_TITLE );
-        if ( StringUtils.isBlank( title ) ) {
-          title = properties.getProperty( RepositoryFile.TITLE );
-        }
-      } else {
+      if ( properties == null ) {
         properties = file.getLocalePropertiesMap().get( RepositoryFile.DEFAULT_LOCALE );
         if ( properties != null ) {
           title = properties.getProperty( RepositoryFile.FILE_TITLE );
@@ -381,16 +376,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   private static String findDesc( final RepositoryFile file ) {
     String desc = null;
     if ( file.getLocalePropertiesMap() != null ) {
-      // First try current locale
       Properties properties = file.getLocalePropertiesMap().get( Locale.getDefault().toString() );
-      if ( properties != null ) {
-        desc = properties.getProperty( RepositoryFile.FILE_DESCRIPTION );
-        if ( StringUtils.isBlank( desc ) ) {
-          desc = properties.getProperty( RepositoryFile.DESCRIPTION );
-        }
-      }
-      // Fall back to default locale if not found
-      if ( StringUtils.isBlank( desc ) ) {
+      if ( properties == null ) {
         properties = file.getLocalePropertiesMap().get( RepositoryFile.DEFAULT_LOCALE );
         if ( properties != null ) {
           desc = properties.getProperty( RepositoryFile.FILE_DESCRIPTION );
@@ -492,26 +479,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
       throw new AccessDeniedException( "access denied" );
     }
     FileRecord fileRecord = idManager.getFileById( file.getId() );
-    
-    String titleToUse = findTitle( file );
-    String descriptionToUse = findDesc( file );
-    
-    // If findTitle returned null, fall back to explicit title on the file
-    if ( titleToUse == null ) {
-      titleToUse = file.getTitle();
-    }
-    // If findDesc returned null, fall back to explicit description on the file
-    if ( descriptionToUse == null ) {
-      descriptionToUse = file.getDescription();
-    }
-    
-    // Build the updated file
-    RepositoryFile updatedFile = new RepositoryFile.Builder( file )
-        .title( titleToUse )
-        .description( descriptionToUse )
-        .build();
-    
-    fileRecord.setFile( updatedFile );
+    fileRecord.setFile( new RepositoryFile.Builder( file ).title( findTitle( file ) ).description( findDesc( file ) )
+        .build() );
     IRepositoryFileData oldData = fileRecord.getData();
     fileRecord.setData( data );
 
@@ -587,22 +556,10 @@ public class MockUnifiedRepository implements IUnifiedRepository {
             .getData(), src.getAcl(), src.getMetadata() );
     if ( !move ) {
       idManager.register( newChild );
-    } else {
-      // For move operations, update the idManager to point to the new FileRecord
-      // while keeping the same ID
-      idManager.updateFileRecord( fileId, newChild );
     }
     dest.addChild( newChild );
     if ( move ) {
-      // Orphan from the OLD parent (src.getParent())
-      FileRecord oldParent = src.getParent();
-      if ( oldParent != null ) {
-        // Check WRITE permission on old parent before orphaning
-        if ( !hasAccess( oldParent.getFile().getId(), EnumSet.of( RepositoryFilePermission.WRITE ) ) ) {
-          throw new AccessDeniedException( "access denied" );
-        }
-        oldParent.orphan( src.getFile().getName() );
-      }
+      orphanFile( fileId );
     }
   }
 
@@ -1021,22 +978,6 @@ public class MockUnifiedRepository implements IUnifiedRepository {
      */
     public FileRecord deregister( final Serializable fileId ) {
       return idMap.remove( fileId );
-    }
-
-    /**
-     * Updates the FileRecord for an existing fileId. Used when moving files to update
-     * the file object with new path/name while preserving the same ID.
-     */
-    public void updateFileRecord( final Serializable fileId, final FileRecord newRecord ) {
-      if ( !idMap.containsKey( fileId ) ) {
-        throw new UnifiedRepositoryException( String.format( "file id [%s] does not exist", fileId ) );
-      }
-      // Set the ID on the new record's file to match the existing ID
-      newRecord.setFile( new RepositoryFile.Builder( newRecord.getFile() ).id( fileId ).build() );
-      // Also update the ACL ID to match (consistent with register())
-      newRecord.setAcl( new RepositoryFileAcl.Builder( newRecord.getAcl() ).id( fileId ).build() );
-      // Update the map to point to the new FileRecord
-      idMap.put( fileId, newRecord );
     }
 
   }
