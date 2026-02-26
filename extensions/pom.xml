@@ -1323,6 +1323,12 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>com.pentaho</groupId>
+      <artifactId>pentaho-oauth-client</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-ui-swt</artifactId>
       <version>${pdi.version}</version>

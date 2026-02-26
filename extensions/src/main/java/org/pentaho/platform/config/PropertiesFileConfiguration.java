@@ -113,6 +113,24 @@ public class PropertiesFileConfiguration implements IConfiguration {
 
   }
 
+  /**
+   * Re-reads the underlying properties file from disk, replacing the in-memory
+   * cache with fresh data. Only effective when this instance was constructed
+   * with a {@link File} argument; silently ignored for in-memory
+   * {@link Properties} instances.
+   * <p>
+   * Thread-safe: the method is {@code synchronized} to prevent concurrent
+   * reload calls from racing with each other.
+   *
+   * @throws IOException if the file cannot be read
+   */
+  @Override
+  public synchronized void reload() throws IOException {
+    if ( propFile != null ) {
+      loadProperties();
+    }
+  }
+
   protected void setPropFile( File propFile ) {
     this.propFile = propFile;
   }
