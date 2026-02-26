@@ -34,6 +34,15 @@ public interface IScheduler {
   String RESERVEDMAPKEY_APPEND_DATE_FORMAT = QuartzActionUtil.QUARTZ_APPEND_DATE_FORMAT;
   String RESERVEDMAPKEY_AUTO_CREATE_UNIQUE_FILENAME = QuartzActionUtil.QUARTZ_AUTO_CREATE_UNIQUE_FILENAME;
   String RESERVEDMAPKEY_LINEAGE_ID = QuartzActionUtil.QUARTZ_LINEAGE_ID;
+  String RESERVEDMAPKEY_LAST_EXECUTION_TIME = QuartzActionUtil.QUARTZ_LAST_EXECUTION_TIME;
+  /**
+   * @deprecated since 2026-02
+   * 
+   * This reserved map key is no longer used by the scheduler and should not be used by callers.
+   * Can only remove if we ensure that no clients have schedules with this property set in their jobParams.
+   * Otherwise, it will appear in the UI variable list.
+   */
+  @Deprecated( since = "2026-02", forRemoval = false )
   String RESERVEDMAPKEY_PREVIOUS_TRIGGER_NOW = QuartzActionUtil.QUARTZ_PREVIOUS_TRIGGER_NOW;
   String RESERVEDMAPKEY_RESTART_FLAG = QuartzActionUtil.QUARTZ_RESTART_FLAG;
   String RESERVEDMAPKEY_START_TIME = QuartzActionUtil.QUARTZ_START_TIME;
