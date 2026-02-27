@@ -2003,18 +2003,6 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.ws.commons.neethi</groupId>
-      <artifactId>neethi</artifactId>
-      <version>${neethi.version}</version>
-      <scope>runtime</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>woodstox</groupId>
       <artifactId>wstx-asl</artifactId>
       <version>${wstx-asl.version}</version>
