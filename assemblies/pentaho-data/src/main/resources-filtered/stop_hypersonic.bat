@@ -19,6 +19,7 @@ SET "tempclasspath="
 SET "libdir=.\lib"
 
 FOR /f "delims=" %%a IN ('dir "%libdir%\hsqldb*.jar" /b /a-d') DO call :addToClasspath %%a
+FOR /f "delims=" %%a IN ('dir "%libdir%\sqltool*.jar" /b /a-d') DO call :addToClasspath %%a
 GOTO :startApp
 
 :addToClasspath
@@ -30,16 +31,10 @@ REM -----------------------
 REM - Run the application -
 REM -----------------------
 :startApp
-FOR %%b IN (sampledata,hibernate,quartz) DO call :runCommand %%b 
-GOTO end
+FOR %%b IN (sampledata,hibernate,quartz) DO (
+  echo SHUTDOWN; | "%_PENTAHO_JAVA%" -cp "%tempclasspath%" org.hsqldb.cmdline.SqlTool --autoCommit --inlineRc=url=jdbc:hsqldb:hsql://localhost:9001/%%b,user=SA,password= > nul 2>&1
+)
 
-:runCommand
-
-call set-pentaho-env.bat "%~dp0..\jre"
-
-"%_PENTAHO_JAVA%" -cp "%tempclasspath%" org.hsqldb.util.ShutdownServer -url "jdbc:hsqldb:hsql://localhost/%1" -user "SA" -password ""
-echo %command%
-%command%
-GOTO :end
+echo HSQLDB server stopped successfully.
 
 :end
