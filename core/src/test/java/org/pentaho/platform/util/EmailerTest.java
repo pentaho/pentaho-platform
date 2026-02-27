@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.util;
 
@@ -18,8 +19,8 @@ import org.mockito.Mockito;
 import org.pentaho.platform.api.email.IEmailConfiguration;
 import org.pentaho.platform.api.email.IEmailService;
 
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.util.UUID;
 
@@ -129,7 +130,6 @@ public class EmailerTest {
     Mockito.verify( emailService, Mockito.times( 1 ) ).sendEmail( Mockito.any( Session.class ),
             Mockito.any( MimeMessage.class ) );
   }
-
 
   @Test
   public void testEmbeddedHtmlBody() throws Exception {

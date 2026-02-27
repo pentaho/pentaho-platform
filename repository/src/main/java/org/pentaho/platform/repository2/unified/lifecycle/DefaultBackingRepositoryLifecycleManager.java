@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.lifecycle;
 
@@ -103,10 +104,10 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
       final IPasswordService passwordService, final JcrTemplate adminJcrTemplate,
       final IPathConversionHelper pathConversionHelper ) {
     super( txnTemplate, adminJcrTemplate, pathConversionHelper );
-    Assert.notNull( contentDao );
-    Assert.notNull( repositoryFileAclDao );
-    Assert.hasText( repositoryAdminUsername );
-    Assert.hasText( tenantAuthenticatedRoleName );
+    Assert.notNull( contentDao, "The content DAO must not be null. Ensure a valid content DAO is provided." );
+    Assert.notNull( repositoryFileAclDao, "The repository file ACL DAO must not be null. Ensure a valid ACL DAO is provided." );
+    Assert.hasText( repositoryAdminUsername, "The repository admin username must not be null or empty. Ensure a valid username is provided." );
+    Assert.hasText( tenantAuthenticatedRoleName, "The tenant authenticated role name must not be null or empty. Ensure a valid role name is provided." );
     this.repositoryFileDao = contentDao;
     this.repositoryFileAclDao = repositoryFileAclDao;
     this.repositoryAdminUsername = repositoryAdminUsername;

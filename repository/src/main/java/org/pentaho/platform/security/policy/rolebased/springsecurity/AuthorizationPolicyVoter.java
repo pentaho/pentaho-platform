@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.security.policy.rolebased.springsecurity;
 
@@ -43,8 +44,8 @@ public class AuthorizationPolicyVoter implements AccessDecisionVoter {
 
   public AuthorizationPolicyVoter( final IAuthorizationPolicy policy, final String prefix ) {
     super();
-    Assert.notNull( policy );
-    Assert.notNull( prefix );
+    Assert.notNull( policy, "The authorization policy must not be null. Ensure a valid policy instance is provided." );
+    Assert.notNull( prefix, "The prefix must not be null. Ensure a valid prefix is provided." );
     this.policy = policy;
     this.prefix = prefix;
   }

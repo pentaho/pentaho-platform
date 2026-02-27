@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importer;
 
@@ -70,6 +71,7 @@ public class PlatformImporterTest {
 
     try {
       importer.setRepositoryImportLogger( importLogger );
+      importer.getRepositoryImportLogger().setPerformingRestore( false );
       importer.importFile( bundle1 );
       String result = new String( outputStream.toByteArray() );
       assertTrue( result.contains( "Start Import Job" ) ); // Logged at INFO level
@@ -110,10 +112,10 @@ public class PlatformImporterTest {
                 "parameterized-domain-id" ) ).build();
 
     importer.importFile( bundle1 );
-    
+
     verify( mockImportHandler, times( 1 ) ).importFile( bundle1 );
   }
-  
+
   @Test
   public void testUseDefaultHandler() throws Exception {
 
@@ -132,7 +134,7 @@ public class PlatformImporterTest {
         new PentahoPlatformImporter( handlers, new DefaultRepositoryContentConverterHandler(
             new HashMap<String, Converter>() ) );
 
-    
+
     IPlatformImportHandler mockDefaultImportHandler = mock( IPlatformImportHandler.class );
     importer.setDefaultHandler( mockDefaultImportHandler );
     importer.setRepositoryImportLogger( importLogger );
@@ -146,7 +148,7 @@ public class PlatformImporterTest {
                 "parameterized-domain-id" ) ).build();
 
     importer.importFile( bundle1 );
-    
+
     verify( mockDefaultImportHandler, times( 1 ) ).importFile( bundle1 );
   }
 }

@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 // add the subscription specific ignored hidden fields used by getParameters
 pentaho_ignoreFields.push('subscribe-name');
@@ -338,7 +339,7 @@ function doSubscribed(id, actionUrl, displayUrl ) {
 		if( target == '' ) {
 			document.location.href=submitUrl;
 		} else {
-			window.open( submitUrl, target, options );
+			pho.util.xss.open( submitUrl, target, options );
 		}
 		return false;
 	} else {
@@ -406,7 +407,7 @@ function doSubscribedArchive( id, actionUrl ) {
 		if( target == '' ) {
 			document.location.href=submitUrl;
 		} else {
-			window.open( submitUrl, target, '' );
+			pho.util.xss.open( submitUrl, target, '' );
 		}
 		 return false;
 	} else {

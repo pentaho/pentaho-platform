@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 define([
   "./browser.utils",
@@ -359,8 +360,8 @@ define([
       window.parent.executeCommand("FilePropertiesCommand", this.buildParameter(path));
     },
 
-    renameHandler: function (path) {
-      this.renameDialog.init(path, "file");
+    renameHandler: function (path, title) {
+      this.renameDialog.init(path, title, "file");
     }
   };
 

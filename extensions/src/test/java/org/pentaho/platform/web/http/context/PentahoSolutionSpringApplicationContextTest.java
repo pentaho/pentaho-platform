@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.context;
 
@@ -21,7 +22,7 @@ import org.pentaho.platform.util.XmlTestConstants;
 import org.springframework.core.io.Resource;
 import org.xml.sax.SAXException;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.File;

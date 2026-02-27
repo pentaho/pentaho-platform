@@ -48,6 +48,8 @@
                   command="mantleXulHandler.executeMantleCommand('PurgeMondrianSchemaCacheCommand')"/>
         <menuitem id="purgeReportingDataCacheMenuItem" label="${purgeReportingDataCache}"
                   command="mantleXulHandler.executeMantleCommand('PurgeReportingDataCacheCommand')"/>
+        <menuitem id="purgeAuthorizationDecisionCacheMenuItem" label="${purgeAuthorizationDecisionCache}"
+                  command="mantleXulHandler.executeMantleCommand('PurgeAuthorizationDecisionCacheCommand')"/>
       </menubar>
 
       <!-- Uncomment line below to enable 'PDI Status page' menu item -->

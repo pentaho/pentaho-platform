@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 /*
  * Class for persisting lists and other collections. Using serialization to persist these items.
@@ -36,14 +37,15 @@ import java.sql.Types;
 public class BlobtoByteArrayUserType implements UserType {
   private static final Log log = LogFactory.getLog( BlobtoByteArrayUserType.class );
 
-  private static final int[] SQLTYPE = { Types.BLOB };
+  private static final int SQLTYPE =  Types.BLOB ;
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.hibernate.usertype.UserType#sqlTypes()
+   * @see org.hibernate.usertype.UserType#getSqlType()
    */
-  public int[] sqlTypes() {
+  @Override
+  public int getSqlType() {
     return BlobtoByteArrayUserType.SQLTYPE;
   }
 
@@ -75,8 +77,7 @@ public class BlobtoByteArrayUserType implements UserType {
   }
 
   @Override
-  public Object nullSafeGet( ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner )
-    throws HibernateException, SQLException {
+  public Object nullSafeGet( ResultSet resultSet, int i, SharedSessionContractImplementor sharedSessionContractImplementor, Object o ) throws SQLException {
     return null;
   }
 
@@ -119,7 +120,7 @@ public class BlobtoByteArrayUserType implements UserType {
         throw new HibernateException( Messages.getInstance().getErrorString( "BLOBUTYPE.ERROR_0001_SETTING_BLOB" ), ex ); //$NON-NLS-1$
       }
     } else {
-      arg0.setNull( arg2, sqlTypes()[0] );
+      arg0.setNull( arg2, getSqlType());
     }
   }
 

@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importer;
 
@@ -45,9 +46,8 @@ import java.util.PropertyResourceBundle;
  * this class is used to handle .properties files that are XACTION or URL files that contain the metadata used for
  * localization. These files may contain additional information that will allow the properties file to be stored and
  * used by XACTION and URL as well as localize the title and description.
- * 
+ *
  * @author tband /ezequiel / tkafalas
- * 
  */
 public class LocaleFilesProcessor {
 
@@ -67,7 +67,6 @@ public class LocaleFilesProcessor {
   }
 
   /**
-   * 
    * @param file
    * @param parentPath
    * @param bytes
@@ -126,11 +125,11 @@ public class LocaleFilesProcessor {
         switch ( sourceVersion ) {
           case 1:
             localeFile = new LocaleFileDescriptor( name, PROPERTIES_EXT, description, filePath, localeRepositoryFile,
-              inputStream );
+                inputStream );
             break;
           case 2:
             localeFile =
-              new LocaleFileDescriptor( name, LOCALE_EXT, description, filePath, localeRepositoryFile, inputStream );
+                new LocaleFileDescriptor( name, LOCALE_EXT, description, filePath, localeRepositoryFile, inputStream );
             break;
           default:
             localeFile = new LocaleFileDescriptor( name, description, filePath, localeRepositoryFile, inputStream );
@@ -171,12 +170,12 @@ public class LocaleFilesProcessor {
   }
 
   public boolean createLocaleEntry( String filePath, String name, String title, String description,
-      RepositoryFile file, InputStream is ) throws IOException {
+                                    RepositoryFile file, InputStream is ) throws IOException {
     return createLocaleEntry( filePath, name, title, description, file, is, 2 );
   }
 
   public boolean createLocaleEntry( String filePath, String name, String title, String description,
-      RepositoryFile file, InputStream is, int sourceVersion ) throws IOException {
+                                    RepositoryFile file, InputStream is, int sourceVersion ) throws IOException {
 
     boolean success = false;
     // need to spoof the locales to think this is the actual parent .prpt and not the meta.xml
@@ -204,7 +203,8 @@ public class LocaleFilesProcessor {
     return success;
   }
 
-  public void processLocaleFiles( IPlatformImporter importer ) throws PlatformImportException {
+  public int processLocaleFiles( IPlatformImporter importer ) throws PlatformImportException {
+    int successfulProcessCount = 0;
     RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
     IPlatformMimeResolver mimeResolver = PentahoSystem.get( IPlatformMimeResolver.class );
     String mimeType = mimeResolver.resolveMimeForFileName( FILE_LOCALE_RESOLVER );
@@ -218,11 +218,11 @@ public class LocaleFilesProcessor {
         //substringing the actual name for the dot char, make sure that things like <filename.xaction.locale> get converted
         //to <filename>, since it can exist a <filename.properties> file which we don't want to import
         String actualFileName = localeFile.getFile().getName().indexOf( "." ) != -1
-          ?
-          localeFile.getFile().getName().substring( 0, localeFile.getFile().getName().indexOf( "." ) )
-          :
-          localeFile.getFile().getName();
-        filesWithLocaleFiles.add( localeFile.getPath() +  actualFileName );
+            ?
+            localeFile.getFile().getName().substring( 0, localeFile.getFile().getName().indexOf( "." ) )
+            :
+            localeFile.getFile().getName();
+        filesWithLocaleFiles.add( localeFile.getPath() + actualFileName );
       }
     }
 
@@ -231,20 +231,23 @@ public class LocaleFilesProcessor {
       if ( !StringUtils.isEmpty( extension ) && extension.equals( PROPERTIES_EXT ) ) {
         //.properties files are only added if there is no .locale file for the file
         String actualFileName = localeFile.getFile().getName().indexOf( "." ) != -1
-          ?
-          localeFile.getFile().getName().substring( 0, localeFile.getFile().getName().indexOf( "." ) )
-          :
-          localeFile.getFile().getName();
+            ?
+            localeFile.getFile().getName().substring( 0, localeFile.getFile().getName().indexOf( "." ) )
+            :
+            localeFile.getFile().getName();
         if ( filesWithLocaleFiles.contains( localeFile.getPath() + actualFileName ) ) {
           continue;
         }
       }
-      proceed( importer, bundleBuilder, mimeType, localeFile );
+      if ( proceed( importer, bundleBuilder, mimeType, localeFile ) ) {
+        successfulProcessCount++;
+      }
     }
+    return successfulProcessCount;
   }
 
-  protected void proceed( IPlatformImporter importer, RepositoryFileImportBundle.Builder bundleBuilder, String mimeType,
-                          LocaleFileDescriptor localeFile ) throws PlatformImportException {
+  protected boolean proceed( IPlatformImporter importer, RepositoryFileImportBundle.Builder bundleBuilder, String mimeType,
+                             LocaleFileDescriptor localeFile ) throws PlatformImportException {
     bundleBuilder.name( localeFile.getName() );
     bundleBuilder.comment( localeFile.getDescription() );
     bundleBuilder.path( localeFile.getPath() );
@@ -253,6 +256,7 @@ public class LocaleFilesProcessor {
     bundleBuilder.mime( mimeType );
     IPlatformImportBundle platformImportBundle = bundleBuilder.build();
     importer.importFile( platformImportBundle );
+    return true;
   }
 
   @VisibleForTesting

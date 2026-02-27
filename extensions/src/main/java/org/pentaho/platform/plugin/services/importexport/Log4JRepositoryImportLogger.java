@@ -7,44 +7,58 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importexport;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.StringLayout;
 
 import java.io.OutputStream;
 
 /**
  * {@inherit}
- * 
+ *
  * @author TKafalas
- * 
  */
 public class Log4JRepositoryImportLogger implements IRepositoryImportLogger {
 
   private ThreadLocal<Log4JRepositoryImportLog> repositoryImportLog = new ThreadLocal<Log4JRepositoryImportLog>();
 
+  private boolean isPerformingRestore = false;
+
   public Log4JRepositoryImportLogger() {
+  }
+
+  public void startJob( OutputStream outputStream, String importRootPath, Level logLevel, StringLayout layout ) {
+    repositoryImportLog.set( new Log4JRepositoryImportLog( outputStream, importRootPath, logLevel, layout ) );
+    getLog4JRepositoryImportLog().setCurrentFilePath( getLog4JRepositoryImportLog().getImportRootPath() );
+    if ( !isPerformingRestore ) {
+      getLogger().info( "Start Import Job" );
+    }
   }
 
   public void startJob( OutputStream outputStream, String importRootPath, Level logLevel ) {
     repositoryImportLog.set( new Log4JRepositoryImportLog( outputStream, importRootPath, logLevel ) );
     getLog4JRepositoryImportLog().setCurrentFilePath( getLog4JRepositoryImportLog().getImportRootPath() );
-    getLogger().info( "Start Import Job" );
+    if ( !isPerformingRestore ) {
+      getLogger().info( "Start Import Job" );
+    }
   }
 
   public void endJob() {
     getLog4JRepositoryImportLog().setCurrentFilePath( getLog4JRepositoryImportLog().getImportRootPath() );
-    getLogger().info( "End Import Job" );
     getLog4JRepositoryImportLog().endJob();
+    if ( !isPerformingRestore ) {
+      getLogger().info( "End Import Job" );
+    }
   }
 
   public void setCurrentFilePath( String currentFilePath ) {
     getLog4JRepositoryImportLog().setCurrentFilePath( currentFilePath );
-    getLogger().info( "Start File Import" );
   }
 
   public void info( String s ) {
@@ -83,6 +97,16 @@ public class Log4JRepositoryImportLogger implements IRepositoryImportLogger {
 
   public boolean hasLogger() {
     return ( repositoryImportLog.get() == null ) ? false : true;
+  }
+
+  @Override
+  public boolean isPerformingRestore() {
+    return isPerformingRestore;
+  }
+
+  @Override
+  public void setPerformingRestore( boolean value ) {
+    this.isPerformingRestore = value;
   }
 
   @Override

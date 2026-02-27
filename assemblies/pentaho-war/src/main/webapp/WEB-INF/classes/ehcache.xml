@@ -1,5 +1,6 @@
-<ehcache updateCheck="false">
-
+<config xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xmlns='http://www.ehcache.org/v3'
+        xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
   <!-- Sets the path to the directory where cache .data files are created.
 
        If the path is a Java System Property it is replaced by
@@ -9,98 +10,67 @@
        user.home - User's home directory
        user.dir - User's current working directory
        java.io.tmpdir - Default temp file path -->
-  <diskStore path="user.home/.pentaho/caches/ehcache"/>
+  <!--  <persistence directory="${user.home}/.pentaho/caches/ehcache"/>-->
 
-  <!--Default Cache configuration. These will applied to caches programmatically created through
-      the CacheManager.
+  <!-- Default cache configuration for cache with store-by-reference configuration (store-by-value=false)
+       Using IdentityCopier to avoid copying objects, giving store-by-reference behavior
+       This is used by HvCacheRegionFactory as a fallback when a specific cache configuration is not found
+       When heap is full, entries overflow to disk (10MB allocated) if disk resource(like <disk unit="MB" persistent="false">10</disk> in resource tag)
+       When there is no expiry tag means the cache is eternal. Add expiry tag to configure the expiry for cache-->
+  <cache alias="defaultCache">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <resources>
+      <heap unit="entries">1000</heap>
+    </resources>
+  </cache>
 
-      The following attributes are required:
+  <cache alias="pentahoCache">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <expiry>
+      <ttl unit="seconds">600</ttl>
+    </expiry>
+    <resources>
+      <heap unit="entries">15000</heap>
+      <offheap unit="MB">100</offheap>
+    </resources>
+  </cache>
 
-      maxElementsInMemory            - Sets the maximum number of objects that will be created in memory
-      eternal                        - Sets whether elements are eternal. If eternal,  timeouts are ignored and the
-                                       element is never expired.
-      overflowToDisk                 - Sets whether elements can overflow to disk when the in-memory cache
-                                       has reached the maxInMemory limit.
-
-      The following attributes are optional:
-      timeToIdleSeconds              - Sets the time to idle for an element before it expires.
-                                       i.e. The maximum amount of time between accesses before an element expires
-                                       Is only used if the element is not eternal.
-                                       Optional attribute. A value of 0 means that an Element can idle for infinity.
-                                       The default value is 0.
-      timeToLiveSeconds              - Sets the time to live for an element before it expires.
-                                       i.e. The maximum time between creation time and when an element expires.
-                                       Is only used if the element is not eternal.
-                                       Optional attribute. A value of 0 means that and Element can live for infinity.
-                                       The default value is 0.
-      diskPersistent                 - Whether the disk store persists between restarts of the Virtual Machine.
-                                       The default value is false.
-      diskExpiryThreadIntervalSeconds- The number of seconds between runs of the disk expiry thread. The default value
-                                       is 120 seconds.
-      -->
-
-  <defaultCache
-      maxElementsInMemory="1000"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="0"
-      timeToLiveSeconds="0"
-      diskPersistent="false"
-      diskExpiryThreadIntervalSeconds="120"
-      />
-
-  <cache name="pentahoCache"
-         maxElementsInMemory="15000"
-         eternal="false"
-         overflowToDisk="true"
-         timeToIdleSeconds="0"
-         timeToLiveSeconds="0"
-         diskPersistent="false"
-         diskExpiryThreadIntervalSeconds="120"
-      />
+  <cache alias="libloader-data">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <resources>
+      <heap unit="entries">1000</heap>
+      <offheap unit="MB">100</offheap>
+    </resources>
+  </cache>
 
   <!-- Defines a cache used by libloader. This cache holds the raw binary data loaded via libloader.  -->
-  <cache name="libloader-data"
-         maxElementsInMemory="1000"
-         eternal="false"
-         overflowToDisk="true"
-         timeToIdleSeconds="0"
-         timeToLiveSeconds="0"
-         diskPersistent="false"
-         diskExpiryThreadIntervalSeconds="120"
-      />
+  <cache alias="libloader-bundles">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <resources>
+      <heap unit="entries">100</heap>
+    </resources>
+  </cache>
 
   <!-- Defines a cache used by libloader. This cache holds the parsed object loaded via libloader. -->
-  <cache name="libloader-bundles"
-         maxElementsInMemory="100"
-         eternal="false"
-         overflowToDisk="false"
-         timeToIdleSeconds="0"
-         timeToLiveSeconds="0"
-         diskPersistent="false"
-         diskExpiryThreadIntervalSeconds="120"
-      />
+  <cache alias="libloader-factory">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <resources>
+      <heap unit="entries">1000</heap>
+    </resources>
+  </cache>
 
-  <!-- Defines a cache used by libloader. This cache holds the parsed object loaded via libloader. -->
-  <cache name="libloader-factory"
-         maxElementsInMemory="1000"
-         eternal="false"
-         overflowToDisk="false"
-         timeToIdleSeconds="0"
-         timeToLiveSeconds="0"
-         diskPersistent="false"
-         diskExpiryThreadIntervalSeconds="120"
-      />
-
-  <cache name="mondrian-catalog-cache"
-         maxElementsInMemory="30"
-         eternal="false"
-         overflowToDisk="true"
-         timeToIdleSeconds="0"
-         timeToLiveSeconds="0"
-         diskPersistent="false"
-         diskExpiryThreadIntervalSeconds="120"
-      />
+  <cache alias="mondrian-catalog-cache">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <resources>
+      <heap unit="entries">30</heap>
+    </resources>
+  </cache>
 
 
   <!--
@@ -109,15 +79,16 @@
     global report configuration. This per-user cache is required if role or other security and
     filter information is used in ways invisible for the reporting engine.
   -->
-  <cache name="report-dataset-cache"
-         maxElementsInMemory="50"
-         eternal="false"
-         overflowToDisk="false"
-         timeToIdleSeconds="300"
-         timeToLiveSeconds="600"
-         diskPersistent="false"
-         diskExpiryThreadIntervalSeconds="120"
-      />
+  <cache alias="report-dataset-cache">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <expiry>
+      <ttl unit="seconds">600</ttl>
+    </expiry>
+    <resources>
+      <heap unit="entries">50</heap>
+    </resources>
+  </cache>
 
   <!--
      Defines a cache used by the reporting plugin to hold paginated report objects.
@@ -125,208 +96,205 @@
      lives in the cache. This cache exists on a per-user basis. Keep it reasonably
      small to not exhaust your resources.
   -->
-  <cache name="report-output-handlers"
-         maxElementsInMemory="10"
-         eternal="false"
-         overflowToDisk="false"
-         timeToIdleSeconds="300"
-         timeToLiveSeconds="600"
-         diskPersistent="false"
-         diskExpiryThreadIntervalSeconds="120"
-      />
-
+  <cache alias="report-output-handlers">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <resources>
+      <heap unit="entries">10</heap>
+    </resources>
+  </cache>
   <!-- Repository File Entity caching below. These are used by the Hibernate 2nd-level cache when using the ehCache provider. -->
-  <cache
-      name="org.pentaho.platform.repository.solution.dbbased.RepositoryFile"
-      maxElementsInMemory="10000"
-      eternal="false"
-      timeToIdleSeconds="300"
-      timeToLiveSeconds="600"
-      overflowToDisk="true"
-      diskPersistent="false"
-      />
-  <cache
-      name="org.pentaho.platform.repository.solution.dbbased.RepositoryFile.childrenFiles"
-      maxElementsInMemory="10000"
-      eternal="false"
-      timeToIdleSeconds="300"
-      timeToLiveSeconds="600"
-      overflowToDisk="true"
-      diskPersistent="false"
-      />
+  <cache alias="org.pentaho.platform.repository.solution.dbbased.RepositoryFile">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <expiry>
+      <ttl unit="seconds">600</ttl>
+    </expiry>
+    <resources>
+      <heap unit="entries">10000</heap>
+      <offheap unit="MB">50</offheap>
+    </resources>
+  </cache>
 
-  <cache
-      name="org.pentaho.platform.repository.solution.dbbased.RepositoryFile.accessControls"
-      maxElementsInMemory="10000"
-      eternal="false"
-      timeToIdleSeconds="300"
-      timeToLiveSeconds="600"
-      overflowToDisk="true"
-      diskPersistent="false"
-      />
+  <cache alias="org.pentaho.platform.repository.solution.dbbased.RepositoryFile.childrenFiles">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <expiry>
+      <ttl unit="seconds">600</ttl>
+    </expiry>
+    <resources>
+      <heap unit="entries">10000</heap>
+      <offheap unit="MB">50</offheap>
+    </resources>
+  </cache>
 
-  <!-- Caches for the pentaho-geo roles -->
-  <!-- Geo caches are configured to keep everything pinned in memory.
-       This uses about 65mb. Do not turn on overflow to disk for these.
-       It is much faster to access the data directly from memory. -->
-  <cache
-      name="pentaho-geo-country"
-      maxEntriesLocalHeap="1000"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="0"
-      timeToLiveSeconds="0"
-      diskPersistent="false">
-    <pinning store="inCache"/>
+  <cache alias="org.pentaho.platform.repository.solution.dbbased.RepositoryFile.accessControls">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <expiry>
+      <ttl unit="seconds">600</ttl>
+    </expiry>
+    <resources>
+      <heap unit="entries">10000</heap>
+      <offheap unit="MB">50</offheap>
+    </resources>
   </cache>
-  <cache
-      name="pentaho-geo-countrycode"
-      maxEntriesLocalHeap="5000"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="0"
-      timeToLiveSeconds="0"
-      diskPersistent="false">
-    <pinning store="inCache"/>
+
+  <cache alias="pentaho-geo-country">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <resources>
+      <heap unit="entries">1000</heap>
+    </resources>
   </cache>
-  <cache
-      name="pentaho-geo-countrycode3"
-      maxEntriesLocalHeap="5000"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="0"
-      timeToLiveSeconds="0"
-      diskPersistent="false">
-    <pinning store="inCache"/>
+
+  <cache alias="pentaho-geo-countrycode">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <resources>
+      <heap unit="entries">5000</heap>
+    </resources>
   </cache>
-  <cache
-      name="pentaho-geo-countrysubdivision"
-      maxEntriesLocalHeap="5000"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="0"
-      timeToLiveSeconds="0"
-      diskPersistent="false">
-    <pinning store="inCache"/>
+
+  <cache alias="pentaho-geo-countrycode3">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <resources>
+      <heap unit="entries">5000</heap>
+    </resources>
   </cache>
-  <cache
-      name="pentaho-geo-countrysubdivisioncode"
-      maxEntriesLocalHeap="5000"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="0"
-      timeToLiveSeconds="0"
-      diskPersistent="false">
-    <pinning store="inCache"/>
+
+  <cache alias="pentaho-geo-countrysubdivision">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <resources>
+      <heap unit="entries">5000</heap>
+    </resources>
   </cache>
-  <cache
-      name="pentaho-geo-countrysecondarysubdivision"
-      maxEntriesLocalHeap="5000"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="0"
-      timeToLiveSeconds="0"
-      diskPersistent="false">
-    <pinning store="inCache"/>
+
+  <cache alias="pentaho-geo-countrysubdivisioncode">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <resources>
+      <heap unit="entries">5000</heap>
+    </resources>
   </cache>
-  <cache
-      name="pentaho-geo-postalcode"
-      maxEntriesLocalHeap="50000"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="0"
-      timeToLiveSeconds="0"
-      diskPersistent="false">
-    <pinning store="inCache"/>
+
+  <cache alias="pentaho-geo-countrysecondarysubdivision">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <resources>
+      <heap unit="entries">5000</heap>
+    </resources>
   </cache>
-  <cache
-      name="pentaho-geo-municipality"
-      maxEntriesLocalHeap="700000"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="0"
-      timeToLiveSeconds="0"
-      diskPersistent="false">
-    <pinning store="inCache"/>
+
+  <cache alias="pentaho-geo-postalcode">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <resources>
+      <heap unit="entries">50000</heap>
+    </resources>
+  </cache>
+  <cache alias="pentaho-geo-municipality">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <resources>
+      <heap unit="entries">700000</heap>
+    </resources>
   </cache>
   <!-- When creating a custom geographic role that exceeds 1000 elements use this template -->
   <!--
-    <cache
-        name="pentaho-geo-{CUSTOM_ROLE_TYPE}"
-        maxEntriesLocalHeap="50000"
-        eternal="false"
-        overflowToDisk="false"
-        timeToIdleSeconds="0"
-        timeToLiveSeconds="0"
-        diskPersistent="false">
-      <pinning store="inCache" />
+
+    <cache alias="pentaho-geo-{CUSTOM_ROLE_TYPE}">
+      <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+      <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+      <resources>
+        <heap unit="entries">50000</heap>
+      </resources>
     </cache>
   -->
 
   <!-- Cache for the Spring CachingUserDetailsService -->
-  <cache
-      name="userCache"
-      maxEntriesLocalHeap="2000"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="300"
-      timeToLiveSeconds="600"
-      diskPersistent="false"/>
-  <cache
-      name="userRoleListCache"
-      maxEntriesLocalHeap="2000"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="300"
-      timeToLiveSeconds="600"
-      diskPersistent="false"/>
+  <cache alias="userCache">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <expiry>
+      <ttl unit="seconds">600</ttl>
+    </expiry>
+    <resources>
+      <heap unit="entries">2000</heap>
+    </resources>
+    <!-- Ehcache 3.x does not support timeToIdleSeconds and timeToLiveSeconds directly. You can use Expiry API instead -->
 
-  <!-- Cache for the Spring Principal Provider -->
-  <cache
-      name="principalProviderRoleCache"
-      maxEntriesLocalHeap="512"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="300"
-      timeToLiveSeconds="600"
-      diskPersistent="false"/>
-  <cache
-      name="principalProviderUserCache"
-      maxEntriesLocalHeap="4092"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="300"
-      timeToLiveSeconds="600"
-      diskPersistent="false"/>
+  </cache>
 
-  <!-- Caches for the PentahoCachingLdap* classes. Only enable if they are in use. -->
-  <!--
-  <cache
-      name="ldapPopulatorCache"
-      maxEntriesLocalHeap="2000"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="300"
-      timeToLiveSeconds="600"
-      diskPersistent="false"/>
-  <cache
-      name="ldapAuthenticatorCache"
-      maxEntriesLocalHeap="2000"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="300"
-      timeToLiveSeconds="600"
-      diskPersistent="false"/>
+  <cache alias="userRoleListCache">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <expiry>
+      <ttl unit="seconds">600</ttl>
+    </expiry>
+    <resources>
+      <heap unit="entries">2000</heap>
+    </resources>
+  </cache>
+
+  <cache alias="principalProviderRoleCache">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <expiry>
+      <ttl unit="seconds">600</ttl>
+    </expiry>
+    <resources>
+      <heap unit="entries">512</heap>
+    </resources>
+  </cache>
+
+  <cache alias="principalProviderUserCache">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <expiry>
+      <ttl unit="seconds">600</ttl>
+    </expiry>
+    <resources>
+      <heap unit="entries">4092</heap>
+    </resources>
+  </cache>
+
+  <!-- Caches for the PentahoCachingLdap* classes. Only enable if they are in use.
+
+  <cache alias="ldapPopulatorCache">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <expiry>
+      <ttl unit="seconds">600</ttl>
+    </expiry>
+    <resources>
+      <heap unit="entries">2000</heap>
+    </resources>
+  </cache>
+
+  <cache alias="ldapAuthenticatorCache">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <expiry>
+      <ttl unit="seconds">600</ttl>
+    </expiry>
+    <resources>
+      <heap unit="entries">2000</heap>
+    </resources>
+  </cache>
   -->
 
   <!-- Cache backing the CachingRepositoryFactory which creates PDI Repository instances in the platform -->
-  <cache
-      name="pdi-repository-cache"
-      maxEntriesLocalHeap="2000"
-      eternal="false"
-      overflowToDisk="false"
-      timeToIdleSeconds="120"
-      timeToLiveSeconds="240"
-      diskPersistent="false"/>
-
-</ehcache>
+  <cache alias="pdi-repository-cache">
+    <key-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</key-type>
+    <value-type copier="org.ehcache.impl.copy.IdentityCopier">java.lang.Object</value-type>
+    <expiry>
+      <ttl unit="seconds">240</ttl>
+    </expiry>
+    <resources>
+      <heap unit="entries">2000</heap>
+    </resources>
+  </cache>
+</config>

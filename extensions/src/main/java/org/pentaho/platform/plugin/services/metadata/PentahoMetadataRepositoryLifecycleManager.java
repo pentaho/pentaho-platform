@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.metadata;
 
@@ -59,10 +60,10 @@ public class PentahoMetadataRepositoryLifecycleManager extends AbstractBackingRe
       final ITenantedPrincipleNameResolver userNameUtils, final JcrTemplate adminJcrTemplate,
       final IPathConversionHelper pathConversionHelper ) {
     super( txnTemplate, adminJcrTemplate, pathConversionHelper );
-    Assert.notNull( contentDao );
-    Assert.notNull( repositoryFileAclDao );
-    Assert.hasText( repositoryAdminUsername );
-    Assert.hasText( tenantAuthenticatedAuthorityNamePattern );
+    Assert.notNull( contentDao, "Content DAO must not be null" );
+    Assert.notNull( repositoryFileAclDao, "Repository File ACL DAO must not be null" );
+    Assert.hasText( repositoryAdminUsername, "Repository admin username must not be null or empty" );
+    Assert.hasText( tenantAuthenticatedAuthorityNamePattern, "Tenant authenticated authority name pattern must not be null or empty" );
     this.repositoryFileDao = contentDao;
     this.repositoryFileAclDao = repositoryFileAclDao;
     this.repositoryAdminUsername = repositoryAdminUsername;
@@ -117,7 +118,7 @@ public class PentahoMetadataRepositoryLifecycleManager extends AbstractBackingRe
               new RepositoryFileSid( userNameUtils.getPrincipleId( tenant, repositoryAdminUsername ) );
           RepositoryFile tenantEtcFolder =
               repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantEtcFolderPath( tenant ) );
-          Assert.notNull( tenantEtcFolder );
+          Assert.notNull( tenantEtcFolder, "Tenant etc folder must not be null" );
 
           if ( repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantEtcFolderPath( tenant )
               + RepositoryFile.SEPARATOR + FOLDER_METADATA ) == null ) {
@@ -135,7 +136,7 @@ public class PentahoMetadataRepositoryLifecycleManager extends AbstractBackingRe
 
   protected RepositoryFile internalCreateFolder( final Serializable parentFolderId, final RepositoryFile file,
       final boolean inheritAces, final RepositoryFileSid ownerSid, final String versionMessage ) {
-    Assert.notNull( file );
+    Assert.notNull( file, "Repository file must not be null" );
 
     return repositoryFileDao.createFolder( parentFolderId, file, makeAcl( inheritAces, ownerSid ), versionMessage );
   }

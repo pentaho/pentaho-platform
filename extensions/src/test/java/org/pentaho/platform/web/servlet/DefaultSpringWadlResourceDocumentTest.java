@@ -7,14 +7,15 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.servlet;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.eclipse.jetty.webapp.WebAppClassLoader;
+import org.eclipse.jetty.ee10.webapp.WebAppClassLoader;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 import org.springframework.core.io.ClassPathResource;
 

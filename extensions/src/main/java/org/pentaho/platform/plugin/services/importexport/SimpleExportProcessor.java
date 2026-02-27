@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importexport;
 
@@ -18,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.importexport.ExportException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -52,9 +54,8 @@ public class SimpleExportProcessor extends BaseExportProcessor {
 
   /**
    * Performs the export process, returns a File object
-   * 
-   * @throws ExportException
-   *           indicates an error in import processing
+   *
+   * @throws ExportException indicates an error in import processing
    */
   public File performExport( RepositoryFile exportRepositoryFile ) throws ExportException, IOException {
     OutputStream os;
@@ -97,18 +98,17 @@ public class SimpleExportProcessor extends BaseExportProcessor {
    */
   @Override
   public void exportDirectory( RepositoryFile repositoryDir, OutputStream outputStream, String filePath )
-    throws ExportException, IOException {
+      throws ExportException, IOException {
     throw new UnsupportedOperationException();
   }
 
   /**
-   * 
    * @param repositoryFile
    * @param outputStream
    */
   @Override
   public void exportFile( RepositoryFile repositoryFile, OutputStream outputStream, String filePath )
-    throws ExportException, IOException {
+      throws ExportException, IOException {
     // iterate through handlers to perform export
     for ( ExportHandler exportHandler : exportHandlerList ) {
 

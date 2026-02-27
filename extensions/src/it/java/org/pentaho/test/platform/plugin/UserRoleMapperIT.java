@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.test.platform.plugin;
 
@@ -75,11 +76,13 @@ public class UserRoleMapperIT {
   public void init0() {
     IAclNodeHelper aclHelper = mock( IAclNodeHelper.class );
     when( aclHelper.canAccess( any( RepositoryFile.class ), any( EnumSet.class ) ) ).thenReturn( true );
-    MondrianCatalogHelper catalogService = new MondrianCatalogHelper( aclHelper );
 
     microPlatform = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/solution" );
     microPlatform.define( ISolutionEngine.class, SolutionEngine.class );
     microPlatform.define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.GLOBAL );
+
+    MondrianCatalogHelper catalogService = new MondrianCatalogHelper( aclHelper );
+
     microPlatform.defineInstance( IMondrianCatalogService.class, catalogService );
     microPlatform.define( "connection-SQL", SQLConnection.class );
     microPlatform.define( "connection-MDX", MDXConnection.class );

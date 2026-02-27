@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.filters;
 
@@ -25,18 +26,18 @@ import org.pentaho.platform.web.http.session.PentahoHttpSession;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AuthenticationProvider;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.SessionCookieConfig;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.SessionCookieConfig;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -177,9 +178,11 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
 
     HttpSession httpSession = httpRequest.getSession( false );
     if ( httpSession != null ) {
+      logger.debug( String.format( "generating new Pentaho session %s", httpSession.getId() ));
       pentahoSession = new PentahoHttpSession( null, httpSession, httpRequest.getLocale(), null );
     } else {
       pentahoSession = new NoDestroyStandaloneSession( null );
+      logger.debug( String.format( "generating new STANDALONE Pentaho session %s", pentahoSession.getId() ) );
     }
 
     if ( callSetAuthenticatedForAnonymousUsers ) {
@@ -235,6 +238,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     }
 
     HttpSession httpSession = safeGetSession( httpRequest, forceEagerSessionCreation );
+    logger.debug( String.format( "HttpSession obtained: %s", httpSession == null ? "null" : httpSession.getId() ) );
     boolean httpSessionExistedAtStartOfRequest = httpSession != null;
     IPentahoSession pentahoSessionBeforeChainExecution = readPentahoSessionFromHttpSession( httpSession );
 
@@ -253,11 +257,15 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
 
       if ( logger.isDebugEnabled() ) {
         logger.debug( "Found no IPentahoSession in HTTP session; created new IPentahoSession" );
+        logger.debug( String.format( "New session created %s %s %s ", pentahoSessionBeforeChainExecution.getId(),
+          pentahoSessionBeforeChainExecution.getName(), pentahoSessionBeforeChainExecution.getActionName() ) );
       }
     } else {
       if ( logger.isDebugEnabled() ) {
         logger.debug( "Obtained a valid IPentahoSession from HTTP session to "
           + "associate with PentahoSessionHolder: '" + pentahoSessionBeforeChainExecution + "'" );
+        logger.debug( String.format( "Existing session %s %s %s ", pentahoSessionBeforeChainExecution.getId(),
+          pentahoSessionBeforeChainExecution.getName(), pentahoSessionBeforeChainExecution.getActionName() ) );
       }
     }
 

@@ -5,34 +5,42 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>10.3.0.0-SNAPSHOT</version>
+    <version>11.1.0.0-SNAPSHOT</version>
   </parent>
-  <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-core</artifactId>
-  <version>10.3.0.0-SNAPSHOT</version>
+  <version>11.1.0.0-SNAPSHOT</version>
   <properties>
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <powermock.version>1.6.3</powermock.version>
     <jcommon.version>1.0.14</jcommon.version>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
     <license.header.file>${basedir}/../license/templates/GPL-2.0.txt</license.header.file>
-    <commons-xul.version>10.3.0.0-SNAPSHOT</commons-xul.version>
-    <pentaho-connections.version>10.3.0.0-SNAPSHOT</pentaho-connections.version>
-    <pentaho-actionsequence-dom.version>10.3.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
-    <pentaho-metadata.version>10.3.0.0-SNAPSHOT</pentaho-metadata.version>
-    <pentaho-versionchecker.version>10.3.0.0-SNAPSHOT</pentaho-versionchecker.version>
-    <pdi.version>10.3.0.0-SNAPSHOT</pdi.version>
+    <commons-xul.version>11.1.0.0-SNAPSHOT</commons-xul.version>
+    <pentaho-connections.version>11.1.0.0-SNAPSHOT</pentaho-connections.version>
+    <pentaho-actionsequence-dom.version>11.1.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
+    <pentaho-metadata.version>11.1.0.0-SNAPSHOT</pentaho-metadata.version>
+    <pentaho-versionchecker.version>11.1.0.0-SNAPSHOT</pentaho-versionchecker.version>
+    <pdi.version>11.1.0.0-SNAPSHOT</pdi.version>
   </properties>
   <dependencies>
     <dependency>
-      <groupId>com.sun.mail</groupId>
-      <artifactId>javax.mail</artifactId>
-      <version>${mail.version}</version>
+      <groupId>jakarta.mail</groupId>
+      <artifactId>jakarta.mail-api</artifactId>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
           <groupId>*</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.angus</groupId>
+      <artifactId>jakarta.mail</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -277,6 +285,17 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>*</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
     <!-- region - Only needed for runtime testing -->
     <dependency>
@@ -344,7 +363,7 @@
     <!-- Only needed for runtime testing -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
+      <artifactId>log4j-slf4j2-impl</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -355,7 +374,7 @@
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
+      <artifactId>osgi.core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
@@ -373,18 +392,6 @@
       <groupId>org.hibernate.common</groupId>
       <artifactId>hibernate-commons-annotations</artifactId>
       <version>${hibernate-commons-annotations.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate.javax.persistence</groupId>
-      <artifactId>hibernate-jpa-2.1-api</artifactId>
-      <version>${hibernate-jpa-2.1-api.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -442,9 +449,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.transaction</groupId>
-      <artifactId>jta</artifactId>
-      <version>${jta.version}</version>
+      <groupId>jakarta.transaction</groupId>
+      <artifactId>jakarta.transaction-api</artifactId>
+      <version>${jakarta.transaction.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -655,8 +662,7 @@
                   <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                 </manifest>
                 <manifestEntries>
-                  <Source-Java-Version>${source.jdk.version}</Source-Java-Version>
-                  <Target-Java-Version>${target.jdk.version}</Target-Java-Version>
+                  <Release-Java-Version>${release.jdk.version}</Release-Java-Version>
                 </manifestEntries>
               </archive>
             </configuration>

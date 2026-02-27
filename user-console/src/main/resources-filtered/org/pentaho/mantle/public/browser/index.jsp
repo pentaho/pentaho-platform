@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2021 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2025 Hitachi Vantara. All rights reserved.
 --%>
 
 <!DOCTYPE html>
@@ -53,13 +53,21 @@
   }
 </script>
 
-<!-- libs -->
-<script type="text/javascript" src="lib/jquery/jquery-${jquery.version}.js"></script>
-<script type="text/javascript" src="lib/underscore/underscore-min.js"></script>
-<script type="text/javascript" src="lib/backbone/backbone.js"></script>
-
 <!-- Require File Browser -->
 <script type="text/javascript">
+
+  require.config({
+    paths: {
+      "backbone": "lib/backbone/backbone"
+    },
+    shim: {
+      "backbone": {
+        deps: ["common-ui/underscore", "common-ui/jquery"],
+        exports: "Backbone"
+      }
+    }
+  });
+
   function openRepositoryFile(path, mode) {
     if (!path) {
       return;
@@ -98,7 +106,7 @@
       FileBrowser.setCanPublish(canPublish);
       FileBrowser.setCanRead(canRead);
       FileBrowser.setCanCreate(canCreate);
-      
+
       var open_dir = window.parent.HOME_FOLDER;
       var initialFolderResourceUrl = CONTEXT_PATH + "api/mantle/session-variable?key=scheduler_folder";
 
@@ -132,7 +140,7 @@
 					FileBrowser.update(open_dir);
 				}
 			});
-      
+
       if (window.parent.mantle_addHandler == undefined) return;
 
       window.parent.mantle_addHandler("ShowHiddenFilesEvent", function (event) {

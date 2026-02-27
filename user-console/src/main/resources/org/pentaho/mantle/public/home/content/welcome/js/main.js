@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 /* CCP Functions */
 
@@ -50,7 +51,7 @@ CCP.liveChat = function(){
 		pucOpenTab( name, title, url );
 	}
 	else {
-		window.open( url );
+		pho.util.xss.open( url );
 	}
 }
 

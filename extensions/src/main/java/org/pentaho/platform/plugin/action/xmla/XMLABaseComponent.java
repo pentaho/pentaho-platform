@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.action.xmla;
 
@@ -20,21 +21,23 @@ import org.pentaho.platform.api.data.IDataComponent;
 import org.pentaho.platform.engine.services.solution.ComponentBase;
 import org.pentaho.platform.plugin.action.messages.Messages;
 
-import javax.xml.soap.Detail;
-import javax.xml.soap.DetailEntry;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.MimeHeaders;
-import javax.xml.soap.Name;
-import javax.xml.soap.Node;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPConnection;
-import javax.xml.soap.SOAPConnectionFactory;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPFault;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
+import jakarta.xml.soap.Detail;
+import jakarta.xml.soap.DetailEntry;
+import jakarta.xml.soap.MessageFactory;
+import jakarta.xml.soap.MimeHeaders;
+import jakarta.xml.soap.Name;
+import jakarta.xml.soap.Node;
+import jakarta.xml.soap.SOAPBody;
+import jakarta.xml.soap.SOAPConnection;
+import jakarta.xml.soap.SOAPConnectionFactory;
+import jakarta.xml.soap.SOAPElement;
+import jakarta.xml.soap.SOAPEnvelope;
+import jakarta.xml.soap.SOAPException;
+import jakarta.xml.soap.SOAPFault;
+import jakarta.xml.soap.SOAPMessage;
+import jakarta.xml.soap.SOAPPart;
+
+import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -966,6 +969,9 @@ public abstract class XMLABaseComponent extends ComponentBase implements IDataCo
     try {
       Writer writer = new StringWriter();
       TransformerFactory tFact = TransformerFactory.newInstance();
+      tFact.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, true );
+      tFact.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "" );
+      tFact.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "" );
       Transformer transformer = tFact.newTransformer();
       Source src = msg.getSOAPPart().getContent();
       StreamResult result = new StreamResult( writer );

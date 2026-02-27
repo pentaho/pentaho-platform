@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.olap;
 
@@ -31,16 +32,17 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.plugin.action.olap.IOlapServiceException;
 import org.pentaho.platform.plugin.action.olap.impl.OlapServiceImpl;
+import org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
@@ -49,18 +51,17 @@ import java.util.Properties;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
+import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.makeFileObject;
@@ -83,6 +84,7 @@ public class OlapServiceImplTest {
   IOlapService olapService;
 
   @Mock IUnifiedRepository repository;
+  @Mock IPasswordService passwordService;
   @Mock private MondrianServer server;
   @Mock private XmlaHandler.XmlaExtra mockXmlaExtra;
   @Mock AggregationManager aggManager;
@@ -143,15 +145,19 @@ public class OlapServiceImplTest {
       }
 
       @Override
-      protected XmlaHandler.XmlaExtra getXmlaExtra( final OlapConnection connection ) throws SQLException {
+      protected XmlaHandler.XmlaExtra getXmlaExtra( final OlapConnection connection ) {
         return mockXmlaExtra;
       }
     } );
+    ( (OlapServiceImpl) olapService ).setHelper( new MondrianCatalogRepositoryHelper( repository, passwordService ) );
+
+    when( passwordService.encrypt( any( String.class ) ) ).thenAnswer( arg -> "encrypted:" + arg.getArgument( 0 ) );
   }
 
   @After public void tearDown() throws Exception {
     accessMock = new DefaultAccessImpl();
     repository = null;
+    passwordService = null;
     olapService = null;
     session = null;
   }
@@ -215,7 +221,6 @@ public class OlapServiceImplTest {
 
     final InputStream is = this.getClass().getResourceAsStream( "/solution/security/steelwheels.mondrian.xml" );
 
-
     olapService.addHostedCatalog(
       "test-server",
       "Provider=mondrian;DataSource=SampleData",
@@ -226,7 +231,7 @@ public class OlapServiceImplTest {
     verify( repository ).createFile( eq( makeIdObject( testFolderPath ) ),
         argThat( isLikeFile( makeFileObject( metadataPath ) ) ), argThat(
             hasData( pathPropertyPair( "/catalog/definition", "mondrian:/" + "test-server" ),
-                pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" ) ) ),
+              pathPropertyPair( "/catalog/datasourceInfo", "encrypted:Provider=mondrian;DataSource=SampleData" ) ) ),
         nullable( String.class ) );
 
     verify( repository ).createFile( eq( makeIdObject( testFolderPath ) ),
@@ -638,7 +643,7 @@ public class OlapServiceImplTest {
   }
 
   /**
-   * Verifies that we can create locally hosted mondrian instances.
+   * Verifies that we can create locally hosted mondrian instances that encrypts the datasource info.
    */
   @Test
   public void testImportHostedOverwriteFlag() throws Exception {
@@ -705,7 +710,7 @@ public class OlapServiceImplTest {
       argThat( isLikeFile( makeFileObject( metadataPath ) ) ),
       argThat( hasData(
         pathPropertyPair( "/catalog/definition", "mondrian:/" + "myHostedServer" ),
-        pathPropertyPair( "/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData" )
+        pathPropertyPair( "/catalog/datasourceInfo", "encrypted:Provider=mondrian;DataSource=SampleData" )
       ) ), nullable( String.class ) );
 
     verify( repository ).updateFile(

@@ -7,11 +7,13 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.email;
 
+import jakarta.xml.bind.annotation.XmlTransient;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -28,7 +30,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.File;
 import java.io.IOException;
 
@@ -180,6 +182,7 @@ public class EmailConfigurationXml extends EmailConfiguration {
     element.setText( value );
   }
 
+  @XmlTransient
   public Document getDocument() {
     return EmailConfigurationXml.getDocument( this );
   }

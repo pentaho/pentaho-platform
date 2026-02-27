@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importexport;
 
@@ -16,23 +17,27 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.reflect.FieldUtils;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.FixMethodOrder;
+
 import org.mockito.MockedStatic;
 import org.pentaho.platform.engine.core.output.MultiOutputStream;
 import org.pentaho.platform.plugin.services.importexport.CommandLineProcessor.RequestType;
@@ -158,12 +163,12 @@ public class CommandLineProcessorTest extends Assert {
   public void get003WriteFiletest() throws Exception {
     String exception = "Throw exception on purpose to test the writeFile() method.";
 
-    try ( MockedStatic<Client> clientMock = mockStatic( Client.class ) ) {
+    try ( MockedStatic<ClientBuilder> clientMock = mockStatic( ClientBuilder.class ) ) {
       Client mockClient = mock( Client.class );
-      WebResource mockWebResource = mock( WebResource.class );
-      when( mockWebResource.type( nullable( String.class ) ) ).thenThrow( new RuntimeException( exception ) );
-      when( mockClient.resource( nullable( String.class ) ) ).thenReturn( mockWebResource );
-      clientMock.when( () -> Client.create( any() ) ).thenReturn( mockClient );
+      WebTarget mockWebTarget = mock( WebTarget.class );
+      when( mockWebTarget.request( any( MediaType.class ) ) ).thenThrow( new RuntimeException( exception ) );
+      when( mockClient.target( nullable( String.class ) ) ).thenReturn( mockWebTarget );
+      clientMock.when( () -> ClientBuilder.newClient( any() ) ).thenReturn( mockClient );
 
       File file = File.createTempFile( "CommandLineProcessorTest", ".log" );
 
@@ -179,7 +184,7 @@ public class CommandLineProcessorTest extends Assert {
       //When an unknown host URL is used with an import, the private method writeFile() is called.
       CommandLineProcessor.main( unknownHostUrl );
       try {
-        assertEquals( exception, FileUtils.readFileToString( file ) );
+        assertEquals( exception, FileUtils.readFileToString( file, StandardCharsets.UTF_8 ) );
       } finally {
         file.delete();
       }

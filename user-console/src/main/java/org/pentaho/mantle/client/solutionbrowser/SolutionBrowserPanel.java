@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.mantle.client.solutionbrowser;
 
@@ -457,29 +458,26 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   //TODO BACKLOG-40475: See if we can integrate the PVFS flow into the repository flow. For now we have a seperate, similar function.
   private void openGenericFile( String filePath, COMMAND mode ) {
-    String url = null;
-    String extension = ""; //$NON-NLS-1$
-
     String fileName = filePath.substring( filePath.lastIndexOf( FILE_PATH_SEPARATOR ) +1 );
+    String fileTitle = URL.decode( fileName ).replace( "%23", "#" );
 
-    fileName = URL.decode( fileName ).replace( "%23", "#" );
-
-    if ( fileName.lastIndexOf( FILE_EXTENSION_DELIMETER ) > 0 ) { //$NON-NLS-1$
-      extension = fileName.substring( fileName.lastIndexOf( FILE_EXTENSION_DELIMETER ) + 1 ); //$NON-NLS-1$
+    String extension = "";
+    if ( fileTitle.lastIndexOf( FILE_EXTENSION_DELIMETER ) > 0 ) {
+      extension = fileTitle.substring( fileTitle.lastIndexOf( FILE_EXTENSION_DELIMETER ) + 1 );
     }
 
-    url = getPath() + "plugin/scheduler-plugin/api/generic-files/" + encodeGenericFilePath( filePath )
-      + "/content"; //$NON-NLS-1$ //$NON-NLS-2$
+    String url = getPath() + "plugin/scheduler-plugin/api/generic-files/" + encodeGenericFilePath( filePath )
+      + "/content";
 
     // force to open pdf files in another window due to issues with pdf readers in IE browsers
     // via class added on themeResources for IE browsers
     boolean pdfReaderEmbeded = RootPanel.getBodyElement().getClassName().contains( "pdfReaderEmbeded" );
     if ( mode == FileCommand.COMMAND.NEWWINDOW || ( extension.equals( "pdf" ) && pdfReaderEmbeded ) ) {
-      Window.open( url, "_blank", "menubar=yes,location=no,resizable=yes,scrollbars=yes,status=no" ); //$NON-NLS-1$ //$NON-NLS-2$
+      Window.open( url, "_blank", "menubar=yes,location=no,resizable=yes,scrollbars=yes,status=no" );
     } else {
       PerspectiveManager.getInstance().setPerspective( PerspectiveManager.OPENED_PERSPECTIVE );
-      contentTabPanel.showNewURLTab( fileName, fileName, url, true );
-      addRecent( encodeUri( filePath ), fileName );
+      contentTabPanel.showNewURLTab( fileTitle, fileTitle, url, true );
+      addRecent( filePath, fileTitle );
     }
   }
 

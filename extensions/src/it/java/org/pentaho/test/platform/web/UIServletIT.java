@@ -7,14 +7,15 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.test.platform.web;
 
-import com.mockrunner.mock.web.MockHttpServletRequest;
-import com.mockrunner.mock.web.MockHttpServletResponse;
-import com.mockrunner.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.pentaho.platform.api.engine.IMessageFormatter;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
@@ -23,7 +24,7 @@ import org.pentaho.platform.web.servlet.UIServlet;
 import org.pentaho.test.platform.engine.core.BaseTestCase;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,10 +58,10 @@ public class UIServletIT extends BaseTestCase {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpSession session = new MockHttpSession();
     request.setSession( session );
-    request.setupAddParameter( "solution", "samples" ); //$NON-NLS-1$//$NON-NLS-2$
-    request.setupAddParameter( "path", "steel-wheels/reports" ); //$NON-NLS-1$ //$NON-NLS-2$
-    request.setupAddParameter( "action", "Inventory List.xaction" ); //$NON-NLS-1$ //$NON-NLS-2$
-    request.setupAddParameter( "details", "all" ); //$NON-NLS-1$ //$NON-NLS-2$
+    request.addParameter( "solution", "samples" ); //$NON-NLS-1$//$NON-NLS-2$
+    request.addParameter( "path", "steel-wheels/reports" ); //$NON-NLS-1$ //$NON-NLS-2$
+    request.addParameter( "action", "Inventory List.xaction" ); //$NON-NLS-1$ //$NON-NLS-2$
+    request.addParameter( "details", "all" ); //$NON-NLS-1$ //$NON-NLS-2$
 
     MockHttpServletResponse response = new MockHttpServletResponse();
     UIServlet servlet = new UIServlet();

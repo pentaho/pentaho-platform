@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.lifecycle;
 
@@ -65,10 +66,10 @@ public class MondrianBackingRepositoryLifecycleManager extends AbstractBackingRe
       final ITenantedPrincipleNameResolver userNameUtils, final JcrTemplate adminJcrTemplate,
       final IPathConversionHelper pathConversionHelper ) {
     super( txnTemplate, adminJcrTemplate, pathConversionHelper );
-    Assert.notNull( contentDao );
-    Assert.notNull( repositoryFileAclDao );
-    Assert.hasText( repositoryAdminUsername );
-    Assert.hasText( tenantAuthenticatedAuthorityNamePattern );
+    Assert.notNull( contentDao, "The content DAO must not be null. Ensure a valid content DAO is provided." );
+    Assert.notNull( repositoryFileAclDao, "The repository file ACL DAO must not be null. Ensure a valid ACL DAO is provided." );
+    Assert.hasText( repositoryAdminUsername, "The repository admin username must not be null or empty. Ensure a valid username is provided." );
+    Assert.hasText( tenantAuthenticatedAuthorityNamePattern, "The tenant authenticated authority name pattern must not be null or empty. Ensure a valid pattern is provided." );
     this.repositoryFileDao = contentDao;
     this.repositoryFileAclDao = repositoryFileAclDao;
     this.repositoryAdminUsername = repositoryAdminUsername;
@@ -87,7 +88,7 @@ public class MondrianBackingRepositoryLifecycleManager extends AbstractBackingRe
             new RepositoryFileSid( userNameUtils.getPrincipleId( tenant, repositoryAdminUsername ) );
         RepositoryFile tenantEtcFolder =
             repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantEtcFolderPath( tenant ) );
-        Assert.notNull( tenantEtcFolder );
+        Assert.notNull( tenantEtcFolder, "The tenant etc folder must not be null. Ensure the tenant's etc folder exists in the repository." );
 
         if ( repositoryFileDao.getFileByAbsolutePath( ServerRepositoryPaths.getTenantEtcFolderPath( tenant )
             + RepositoryFile.SEPARATOR + FOLDER_MONDRIAN ) == null ) {
@@ -140,7 +141,7 @@ public class MondrianBackingRepositoryLifecycleManager extends AbstractBackingRe
 
   protected RepositoryFile internalCreateFolder( final Serializable parentFolderId, final RepositoryFile file,
       final boolean inheritAces, final RepositoryFileSid ownerSid, final String versionMessage ) {
-    Assert.notNull( file );
+    Assert.notNull( file, "The file must not be null. Ensure a valid RepositoryFile object is provided." );
 
     return repositoryFileDao.createFolder( parentFolderId, file, makeAcl( inheritAces, ownerSid ), versionMessage );
   }

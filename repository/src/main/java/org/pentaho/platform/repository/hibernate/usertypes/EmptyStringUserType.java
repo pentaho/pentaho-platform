@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository.hibernate.usertypes;
 
@@ -16,7 +17,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.type.descriptor.java.StringJavaType;
+import org.hibernate.type.descriptor.jdbc.VarcharJdbcType;
+import org.hibernate.type.internal.NamedBasicTypeImpl;
 import org.hibernate.usertype.UserType;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.messages.Messages;
@@ -35,15 +38,16 @@ public class EmptyStringUserType implements UserType {
   private static final String PENTAHOEMPTY = Messages.getInstance()
       .getString( "EMPTYSTRTYPE.CODE_PENTAHO_EMPTY_STRING" ); //$NON-NLS-1$
 
-  private static final int[] SQLTYPE = { Types.VARCHAR };
+  private static final int SQLTYPE = Types.VARCHAR ;
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.hibernate.usertype.UserType#sqlTypes()
+   * @see org.hibernate.usertype.UserType#getSqlType()
    */
-  public int[] sqlTypes() {
-    return EmptyStringUserType.SQLTYPE;
+  @Override
+  public int getSqlType() {
+    return SQLTYPE;
   }
 
   /*
@@ -74,9 +78,8 @@ public class EmptyStringUserType implements UserType {
   }
 
   @Override
-  public Object nullSafeGet( ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner )
-    throws HibernateException, SQLException {
-    return null;
+  public Object nullSafeGet( ResultSet resultSet, int i, SharedSessionContractImplementor sharedSessionContractImplementor, Object o ) throws SQLException {
+   return null;
   }
 
   @Override
@@ -96,7 +99,7 @@ public class EmptyStringUserType implements UserType {
       EmptyStringUserType.log.debug( Messages.getInstance().getString( "EMPTYSTRTYPE.DEBUG_NULL_SAFE_GET" ) ); //$NON-NLS-1$
     }
 
-    String colValue = (String) StandardBasicTypes.STRING.nullSafeGet( arg0, arg1[0] , null);
+    String colValue = arg0.getString( arg1[ 0 ] );
     // _PENTAHOEMPTY_ shouldn't appear in the wild. So, check the string in
     // the DB for this flag,
     // and if it's there, then this must be an empty string.
@@ -115,7 +118,7 @@ public class EmptyStringUserType implements UserType {
       EmptyStringUserType.log.debug( Messages.getInstance().getString( "EMPTYSTRTYPE.DEBUG_NULL_SAFE_SET" ) ); //$NON-NLS-1$
     }
 
-    StandardBasicTypes.STRING.nullSafeSet( arg0, ( arg1 != null ) ? ( ( ( (String) arg1 ).length() > 0 ) ? arg1
+     new NamedBasicTypeImpl( StringJavaType.INSTANCE, VarcharJdbcType.INSTANCE, "String" ).nullSafeSet( arg0, ( arg1 != null ) ? ( ( ( (String) arg1 ).length() > 0 ) ? arg1
         : EmptyStringUserType.PENTAHOEMPTY ) : arg1, arg2, null );
   }
 

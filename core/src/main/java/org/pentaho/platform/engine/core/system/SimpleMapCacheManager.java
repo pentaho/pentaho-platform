@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.engine.core.system;
 
@@ -188,30 +189,4 @@ public class SimpleMapCacheManager implements ICacheManager {
       }
     }
   }
-
-  @Override
-  public long getElementCountInRegionCache( String region ) {
-    long cnt = 0;
-    String regionKey = region + "\t";
-    Iterator it = simpleMap.entrySet().iterator();
-    while ( it.hasNext() ) {
-      Map.Entry entry = (Map.Entry) it.next();
-      String key = entry.getKey() != null ? (String) entry.getKey() : ""; //$NON-NLS-1$
-      if ( key.startsWith( regionKey ) ) {
-        cnt++;
-      }
-    }
-    return cnt;
-  }
-
-  @Override
-  public long getElementCountInSessionCache() {
-    return getElementCountInRegionCache( SESSION );
-  }
-
-  @Override
-  public long getElementCountInGlobalCache() {
-    return getElementCountInRegionCache( GLOBAL );
-  }
-
 }

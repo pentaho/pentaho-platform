@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources.services;
 
@@ -39,7 +40,9 @@ import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAc
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.api.importexport.ExportException;
 import org.pentaho.platform.api.util.IPentahoPlatformExporter;
+import org.pentaho.platform.api.util.IRepositoryExportLogger;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.exporter.PentahoPlatformExporter;
@@ -48,7 +51,7 @@ import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
-import org.pentaho.platform.plugin.services.importexport.ExportException;
+import org.pentaho.platform.plugin.services.importexport.RepositoryTextLayout;
 import org.pentaho.platform.plugin.services.importexport.ExportHandler;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
@@ -78,9 +81,10 @@ import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.pentaho.platform.web.servlet.HttpMimeTypeListener;
 
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -91,9 +95,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.channels.IllegalSelectorException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.text.Collator;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -107,6 +115,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import javax.jcr.PathNotFoundException;
 
 public class FileService {
 
@@ -130,29 +140,86 @@ public class FileService {
 
   private PentahoPlatformExporter backupExporter;
 
-  public DownloadFileWrapper systemBackup( String userAgent ) throws IOException, ExportException {
-    if ( doCanAdminister() ) {
-      String originalFileName;
-      String encodedFileName;
-      originalFileName = "SystemBackup.zip";
-      encodedFileName = makeEncodedFileName( originalFileName );
-      StreamingOutput streamingOutput = getBackupStream();
-      final String attachment = HttpMimeTypeListener.buildContentDispositionValue( originalFileName,  true );
+  private void validateFilePath( String logFile ) throws IllegalArgumentException {
+    if ( logFile.contains( ".." ) || logFile.contains( "//" ) || logFile.contains( "\\\\" ) || ( !logFile.endsWith( ".txt" ) && !logFile.endsWith( ".log" ) ) ) {
+      throw new IllegalArgumentException( Messages.getInstance().getString( "FileService.ERROR_INVALID_LOG_FILENAME", logFile ) );
+    }
+  }
 
+  public DownloadFileWrapper systemBackup( String logFile, String logLevel, String outputFile ) throws IllegalArgumentException, IOException, ExportException {
+    if ( doCanAdminister() ) {
+      String encodedFileName;
+      encodedFileName = makeEncodedFileName( outputFile );
+      IRepositoryExportLogger exportLogger;
+      Level level = Level.valueOf( logLevel );
+      FileOutputStream fileOutputStream = null;
+      try {
+        validateFilePath( logFile );
+        fileOutputStream = new FileOutputStream( logFile );
+      } catch ( FileNotFoundException e ) {
+        try {
+          fileOutputStream = retrieveFallbackLogFileLocation( "backup" );
+        } catch ( FileNotFoundException fileNotFoundException ) {
+          throw new ExportException( fileNotFoundException );
+        }
+      }
+      ByteArrayOutputStream exportLoggerSream = new ByteArrayOutputStream();
+      IPentahoPlatformExporter exporter = PentahoSystem.get( IPentahoPlatformExporter.class );
+      if ( exporter == null ) {
+        logger.error( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_PLATFORM_EXPORTER" ) );
+        throw new ExportException( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_PLATFORM_EXPORTER" ) );
+      }
+
+      exportLogger = exporter.getRepositoryExportLogger();
+      if ( exportLogger == null ) {
+        logger.error( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_EXPORT_LOGGER" ) );
+        throw new ExportException( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_EXPORT_LOGGER" ) );
+      }
+      RepositoryTextLayout stringLayout = new RepositoryTextLayout( level );
+      exportLogger.startJob( exportLoggerSream, level, stringLayout );
+      StreamingOutput streamingOutput = getBackupStream();
+      exportLogger.endJob();
+      try {
+        exportLoggerSream.writeTo( fileOutputStream );
+      } catch ( IOException e ) {
+        logger.error( e.getLocalizedMessage() );
+      }
+      final String attachment = HttpMimeTypeListener.buildContentDispositionValue( outputFile, true );
       return new DownloadFileWrapper( streamingOutput, attachment, encodedFileName );
     } else {
       throw new SecurityException();
     }
   }
 
+  public FileOutputStream retrieveFallbackLogFileLocation( String filePrefix ) throws FileNotFoundException {
+    String defaultBaseDir = System.getProperty( "java.io.tmpdir" );
+    // Get the current timestamp
+    SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyyMMdd_HHmmss" );
+    String timestamp = dateFormat.format( new Date() );
+    String fallbacklogFilePath = defaultBaseDir + File.pathSeparator + filePrefix + "_" + timestamp + ".log";
+    return new FileOutputStream( fallbacklogFilePath );
+  }
+
   public void systemRestore( final InputStream fileUpload, String overwriteFile,
-                             String applyAclSettings, String overwriteAclSettings ) throws PlatformImportException, SecurityException {
+                             String applyAclSettings, String overwriteAclSettings, String logFile, String logLevel, String backupBundlePath ) throws IllegalArgumentException, PlatformImportException, SecurityException {
     if ( doCanAdminister() ) {
       boolean overwriteFileFlag = !"false".equals( overwriteFile );
       boolean applyAclSettingsFlag = !"false".equals( applyAclSettings );
       boolean overwriteAclSettingsFlag = "true".equals( overwriteAclSettings );
       IRepositoryImportLogger importLogger;
-      Level level = Level.ERROR;
+      Level level = Level.valueOf( logLevel );
+
+      FileOutputStream fileOutputStream = null;
+      try {
+        validateFilePath( logFile );
+        fileOutputStream = new FileOutputStream( logFile );
+      } catch ( FileNotFoundException e ) {
+        try {
+          fileOutputStream = retrieveFallbackLogFileLocation( "restore" );
+        } catch ( FileNotFoundException fileNotFoundException ) {
+          throw new PlatformImportException( fileNotFoundException.getLocalizedMessage() );
+        }
+      }
       ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
       String importDirectory = "/";
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
@@ -162,7 +229,7 @@ public class FileService {
       bundleBuilder.schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT );
       bundleBuilder.path( importDirectory );
       bundleBuilder.overwriteFile( overwriteFileFlag );
-      bundleBuilder.name( "SystemBackup.zip" );
+      bundleBuilder.name( backupBundlePath );
       bundleBuilder.applyAclSettings( applyAclSettingsFlag );
       bundleBuilder.overwriteAclSettings( overwriteAclSettingsFlag );
       bundleBuilder.retainOwnership( true );
@@ -172,11 +239,18 @@ public class FileService {
 
       IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
       importLogger = importer.getRepositoryImportLogger();
-      importLogger.startJob( importLoggerStream, importDirectory, level );
+      RepositoryTextLayout stringLayout = new RepositoryTextLayout( level );
+      importLogger.setPerformingRestore( true );
+      importLogger.startJob( importLoggerStream, importDirectory, level, stringLayout );
       try {
         importer.importFile( bundleBuilder.build() );
       } finally {
         importLogger.endJob();
+        try {
+          importLoggerStream.writeTo( fileOutputStream );
+        } catch ( IOException e ) {
+          e.printStackTrace();
+        }
       }
     } else {
       throw new SecurityException();
@@ -184,13 +258,21 @@ public class FileService {
   }
 
   private StreamingOutput getBackupStream() throws IOException, ExportException {
-    File zipFile = getBackupExporter().performExport();
-    final FileInputStream inputStream = new FileInputStream( zipFile );
-
+    final File zipFile = getBackupExporter().performExport();
     return new StreamingOutput() {
       @Override
       public void write( OutputStream output ) throws IOException {
-        IOUtils.copy( inputStream, output );
+        try ( FileInputStream inputStream = new FileInputStream( zipFile ) ) {
+          IOUtils.copy( inputStream, output );
+        } finally {
+          try {
+            if ( zipFile != null && !Files.deleteIfExists( zipFile.toPath() ) ) {
+              logger.warn( Messages.getInstance().getString( "FileService.WARN_UNABLE_TO_DELETE_TEMP_FILE", zipFile.getAbsolutePath() ) );
+            }
+          } catch ( Exception e ) {
+            logger.warn( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_DELETE_TEMP_FILE", zipFile.getAbsolutePath() ), e );
+          }
+        }
       }
     };
   }
@@ -207,7 +289,7 @@ public class FileService {
     String[] sourceFileIds = FileUtils.convertCommaSeparatedStringToArray( params );
     try {
       for ( int i = 0; i < sourceFileIds.length; i++ ) {
-        getRepoWs().deleteFile( sourceFileIds[i], null );
+        getRepoWs().deleteFile( sourceFileIds[ i ], null );
       }
     } catch ( Exception e ) {
       throw e;
@@ -258,9 +340,9 @@ public class FileService {
     ArrayList<Setting> permMap = new ArrayList<Setting>();
     while ( tokenizer.hasMoreTokens() ) {
       Integer perm = Integer.valueOf( tokenizer.nextToken() );
-      EnumSet<RepositoryFilePermission> permission = EnumSet.of( RepositoryFilePermission.values()[perm] );
+      EnumSet<RepositoryFilePermission> permission = EnumSet.of( RepositoryFilePermission.values()[ perm ] );
       permMap.add( new Setting( perm.toString(), new Boolean( getRepository()
-        .hasAccess( idToPath( pathId ), permission ) ).toString() ) );
+          .hasAccess( idToPath( pathId ), permission ) ).toString() ) );
     }
     return permMap;
   }
@@ -269,9 +351,9 @@ public class FileService {
     List<Setting> pathsPermissonsSettings = new ArrayList<Setting>();
 
     String permissions =
-      RepositoryFilePermission.READ.ordinal() + "|" + RepositoryFilePermission.WRITE.ordinal() + "|"
-        + RepositoryFilePermission.DELETE.ordinal() + "|" + RepositoryFilePermission.ACL_MANAGEMENT.ordinal() + "|"
-        + RepositoryFilePermission.ALL.ordinal();
+        RepositoryFilePermission.READ.ordinal() + "|" + RepositoryFilePermission.WRITE.ordinal() + "|"
+            + RepositoryFilePermission.DELETE.ordinal() + "|" + RepositoryFilePermission.ACL_MANAGEMENT.ordinal() + "|"
+            + RepositoryFilePermission.ALL.ordinal();
 
     List<String> paths = pathsWrapper.getStrings();
     for ( String path : paths ) {
@@ -297,7 +379,7 @@ public class FileService {
    * @throws IOException
    */
   public void createFile( String charsetName, String pathId, InputStream fileContents )
-    throws Exception {
+      throws Exception {
     try {
       if ( FileUtils.containsControlCharacters( pathId ) ) {
         throw new InvalidNameException();
@@ -322,14 +404,13 @@ public class FileService {
    * Moves a list of files from its current location to another, the list should be comma separated.
    *
    * @param destPathId colon separated path for the repository file
-   * <pre function="syntax.xml">
-   *    :path:to:file:id
-   * </pre>
-   * @param params comma separated list of files to be moved
-   * <pre function="syntax.xml">
-   *    path1,path2,...
-   * </pre>
-   *
+   *                   <pre function="syntax.xml">
+   *                      :path:to:file:id
+   *                   </pre>
+   * @param params     comma separated list of files to be moved
+   *                   <pre function="syntax.xml">
+   *                      path1,path2,...
+   *                   </pre>
    * @return boolean <code>true</code>  if all files were moved correctly or <code>false</code> if the destiny path is
    * not available
    * @throws FileNotFoundException
@@ -378,13 +459,12 @@ public class FileService {
   }
 
   /**
-   *
    * Restores a list of files from the trash folder to user's home folder,
    * ignoring files previous locations (with no change of file owner)
-   * @param  params Comma separated list of files to be restored
-   * @param overwriteMode  Default is RENAME (2) which adds a number to the end of the file name. MODE_OVERWRITE (1)
-   *                       will just replace existing or MODE_NO_OVERWRITE (3) will not copy if file exist.
    *
+   * @param params        Comma separated list of files to be restored
+   * @param overwriteMode Default is RENAME (2) which adds a number to the end of the file name. MODE_OVERWRITE (1)
+   *                      will just replace existing or MODE_NO_OVERWRITE (3) will not copy if file exist.
    */
   public boolean doRestoreFilesInHomeDir( String params, int overwriteMode ) {
     if ( overwriteMode < 1 || overwriteMode > 3 ) {
@@ -392,7 +472,7 @@ public class FileService {
     }
 
     String userHomeFolderPath =
-      ClientRepositoryPaths.getUserHomeFolderPath( getSession().getName() );
+        ClientRepositoryPaths.getUserHomeFolderPath( getSession().getName() );
 
     String filesToDeletePermanent = null;
     if ( overwriteMode == MODE_RENAME ) {
@@ -472,14 +552,10 @@ public class FileService {
    * Conflict occurs if one of source files has the same
    * name with any of folder files.
    *
-   * @param params
-   *            String with file ids, separated by comma
-   * @param pathToFolder
-   *            path to folder
-   *
+   * @param params       String with file ids, separated by comma
+   * @param pathToFolder path to folder
    * @return String
-   *            with file ids of not conflict files, separated by comma
-   *
+   * with file ids of not conflict files, separated by comma
    */
   protected String getSourceFileIdsThatNotConflictWithFolderFiles( String pathToFolder, String params ) {
     String[] sourceFileIds = FileUtils.convertCommaSeparatedStringToArray( params );
@@ -509,13 +585,9 @@ public class FileService {
   }
 
   /**
-   *
-   * @param fileIdsList
-   *          List with file ids.
-   * @return
-   *      - String of file ids, separated by comma
-   *      - Empty String if {@code fileIdList} is null or empty
-   *
+   * @param fileIdsList List with file ids.
+   * @return - String of file ids, separated by comma
+   * - Empty String if {@code fileIdList} is null or empty
    */
   protected String getCommaSeparatedFileIds( List<String> fileIdsList ) {
     if ( fileIdsList == null || fileIdsList.size() == 0 ) {
@@ -562,18 +634,15 @@ public class FileService {
   }
 
   public DownloadFileWrapper doGetFileOrDirAsDownload( String userAgent, String pathId, String strWithManifest )
-    throws Throwable {
-    // change file id to path
-    String path = idToPath( pathId );
-    validateDownloadAccess( path );
-    IAuthorizationPolicy  policy = getPolicy();
-
-    String originalFileName, encodedFileName = null;
+      throws Throwable {
 
     // if no path is sent, return bad request
     if ( StringUtils.isEmpty( pathId ) ) {
       throw new InvalidParameterException( pathId );
     }
+
+    // change file id to path
+    String path = idToPath( pathId );
 
     // check if path is valid
     if ( !isPathValid( path ) ) {
@@ -588,12 +657,15 @@ public class FileService {
       throw new FileNotFoundException( path );
     }
 
+    // validate if the user has permissions to download the file/folder
+    validateDownloadAccess( path );
+
     // send zip with manifest by default
     boolean withManifest = "false".equals( strWithManifest ) ? false : true;
     boolean requiresZip = repositoryFile.isFolder() || withManifest;
     BaseExportProcessor exportProcessor = getDownloadExportProcessor( path, requiresZip, withManifest );
-    originalFileName = requiresZip ? repositoryFile.getName() + ".zip" : repositoryFile.getName(); //$NON-NLS-1$//$NON-NLS-2$
-    encodedFileName = makeEncodedFileName( originalFileName );
+    String originalFileName = requiresZip ? repositoryFile.getName() + ".zip" : repositoryFile.getName();
+    String encodedFileName = makeEncodedFileName( originalFileName );
 
     // add export handlers for each expected file type
     exportProcessor.addExportHandler( getDownloadExportHandler() );
@@ -602,7 +674,7 @@ public class FileService {
     StreamingOutput streamingOutput = getDownloadStream( repositoryFile, exportProcessor );
 
     return new DownloadFileWrapper( streamingOutput, HttpMimeTypeListener.buildContentDispositionValue(
-      originalFileName, true ), encodedFileName );
+        originalFileName, true ), encodedFileName );
   }
 
   private String makeEncodedFileName( String originalFile ) throws UnsupportedEncodingException {
@@ -638,17 +710,15 @@ public class FileService {
       throw new FileNotFoundException();
     }
 
-    // check whitelist acceptance of file (based on extension)
-    if ( !getWhitelist().accept( repositoryFile.getName() ) ) {
-      // if whitelist check fails, we can still inline if you have PublishAction, otherwise we're FORBIDDEN
-      if ( !getPolicy().isAllowed( PublishAction.NAME ) ) {
-        throw new IllegalArgumentException();
-      }
+    // check whitelist acceptance of a file (based on extension). If whitelist check fails, we can still inline if
+    // you have PublishAction, otherwise we're FORBIDDEN
+    if ( !doGetCanGetFileContent( repositoryFile.getName() ) ) {
+      throw new IllegalArgumentException();
     }
 
     try {
       SimpleRepositoryFileData fileData =
-        getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class );
+          getRepository().getDataForRead( repositoryFile.getId(), SimpleRepositoryFileData.class );
       final InputStream is = fileData.getInputStream();
 
       // copy streaming output
@@ -661,7 +731,7 @@ public class FileService {
       return wrapper;
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString(
-        "FileResource.EXPORT_FAILED", repositoryFile.getName() + " " + e.getMessage() ), e );
+          "FileResource.EXPORT_FAILED", repositoryFile.getName() + " " + e.getMessage() ), e );
       throw new InternalError();
     }
   }
@@ -698,7 +768,7 @@ public class FileService {
    * @param properties
    */
   public void doSetLocaleProperties( String pathId, String locale, List<StringKeyStringValueDto> properties )
-    throws Exception {
+      throws Exception {
     RepositoryFileDto file = getRepoWs().getFile( idToPath( pathId ) );
     Properties fileProperties = new Properties();
     if ( properties != null && !properties.isEmpty() ) {
@@ -729,7 +799,7 @@ public class FileService {
     String[] sourceFileIds = FileUtils.convertCommaSeparatedStringToArray( params ); //$NON-NLS-1$
 
     CopyFilesOperation copyFilesOperation =
-      new CopyFilesOperation( getRepository(), getRepoWs(), Arrays.asList( sourceFileIds ), path, mode );
+        new CopyFilesOperation( getRepository(), getRepoWs(), Arrays.asList( sourceFileIds ), path, mode );
 
     copyFilesOperation.execute();
   }
@@ -757,12 +827,10 @@ public class FileService {
       throw new FileNotFoundException();
     }
 
-    // check whitelist acceptance of file (based on extension)
-    if ( !getWhitelist().accept( repoFile.getName() ) ) {
-      // if whitelist check fails, we can still inline if you have PublishAction, otherwise we're FORBIDDEN
-      if ( !getPolicy().isAllowed( PublishAction.NAME ) ) {
-        throw new IllegalArgumentException();
-      }
+    // check whitelist acceptance of a file (based on extension). If whitelist check fails, we can still inline if
+    // you have PublishAction, otherwise we're FORBIDDEN
+    if ( !doGetCanGetFileContent( repoFile.getName() ) ) {
+      throw new IllegalArgumentException();
     }
 
     final RepositoryFileInputStream is = getRepositoryFileInputStream( repoFile );
@@ -778,13 +846,13 @@ public class FileService {
 
   /**
    * Save the acls of the selected file to the repository
-   *
+   * <p>
    * This method is used to update and save the acls of the selected file to the repository
    *
    * @param pathId @param pathId colon separated path for the repository file
    *               <pre function="syntax.xml">
-   *               :path:to:file:id
-   *               </pre>
+   *                             :path:to:file:id
+   *                             </pre>
    * @param acl    Acl of the repository file <code> RepositoryFileAclDto </code>
    * @throws FileNotFoundException
    */
@@ -809,6 +877,7 @@ public class FileService {
     }
     getRepoWs().updateAcl( acl );
   }
+
   /**
    * Check whether the selected repository folder is visible to the current user
    *
@@ -816,8 +885,8 @@ public class FileService {
    * @return true or false
    */
   public String doGetIsVisible( String pathId ) {
-    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
-    return repositoryFileDto != null && repositoryFileDto.isHidden() ?  "false" : "true";
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( pathId ) );
+    return repositoryFileDto != null && repositoryFileDto.isHidden() ? "false" : "true";
   }
 
   /**
@@ -827,7 +896,7 @@ public class FileService {
    * @return true or false
    */
   public boolean isFolder( String pathId ) {
-    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( pathId ) );
     return repositoryFileDto != null && repositoryFileDto.isFolder();
   }
 
@@ -838,7 +907,7 @@ public class FileService {
    * @return true or false
    */
   public boolean doesExist( String pathId ) {
-    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( pathId ) );
     return repositoryFileDto != null && repositoryFileDto.getId() != null;
   }
 
@@ -858,38 +927,38 @@ public class FileService {
     }
     return isInsideOfAnyHiddenFolder( getRepoWs().getFile( idToPath( parentPathId ) ) );
   }
+
   /**
-   *
    * @param pathId
    * @return default path to where user can save or open the artifact
    */
   public String doGetDefaultLocation( String pathId ) {
-    RepositoryFileDto repositoryFileDto = getRepoWs().getFile(  idToPath( pathId ) );
+    RepositoryFileDto repositoryFileDto = getRepoWs().getFile( idToPath( pathId ) );
     if ( repositoryFileDto == null ) {
       return ClientRepositoryPaths.getRootFolderPath();
     } else if ( isInsideOfAnyHiddenFolder( repositoryFileDto ) ) {
       String defaultFolder = PentahoSystem.get( ISystemConfig.class )
-        .getProperty( PentahoSystem.DEFAULT_FOLDER_WHEN_HOME_FOLDER_IS_HIDDEN_PROPERTY );
+          .getProperty( PentahoSystem.DEFAULT_FOLDER_WHEN_HOME_FOLDER_IS_HIDDEN_PROPERTY );
       if ( defaultFolder != null && defaultFolder.length() > 0 ) {
         repositoryFileDto = getRepoWs().getFile( defaultFolder );
         if ( repositoryFileDto == null ) {
           return ClientRepositoryPaths.getRootFolderPath();
         } else if ( isInsideOfAnyHiddenFolder( repositoryFileDto ) ) {
-          repositoryFileDto = getRepoWs().getFile(  ClientRepositoryPaths.getPublicFolderPath() );
+          repositoryFileDto = getRepoWs().getFile( ClientRepositoryPaths.getPublicFolderPath() );
           if ( isInsideOfAnyHiddenFolder( repositoryFileDto ) ) {
             return ClientRepositoryPaths.getRootFolderPath();
           } else {
-            return  ClientRepositoryPaths.getPublicFolderPath();
+            return ClientRepositoryPaths.getPublicFolderPath();
           }
         } else {
           return defaultFolder;
         }
       } else {
-        repositoryFileDto = getRepoWs().getFile(  ClientRepositoryPaths.getPublicFolderPath() );
+        repositoryFileDto = getRepoWs().getFile( ClientRepositoryPaths.getPublicFolderPath() );
         if ( isInsideOfAnyHiddenFolder( repositoryFileDto ) ) {
           return ClientRepositoryPaths.getRootFolderPath();
         } else {
-          return  ClientRepositoryPaths.getPublicFolderPath();
+          return ClientRepositoryPaths.getPublicFolderPath();
         }
       }
     } else {
@@ -974,8 +1043,8 @@ public class FileService {
    *
    * @param pathId @param pathId colon separated path for the repository file
    *               <pre function="syntax.xml">
-   *               :path:to:file:id
-   *               </pre>
+   *                             :path:to:file:id
+   *                             </pre>
    * @return file properties object <code> RepositoryFileDto </code>
    * @throws FileNotFoundException
    */
@@ -986,6 +1055,7 @@ public class FileService {
     }
     return file;
   }
+
   /**
    * Gets the permission for whether or not a user can edit files
    *
@@ -993,7 +1063,7 @@ public class FileService {
    */
   public String doGetCanEdit() {
     String editPermission = PentahoSystem.getSystemSetting( "edit-permission", "" );
-    if( editPermission != null && editPermission.length() > 0 ) {
+    if ( editPermission != null && editPermission.length() > 0 ) {
       return getPolicy().isAllowed( editPermission ) ? "true" : "false";
     } else {
       return "true";
@@ -1008,6 +1078,35 @@ public class FileService {
    */
   public String doGetCanCreate() {
     return getPolicy().isAllowed( RepositoryCreateAction.NAME ) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+  }
+
+  /**
+   * Gets the permission for whether or not a user can publish files
+   *
+   * @return Boolean representing whether or not user can publish files
+   */
+  public boolean doGetCanPublish() {
+    return getPolicy().isAllowed( PublishAction.NAME );
+  }
+
+  /**
+   * Gets the permission for whether or not a user can download files based on a whitelist check
+   *
+   * @param filename The name of the file to check against the whitelist<
+   * @return Boolean representing whether or not a user can download files
+   */
+  public boolean doGetCanDownloadWithWhitelist( String filename ) {
+    return getWhitelist().accept( filename );
+  }
+
+  /**
+   * Gets the permission for whether or not a user can get the content of files
+   *
+   * @param filename The name of the file to check
+   * @return Boolean representing whether or not a user can get the content of files
+   */
+  public boolean doGetCanGetFileContent( String filename ) {
+    return doGetCanDownloadWithWhitelist( filename ) || doGetCanPublish();
   }
 
   /**
@@ -1094,10 +1193,10 @@ public class FileService {
     RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
 
     boolean canManage =
-      getSession().getName().equals( fileAcl.getOwner() )
-        || ( getPolicy().isAllowed( RepositoryReadAction.NAME )
-        && getPolicy().isAllowed( RepositoryCreateAction.NAME ) && getPolicy().isAllowed(
-        AdministerSecurityAction.NAME ) );
+        getSession().getName().equals( fileAcl.getOwner() )
+            || ( getPolicy().isAllowed( RepositoryReadAction.NAME )
+            && getPolicy().isAllowed( RepositoryCreateAction.NAME ) && getPolicy().isAllowed(
+            AdministerSecurityAction.NAME ) );
 
     if ( !canManage ) {
 
@@ -1110,7 +1209,7 @@ public class FileService {
         RepositoryFileAclAceDto acl = fileAcl.getAces().get( i );
         if ( acl.getRecipient().equals( getSession().getName() ) ) {
           if ( acl.getPermissions().contains( RepositoryFilePermission.ACL_MANAGEMENT.ordinal() )
-            || acl.getPermissions().contains( RepositoryFilePermission.ALL.ordinal() ) ) {
+              || acl.getPermissions().contains( RepositoryFilePermission.ALL.ordinal() ) ) {
             canManage = true;
             break;
           }
@@ -1202,16 +1301,11 @@ public class FileService {
   }
 
   /**
-   *
-   * @param params
-   *            id of files, separated by ','
-   *
+   * @param params id of files, separated by ','
    * @return false if homeFolder has files
-   *               with names and extension equal to passed files
-   *         true otherwise
-   *
-   * @throws IllegalArgumentException
-   *              if {@code params} is null
+   * with names and extension equal to passed files
+   * true otherwise
+   * @throws IllegalArgumentException if {@code params} is null
    */
   public boolean canRestoreToFolderWithNoConflicts( String pathToFolder, String params ) {
     if ( params == null ) {
@@ -1241,54 +1335,54 @@ public class FileService {
   /**
    * Store content creator of the selected repository file
    *
-   * @param pathId colon separated path for the repository file
-   * <pre function="syntax.xml">
-   *    :path:to:file:id
-   * </pre>
+   * @param pathId         colon separated path for the repository file
+   *                       <pre function="syntax.xml">
+   *                          :path:to:file:id
+   *                       </pre>
    * @param contentCreator repository file
-   * <pre function="syntax.xml">
-   *   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-   *     &lt;repositoryFileDto&gt;
-   *     &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
-   *     &lt;fileSize&gt;3461&lt;/fileSize&gt;
-   *     &lt;folder&gt;false&lt;/folder&gt;
-   *     &lt;hidden&gt;false&lt;/hidden&gt;
-   *     &lt;id&gt;ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/id&gt;
-   *     &lt;lastModifiedDate&gt;1406647160536&lt;/lastModifiedDate&gt;
-   *     &lt;locale&gt;en&lt;/locale&gt;
-   *     &lt;localePropertiesMapEntries&gt;
-   *       &lt;localeMapDto&gt;
-   *         &lt;locale&gt;default&lt;/locale&gt;
-   *         &lt;properties&gt;
-   *           &lt;stringKeyStringValueDto&gt;
-   *             &lt;key&gt;file.title&lt;/key&gt;
-   *             &lt;value&gt;myFile&lt;/value&gt;
-   *           &lt;/stringKeyStringValueDto&gt;
-   *           &lt;stringKeyStringValueDto&gt;
-   *             &lt;key&gt;jcr:primaryType&lt;/key&gt;
-   *             &lt;value&gt;nt:unstructured&lt;/value&gt;
-   *           &lt;/stringKeyStringValueDto&gt;
-   *           &lt;stringKeyStringValueDto&gt;
-   *             &lt;key&gt;title&lt;/key&gt;
-   *             &lt;value&gt;myFile&lt;/value&gt;
-   *           &lt;/stringKeyStringValueDto&gt;
-   *           &lt;stringKeyStringValueDto&gt;
-   *             &lt;key&gt;file.description&lt;/key&gt;
-   *             &lt;value&gt;myFile Description&lt;/value&gt;
-   *           &lt;/stringKeyStringValueDto&gt;
-   *         &lt;/properties&gt;
-   *       &lt;/localeMapDto&gt;
-   *     &lt;/localePropertiesMapEntries&gt;
-   *     &lt;locked&gt;false&lt;/locked&gt;
-   *     &lt;name&gt;myFile.prpt&lt;/name&gt;&lt;/name&gt;
-   *     &lt;originalParentFolderPath&gt;/public/admin&lt;/originalParentFolderPath&gt;
-   *     &lt;ownerType&gt;-1&lt;/ownerType&gt;
-   *     &lt;path&gt;/public/admin/ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/path&gt;
-   *     &lt;title&gt;myFile&lt;/title&gt;
-   *     &lt;versionId&gt;1.9&lt;/versionId&gt;
-   *     &lt;versioned&gt;true&lt;/versioned&gt;
-   *   &lt;/repositoryFileAclDto&gt;
-   * </pre>
+   *                       <pre function="syntax.xml">
+   *                         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+   *                           &lt;repositoryFileDto&gt;
+   *                           &lt;createdDate&gt;1402911997019&lt;/createdDate&gt;
+   *                           &lt;fileSize&gt;3461&lt;/fileSize&gt;
+   *                           &lt;folder&gt;false&lt;/folder&gt;
+   *                           &lt;hidden&gt;false&lt;/hidden&gt;
+   *                           &lt;id&gt;ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/id&gt;
+   *                           &lt;lastModifiedDate&gt;1406647160536&lt;/lastModifiedDate&gt;
+   *                           &lt;locale&gt;en&lt;/locale&gt;
+   *                           &lt;localePropertiesMapEntries&gt;
+   *                             &lt;localeMapDto&gt;
+   *                               &lt;locale&gt;default&lt;/locale&gt;
+   *                               &lt;properties&gt;
+   *                                 &lt;stringKeyStringValueDto&gt;
+   *                                   &lt;key&gt;file.title&lt;/key&gt;
+   *                                   &lt;value&gt;myFile&lt;/value&gt;
+   *                                 &lt;/stringKeyStringValueDto&gt;
+   *                                 &lt;stringKeyStringValueDto&gt;
+   *                                   &lt;key&gt;jcr:primaryType&lt;/key&gt;
+   *                                   &lt;value&gt;nt:unstructured&lt;/value&gt;
+   *                                 &lt;/stringKeyStringValueDto&gt;
+   *                                 &lt;stringKeyStringValueDto&gt;
+   *                                   &lt;key&gt;title&lt;/key&gt;
+   *                                   &lt;value&gt;myFile&lt;/value&gt;
+   *                                 &lt;/stringKeyStringValueDto&gt;
+   *                                 &lt;stringKeyStringValueDto&gt;
+   *                                   &lt;key&gt;file.description&lt;/key&gt;
+   *                                   &lt;value&gt;myFile Description&lt;/value&gt;
+   *                                 &lt;/stringKeyStringValueDto&gt;
+   *                               &lt;/properties&gt;
+   *                             &lt;/localeMapDto&gt;
+   *                           &lt;/localePropertiesMapEntries&gt;
+   *                           &lt;locked&gt;false&lt;/locked&gt;
+   *                           &lt;name&gt;myFile.prpt&lt;/name&gt;&lt;/name&gt;
+   *                           &lt;originalParentFolderPath&gt;/public/admin&lt;/originalParentFolderPath&gt;
+   *                           &lt;ownerType&gt;-1&lt;/ownerType&gt;
+   *                           &lt;path&gt;/public/admin/ff11ac89-7eda-4c03-aab1-e27f9048fd38&lt;/path&gt;
+   *                           &lt;title&gt;myFile&lt;/title&gt;
+   *                           &lt;versionId&gt;1.9&lt;/versionId&gt;
+   *                           &lt;versioned&gt;true&lt;/versioned&gt;
+   *                         &lt;/repositoryFileAclDto&gt;
+   *                       </pre>
    * @throws FileNotFoundException
    */
   public void doSetContentCreator( String pathId, RepositoryFileDto contentCreator ) throws FileNotFoundException {
@@ -1309,11 +1403,11 @@ public class FileService {
    * Retrieves the list of locale map for the selected repository file. The list will be empty if a problem occurs.
    *
    * @param pathId colon separated path for the repository file
-   * <pre function="syntax.xml">
-   *    :path:to:file:id
-   * </pre>
+   *               <pre function="syntax.xml">
+   *                  :path:to:file:id
+   *               </pre>
    * @return <code>List<LocaleMapDto></code> the list of locales
-   *         <pre function="syntax.xml">
+   * <pre function="syntax.xml">
    *           <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
    *           &lt;localePropertiesMapEntries&gt;
    *             &lt;localeMapDto&gt;
@@ -1371,8 +1465,8 @@ public class FileService {
     boolean status = false;
     try {
       status = getPolicy().isAllowed( RepositoryReadAction.NAME )
-        && getPolicy().isAllowed( RepositoryCreateAction.NAME )
-        && getPolicy().isAllowed( AdministerSecurityAction.NAME );
+          && getPolicy().isAllowed( RepositoryCreateAction.NAME )
+          && getPolicy().isAllowed( AdministerSecurityAction.NAME );
     } catch ( Exception e ) {
       logger.error( Messages.getInstance().getString( "SystemResource.CAN_ADMINISTER" ), e );
     }
@@ -1390,7 +1484,7 @@ public class FileService {
     RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
     if ( fileAcl.isEntriesInheriting() ) {
       List<RepositoryFileAclAceDto> aces =
-        getRepoWs().getEffectiveAcesWithForceFlag( file.getId(), fileAcl.isEntriesInheriting() );
+          getRepoWs().getEffectiveAcesWithForceFlag( file.getId(), fileAcl.isEntriesInheriting() );
       fileAcl.setAces( aces, fileAcl.isEntriesInheriting() );
     }
     addAdminRole( fileAcl );
@@ -1399,7 +1493,7 @@ public class FileService {
 
   protected void addAdminRole( RepositoryFileAclDto fileAcl ) {
     String adminRoleName =
-      PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession() );
+        PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession() );
     if ( fileAcl.getAces() == null ) {
       fileAcl.setAces( new LinkedList<RepositoryFileAclAceDto>() );
     }
@@ -1440,19 +1534,29 @@ public class FileService {
     try {
       tree = getRepoWs().getTreeFromRequest( repositoryRequest );
     } catch ( UnifiedRepositoryException e ) {
-      logger.error( e.getCause() );
+      var cause = e.getCause();
+      if ( cause != null && cause.getCause() instanceof PathNotFoundException ) {
+        logger.debug( Messages.getInstance().getString( "FileResource.FILE_NOT_FOUND", path ) );
+      } else {
+        logger.error( cause );
+      }
     }
 
-    //translating /home and /public folders titles
-    for ( RepositoryFileTreeDto dto : tree.getChildren( ) ) {
+    if ( tree == null || tree.getChildren() == null || tree.getChildren().isEmpty() ) {
+      return tree;
+    }
+
+    // translating /home and /public folders titles
+    for ( RepositoryFileTreeDto dto : tree.getChildren() ) {
       if ( dto.getFile().getName().equals( ClientRepositoryPaths.getHomeFolderName() ) && dto.getFile().getPath().equals( ClientRepositoryPaths.getHomeFolderPath() ) ) {
         dto.getFile().setTitle( Messages.getInstance().getString( "FileResource.HOME_FOLDER_DISPLAY_TITLE" ) );
       } else if ( dto.getFile().getName().equals( ClientRepositoryPaths.getPublicFolderName() ) && dto.getFile().getPath().equals( ClientRepositoryPaths.getPublicFolderPath() ) ) {
         dto.getFile().setTitle( Messages.getInstance().getString( "FileResource.PUBLIC_FOLDER_DISPLAY_TITLE" ) );
       }
     }
+
     // BISERVER-9599 - Use special sort order
-    if ( tree != null && isShowingTitle( repositoryRequest ) ) {
+    if ( isShowingTitle( repositoryRequest ) ) {
       Collator collator = getCollatorInstance();
       collator.setStrength( Collator.PRIMARY ); // ignore case
       sortByLocaleTitle( collator, tree );
@@ -1463,7 +1567,7 @@ public class FileService {
 
   public void sortByLocaleTitle( final Collator collator, final RepositoryFileTreeDto tree ) {
 
-    if ( tree == null || tree.getChildren() == null || tree.getChildren().size() <= 0 ) {
+    if ( tree == null || tree.getChildren() == null || tree.getChildren().isEmpty() ) {
       return;
     }
 
@@ -1520,7 +1624,7 @@ public class FileService {
    * @private
    */
   private List<RepositoryFileDto> doGetGeneratedContentForUser( String pathId, String userDir )
-    throws FileNotFoundException {
+      throws FileNotFoundException {
     RepositoryFileDto targetFile = doGetProperties( pathId );
     if ( targetFile != null ) {
       String targetFileId = targetFile.getId();
@@ -1541,7 +1645,7 @@ public class FileService {
    */
   public List<RepositoryFileDto> searchGeneratedContent( String userDir, String targetComparator,
                                                          String metadataConstant )
-    throws FileNotFoundException {
+      throws FileNotFoundException {
     List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
 
     RepositoryFile workspaceFolder = getRepository().getFile( userDir );
@@ -1590,8 +1694,9 @@ public class FileService {
     buf.append( getParentPath( fileToBeRenamed.getPath() ) );
     buf.append( RepositoryFile.SEPARATOR );
     buf.append( newName );
+    String extension = "";
     if ( !fileToBeRenamed.isFolder() ) {
-      String extension = getExtension( fileToBeRenamed.getName() );
+      extension = getExtension( fileToBeRenamed.getName() );
       if ( extension != null ) {
         buf.append( extension );
       }
@@ -1606,20 +1711,21 @@ public class FileService {
     if ( movedFile != null ) {
       if ( !movedFile.isFolder() ) {
         Map<String, Properties> localePropertiesMap = movedFile.getLocalePropertiesMap();
+        String titleName = getFileNameWithExtension( newName, extension );
         if ( localePropertiesMap == null ) {
           localePropertiesMap = new HashMap<String, Properties>();
           Properties properties = new Properties();
-          properties.setProperty( "file.title", newName );
-          properties.setProperty( "title", newName );
+          properties.setProperty( "file.title", titleName );
+          properties.setProperty( "title", titleName );
           localePropertiesMap.put( "default", properties );
         } else {
           for ( Map.Entry<String, Properties> entry : localePropertiesMap.entrySet() ) {
             Properties properties = entry.getValue();
             if ( properties.containsKey( "file.title" ) ) {
-              properties.setProperty( "file.title", newName );
+              properties.setProperty( "file.title", titleName );
             }
             if ( properties.containsKey( "title" ) ) {
-              properties.setProperty( "title", newName );
+              properties.setProperty( "title", titleName );
             }
           }
         }
@@ -1635,15 +1741,24 @@ public class FileService {
     }
   }
 
+  private static String getFileNameWithExtension( String newName, String extension ) {
+    String titleName = newName;
+    @SuppressWarnings( "unchecked" ) List<String> knownExtensions = PentahoSystem.get( List.class, "extensions", null );
+    if ( extension != null && extension.length() > 1 && knownExtensions != null && !knownExtensions.contains( extension.substring( 1 ) ) ) {
+      titleName = newName + extension;
+    }
+    return titleName;
+  }
+
   /**
    * Creates a new folder with the specified name
    *
-   * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in
-   *                    place of / or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
-   *                    <pre function="syntax.xml">
-   *                      :path:to:file
-   *                    </pre>
-   * @return            A jax-rs Response object with the appropriate status code, header, and body.
+   * @param pathId The path from the root folder to the root node of the tree to return using colon characters in
+   *               place of / or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file
+   *               <pre function="syntax.xml">
+   *                                    :path:to:file
+   *                                  </pre>
+   * @return A jax-rs Response object with the appropriate status code, header, and body.
    * @deprecated use {@link #doCreateDirSafe(String)} instead
    */
   @Deprecated
@@ -1704,37 +1819,73 @@ public class FileService {
     return doCreateDirFor( path );
   }
 
-  public boolean isValidFolderName( String path ) {
+  /**
+   * Backward compatible method (non-strict).
+   * Delegates to {@link #isValidFolderName(String, boolean)} with strict=false.
+   */
+  public boolean isValidFolderName( final String path ) {
+    return isValidFolderName( path, false );
+  }
+
+  /**
+   * Validates a folder name or path.
+   * strict=false (legacy): treats the argument as a (possibly full) path and validates each segment.
+   * strict=true: treats the argument as a single folder name and rejects any path separators.
+   *
+   * @param nameOrPath folder name or path
+   * @param strict     if true, disallow '/' or '\' and do not strip path segments
+   * @return true if valid
+   */
+  public boolean isValidFolderName( final String nameOrPath, final boolean strict ) {
     /*
      * If a change is to be made on this method, please synchronize with the following method:
      * [pentaho-commons-gwt-modules] org.pentaho.gwt.widgets.client.utils.NameUtils#isValidFolderName
      */
-    if ( FileUtils.containsReservedCharacter( path, doGetReservedChars().toString().toCharArray() )
-      || FileUtils.containsControlCharacters( path ) ) {
-      return false;
+
+    final boolean isFileNameValid = isValidFileName( nameOrPath, strict );
+
+    if ( isFileNameValid ) {
+      final String folderName = decode( FilenameUtils.getName( nameOrPath ) );
+
+      return !".".equals( folderName ) && !"..".equals( folderName ) && !FileUtils.containsControlCharacters(
+        folderName );
     }
 
-    String folderName = decode( FilenameUtils.getName( path ) );
-    return !".".equals( folderName ) && !"..".equals( folderName ) && !FileUtils.containsControlCharacters( folderName );
+    return false;
+  }
+
+  /**
+   * Backward compatible method (non-strict).
+   * Delegates to {@link #isValidFileName(String, boolean)} with strict=false.
+   */
+  public boolean isValidFileName( final String name ) {
+    return isValidFileName( name, false );
   }
 
   /**
    * <p>Check if a given name can be used as a file name.</p>
+   * <p>
+   * strict=false: keep existing (path-like input tolerated; implementation continues legacy logic).
+   * strict=true: reject if contains '/' or '\', or is blank/whitespace/reserved/control.
    *
-   * @param name the name to be tested
+   * @param nameOrPath the name to be tested (or legacy path when strict=false)
    * @return {@code true} if the given name is valid for a file and {@code false} otherwise
    */
-  public boolean isValidFileName( final String name ) {
+  public boolean isValidFileName( final String nameOrPath, final boolean strict ) {
     /*
      * If a change is to be made on this method, please synchronize with the following method:
      * [pentaho-commons-gwt-modules] org.pentaho.gwt.widgets.client.utils.NameUtils#isValidFileName
      */
-    return !(
-      StringUtils.isEmpty( name ) || // not null, not empty and not all whitespace
-      !name.trim().equals( name ) || !decode( name ).trim().equals( decode( name ) ) || // no leading or trailing whitespace
-      FileUtils.containsReservedCharacter( name, doGetReservedChars().toString().toCharArray() ) || // no reserved characters
-      FileUtils.containsControlCharacters( name ) || FileUtils.containsControlCharacters( decode( name ) ) // control characters
-      );
+
+    if ( StringUtils.isEmpty( nameOrPath ) || // not null, not empty and not all whitespace
+      !nameOrPath.trim().equals( nameOrPath ) ||
+      !decode( nameOrPath ).trim().equals( decode( nameOrPath ) ) ) {
+      return false;
+    }
+
+    return !FileUtils.containsReservedCharacter( nameOrPath, doGetReservedChars().toString().toCharArray(), strict )
+      && !FileUtils.containsControlCharacters( nameOrPath )
+      && !FileUtils.containsControlCharacters( decode( nameOrPath ) );
   }
 
   private String getParentPath( final String path ) {
@@ -1765,7 +1916,7 @@ public class FileService {
   }
 
   public RepositoryFileInputStream getRepositoryFileInputStream( RepositoryFile repositoryFile )
-    throws FileNotFoundException {
+      throws FileNotFoundException {
     return new RepositoryFileInputStream( repositoryFile );
   }
 
@@ -1810,19 +1961,28 @@ public class FileService {
   }
 
   protected StreamingOutput getDownloadStream( RepositoryFile repositoryFile, BaseExportProcessor exportProcessor )
-    throws ExportException, IOException {
+      throws ExportException, IOException {
     File zipFile = exportProcessor.performExport( repositoryFile );
-    final FileInputStream is = new FileInputStream( zipFile );
     // copy streaming output
     return new StreamingOutput() {
       @Override
       public void write( OutputStream output ) throws IOException {
-        IOUtils.copy( is, output );
+        try ( final FileInputStream is = new FileInputStream( zipFile ) ) {
+          IOUtils.copy(is, output);
+        } finally {
+          try {
+            if ( zipFile != null && !Files.deleteIfExists( zipFile.toPath() ) ) {
+              logger.warn( Messages.getInstance().getString( "FileService.WARN_UNABLE_TO_DELETE_TEMP_FILE", zipFile.getAbsolutePath() ) );
+            }
+          } catch ( Exception e ) {
+            logger.warn( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_DELETE_TEMP_FILE", zipFile.getAbsolutePath() ), e );
+          }
+        }
       }
     };
   }
 
-  protected RepositoryRequest getRepositoryRequest( String  path, Boolean showHidden, Integer depth, String filter ) {
+  protected RepositoryRequest getRepositoryRequest( String path, Boolean showHidden, Integer depth, String filter ) {
     return new RepositoryRequest( path, showHidden, depth, filter );
   }
 
@@ -1885,7 +2045,7 @@ public class FileService {
         return false;
       }
     } else if ( repositoryRequest.getIncludeMemberSet() != null
-      && !repositoryRequest.getIncludeMemberSet().contains( "title" ) ) {
+        && !repositoryRequest.getIncludeMemberSet().contains( "title" ) ) {
       return false;
     }
     return true;
@@ -1893,7 +2053,7 @@ public class FileService {
 
   public void sortByLocaleTitle( final Collator collator, final List<RepositoryFileDto> repositoryFileDtoList ) {
 
-    if ( repositoryFileDtoList == null || repositoryFileDtoList.size() <= 0 ) {
+    if ( repositoryFileDtoList == null || repositoryFileDtoList.isEmpty() ) {
       return;
     }
 
@@ -1928,7 +2088,7 @@ public class FileService {
   private PentahoPlatformExporter getBackupExporter() {
     if ( backupExporter == null ) {
       backupExporter =
-        (PentahoPlatformExporter) PentahoSystem.get( IPentahoPlatformExporter.class, "IPentahoPlatformExporter", null );
+          (PentahoPlatformExporter) PentahoSystem.get( IPentahoPlatformExporter.class, "IPentahoPlatformExporter", null );
     }
 
     return backupExporter;
@@ -1937,7 +2097,7 @@ public class FileService {
   protected String decode( String folder ) {
     String decodeName = folder;
     try {
-      decodeName = URLDecoder.decode( folder, "UTF-8" );
+      decodeName = URLDecoder.decode( folder, StandardCharsets.UTF_8 );
     } catch ( Exception ex ) {
       logger.error( ex );
     }

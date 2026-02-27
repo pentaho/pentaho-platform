@@ -7,14 +7,17 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.pluginmgr;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -24,7 +27,6 @@ import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IContentGeneratorInfo;
 import org.pentaho.platform.api.engine.IContentGeneratorInvoker;
 import org.pentaho.platform.api.engine.IContentInfo;
-import org.pentaho.platform.api.engine.IObjectCreator;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoObjectRegistration;
@@ -38,7 +40,6 @@ import org.pentaho.platform.api.engine.IPluginProvider;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.api.engine.IServiceManager;
 import org.pentaho.platform.api.engine.ISystemConfig;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.api.engine.PluginBeanDefinition;
 import org.pentaho.platform.api.engine.PluginBeanException;
@@ -50,12 +51,15 @@ import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.config.PropertiesFileConfiguration;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.objfac.spring.PentahoBeanScopeValidatorPostProcessor;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
+import org.pentaho.platform.engine.core.system.objfac.references.AbstractPentahoObjectReference;
 import org.pentaho.platform.engine.core.system.objfac.references.PrototypePentahoObjectReference;
 import org.pentaho.platform.engine.core.system.objfac.references.SingletonPentahoObjectReference;
+import org.pentaho.platform.engine.core.system.objfac.spring.Const;
+import org.pentaho.platform.engine.core.system.objfac.spring.PentahoBeanScopeValidatorPostProcessor;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.ServiceConfig;
+import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.ui.xul.XulOverlay;
 import org.slf4j.Logger;
@@ -75,15 +79,17 @@ import org.springframework.core.io.FileSystemResource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 /**
@@ -95,18 +101,20 @@ import java.util.Set;
  */
 public class PentahoSystemPluginManager implements IPluginManager {
 
+  // Several methods in this class were marked as @SuppressWarnings( "DuplicatedCode" ) given this class was adapted
+  // from the old DefaultPluginManager, while still intended to be kept independent.
+
   private static final String DEFAULT_PERSPECTIVE = "generatedContent";
-  private static final String METAPROVIDER_KEY_PREFIX = "METAPROVIDER-";
   public static final String CONTENT_TYPE = "content-type";
   public static final String PLUGIN_ID = "plugin-id";
+  public static final String EXTENSION = "extension";
   public static final String SETTINGS_PREFIX = "settings/";
 
   private final Multimap<String, IPentahoObjectRegistration> handleRegistry =
-    Multimaps.synchronizedMultimap( ArrayListMultimap
-      .<String, IPentahoObjectRegistration>create() );
-  private ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
-  private Logger logger = LoggerFactory.getLogger( getClass() );
-  private Set<IPluginManagerListener> listeners = new HashSet<IPluginManagerListener>();
+    Multimaps.synchronizedMultimap( ArrayListMultimap.create() );
+  private final ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+  private final Logger logger = LoggerFactory.getLogger( getClass() );
+  private final Set<IPluginManagerListener> listeners = new HashSet<>();
 
   private static void createAndRegisterLifecycleListeners( IPlatformPlugin plugin, ClassLoader loader )
     throws PlatformPluginRegistrationException {
@@ -121,8 +129,9 @@ public class PentahoSystemPluginManager implements IPluginManager {
                 .getErrorString(
                   "PluginManager.ERROR_0016_PLUGIN_LIFECYCLE_LISTENER_WRONG_TYPE", plugin.getId(),
                   plugin.getLifecycleListenerClassnames() )
-            ); //$NON-NLS-1$
+            );
           }
+
           plugin.addLifecycleListener( (IPluginLifecycleListener) listener );
         }
       }
@@ -136,11 +145,12 @@ public class PentahoSystemPluginManager implements IPluginManager {
 
   @Override
   public Set<String> getContentTypes() {
-    final HashSet<String> types = new HashSet<String>();
+    final HashSet<String> types = new HashSet<>();
     final List<IContentInfo> contentInfos = PentahoSystem.getAll( IContentInfo.class, null );
     for ( IContentInfo contentInfo : contentInfos ) {
       types.add( contentInfo.getExtension() );
     }
+
     return types;
   }
 
@@ -149,26 +159,13 @@ public class PentahoSystemPluginManager implements IPluginManager {
     if ( type.contains( "." ) ) {
       type = type.substring( type.lastIndexOf( "." ) + 1 );
     }
-    return PentahoSystem.get( IContentInfo.class, PentahoSessionHolder.getSession(), Collections
-      .singletonMap( "extension", type ) );
+
+    return PentahoSystem.get( IContentInfo.class, null, Collections.singletonMap( EXTENSION, type ) );
   }
 
   @Override
-  public IContentGenerator getContentGeneratorForType( String type, IPentahoSession session )
-    throws ObjectFactoryException {
-
-    // first we check: is there any IContentGeneratorInvoker implementation on the bean registry? If so: use it;
-    final IContentGeneratorInvoker cgInvoker = PentahoSystem.get( IContentGeneratorInvoker.class );
-    if ( cgInvoker != null && cgInvoker.isSupportedContent( type ) ) {
-      logger.info(
-        "Located IContentGeneratorInvoker that supports content of type '" + type + "':" + cgInvoker.getClass()
-          .getName() );
-      return cgInvoker.getContentGenerator();
-    }
-
-    // otherwise, gracefully fallback to PentahoSystemPluginManager's internal IContentGenerator discovery logic;
-
-    return PentahoSystem.get( IContentGenerator.class, session, Collections.singletonMap( CONTENT_TYPE, type ) );
+  public IContentGenerator getContentGeneratorForType( String type, IPentahoSession session ) {
+    return getContentGenerator( type, null, session );
   }
 
   @Override
@@ -177,8 +174,6 @@ public class PentahoSystemPluginManager implements IPluginManager {
   }
 
   private void unloadPlugins() {
-
-
     // we do not need to synchronize here since unloadPlugins
     // is called within the synchronized block in reload
     for ( IPlatformPlugin plugin : PentahoSystem.getAll( IPlatformPlugin.class ) ) {
@@ -186,16 +181,12 @@ public class PentahoSystemPluginManager implements IPluginManager {
         plugin.unLoaded();
 
         // if a spring app context was registered for this plugin, remove and close it
-        final GenericApplicationContext appContext = PentahoSystem
-          .get( GenericApplicationContext.class, null, Collections.singletonMap( PLUGIN_ID, plugin.getId() ) );
-
+        final GenericApplicationContext appContext = getPluginObject( GenericApplicationContext.class, plugin.getId() );
         if ( appContext != null ) {
           final StandaloneSpringPentahoObjectFactory pentahoObjectFactory =
             StandaloneSpringPentahoObjectFactory.getInstance( appContext );
 
-          if ( pentahoObjectFactory != null ) {
-            PentahoSystem.deregisterObjectFactory( pentahoObjectFactory );
-          }
+          PentahoSystem.deregisterObjectFactory( pentahoObjectFactory );
           appContext.close();
         }
 
@@ -205,27 +196,26 @@ public class PentahoSystemPluginManager implements IPluginManager {
         // log an error and otherwise fail silently
         String msg =
           Messages.getInstance().getErrorString(
-            "PluginManager.ERROR_0014_PLUGIN_FAILED_TO_PROPERLY_UNLOAD", plugin.getId() ); //$NON-NLS-1$
+            "PluginManager.ERROR_0014_PLUGIN_FAILED_TO_PROPERLY_UNLOAD",
+            plugin.getId() );
         logger.error( getClass().toString(), msg, t );
         PluginMessageLogger.add( msg );
       }
-      final ClassLoader classLoader =
-        PentahoSystem.get( ClassLoader.class, null, Collections.singletonMap( PLUGIN_ID, plugin.getId() ) );
+
+      final ClassLoader classLoader = getPluginObject( ClassLoader.class, plugin.getId() );
       if ( classLoader != null ) {
         try {
           ( (PluginClassLoader) classLoader ).close();
         } catch ( IOException e ) {
-          logger.error( "errror closing plugin clasloader", e );
+          logger.error( "error closing plugin classloader", e );
         }
       }
     }
-
 
     for ( Map.Entry<String, IPentahoObjectRegistration> entry : handleRegistry.entries() ) {
       entry.getValue().remove();
     }
     handleRegistry.clear();
-
   }
 
   @Override
@@ -241,11 +231,11 @@ public class PentahoSystemPluginManager implements IPluginManager {
       // is capable of discovering the plugin fine but there are structural problems with the plugin
       // itself. In this case a warning should be logged by the provider, but, again, no exception
       // is expected.
-      providedPlugins = pluginProvider.getPlugins( session );
-
+      if ( pluginProvider != null ) {
+        providedPlugins = pluginProvider.getPlugins( session );
+      }
     } catch ( PlatformPluginRegistrationException e1 ) {
-      String msg =
-        Messages.getInstance().getErrorString( "PluginManager.ERROR_0012_PLUGIN_DISCOVERY_FAILED" );
+      String msg = Messages.getInstance().getErrorString( "PluginManager.ERROR_0012_PLUGIN_DISCOVERY_FAILED" );
       org.pentaho.platform.util.logging.Logger.error( getClass().toString(), msg, e1 );
       PluginMessageLogger.add( msg );
       anyErrors = true;
@@ -253,30 +243,24 @@ public class PentahoSystemPluginManager implements IPluginManager {
 
     for ( IPlatformPlugin plugin : providedPlugins ) {
       try {
-        IPlatformPlugin existingPlugin =
-          PentahoSystem.get( IPlatformPlugin.class, null, Collections.singletonMap( PLUGIN_ID, plugin.getId() ) );
+        IPlatformPlugin existingPlugin = getPluginObject( IPlatformPlugin.class, plugin.getId() );
         if ( existingPlugin != null ) {
-          throw new PlatformPluginRegistrationException( Messages.getInstance().getErrorString(
-            "PluginManager.ERROR_0024_PLUGIN_ALREADY_LOADED_BY_SAME_NAME", plugin.getId() ) );
+          throw new PlatformPluginRegistrationException(
+            Messages.getInstance().getErrorString(
+              "PluginManager.ERROR_0024_PLUGIN_ALREADY_LOADED_BY_SAME_NAME",
+              plugin.getId() ) );
         }
 
         final ClassLoader classloader = createClassloader( plugin );
 
         // Register the classloader, Spring App Context and Object Factory with PentahoSystem
-        IPentahoObjectRegistration handle = PentahoSystem.registerReference(
-          new SingletonPentahoObjectReference.Builder<IPlatformPlugin>( IPlatformPlugin.class )
-            .object( plugin )
-            .attributes( Collections.<String, Object>singletonMap( PLUGIN_ID, plugin.getId() ) ).build(),
-          IPlatformPlugin.class
-        );
-        registerReference( plugin.getId(), handle );
-        handle =
-          PentahoSystem.registerReference(
-            new SingletonPentahoObjectReference.Builder<ClassLoader>( ClassLoader.class ).object( classloader )
-              .attributes( Collections.<String, Object>singletonMap( PLUGIN_ID, plugin.getId() ) ).build(),
-            ClassLoader.class
-          );
-        registerReference( plugin.getId(), handle );
+        registerPluginReference(
+          plugin,
+          new SingletonPentahoObjectReference.Builder<>( IPlatformPlugin.class ).object( plugin ) );
+
+        registerPluginReference(
+          plugin,
+          new SingletonPentahoObjectReference.Builder<>( ClassLoader.class ).object( classloader ) );
 
         final GenericApplicationContext beanFactory = createBeanFactory( plugin, classloader );
 
@@ -285,37 +269,23 @@ public class PentahoSystemPluginManager implements IPluginManager {
         pentahoFactory.init( null, beanFactory );
         beanFactory.refresh();
 
-        handle =
-          PentahoSystem.registerReference(
-            new SingletonPentahoObjectReference.Builder<GenericApplicationContext>(
-              GenericApplicationContext.class )
-              .object( beanFactory )
-              .attributes( Collections.<String, Object>singletonMap( PLUGIN_ID, plugin.getId() ) ).build(),
-            IPentahoRegistrableObjectFactory.Types.ALL
-          );
-        registerReference( plugin.getId(), handle );
+        registerPluginReference(
+          plugin,
+          new SingletonPentahoObjectReference.Builder<>( GenericApplicationContext.class ).object( beanFactory ),
+          IPentahoRegistrableObjectFactory.Types.ALL );
 
-        handle =
-          PentahoSystem.registerReference(
-            new SingletonPentahoObjectReference.Builder<IPentahoObjectFactory>( IPentahoObjectFactory.class )
-              .object( pentahoFactory )
-              .attributes( Collections.<String, Object>singletonMap( PLUGIN_ID, plugin.getId() ) ).build(),
-            IPentahoObjectFactory.class
-          );
-        registerReference( plugin.getId(), handle );
-
-
+        registerPluginReference(
+          plugin,
+          new SingletonPentahoObjectReference.Builder<>( IPentahoObjectFactory.class ).object( pentahoFactory ) );
       } catch ( Throwable t ) {
         // this has been logged already
         anyErrors = true;
         String msg =
-          Messages.getInstance().getErrorString(
-            "PluginManager.ERROR_0011_FAILED_TO_REGISTER_PLUGIN", plugin.getId() );
+          Messages.getInstance().getErrorString( "PluginManager.ERROR_0011_FAILED_TO_REGISTER_PLUGIN", plugin.getId() );
         org.pentaho.platform.util.logging.Logger.error( getClass().toString(), msg, t );
         PluginMessageLogger.add( msg );
       }
     }
-
 
     for ( IPlatformPlugin plugin : providedPlugins ) {
       try {
@@ -324,12 +294,10 @@ public class PentahoSystemPluginManager implements IPluginManager {
         // this has been logged already
         anyErrors = true;
         String msg =
-          Messages.getInstance().getErrorString(
-            "PluginManager.ERROR_0011_FAILED_TO_REGISTER_PLUGIN", plugin.getId() );
+          Messages.getInstance().getErrorString( "PluginManager.ERROR_0011_FAILED_TO_REGISTER_PLUGIN", plugin.getId() );
         org.pentaho.platform.util.logging.Logger.error( getClass().toString(), msg, t );
         PluginMessageLogger.add( msg );
       }
-
     }
 
     IServiceManager svcManager = PentahoSystem.get( IServiceManager.class, null );
@@ -337,13 +305,18 @@ public class PentahoSystemPluginManager implements IPluginManager {
       try {
         svcManager.initServices();
       } catch ( ServiceInitializationException e ) {
-        String msg = Messages.getInstance()
-          .getErrorString( "PluginManager.ERROR_0022_SERVICE_INITIALIZATION_FAILED" );
+        String msg = Messages.getInstance().getErrorString( "PluginManager.ERROR_0022_SERVICE_INITIALIZATION_FAILED" );
         org.pentaho.platform.util.logging.Logger.error( getClass().toString(), msg, e );
         PluginMessageLogger.add( msg );
       }
     }
 
+    // Allow listeners to do additional loading logic before being considered fully loaded.
+    for ( IPluginManagerListener listener : listeners ) {
+      listener.onAfterPluginsLoaded();
+    }
+
+    // Notify listeners that the plugins have been reloaded.
     for ( IPluginManagerListener listener : listeners ) {
       listener.onReload();
     }
@@ -351,21 +324,25 @@ public class PentahoSystemPluginManager implements IPluginManager {
     return !anyErrors;
   }
 
-  @SuppressWarnings( "unchecked" )
   private void registerPlugin( final IPlatformPlugin plugin ) throws PlatformPluginRegistrationException,
     PluginLifecycleException {
     // TODO: we should treat the registration of a plugin as an atomic operation
     // with rollback if something is broken
 
     if ( StringUtils.isEmpty( plugin.getId() ) ) {
-      throw new PlatformPluginRegistrationException( Messages.getInstance().getErrorString(
-        "PluginManager.ERROR_0026_PLUGIN_INVALID", plugin.getSourceDescription() ) );
+      throw new PlatformPluginRegistrationException(
+        Messages.getInstance()
+          .getErrorString( "PluginManager.ERROR_0026_PLUGIN_INVALID", plugin.getSourceDescription() ) );
     }
 
-    ClassLoader loader = PentahoSystem.get( ClassLoader.class, null,
-      Collections.singletonMap( PLUGIN_ID, plugin.getId() ) );
-    GenericApplicationContext beanFactory = PentahoSystem
-      .get( GenericApplicationContext.class, null, Collections.singletonMap( PLUGIN_ID, plugin.getId() ) );
+    ClassLoader loader = getPluginObject( ClassLoader.class, plugin.getId() );
+    assert loader != null;
+
+    GenericApplicationContext beanFactory = getPluginObject( GenericApplicationContext.class, plugin.getId() );
+    assert beanFactory != null;
+
+    setResourceBundleProvider( plugin, loader );
+
     createAndRegisterLifecycleListeners( plugin, loader );
 
     plugin.init();
@@ -384,18 +361,36 @@ public class PentahoSystemPluginManager implements IPluginManager {
     // a service class may be configured as a plugin bean
     registerServices( plugin, loader, beanFactory );
 
-    PluginMessageLogger
-      .add( Messages.getInstance().getString( "PluginManager.PLUGIN_REGISTERED", plugin.getId() ) );
+    PluginMessageLogger.add( Messages.getInstance().getString( "PluginManager.PLUGIN_REGISTERED", plugin.getId() ) );
     try {
       plugin.loaded();
     } catch ( Throwable t ) {
       // The plugin has already been loaded, so there is really no logical response to any type
       // of failure here except to log an error and otherwise fail silently
-      String msg =
-        Messages.getInstance().getErrorString(
-          "PluginManager.ERROR_0015_PLUGIN_LOADED_HANDLING_FAILED", plugin.getId() );
+      String msg = Messages.getInstance().getErrorString(
+        "PluginManager.ERROR_0015_PLUGIN_LOADED_HANDLING_FAILED",
+        plugin.getId() );
       org.pentaho.platform.util.logging.Logger.error( getClass().toString(), msg, t );
       PluginMessageLogger.add( msg );
+    }
+  }
+
+  /**
+   * Sets the resource bundle provider for the plugin.
+   * This is used to load the plugin's resource bundles for localization.
+   *
+   * @param plugin the plugin for which to set the resource bundle provider
+   * @param loader the class loader to use for loading the resource bundles
+   */
+  @VisibleForTesting
+  protected void setResourceBundleProvider( final IPlatformPlugin plugin, final ClassLoader loader ) {
+    var resourceBundleBaseName = plugin.getResourceBundleClassName();
+    // set the provider that will be used to load the plugin's resource bundles for localization
+    if ( !StringUtil.isEmpty( resourceBundleBaseName ) ) {
+      plugin.setResourceBundleProvider( new CachingResourceBundleProvider(
+        ( Locale locale ) ->
+          ResourceBundle.getBundle( resourceBundleBaseName, Objects.requireNonNull( locale ), loader )
+      ) );
     }
   }
 
@@ -403,14 +398,13 @@ public class PentahoSystemPluginManager implements IPluginManager {
     int priority = plugin.getOverlays().size();
     for ( XulOverlay overlay : plugin.getOverlays() ) {
       // preserve ordering as it may be significant
-      final IPentahoObjectRegistration referenceHandle = PentahoSystem.registerReference(
-        new SingletonPentahoObjectReference.Builder<XulOverlay>( XulOverlay.class )
-          .object( overlay ).attributes(
-            Collections.<String, Object>singletonMap( PLUGIN_ID, plugin.getId() ) ).priority( priority ).build(),
-        XulOverlay.class
-      );
+      registerPluginReference(
+        plugin,
+        new SingletonPentahoObjectReference.Builder<>( XulOverlay.class )
+          .object( overlay )
+          .priority( priority ) );
+
       priority--;
-      registerReference( plugin.getId(), referenceHandle );
     }
   }
 
@@ -423,8 +417,12 @@ public class PentahoSystemPluginManager implements IPluginManager {
         try {
           svcManager.registerService( ws );
         } catch ( ServiceException e ) {
-          throw new PlatformPluginRegistrationException( Messages.getInstance().getErrorString(
-            "PluginManager.ERROR_0025_SERVICE_REGISTRATION_FAILED", ws.getId(), plugin.getId() ), e ); //$NON-NLS-1$
+          throw new PlatformPluginRegistrationException(
+            Messages.getInstance().getErrorString(
+              "PluginManager.ERROR_0025_SERVICE_REGISTRATION_FAILED",
+              ws.getId(),
+              plugin.getId() ),
+            e );
         }
       }
     }
@@ -434,17 +432,18 @@ public class PentahoSystemPluginManager implements IPluginManager {
    * A utility method to convert plugin version of webservice definition to the official engine version consumable by an
    * IServiceManager
    */
+  @SuppressWarnings( "DuplicatedCode" )
   private Collection<ServiceConfig> createServiceConfigs( PluginServiceDefinition pws, IPlatformPlugin plugin,
-                                                          ClassLoader loader, GenericApplicationContext beanFactory )
+                                                          ClassLoader ignoredLoader, GenericApplicationContext beanFactory )
     throws PlatformPluginRegistrationException {
-    Collection<ServiceConfig> services = new ArrayList<ServiceConfig>();
+    Collection<ServiceConfig> services = new ArrayList<>();
 
     // Set the service type (one service config instance created per service type)
-    //
     if ( pws.getTypes() == null || pws.getTypes().length < 1 ) {
       throw new PlatformPluginRegistrationException( Messages.getInstance().getErrorString(
         "PluginManager.ERROR_0023_SERVICE_TYPE_UNSPECIFIED", pws.getId() ) );
     }
+
     for ( String type : pws.getTypes() ) {
       ServiceConfig ws = new ServiceConfig();
 
@@ -452,7 +451,7 @@ public class PentahoSystemPluginManager implements IPluginManager {
       ws.setTitle( pws.getTitle() );
       ws.setDescription( pws.getDescription() );
       String serviceClassName =
-        ( StringUtils.isEmpty( pws.getServiceClass() ) ) ? pws.getServiceBeanId() : pws.getServiceClass();
+        StringUtils.isEmpty( pws.getServiceClass() ) ? pws.getServiceBeanId() : pws.getServiceClass();
 
       String serviceId;
       if ( !StringUtils.isEmpty( pws.getId() ) ) {
@@ -463,12 +462,11 @@ public class PentahoSystemPluginManager implements IPluginManager {
           serviceId = serviceClassName.substring( serviceClassName.lastIndexOf( '.' ) + 1 );
         }
       }
+
       ws.setId( serviceId );
 
       // Register the service class
-      //
-      final String serviceClassKey =
-        ws.getServiceType() + "-" + ws.getId() + "/" + serviceClassName;
+      final String serviceClassKey = ws.getServiceType() + "-" + ws.getId() + "/" + serviceClassName;
       assertUnique( beanFactory, plugin.getId(), serviceClassKey );
       // defining plugin beans the old way through the plugin provider ifc supports only prototype scope
       BeanDefinition beanDef =
@@ -483,21 +481,25 @@ public class PentahoSystemPluginManager implements IPluginManager {
       }
 
       // Load/set the service class and supporting types
-      //
       try {
         ws.setServiceClass( loadClass( serviceClassKey ) );
 
-        ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
+        ArrayList<Class<?>> classes = new ArrayList<>();
         if ( pws.getExtraClasses() != null ) {
           for ( String extraClass : pws.getExtraClasses() ) {
             classes.add( loadClass( extraClass ) );
           }
         }
+
         ws.setExtraClasses( classes );
       } catch ( PluginBeanException e ) {
-        throw new PlatformPluginRegistrationException( Messages.getInstance().getErrorString(
-          "PluginManager.ERROR_0021_SERVICE_CLASS_LOAD_FAILED", serviceClassKey ), e );
+        throw new PlatformPluginRegistrationException(
+          Messages.getInstance().getErrorString(
+            "PluginManager.ERROR_0021_SERVICE_CLASS_LOAD_FAILED",
+            serviceClassKey ),
+          e );
       }
+
       services.add( ws );
     }
 
@@ -508,51 +510,42 @@ public class PentahoSystemPluginManager implements IPluginManager {
 
     IPluginResourceLoader resLoader = PentahoSystem.get( IPluginResourceLoader.class, null );
 
-
     InputStream stream = resLoader.getResourceAsStream( loader, "settings.xml" );
     if ( stream == null ) {
       // No settings.xml is fine
       return;
     }
+
     Properties properties = new Properties();
     try {
       Document docFromStream = XmlDom4JHelper.getDocFromStream( stream );
-      for ( Object element : docFromStream.getRootElement().elements() ) {
-        Element ele = (Element) element;
-        String name = ele.getName();
-        String value = ele.getText();
+      for ( Element element : docFromStream.getRootElement().elements() ) {
+        String name = element.getName();
+        String value = element.getText();
         properties.put( "settings/" + name, value );
       }
     } catch ( DocumentException | IOException e ) {
-      logger.error( "Error parsing settings.xml for plugin: " + plugin.getId(), e );
+      logger.error( "Error parsing settings.xml for plugin: {}", plugin.getId(), e );
     }
+
     try {
       systemConfig.registerConfiguration( new PropertiesFileConfiguration( plugin.getId(), properties ) );
     } catch ( IOException e ) {
-      logger.error( "Error registering settings.xml for plugin: " + plugin.getId(), e );
+      logger.error( "Error registering settings.xml for plugin: {}", plugin.getId(), e );
     }
-
   }
 
-  private void registerPerspectives( IPlatformPlugin plugin, ClassLoader loader ) {
+  private void registerPerspectives( IPlatformPlugin plugin, ClassLoader ignoredLoader ) {
+
     for ( IPluginPerspective pluginPerspective : plugin.getPluginPerspectives() ) {
-
-      //      PentahoSystem.get( IPluginPerspectiveManager.class ).addPluginPerspective( pluginPerspective );
-
-      final IPentahoObjectRegistration referenceHandle = PentahoSystem.registerReference(
-        new SingletonPentahoObjectReference.Builder<IPluginPerspective>( IPluginPerspective.class )
-          .object( pluginPerspective )
-          .attributes( Collections.<String, Object>singletonMap( PLUGIN_ID, plugin.getId() ) ).build(),
-        IPluginPerspective.class
-      );
-
-      registerReference( plugin.getId(), referenceHandle );
+      registerPluginReference(
+        plugin,
+        new SingletonPentahoObjectReference.Builder<>( IPluginPerspective.class ).object( pluginPerspective ) );
     }
   }
 
-  private void registerContentGenerators( IPlatformPlugin plugin, ClassLoader loader,
-                                          final GenericApplicationContext beanFactory )
-    throws PlatformPluginRegistrationException {
+  private void registerContentGenerators( IPlatformPlugin plugin, ClassLoader ignoredLoader,
+                                          final GenericApplicationContext beanFactory ) {
 
     // register the content generators
     for ( final IContentGeneratorInfo cgInfo : plugin.getContentGenerators() ) {
@@ -566,77 +559,48 @@ public class PentahoSystemPluginManager implements IPluginManager {
       // register bean with alias of type (with default perspective) as well (new way)
       beanFactory.registerAlias( cgInfo.getId(), cgInfo.getType() );
 
-      PluginMessageLogger.add( Messages.getInstance().getString(
-        "PluginManager.USER_CONTENT_GENERATOR_REGISTERED", cgInfo.getId(), plugin.getId() ) );
+      PluginMessageLogger.add(
+        Messages.getInstance().getString(
+          "PluginManager.USER_CONTENT_GENERATOR_REGISTERED",
+          cgInfo.getId(),
+          plugin.getId() ) );
 
-      final HashMap<String, Object> attributes = new HashMap<String, Object>();
-      attributes.put( PLUGIN_ID, plugin.getId() );
-      attributes.put( CONTENT_TYPE, cgInfo.getType() );
-      final IPentahoObjectRegistration referenceHandle = PentahoSystem.registerReference(
-        new PrototypePentahoObjectReference.Builder<IContentGenerator>( IContentGenerator.class )
-          .creator( new IObjectCreator<IContentGenerator>() {
-            @Override
-            public IContentGenerator create( IPentahoSession session ) {
-              return (IContentGenerator) beanFactory.getBean( cgInfo.getId() );
-            }
-          } ).attributes( attributes ).build(), IContentGenerator.class
-      );
-
-      registerReference( plugin.getId(), referenceHandle );
+      registerPluginReference(
+        plugin,
+        new PrototypePentahoObjectReference.Builder<>( IContentGenerator.class )
+          .creator( session -> (IContentGenerator) beanFactory.getBean( cgInfo.getId() ) ),
+        Collections.singletonMap( CONTENT_TYPE, cgInfo.getType() ) );
     }
 
-    // The remaining operations require a beanFactory
-    if ( beanFactory == null ) {
-      return;
-    }
-
-    String[] names =
+    // Auto-publish all content generators defined in the bean factory to the Pentaho system.
+    // (note: this appears to overwrite/redo the publications just made in the above code block...)
+    String[] beanNames =
       BeanFactoryUtils.beanNamesForTypeIncludingAncestors( beanFactory.getBeanFactory(), IContentGenerator.class );
-    ArrayList<String> ids = new ArrayList<String>();
+    ArrayList<String> beanNamesOrAliases = new ArrayList<>();
 
-    for ( String beanName : names ) {
-      ids.add( beanName );
-      Collections.addAll( ids, beanFactory.getAliases( beanName ) );
+    for ( String beanName : beanNames ) {
+      beanNamesOrAliases.add( beanName );
+      Collections.addAll( beanNamesOrAliases, beanFactory.getAliases( beanName ) );
     }
 
-
-    for ( final String beanName : ids ) {
-      final HashMap<String, Object> attributes = new HashMap<String, Object>();
-      attributes.put( PLUGIN_ID, plugin.getId() );
-      attributes.put( CONTENT_TYPE, beanName );
-
-      final IPentahoObjectRegistration referenceHandle = PentahoSystem.registerReference(
-        new PrototypePentahoObjectReference.Builder<IContentGenerator>( IContentGenerator.class )
-          .creator( new IObjectCreator<IContentGenerator>() {
-            @Override
-            public IContentGenerator create( IPentahoSession session ) {
-              return (IContentGenerator) beanFactory.getBean( beanName );
-            }
-          } ).attributes( attributes ).build(),
-        IContentGenerator.class
-      );
-
-      registerReference( plugin.getId(), referenceHandle );
+    for ( final String beanNameOrAlias : beanNamesOrAliases ) {
+      registerPluginReference(
+        plugin,
+        new PrototypePentahoObjectReference.Builder<>( IContentGenerator.class )
+          .creator( session -> (IContentGenerator) beanFactory.getBean( beanNameOrAlias ) ),
+        Collections.singletonMap( CONTENT_TYPE, beanNameOrAlias ) );
     }
-
   }
 
-  protected void registerContentTypes( IPlatformPlugin plugin, ClassLoader loader,
-                                       GenericApplicationContext beanFactory )
-    throws PlatformPluginRegistrationException {
+  protected void registerContentTypes( IPlatformPlugin plugin,
+                                       ClassLoader ignoredLoader,
+                                       GenericApplicationContext ignoredBeanFactory ) {
     // index content types and define any file meta providersIContentGeneratorInfo
     for ( IContentInfo info : plugin.getContentInfos() ) {
-      final HashMap<String, Object> attributes = new HashMap<String, Object>();
-      attributes.put( PLUGIN_ID, plugin.getId() );
-      attributes.put( "extension", info.getExtension() );
-
-      IPentahoObjectRegistration handle = PentahoSystem.registerReference(
-        new SingletonPentahoObjectReference.Builder<IContentInfo>( IContentInfo.class ).object( info )
-          .attributes( attributes ).build(),
-        IContentInfo.class
-      );
-
-      registerReference( plugin.getId(), handle );
+      registerPluginReference(
+        plugin,
+        new SingletonPentahoObjectReference.Builder<>( IContentInfo.class ).object( info ),
+        Collections.singletonMap( EXTENSION, info.getExtension() ) );
     }
   }
 
@@ -647,7 +611,6 @@ public class PentahoSystemPluginManager implements IPluginManager {
         "Can't determine plugin dir to load spring file because classloader is not of type PluginClassLoader.  "
           + "This is since we are probably in a unit test"
       );
-
     }
 
     //
@@ -659,8 +622,8 @@ public class PentahoSystemPluginManager implements IPluginManager {
     // Now create the definable factory for accepting old style bean definitions from IPluginProvider
     //
 
-    GenericApplicationContext beanFactory = null;
-    if ( nativeBeanFactory != null && nativeBeanFactory instanceof GenericApplicationContext ) {
+    GenericApplicationContext beanFactory;
+    if ( nativeBeanFactory instanceof GenericApplicationContext ) {
       beanFactory = (GenericApplicationContext) nativeBeanFactory;
     } else {
       beanFactory = new GenericApplicationContext();
@@ -673,6 +636,16 @@ public class PentahoSystemPluginManager implements IPluginManager {
     }
 
     beanFactory.addBeanFactoryPostProcessor( new PentahoBeanScopeValidatorPostProcessor() );
+
+    // Register the special owner plugin marker bean.
+    // This information is later used to annotate beans of this context that are published to the PentahoSystem with an
+    // attribute named {@link Const#PUBLISHER_PLUGIN_ID_ATTRIBUTE} with the plugin id as a value.
+    beanFactory.registerBeanDefinition(
+      Const.OWNER_PLUGIN_ID_BEAN,
+      BeanDefinitionBuilder.genericBeanDefinition( String.class )
+        .setScope( BeanDefinition.SCOPE_SINGLETON )
+        .addConstructorArgValue( plugin.getId() )
+        .getBeanDefinition() );
 
     //
     // Register any beans defined via the pluginProvider
@@ -687,15 +660,17 @@ public class PentahoSystemPluginManager implements IPluginManager {
       try {
         assertUnique( beanFactory, plugin.getId(), def.getBeanId() );
       } catch ( PlatformPluginRegistrationException e ) {
-        logger.error( MessageFormat
-          .format( "Unable to register plugin bean, a bean by the id {0} is already defined in plugin: {1}",
-            def.getBeanId(), plugin.getId() ) );
+        logger.error(
+          "Unable to register plugin bean, a bean by the id {} is already defined in plugin: {}",
+          def.getBeanId(),
+          plugin.getId() );
         continue;
       }
+
       // defining plugin beans the old way through the plugin provider ifc supports only prototype scope
-      BeanDefinition beanDef =
-        BeanDefinitionBuilder.rootBeanDefinition( def.getClassname() ).setScope( BeanDefinition.SCOPE_PROTOTYPE )
-          .getBeanDefinition();
+      BeanDefinition beanDef = BeanDefinitionBuilder.rootBeanDefinition( def.getClassname() )
+        .setScope( BeanDefinition.SCOPE_PROTOTYPE )
+        .getBeanDefinition();
       beanFactory.registerBeanDefinition( def.getBeanId(), beanDef );
     }
 
@@ -708,11 +683,12 @@ public class PentahoSystemPluginManager implements IPluginManager {
   protected void assertUnique( GenericApplicationContext applicationContext, String pluginId, String beanId )
     throws PlatformPluginRegistrationException {
     if ( applicationContext.containsBean( beanId ) ) {
-      throw new PlatformPluginRegistrationException( Messages.getInstance().getErrorString(
-        "PluginManager.ERROR_0018_BEAN_ALREADY_REGISTERED", beanId, pluginId ) );
+      throw new PlatformPluginRegistrationException(
+        Messages.getInstance().getErrorString( "PluginManager.ERROR_0018_BEAN_ALREADY_REGISTERED", beanId, pluginId ) );
     }
   }
 
+  @SuppressWarnings( "DuplicatedCode" )
   protected BeanFactory getNativeBeanFactory( final IPlatformPlugin plugin, final ClassLoader loader ) {
     BeanFactory nativeFactory = null;
     if ( plugin.getBeanFactory() != null ) {
@@ -723,17 +699,17 @@ public class PentahoSystemPluginManager implements IPluginManager {
       } else {
         logger.warn( Messages.getInstance().getString( "PluginManager.WARN_WRONG_BEAN_FACTORY_TYPE" ) );
       }
+
       nativeFactory = testFactory;
     } else {
       File f = new File( ( (PluginClassLoader) loader ).getPluginDir(), "plugin.spring.xml" );
       if ( f.exists() ) {
-        logger.debug( "Found plugin spring file @ " + f.getAbsolutePath() );
+        logger.debug( "Found plugin spring file @ {}", f.getAbsolutePath() );
 
         FileSystemResource fsr = new FileSystemResource( f );
         GenericApplicationContext appCtx = new GenericApplicationContext() {
-
           @Override
-          protected void prepareBeanFactory( ConfigurableListableBeanFactory clBeanFactory ) {
+          protected void prepareBeanFactory( @NonNull ConfigurableListableBeanFactory clBeanFactory ) {
             super.prepareBeanFactory( clBeanFactory );
             clBeanFactory.setBeanClassLoader( loader );
           }
@@ -742,7 +718,6 @@ public class PentahoSystemPluginManager implements IPluginManager {
           public ClassLoader getClassLoader() {
             return loader;
           }
-
         };
 
         XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader( appCtx );
@@ -752,32 +727,36 @@ public class PentahoSystemPluginManager implements IPluginManager {
         nativeFactory = appCtx;
       }
     }
-    return nativeFactory;
-  }
 
-  private void registerReference( String id, IPentahoObjectRegistration handle ) {
-    this.handleRegistry.get( id ).add( handle );
+    return nativeFactory;
   }
 
   private ClassLoader createClassloader( IPlatformPlugin plugin ) throws PlatformPluginRegistrationException {
     String pluginDirPath =
       PentahoSystem.getApplicationContext().getSolutionPath( "system/" + plugin.getSourceDescription() );
-    // need to scrub out duplicate file delimeters otherwise we will
+
+    // need to scrub out duplicate file delimiters otherwise we will
     // not be able to locate resources in jars. This classloader ultimately
     // needs to be made less fragile
     pluginDirPath = pluginDirPath.replace( "//", "/" );
+
     org.pentaho.platform.util.logging.Logger
       .debug( this,
         "plugin dir for " + plugin.getId() + " is [" + pluginDirPath + "]" );
+
     File pluginDir = new File( pluginDirPath );
     if ( !pluginDir.exists() || !pluginDir.isDirectory() || !pluginDir.canRead() ) {
-      throw new PlatformPluginRegistrationException( Messages.getInstance().getErrorString(
-        "PluginManager.ERROR_0027_PLUGIN_DIR_UNAVAILABLE", pluginDir.getAbsolutePath() ) );
+      throw new PlatformPluginRegistrationException(
+        Messages.getInstance().getErrorString(
+          "PluginManager.ERROR_0027_PLUGIN_DIR_UNAVAILABLE",
+          pluginDir.getAbsolutePath() ) );
     }
+
     PluginClassLoader loader = new PluginClassLoader( pluginDir, this.getClass().getClassLoader() );
     if ( plugin.getLoaderType() == IPlatformPlugin.ClassLoaderType.OVERRIDING ) {
       loader.setOverrideLoad( true );
     }
+
     return loader;
   }
 
@@ -802,39 +781,40 @@ public class PentahoSystemPluginManager implements IPluginManager {
       }
     }
 
-    throw new PluginBeanException( Messages.getInstance().getString(
-      "PluginManager.WARN_CLASS_NOT_REGISTERED", beanId ) );
-
+    throw new PluginBeanException(
+      Messages.getInstance().getString( "PluginManager.WARN_CLASS_NOT_REGISTERED", beanId ) );
   }
 
   @Override
   public IContentGenerator getContentGenerator( String type, String perspectiveName ) {
-    IContentGenerator cg = null;
-    String beanId;
-    if ( perspectiveName == null || perspectiveName.equals( DEFAULT_PERSPECTIVE ) ) {
-      beanId = type;
-    } else {
-      beanId = type + "." + perspectiveName;
-    }
+    return getContentGenerator( type, perspectiveName, null );
+  }
+
+  private IContentGenerator getContentGenerator( String type, String perspectiveName, IPentahoSession session ) {
+    final String beanId = perspectiveName == null || perspectiveName.equals( DEFAULT_PERSPECTIVE )
+      ? type
+      : type + "." + perspectiveName;
 
     // first we check: is there any IContentGeneratorInvoker implementation on the bean registry? If so: use it;
     final IContentGeneratorInvoker cgInvoker = PentahoSystem.get( IContentGeneratorInvoker.class );
     if ( cgInvoker != null && cgInvoker.isSupportedContent( beanId ) ) {
       logger.info(
-        "Located IContentGeneratorInvoker that supports content of type '" + beanId + "':" + cgInvoker.getClass()
-          .getName() );
+        "Located IContentGeneratorInvoker that supports content of type '{}':{}",
+        beanId,
+        cgInvoker.getClass().getName() );
       return cgInvoker.getContentGenerator();
     }
 
     // otherwise, gracefully fallback to PentahoSystemPluginManager's internal IContentGenerator discovery logic;
 
-    IContentGenerator contentGenerator = PentahoSystem
-      .get( IContentGenerator.class, PentahoSessionHolder.getSession(),
-        Collections.singletonMap( CONTENT_TYPE, beanId ) );
-    if ( contentGenerator == null ) {
-      contentGenerator = PentahoSystem
-        .get( IContentGenerator.class, PentahoSessionHolder.getSession(),
-          Collections.singletonMap( CONTENT_TYPE, perspectiveName ) );
+    IContentGenerator contentGenerator =
+      PentahoSystem.get( IContentGenerator.class, session, Collections.singletonMap( CONTENT_TYPE, beanId ) );
+
+    if ( contentGenerator == null && perspectiveName != null ) {
+      contentGenerator = PentahoSystem.get(
+        IContentGenerator.class,
+        session,
+        Collections.singletonMap( CONTENT_TYPE, perspectiveName ) );
     }
 
     return contentGenerator;
@@ -845,13 +825,18 @@ public class PentahoSystemPluginManager implements IPluginManager {
     if ( beanId == null ) {
       throw new IllegalArgumentException( "beanId cannot be null" );
     }
+
     Class<?> type = null;
-    for ( IPentahoObjectReference<GenericApplicationContext> reference : PentahoSystem.getObjectReferences(
-      GenericApplicationContext.class, null ) ) {
+
+    final List<IPentahoObjectReference<GenericApplicationContext>> objectReferences =
+      PentahoSystem.getObjectReferences( GenericApplicationContext.class, null );
+
+    for ( IPentahoObjectReference<GenericApplicationContext> reference : objectReferences ) {
       if ( !reference.getAttributes().containsKey( PLUGIN_ID ) ) {
         // This GenericApplicationContext was not registered from the plugin manager as it lacks plugin-id
         continue;
       }
+
       final GenericApplicationContext beanFactory = reference.getObject();
       if ( beanFactory.containsBean( beanId ) ) {
         try {
@@ -864,9 +849,10 @@ public class PentahoSystemPluginManager implements IPluginManager {
     }
 
     if ( type == null ) {
-      throw new PluginBeanException( Messages.getInstance().getString(
-        "PluginManager.WARN_CLASS_NOT_REGISTERED", beanId ) );
+      throw new PluginBeanException(
+        Messages.getInstance().getString( "PluginManager.WARN_CLASS_NOT_REGISTERED", beanId ) );
     }
+
     return type;
   }
 
@@ -881,6 +867,7 @@ public class PentahoSystemPluginManager implements IPluginManager {
         return true;
       }
     }
+
     return false;
   }
 
@@ -893,60 +880,55 @@ public class PentahoSystemPluginManager implements IPluginManager {
   public String getPluginIdForType( String contentType ) {
 
     final IPentahoObjectReference<IContentGenerator> objectReference = PentahoSystem
-      .getObjectReference( IContentGenerator.class, PentahoSessionHolder.getSession(),
-        Collections.singletonMap( CONTENT_TYPE, contentType ) );
+      .getObjectReference( IContentGenerator.class, null, Collections.singletonMap( CONTENT_TYPE, contentType ) );
+
     if ( objectReference != null && objectReference.getAttributes().containsKey( PLUGIN_ID ) ) {
       return objectReference.getAttributes().get( PLUGIN_ID ).toString();
-    } else {
-      // fallback for the case where everything is registered in the new form [contentType].[method]
-      final List<IPentahoObjectReference<IContentGenerator>> objectReferences =
-        PentahoSystem.getObjectReferences( IContentGenerator.class, PentahoSessionHolder.getSession() );
+    }
 
-      for ( IPentahoObjectReference<IContentGenerator> reference : objectReferences ) {
-        if ( reference.getAttributes().containsKey( CONTENT_TYPE ) ) {
-          final String o = (String) reference.getAttributes().get( CONTENT_TYPE );
-          if ( o.contains( "." ) && o.substring( 0, o.lastIndexOf( "." ) ).equals( contentType ) ) {
-            return (String) reference.getAttributes().get( PLUGIN_ID );
-          }
+    // fallback for the case where everything is registered in the new form [contentType].[method]
+    final List<IPentahoObjectReference<IContentGenerator>> objectReferences =
+      PentahoSystem.getObjectReferences( IContentGenerator.class, null );
+
+    for ( IPentahoObjectReference<IContentGenerator> reference : objectReferences ) {
+      if ( reference.getAttributes().containsKey( CONTENT_TYPE ) ) {
+        final String o = (String) reference.getAttributes().get( CONTENT_TYPE );
+        if ( o.contains( "." ) && o.substring( 0, o.lastIndexOf( "." ) ).equals( contentType ) ) {
+          return (String) reference.getAttributes().get( PLUGIN_ID );
         }
       }
-      return null;
     }
+
+    return null;
   }
 
   @Override
   public List<String> getPluginRESTPerspectivesForType( String contentType ) {
-    List<String> retList = new ArrayList<String>();
-    final List<IPentahoObjectReference<IContentGenerator>> objectReferences = PentahoSystem
-      .getObjectReferences( IContentGenerator.class, PentahoSessionHolder.getSession(),
-        Collections.singletonMap( CONTENT_TYPE, contentType ) );
 
-    for ( IPentahoObjectReference<IContentGenerator> objectReference : objectReferences ) {
-      if ( objectReference.getAttributes().containsKey( "id" ) ) {
-        final String id = (String) objectReference.getAttributes().get( "id" );
-        if ( id != null && id.contains( "." ) ) {
-          retList.add( id.substring( id.lastIndexOf( "." ) + 1 ) );
-        }
-      }
-    }
-    return retList;
+    final List<IPentahoObjectReference<IContentGenerator>> objectReferences = PentahoSystem
+      .getObjectReferences( IContentGenerator.class, null, Collections.singletonMap( CONTENT_TYPE, contentType ) );
+
+    return getPluginRESTPerspectiveIds( objectReferences );
   }
 
   @Override
-  public List<String> getPluginRESTPerspectivesForId( String id ) {
-    List<String> retList = new ArrayList<String>();
-    final List<IPentahoObjectReference<IContentGenerator>> objectReferences = PentahoSystem
-      .getObjectReferences( IContentGenerator.class, PentahoSessionHolder.getSession(),
-        Collections.singletonMap( PLUGIN_ID, id ) );
-    for ( IPentahoObjectReference<IContentGenerator> objectReference : objectReferences ) {
-      if ( objectReference.getAttributes().containsKey( "id" ) ) {
-        final String beanId = (String) objectReference.getAttributes().get( "id" );
-        if ( beanId != null && beanId.contains( "." ) ) {
-          retList.add( beanId.substring( beanId.lastIndexOf( "." ) + 1 ) );
+  public List<String> getPluginRESTPerspectivesForId( String pluginId ) {
+    return getPluginRESTPerspectiveIds( getPluginObjectReferences( IContentGenerator.class, pluginId ) );
+  }
+
+  private List<String> getPluginRESTPerspectiveIds( List<IPentahoObjectReference<IContentGenerator>> cgReferences ) {
+    List<String> perspectiveIds = new ArrayList<>();
+
+    for ( IPentahoObjectReference<IContentGenerator> cgReference : cgReferences ) {
+      if ( cgReference.getAttributes().containsKey( "id" ) ) {
+        final String id = (String) cgReference.getAttributes().get( "id" );
+        if ( id != null && id.contains( "." ) ) {
+          perspectiveIds.add( id.substring( id.lastIndexOf( "." ) + 1 ) );
         }
       }
     }
-    return retList;
+
+    return perspectiveIds;
   }
 
   @Override
@@ -954,29 +936,33 @@ public class PentahoSystemPluginManager implements IPluginManager {
     if ( classLoader == null ) {
       return null;
     }
+
     final List<IPentahoObjectReference<ClassLoader>> objectReferences =
       PentahoSystem.getObjectReferences( ClassLoader.class, null );
+
     for ( IPentahoObjectReference<ClassLoader> objectReference : objectReferences ) {
       if ( objectReference.getObject().equals( classLoader ) ) {
         return objectReference.getAttributes().get( PLUGIN_ID ).toString();
       }
     }
+
     return null;
   }
 
   private String trimLeadingSlash( String path ) {
-    return ( path.startsWith( "/" ) ) ? path.substring( 1 ) : path; //$NON-NLS-1$
+    return path.startsWith( "/" ) ? path.substring( 1 ) : path;
   }
 
   /**
    * Return <code>true</code> if the servicePath is being addressed by the requestPath. The request path is said to
-   * request the service if it contains at least ALL of the elements of the servicePath, in order. It may include more
-   * than these elements but it must contain at least the servicePath.
+   * request the service if it contains at least ALL the elements of the servicePath, in order. It may include more
+   * than these elements, but it must contain at least the servicePath.
    *
-   * @param servicePath
-   * @param requestPath
-   * @return <code>true</code> if the servicePath is being addressed by the requestPath
+   * @param servicePath The service path.
+   * @param requestPath The request path.
+   * @return <code>true</code> if the servicePath is being addressed by the requestPath.
    */
+  @SuppressWarnings( "DuplicatedCode" )
   protected boolean isRequested( String servicePath, String requestPath ) {
     String[] requestPathElements = trimLeadingSlash( requestPath ).split( "/" );
     String[] servicePathElements = trimLeadingSlash( servicePath ).split( "/" );
@@ -1024,6 +1010,7 @@ public class PentahoSystemPluginManager implements IPluginManager {
   }
 
   @Deprecated
+  @SuppressWarnings( "DuplicatedCode" )
   public String getServicePlugin( String path ) {
     for ( IPlatformPlugin plugin : PentahoSystem.getAll( IPlatformPlugin.class ) ) {
       String pluginId = getStaticResourcePluginId( plugin, path );
@@ -1054,12 +1041,12 @@ public class PentahoSystemPluginManager implements IPluginManager {
 
   @Override
   public ClassLoader getClassLoader( String pluginId ) {
-    return PentahoSystem.get( ClassLoader.class, null, Collections.singletonMap( PLUGIN_ID, pluginId ) );
+    return getPluginObject( ClassLoader.class, pluginId );
   }
 
   @Override
   public ListableBeanFactory getBeanFactory( String pluginId ) {
-    return PentahoSystem.get( ApplicationContext.class, null, Collections.singletonMap( PLUGIN_ID, pluginId ) );
+    return getPluginObject( ApplicationContext.class, pluginId );
   }
 
   @Override
@@ -1071,25 +1058,29 @@ public class PentahoSystemPluginManager implements IPluginManager {
         return true;
       }
     }
+
     return false;
   }
 
   @Override
+  @SuppressWarnings( "DuplicatedCode" )
   public boolean isPublic( String pluginId, String path ) {
-    IPlatformPlugin plugin = PentahoSystem.get( IPlatformPlugin.class, PentahoSessionHolder.getSession(),
-      Collections.singletonMap( PLUGIN_ID, pluginId ) );
+    IPlatformPlugin plugin = getPluginObject( IPlatformPlugin.class, pluginId );
     if ( plugin == null ) {
       return false;
     }
+
     Map<String, String> resourceMap = plugin.getStaticResourceMap();
-    if ( path.startsWith( "/" ) ) { //$NON-NLS-1$
+    if ( path.startsWith( "/" ) ) {
       path = path.substring( 1 );
     }
+
     for ( String pluginRelativeDir : resourceMap.values() ) {
       if ( path.startsWith( pluginRelativeDir ) ) {
         return true;
       }
     }
+
     return false;
   }
 
@@ -1100,8 +1091,7 @@ public class PentahoSystemPluginManager implements IPluginManager {
       for ( String url : resourceMap.keySet() ) {
         if ( isRequested( url, path ) ) {
           IPluginResourceLoader resLoader = PentahoSystem.get( IPluginResourceLoader.class, null );
-          ClassLoader classLoader =
-            PentahoSystem.get( ClassLoader.class, null, Collections.singletonMap( PLUGIN_ID, plugin.getId() ) );
+          ClassLoader classLoader = getClassLoader( plugin.getId() );
           String resourcePath = path.replace( url, resourceMap.get( url ) );
           return resLoader.getResourceAsStream( classLoader, resourcePath );
         }
@@ -1112,24 +1102,26 @@ public class PentahoSystemPluginManager implements IPluginManager {
 
   @Override
   public List<String> getRegisteredPlugins() {
-    List<String> retList = new ArrayList<String>();
+    final List<String> retList = new ArrayList<>();
     final List<IPlatformPlugin> plugins = PentahoSystem.getAll( IPlatformPlugin.class );
     for ( IPlatformPlugin plugin : plugins ) {
       retList.add( plugin.getId() );
     }
+
     return retList;
   }
 
   @Override
   public List<String> getExternalResourcesForContext( String context ) {
 
-    List<String> resources = new ArrayList<String>();
+    List<String> resources = new ArrayList<>();
     for ( IPlatformPlugin plugin : PentahoSystem.getAll( IPlatformPlugin.class ) ) {
       List<String> pluginRes = plugin.getExternalResourcesForContext( context );
       if ( pluginRes != null ) {
         resources.addAll( pluginRes );
       }
     }
+
     return resources;
   }
 
@@ -1137,4 +1129,65 @@ public class PentahoSystemPluginManager implements IPluginManager {
   public void addPluginManagerListener( IPluginManagerListener listener ) {
     this.listeners.add( listener );
   }
+
+  // region register and get object references for plugin helpers
+  private <T, B extends AbstractPentahoObjectReference.Builder<T, B>> void registerPluginReference(
+    IPlatformPlugin plugin,
+    AbstractPentahoObjectReference.Builder<T, B> builder ) {
+
+    registerPluginReference( plugin, builder, (Map<String, Object>) null );
+  }
+
+  private <T, B extends AbstractPentahoObjectReference.Builder<T, B>> void registerPluginReference(
+    IPlatformPlugin plugin,
+    AbstractPentahoObjectReference.Builder<T, B> builder,
+    Map<String, Object> extraAttributes
+  ) {
+
+    IPentahoObjectReference<T> reference = builder
+      .attributes( buildPluginAttributes( plugin, extraAttributes ) )
+      .build();
+
+    IPentahoObjectRegistration handle = PentahoSystem.registerReference( reference, reference.getObjectClass() );
+
+    registerReference( plugin.getId(), handle );
+  }
+
+  private <T, B extends AbstractPentahoObjectReference.Builder<T, B>> void registerPluginReference(
+    IPlatformPlugin plugin,
+    AbstractPentahoObjectReference.Builder<T, B> builder,
+    IPentahoRegistrableObjectFactory.Types types ) {
+
+    IPentahoObjectReference<T> reference = builder
+      .attributes( buildPluginAttributes( plugin, null ) )
+      .build();
+
+    IPentahoObjectRegistration handle = PentahoSystem.registerReference( reference, types );
+
+    registerReference( plugin.getId(), handle );
+  }
+
+  private Map<String, Object> buildPluginAttributes( IPlatformPlugin plugin, Map<String, Object> extraAttributes ) {
+    if ( extraAttributes == null ) {
+      return Collections.singletonMap( PLUGIN_ID, plugin.getId() );
+    }
+
+    Map<String, Object> attributes = new HashMap<>();
+    attributes.put( PLUGIN_ID, plugin.getId() );
+    attributes.putAll( extraAttributes );
+    return attributes;
+  }
+
+  private void registerReference( String pluginId, IPentahoObjectRegistration handle ) {
+    this.handleRegistry.get( pluginId ).add( handle );
+  }
+
+  private <T> T getPluginObject( Class<T> clazz, String pluginId ) {
+    return PentahoSystem.get( clazz, null, Collections.singletonMap( PLUGIN_ID, pluginId ) );
+  }
+
+  private <T> List<IPentahoObjectReference<T>> getPluginObjectReferences( Class<T> clazz, String pluginId ) {
+    return PentahoSystem.getObjectReferences( clazz, null, Collections.singletonMap( PLUGIN_ID, pluginId ) );
+  }
+  // endregion
 }

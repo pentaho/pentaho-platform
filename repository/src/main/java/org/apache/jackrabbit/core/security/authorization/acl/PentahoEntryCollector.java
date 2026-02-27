@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.apache.jackrabbit.core.security.authorization.acl;
 
@@ -465,7 +466,7 @@ public class PentahoEntryCollector extends EntryCollector {
   protected List<String> getRuntimeRoleNames() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     List<String> runtimeRoles = new ArrayList<String>();
-    Assert.state( pentahoSession != null );
+    Assert.state( pentahoSession != null, "Pentaho session must not be null" );
     Authentication authentication = SecurityHelper.getInstance().getAuthentication();
     if ( authentication != null ) {
       Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();

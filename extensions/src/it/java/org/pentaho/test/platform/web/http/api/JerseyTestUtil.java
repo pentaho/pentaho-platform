@@ -7,16 +7,18 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.test.platform.web.http.api;
 
-import com.sun.jersey.api.client.ClientResponse;
+import jakarta.ws.rs.core.Response;
 import junit.framework.AssertionFailedError;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.zip.ZipInputStream;
 
 import static junit.framework.Assert.assertEquals;
@@ -25,21 +27,21 @@ import static junit.framework.Assert.assertNotNull;
 @SuppressWarnings( "nls" )
 public class JerseyTestUtil {
 
-  protected static void assertResponse( ClientResponse response, ClientResponse.Status expectedStatus ) {
+  protected static void assertResponse( Response response, Response.Status expectedStatus ) {
     assertResponse( response, expectedStatus, null );
   }
 
-  public static void assertResponse( ClientResponse response, ClientResponse.Status expectedStatus,
+  public static void assertResponse( Response response, Response.Status expectedStatus,
       String expectedContentType ) {
     try {
-      assertEquals( expectedStatus, response.getClientResponseStatus() );
+      assertEquals( expectedStatus.getStatusCode(), response.getStatus() );
     } catch ( AssertionFailedError e ) {
       throw new AssertionFailedError( "Response status incorrect: " + e.getMessage() );
     }
 
     if ( expectedContentType != null ) {
       try {
-        assertContentType( response.getType(), expectedContentType );
+        assertContentType( response.getMediaType(), expectedContentType );
       } catch ( AssertionFailedError e ) {
         throw new AssertionFailedError( "Response media type incorrect: " + e.getMessage() );
       }
@@ -70,8 +72,8 @@ public class JerseyTestUtil {
     }
   }
 
-  public static void assertResponseIsZip( ClientResponse response ) {
-    ZipInputStream zis = new ZipInputStream( response.getEntityInputStream() );
+  public static void assertResponseIsZip( Response response ) {
+    ZipInputStream zis = new ZipInputStream( response.readEntity( InputStream.class ) );
     byte[] singleByte = new byte[1];
     try {
       zis.read( singleByte );

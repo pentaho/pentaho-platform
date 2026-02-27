@@ -7,24 +7,20 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importer;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.mockito.ArgumentMatchers;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mimetype.IMimeType;
@@ -35,14 +31,11 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.ICronJobTrigger;
 import org.pentaho.platform.api.scheduler2.IJobScheduleParam;
 import org.pentaho.platform.api.scheduler2.IJobScheduleRequest;
-import org.pentaho.platform.api.scheduler2.IScheduler;
-import org.pentaho.platform.api.scheduler2.ISchedulerResource;
 import org.pentaho.platform.api.scheduler2.ISimpleJobTrigger;
 import org.pentaho.platform.api.scheduler2.JobState;
 import org.pentaho.platform.api.usersettings.IAnyUserSettingService;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ExportManifestUserSetting;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
@@ -55,19 +48,14 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportMa
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 
-import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -115,7 +103,8 @@ public class SolutionImportHandlerTest {
     user.setPassword( "password" );
     users.add( user );
 
-    Map<String, List<String>> rolesToUsers = importHandler.importUsers( users );
+    var importState = new SolutionImportHandler.ImportState();
+    Map<String, List<String>> rolesToUsers = importHandler.importUsers( users, importState );
 
     Assert.assertEquals( 3, rolesToUsers.size() );
     Assert.assertEquals( "scrum master", rolesToUsers.get( "coder" ).get( 0 ) );
@@ -156,7 +145,8 @@ public class SolutionImportHandlerTest {
     user2.setPassword( "password" );
     users.add( user2 );
 
-    Map<String, List<String>> rolesToUsers = importHandler.importUsers( users );
+    var importState = new SolutionImportHandler.ImportState();
+    Map<String, List<String>> rolesToUsers = importHandler.importUsers( users, importState );
 
     Assert.assertEquals( 4, rolesToUsers.size() );
     Assert.assertEquals( 2, rolesToUsers.get( "coder" ).size() );
@@ -207,8 +197,9 @@ public class SolutionImportHandlerTest {
       ArgumentMatchers.nullable( String.class ),
       ArgumentMatchers.any( strings.getClass() ) ) ).thenThrow( new AlreadyExistsException( "already there" ) );
 
-    importHandler.setOverwriteFile( true );
-    Map<String, List<String>> rolesToUsers = importHandler.importUsers( users );
+    var importState = new SolutionImportHandler.ImportState();
+    importState.overwriteFile = true;
+    Map<String, List<String>> rolesToUsers = importHandler.importUsers( users, importState );
 
     Assert.assertEquals( 1, rolesToUsers.size() );
     Assert.assertEquals( "scrum master", rolesToUsers.get( "coder" ).get( 0 ) );
@@ -243,8 +234,9 @@ public class SolutionImportHandlerTest {
       ArgumentMatchers.nullable( String.class ),
       ArgumentMatchers.any( strings.getClass() ) ) ).thenThrow( new AlreadyExistsException( "already there" ) );
 
-    importHandler.setOverwriteFile( false );
-    Map<String, List<String>> rolesToUsers = importHandler.importUsers( users );
+    var importState = new SolutionImportHandler.ImportState();
+    importState.overwriteFile = false;
+    Map<String, List<String>> rolesToUsers = importHandler.importUsers( users, importState );
 
     Assert.assertEquals( 1, rolesToUsers.size() );
     Assert.assertEquals( "scrum master", rolesToUsers.get( "coder" ).get( 0 ) );
@@ -283,7 +275,8 @@ public class SolutionImportHandlerTest {
 
     String[] userStrings = adminUsers.toArray( new String[] {} );
 
-    importHandler.importRoles( roles, roleToUserMap );
+    var importState = new SolutionImportHandler.ImportState();
+    importHandler.importRoles( roles, roleToUserMap, importState );
 
     verify( userRoleDao ).createRole( ArgumentMatchers.any( ITenant.class ), ArgumentMatchers.eq( roleName ), ArgumentMatchers.nullable( String.class ),
       ArgumentMatchers.any( userStrings.getClass() ) );
@@ -316,8 +309,9 @@ public class SolutionImportHandlerTest {
       ArgumentMatchers.any( userStrings.getClass() ) ) )
       .thenThrow( new AlreadyExistsException( "already there" ) );
 
-    importHandler.setOverwriteFile( true );
-    importHandler.importRoles( roles, roleToUserMap );
+    var importState = new SolutionImportHandler.ImportState();
+    importState.overwriteFile = true;
+    importHandler.importRoles( roles, roleToUserMap, importState );
 
     verify( userRoleDao ).createRole( ArgumentMatchers.any( ITenant.class ), ArgumentMatchers.nullable( String.class ), ArgumentMatchers.nullable( String.class ),
       ArgumentMatchers.any( userStrings.getClass() ) );
@@ -353,8 +347,9 @@ public class SolutionImportHandlerTest {
       ArgumentMatchers.any( userStrings.getClass() ) ) )
       .thenThrow( new AlreadyExistsException( "already there" ) );
 
-    importHandler.setOverwriteFile( false );
-    importHandler.importRoles( roles, roleToUserMap );
+    var importState = new SolutionImportHandler.ImportState();
+    importState.overwriteFile = false;
+    importHandler.importRoles( roles, roleToUserMap, importState );
 
     verify( userRoleDao ).createRole( ArgumentMatchers.any( ITenant.class ), ArgumentMatchers.nullable( String.class ), ArgumentMatchers.nullable( String.class ),
       ArgumentMatchers.any( userStrings.getClass() ) );
@@ -368,24 +363,24 @@ public class SolutionImportHandlerTest {
 
   @Test
   public void testImportMetaStore() {
+    var importState = new SolutionImportHandler.ImportState();
     String path = "/path/to/file.zip";
     ExportManifestMetaStore manifestMetaStore = new ExportManifestMetaStore( path,
       "metastore",
       "description of the metastore" );
-    importHandler.cachedImports = new HashMap<>();
 
-    importHandler.importMetaStore( manifestMetaStore, true );
-    Assert.assertEquals( 1, importHandler.cachedImports.size() );
-    Assert.assertNotNull( importHandler.cachedImports.get( path ) );
+    importHandler.importMetaStore( manifestMetaStore, true, importState );
+    Assert.assertEquals( 1, importState.cachedImports.size() );
+    Assert.assertNotNull( importState.cachedImports.get( path ) );
   }
 
   @Test
   public void testImportMetaStore_nullMetastoreManifest() {
     ExportManifest manifest = spy( new ExportManifest() );
+    var importState = new SolutionImportHandler.ImportState();
 
-    importHandler.cachedImports = new HashMap<>();
-    importHandler.importMetaStore( manifest.getMetaStore(), true );
-    Assert.assertEquals( 0, importHandler.cachedImports.size() );
+    importHandler.importMetaStore( manifest.getMetaStore(), true, importState );
+    Assert.assertEquals( 0, importState.cachedImports.size() );
   }
 
   @Test
@@ -396,9 +391,10 @@ public class SolutionImportHandlerTest {
     user.addUserSetting( new ExportManifestUserSetting( "language", "en_US" ) );
     IAnyUserSettingService userSettingService = mock( IAnyUserSettingService.class );
     PentahoSystem.registerObject( userSettingService );
-    importHandler.setOverwriteFile( true );
 
-    importHandler.importUserSettings( user );
+    var importState = new SolutionImportHandler.ImportState();
+    importState.overwriteFile = true;
+    importHandler.importUserSettings( user, importState );
     verify( userSettingService ).setUserSetting( "pentaho", "theme", "crystal" );
     verify( userSettingService ).setUserSetting( "pentaho", "language", "en_US" );
   }
@@ -411,13 +407,15 @@ public class SolutionImportHandlerTest {
     user.addUserSetting( new ExportManifestUserSetting( "language", "en_US" ) );
     IAnyUserSettingService userSettingService = mock( IAnyUserSettingService.class );
     PentahoSystem.registerObject( userSettingService );
-    importHandler.setOverwriteFile( false );
+
+    var importState = new SolutionImportHandler.ImportState();
+    importState.overwriteFile = false;
 
     IUserSetting existingSetting = mock( IUserSetting.class );
     when( userSettingService.getUserSetting( "pentaho", "theme", null ) ).thenReturn( existingSetting );
     when( userSettingService.getUserSetting( "pentaho", "language", null ) ).thenReturn( null );
 
-    importHandler.importUserSettings( user );
+    importHandler.importUserSettings( user, importState );
     verify( userSettingService, never() ).setUserSetting( "pentaho", "theme", "crystal" );
     verify( userSettingService ).setUserSetting( "pentaho", "language", "en_US" );
     verify( userSettingService ).getUserSetting( "pentaho", "theme", null );
@@ -426,14 +424,15 @@ public class SolutionImportHandlerTest {
 
   @Test
   public void testImportGlobalUserSetting() {
-    importHandler.setOverwriteFile( true );
+    var importState = new SolutionImportHandler.ImportState();
+    importState.overwriteFile = true;
     List<ExportManifestUserSetting> settings = new ArrayList<>();
     settings.add( new ExportManifestUserSetting( "language", "en_US" ) );
     settings.add( new ExportManifestUserSetting( "showHiddenFiles", "false" ) );
     IUserSettingService userSettingService = mock( IUserSettingService.class );
     PentahoSystem.registerObject( userSettingService );
 
-    importHandler.importGlobalUserSettings( settings );
+    importHandler.importGlobalUserSettings( settings, importState );
 
     verify( userSettingService ).setGlobalUserSetting( "language", "en_US" );
     verify( userSettingService ).setGlobalUserSetting( "showHiddenFiles", "false" );
@@ -443,7 +442,8 @@ public class SolutionImportHandlerTest {
 
   @Test
   public void testImportGlobalUserSetting_noOverwrite() {
-    importHandler.setOverwriteFile( false );
+    var importState = new SolutionImportHandler.ImportState();
+    importState.overwriteFile = false;
     List<ExportManifestUserSetting> settings = new ArrayList<>();
     settings.add( new ExportManifestUserSetting( "language", "en_US" ) );
     settings.add( new ExportManifestUserSetting( "showHiddenFiles", "false" ) );
@@ -453,7 +453,7 @@ public class SolutionImportHandlerTest {
     when( userSettingService.getGlobalUserSetting( "language", null ) ).thenReturn( null );
     when( userSettingService.getGlobalUserSetting( "showHiddenFiles", null ) ).thenReturn( setting );
 
-    importHandler.importGlobalUserSettings( settings );
+    importHandler.importGlobalUserSettings( settings, importState );
 
     verify( userSettingService ).setGlobalUserSetting( "language", "en_US" );
     verify( userSettingService, never() )
@@ -461,167 +461,6 @@ public class SolutionImportHandlerTest {
     verify( userSettingService ).getGlobalUserSetting( "language", null );
     verify( userSettingService ).getGlobalUserSetting( "showHiddenFiles", null );
 
-  }
-
-  @Test
-  @Ignore
-  public void testImportSchedules() throws Exception {
-    List<IJobScheduleRequest> schedules = new ArrayList<>();
-    IJobScheduleRequest scheduleRequest = Mockito.spy( new FakeJobSchedluerRequest() );
-    schedules.add( scheduleRequest );
-
-    Response response = mock( Response.class );
-    when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
-    when( response.getEntity() ).thenReturn( "job id" );
-
-    doReturn( response ).when( importHandler )
-      .createSchedulerJob( ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.eq( scheduleRequest ) );
-
-    try ( MockedStatic<PentahoSystem> pentahoSystemMockedStatic = Mockito.mockStatic( PentahoSystem.class );
-          MockedStatic<PentahoSessionHolder> pentahoSessionHolderMockedStatic = Mockito.mockStatic( PentahoSessionHolder.class ) ) {
-      IAuthorizationPolicy iAuthorizationPolicyMock = mock( IAuthorizationPolicy.class );
-      IScheduler iSchedulerMock = mock( IScheduler.class );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IAuthorizationPolicy.class ) ) )
-        .thenReturn( iAuthorizationPolicyMock );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IScheduler.class ), ArgumentMatchers.anyString(), ArgumentMatchers.eq( null ) ) )
-        .thenReturn( iSchedulerMock );
-      when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
-      pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession )
-        .thenReturn( mock( IPentahoSession.class ) );
-
-      importHandler.importSchedules( schedules );
-
-      verify( importHandler )
-        .createSchedulerJob( ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.eq( scheduleRequest ) );
-      Assert.assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
-    }
-  }
-
-  @Test
-  @Ignore
-  public void testImportSchedules_FailsToCreateSchedule() throws Exception {
-    List<IJobScheduleRequest> schedules = new ArrayList<>();
-    IJobScheduleRequest scheduleRequest = Mockito.spy( new FakeJobSchedluerRequest() );
-    scheduleRequest.setInputFile( "/home/admin/scheduledTransform.ktr" );
-    scheduleRequest.setOutputFile( "/home/admin/scheduledTransform*" );
-    schedules.add( scheduleRequest );
-
-    Mockito.doThrow( new IOException( "error creating schedule" ) ).when( importHandler ).createSchedulerJob(
-      ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.eq( scheduleRequest ) );
-
-    try ( MockedStatic<PentahoSystem> pentahoSystemMockedStatic = Mockito.mockStatic( PentahoSystem.class );
-          MockedStatic<PentahoSessionHolder> pentahoSessionHolderMockedStatic = Mockito.mockStatic( PentahoSessionHolder.class ) ) {
-      IAuthorizationPolicy iAuthorizationPolicyMock = mock( IAuthorizationPolicy.class );
-      IScheduler iSchedulerMock = mock( IScheduler.class );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IAuthorizationPolicy.class ) ) )
-        .thenReturn( iAuthorizationPolicyMock );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IScheduler.class ), ArgumentMatchers.anyString(), ArgumentMatchers.eq( null ) ) )
-        .thenReturn( iSchedulerMock );
-      when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
-      pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession )
-        .thenReturn( mock( IPentahoSession.class ) );
-
-      importHandler.importSchedules( schedules );
-      Assert.assertEquals( 0, ImportSession.getSession().getImportedScheduleJobIds().size() );
-    }
-  }
-
-  @Test
-  @Ignore
-  public void testImportSchedules_FailsToCreateScheduleWithSpace() throws Exception {
-    List<IJobScheduleRequest> schedules = new ArrayList<>();
-    IJobScheduleRequest scheduleRequest = Mockito.spy( new FakeJobSchedluerRequest() );
-    scheduleRequest.setInputFile( "/home/admin/scheduled Transform.ktr" );
-    scheduleRequest.setOutputFile( "/home/admin/scheduled Transform*" );
-    schedules.add( scheduleRequest );
-
-    ScheduleRequestMatcher throwMatcher =
-      new ScheduleRequestMatcher( "/home/admin/scheduled Transform.ktr", "/home/admin/scheduled Transform*" );
-    Mockito.doThrow( new IOException( "error creating schedule" ) ).when( importHandler ).createSchedulerJob(
-      ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.argThat( throwMatcher ) );
-
-    Response response = mock( Response.class );
-    when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
-    when( response.getEntity() ).thenReturn( "job id" );
-    ScheduleRequestMatcher goodMatcher =
-      new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
-    doReturn( response ).when( importHandler ).createSchedulerJob( ArgumentMatchers.any( ISchedulerResource.class ),
-      ArgumentMatchers.argThat( goodMatcher ) );
-
-    try ( MockedStatic<PentahoSystem> pentahoSystemMockedStatic = Mockito.mockStatic( PentahoSystem.class );
-    MockedStatic<PentahoSessionHolder> pentahoSessionHolderMockedStatic = Mockito.mockStatic( PentahoSessionHolder.class ) ) {
-      IAuthorizationPolicy iAuthorizationPolicyMock = mock( IAuthorizationPolicy.class );
-      IScheduler iSchedulerMock = mock( IScheduler.class );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IAuthorizationPolicy.class ) ) ).thenReturn( iAuthorizationPolicyMock );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IScheduler.class ), ArgumentMatchers.anyString(), ArgumentMatchers.eq( null ) ) )
-        .thenReturn( iSchedulerMock );
-      when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
-      pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession ).thenReturn( mock( IPentahoSession.class ) );
-      importHandler.importSchedules( schedules );
-      verify( importHandler, times( 2 ) ).createSchedulerJob(
-        ArgumentMatchers.any( ISchedulerResource.class ), ArgumentMatchers.any( IJobScheduleRequest.class ) );
-      Assert.assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
-    }
-  }
-
-  @Test
-  @Ignore
-  public void testImportSchedules_FailsToCreateScheduleWithSpaceOnWindows() throws Exception {
-    String sep = File.separator;
-    System.setProperty( "file.separator", "\\" );
-    List<IJobScheduleRequest> schedules = new ArrayList<>();
-    IJobScheduleRequest scheduleRequest = Mockito.spy( new FakeJobSchedluerRequest() );
-    scheduleRequest.setInputFile( "/home/admin/scheduled Transform.ktr" );
-    scheduleRequest.setOutputFile( "/home/admin/scheduled Transform*" );
-    schedules.add( scheduleRequest );
-
-    ScheduleRequestMatcher throwMatcher =
-      new ScheduleRequestMatcher( "/home/admin/scheduled Transform.ktr", "/home/admin/scheduled Transform*" );
-    Mockito.doThrow( new IOException( "error creating schedule" ) ).when( importHandler ).createSchedulerJob(
-      ArgumentMatchers.nullable( ISchedulerResource.class ), ArgumentMatchers.argThat( throwMatcher ) );
-
-    Response response = mock( Response.class );
-    when( response.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
-    when( response.getEntity() ).thenReturn( "job id" );
-    ScheduleRequestMatcher goodMatcher =
-      new ScheduleRequestMatcher( "/home/admin/scheduled_Transform.ktr", "/home/admin/scheduled_Transform*" );
-    doReturn( response ).when( importHandler ).createSchedulerJob( ArgumentMatchers.nullable( ISchedulerResource.class ),
-      ArgumentMatchers.argThat( goodMatcher ) );
-
-    try ( MockedStatic<PentahoSystem> pentahoSystemMockedStatic = Mockito.mockStatic( PentahoSystem.class );
-          MockedStatic<PentahoSessionHolder> pentahoSessionHolderMockedStatic = Mockito.mockStatic( PentahoSessionHolder.class ) ) {
-      IAuthorizationPolicy iAuthorizationPolicyMock = mock( IAuthorizationPolicy.class );
-      IScheduler iSchedulerMock = mock( IScheduler.class );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IAuthorizationPolicy.class ) ) )
-        .thenReturn( iAuthorizationPolicyMock );
-      pentahoSystemMockedStatic.when( () -> PentahoSystem.get( ArgumentMatchers.eq( IScheduler.class ), ArgumentMatchers.anyString(), ArgumentMatchers.eq( null ) ) )
-        .thenReturn( iSchedulerMock );
-      when( iSchedulerMock.getStatus() ).thenReturn( mock( IScheduler.SchedulerStatus.class ) );
-      pentahoSessionHolderMockedStatic.when( PentahoSessionHolder::getSession )
-        .thenReturn( mock( IPentahoSession.class ) );
-
-      importHandler.importSchedules( schedules );
-      verify( importHandler, times( 2 ) )
-        .createSchedulerJob( ArgumentMatchers.nullable( ISchedulerResource.class ), ArgumentMatchers.nullable( IJobScheduleRequest.class ) );
-      Assert.assertEquals( 1, ImportSession.getSession().getImportedScheduleJobIds().size() );
-      System.setProperty( "file.separator", sep );
-    }
-  }
-
-  private static class ScheduleRequestMatcher implements ArgumentMatcher<IJobScheduleRequest> {
-    private final String input;
-    private final String output;
-
-    public ScheduleRequestMatcher( String input, String output ) {
-      this.input = input;
-      this.output = output;
-    }
-
-    @Override public boolean matches( IJobScheduleRequest jsr ) {
-      boolean matchedInput = input.equals( FilenameUtils.separatorsToUnix( jsr.getInputFile() ) );
-      boolean matchedOutput = output.equals( FilenameUtils.separatorsToUnix( jsr.getOutputFile() ) );
-      return matchedInput && matchedOutput;
-    }
   }
 
   @Test

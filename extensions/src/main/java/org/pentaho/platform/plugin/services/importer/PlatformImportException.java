@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importer;
 
@@ -37,6 +38,10 @@ public class PlatformImportException extends Exception {
   public static final int PUBLISH_PROHIBITED_SYMBOLS_ERROR = 10;
 
   public static final int PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS = 11;
+
+  public static final int PUBLISH_PARTIAL_UPLOAD = 12;
+
+  public static final int PUBLISH_NAME_ERROR = 13;
 
   private int errorStatusCode = PlatformImportException.PUBLISH_TO_SERVER_FAILED;
 

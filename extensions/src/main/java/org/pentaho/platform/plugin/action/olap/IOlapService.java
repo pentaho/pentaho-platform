@@ -7,17 +7,18 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
 
+
 package org.pentaho.platform.plugin.action.olap;
+
+import org.olap4j.OlapConnection;
+import org.pentaho.platform.api.engine.IPentahoSession;
 
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
-
-import org.olap4j.OlapConnection;
-import org.pentaho.platform.api.engine.IPentahoSession;
 
 /**
  * This service manages the hosted OLAP connections, implemented with Mondrian,

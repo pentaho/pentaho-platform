@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.engine.services.connection;
 
@@ -115,8 +116,7 @@ public class PentahoConnectionFactory {
     IPentahoConnection connection = null;
     try {
       //Validate if properties connection name is system DB and do not allow connection
-      if ( isSystemConnection( properties ) &&
-        !hasSystemDataSourcePermission( session ) ) {
+      if ( isSystemConnection( properties ) && !hasSystemDataSourcePermission( session ) ) {
         throw new ObjectFactoryException( "Missing required permissions to make connection" );
       }
       connection = PentahoSystem.getObjectFactory().get( IPentahoConnection.class, key, session );

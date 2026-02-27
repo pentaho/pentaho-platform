@@ -7,22 +7,26 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.test.platform.web.http.api;
 
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.json.JSONConfiguration;
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataMultiPart;
-import com.sun.jersey.multipart.impl.MultiPartWriter;
-import com.sun.jersey.test.framework.AppDescriptor;
-import com.sun.jersey.test.framework.JerseyTest;
-import com.sun.jersey.test.framework.WebAppDescriptor;
-import com.sun.jersey.test.framework.spi.container.TestContainerException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.Response;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
+import org.glassfish.jersey.test.DeploymentContext;
+import org.glassfish.jersey.test.JerseyTest;
+import jakarta.ws.rs.core.Application;
+import org.glassfish.jersey.test.ServletDeploymentContext;
+import org.glassfish.jersey.test.spi.TestContainerException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -42,13 +46,13 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
 
-import static javax.ws.rs.core.MediaType.MULTIPART_FORM_DATA_TYPE;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static jakarta.ws.rs.core.MediaType.MULTIPART_FORM_DATA_TYPE;
+import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -84,15 +88,14 @@ public class RepositoryPublishResourceIT extends JerseyTest implements Applicati
   }
 
   @Override
-  protected AppDescriptor configure() {
-    ClientConfig config = new DefaultClientConfig();
-    config.getClasses().add( MultiPartWriter.class );
-    config.getFeatures().put( JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE );
+  protected DeploymentContext configureDeployment() {
+    ClientConfig config = new ClientConfig();
+    config.register( MultiPartWriter.class );
+    config.register( MultiPartFeature.class );
 
-    return new WebAppDescriptor.Builder( "org.pentaho.platform.web.http.api.resources" )
-      .contextPath( "api" )
+    return ServletDeploymentContext.forServlet( new ServletContainer( new ResourceConfig().packages( "org.pentaho.platform.web.http.api.resources" ) ) )
       .addFilter( PentahoRequestContextFilter.class, "pentahoRequestContextFilter" )
-      .clientConfig( config )
+      .contextPath( "api" )
       .build();
   }
 
@@ -143,12 +146,12 @@ public class RepositoryPublishResourceIT extends JerseyTest implements Applicati
         .fileName( URLEncoder.encode( filename, "UTF-8" ) )
         .build() );
 
-    ClientResponse response = resource()
+    Response response = target()
       .path( "repo/publish/file" )
-      .type( MediaType.MULTIPART_FORM_DATA )
+      .request( MediaType.MULTIPART_FORM_DATA )
       .accept( TEXT_PLAIN )
-      .post( ClientResponse.class, part );
-    assertResponse( response, ClientResponse.Status.OK, MediaType.TEXT_PLAIN );
+      .post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA ) );
+    assertResponse( response, Response.Status.OK, MediaType.TEXT_PLAIN );
 
     ArgumentCaptor<IPlatformImportBundle> captor = ArgumentCaptor.forClass( IPlatformImportBundle.class );
     verify( importer ).importFile( captor.capture() );

@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.security.policy.rolebased;
 
@@ -42,7 +43,7 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
 
   public RoleAuthorizationPolicy( final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao ) {
     super();
-    Assert.notNull( roleBindingDao );
+    Assert.notNull( roleBindingDao, "The role binding DAO must not be null. Ensure a valid instance is provided." );
     this.roleBindingDao = roleBindingDao;
   }
 
@@ -78,7 +79,7 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
 
   protected List<String> getRuntimeRoleNames() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    Assert.state( authentication != null );
+    Assert.state( authentication != null, "Authentication object must not be null. Ensure the security context is properly initialized." );
     Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
     List<String> runtimeRoles = new ArrayList<String>( authorities.size() );
     for ( GrantedAuthority authority : authorities ) {

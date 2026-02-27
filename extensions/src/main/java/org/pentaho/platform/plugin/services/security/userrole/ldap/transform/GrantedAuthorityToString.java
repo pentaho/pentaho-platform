@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.security.userrole.ldap.transform;
 
@@ -101,7 +102,7 @@ public class GrantedAuthorityToString implements Transformer {
   }
 
   public void setRolePrefix( final String rolePrefix ) {
-    Assert.hasLength( rolePrefix );
+    Assert.hasLength( rolePrefix, "Role prefix must not be null or empty" );
     this.rolePrefix = rolePrefix;
   }
 

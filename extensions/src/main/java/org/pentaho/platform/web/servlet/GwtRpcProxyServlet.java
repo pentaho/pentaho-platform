@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.servlet;
 
@@ -18,7 +19,7 @@ import org.pentaho.platform.web.gwt.rpc.AbstractGwtRpc;
 import org.pentaho.platform.web.gwt.rpc.IGwtRpcSerializationPolicyCache;
 import org.pentaho.platform.web.gwt.rpc.SystemGwtRpc;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * This servlet is the traffic cop for GWT services core to the BIServer. See pentahoServices.spring.xml for bean

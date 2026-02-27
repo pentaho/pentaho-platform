@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importer;
 
@@ -51,9 +52,9 @@ public class MetadataImportHandler implements IPlatformImportHandler {
   private static final String AGILE_BI_VERSION_PROPERTY = "AGILE_BI_VERSION";
   private static final String WIZARD_GENERATED_PROPERTY = "WIZARD_GENERATED_SCHEMA";
 
-  private List<IMimeType> mimeTypes;
+  private final List<IMimeType> mimeTypes;
 
-  IPentahoMetadataDomainRepositoryImporter metadataRepositoryImporter;
+  private final IPentahoMetadataDomainRepositoryImporter metadataRepositoryImporter;
 
   public MetadataImportHandler( List<IMimeType> mimeTypes,
                                 final IPentahoMetadataDomainRepositoryImporter metadataImporter ) {

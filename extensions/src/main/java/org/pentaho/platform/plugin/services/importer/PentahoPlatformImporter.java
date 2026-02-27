@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importer;
 
@@ -53,6 +54,8 @@ public class PentahoPlatformImporter implements IPlatformImporter {
   private IPlatformMimeResolver mimeResolver;
   private IRepositoryImportLogger repositoryImportLogger;
   private IRepositoryContentConverterHandler repositoryContentConverterHandler;
+  private static final String IMPORT = "import";
+  private static final String RESTORE = "restore";
 
   public PentahoPlatformImporter( List<IPlatformImportHandler> handlerList,
                                   IRepositoryContentConverterHandler repositoryContentConverterHandler ) {
@@ -131,7 +134,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
         );
       } catch ( IOException e1 ) {
         throw new PlatformImportException( messages
-            .getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR", e1.getLocalizedMessage() ),
+            .getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERROR", e1.getLocalizedMessage() ),
             PlatformImportException.PUBLISH_GENERAL_ERROR, e1
         );
       } catch ( PlatformImportException pe ) {
@@ -140,13 +143,13 @@ public class PentahoPlatformImporter implements IPlatformImporter {
         Throwable cause = ce.getCause();
         if ( cause instanceof KettleMissingPluginsException ) {
           throw new PlatformImportException( messages
-            .getString( "PentahoPlatformImporter.ERROR_0008_PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS", cause.getLocalizedMessage() ),
-            PlatformImportException.PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS, cause
+              .getString( "PentahoPlatformImporter.ERROR_0008_PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS", cause.getLocalizedMessage() ),
+              PlatformImportException.PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS, cause
           );
         }
       } catch ( Exception e1 ) {
         throw new PlatformImportException( messages
-            .getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR", e1.getLocalizedMessage() ),
+            .getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERROR", e1.getLocalizedMessage() ),
             PlatformImportException.PUBLISH_GENERAL_ERROR, e1
         );
       }
@@ -169,6 +172,11 @@ public class PentahoPlatformImporter implements IPlatformImporter {
       if ( e.getCause() instanceof UnifiedRepositoryAccessDeniedException ) {
         throw new UnifiedRepositoryAccessDeniedException();
       }
+      if ( ( e instanceof PlatformImportException )
+          && ((PlatformImportException) e).getErrorStatus() == PlatformImportException.PUBLISH_PARTIAL_UPLOAD ) {
+        // needs to be propagated even if it was logged.
+        throw e;
+      }
     }
   }
 
@@ -178,7 +186,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
     // If doing a mondrian publish then there will be no active logger
     if ( repositoryImportLogger.hasLogger() && repositoryFilePath != null && repositoryFilePath.length() > 0 ) {
       repositoryImportLogger.setCurrentFilePath( repositoryFilePath );
-      repositoryImportLogger.warn( file.getName() );
+      repositoryImportLogger.debug( "Starting " + ( repositoryImportLogger.isPerformingRestore() ? RESTORE : IMPORT ) + " of file " + file.getName() );
     }
   }
 

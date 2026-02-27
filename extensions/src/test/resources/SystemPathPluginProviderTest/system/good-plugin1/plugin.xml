@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin title="Plugin 1">
+<plugin name="Plugin 1"
+        title="${pluginTitle}"
+        description="${pluginDescription} - ${pluginDescription}"
+        resourcebundle="messages">
   <lifecycle-listener class="org.pentaho.test.platform.plugin.pluginmgr.FooInitializer" />
   <content-generator scope="global" id="test1" type="test-type-3">
     <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1

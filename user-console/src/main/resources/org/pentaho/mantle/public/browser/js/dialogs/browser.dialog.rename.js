@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 define([
   "../browser.dialogs",
@@ -17,11 +18,12 @@ define([
   "../browser.utils",
   "common-ui/util/URLEncoder",
   "dojox/html/entities",
+  "backbone",
   "common-ui/bootstrap",
   "common-ui/jquery-pentaho-i18n",
   "common-ui/jquery",
   "pentaho/utils"
-], function (Dialog, DialogTemplates, RenameTemplates, Utils, Encoder, Entities) {
+], function (Dialog, DialogTemplates, RenameTemplates, Utils, Encoder, Entities, Backbone) {
 
   var BrowserUtils = new Utils();
 
@@ -34,6 +36,7 @@ define([
 
     defaults: {
       name: null,
+      title: null,
       path: null,
       showOverrideDialog: true
     },
@@ -324,6 +327,11 @@ define([
               var val = renameField.val().replace(/^\s+|\s+$/gm,''); // get val and trim it;
               okButton.prop("disabled", val == me.model.get("name") || val.length == 0);
             });
+
+        var titleValue = me.model.get("title");
+        var titleNoExt = titleValue.replace(/\.[^.]+$/, ""); // needed because of upload bug
+        var name = me.model.get("name") || "";
+        this.$dialog.find("#title-field").val((titleValue && titleValue.trim().length > 0 && titleNoExt !== name && titleValue !== name) ? titleValue : "-");
       };
 
       this.RenameDialog = new Dialog(cfg, onShow);
@@ -373,7 +381,7 @@ define([
 
     view: null,
 
-    init: function (path, overrideType) {
+    init: function (path, title, overrideType) {
 
       var repoPath = Encoder.encodeRepositoryPath( path );
 
@@ -388,21 +396,8 @@ define([
       this.model.set("path", repoPath);
       this.model.set("name", name);
       this.view.overrideType = overrideType;
-
-      var me = this;
-      BrowserUtils._makeAjaxCall("GET", "json", BrowserUtils.getUrlBase() + "api/repo/files/" + FileBrowser.encodePathComponents(repoPath) + "/localeProperties", true,
-          function (success) {
-            if (success) {
-              var arr = success.stringKeyStringValueDto;
-              for (i in arr) {
-                var obj = arr[i];
-                if (obj.key === "file.title") {
-                  me.model.set("name", obj.value);
-                }
-              }
-            }
-            me.view.render();
-          });
+      this.model.set("title", title);
+      this.view.render();
     }
   }
 

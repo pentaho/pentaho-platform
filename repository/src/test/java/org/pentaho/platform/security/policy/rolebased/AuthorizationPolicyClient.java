@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.security.policy.rolebased;
 
@@ -22,8 +23,8 @@ import org.pentaho.platform.security.policy.rolebased.ws.IAuthorizationPolicyWeb
 import org.pentaho.platform.security.policy.rolebased.ws.IRoleAuthorizationPolicyRoleBindingDaoWebService;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Service;
+import jakarta.xml.ws.BindingProvider;
+import jakarta.xml.ws.Service;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;

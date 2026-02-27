@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.action.jfreereport;
 
@@ -31,7 +32,7 @@ import org.pentaho.platform.plugin.action.jfreereport.helper.PentahoTableModel;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.reporting.engine.classic.core.MasterReport;
 
-import javax.activation.DataSource;
+import jakarta.activation.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

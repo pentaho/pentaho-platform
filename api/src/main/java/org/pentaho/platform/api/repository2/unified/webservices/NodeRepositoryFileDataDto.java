@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.api.repository2.unified.webservices;
 
@@ -22,6 +23,7 @@ public class NodeRepositoryFileDataDto implements Serializable {
   }
 
   private DataNodeDto node;
+  private long dataSize = 0;
 
   public DataNodeDto getNode() {
     return node;
@@ -29,6 +31,14 @@ public class NodeRepositoryFileDataDto implements Serializable {
 
   public void setNode( DataNodeDto node ) {
     this.node = node;
+  }
+
+  public long getDataSize() {
+    return dataSize;
+  }
+
+  public void setDataSize( long dataSize ) {
+    this.dataSize = dataSize;
   }
 
   @SuppressWarnings( "nls" )

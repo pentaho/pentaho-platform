@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.util.xml;
 
@@ -32,6 +33,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -417,6 +419,8 @@ public class XmlHelper {
     StringWriter writer = new StringWriter();
 
     TransformerFactory tf = TransformerFactory.newInstance();
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "" );
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "" );
     if ( null != resolver ) {
       tf.setURIResolver( resolver );
     }

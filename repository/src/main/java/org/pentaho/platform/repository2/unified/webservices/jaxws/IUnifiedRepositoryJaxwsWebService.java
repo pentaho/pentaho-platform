@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
@@ -16,7 +17,7 @@ import org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWe
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 import java.util.List;
 
 @WebService

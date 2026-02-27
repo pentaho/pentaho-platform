@@ -15,5 +15,6 @@
     <property name="hibernate.generate_statistics">true</property>
     <property name="session_factory_name">hibernate/HibernateFactory</property>
     <property name="hibernate.jdbc.use_streams_for_binary">true</property>
+    <property name="hibernate.id.db_structure_naming_strategy">legacy</property>
   </session-factory>
 </hibernate-configuration>

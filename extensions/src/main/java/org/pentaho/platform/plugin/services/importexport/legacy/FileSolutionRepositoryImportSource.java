@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importexport.legacy;
 
@@ -41,9 +42,9 @@ public class FileSolutionRepositoryImportSource extends AbstractImportSource {
   }
 
   public FileSolutionRepositoryImportSource( final File sourceFile, final String filename, final String charSet ) {
-    Assert.notNull( sourceFile );
-    Assert.hasText( filename );
-    Assert.hasText( charSet );
+    Assert.notNull( sourceFile, "Source file must not be null" );
+    Assert.hasText( filename, "Filename must not be null or empty" );
+    Assert.hasText( charSet, "Character set must not be null or empty" );
     this.filename = filename;
     this.charSet = charSet;
     this.recursive = sourceFile.isDirectory();

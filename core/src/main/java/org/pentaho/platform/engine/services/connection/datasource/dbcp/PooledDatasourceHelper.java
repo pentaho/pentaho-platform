@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
@@ -55,7 +56,11 @@ public class PooledDatasourceHelper {
 
   public static PoolingDataSource setupPooledDataSource( IDatabaseConnection databaseConnection )
     throws DBDatasourceServiceException {
+    return setupPooledDataSource( databaseConnection, true );
+  }
 
+  public static PoolingDataSource setupPooledDataSource( IDatabaseConnection databaseConnection, boolean useCache )
+    throws DBDatasourceServiceException {
     try {
       if ( databaseConnection.getAccessType().equals( DatabaseAccessType.JNDI ) ) {
         throwDBDatasourceServiceException( databaseConnection.getName(), "PooledDatasourceHelper.ERROR_0008_UNABLE_TO_POOL_DATASOURCE_IT_IS_JNDI" );
@@ -65,9 +70,10 @@ public class PooledDatasourceHelper {
       loadDriverClass( databaseConnection, dialect, driverClass );
 
       PoolingManagedDataSource poolingDataSource = new PoolingManagedDataSource( databaseConnection, dialect );
-
-      ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
-      cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, databaseConnection.getName(), poolingDataSource );
+      if ( useCache ) {
+        ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
+        cacheManager.putInRegionCache( IDBDatasourceService.JDBC_DATASOURCE, databaseConnection.getName(), poolingDataSource );
+      }
       return poolingDataSource;
     } catch ( Exception e ) {
       throw new DBDatasourceServiceException( e );
@@ -99,13 +105,13 @@ public class PooledDatasourceHelper {
     pool.setMaxTotal( databaseConnection.getMaximumPoolSize() );
 
     // Configure connection pool properties
-    int maxIdleConnection = getIntegerPropertyValue( attributes, IDBDatasourceService.MAX_IDLE_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/max-idle-conn", null) );
-    int minIdleConnection = getIntegerPropertyValue( attributes, IDBDatasourceService.MIN_IDLE_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/min-idle-conn", null) );
-    int maxActiveConnection = getIntegerPropertyValue( attributes, IDBDatasourceService.MAX_ACTIVE_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/max-act-conn", null) );
-    long waitTime = getLongPropertyValue( attributes, IDBDatasourceService.MAX_WAIT_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/wait", null) );
-    boolean testWhileIdle = getBooleanPropertyValue( attributes, IDBDatasourceService.TEST_WHILE_IDLE, PentahoSystem.getSystemSetting( "dbcp-defaults/test-while-idle", null) );
-    boolean testOnBorrow = getBooleanPropertyValue( attributes, IDBDatasourceService.TEST_ON_BORROW, PentahoSystem.getSystemSetting( "dbcp-defaults/test-on-borrow", null) );
-    boolean testOnReturn = getBooleanPropertyValue( attributes, IDBDatasourceService.TEST_ON_RETURN, PentahoSystem.getSystemSetting( "dbcp-defaults/test-on-return", null) );
+    int maxIdleConnection = getIntegerPropertyValue( attributes, IDBDatasourceService.MAX_IDLE_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/max-idle-conn", null ) );
+    int minIdleConnection = getIntegerPropertyValue( attributes, IDBDatasourceService.MIN_IDLE_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/min-idle-conn", null ) );
+    int maxActiveConnection = getIntegerPropertyValue( attributes, IDBDatasourceService.MAX_ACTIVE_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/max-act-conn", null ) );
+    long waitTime = getLongPropertyValue( attributes, IDBDatasourceService.MAX_WAIT_KEY, PentahoSystem.getSystemSetting( "dbcp-defaults/wait", null ) );
+    boolean testWhileIdle = getBooleanPropertyValue( attributes, IDBDatasourceService.TEST_WHILE_IDLE, PentahoSystem.getSystemSetting( "dbcp-defaults/test-while-idle", null ) );
+    boolean testOnBorrow = getBooleanPropertyValue( attributes, IDBDatasourceService.TEST_ON_BORROW, PentahoSystem.getSystemSetting( "dbcp-defaults/test-on-borrow", null ) );
+    boolean testOnReturn = getBooleanPropertyValue( attributes, IDBDatasourceService.TEST_ON_RETURN, PentahoSystem.getSystemSetting( "dbcp-defaults/test-on-return", null ) );
 
     // Tuning the connection pool
     pool.setMaxTotal( maxActiveConnection );
@@ -222,7 +228,7 @@ public class PooledDatasourceHelper {
   }
 
   private static String getPropertyValue( Map<String, String> attributes, String key, String defaultValue ) {
-    if ( attributes.containsKey( key ) ){
+    if ( attributes.containsKey( key ) ) {
       return attributes.get( key );
     }
     return defaultValue;

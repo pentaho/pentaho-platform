@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources;
 
@@ -19,7 +20,7 @@ import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,10 +79,10 @@ public class UserSettingsResourceTest {
     when( userSettingService.getUserSettings() ).thenReturn( userSettings );
 
     when( userSettingsResource.getUserSettings() ).thenCallRealMethod();
-    ArrayList<Setting> response = userSettingsResource.getUserSettings();
+    SettingsWrapper response = userSettingsResource.getUserSettings();
     assertNotNull( response );
-    assertTrue( !response.isEmpty() );
-    assertTrue( response.get( 0 ).getName().equals( USER_SETTING_NAME ) );
-    assertTrue( response.get( 0 ).getValue().equals( USER_SETTING_VALUE ) );
+    assertTrue( !response.getSettings().isEmpty() );
+    assertTrue( response.getSettings().get( 0 ).getName().equals( USER_SETTING_NAME ) );
+    assertTrue( response.getSettings().get( 0 ).getValue().equals( USER_SETTING_VALUE ) );
   }
 }

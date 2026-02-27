@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.test.platform.plugin.services.security.userrole.memory;
 
@@ -61,7 +62,7 @@ public class UserRoleListEnhancedUserMapFactoryBeanTests extends AbstractUserMap
   }
 
   protected boolean isRolePresent( final String[] roles, final String role ) {
-    Assert.hasLength( role );
+    Assert.hasLength( role, "Role must not be null or empty" );
     for ( int i = 0; i < roles.length; i++ ) {
       if ( null != roles[i] && roles[i].equals( role ) ) {
         return true;
@@ -71,7 +72,7 @@ public class UserRoleListEnhancedUserMapFactoryBeanTests extends AbstractUserMap
   }
 
   protected boolean isUserPresent( final String[] users, final String user ) {
-    Assert.hasLength( user );
+    Assert.hasLength( user, "User must not be null or empty" );
     for ( int i = 0; i < users.length; i++ ) {
       if ( user.equals( users[i] ) ) {
         return true;

@@ -1,22 +1,16 @@
 #!/bin/sh
+# ******************************************************************************
+#
+# Pentaho
+#
+# Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+#
+# Use of this software is governed by the Business Source License included
+# in the LICENSE.TXT file.
+#
+# Change Date: 2029-07-20
+# ******************************************************************************
 
-# *******************************************************************************************
-# This program is free software; you can redistribute it and/or modify it under the
-# terms of the GNU General Public License, version 2 as published by the Free Software
-# Foundation.
-#
-# You should have received a copy of the GNU General Public License along with this
-# program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html
-# or from the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
-#
-#
-# Copyright 2011 - ${copyright.year} Hitachi Vantara. All rights reserved.
-# *******************************************************************************************
 
 ### ====================================================================== ###
 ##                                                                          ##
@@ -24,8 +18,8 @@
 ##                                                                          ##
 ### ====================================================================== ###
 
-DIR_REL=`dirname $0`
-cd $DIR_REL
+DIR_REL=`dirname "$0"`
+cd "$DIR_REL"
 DIR=`pwd`
 #cd -
 
@@ -41,9 +35,23 @@ setPentahoEnv "$DIR/jre"
 DI_HOME="$DIR"/pentaho-solutions/system/kettle
 
 cd "$DIR/tomcat/bin"
-CATALINA_OPTS="-Xms2048m -Xmx6144m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8044 -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dfile.encoding=utf8 -Djava.locale.providers=COMPAT,SPI -DDI_HOME=\"$DI_HOME\""
+# Defaults (can be overridden by env vars)
+: "${JAVA_XMS:=2048m}"
+: "${JAVA_XMX:=6144m}"
+: "${JAVA_OPTS_EXTRA:=}"
+
+DEFAULT_CATALINA_OPTS="-Xms${JAVA_XMS} -Xmx${JAVA_XMX} -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8044 -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dfile.encoding=utf8 -Djava.locale.providers=COMPAT,SPI -DDI_HOME=\"$DI_HOME\""
+CATALINA_OPTS="$DEFAULT_CATALINA_OPTS"
+
+# Allow extras from docker-compose without replacing defaults
+if [ -n "$JAVA_OPTS_EXTRA" ]; then
+  CATALINA_OPTS="$CATALINA_OPTS $JAVA_OPTS_EXTRA"
+fi
   #Add this property to CATALINA_OPTS change the equivalent value of "SaveOnlyUsedConnectionsToXML" property on the server. Please see JIRA PDI-20078 for more information
   #-DSTRING_ONLY_USED_DB_TO_XML=N"
+
+# line for allowing orc's compatibility with protobuf-java 3.25.6 libraries
+CATALINA_OPTS="$CATALINA_OPTS -Dcom.google.protobuf.use_unsafe_pre22_gencode=true"
 export CATALINA_OPTS
 
 #Sets options that only get read by Java 11 to remove illegal reflective access warnings

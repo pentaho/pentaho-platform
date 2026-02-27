@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.filters;
 
@@ -17,12 +18,12 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.repository.hibernate.HibernateUtil;
 import org.pentaho.platform.repository.messages.Messages;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import java.io.IOException;
 
 public class PentahoHibernateFilter implements Filter {
@@ -32,7 +33,7 @@ public class PentahoHibernateFilter implements Filter {
   /*
    * (non-Javadoc)
    * 
-   * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
+   * @see jakarta.servlet.Filter#init(jakarta.servlet.FilterConfig)
    */
   public void init( final FilterConfig arg0 ) {
     PentahoHibernateFilter.logger.info( Messages.getInstance().getString( "HIBFILTER.INFO_INIT" ) ); //$NON-NLS-1$
@@ -41,8 +42,8 @@ public class PentahoHibernateFilter implements Filter {
   /*
    * (non-Javadoc)
    * 
-   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse,
-   * javax.servlet.FilterChain)
+   * @see jakarta.servlet.Filter#doFilter(jakarta.servlet.ServletRequest, jakarta.servlet.ServletResponse,
+   * jakarta.servlet.FilterChain)
    */
   public void doFilter( final ServletRequest request, final ServletResponse response, final FilterChain chain )
     throws IOException, ServletException {
@@ -59,7 +60,7 @@ public class PentahoHibernateFilter implements Filter {
   /*
    * (non-Javadoc)
    * 
-   * @see javax.servlet.Filter#destroy()
+   * @see jakarta.servlet.Filter#destroy()
    */
   public void destroy() {
     // Do nothing here...

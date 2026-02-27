@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.mantle.client.admin;
 
@@ -16,6 +17,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -29,6 +31,10 @@ import org.pentaho.gwt.widgets.client.panel.VerticalFlexPanel;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.ui.xul.gwt.tags.GwtDialog;
+import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
 
@@ -39,6 +45,9 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
   private Button acceptBtn = new Button( Messages.getString( "ok" ) );
   private Button cancelBtn = new Button( Messages.getString( "cancel" ) );
   private boolean acceptBtnEnabled = false;
+  private static final String ALLOWED_CHARS = "^[a-zA-Z0-9_.,:;<>|!@#$%^&*()\\[\\]-]+$";
+  private static final RegExp ALLOWED_CHARS_REGEXP = RegExp.compile( ALLOWED_CHARS );
+  private static final String ALLOWED_CHARS_LIST = "a-z A-Z 0-9 _ . , : ; < > | ! @ # $ % ^ & * ( ) [ ] -";
 
   public ChangePasswordDialog( UpdatePasswordController controller ) {
     setWidth( 260 );
@@ -148,11 +157,46 @@ public class ChangePasswordDialog extends GwtDialog implements ServiceCallback {
     public void onClick( ClickEvent event ) {
       if ( acceptBtnEnabled ) {
         disableAcceptBtn();
-        cancelBtn.setEnabled( false );
         String newPassword = newPasswordTextBox.getText();
         String administratorPassword = administratorPasswordTextBox.getText();
+
+        if ( !isValidPassword( newPassword ) ) {
+          String nonMatchingChars = getNonMatchingCharacters( newPassword, ALLOWED_CHARS );
+          showErrorMessage( nonMatchingChars, ALLOWED_CHARS_LIST );
+          return;
+        }
+
         controller.updatePassword( newPassword, administratorPassword, ChangePasswordDialog.this );
       }
+    }
+
+    private boolean isValidPassword( String password ) {
+      return ALLOWED_CHARS_REGEXP.test( password );
+    }
+
+    private String getNonMatchingCharacters( String value, String allowedCharacters ) {
+      Set<Character> seen = new HashSet<>(); // Allows to identify unique non matching characters
+      StringBuilder nonMatchingChars = new StringBuilder();
+
+      for ( char c : value.toCharArray() ) {
+        if ( !ALLOWED_CHARS_REGEXP.test( String.valueOf( c ) )
+          && seen.add( c ) ) {
+          if (nonMatchingChars.length() > 0) {
+            nonMatchingChars.append(" ");
+          }
+          nonMatchingChars.append( c );
+        }
+      }
+      return nonMatchingChars.toString();
+    }
+
+    private void showErrorMessage( String value, String allowedCharacters ) {
+      GwtMessageBox messageBox = new GwtMessageBox();
+      messageBox.setTitle( Messages.getString( "error" ) );
+      messageBox.setMessage( Messages.getString( "allowedNameCharacters", value, allowedCharacters ) );
+      messageBox.setButtons( new Object[ ACCEPT ] );
+      messageBox.setWidth( 300 );
+      messageBox.show();
     }
   }
 

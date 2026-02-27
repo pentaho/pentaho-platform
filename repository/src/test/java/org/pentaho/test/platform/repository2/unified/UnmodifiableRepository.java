@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.test.platform.repository2.unified;
 
@@ -46,7 +47,7 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @param mockUnifiedRepository
    */
   public UnmodifiableRepository( final IUnifiedRepository repository ) {
-    Assert.notNull( repository );
+    Assert.notNull( repository, "The repository instance must not be null. Ensure a valid repository is provided." );
     this.repository = repository;
   }
 
@@ -759,78 +760,78 @@ public class UnmodifiableRepository implements IUnifiedRepository {
 
   @Override
   public List<Locale> getAvailableLocalesForFileById( Serializable fileId ) {
-    Assert.notNull( fileId );
+    Assert.notNull( fileId, "The file ID must not be null. Ensure a valid file ID is provided" );
     return repository.getAvailableLocalesForFileById( fileId );
   }
 
   @Override
   public List<Locale> getAvailableLocalesForFileByPath( String relPath ) {
-    Assert.notNull( relPath );
+    Assert.notNull( relPath, "The relative path must not be null. Ensure a valid path is provided." );
     return repository.getAvailableLocalesForFileByPath( relPath );
   }
 
   @Override
   public List<Locale> getAvailableLocalesForFile( RepositoryFile repositoryFile ) {
-    Assert.notNull( repositoryFile );
+    Assert.notNull( repositoryFile, "The repository file must not be null. Ensure a valid repository file is provided." );
     return repository.getAvailableLocalesForFile( repositoryFile );
   }
 
   @Override
   public Properties getLocalePropertiesForFileById( Serializable fileId, String locale ) {
-    Assert.notNull( fileId );
-    Assert.notNull( locale );
+    Assert.notNull( fileId, "The file ID must not be null. Ensure a valid file ID is provided." );
+    Assert.notNull( locale, "The locale must not be null. Ensure a valid locale is provided." );
     return repository.getLocalePropertiesForFileById( fileId, locale );
   }
 
   @Override
   public Properties getLocalePropertiesForFileByPath( String relPath, String locale ) {
-    Assert.notNull( relPath );
-    Assert.notNull( locale );
+    Assert.notNull( relPath, "The relative path must not be null. Ensure a valid path is provided." );
+    Assert.notNull( locale, "The locale must not be null. Ensure a valid locale is provided." );
     return repository.getLocalePropertiesForFileByPath( relPath, locale );
   }
 
   @Override
   public Properties getLocalePropertiesForFile( RepositoryFile repositoryFile, String locale ) {
-    Assert.notNull( repositoryFile );
-    Assert.notNull( locale );
+    Assert.notNull( repositoryFile, "The repository file must not be null. Ensure a valid repository file is provided" );
+    Assert.notNull( locale, "The locale must not be null. Ensure a valid locale is provided." );
     return repository.getLocalePropertiesForFile( repositoryFile, locale );
   }
 
   @Override
   public void setLocalePropertiesForFileById( Serializable fileId, String locale, Properties properties ) {
-    Assert.notNull( fileId );
-    Assert.notNull( locale );
-    Assert.notNull( properties );
+    Assert.notNull( fileId, "The file ID must not be null. Ensure a valid file ID is provided." );
+    Assert.notNull( locale, "The locale must not be null. Ensure a valid locale is provided." );
+    Assert.notNull( properties, "The properties must not be null. Ensure valid properties are provided." );
     repository.setLocalePropertiesForFileById( fileId, locale, properties );
   }
 
   @Override
   public void setLocalePropertiesForFileByPath( String relPath, String locale, Properties properties ) {
-    Assert.notNull( relPath );
-    Assert.notNull( locale );
-    Assert.notNull( properties );
+    Assert.notNull( relPath, "The relative path must not be null. Ensure a valid path is provided." );
+    Assert.notNull( locale, "The locale must not be null. Ensure a valid locale is provided." );
+    Assert.notNull( properties, "The properties must not be null. Ensure valid properties are provided." );
     repository.setLocalePropertiesForFileByPath( relPath, locale, properties );
   }
 
   @Override
   public void setLocalePropertiesForFile( RepositoryFile repositoryFile, String locale, Properties properties ) {
-    Assert.notNull( repositoryFile );
-    Assert.notNull( locale );
-    Assert.notNull( properties );
+    Assert.notNull( repositoryFile, "The repository file must not be null. Ensure a valid repository file is provided." );
+    Assert.notNull( locale, "The locale must not be null. Ensure a valid locale is provided." );
+    Assert.notNull( properties, "The properties must not be null. Ensure valid properties are provided." );
     repository.setLocalePropertiesForFile( repositoryFile, locale, properties );
   }
 
   @Override
   public void deleteLocalePropertiesForFile( RepositoryFile repositoryFile, String locale ) {
-    Assert.notNull( repositoryFile );
-    Assert.notNull( locale );
+    Assert.notNull( repositoryFile, "The repository file must not be null. Ensure a valid repository file is provided" );
+    Assert.notNull( locale, "The locale must not be null. Ensure a valid locale is provided." );
     repository.deleteLocalePropertiesForFile( repositoryFile, locale );
   }
 
   @Override
   public RepositoryFile updateFolder( RepositoryFile folder, String versionMessage ) {
-    Assert.notNull( folder );
-    Assert.isTrue( folder.isFolder() );
+    Assert.notNull( folder, "The folder must not be null. Ensure a valid folder is provided." );
+    Assert.isTrue( folder.isFolder(), "The provided object must be a folder. Ensure the correct folder is passed." );
     return repository.updateFolder( folder, versionMessage );
   }
 

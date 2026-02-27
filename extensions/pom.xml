@@ -5,30 +5,32 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>10.3.0.0-SNAPSHOT</version>
+    <version>11.1.0.0-SNAPSHOT</version>
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-extensions</artifactId>
-  <version>10.3.0.0-SNAPSHOT</version>
+  <version>11.1.0.0-SNAPSHOT</version>
   <properties>
+    <mockrunner-jdbc.version>1.0.5</mockrunner-jdbc.version>
+    <org.apache.derby.version>10.15.2.0</org.apache.derby.version>
     <asm-attrs.version>2.2.3</asm-attrs.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
     <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
     <hamcrest-library.version>1.3</hamcrest-library.version>
-    <commons-xul.version>10.3.0.0-SNAPSHOT</commons-xul.version>
-    <pdi.version>10.3.0.0-SNAPSHOT</pdi.version>
-    <pentaho-reporting.version>10.3.0.0-SNAPSHOT</pentaho-reporting.version>
-    <pdi-dataservice-client-plugin.version>10.3.0.0-SNAPSHOT</pdi-dataservice-client-plugin.version>
-    <pentaho-connections.version>10.3.0.0-SNAPSHOT</pentaho-connections.version>
-    <pentaho-versionchecker.version>10.3.0.0-SNAPSHOT</pentaho-versionchecker.version>
-    <pentaho-report-wizard-core.version>10.3.0.0-SNAPSHOT</pentaho-report-wizard-core.version>
-    <pentaho-actionsequence-dom.version>10.3.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
-    <pentaho-metadata.version>10.3.0.0-SNAPSHOT</pentaho-metadata.version>
-    <pentaho-chartbeans.version>10.3.0.0-SNAPSHOT</pentaho-chartbeans.version>
+    <commons-xul.version>11.1.0.0-SNAPSHOT</commons-xul.version>
+    <pdi.version>11.1.0.0-SNAPSHOT</pdi.version>
+    <pentaho-reporting.version>11.1.0.0-SNAPSHOT</pentaho-reporting.version>
+    <pentaho-connections.version>11.1.0.0-SNAPSHOT</pentaho-connections.version>
+    <pentaho-versionchecker.version>11.1.0.0-SNAPSHOT</pentaho-versionchecker.version>
+    <pentaho-report-wizard-core.version>11.1.0.0-SNAPSHOT</pentaho-report-wizard-core.version>
+    <pentaho-actionsequence-dom.version>11.1.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
+    <pentaho-metadata.version>11.1.0.0-SNAPSHOT</pentaho-metadata.version>
+    <pentaho-chartbeans.version>11.1.0.0-SNAPSHOT</pentaho-chartbeans.version>
     <maven-surefire-plugin.argLine> --add-opens=java.base/java.lang=ALL-UNNAMED </maven-surefire-plugin.argLine>
     <nashorn.version>15.4</nashorn.version>
+    <sparsebitset.version>1.3</sparsebitset.version>
   </properties>
   <dependencies>
     <!-- @Null, @Nullable annotations -->
@@ -41,6 +43,11 @@
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
+      <version>${cache-api.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-collections</groupId>
@@ -79,6 +86,12 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>com.mockrunner</groupId>
+      <artifactId>mockrunner-jdbc</artifactId>
+      <version>${mockrunner-jdbc.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-pool2</artifactId>
       <version>${commons-pool2.version}</version>
@@ -113,9 +126,45 @@
       <version>${xmlbeans.version}</version>
     </dependency>
     <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-      <scope>compile</scope>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
+      <version>${commons-fileupload.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-fileupload2-core</artifactId>
+      <version>${commons-fileupload.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.jws</groupId>
+      <artifactId>jakarta.jws-api</artifactId>
+      <version>${jakarta.jws-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>${jaxb-runtime.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.xml.soap</groupId>
+      <artifactId>jakarta.xml.soap-api</artifactId>
+      <version>${jakarta.xml.soap-api.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>*</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!--
+      The xmlsec library is added as a compile-time dependency because the webservices-rt artifact internally uses xmlsec for XML security operations
+      such as signing, encryption, or validation. This ensures that the required classes and methods provided by xmlsec are available during the
+     compilation phase and avoids runtime errors like java.lang.ClassNotFoundException: org.apache.xml.security.exceptions.Base64DecodingException.
+    -->
+    <dependency>
+      <groupId>org.apache.santuario</groupId>
+      <artifactId>xmlsec</artifactId>
+      <version>${xmlsec-osgi.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
@@ -157,6 +206,16 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.apache.httpcomponents.core5</groupId>
+      <artifactId>httpcore5</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.owasp.encoder</groupId>
       <artifactId>encoder</artifactId>
       <version>${owasp.encoder.version}</version>
@@ -182,8 +241,8 @@
     <!-- Only needed for runtime testing -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-      <version>${log4j.version}</version>
+      <artifactId>log4j-slf4j2-impl</artifactId>
+      <version>${log4j-slf4j2.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -300,9 +359,7 @@
     </dependency>
     <dependency>
       <groupId>net.sf.saxon</groupId>
-      <artifactId>saxon</artifactId>
-      <version>${saxon.version}</version>
-      <scope>compile</scope>
+      <artifactId>Saxon-HE</artifactId>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -311,16 +368,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>net.sf.saxon</groupId>
-      <artifactId>saxon-dom</artifactId>
-      <version>${saxon.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.xmlresolver</groupId>
+      <artifactId>xmlresolver</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.modules</groupId>
@@ -415,6 +464,11 @@
       </exclusions>
     </dependency>
     <dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-crypto</artifactId>
+    <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
       <scope>compile</scope>
@@ -452,28 +506,100 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.sun.mail</groupId>
-      <artifactId>javax.mail</artifactId>
-      <version>${mail.version}</version>
+      <groupId>org.eclipse.angus</groupId>
+      <artifactId>jakarta.mail</artifactId>
       <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>javax.persistence-api</artifactId>
-      <version>${javax.persistence-api.version}</version>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+      <version>${jakarta.persistence-api.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>jakarta.validation</groupId>
       <artifactId>jakarta.validation-api</artifactId>
-      <version>2.0.2</version>
+      <version>${jakarta.validation.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-server</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-client</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.containers</groupId>
+      <artifactId>jersey-container-servlet</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.connectors</groupId>
+      <artifactId>jersey-apache-connector</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-multipart</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.test-framework</groupId>
+      <artifactId>jersey-test-framework-core</artifactId>
+      <version>${jersey.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+      <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+      <version>${jersey.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derbytools</artifactId>
+      <version>${org.apache.derby.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <version>${org.apache.derby.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-common</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-json-processing</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-jaxb</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-json-jackson</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.inject</groupId>
+      <artifactId>jersey-hk2</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.ext</groupId>
+      <artifactId>jersey-spring6</artifactId>
+      <version>${jersey.version}</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
@@ -489,8 +615,8 @@
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-ehcache</artifactId>
-      <version>${hibernate-ehcache.version}</version>
+      <artifactId>hibernate-jcache</artifactId>
+      <version>${hibernate-jcache.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -535,9 +661,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.transaction</groupId>
-      <artifactId>jta</artifactId>
-      <version>${jta.version}</version>
+      <groupId>jakarta.transaction</groupId>
+      <artifactId>jakarta.transaction-api</artifactId>
+      <version>${jakarta.transaction.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -571,9 +697,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
-      <version>${validation-api.version}</version>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <version>${jakarta.validation.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -625,10 +751,10 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>${javax.servlet-api.version}</version>
-      <scope>compile</scope>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${jakarta.servlet.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.glassfish.metro</groupId>
@@ -655,18 +781,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.jvnet.jax-ws-commons.spring</groupId>
-      <artifactId>jaxws-spring</artifactId>
-      <version>${jaxws-spring.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-spring</artifactId>
       <version>${xbean-spring.version}</version>
@@ -679,21 +793,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>jsr311-api</artifactId>
-      <version>${jsr311-api.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey.contribs</groupId>
-      <artifactId>jersey-multipart</artifactId>
-      <version>${jersey.version}</version>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+      <version>${jakarta.ws.rs-api.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -706,116 +808,6 @@
       <groupId>org.jvnet.mimepull</groupId>
       <artifactId>mimepull</artifactId>
       <version>${mimepull.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey.contribs</groupId>
-      <artifactId>jersey-apache-client</artifactId>
-      <version>${jersey.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>com.sun.jersey.contribs</groupId>
-      <artifactId>jersey-apache-client4</artifactId>
-      <version>${jersey.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    
-    <dependency>
-      <groupId>com.sun.jersey.contribs</groupId>
-      <artifactId>jersey-spring</artifactId>
-      <version>${jersey.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-core</artifactId>
-      <version>${jersey.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-bundle</artifactId>
-      <version>${jersey.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-json</artifactId>
-      <version>${jersey.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-client</artifactId>
-      <version>${jersey.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-server</artifactId>
-      <version>${jersey.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-servlet</artifactId>
-      <version>${jersey.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -890,16 +882,14 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.taglibs</groupId>
-      <artifactId>taglibs-standard-impl</artifactId>
-      <version>${taglibs-standard-impl.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
+      <groupId>jakarta.servlet.jsp.jstl</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+      <version>${jakarta.servlet.jsp.jstl-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.web</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+      <version>${jakarta.servlet.jsp.jstl.version}</version>
     </dependency>
     <dependency>
       <groupId>javatar</groupId>
@@ -914,8 +904,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-servlet</artifactId>
+      <groupId>org.gwtproject</groupId>
+      <artifactId>gwt-servlet-jakarta</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -931,6 +921,33 @@
         <exclusion>
           <groupId>org.codehaus.jackson</groupId>
           <artifactId>jackson-mapper-asl</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.sun.jersey</groupId>
+          <artifactId>jersey-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.sun.jersey</groupId>
+          <artifactId>jersey-servlet</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.codehaus.enunciate</groupId>
+          <artifactId>enunciate-core-rt</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.sun.jersey</groupId>
+          <artifactId>jersey-server</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.enunciate</groupId>
+      <artifactId>enunciate-core-rt</artifactId>
+      <version>${enunciate-jersey-rt.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.ws.rs</groupId>
+          <artifactId>jsr311-api</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -971,10 +988,11 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-core</artifactId>
+      <groupId>org.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
       <version>${ehcache-core.version}</version>
       <scope>compile</scope>
+      <classifier>jakarta</classifier>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -1418,18 +1436,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>trilead-ssh2</groupId>
-      <artifactId>trilead-ssh2</artifactId>
-      <version>${trilead-ssh2.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>ftp4che</groupId>
       <artifactId>ftp4che</artifactId>
       <version>${ftp4che.version}</version>
@@ -1490,16 +1496,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.ini4j</groupId>
-      <artifactId>ini4j</artifactId>
-      <version>${ini4j.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-configuration2</artifactId>
     </dependency>
     <dependency>
       <groupId>jexcelapi</groupId>
@@ -1559,12 +1557,6 @@
           <groupId>*</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>${h2.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>infobright</groupId>
@@ -1649,18 +1641,6 @@
           <groupId>*</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pdi-dataservice-client-plugin</artifactId>
-      <version>${pdi-dataservice-client-plugin.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pdi-dataservice-client-plugin-api</artifactId>
-      <version>${pdi-dataservice-client-plugin.version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>net.sf.kosmosfs</groupId>
@@ -2065,11 +2045,11 @@
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
+      <artifactId>osgi.core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.compendium</artifactId>
+      <artifactId>osgi.cmpn</artifactId>
     </dependency>
     <dependency>
       <groupId>org.openjdk.nashorn</groupId>
@@ -2147,8 +2127,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-webapp</artifactId>
+      <groupId>org.eclipse.jetty.ee10</groupId>
+      <artifactId>jetty-ee10-webapp</artifactId>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -2167,16 +2147,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.mockrunner</groupId>
-      <artifactId>mockrunner-servlet</artifactId>
-      <version>${mockrunner-servlet.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.mockrunner</groupId>
-      <artifactId>mockrunner</artifactId>
-      <version>${mockrunner.version}</version>
-      <scope>test</scope>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
     </dependency>
     <dependency>
       <groupId>net.javacrumbs.json-unit</groupId>
@@ -2472,30 +2444,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.sun.jersey.jersey-test-framework</groupId>
-      <artifactId>jersey-test-framework-core</artifactId>
-      <version>${jersey.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey.jersey-test-framework</groupId>
-      <artifactId>jersey-test-framework-grizzly</artifactId>
-      <version>${jersey.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>com.sun.grizzly</groupId>
       <artifactId>grizzly-framework</artifactId>
       <version>${grizzly.version}</version>
@@ -2601,18 +2549,6 @@
       <artifactId>spring-web</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.sun.jersey.contribs</groupId>
-      <artifactId>wadl-resourcedoc-doclet</artifactId>
-      <version>${wadl-resourcedoc-doclet.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>${guava.version}</version>
@@ -2656,9 +2592,15 @@
       <version>${fasterxml-jackson.non-osgi.version}</version>
     </dependency>
     <dependency>
-      <groupId>javax.websocket</groupId>
-      <artifactId>javax.websocket-api</artifactId>
-      <version>${websocket-api.version}</version>
+      <groupId>jakarta.websocket</groupId>
+      <artifactId>jakarta.websocket-api</artifactId>
+      <version>${jakarta.websocket-api.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.websocket</groupId>
+      <artifactId>jakarta.websocket-client-api</artifactId>
+      <version>${jakarta.websocket-api.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -2680,7 +2622,7 @@
     </dependency>
     <dependency>
       <groupId>com.hitachivantara.security.web</groupId>
-      <artifactId>csrf-token-service-client-java-jax-rs-v1</artifactId>
+      <artifactId>csrf-token-service-client-java-jax-rs-v3</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -2714,9 +2656,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>javax.persistence-api</artifactId>
-      <version>${javax.persistence-api.version}</version>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+      <version>${jakarta.persistence-api.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -2736,6 +2678,16 @@
           <groupId>*</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-crypto</artifactId>
+      <version>5.8.12</version>
+    </dependency>
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>SparseBitSet</artifactId>
+      <version>${sparsebitset.version}</version>
     </dependency>
   </dependencies>
   <build>

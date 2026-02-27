@@ -7,14 +7,17 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package com.pentaho.pdi.ws;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 
 @WebService
 public interface IRepositorySyncWebService {
   public RepositorySyncStatus sync( String repositoryId, String repositoryUrl ) throws RepositorySyncException;
+
+  public default void logout() { }
 }

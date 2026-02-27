@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified;
 
@@ -41,7 +42,7 @@ public class RepositoryAccessVoterManager implements IRepositoryAccessVoterManag
   public RepositoryAccessVoterManager( final List<IRepositoryAccessVoter> voters,
       final IAuthorizationPolicy authorizationPolicy, final String repositoryAdminUsername ) {
     this( authorizationPolicy, repositoryAdminUsername );
-    Assert.notNull( voters );
+    Assert.notNull( voters, "Voters list must not be null" );
     this.voters = new ArrayList<IRepositoryAccessVoter>();
     this.voters.addAll( voters );
   }

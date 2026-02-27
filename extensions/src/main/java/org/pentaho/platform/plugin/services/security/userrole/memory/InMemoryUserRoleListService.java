@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.security.userrole.memory;
 
@@ -126,12 +127,12 @@ public class InMemoryUserRoleListService implements IUserRoleListService, Initia
   }
 
   public void setRoleComparator( final Comparator<String> roleComparator ) {
-    Assert.notNull( roleComparator );
+    Assert.notNull( roleComparator, "Role comparator must not be null" );
     this.roleComparator = roleComparator;
   }
 
   public void setUsernameComparator( final Comparator<String> usernameComparator ) {
-    Assert.notNull( usernameComparator );
+    Assert.notNull( usernameComparator, "Username comparator must not be null" );
     this.usernameComparator = usernameComparator;
   }
 

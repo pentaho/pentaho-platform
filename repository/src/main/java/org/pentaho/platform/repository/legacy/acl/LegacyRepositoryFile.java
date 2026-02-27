@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository.legacy.acl;
 
@@ -46,9 +47,9 @@ public class LegacyRepositoryFile implements ISolutionFile, IAclHolder, Serializ
 
   public LegacyRepositoryFile( String fileName, String fullPath, boolean directory ) {
 
-    Assert.notNull( fileName );
-    Assert.notNull( fullPath );
-    Assert.notNull( directory );
+    Assert.notNull( fileName, "File name must not be null" );
+    Assert.notNull( fullPath, "Full path must not be null" );
+    Assert.notNull( directory, "Directory flag must not be null" );
 
     this.fileName = fileName;
     this.fullPath = fullPath;

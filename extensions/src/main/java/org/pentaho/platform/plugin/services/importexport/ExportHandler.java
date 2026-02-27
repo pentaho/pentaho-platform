@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importexport;
 /*
@@ -33,6 +34,7 @@ package org.pentaho.platform.plugin.services.importexport;
  */
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.importexport.ExportException;
 
 import java.io.IOException;
 import java.io.InputStream;

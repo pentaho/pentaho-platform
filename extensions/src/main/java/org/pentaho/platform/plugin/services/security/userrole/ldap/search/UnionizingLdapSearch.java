@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.security.userrole.ldap.search;
 
@@ -62,7 +63,7 @@ public class UnionizingLdapSearch implements LdapSearch, InitializingBean {
   }
 
   public void afterPropertiesSet() throws Exception {
-    Assert.notEmpty( searches );
+    Assert.notEmpty( searches, "Searches set must not be empty" );
   }
 
 }

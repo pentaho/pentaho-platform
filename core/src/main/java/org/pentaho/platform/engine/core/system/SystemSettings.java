@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.engine.core.system;
 
@@ -76,6 +77,12 @@ public class SystemSettings extends PentahoBase implements ISystemSettings {
     if ( doc == null ) {
       return defaultValue;
     }
+
+    if ( isXPathUnSafe( settingName ) ) {
+      error( Messages.getInstance().getString( "SYSTEMSETTINGS.XPATH_VIOLATION_DEFAULT", settingName ) );
+      return defaultValue;
+    }
+
     Node node = doc.selectSingleNode( "//" + settingName ); //$NON-NLS-1$
     if ( node == null ) {
       return defaultValue;
@@ -94,6 +101,10 @@ public class SystemSettings extends PentahoBase implements ISystemSettings {
     }
     Document doc = getSystemSettingsDocument( path );
     if ( doc == null ) {
+      return null;
+    }
+    if ( isXPathUnSafe( settingName ) ) {
+      error( Messages.getInstance().getString( "SYSTEMSETTINGS.XPATH_VIOLATION", settingName ) );
       return null;
     }
     settings = doc.selectNodes( "//" + settingName ); //$NON-NLS-1$
@@ -218,5 +229,41 @@ public class SystemSettings extends PentahoBase implements ISystemSettings {
 
   public String getSystemCfgSourceName() {
     return getAbsolutePath( SystemSettings.PENTAHOSETTINGSFILENAME );
+  }
+
+  // We rely on passing in values with characters that prevent us from using variables in the query, which
+  // would be the standard way of preventing dangerous user input. Instead, as a stop-gap, we can check that
+  // the strings we concatenate don't contain any of the other characters that would allow problematic queries.
+  private boolean isXPathUnSafe( String settingName ) {
+    if ( settingName == null ) {
+      return false;
+    }
+
+    // We need to allow "/", "-", "*", and "."
+    return settingName.contains( "'" ) ||
+      settingName.contains( "\"" ) ||
+      settingName.contains( "<" ) ||
+      settingName.contains( ">" ) ||
+      settingName.contains( "[" ) ||
+      settingName.contains( "]" ) ||
+      settingName.contains( "{" ) ||
+      settingName.contains( "}" ) ||
+      settingName.contains( "(" ) ||
+      settingName.contains( ")" ) ||
+      settingName.contains( "#" ) ||
+      settingName.contains( "%" ) ||
+      settingName.contains( ";" ) ||
+      settingName.contains( ":" ) ||
+      settingName.contains( "," ) ||
+      settingName.contains( "?" ) ||
+      settingName.contains( "\\" ) ||
+      settingName.contains( "|" ) ||
+      settingName.contains( "!" ) ||
+      settingName.contains( "@" ) ||
+      settingName.contains( "$" ) ||
+      settingName.contains( "&" ) ||
+      settingName.contains( "+" ) ||
+      settingName.contains( "=" ) ||
+      settingName.contains( "~" );
   }
 }

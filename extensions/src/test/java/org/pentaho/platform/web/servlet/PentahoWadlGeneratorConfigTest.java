@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.servlet;
 
@@ -22,12 +23,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.jersey.api.wadl.config.WadlGeneratorConfig;
+import org.glassfish.jersey.server.wadl.config.WadlGeneratorConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.util.IWadlDocumentResource;
 
-import com.sun.jersey.api.wadl.config.WadlGeneratorDescription;
+import org.glassfish.jersey.server.wadl.config.WadlGeneratorDescription;
 
 public class PentahoWadlGeneratorConfigTest {
 

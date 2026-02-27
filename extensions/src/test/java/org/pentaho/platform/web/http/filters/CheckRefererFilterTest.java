@@ -7,15 +7,16 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.filters;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockFilterConfig;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 public class CheckRefererFilterTest {
 

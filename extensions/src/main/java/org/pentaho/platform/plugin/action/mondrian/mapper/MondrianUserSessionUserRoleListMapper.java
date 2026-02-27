@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.action.mondrian.mapper;
 
@@ -47,7 +48,7 @@ public class MondrianUserSessionUserRoleListMapper extends MondrianAbstractPlatf
   private String sessionProperty;
 
   public void afterPropertiesSet() throws Exception {
-    Assert.notNull( sessionProperty );
+    Assert.notNull( sessionProperty, "Session property must not be null" );
   }
 
   //

@@ -7,12 +7,13 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.security.userroledao.ws;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 import java.util.List;
 
 /**
@@ -158,4 +159,6 @@ public interface IUserRoleWebService {
    * @throws UserRoleException
    */
   public void updateRole( String roleName, String description, List<String> usernames ) throws UserRoleException;
+
+  public default void logout() { }
 }

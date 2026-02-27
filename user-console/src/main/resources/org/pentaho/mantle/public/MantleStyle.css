@@ -893,3 +893,10 @@ code {
 #pucTabsMenuBar{
   display: none;
 }
+
+.about-splash {
+  background-image: url("images/aboutScreen.png");
+  padding-top: 70px;
+  padding-left: 285px;
+  font-size: 7px;
+}

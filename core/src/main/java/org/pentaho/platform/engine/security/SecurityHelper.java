@@ -7,14 +7,11 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
 
-package org.pentaho.platform.engine.security;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+package org.pentaho.platform.engine.security;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,15 +29,18 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.UserSession;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -113,7 +113,11 @@ public class SecurityHelper implements ISecurityHelper {
    */
   @Override
   public void becomeUser( final String principalName, final IParameterProvider paramProvider ) {
-    UserSession session = null;
+    becomeUserCore( principalName, paramProvider );
+  }
+
+  protected UserSession becomeUserCore( final String principalName, final IParameterProvider paramProvider ) {
+    UserSession session;
     tenantedUserNameUtils = getTenantedUserNameUtils();
     if ( tenantedUserNameUtils != null ) {
       session = new UserSession( principalName, null, false, paramProvider );
@@ -132,12 +136,14 @@ public class SecurityHelper implements ISecurityHelper {
     // Get the tenant id from the principle name and set it as an attribute of the pentaho session
 
     // Clearing the SecurityContext to force the subsequent call to getContext() to generate a new SecurityContext.
-    // This prevents us from modifying the Authentication on a SecurityContext isntance which may be shared between
+    // This prevents us from modifying the Authentication on a SecurityContext instance which may be shared between
     // threads.
-    PentahoSessionHolder.getSession().setAttribute( IPentahoSession.SESSION_ROLES, auth.getAuthorities() );
+    session.setAttribute( IPentahoSession.SESSION_ROLES, auth.getAuthorities() );
     SecurityContextHolder.clearContext();
     SecurityContextHolder.getContext().setAuthentication( auth );
-    PentahoSystem.sessionStartup( PentahoSessionHolder.getSession(), paramProvider );
+    PentahoSystem.sessionStartup( session, paramProvider );
+
+    return session;
   }
 
   /**
@@ -159,25 +165,43 @@ public class SecurityHelper implements ISecurityHelper {
   }
 
   @Override
-  public <T> T
-    runAsUser( final String principalName, final IParameterProvider paramProvider, final Callable<T> callable )
+  public <T> T runAsUser( final String principalName,
+                          final IParameterProvider paramProvider,
+                          final Callable<T> callable )
     throws Exception {
+
+    if ( logger.isTraceEnabled() ) {
+      logger.trace( String.format( "runAsUser BEGIN '%s'", principalName ) );
+    }
+
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
+
+
+    IPentahoSession userSession = null;
     try {
-      becomeUser( principalName );
+      userSession = becomeUserCore( principalName, null );
       return callable.call();
     } finally {
-      IPentahoSession sessionToDestroy = PentahoSessionHolder.getSession();
-      if ( sessionToDestroy != null && sessionToDestroy != origSession ) {
+      if ( userSession != null ) {
+        if ( logger.isTraceEnabled() ) {
+          logger.trace( String.format( "runAsUser destroying user session for '%s'", principalName ) );
+        }
+
         try {
-          sessionToDestroy.destroy();
+          userSession.destroy();
         } catch ( Exception e ) {
-          e.printStackTrace();
+          logger.error( String.format( "runAsUser session destroy for '%s' error", principalName ), e );
         }
       }
+
+      // Restore the original session and authentication.
       PentahoSessionHolder.setSession( origSession );
       SecurityContextHolder.getContext().setAuthentication( origAuth );
+
+      if ( logger.isTraceEnabled() ) {
+        logger.trace( String.format( "runAsUser END '%s'", principalName ) );
+      }
     }
   }
 
@@ -195,10 +219,16 @@ public class SecurityHelper implements ISecurityHelper {
    */
   @Override
   public <T> T runAsAnonymous( final Callable<T> callable ) throws Exception {
+    if ( logger.isTraceEnabled() ) {
+      logger.trace( "runAsAnonymous BEGIN" );
+    }
+
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
+    IPentahoSession anonymousSession = null;
     try {
-      PentahoSessionHolder.setSession( new StandaloneSession() );
+      anonymousSession = new StandaloneSession();
+      PentahoSessionHolder.setSession( anonymousSession );
 
       // get anonymous username/role defined in pentaho.xml
       String user = PentahoSystem
@@ -219,17 +249,33 @@ public class SecurityHelper implements ISecurityHelper {
       SecurityContextHolder.getContext().setAuthentication( auth );
       return callable.call();
     } finally {
+      if ( anonymousSession != null ) {
+        if ( logger.isTraceEnabled() ) {
+          logger.trace( "runAsAnonymous destroying standalone session for anonymous" );
+        }
+
+        try {
+          anonymousSession.destroy();
+        } catch ( Exception e ) {
+          logger.error( "runAsAnonymous session destroy error", e );
+        }
+      }
+
       PentahoSessionHolder.setSession( origSession );
       SecurityContextHolder.getContext().setAuthentication( origAuth );
+
+      if ( logger.isTraceEnabled() ) {
+        logger.trace( "runAsAnonymous END" );
+      }
     }
   }
 
   /**
    * Utility method that communicates with the installed ACLVoter to determine administrator status
-   * @deprecated use SystemUtils.canAdminister() instead
    *
    * @param session The users IPentahoSession object
    * @return true if the user is considered a Pentaho administrator
+   * @deprecated use SystemUtils.canAdminister() instead
    */
   @Override
   @Deprecated
@@ -388,18 +434,22 @@ public class SecurityHelper implements ISecurityHelper {
    */
   public <T> T runAsSystem( final Callable<T> callable ) throws Exception {
     String singleTenantAdmin = PentahoSystem.get( String.class, "singleTenantAdminUserName", null );
-    IPentahoSession origSession = PentahoSessionHolder.getSession();
 
+    if ( logger.isTraceEnabled() ) {
+      logger.trace( String.format( "runAsSystem BEGIN '%s'", singleTenantAdmin ) );
+    }
+
+    IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
 
-    StandaloneSession session = null;
+    StandaloneSession systemSession = null;
     try {
-      session = new StandaloneSession( singleTenantAdmin );
-      session.setAuthenticated( singleTenantAdmin );
+      systemSession = new StandaloneSession( singleTenantAdmin );
+      systemSession.setAuthenticated( singleTenantAdmin );
 
       // Set the session first or else the call to
       // createAuthentication will fail
-      PentahoSessionHolder.setSession( session );
+      PentahoSessionHolder.setSession( systemSession );
 
       // Clearing the SecurityContext to force the subsequent call to getContext() to generate a new SecurityContext.
       // This prevents us from modifying the Authentication on a SecurityContext isntance which may be shared between
@@ -414,17 +464,26 @@ public class SecurityHelper implements ISecurityHelper {
       return callable.call();
     } finally {
       // Make sure to destroy the system session so we don't leak anything.
-      if ( session != null ) {
+
+      if ( systemSession != null ) {
+        if ( logger.isTraceEnabled() ) {
+          logger.trace( String.format( "runAsSystem destroying system session for '%s'", singleTenantAdmin ) );
+        }
+
         try {
-          session.destroy();
+          systemSession.destroy();
         } catch ( Exception e ) {
-          // We can safely ignore this.
-          e.printStackTrace();
+          logger.error( String.format( "runAsSystem session destroy for '%s' error", singleTenantAdmin ), e );
         }
       }
+
       // Reset the original session.
       PentahoSessionHolder.setSession( origSession );
       SecurityContextHolder.getContext().setAuthentication( origAuth );
+
+      if ( logger.isTraceEnabled() ) {
+        logger.trace( String.format( "runAsSystem END '%s'", singleTenantAdmin ) );
+      }
     }
   }
 

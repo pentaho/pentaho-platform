@@ -7,14 +7,15 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.security.policy.rolebased.ws;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 
 /**
  * JAX-WS-safe version of {@link IAuthorizationPolicy}. In this case, nothing is different but it keeps JAX-WS
@@ -24,5 +25,5 @@ import javax.jws.WebService;
  */
 @WebService
 public interface IAuthorizationPolicyWebService extends IAuthorizationPolicy {
-
+  public default void logout() { }
 }

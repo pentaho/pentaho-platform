@@ -9,3 +9,10 @@
 derby.log
 /dev-lib
 .DS_Store
+/src/test/resources/SystemConfig/system/test.properties.*
+/src/test/**/tmp
+!/src/test/resources/solution/test/tmp
+/src/test/resources/solution/system/data/sampledata.log
+/report.pdf
+/file:/tmp
+/test[0-9]*

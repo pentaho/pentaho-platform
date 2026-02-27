@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.security.userroledao.ws;
 
@@ -17,7 +18,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.userroledao.messages.Messages;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 
 /**
  * Same as {@link UserRoleWebService} except that it uses task permissions to determine administrator status
@@ -38,5 +39,10 @@ public class AuthorizationPolicyBasedUserRoleWebService extends UserRoleWebServi
           "AuthorizationPolicyBasedUserRoleWebService.ERROR_0001_MISSING_AUTHZ_POLICY" ) ); //$NON-NLS-1$
     }
     return policy.isAllowed( AdministerSecurityAction.NAME ); //$NON-NLS-1$
+  }
+
+  @Override
+  public void logout() {
+    // no-op, handled in PentahoWSSpringServlet
   }
 }

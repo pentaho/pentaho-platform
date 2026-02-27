@@ -7,17 +7,21 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources;
 
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -25,12 +29,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.jersey.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
+import org.mockito.MockedStatic;
 import org.mockito.stubbing.Answer;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
@@ -39,6 +44,7 @@ import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -54,7 +60,8 @@ import org.pentaho.platform.plugin.services.importer.PentahoPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.plugin.services.importer.SolutionImportHandler;
 
-import com.sun.jersey.core.header.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 
 public class RepositoryImportResourceTest {
   private static final String REAL_USER = "testUser";
@@ -80,7 +87,6 @@ public class RepositoryImportResourceTest {
     resolver = mock( ITenantedPrincipleNameResolver.class );
     doReturn( tenat ).when( resolver ).getTenant( nullable( String.class ) );
     doReturn( REAL_USER ).when( resolver ).getPrincipleName( nullable( String.class ) );
-    policy = mock( IAuthorizationPolicy.class );
     pentahoObjectFactory = mock( IPentahoObjectFactory.class );
     iPlatformMimeResolver = mock( NameBaseMimeResolver.class );
     iRepositoryImportLogger = mock( IRepositoryImportLogger.class );
@@ -167,6 +173,33 @@ public class RepositoryImportResourceTest {
     @Override
     public boolean matches( final Class<?> arg ) {
       return true;
+    }
+  }
+
+  @Test
+  public void validateImportAccess() throws PentahoAccessControlException {
+    try ( MockedStatic<SystemUtils> systemUtils = mockStatic( SystemUtils.class ) ) {
+      systemUtils.when( () -> SystemUtils.canUpload( anyString(), anyBoolean() ) ).thenReturn( true );
+
+      RepositoryImportResource importResource = new RepositoryImportResource();
+
+      try {
+        importResource.validateImportAccess( "/mock/path/" );
+      } catch ( IllegalArgumentException e ) {
+        Assert.fail( "Should not throw exception" );
+      }
+    }
+  }
+
+  @Test
+  public void validateImportAccess_throwsPentahoAccessControlException() {
+    try ( MockedStatic<SystemUtils> systemUtils = mockStatic( SystemUtils.class ) ) {
+      systemUtils.when( () -> SystemUtils.canUpload( anyString(), anyBoolean() ) ).thenReturn( false );
+
+      RepositoryImportResource importResource = new RepositoryImportResource();
+
+      Assert.assertThrows( PentahoAccessControlException.class,
+        () -> importResource.validateImportAccess( "/mock/path/" ) );
     }
   }
 }

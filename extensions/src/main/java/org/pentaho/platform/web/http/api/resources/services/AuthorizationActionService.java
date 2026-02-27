@@ -7,17 +7,19 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
 
-package org.pentaho.platform.web.http.api.resources.services;
 
-import java.util.List;
+package org.pentaho.platform.web.http.api.resources.services;
 
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
+import java.util.List;
+
+@SuppressWarnings( "removal" )
 public class AuthorizationActionService {
 
   @SuppressWarnings( "serial" )
