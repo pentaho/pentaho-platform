@@ -49,6 +49,7 @@ import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLo
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.Parameters;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
@@ -76,6 +77,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class SolutionImportHandler implements IPlatformImportHandler {
+
+  private static final String MESSAGE_UNKNOWN_VALUE = "UNKNOWN";
 
   private static final String XMI_EXTENSION = ".xmi";
 
@@ -372,19 +375,20 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_START_IMPORT_DATASOURCE" ) );
     }
     // Add DB Connections
-    List<org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection> datasourceList = manifest.getDatasourceList();
+    List<DatabaseConnection> datasourceList = manifest.getDatasourceList();
     if ( datasourceList != null ) {
       int successfulDatasourceImportCount = 0;
       if ( importState.isPerformingRestore ) {
         getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_COUNT_DATASOURCE", datasourceList.size() ) );
       }
       IDatasourceMgmtService datasourceMgmtSvc = PentahoSystem.get( IDatasourceMgmtService.class );
-      for ( org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection databaseConnection : datasourceList ) {
+      for ( DatabaseConnection databaseConnection : datasourceList ) {
         if ( databaseConnection.getDatabaseType() == null ) {
           // don't try to import the connection if there is no type it will cause an error
           // However, if this is the DI Server, and the connection is defined in a ktr, it will import automatically
-          getLogger().warn( Messages.getInstance()
-              .getString( "SolutionImportHandler.ConnectionWithoutDatabaseType", databaseConnection.getName() ) );
+          String connectionName = getConnectionNameForLog( databaseConnection );
+          getLogger().error( Messages.getInstance()
+              .getString( "SolutionImportHandler.ConnectionWithoutDatabaseType", connectionName ) );
           continue;
         }
         try {
@@ -413,6 +417,14 @@ public class SolutionImportHandler implements IPlatformImportHandler {
     if ( importState.isPerformingRestore ) {
       getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_END_IMPORT_DATASOURCE" ) );
     }
+  }
+
+  private String getConnectionNameForLog(
+    DatabaseConnection databaseConnection ) {
+    if ( databaseConnection == null || databaseConnection.getName() == null || databaseConnection.getName().trim().isEmpty() ) {
+      return MESSAGE_UNKNOWN_VALUE;
+    }
+    return databaseConnection.getName();
   }
 
   List<IJob> getAllJobs( ISchedulerResource schedulerResource ) {
