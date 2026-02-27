@@ -13,6 +13,12 @@
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
+import org.apache.commons.collections.ListUtils;
+import org.pentaho.platform.servicecoordination.api.IServiceBarrier;
+import org.pentaho.platform.servicecoordination.api.IServiceBarrierManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,12 +31,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.collections.ListUtils;
-import org.pentaho.platform.servicecoordination.api.IServiceBarrier;
-import org.pentaho.platform.servicecoordination.api.IServiceBarrierManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author tkafalas
  */
@@ -41,13 +41,14 @@ public class BarrierBeanProcessor {
   private Map<String, List<BarrierBean>> barrierBeans = new ConcurrentHashMap<String, List<BarrierBean>>();
   private Map<String, Set<String>> beanBarriers = new ConcurrentHashMap<String, Set<String>>();
 
+  static {
+    barrierBeanProcessor = new BarrierBeanProcessor();
+  }
+
   private BarrierBeanProcessor() {
   }
 
   public static BarrierBeanProcessor getInstance() {
-    if ( barrierBeanProcessor == null ) {
-      barrierBeanProcessor = new BarrierBeanProcessor();
-    }
     return barrierBeanProcessor;
   }
 
@@ -92,7 +93,7 @@ public class BarrierBeanProcessor {
    * maintained so that plugins can add their own barrierBeans if necessary.  Registered barrierBeans will be held just
    * prior to bean initialization.  See {@link BarrierBeanPostProcessor}
    *
-   * @param barrierBeanFilePath
+   * @param barrierBeanProperties
    * @return
    */
   @SuppressWarnings( "unchecked" )
