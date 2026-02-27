@@ -13,12 +13,14 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.vfs2.FileObject;
 import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
@@ -28,6 +30,10 @@ import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginOperation;
 import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.di.core.bowl.Bowl;
+import org.pentaho.di.core.bowl.DefaultBowl;
+import org.pentaho.di.core.vfs.IKettleVFS;
+import org.pentaho.di.core.vfs.KettleVFS;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -736,6 +742,16 @@ public class RepositoryResource extends AbstractJaxRSResource {
     return contextId.startsWith( ":" ) || contextId.matches( "^[A-z]\t:.*" );
   }
 
+  @VisibleForTesting
+  protected boolean isPvfsPath( String contextId ) {
+    return contextId.matches( "pvfs\t::.*");
+  }
+
+  @VisibleForTesting
+  protected Bowl getBowl() {
+    return DefaultBowl.getInstance();
+  }
+
   protected Response doService( String contextId, String resourceId ) throws ObjectFactoryException,
       PluginBeanException, IOException, URISyntaxException {
 
@@ -800,6 +816,46 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
       // A.3.b (real content generator)
       CGFactory fac = new RepositoryFileCGFactory( resourceId, file );
+      response = getContentGeneratorResponse( fac );
+      if ( response != null ) {
+        return response;
+      }
+    } else if ( isPvfsPath( contextId ) ) {
+      //
+      // The context is a PVFS file (D)
+      //
+      ctxt( "Yes, [{0}] is a PVFS file id", contextId ); //$NON-NLS-1$
+      Response response = null;
+
+      // verify file exists and we have access to the connection
+      String pathId = RepositoryPathEncoder.decodeRepositoryPath( contextId );
+      IKettleVFS vfs = KettleVFS.getInstance( getBowl() );
+      FileObject fileObject;
+      try {
+        fileObject = vfs.getFileObject( pathId );
+      } catch ( Exception e ) {
+        logger.error( MessageFormat.format( "Error accessing PVFS file [{0}]", contextId ), e );
+        fileObject = null;
+      }
+      if ( fileObject == null || !fileObject.exists() ) {
+        logger.error( MessageFormat.format( "PVFS file [{0}] not found", contextId ) );
+        return Response.serverError().build();
+      }
+      if ( RepositoryPathEncoder.decodeRepositoryPath( contextId ).endsWith( ".prpti" ) && !validatePrptiOutputFormat() ) {
+        logger.error( MessageFormat.format( "Output Format [{0}] for PIR report not allowed for file [{1}]",
+          this.httpServletRequest.getParameterMap().get( "output-target" )[ 0 ], RepositoryPathEncoder.decodeRepositoryPath( contextId ) ) );
+        return Response.serverError().status( Status.BAD_REQUEST ).build();
+      }
+
+      ctxt( "Yep, [{0}] is a pvfs file id", contextId ); //$NON-NLS-1$
+      final String ext = RepositoryFilenameUtils.getExtension( RepositoryFilenameUtils.getName( pathId ) );
+      String pluginId = pluginManager.getPluginIdForType( ext );
+      if ( pluginId == null ) {
+        logger.error( MessageFormat.format( "No plugin was found to service content of type [{0}]", ext ) );
+        return Response.serverError().build();
+      }
+
+      CGFactory fac = new VfsFileCGFactory( resourceId, fileObject );
       response = getContentGeneratorResponse( fac );
       if ( response != null ) {
         return response;
@@ -923,6 +979,21 @@ public class RepositoryResource extends AbstractJaxRSResource {
     }
   }
 
+  class VfsFileCGFactory extends ContentTypeCGFactory {
+    FileObject fileObject;
+
+    public VfsFileCGFactory( String contentGeneratorPath, FileObject fileObject ) {
+      super( contentGeneratorPath, fileObject.getName().getBaseName().substring( fileObject.getName().getBaseName().lastIndexOf( '.' ) + 1 ) );
+      this.fileObject = fileObject;
+    }
+
+    @Override
+    GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
+      return new GeneratorStreamingOutput( cg, this, httpServletRequest, httpServletResponse, acceptableMediaTypes,
+        fileObject, command );
+    }
+  }
+
   class ContentTypeCGFactory extends CGFactory {
     String repoFileExt;
 
@@ -939,7 +1010,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     @Override
     GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
       return new GeneratorStreamingOutput( cg, this, httpServletRequest, httpServletResponse, acceptableMediaTypes,
-          null, command );
+          command );
     }
 
     @Override
@@ -969,7 +1040,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     @Override
     GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
       return new GeneratorStreamingOutput( cg, this, httpServletRequest, httpServletResponse, acceptableMediaTypes,
-          null, command );
+          command );
     }
 
     @Override
