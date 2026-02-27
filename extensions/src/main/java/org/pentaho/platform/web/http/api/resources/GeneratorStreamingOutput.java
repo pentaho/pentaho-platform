@@ -15,7 +15,6 @@ package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.vfs2.FileObject;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -62,8 +61,6 @@ public class GeneratorStreamingOutput {
 
   protected RepositoryFile file;
 
-  protected FileObject fileObject;
-
   protected String command;
 
   protected HttpServletRequest httpServletRequest;
@@ -81,66 +78,6 @@ public class GeneratorStreamingOutput {
   protected ContentGeneratorDescriptor contentGeneratorDescriptor;
 
   private static final boolean MIMETYPE_MUTABLE = true;
-
-  /**
-   * Invokes a content generator to produce some content either in the context of a repository file, or in the form of a
-   * direct service call (no repository file in view).
-   * 
-   * @param contentGenerator
-   *                                   the content generator to invoke
-   * @param ContentGeneratorDescriptor
-   *                                   a descriptor detailing info about the content generator
-   * @param request
-   *                                   the HTTP request
-   * @param response
-   *                                   the HTTP response
-   * @param producesMimeType
-   *                                   the requested return type of the output (can be null if none is preferred)
-   * @param file
-   *                                   the repository file being rendered (can be null if a repository file does not
-   *                                   apply)
-   * @param command
-   *                                   the trailing part of the URL path of the request, typically used as a command
-   *                                   sequence (can be null)
-   */
-  public GeneratorStreamingOutput( IContentGenerator contentGenerator, ContentGeneratorDescriptor desc,
-                                   HttpServletRequest request, HttpServletResponse response,
-                                   List<MediaType> acceptableMediaTypes,
-                                   String command ) {
-    init( contentGenerator, desc, request, response, acceptableMediaTypes, command );
-  }
-
-  private void init( IContentGenerator contentGenerator, ContentGeneratorDescriptor desc,
-                     HttpServletRequest request, HttpServletResponse response,
-                     List<MediaType> acceptableMediaTypes,
-                     String command ) {
-    if ( contentGenerator == null ) {
-      throw new IllegalArgumentException( "contentGenerator cannot be null" );
-    }
-    this.contentGenerator = contentGenerator;
-    this.contentGeneratorDescriptor = desc;
-    this.command = command;
-    this.contentGeneratorID = desc.getContentGeneratorId();
-    this.fileType = desc.getServicingFileType();
-    mimeTrace( "Request is requiring content generator to return content of type [{0}]", acceptableMediaTypes
-      .toString() );
-    if ( acceptableMediaTypes != null ) {
-      this.acceptableMediaTypes = acceptableMediaTypes;
-    }
-    this.httpServletRequest = request;
-    this.httpServletResponse = response;
-    pluginMgr = PentahoSystem.get( IPluginManager.class );
-
-    // if command seems like a file path, then use the file extension to determine response mime type, otherwise
-    // leave it up to the content generator
-    if ( command != null && command.contains( "." ) ) { //$NON-NLS-1$
-      String tmpMimeType = MimeHelper.getMimeTypeFromFileName( command );
-      if ( tmpMimeType != null ) {
-        mimeType = tmpMimeType;
-        mimeTrace( "Setting response mime type to [{0}] (based on extension of resource [{1}])", mimeType, command ); //$NON-NLS-1$
-      }
-    }
-  }
 
   /**
    * Invokes a content generator to produce some content either in the context of a repository file, or in the form of a
@@ -167,39 +104,30 @@ public class GeneratorStreamingOutput {
     if ( contentGenerator == null ) {
       throw new IllegalArgumentException( "contentGenerator cannot be null" );
     }
+    this.contentGenerator = contentGenerator;
+    this.contentGeneratorDescriptor = desc;
+    this.command = command;
+    this.contentGeneratorID = desc.getContentGeneratorId();
+    this.fileType = desc.getServicingFileType();
     this.file = file;
-    init( contentGenerator, desc, request, response, acceptableMediaTypes, command );
-  }
-
-  /**
-   * Invokes a content generator to produce some content either in the context of a repository file, or in the form of a
-   * direct service call (no repository file in view).
-   * 
-   * @param contentGenerator
-   *                                   the content generator to invoke
-   * @param ContentGeneratorDescriptor
-   *                                   a descriptor detailing info about the content generator
-   * @param request
-   *                                   the HTTP request
-   * @param response
-   *                                   the HTTP response
-   * @param producesMimeType
-   *                                   the requested return type of the output (can be null if none is preferred)
-   * @param filePath
-   *                                   the path to the VFS file being rendered
-   * @param command
-   *                                   the trailing part of the URL path of the request, typically used as a command
-   *                                   sequence (can be null)
-   */
-  public GeneratorStreamingOutput( IContentGenerator contentGenerator, ContentGeneratorDescriptor desc,
-                                   HttpServletRequest request, HttpServletResponse response,
-                                   List<MediaType> acceptableMediaTypes,
-                                   FileObject fileObject, String command ) {
-    if ( fileObject == null ) {
-      throw new IllegalArgumentException( "fileObject cannot be null" );
+    mimeTrace( "Request is requiring content generator to return content of type [{0}]", acceptableMediaTypes
+        .toString() );
+    if ( acceptableMediaTypes != null ) {
+      this.acceptableMediaTypes = acceptableMediaTypes;
     }
-    this.fileObject = fileObject;
-    init( contentGenerator, desc, request, response, acceptableMediaTypes, command );
+    this.httpServletRequest = request;
+    this.httpServletResponse = response;
+    pluginMgr = PentahoSystem.get( IPluginManager.class );
+
+    // if command seems like a file path, then use the file extension to determine response mime type, otherwise
+    // leave it up to the content generator
+    if ( command != null && command.contains( "." ) ) { //$NON-NLS-1$
+      String tmpMimeType = MimeHelper.getMimeTypeFromFileName( command );
+      if ( tmpMimeType != null ) {
+        mimeType = tmpMimeType;
+        mimeTrace( "Setting response mime type to [{0}] (based on extension of resource [{1}])", mimeType, command ); //$NON-NLS-1$
+      }
+    }
   }
 
   private void mimeTrace( String msg, Object... args ) {
@@ -215,8 +143,6 @@ public class GeneratorStreamingOutput {
   public void write( OutputStream output, MimeTypeCallback callback ) throws IOException {
     if ( file != null ) {
       fileType = RepositoryFilenameUtils.getExtension( file.getName() );
-    } else if ( fileObject != null ) {
-      fileType = RepositoryFilenameUtils.getExtension( fileObject.getName().getBaseName() );
     }
 
     try {
@@ -349,10 +275,6 @@ public class GeneratorStreamingOutput {
     if ( file != null ) {
       pathParams.setParameter( "path", URLEncoder.encode( file.getPath(), "UTF-8" ) ); //$NON-NLS-1$
       pathParams.setParameter( "file", file ); //$NON-NLS-1$
-    }
-    if ( fileObject != null ) {
-      pathParams.setParameter( "path", URLEncoder.encode( fileObject.getName().getPath(), "UTF-8" ) ); //$NON-NLS-1$
-      pathParams.setParameter( "file", fileObject ); //$NON-NLS-1$
     }
     if ( command != null ) {
       // path beyond that which matched the GeneratorResource
