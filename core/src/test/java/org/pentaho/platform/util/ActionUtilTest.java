@@ -48,6 +48,9 @@ import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.PluginBeanException;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.workitem.DummyPublisher;
@@ -391,5 +394,38 @@ public class ActionUtilTest {
     } finally {
       Files.deleteIfExists( temp );
     }
+  }
+
+  @Test
+  public void testAddAttachment_UsesGeneratedContentNameWhenEnabled() throws Exception {
+    Map<String, Object> actionParams = new HashMap<>();
+    actionParams.put( "_SCH_EMAIL_USE_GENERATED_NAME", "true" );
+    actionParams.put( "_SCH_EMAIL_ATTACHMENT_NAME", "custom-name" );
+
+    Map<String, Object> params = new HashMap<>();
+    params.put( ActionUtil.QUARTZ_LINEAGE_ID, "lineage-id" );
+
+    RepositoryFile sourceFile = mock( RepositoryFile.class );
+    when( sourceFile.getId() ).thenReturn( "file-id" );
+    when( sourceFile.getName() ).thenReturn( "generated-output" );
+
+    IUnifiedRepository repo = mock( IUnifiedRepository.class );
+    when( repo.getFile( "/public/generated/output.*" ) ).thenReturn( sourceFile );
+    when( repo.getFileMetadata( "file-id" ) ).thenReturn( new HashMap<>() );
+    when( repo.getDataForRead( "file-id", SimpleRepositoryFileData.class ) ).thenReturn(
+      new SimpleRepositoryFileData( new ByteArrayInputStream( "x".getBytes() ), "UTF-8", null ) );
+
+    Emailer emailer = mock( Emailer.class );
+
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
+      pentahoSystem.when( () -> PentahoSystem.get( IUnifiedRepository.class ) ).thenReturn( repo );
+
+      Method addAttachment = ActionUtil.class.getDeclaredMethod( "addAttachment", Map.class, Map.class,
+        String.class, Emailer.class );
+      addAttachment.setAccessible( true );
+      addAttachment.invoke( null, actionParams, params, "/public/generated/output.*", emailer );
+    }
+
+    verify( emailer ).setAttachmentName( "generated-output.bin" );
   }
 }
