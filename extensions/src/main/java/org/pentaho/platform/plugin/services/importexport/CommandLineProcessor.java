@@ -18,35 +18,13 @@ import com.hitachivantara.security.web.impl.client.csrf.jaxrsv3.CsrfTokenFilter;
 import com.hitachivantara.security.web.impl.client.csrf.jaxrsv3.util.SessionCookiesFilter;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.MultivaluedHashMap;
-import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.client.Entity;
-import org.glassfish.jersey.client.ClientResponse;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.di.core.KettleClientEnvironment;
-import org.pentaho.di.core.encryption.Encr;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.platform.plugin.services.messages.Messages;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.util.RepositoryPathEncoder;
-
+import jakarta.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -61,6 +39,26 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.pentaho.di.core.KettleClientEnvironment;
+import org.pentaho.di.core.encryption.Encr;
+import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.platform.plugin.services.messages.Messages;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.util.RepositoryPathEncoder;
 
 /**
  * Handles the parsing of command line arguments and creates an import process based upon them
@@ -469,6 +467,7 @@ public class CommandLineProcessor {
       throws ParseException, IOException {
     File metadataFileInZip = null;
     InputStream metadataFileInZipInputStream = null;
+    ZipInputStream zipInputStream = null;
 
     String metadataImportURL = contextURL + API_METADATA_POST_IMPORT;
 
@@ -483,7 +482,7 @@ public class CommandLineProcessor {
 
     try {
       if ( ext.equals( ZIP_EXT ) ) {
-        ZipInputStream zipInputStream = new ZipInputStream( new FileInputStream( metadataDatasourceFile ) );
+        zipInputStream = new ZipInputStream( new FileInputStream( metadataDatasourceFile ) );
         ZipEntry entry = zipInputStream.getNextEntry();
         while ( entry != null ) {
           final String entryName = RepositoryFilenameUtils.separatorsToRepository( entry.getName() );
@@ -509,6 +508,7 @@ public class CommandLineProcessor {
           entry = zipInputStream.getNextEntry();
         }
         zipInputStream.close();
+        zipInputStream = null;
 
         part.field( MULTIPART_FIELD_OVERWRITE, "true".equals( overwrite ) ? "true" : "false",
             MediaType.MULTIPART_FORM_DATA_TYPE );
@@ -521,7 +521,7 @@ public class CommandLineProcessor {
                 .fileName( metadataFileInZip.getName() ).build() );
 
         // Response response
-        Response response = webTarget.request( MediaType.MULTIPART_FORM_DATA ).post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA_TYPE ) );
+        Response response = webTarget.request( MediaType.TEXT_HTML_TYPE ).post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA_TYPE ) );
         if ( response != null ) {
           logResponseMessage( logFile, path, response, RequestType.IMPORT );
           response.close();
@@ -539,7 +539,7 @@ public class CommandLineProcessor {
             .fileName( metadataDatasourceFile.getName() ).build() );
 
         // Response response
-       Response response = webTarget.request( MediaType.MULTIPART_FORM_DATA ).post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA ) );
+        Response response = webTarget.request( MediaType.TEXT_HTML_TYPE ).post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA_TYPE ) );
         if ( response != null ) {
           logResponseMessage( logFile, path, response, RequestType.IMPORT );
           response.close();
@@ -547,7 +547,12 @@ public class CommandLineProcessor {
         metadataDatasourceInputStream.close();
       }
     } finally {
-      metadataFileInZipInputStream.close();
+      if ( metadataFileInZipInputStream != null ) {
+        metadataFileInZipInputStream.close();
+      }
+      if ( zipInputStream != null ) {
+        zipInputStream.close();
+      }
       part.cleanup();
     }
   }
@@ -597,7 +602,8 @@ public class CommandLineProcessor {
         .setContentDisposition( FormDataContentDisposition.name( MULTIPART_FIELD_UPLOAD_ANALYSIS )
             .fileName( analysisDatasourceFile.getName() ).build() );
 
-    Response response = webTarget.request( MediaType.MULTIPART_FORM_DATA ).post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA ) );
+    Response response = webTarget.request( MediaType.TEXT_HTML_TYPE ).post( Entity.entity( part, MediaType.MULTIPART_FORM_DATA_TYPE ) );
+
     if ( response != null ) {
       logResponseMessage( logFile, path, response, RequestType.IMPORT );
       response.close();
@@ -714,8 +720,10 @@ public class CommandLineProcessor {
     }
   }
 
-  private void logResponseMessage( String logFile, String path, Response response, RequestType requestType ) {
+  protected void logResponseMessage( String logFile, String path, Response response, RequestType requestType ) {
     boolean badLogFilePath = false;
+    String responseBody = null;
+    
     if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
       errorMessage =
         Messages.getInstance().getString( "CommandLineProcessor.INFO_" + requestType.toString() + "_SUCCESSFUL" );
@@ -728,16 +736,31 @@ public class CommandLineProcessor {
       errorMessage =
         Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0009_INVALID_LOG_FILE_PATH", logFile );
       badLogFilePath = true;
-    } else {
-      errorMessage = Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0002_INVALID_RESPONSE" );
+    } else if ( response.getStatus() == 406 ) {
+      // HTTP 406 Not Acceptable - content-type mismatch
+      errorMessage = "HTTP 406 Not Acceptable - The server cannot process the request. Verify the metadata file format (.xmi) and ensure the endpoint expects the correct content type.";
     }
 
     StringBuilder message = new StringBuilder( errorMessage );
     if ( !badLogFilePath ) {
       message.append( System.getProperty( "line.separator" ) );
       if ( response.hasEntity() ) {
-        message.append( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
-          response.readEntity( String.class ) ) );
+        responseBody = response.readEntity( String.class );
+        
+        // Parse datasource import response codes for better user feedback
+        if ( requestType == RequestType.IMPORT && StringUtils.isNotBlank( responseBody ) ) {
+          String trimmedResponse = responseBody.trim();
+          String importDetails = parseDatasourceImportResponse( trimmedResponse );
+          if ( importDetails != null ) {
+            message.append( importDetails );
+          } else {
+            message.append( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
+              responseBody ) );
+          }
+        } else {
+          message.append( Messages.getInstance().getString( "CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
+            responseBody ) );
+        }
       }
       System.out.println( message );
       if ( StringUtils.isNotBlank( logFile ) ) {
@@ -745,6 +768,65 @@ public class CommandLineProcessor {
       }
     } else {
       System.out.println( message );
+    }
+  }
+
+  /**
+   * Parse datasource import response codes and return user-friendly messages based on PlatformImportException status codes.
+   * These codes come from the data-access REST API endpoints for metadata and analysis datasource imports.
+   * 
+   * Status codes from org.pentaho.platform.plugin.services.importer.PlatformImportException:
+   * - 1: PUBLISH_GENERAL_ERROR - General server-side failure
+   * - 2: PUBLISH_UNSPECIFIED_ERROR - General unspecified error
+   * - 5: PUBLISH_USERNAME_PASSWORD_FAIL - Authentication failure (username or password error)
+   * - 6: PUBLISH_CONNECTION_ERROR - Data source/connection problem
+   * - 7: PUBLISH_XMLA_ALREADY_EXISTS - XMLA Catalog name already exists
+   * - 8: PUBLISH_SCHEMA_EXISTS - Schema already exists
+   * - 9: PUBLISH_CONTENT_EXISTS - Content already exists
+   * - 10: PUBLISH_PROHIBITED_SYMBOLS_ERROR - Prohibited characters in name/content
+   * - 11: PUBLISH_PLUGIN_ERROR - Job or transformation has missing plugins
+   * - 12: PUBLISH_PARTIAL_ERROR - Partial upload (incomplete transfer)
+   * - 13: PUBLISH_NAME_ERROR - Name validation error
+   * - 3: SUCCESS (non-standard, used by the platform)
+   * 
+   * @param responseBody the response body string
+   * @return user-friendly message for the response code, or null if not recognized
+   */
+  protected String parseDatasourceImportResponse( String responseBody ) {
+    try {
+      int responseCode = Integer.parseInt( responseBody.trim() );
+      switch ( responseCode ) {
+        case 1:
+          return Messages.getInstance().getString( "CommandLineProcessor.DATASOURCE_IMPORT_GENERAL_SERVER_ERROR" );
+        case 2:
+          return Messages.getInstance().getString( "CommandLineProcessor.DATASOURCE_IMPORT_UNSPECIFIED_ERROR" );
+        case 3:
+          return Messages.getInstance().getString( "CommandLineProcessor.DATASOURCE_IMPORT_SUCCESS" );
+        case 5:
+          return Messages.getInstance().getString( "CommandLineProcessor.DATASOURCE_IMPORT_AUTH_FAILURE" );
+        case 6:
+          return Messages.getInstance().getString( "CommandLineProcessor.DATASOURCE_IMPORT_CONNECTION_ERROR" );
+        case 7:
+          return Messages.getInstance().getString( "CommandLineProcessor.DATASOURCE_IMPORT_XMLA_EXISTS" );
+        case 8:
+          return Messages.getInstance().getString( "CommandLineProcessor.DATASOURCE_IMPORT_SCHEMA_EXISTS" );
+        case 9:
+          return Messages.getInstance().getString( "CommandLineProcessor.DATASOURCE_IMPORT_CONTENT_EXISTS" );
+        case 10:
+          return Messages.getInstance().getString( "CommandLineProcessor.DATASOURCE_IMPORT_PROHIBITED_CHARS" );
+        case 11:
+          return Messages.getInstance().getString( "CommandLineProcessor.DATASOURCE_IMPORT_PLUGIN_ERROR" );
+        case 12:
+          return Messages.getInstance().getString( "CommandLineProcessor.DATASOURCE_IMPORT_PARTIAL_ERROR" );
+        case 13:
+          return Messages.getInstance().getString( "CommandLineProcessor.DATASOURCE_IMPORT_NAME_ERROR" );
+        default:
+          return Messages.getInstance().getString( "CommandLineProcessor.DATASOURCE_IMPORT_UNKNOWN_CODE", 
+            String.valueOf( responseCode ) );
+      }
+    } catch ( NumberFormatException e ) {
+      // If it's not a numeric response code, return null to use default handling
+      return null;
     }
   }
 
