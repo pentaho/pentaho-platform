@@ -489,21 +489,27 @@ public class ActionUtil {
     // send email
     SimpleRepositoryFileData data = repo.getDataForRead( sourceFile.getId(), SimpleRepositoryFileData.class );
     emailer.setAttachment( data.getInputStream() );
-    emailer.setAttachmentName( "attachment" );
-    String attachmentName = (String) actionParams.get( "_SCH_EMAIL_ATTACHMENT_NAME" );
-    if ( !StringUtils.isEmpty( attachmentName ) ) {
-      String extension = MimeHelper.getExtension( data.getMimeType(), ".bin" );
-      emailer.setAttachmentName( attachmentName.endsWith( extension ) ?  attachmentName : attachmentName + extension );
-    } else if ( data != null ) {
+    
+    String useGeneratedName = (String) actionParams.get( "_SCH_EMAIL_USE_GENERATED_NAME" );
+    String customAttachmentName = (String) actionParams.get( "_SCH_EMAIL_ATTACHMENT_NAME" );
+    String extension = MimeHelper.getExtension( data.getMimeType(), ".bin" );
+    
+    String finalAttachmentName;
+    
+    if ( "true".equalsIgnoreCase( useGeneratedName ) ) {
+      finalAttachmentName = sourceFile.getName();
+    } else if ( !StringUtils.isEmpty( customAttachmentName ) ) {
+      finalAttachmentName = customAttachmentName;
+    } else {
       String path = filePath;
       if ( path.endsWith( ".*" ) ) {
         path = path.replace( ".*", "" );
       }
-      String extension = MimeHelper.getExtension( data.getMimeType(), ".bin" );
-      path = path.substring( path.lastIndexOf( "/" ) + 1, path.length() );
-      emailer.setAttachmentName( path.endsWith( extension ) ?  path : path + extension );
+      finalAttachmentName = path.substring( path.lastIndexOf( "/" ) + 1, path.length() );
     }
-    if ( data == null || data.getMimeType() == null || "".equals( data.getMimeType() ) ) {
+
+    emailer.setAttachmentName( finalAttachmentName.endsWith( extension ) ? finalAttachmentName : finalAttachmentName + extension );
+    if ( data.getMimeType() == null || "".equals( data.getMimeType() ) ) {
       emailer.setAttachmentMimeType( "binary/octet-stream" );
     } else {
       emailer.setAttachmentMimeType( data.getMimeType() );
