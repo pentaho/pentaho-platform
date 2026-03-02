@@ -13,6 +13,7 @@
 package org.pentaho.platform.engine.security.authorization.core;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.pentaho.platform.api.engine.security.authorization.AuthorizationDecisionReportingMode;
 import org.pentaho.platform.api.engine.security.authorization.IAuthorizationOptions;
 import org.pentaho.platform.api.engine.security.authorization.decisions.IAllAuthorizationDecision;
@@ -23,6 +24,7 @@ import org.pentaho.platform.engine.security.authorization.core.decisions.AllAuth
 import org.pentaho.platform.engine.security.authorization.core.decisions.AnyAuthorizationDecision;
 
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -76,29 +78,49 @@ import java.util.function.Predicate;
  * </pre>
  *
  * <h2>When Locked to Denied Status</h2>
- * A <b>denied</b> overall decision is locked if and only if <i>at least one</i> of its alternative child terms (AND
- * decisions) (and note that all child terms are necessarily denied) includes the reference decision (possibly opposed)
- * and at least one other sibling decision that is denied. In this case, the sibling decision "blocks" the effect of the
- * reference decision, whatever its status, and whether opposed or not.
  * <p>
- * An example of such a sibling decision would be one resulting from a "deny rule", expressing some unmet requirement.
+ * In this case, first note that all alternative child terms (AND decisions) are necessarily denied.
  * <p>
- * All denied alternative child terms (AND decisions) meeting these criteria contribute with a justification for the
- * locked status.
+ * A <b>denied</b> overall decision is locked if both of the following conditions are met:
+ * <ol>
+ *   <li>
+ *     <i>at least one</i> of its alternative child terms includes the reference decision (possibly opposed) and at
+ *     least one other sibling decision that is denied.
+ * <p>
+ *     An example of such a sibling decision would be one resulting from a "deny rule", expressing some unmet
+ *     requirement.
+ * <p>
+ *     All denied alternative child terms (AND decisions) meeting these criteria contribute with a justification for the
+ *     locked status.
+ *   </li>
+ *   <li>
+ *     <i>none</i> of its alternative child terms is such that: it includes the reference decision (possibly opposed)
+ *     and only granted sibling decisions, if any. In this case, it is the reference decision itself that is responsible
+ *     for the denied status, and removing/flipping it would also flip the alternative term and overall decision to
+ *     granted.
+ *   </li>
+ * </ol>
+ * <p>
+ * Example of a case meeting the first condition:
  * <pre>
  *   OR: Denied <-- overall decision
  *     - AND: Denied <-- includes the reference decision and at least one other denied sibling decision
- *       - Reference Decision: Granted
- *       - Some Other Decision: Denied  <-- locks overall decision to denied, regardless of the reference decision status
+ *       - Reference Decision: Granted or Denied
+ *       - Some Other Decision: Denied   <-- locks overall decision to denied, regardless of the reference decision status
  *       - Yet Another Decision: Granted <-- does not affect the locking
  *
+ *     ...
+ * </pre>
+ * <p>
+ * Example of a case meeting the second condition:
+ * <pre>
+ *   OR: Denied
  *     - AND: Denied
- *       - ...
+ *       - Reference Decision: Denied    <-- flipping this to granted would flip the `AND` and overall decision to granted.
+ *       - Some Other Decision: Granted  <-- all other siblings, if any, must be granted
+ *       - Yet Another Decision: Granted
  *
- *     - AND: Denied
- *       - ...
- *
- *     ... <-- all terms must be denied
+ *     ...
  * </pre>
  */
 public class AuthorizationDecisionLockingAnalyzer {
@@ -132,22 +154,83 @@ public class AuthorizationDecisionLockingAnalyzer {
 
     Set<IAuthorizationDecision> lockingAlternatives = new LinkedHashSet<>();
     for ( var allTerm : dnfDecision.getDecisions() ) {
-      if ( allTerm.isGranted() != dnfDecision.isGranted() ) {
+      var isGranted = dnfDecision.isGranted();
+
+      if ( allTerm.isGranted() != isGranted ) {
         continue;
       }
 
       var alternativeDecision = (IAllAuthorizationDecision) allTerm;
 
-      var result = dnfDecision.isGranted()
+      var result = isGranted
         ? analyzeGrantedAlternative( alternativeDecision, isLockingReferenceDecision )
         : analyzeDeniedAlternative( alternativeDecision, isLockingReferenceDecision );
 
-      result.ifPresent( lockingAlternatives::add );
+      var lockedFilteredDecisionOpt = result.getLockedFilteredDecision();
+      var isAlternativeLocked = lockedFilteredDecisionOpt.isPresent();
+      if ( isAlternativeLocked ) {
+        lockingAlternatives.add( lockedFilteredDecisionOpt.get() );
+      } else if ( !isGranted && result.getHasReferenceDecision() ) {
+        // One unlocked alternative containing the reference decision is enough to conclude the overall decision is not
+        // locked, even if other alternatives are locked.
+        return Optional.empty();
+      }
     }
 
     return lockingAlternatives.isEmpty()
       ? Optional.empty()
       : Optional.of( new AnyAuthorizationDecision( fullDecision.getRequest(), lockingAlternatives ) );
+  }
+
+  protected static final class AlternativeAnalysisResult {
+    private final boolean hasReferenceDecision;
+    @Nullable
+    private final IAllAuthorizationDecision lockedFilteredDecision;
+
+    public AlternativeAnalysisResult(
+      boolean hasReferenceDecision,
+      @Nullable
+      IAllAuthorizationDecision lockedFilteredDecision ) {
+      this.hasReferenceDecision = hasReferenceDecision;
+      this.lockedFilteredDecision = lockedFilteredDecision;
+    }
+
+    public boolean getHasReferenceDecision() {
+      return hasReferenceDecision;
+    }
+
+    @NonNull
+    public Optional<IAllAuthorizationDecision> getLockedFilteredDecision() {
+      return Optional.ofNullable( lockedFilteredDecision );
+    }
+
+    @Override
+    public boolean equals( Object obj ) {
+      if ( obj == this ) {
+        return true;
+      }
+      if ( obj == null || obj.getClass() != this.getClass() ) {
+        return false;
+      }
+
+      var that = (AlternativeAnalysisResult) obj;
+      return this.hasReferenceDecision == that.hasReferenceDecision
+        && Objects.equals( this.lockedFilteredDecision, that.lockedFilteredDecision );
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash( hasReferenceDecision, lockedFilteredDecision );
+    }
+
+    @Override
+    public String toString() {
+      return String.format(
+        "AlternativeAnalysisResult[hasReferenceDecision=%s, lockedFilteredDecision=%s]",
+        hasReferenceDecision,
+        lockedFilteredDecision );
+    }
+
   }
 
   /**
@@ -158,11 +241,12 @@ public class AuthorizationDecisionLockingAnalyzer {
    * @param alternativeDecision        The alternative child term (AND decision) to analyze, part of a decision
    *                                   in DNF format.
    * @param isLockingReferenceDecision A predicate that identifies the locking reference decision.
-   * @return An optional containing a filtered alternative decision, if the given alternative decision is locked; an
-   * empty optional, otherwise.
+   * @return An alternative analysis result containing a filtered alternative decision, if the given alternative
+   * decision is locked; an empty optional, otherwise. Additionally, the result indicates whether the alternative
+   * includes the reference decision, which is relevant for determining the locked status of denied overall decisions.
    */
   @NonNull
-  protected Optional<IAllAuthorizationDecision> analyzeGrantedAlternative(
+  protected AlternativeAnalysisResult analyzeGrantedAlternative(
     @NonNull IAllAuthorizationDecision alternativeDecision,
     @NonNull Predicate<IAuthorizationDecision> isLockingReferenceDecision ) {
 
@@ -170,7 +254,7 @@ public class AuthorizationDecisionLockingAnalyzer {
     Set<IAuthorizationDecision> grantedOtherTerms = new LinkedHashSet<>();
     for ( var term : alternativeDecision.getDecisions() ) {
       if ( isMatchOrOpposedMatchDecision( term, isLockingReferenceDecision ) ) {
-        return Optional.empty();
+        return new AlternativeAnalysisResult( true, null );
       }
 
       if ( term.isGranted() ) {
@@ -180,10 +264,12 @@ public class AuthorizationDecisionLockingAnalyzer {
     }
 
     if ( grantedOtherTerms.isEmpty() ) {
-      return Optional.empty();
+      return new AlternativeAnalysisResult( false, null );
     }
 
-    return Optional.of( new AllAuthorizationDecision( alternativeDecision.getRequest(), grantedOtherTerms ) );
+    return new AlternativeAnalysisResult(
+      false,
+      new AllAuthorizationDecision( alternativeDecision.getRequest(), grantedOtherTerms ) );
   }
 
   /**
@@ -194,31 +280,38 @@ public class AuthorizationDecisionLockingAnalyzer {
    * @param alternativeDecision        The alternative child term (AND decision) to analyze, part of a decision
    *                                   in DNF format.
    * @param isLockingReferenceDecision A predicate that identifies the locking reference decision.
-   * @return An optional containing a filtered alternative decision, if the given alternative decision is locked; an
-   * empty optional, otherwise.
+   * @return @return An alternative analysis result containing a filtered alternative decision, if the given alternative
+   * decision is locked; an empty optional, otherwise. Additionally, the result indicates whether the alternative
+   * includes the reference decision, which is relevant for determining the locked status of denied overall decisions.
    */
   @NonNull
-  protected Optional<IAllAuthorizationDecision> analyzeDeniedAlternative(
+  protected AlternativeAnalysisResult analyzeDeniedAlternative(
     @NonNull IAllAuthorizationDecision alternativeDecision,
     @NonNull Predicate<IAuthorizationDecision> isLockingReferenceDecision ) {
-    // Check for the reference decision and any denied sibling term.
+
     boolean hasReferenceDecision = false;
     Set<IAuthorizationDecision> deniedSiblingTerms = new LinkedHashSet<>();
     for ( var term : alternativeDecision.getDecisions() ) {
       if ( isMatchOrOpposedMatchDecision( term, isLockingReferenceDecision ) ) {
         hasReferenceDecision = true;
       } else if ( term.isDenied() ) {
-        // Doesn't matter if it is directly a terminal or a NOT( terminal ).
-        // At most, that will change the justification text.
         deniedSiblingTerms.add( term );
       }
     }
 
-    if ( !hasReferenceDecision || deniedSiblingTerms.isEmpty() ) {
-      return Optional.empty();
+    if ( !hasReferenceDecision ) {
+      return new AlternativeAnalysisResult( false, null );
     }
 
-    return Optional.of( new AllAuthorizationDecision( alternativeDecision.getRequest(), deniedSiblingTerms ) );
+    if ( !deniedSiblingTerms.isEmpty() ) {
+      // Remains denied. Locked.
+      return new AlternativeAnalysisResult( true,
+        new AllAuthorizationDecision( alternativeDecision.getRequest(), deniedSiblingTerms ) );
+    }
+
+    // If all other siblings, if any, are granted, then the reference decision is solely responsible for the
+    // alternative's decision value, and as a consequence, also for that of the overall decision. Not locked.
+    return new AlternativeAnalysisResult( true, null );
   }
 
   /**
