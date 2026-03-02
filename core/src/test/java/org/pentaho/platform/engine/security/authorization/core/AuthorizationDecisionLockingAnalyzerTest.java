@@ -167,151 +167,6 @@ public class AuthorizationDecisionLockingAnalyzerTest {
     assertTrue( equals( expectedOutput, result.get() ) );
   }
 
-  // endregion
-
-  // region analyze() - Denied Decision Tests
-
-  /**
-   * OR: Denied (overall decision)
-   * - AND: Denied (includes the reference decision and at least one other denied sibling)
-   * - Reference Decision: Granted
-   * - Some Other Decision: Denied (locks overall decision to denied)
-   * <p>
-   * Expected: Locked, returns the denied siblings that block the reference decision.
-   */
-  @Test
-  public void testAnalyzeDeniedDecisionLockedByDeniedSiblingInSameAlternative() {
-    var referenceDecision = new ReferenceDecision( request, true );
-    var denyDecision = new DefaultAuthorizationDecision( request, false );
-
-    // Denied overall with one alternative containing reference + deny decision
-    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
-      new AllAuthorizationDecision( request, false, orderedSetOf( referenceDecision, denyDecision ) )
-    ) );
-
-    var expectedOutput = new AnyAuthorizationDecision( request, false, orderedSetOf(
-      new AllAuthorizationDecision( request, false, orderedSetOf( denyDecision ) )
-    ) );
-
-    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
-
-    assertTrue( result.isPresent() );
-    assertTrue( equals( expectedOutput, result.get() ) );
-  }
-
-  @Test
-  public void testAnalyzeDeniedDecisionNotLockedWhenNoReferenceDecision() {
-    var denyDecision1 = new DefaultAuthorizationDecision( request, false );
-    var denyDecision2 = new DefaultAuthorizationDecision( request, false );
-
-    // Denied overall but no reference decision present
-    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
-      new AllAuthorizationDecision( request, false, orderedSetOf( denyDecision1, denyDecision2 ) )
-    ) );
-
-    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
-
-    assertFalse( result.isPresent() );
-  }
-
-  @Test
-  public void testAnalyzeDeniedDecisionNotLockedWhenReferenceDecisionHasNoDeniedSiblings() {
-    var referenceDecision = new ReferenceDecision( request, true );
-    var grantedDecision = new DefaultAuthorizationDecision( request, true );
-
-    // Alternative with reference decision but no denied siblings
-    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
-      new AllAuthorizationDecision( request, false, orderedSetOf( referenceDecision, grantedDecision ) )
-    ) );
-
-    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
-
-    assertFalse( result.isPresent() );
-  }
-
-  @Test
-  public void testAnalyzeDeniedDecisionLockedByMultipleDeniedSiblings() {
-    var referenceDecision = new ReferenceDecision( request, true );
-    var denyDecision1 = new DefaultAuthorizationDecision( request, false );
-    var denyDecision2 = new DefaultAuthorizationDecision( request, false );
-    var grantedDecision = new DefaultAuthorizationDecision( request, true );
-
-    // Multiple denied siblings in the same alternative
-    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
-      new AllAuthorizationDecision( request, false, orderedSetOf(
-        referenceDecision, denyDecision1, denyDecision2, grantedDecision ) )
-    ) );
-
-    var expectedOutput = new AnyAuthorizationDecision( request, false, orderedSetOf(
-      new AllAuthorizationDecision( request, false, orderedSetOf( denyDecision1, denyDecision2 ) )
-    ) );
-
-    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
-
-    assertTrue( result.isPresent() );
-    assertTrue( equals( expectedOutput, result.get() ) );
-  }
-
-  @Test
-  public void testAnalyzeDeniedDecisionLockedByMultipleAlternatives() {
-    var referenceDecision1 = new ReferenceDecision( request, true );
-    var referenceDecision2 = new ReferenceDecision( request, true );
-    var denyDecision1 = new DefaultAuthorizationDecision( request, false );
-    var denyDecision2 = new DefaultAuthorizationDecision( request, false );
-
-    // Multiple alternatives, each with reference + deny decision
-    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
-      new AllAuthorizationDecision( request, false, orderedSetOf( referenceDecision1, denyDecision1 ) ),
-      new AllAuthorizationDecision( request, false, orderedSetOf( referenceDecision2, denyDecision2 ) )
-    ) );
-
-    var expectedOutput = new AnyAuthorizationDecision( request, false, orderedSetOf(
-      new AllAuthorizationDecision( request, false, orderedSetOf( denyDecision1 ) ),
-      new AllAuthorizationDecision( request, false, orderedSetOf( denyDecision2 ) )
-    ) );
-
-    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
-
-    assertTrue( result.isPresent() );
-    assertTrue( equals( expectedOutput, result.get() ) );
-  }
-
-  @Test
-  public void testAnalyzeDeniedDecisionWithOpposedReferenceDecision() {
-    var referenceDecision = new ReferenceDecision( request, false );
-    var denyDecision = new DefaultAuthorizationDecision( request, false );
-
-    // Opposed reference decision with denied sibling
-    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
-      new AllAuthorizationDecision( request, false, orderedSetOf(
-        new OpposedAuthorizationDecision( referenceDecision ), denyDecision ) )
-    ) );
-
-    var expectedOutput = new AnyAuthorizationDecision( request, false, orderedSetOf(
-      new AllAuthorizationDecision( request, false, orderedSetOf( denyDecision ) )
-    ) );
-
-    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
-
-    assertTrue( result.isPresent() );
-    assertTrue( equals( expectedOutput, result.get() ) );
-  }
-
-  /**
-   * Guards that a denied AND term inside a granted overall decision is skipped entirely, even when it contains
-   * granted non-reference children that would otherwise appear to be locking justifications.
-   * <p>
-   * Without the {@code allTerm.isGranted() != dnfDecision.isGranted()} guard, the denied alternative would be
-   * passed into {@code analyzeGrantedAlternative}, which would pick up its granted non-reference children and
-   * produce a spurious locking justification.
-   * <pre>
-   *   OR: Granted
-   *     - AND: Denied   &lt;-- must be skipped; its granted children must NOT produce a justification
-   *       - Non-reference: Granted
-   *     - AND: Granted  &lt;-- the only locking alternative
-   *       - Non-reference: Granted
-   * </pre>
-   */
   @Test
   public void testAnalyzeGrantedDecisionSkipsDeniedAlternativeEvenWithGrantedNonReferenceChildren() {
     var grantedDecisionInsideDeniedAlt = new DefaultAuthorizationDecision( request, true );
@@ -335,21 +190,163 @@ public class AuthorizationDecisionLockingAnalyzerTest {
     assertEquals( 1, result.get().getDecisions().size() );
     assertTrue( equals( expectedOutput, result.get() ) );
   }
+  // endregion
 
-  /**
-   * Guards that a granted AND term inside a denied overall decision is skipped entirely.
-   * The doclet spec states "all child terms are necessarily denied"; a granted AND term must never be passed
-   * into {@code analyzeDeniedAlternative}.
-   * <pre>
-   *   OR: Denied
-   *     - AND: Granted  &lt;-- must be skipped
-   *       - ReferenceDecision: Granted
-   *       - Some Decision: Denied
-   *     - AND: Denied   &lt;-- the real locking alternative
-   *       - ReferenceDecision: Granted
-   *       - Some Decision: Denied
-   * </pre>
-   */
+  // region analyze() - Denied Decision Tests
+  @Test
+  public void testAnalyzeDeniedDecisionNotLockedForSingleAlternativeWithNoReferenceDecision() {
+    var denyDecision1 = new DefaultAuthorizationDecision( request, false );
+    var denyDecision2 = new DefaultAuthorizationDecision( request, false );
+
+    // Denied overall but no reference decision present
+    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
+      new AllAuthorizationDecision( request, false, orderedSetOf( denyDecision1, denyDecision2 ) )
+    ) );
+
+    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
+
+    assertFalse( result.isPresent() );
+  }
+
+  @Test
+  public void testAnalyzeDeniedDecisionNotLockedForSingleAlternativeWithReferenceDecisionAndNoSiblings() {
+    var referenceDecision = new ReferenceDecision( request, false );
+
+    // Alternative with reference decision but no denied siblings
+    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
+      new AllAuthorizationDecision( request, false, orderedSetOf( referenceDecision ) )
+    ) );
+
+    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
+
+    assertFalse( result.isPresent() );
+  }
+
+  @Test
+  public void testAnalyzeDeniedDecisionNotLockedForSingleAlternativeWithReferenceDecisionAndGrantedSibling() {
+    var referenceDecision = new ReferenceDecision( request, true );
+    var grantedDecision = new DefaultAuthorizationDecision( request, true );
+
+    // Alternative with reference decision but no denied siblings
+    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
+      new AllAuthorizationDecision( request, false, orderedSetOf( referenceDecision, grantedDecision ) )
+    ) );
+
+    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
+
+    assertFalse( result.isPresent() );
+  }
+
+  @Test
+  public void testAnalyzeDeniedDecisionNotLockedForMultipleAlternativesOneLockingAndOneUnlocking() {
+    var referenceDecision1 = new ReferenceDecision( request, false );
+    var denyDecision = new DefaultAuthorizationDecision( request, false );
+
+    var referenceDecision2 = new ReferenceDecision( request, false );
+    var grantedDecision = new DefaultAuthorizationDecision( request, true );
+
+    var lockingAlternative =
+      new AllAuthorizationDecision( request, false, orderedSetOf( referenceDecision1, denyDecision ) );
+
+    // To be locked, cannot have any "unlocking" alternatives.
+    var unlockingAlternative =
+      new AllAuthorizationDecision( request, false, orderedSetOf( referenceDecision2, grantedDecision ) );
+
+    var input =
+      new AnyAuthorizationDecision( request, false, orderedSetOf( lockingAlternative, unlockingAlternative ) );
+
+    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
+
+    assertFalse( result.isPresent() );
+  }
+
+
+  @Test
+  public void testAnalyzeDeniedDecisionLockedForSingleAlternativeWithReferenceDecisionAndDeniedSibling() {
+    var referenceDecision = new ReferenceDecision( request, true );
+    var denyDecision = new DefaultAuthorizationDecision( request, false );
+
+    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
+      new AllAuthorizationDecision( request, false, orderedSetOf( referenceDecision, denyDecision ) ) ) );
+
+    var expectedOutput = new AnyAuthorizationDecision( request, false, orderedSetOf(
+      new AllAuthorizationDecision( request, false, orderedSetOf( denyDecision ) )
+    ) );
+
+    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
+
+    assertTrue( result.isPresent() );
+    assertTrue( equals( expectedOutput, result.get() ) );
+  }
+
+  @Test
+  public void testAnalyzeDeniedDecisionLockedForSingleAlternativeWithReferenceDecisionAndDeniedAndGrantedSiblings() {
+    var referenceDecision = new ReferenceDecision( request, true );
+    var denyDecision1 = new DefaultAuthorizationDecision( request, false );
+    var denyDecision2 = new DefaultAuthorizationDecision( request, false );
+    var grantedDecision = new DefaultAuthorizationDecision( request, true );
+
+    // Multiple denied siblings in the same alternative
+    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
+      new AllAuthorizationDecision( request, false, orderedSetOf(
+        referenceDecision, denyDecision1, denyDecision2, grantedDecision ) )
+    ) );
+
+    var expectedOutput = new AnyAuthorizationDecision( request, false, orderedSetOf(
+      new AllAuthorizationDecision( request, false, orderedSetOf( denyDecision1, denyDecision2 ) )
+    ) );
+
+    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
+
+    assertTrue( result.isPresent() );
+    assertTrue( equals( expectedOutput, result.get() ) );
+  }
+
+  @Test
+  public void testAnalyzeDeniedDecisionLockedForMultipleAlternativesWithReferenceDecisionAndDeniedSibling() {
+    var referenceDecision1 = new ReferenceDecision( request, true );
+    var referenceDecision2 = new ReferenceDecision( request, true );
+    var denyDecision1 = new DefaultAuthorizationDecision( request, false );
+    var denyDecision2 = new DefaultAuthorizationDecision( request, false );
+
+    // Multiple alternatives, each with reference + deny decision
+    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
+      new AllAuthorizationDecision( request, false, orderedSetOf( referenceDecision1, denyDecision1 ) ),
+      new AllAuthorizationDecision( request, false, orderedSetOf( referenceDecision2, denyDecision2 ) )
+    ) );
+
+    var expectedOutput = new AnyAuthorizationDecision( request, false, orderedSetOf(
+      new AllAuthorizationDecision( request, false, orderedSetOf( denyDecision1 ) ),
+      new AllAuthorizationDecision( request, false, orderedSetOf( denyDecision2 ) )
+    ) );
+
+    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
+
+    assertTrue( result.isPresent() );
+    assertTrue( equals( expectedOutput, result.get() ) );
+  }
+
+  @Test
+  public void testAnalyzeDeniedDecisionLockedForSingleAlternativeWithOpposedReferenceDecisionAndDeniedSibling() {
+    var referenceDecision = new ReferenceDecision( request, false );
+    var denyDecision = new DefaultAuthorizationDecision( request, false );
+
+    // Opposed reference decision with denied sibling
+    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
+      new AllAuthorizationDecision( request, false, orderedSetOf(
+        new OpposedAuthorizationDecision( referenceDecision ), denyDecision ) )
+    ) );
+
+    var expectedOutput = new AnyAuthorizationDecision( request, false, orderedSetOf(
+      new AllAuthorizationDecision( request, false, orderedSetOf( denyDecision ) )
+    ) );
+
+    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
+
+    assertTrue( result.isPresent() );
+    assertTrue( equals( expectedOutput, result.get() ) );
+  }
+
   @Test
   public void testAnalyzeDeniedDecisionSkipsGrantedAlternative() {
     var referenceDecision1 = new ReferenceDecision( request, true );
@@ -375,26 +372,6 @@ public class AuthorizationDecisionLockingAnalyzerTest {
     assertEquals( 1, result.get().getDecisions().size() );
     assertTrue( equals( expectedOutput, result.get() ) );
   }
-
-  /**
-   * When the denied overall decision contains only a granted AND term (and no denied AND terms), the result must
-   * be empty — nothing locks the decision.
-   */
-  @Test
-  public void testAnalyzeDeniedDecisionWithOnlyGrantedAlternativeIsNotLocked() {
-    var referenceDecision = new ReferenceDecision( request, true );
-    var denyDecision = new DefaultAuthorizationDecision( request, false );
-
-    var input = new AnyAuthorizationDecision( request, false, orderedSetOf(
-      // Granted AND term — must be skipped; no denied AND terms remain.
-      new AllAuthorizationDecision( request, true, orderedSetOf( referenceDecision, denyDecision ) )
-    ) );
-
-    var result = analyzer.analyze( input, ReferenceDecision.class::isInstance );
-
-    assertFalse( result.isPresent() );
-  }
-
   // endregion
 
 
