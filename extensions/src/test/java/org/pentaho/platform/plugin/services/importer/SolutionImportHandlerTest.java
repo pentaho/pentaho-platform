@@ -26,6 +26,7 @@ import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.ICronJobTrigger;
@@ -45,7 +46,9 @@ import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
+import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 
 import java.util.ArrayList;
@@ -67,6 +70,7 @@ public class SolutionImportHandlerTest {
   private IUnifiedRepository repository;
   private IRoleAuthorizationPolicyRoleBindingDao roleAuthorizationPolicyRoleBindingDao;
   private IPlatformMimeResolver mockMimeResolver;
+  private Log logger;
 
   @Before
   public void setUp() throws Exception {
@@ -82,8 +86,9 @@ public class SolutionImportHandlerTest {
       importHandler = spy( new SolutionImportHandler( mimeTypes ) );
     }
 
+    logger = mock( Log.class );
     when( importHandler.getImportSession() ).thenReturn( mock( ImportSession.class ) );
-    when( importHandler.getLogger() ).thenReturn( mock( Log.class ) );
+    when( importHandler.getLogger() ).thenReturn( logger );
   }
 
   private <T> T mockToPentahoSystem( Class<T> cl ) {
@@ -538,6 +543,24 @@ public class SolutionImportHandlerTest {
     Assert.assertTrue( importHandler.fileIsScheduleInputSource( manifest, "/public/test/file3" ) );
     Assert.assertTrue( importHandler.fileIsScheduleInputSource( manifest, "public/test/file3" ) );
   }
+
+  @Test
+  public void testImportJDBCDataSource_logsConnectionNameAndDatabaseTypeWhenDatabaseTypeIsMissing() {
+    mockToPentahoSystem( IDatasourceMgmtService.class );
+
+    ExportManifest manifest = new ExportManifest();
+    DatabaseConnection databaseConnection = new DatabaseConnection();
+    databaseConnection.setName( "NAME_CONN" );
+    manifest.addDatasource( databaseConnection );
+
+    var importState = new SolutionImportHandler.ImportState();
+
+    importHandler.importJDBCDataSource( manifest, importState );
+
+    verify( logger ).error( Messages.getInstance().getString( "SolutionImportHandler.ConnectionWithoutDatabaseType",
+      "NAME_CONN" ) );
+  }
+
   @After
   public void tearDown() throws Exception {
     ImportSession.getSession().getImportedScheduleJobIds().clear();
