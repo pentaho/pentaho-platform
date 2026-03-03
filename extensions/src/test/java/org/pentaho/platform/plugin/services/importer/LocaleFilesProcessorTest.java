@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importer;
 
@@ -72,21 +73,22 @@ public class LocaleFilesProcessorTest {
     importer.setRepositoryImportLogger( new Log4JRepositoryImportLogger() );
 
     ByteArrayInputStream localePropertiesContent = new ByteArrayInputStream(
-      ("description=This runs a simple Kettle transformation filtering records from the Quandrant_Actuals sample data "
-        + "table, and sending a Hello message to each position.\nname=1. Hello ETL")
-        .getBytes() );
+        ( "description=This runs a simple Kettle transformation filtering records from the Quandrant_Actuals sample data "
+            + "table, and sending a Hello message to each position.\nname=1. Hello ETL" )
+            .getBytes() );
 
     ByteArrayInputStream localeContent =
-      new ByteArrayInputStream( "file.title=fileTitle\ntitle=SampleTransformation\nfile.description=".getBytes() );
+        new ByteArrayInputStream( "file.title=fileTitle\ntitle=SampleTransformation\nfile.description=".getBytes() );
 
     localeFilesProcessor = spy( new LocaleFilesProcessor() );
     localeFilesProcessor.createLocaleEntry( "/", "file1.properties", null, "description", null, localePropertiesContent, 0 );
     localeFilesProcessor.createLocaleEntry( "/", "file1.locale", null, "description", null, localeContent, 0 );
-    localeFilesProcessor.processLocaleFiles( importer );
+    int count = localeFilesProcessor.processLocaleFiles( importer );
+    System.out.println( count );
 
     Mockito.verify( localeFilesProcessor, times( 1 ) )
-      .proceed( any( IPlatformImporter.class ), any( RepositoryFileImportBundle.Builder.class ), nullable( String.class ),
-        any( LocaleFileDescriptor.class ) );
+        .proceed( any( IPlatformImporter.class ), any( RepositoryFileImportBundle.Builder.class ), nullable( String.class ),
+            any( LocaleFileDescriptor.class ) );
   }
 
   @Test
@@ -102,23 +104,24 @@ public class LocaleFilesProcessorTest {
     importer.setRepositoryImportLogger( new Log4JRepositoryImportLogger() );
 
     ByteArrayInputStream localePropertiesContent = new ByteArrayInputStream(
-      ("description=This runs a simple Kettle transformation filtering records from the Quandrant_Actuals sample data "
-        + "table, and sending a Hello message to each position.\nname=1. Hello ETL")
-        .getBytes() );
+        ( "description=This runs a simple Kettle transformation filtering records from the Quandrant_Actuals sample data "
+            + "table, and sending a Hello message to each position.\nname=1. Hello ETL" )
+            .getBytes() );
 
     localeFilesProcessor = spy( new LocaleFilesProcessor() );
     localeFilesProcessor.createLocaleEntry( "/", "file1.properties", null, "description", null, localePropertiesContent, 0 );
-    localeFilesProcessor.processLocaleFiles( importer );
 
+    int count = localeFilesProcessor.processLocaleFiles( importer );
+    System.out.println( count );
     Mockito.verify( localeFilesProcessor, times( 1 ) )
-      .proceed( any( IPlatformImporter.class ), any( RepositoryFileImportBundle.Builder.class ), nullable( String.class ),
-        any( LocaleFileDescriptor.class ) );
+        .proceed( any( IPlatformImporter.class ), any( RepositoryFileImportBundle.Builder.class ), nullable( String.class ),
+            any( LocaleFileDescriptor.class ) );
   }
 
   @Test
   public void testProcessLocaleFilesTwoLocaleFiles() throws Exception {
     IRepositoryContentConverterHandler converterHandler =
-      new DefaultRepositoryContentConverterHandler( new HashMap<String, Converter>() );
+        new DefaultRepositoryContentConverterHandler( new HashMap<String, Converter>() );
 
     List<IMimeType> localeMimeList = new ArrayList<IMimeType>();
     localeMimeList.add( new MimeType( "text/locale", "locale" ) );
@@ -139,8 +142,8 @@ public class LocaleFilesProcessorTest {
 
     StringBuffer localePropertiesContent = new StringBuffer();
     localePropertiesContent.append(
-      "description=This runs a simple Kettle transformation filtering records from the Quandrant_Actuals sample data "
-        + "table, and sending a Hello message to each position.\n" );
+        "description=This runs a simple Kettle transformation filtering records from the Quandrant_Actuals sample data "
+            + "table, and sending a Hello message to each position.\n" );
     localePropertiesContent.append( "name=1. Hello ETL" );
 
     assertTrue( processIsLocalFile( "SampleTransformation.properties", localePropertiesContent ) );
@@ -152,8 +155,8 @@ public class LocaleFilesProcessorTest {
 
     assertTrue( processIsLocalFile( "SampleTransformation.xaction.locale", localeContent ) );
 
-    localeFilesProcessor.processLocaleFiles( importer );
-
+    int count = localeFilesProcessor.processLocaleFiles( importer );
+    System.out.println( count );
     //verify that in case of both .properties and .locale files are at input the only one proceeded is .locale
     Mockito.verify( localeImportHandlerSpy, times( 1 ) ).importFile( any( IPlatformImportBundle.class ) );
     ArgumentCaptor<IPlatformImportBundle> argument = ArgumentCaptor.forClass( IPlatformImportBundle.class );
@@ -164,10 +167,10 @@ public class LocaleFilesProcessorTest {
   @Test
   public void isXMLLocaleTest() {
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-      + "<index>"
-      + "<name>the name</name>"
-      + "<description>the description</description>"
-      + "</index>";
+        + "<index>"
+        + "<name>the name</name>"
+        + "<description>the description</description>"
+        + "</index>";
     localeFilesProcessor = new LocaleFilesProcessor();
     assertTrue( localeFilesProcessor.isXMLlocale( new ByteArrayInputStream( xml.getBytes() ) ) );
   }
@@ -175,8 +178,8 @@ public class LocaleFilesProcessorTest {
   @Test
   public void isXMLLocaleWrongFormatTest() {
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-      + "<name>the name</name>"
-      + "<description>the description</description>";
+        + "<name>the name</name>"
+        + "<description>the description</description>";
     localeFilesProcessor = new LocaleFilesProcessor();
     assertFalse( localeFilesProcessor.isXMLlocale( new ByteArrayInputStream( xml.getBytes() ) ) );
   }
@@ -184,10 +187,10 @@ public class LocaleFilesProcessorTest {
   @Test
   public void isXMLLocaleEmptyValuesTest() {
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-      + "<index>"
-      + "<name></name>"
-      + "<description></description>"
-      + "</index>";
+        + "<index>"
+        + "<name></name>"
+        + "<description></description>"
+        + "</index>";
     localeFilesProcessor = new LocaleFilesProcessor();
     assertFalse( localeFilesProcessor.isXMLlocale( new ByteArrayInputStream( xml.getBytes() ) ) );
   }
@@ -195,7 +198,7 @@ public class LocaleFilesProcessorTest {
   private boolean processIsLocalFile( String fileName, StringBuffer localeContent ) throws Exception {
     RepositoryFile file = new RepositoryFile.Builder( fileName ).build();
     RepositoryFileBundle repoFileBundle =
-      new RepositoryFileBundle( file, null, StringUtils.EMPTY, null, DEFAULT_ENCODING, null );
+        new RepositoryFileBundle( file, null, StringUtils.EMPTY, null, DEFAULT_ENCODING, null );
     return localeFilesProcessor.isLocaleFile( repoFileBundle, "/", localeContent.toString().getBytes() );
   }
 

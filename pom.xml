@@ -5,11 +5,11 @@
     <parent>
     <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-jar-parent-pom</artifactId>
-    <version>10.3.0.0-SNAPSHOT</version>
+    <version>11.1.0.0-SNAPSHOT</version>
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-ce-parent</artifactId>
-  <version>10.3.0.0-SNAPSHOT</version>
+  <version>11.1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Pentaho BI Platform Community Edition</name>
   <description>Parent pom for pentaho-platform projects</description>
@@ -20,7 +20,6 @@
     <url>https://github.com/pentaho/pentaho-platform</url>
   </scm>
   <properties>
-    <ehcache-core.version>2.5.1</ehcache-core.version>
     <urlrewrite.version>3.2.0</urlrewrite.version>
     <jsr305.version>1.3.9</jsr305.version>
     <aopalliance.version>1.0</aopalliance.version>
@@ -34,8 +33,7 @@
     <sassyreader.version>0.5</sassyreader.version>
     <activation.version>1.1</activation.version>
     <enunciate-jersey-rt.version>1.27</enunciate-jersey-rt.version>
-    <pentaho-json.version>10.3.0.0-SNAPSHOT</pentaho-json.version>
-    <poi.version>5.2.5</poi.version>
+    <pentaho-json.version>11.1.0.0-SNAPSHOT</pentaho-json.version>
     <commons-math3.version>3.6.1</commons-math3.version>
     <curvesapi.version>1.06</curvesapi.version>
     <groovy-all.version>2.4.21</groovy-all.version>
@@ -44,15 +42,11 @@
     <jsp-api.version>2.1</jsp-api.version>
     <castor.version>1.4.1</castor.version>
     <kfs.version>0.3</kfs.version>
-    <jersey.version>1.19.1</jersey.version>
     <LucidDbClient-minimal.version>0.9.4</LucidDbClient-minimal.version>
     <wsdl4j.version>1.6.2</wsdl4j.version>
     <asm-attrs.version>2.2.3</asm-attrs.version>
     <mstor.version>0.9.13</mstor.version>
-    <hibernate-commons-annotations.version>5.1.2.Final</hibernate-commons-annotations.version>
-    <mina-core.version>2.0.0-M6</mina-core.version>
     <hamcrest-all.version>1.3</hamcrest-all.version>
-    <javax.inject.version>1</javax.inject.version>
     <pentaho-vfs.version>1.0</pentaho-vfs.version>
     <wstx-asl.version>3.2.4</wstx-asl.version>
     <icu4j.version>63.1</icu4j.version>
@@ -76,21 +70,17 @@
     <jackcess.version>1.2.6</jackcess.version>
     <portlet-api.version>2.0</portlet-api.version>
     <commands.version>3.3.0-I20070605-0010</commands.version>
-    <jaxb-api.version>2.2.2</jaxb-api.version>
     <stax-api.version>1.0-2</stax-api.version>
     <jai_core.version>1.1.2</jai_core.version>
     <mdrjdbc.version>1.4.2</mdrjdbc.version>
     <hamcrest-core.version>1.3</hamcrest-core.version>
     <servlet-api.version>2.5</servlet-api.version>
     <joda-time.version>2.10.2</joda-time.version>
-    <hibernate-validator.version>5.4.3.Final</hibernate-validator.version>
-    <hibernate-ehcache.version>5.4.24.Final</hibernate-ehcache.version>
     <jaybird.version>2.1.6</jaybird.version>
     <resolver.version>20050927</resolver.version>
     <commons-collections.version>3.2.2</commons-collections.version>
     <commons-jxpath.version>1.2</commons-jxpath.version>
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
-    <mysql-connector-java.version>5.1.17</mysql-connector-java.version>
     <sapdbc.version>7.4.4</sapdbc.version>
     <jcr.version>2.0</jcr.version>
     <aspectjrt.version>1.6.6</aspectjrt.version>
@@ -104,7 +94,6 @@
     <se-jcr.version>0.9</se-jcr.version>
     <secondstring.version>20060615</secondstring.version>
     <pentaho-cwm.version>1.5.4</pentaho-cwm.version>
-    <trilead-ssh2.version>build213</trilead-ssh2.version>
     <saaj.version>1.3</saaj.version>
     <fontbox.version>0.1.0</fontbox.version>
     <ldapjdk.version>20000524</ldapjdk.version>
@@ -123,16 +112,13 @@
     <sjsxp.version>1.0</sjsxp.version>
     <mdrapi.version>200507110943</mdrapi.version>
     <stax-ex.version>1.0</stax-ex.version>
-    <jsr311-api.version>1.1.1</jsr311-api.version>
+    <jsr311-api.version>2.1</jsr311-api.version>
     <rsyntaxtextarea.version>1.3.2</rsyntaxtextarea.version>
     <license.fail.if.missing>false</license.fail.if.missing>
-    <webservices.version>2.3.1</webservices.version>
     <wadl-resourcedoc-doclet.version>1.19.1</wadl-resourcedoc-doclet.version>
     <asm.version>7.1</asm.version>
-    <quartz-oracle.version>1.7.2</quartz-oracle.version>
     <edtftpj.version>2.1.0</edtftpj.version>
     <jzlib.version>1.0.7</jzlib.version>
-    <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
     <junit.version>4.13.2</junit.version>
     <junit-jupiter.version>5.10.2</junit-jupiter.version>
     <mockrunner.version>0.3.1</mockrunner.version>
@@ -148,7 +134,7 @@
     <jcommon.version>1.0.16</jcommon.version>
     <drools.version>8.44.0.Final</drools.version>
     <snmp4j.version>1.9.3d</snmp4j.version>
-    <mondrian.version>10.3.0.0-SNAPSHOT</mondrian.version>
+    <mondrian.version>11.1.0.0-SNAPSHOT</mondrian.version>
     <wsdl4j-qname.version>1.6.1</wsdl4j-qname.version>
     <javatar.version>2.5</javatar.version>
     <jfreechart.version>1.0.13</jfreechart.version>
@@ -166,7 +152,6 @@
     <grizzly.version>1.9.45</grizzly.version>
     <jai_codec.version>1.1.2</jai_codec.version>
     <json-path.version>0.8.1</json-path.version>
-    <saxon.version>9.1.0.8</saxon.version>
     <dumbster.version>1.6.0</dumbster.version>
     <jcommon-logging-log4jlog.version>1.0.2</jcommon-logging-log4jlog.version>
     <commons-cli.version>1.2</commons-cli.version>
@@ -178,29 +163,25 @@
     <jsendnsca.version>2.0.1</jsendnsca.version>
     <neethi.version>2.0.1</neethi.version>
     <barbecue.version>1.5-beta1</barbecue.version>
-    <jaxws-spring.version>1.8</jaxws-spring.version>
     <antlr-complete.version>3.5.2</antlr-complete.version>
-    <hibernate-core.version>5.4.24.Final</hibernate-core.version>
     <license.inception.year>2002</license.inception.year>
-    <jsr181-api.version>1.0-MR1</jsr181-api.version>
     <ascsapjco3wrp.version>20100529</ascsapjco3wrp.version>
     <testng.version>6.5.2</testng.version>
     <cglib.version>2.2</cglib.version>
     <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
     <jt400.version>6.1</jt400.version>
     <sac.version>1.3</sac.version>
-    <quartz.version>1.7.2</quartz.version>
-    <hibernate-jpa-2.1-api.version>1.0.2.Final</hibernate-jpa-2.1-api.version>
     <hsqldb.version>2.3.2</hsqldb.version>
     <websocket-api.version>1.0</websocket-api.version>
-    <encryption-support.version>10.3.0.0-SNAPSHOT</encryption-support.version>
+    <encryption-support.version>11.1.0.0-SNAPSHOT</encryption-support.version>
     <org.json.version>3.1.1</org.json.version>
     <!-- @Null @Nullable annotations -->
     <com.github.spotbugs.annotations.version>4.2.3</com.github.spotbugs.annotations.version>
     <jboss-logging.version>3.4.3.Final</jboss-logging.version>
     <classmate.version>1.6.0</classmate.version>
-    <javax.persistence-api.version>2.2</javax.persistence-api.version>
-    <byte-buddy.version>1.12.16</byte-buddy.version>
+    <xmlbeans.version>5.3.0</xmlbeans.version>
+    <commons-compress.version>1.28.0</commons-compress.version>
+    <commons-io.version>2.21.0</commons-io.version>
   </properties>
 
   <dependencyManagement>

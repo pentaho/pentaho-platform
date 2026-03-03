@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
@@ -57,6 +58,26 @@ public interface IMondrianCatalogService {
   MondrianCatalog getCatalog( String context, final IPentahoSession pentahoSession );
 
   /**
+   * Returns the stream corresponding to the content of the catalog's schema with the given name.
+   * The returned schema will not have any DSP changes applied to it.
+   * Returns   * <code>null</code> if name is not found.
+   *
+   * @param catalogName      The name of the catalog to fetch
+   * @param applyAnnotations Whether the returned schema should be the result of applying any existing annotations
+   * @return String corresponding to the catalog's schema
+   */
+  InputStream getCatalogSchemaAsStream( String catalogName, boolean applyAnnotations );
+
+  /**
+   * Returns the stream corresponding to the content of the catalog's annotations with the given name. Returns
+   * <code>null</code> if there are no annotations.
+   *
+   * @param catalogName The name of the catalog to fetch
+   * @return InputStream corresponding to the catalog's annotations
+   */
+  InputStream getCatalogAnnotationsAsStream( String catalogName );
+
+  /**
    * this method loads a Mondrian schema
    * 
    * @param solutionLocation
@@ -90,10 +111,10 @@ public interface IMondrianCatalogService {
    * 
    * @param inputStream
    * @param catalog
-   * @param overwriteInRepossitory
+   * @param overwriteInRepository
    * @param session
    */
-  void addCatalog( InputStream inputStream, MondrianCatalog catalog, boolean overwriteInRepossitory,
+  void addCatalog( InputStream inputStream, MondrianCatalog catalog, boolean overwriteInRepository,
       IPentahoSession session );
 
 }

@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.workitem;
 
@@ -20,9 +21,9 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.workitem.IWorkItemLifecycleEvent;
 import org.pentaho.platform.util.StringUtil;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;

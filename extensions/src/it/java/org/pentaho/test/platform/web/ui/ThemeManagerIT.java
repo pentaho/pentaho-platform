@@ -7,12 +7,13 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.test.platform.web.ui;
 
-import com.mockrunner.mock.web.MockServletContext;
+import org.springframework.mock.web.MockServletContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -49,11 +50,11 @@ public class ThemeManagerIT extends BaseTest {
   public void testThemes() throws Exception {
     // setup mock context
     MockServletContext context = new MockServletContext();
-    context.addResourcePaths( "/", Arrays.asList( "test-module/" ) );
-    context.addResourcePaths( "/test-module/", Arrays.asList( "themes.xml" ) );
+    context.addInitParameter( "/", Arrays.asList( "test-module/" ).toString() );
+    context.addInitParameter( "/test-module/", Arrays.asList( "themes.xml" ).toString());
     File themesDotXML = new File( getSolutionPath() + "/system/themeplugin/themes.xml" );
-    context.setResource( "/test-module/themes.xml", themesDotXML.toURI().toURL() );
-    context.setResourceAsStream( "/test-module/themes.xml", new FileInputStream( themesDotXML ) );
+    context.setAttribute( "/test-module/themes.xml", themesDotXML.toURI().toURL() );
+    context.setAttribute( "/test-module/themes.xml", new FileInputStream( themesDotXML ) );
     PentahoSystem.getApplicationContext().setContext( context );
 
     StandaloneSession session = new StandaloneSession();

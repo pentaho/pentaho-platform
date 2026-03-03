@@ -7,13 +7,14 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.servlet;
 
 import com.google.gwt.thirdparty.guava.common.net.MediaType;
-import org.apache.commons.fileupload.disk.DiskFileItem;
+import org.apache.commons.fileupload2.core.DiskFileItem;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -131,7 +132,7 @@ public class UploadFileUtilsTest {
     final File testFile = testFilePath.toFile();
 
     final DiskFileItem diskFileItem =
-      new DiskFileItem( "fileData", contentType, true, testFile.getName(), 100000000, testFile.getParentFile() );
+    new DiskFileItem.Builder().setFieldName( "fileData" ).setContentType( contentType ).setFormField( true ).setFileName( testFile.getName() ).setBufferSize( 100000000 ).setFile( testFile.getParentFile() ).get();
 
     InputStream input = new FileInputStream( testFile );
     OutputStream os = diskFileItem.getOutputStream();

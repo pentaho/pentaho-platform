@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.engine.core.system;
 
@@ -446,12 +447,20 @@ public class PentahoSystem {
 
     final String name =
         StringUtils.defaultIfEmpty( PentahoSystem.get( String.class, "singleTenantAdminUserName", null ), "admin" );
+
+    boolean doTrace = Logger.getLogLevel() <= ILogger.TRACE;
+    if ( doTrace ) {
+      Logger.trace( PentahoSystem.class, String.format( "runAsSystem BEGIN '%s'", name ) );
+    }
+
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     SecurityContext originalContext = SecurityContextHolder.getContext();
+
+    StandaloneSession systemSession = null;
     try {
       // create pentaho session
-      StandaloneSession session = new StandaloneSession( name );
-      session.setAuthenticated( name );
+      systemSession = new StandaloneSession( name );
+      systemSession.setAuthenticated( name );
       // create authentication
 
       List<GrantedAuthority> roles;
@@ -466,7 +475,7 @@ public class PentahoSystem {
       UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken( user, "", roles ); //$NON-NLS-1$
 
       // set holders
-      PentahoSessionHolder.setSession( session );
+      PentahoSessionHolder.setSession( systemSession );
 
       // Clearing the SecurityContext to force the subsequent call to getContext() to generate a new SecurityContext.
       // This prevents us from modifying the Authentication on a SecurityContext isntance which may be shared between
@@ -475,16 +484,24 @@ public class PentahoSystem {
       SecurityContextHolder.getContext().setAuthentication( auth );
       return callable.call();
     } finally {
-      IPentahoSession sessionToDestroy = PentahoSessionHolder.getSession();
-      if ( sessionToDestroy != null && sessionToDestroy != origSession ) {
+      if ( systemSession != null ) {
+        if ( doTrace ) {
+          Logger.trace( PentahoSystem.class, String.format( "runAsSystem destroying system session for '%s'", name ) );
+        }
+
         try {
-          sessionToDestroy.destroy();
+          systemSession.destroy();
         } catch ( Exception e ) {
-          e.printStackTrace();
+          Logger.error( PentahoSystem.class, String.format( "runAsSystem session destroy for '%s' error", name ), e );
         }
       }
+
       PentahoSessionHolder.setSession( origSession );
       SecurityContextHolder.setContext( originalContext );
+
+      if ( doTrace ) {
+        Logger.trace( PentahoSystem.class, String.format( "runAsSystem END '%s'", name ) );
+      }
     }
   }
 
@@ -1363,6 +1380,14 @@ public class PentahoSystem {
   }
 
   public static void invokeLogoutListeners( final IPentahoSession session ) {
+    if ( Logger.getLogLevel() <= ILogger.TRACE ) {
+      Logger.trace(
+        PentahoSystem.class,
+        String.format(
+          "invokeLogoutListeners for %s",
+          session.getName() ) );
+    }
+
     Iterator iter = PentahoSystem.logoutListeners.iterator();
     while ( iter.hasNext() ) {
       ILogoutListener listener = (ILogoutListener) iter.next();

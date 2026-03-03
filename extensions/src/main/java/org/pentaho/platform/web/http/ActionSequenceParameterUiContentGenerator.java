@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http;
 
@@ -25,8 +26,9 @@ import org.pentaho.platform.engine.services.solution.SimpleParameterSetter;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.XactionUtil;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.util.Iterator;
@@ -60,9 +62,22 @@ public class ActionSequenceParameterUiContentGenerator extends SimpleContentGene
         .decode( pathParams.getStringParameter( "path", "" ), "UTF-8" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
-    if ( path != null && path.length() > 0 ) {
+    if ( path != null && !path.isEmpty() ) {
       IUnifiedRepository unifiedRepository = PentahoSystem.get( IUnifiedRepository.class, null );
       RepositoryFile file = unifiedRepository.getFile( path );
+
+      if ( file == null ) {
+        // No repository file - check if this is a system job using actionClass
+        if ( SchedulerJobUtil.isSystemJob( path ) ) {
+          // System job with actionClass - return empty HTML (valid request, no parameters UI needed)
+          String emptyHtml = "<html><body></body></html>";
+          outputStream.write( emptyHtml.getBytes( LocaleHelper.getSystemEncoding() ) );
+          return;
+        }
+        // Not a system job and file doesn't exist - this is invalid input, throw exception for 404
+        throw new FileNotFoundException( "Repository file not found: " + path );
+      }
+
       HttpServletRequest httpRequest = (HttpServletRequest) pathParams.getParameter( "httprequest" ); //$NON-NLS-1$
       HttpServletResponse httpResponse = (HttpServletResponse) pathParams.getParameter( "httpresponse" ); //$NON-NLS-1$
       String buffer =

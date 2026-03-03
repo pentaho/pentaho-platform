@@ -777,6 +777,21 @@ code {
   width: 100%;
 }
 
+table#email-schedule-panel .gwt-CheckBox {
+  display: inline-block;
+  white-space: nowrap;
+  line-height: normal;
+}
+
+table#email-schedule-panel .gwt-CheckBox input {
+  width: auto !important;
+  margin-bottom: 0 !important;
+}
+
+table#email-schedule-panel .gwt-CheckBox label {
+  line-height: normal;
+}
+
 .timeZonePicker {
   width: 100%;
 }
@@ -892,4 +907,11 @@ code {
 
 #pucTabsMenuBar{
   display: none;
+}
+
+.about-splash {
+  background-image: url("images/aboutScreen.png");
+  padding-top: 70px;
+  padding-left: 285px;
+  font-size: 7px;
 }

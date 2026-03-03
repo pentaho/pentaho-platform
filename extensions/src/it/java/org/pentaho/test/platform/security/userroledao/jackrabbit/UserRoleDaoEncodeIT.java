@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.test.platform.security.userroledao.jackrabbit;
 
@@ -18,7 +19,6 @@ import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
 import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.NameFactory;
 import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -56,11 +57,11 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactory;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
@@ -71,14 +72,17 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
 import javax.jcr.security.AccessControlException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Unit test for {@link UserRoleDao}.
@@ -205,6 +209,7 @@ public class UserRoleDaoEncodeIT implements ApplicationContextAware {
   private IBackingRepositoryLifecycleManager manager;
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
   private IAuthorizationPolicy authorizationPolicy;
+  private IPluginManager pluginManager;
   private MicroPlatform mp;
   private IRepositoryFileDao repositoryFileDao;
   private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
@@ -245,6 +250,7 @@ public class UserRoleDaoEncodeIT implements ApplicationContextAware {
     mp = new MicroPlatform();
     // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
+    mp.defineInstance( IPluginManager.class, pluginManager );
     mp.defineInstance( ITenantManager.class, tenantManager );
     mp.define( ITenant.class, Tenant.class );
     mp.defineInstance( "tenantedUserNameUtils", tenantedUserNameUtils );
@@ -280,6 +286,7 @@ public class UserRoleDaoEncodeIT implements ApplicationContextAware {
     cleanupTenant( systemTenant );
 
     // null out fields to get back memory
+    pluginManager = null;
     authorizationPolicy = null;
     loginAsRepositoryAdmin();
     logout();
@@ -391,6 +398,7 @@ public class UserRoleDaoEncodeIT implements ApplicationContextAware {
     sysAdminRoleName = (String) applicationContext.getBean( "superAdminAuthorityName" );
     sysAdminUserName = (String) applicationContext.getBean( "superAdminUserName" );
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean( "authorizationPolicy" );
+    pluginManager = (IPluginManager) applicationContext.getBean( "IPluginManager" );
     tenantManager = (ITenantManager) applicationContext.getBean( "tenantMgrProxy" );
     repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean( "repositoryFileDao" );
     userRoleDaoProxy = (IUserRoleDao) applicationContext.getBean( "userRoleDaoTxn" );

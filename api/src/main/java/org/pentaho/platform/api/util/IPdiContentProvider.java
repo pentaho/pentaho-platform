@@ -7,11 +7,13 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.api.util;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public interface IPdiContentProvider {
@@ -40,7 +42,7 @@ public interface IPdiContentProvider {
    *          ktr/kjb filePath
    * @return list of user input parameters' name
    */
-  Map<String, String> getUserParameters(String kettleFilePath );
+  Map<String, String> getUserParameters( String kettleFilePath );
 
   /**
    * lists variables for a given a ktr/kjb filePath
@@ -52,7 +54,24 @@ public interface IPdiContentProvider {
   Map<String, String> getVariables( String kettleFilePath );
 
   /**
-   * Pentaho Hide internal variable is to show/hide internal variables.
+   * lists user input parameters for a given FileObject
+   * 
+   * @param fileObject
+   *                   ktr/kjb FileObject
+   * @return list of user input parameters' name
    */
-  String getHideInternalVariable();
+  default Map<String, String> getUserParameters( Object fileObject ) {
+    return new HashMap<>();
+  }
+
+  /**
+   * lists variables for a given ktr/kjb FileObject
+   *
+   * @param fileObject
+   *                   ktr/kjb FileObject
+   * @return list of variables' name
+   */
+  default Map<String, String> getVariables( Object fileObject ) {
+    return new HashMap<>();
+  }
 }

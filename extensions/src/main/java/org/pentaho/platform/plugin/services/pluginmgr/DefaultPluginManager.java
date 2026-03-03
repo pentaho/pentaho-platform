@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.pluginmgr;
 
@@ -40,6 +41,7 @@ import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
+import org.pentaho.platform.engine.core.system.objfac.spring.Const;
 import org.pentaho.platform.engine.core.system.objfac.spring.PentahoBeanScopeValidatorPostProcessor;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.ServiceConfig;
@@ -414,6 +416,16 @@ public class DefaultPluginManager implements IPluginManager {
     }
     beanFactory.addBeanFactoryPostProcessor( new PentahoBeanScopeValidatorPostProcessor() );
     beanFactoryMap.put( plugin.getId(), beanFactory );
+
+    // Register the special owner plugin marker bean.
+    // This information is later used to annotate beans of this context that are published to the PentahoSystem with an
+    // attribute named {@link Const#PUBLISHER_PLUGIN_ID_ATTRIBUTE} with the plugin id as a value.
+    beanFactory.registerBeanDefinition(
+      Const.OWNER_PLUGIN_ID_BEAN,
+      BeanDefinitionBuilder.genericBeanDefinition( String.class )
+        .setScope( BeanDefinition.SCOPE_SINGLETON )
+        .addConstructorArgValue( plugin.getId() )
+        .getBeanDefinition() );
 
     //
     // Register any beans defined via the pluginProvider
