@@ -541,9 +541,7 @@ public class SolutionImportHandlerTest {
     databaseConnection.setName( "NAME_CONN" );
     manifest.addDatasource( databaseConnection );
 
-    var importState = new SolutionImportHandler.ImportState();
-
-    importHandler.importJDBCDataSource( manifest, importState );
+    importHandler.importJDBCDataSource( manifest );
 
     verify( logger ).error( Messages.getInstance().getString( "SolutionImportHandler.ConnectionWithoutDatabaseType",
       "NAME_CONN" ) );
