@@ -20,16 +20,14 @@
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest.bindings;
 
-import org.pentaho.di.core.encryption.Encr;
-
-import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementRef;
 import jakarta.xml.bind.annotation.XmlType;
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.pentaho.di.core.encryption.Encr;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -186,8 +184,7 @@ public class DatabaseConnection {
   protected String dataTablespace;
   protected String databaseName;
   protected String databasePort;
-  @XmlElementRef( name = "databaseType", namespace = "http://www.pentaho.com/schema/", type = JAXBElement.class, required = false )
-  protected JAXBElement<DatabaseType> databaseType;
+  protected DatabaseType databaseType;
   @XmlElement( required = true )
   protected DatabaseConnection.ExtraOptions extraOptions;
   @XmlElement( required = true )
@@ -378,10 +375,7 @@ public class DatabaseConnection {
    * @return possible object is {@link DatabaseType }
    */
   public DatabaseType getDatabaseType() {
-    if ( databaseType == null ) {
-      return null;
-    }
-    return databaseType.getValue();
+    return databaseType;
   }
 
   /**
@@ -390,12 +384,7 @@ public class DatabaseConnection {
    * @param value allowed object is {@link DatabaseType }
    */
   public void setDatabaseType( DatabaseType value ) {
-    if ( value == null ) {
-      this.databaseType = null;
-    } else {
-      ObjectFactory factory = new ObjectFactory();
-      this.databaseType = factory.createDatabaseType( value );
-    }
+    this.databaseType = value;
   }
 
   /**
