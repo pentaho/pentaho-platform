@@ -184,6 +184,7 @@ public class DatabaseConnection {
   protected String dataTablespace;
   protected String databaseName;
   protected String databasePort;
+  @XmlElement( name = "databaseType" )
   protected DatabaseType databaseType;
   @XmlElement( required = true )
   protected DatabaseConnection.ExtraOptions extraOptions;
