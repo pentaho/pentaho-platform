@@ -249,7 +249,7 @@ public class CacheManager implements ICacheManager {
     killSessionCache( session );
   }
 
-  public boolean addCacheRegion( String region, Properties cacheProperties ) {
+  public synchronized boolean addCacheRegion( String region, Properties cacheProperties ) {
     boolean returnValue = false;
     if ( checkCacheEnabled() ) {
       if ( !cacheEnabled( region ) ) {
@@ -269,7 +269,7 @@ public class CacheManager implements ICacheManager {
     return returnValue;
   }
 
-  public boolean addCacheRegion( String region ) {
+  public synchronized boolean addCacheRegion( String region ) {
     boolean returnValue = false;
     if ( checkCacheEnabled() ) {
       if ( !cacheEnabled( region ) ) {
@@ -290,7 +290,7 @@ public class CacheManager implements ICacheManager {
     return returnValue;
   }
 
-  public boolean addCacheRegion( String region, Cache cache ) {
+  public synchronized boolean addCacheRegion( String region, Cache cache ) {
     if ( checkCacheEnabled() ) {
       if ( !cacheEnabled( region ) ) {
         regionCache.put( region, cache );
