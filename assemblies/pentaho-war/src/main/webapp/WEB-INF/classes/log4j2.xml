@@ -145,6 +145,7 @@
         <Logger name="org.pentaho.platform.scheduler2.action.SchedulerOutputPathResolver" level="WARN"/>
         <Logger name="org.pentaho.platform.web.http.api.resources.SchedulerOutputPathResolver" level="WARN"/>
         <Logger name="org.pentaho.platform.web.http.api.resources.SchedulerResource" level="WARN"/>
+        <Logger name="com.pentaho.appshell.scheduler" level="INFO"/>
 
         <!-- =========================== -->
         <!-- Mondrian Log Levels         -->
