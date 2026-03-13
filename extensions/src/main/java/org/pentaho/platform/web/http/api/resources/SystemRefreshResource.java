@@ -7,29 +7,31 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources;
 
 import org.codehaus.enunciate.Facet;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.security.authorization.caching.IAuthorizationDecisionCache;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.olap.IOlapService;
 import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 /**
  * This resource is responsible for refreshing  different system components (metadata, mondrian etc.)
@@ -148,6 +150,22 @@ public class SystemRefreshResource extends AbstractJaxRSResource {
         clearCacheAction.run();
       }
 
+      return Response.ok().type( MediaType.TEXT_PLAIN ).build();
+    } else {
+      return Response.status( UNAUTHORIZED ).build();
+    }
+  }
+
+  @GET
+  @Path( "/authorizationDecisionCache" )
+  @Produces( { MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON } )
+  @Facet ( name = "Unsupported" )
+  public Response flushAuthorizationDecisionCache() {
+    if ( canAdminister() ) {
+      IAuthorizationDecisionCache decisionCache = PentahoSystem.get( IAuthorizationDecisionCache.class );
+      if ( decisionCache != null ) {
+        decisionCache.invalidateAll();
+      }
       return Response.ok().type( MediaType.TEXT_PLAIN ).build();
     } else {
       return Response.status( UNAUTHORIZED ).build();

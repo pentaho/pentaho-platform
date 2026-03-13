@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.jcr;
 
@@ -442,10 +443,10 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    */
   public void permanentlyDeleteFile( final Session session, final PentahoJcrConstants pentahoJcrConstants,
                                      final Serializable fileId ) throws RepositoryException {
-    Assert.notNull( fileId );
+    Assert.notNull( fileId, "File ID must not be null" );
     Node fileNode = session.getNodeByIdentifier( fileId.toString() );
     // guard against using a file retrieved from a more lenient session inside a more strict session
-    Assert.notNull( fileNode );
+    Assert.notNull( fileNode, "File node must not be null" );
 
     // see if anything is referencing this node; if yes, then we cannot delete it as a
     // ReferentialIntegrityException will result
