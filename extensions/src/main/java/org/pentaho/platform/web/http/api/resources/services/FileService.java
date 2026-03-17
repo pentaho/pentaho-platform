@@ -1514,6 +1514,29 @@ public class FileService {
     return fileAcl;
   }
 
+  /**
+   * Retrieves the acls of the selected repository file. If forceInheriting is true, the acls will be retrieved with
+   * force inheriting flag, which means the acls will be retrieved as if all the entries are inheriting from parent
+   * folders.
+   *
+   * @param pathId          (colon separated path for the repository file)
+   * @param forceInheriting whether to force inheriting acls from parent folders
+   * @return <code> RepositoryFileAclDto </code>
+   */
+  public RepositoryFileAclDto doGetFileAcl( String pathId, boolean forceInheriting ) {
+    RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
+    RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
+
+    if ( forceInheriting || fileAcl.isEntriesInheriting() ) {
+      List<RepositoryFileAclAceDto> aces = getRepoWs().getEffectiveAcesWithForceFlag( file.getId(), true );
+      fileAcl.setAces( aces, true );
+    }
+
+    addAdminRole( fileAcl );
+
+    return fileAcl;
+  }
+
   protected void addAdminRole( RepositoryFileAclDto fileAcl ) {
     String adminRoleName =
         PentahoSystem.get( String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession() );
