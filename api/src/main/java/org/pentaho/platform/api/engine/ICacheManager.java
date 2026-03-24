@@ -206,6 +206,8 @@ public interface ICacheManager extends ILogoutListener {
 
   /**
    * Get a Set of Map.Entry objects from the cache within a specific region
+   * This method creates a new Set object containing a copy of the entries
+   * in the cache at the time the method was called.
    * 
    * @param region
    *          the region where the object was put in the cache
@@ -216,6 +218,8 @@ public interface ICacheManager extends ILogoutListener {
 
   /**
    * Get a Set of Key objects from the cache within a specific region
+   * This method creates a new Set object containing a copy of the keys
+   * in the cache at the time the method was called
    * 
    * @param region
    *          the region where the object was put in the cache
