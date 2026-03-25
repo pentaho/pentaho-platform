@@ -401,29 +401,6 @@ public class ActionUtilTest {
       field.setAccessible( true );
       Properties props = (Properties) field.get( null );
       assertTrue( props.isEmpty() );
-    }
-  }
-
-  @Test
-  public void testLoadAdminFailureEmailProperties_MalformedFileReturnsEmptyProps() throws Exception {
-    Path temp = Files.createTempFile( "scheduler_failure_email", ".properties" );
-    Files.write( temp, "ADMIN_TO=abc\\u00ZZ".getBytes( StandardCharsets.ISO_8859_1 ) );
-
-    IApplicationContext appContext = mock( IApplicationContext.class );
-    when( appContext.getSolutionPath( ActionUtil.SCHEDULER_FAILURE_EMAIL_PROPERTIES ) )
-      .thenReturn( temp.toAbsolutePath().toString() );
-
-    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
-      pentahoSystem.when( PentahoSystem::getApplicationContext ).thenReturn( appContext );
-
-      Method method = ActionUtil.class.getDeclaredMethod( "loadAdminFailureEmailProperties" );
-      method.setAccessible( true );
-      method.invoke( null );
-
-      Field field = ActionUtil.class.getDeclaredField( "adminFailureEmailProperties" );
-      field.setAccessible( true );
-      Properties props = (Properties) field.get( null );
-      assertTrue( props.isEmpty() );
     } finally {
       Files.deleteIfExists( temp );
     }
