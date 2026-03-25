@@ -1060,7 +1060,10 @@ public class FileResourceTest {
         + "<!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">"
         + "]>"
         + "\n"
-        + "<stringKeyStringValueDto><key>fooKey</key><value>barValue&lol4;</value></stringKeyStringValueDto>";
+        + "<stringKeyStringValueDtoes>"
+        + "<stringKeyStringValueDto><key>fooKey</key><value>barValue&lol4;</value></stringKeyStringValueDto>"
+        + "<stringKeyStringValueDto><key>fooKey1</key><value>barValue1</value></stringKeyStringValueDto>"
+        + "</stringKeyStringValueDtoes>";
 
     doCallRealMethod().when( fileResource ).doSetMetadata( anyString(), any( StreamSource.class ) );
     doCallRealMethod().when( fileResource ).getUnmarshaller( any() );
