@@ -103,6 +103,7 @@ public class ActionUtil {
    */
   private static Properties adminFailureEmailProperties;
 
+
   public static final String WORK_ITEM_UID = "workItemUid"; //$NON-NLS-1$
   public static final String WORK_ITEM_NAME = "workItemName"; //$NON-NLS-1$
 
