@@ -2174,9 +2174,10 @@ public class FileResource extends AbstractJaxRSResource {
     @ResponseCode( code = 400, condition = "Invalid payload." ),
     @ResponseCode( code = 500, condition = "Server Error." )} )
   public Response doSetMetadata( @PathParam( "pathId" ) String pathId, StreamSource metadataXml ) {
+    XMLStreamReader xsr = null;
     try {
       Unmarshaller unmarshaller = getUnmarshaller( StringKeyStringValueDtoWrapper.class );
-      XMLStreamReader xsr = getSecureXmlStreamReader( metadataXml );
+      xsr = getSecureXmlStreamReader( metadataXml );
       StringKeyStringValueDtoWrapper metadata = (StringKeyStringValueDtoWrapper) unmarshaller.unmarshal( xsr );
       if ( metadata == null || metadata.getStringKeyStringValueDtoes() == null ) {
         return Response.status( Response.Status.BAD_REQUEST ).entity( "Invalid payload." ).build();
@@ -2187,6 +2188,14 @@ public class FileResource extends AbstractJaxRSResource {
       return buildStatusResponse( Response.Status.UNAUTHORIZED );
     } catch ( Throwable t ) {
       return buildServerErrorResponse( t.getMessage() );
+    } finally {
+      if ( xsr != null ) {
+        try {
+          xsr.close();
+        } catch ( XMLStreamException e ) {
+          logger.warn( "Failed to close XMLStreamReader", e );
+        }
+      }
     }
   }
 
