@@ -48,7 +48,6 @@ import org.pentaho.platform.util.web.MimeHelper;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 
-
 public class ActionUtil {
 
   private static final Log logger = LogFactory.getLog( ActionUtil.class );
@@ -99,11 +98,10 @@ public class ActionUtil {
   static final String SCHEDULER_FAILURE_EMAIL_PROPERTIES = "system/scheduler_failure_email.properties";
 
   /**
-   * Admin failure email properties loaded lazily on first access from
+   * Admin failure email properties loaded once at class initialization from
    * {@value #SCHEDULER_FAILURE_EMAIL_PROPERTIES}. Changes to the file require a server restart to take effect.
    */
-  private static Properties adminFailureEmailProperties;
-
+  static final Properties ADMIN_FAILURE_EMAIL_PROPERTIES = loadAdminFailureEmailProperties();
 
   public static final String WORK_ITEM_UID = "workItemUid"; //$NON-NLS-1$
   public static final String WORK_ITEM_NAME = "workItemName"; //$NON-NLS-1$
@@ -540,10 +538,9 @@ public class ActionUtil {
       final String bcc = (String) actionParams.get( SCH_EMAIL_BCC );
 
       // Admin recipients loaded once at startup from system/scheduler_failure_email.properties
-      final Properties emailProperties = getAdminFailureEmailProperties();
-      final String adminTo = emailProperties.getProperty( ADMIN_TO, "" );
-      final String adminCc = emailProperties.getProperty( ADMIN_CC, "" );
-      final String adminBcc = emailProperties.getProperty( ADMIN_BCC, "" );
+      final String adminTo = ADMIN_FAILURE_EMAIL_PROPERTIES.getProperty( ADMIN_TO, "" );
+      final String adminCc = ADMIN_FAILURE_EMAIL_PROPERTIES.getProperty( ADMIN_CC, "" );
+      final String adminBcc = ADMIN_FAILURE_EMAIL_PROPERTIES.getProperty( ADMIN_BCC, "" );
 
       final String resolvedTo = mergeAddresses( emailGroupResolver.resolve( to ), adminTo );
       final String resolvedCc = mergeAddresses( emailGroupResolver.resolve( cc ), adminCc );
@@ -581,14 +578,7 @@ public class ActionUtil {
     }
   }
 
-  private static synchronized Properties getAdminFailureEmailProperties() {
-    if ( adminFailureEmailProperties == null ) {
-      loadAdminFailureEmailProperties();
-    }
-    return adminFailureEmailProperties;
-  }
-
-  private static void loadAdminFailureEmailProperties() {
+  private static Properties loadAdminFailureEmailProperties() {
     final Properties properties = new Properties();
     try {
       final String solutionPath = PentahoSystem.getApplicationContext().getSolutionPath( SCHEDULER_FAILURE_EMAIL_PROPERTIES );
@@ -606,7 +596,7 @@ public class ActionUtil {
     } catch ( IOException | RuntimeException e ) {
       logger.warn( "Could not load scheduler failure email admin properties.", e );
     }
-    adminFailureEmailProperties = properties;
+    return properties;
   }
 
   private static String filterValidAddresses( final String addresses ) {
