@@ -2156,7 +2156,7 @@ public class FileResource extends AbstractJaxRSResource {
    *
    * @param pathId   The path from the root folder to the root node of the tree to return using colon characters in place of /
    *                 or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file.
-   * @param metadata A list of StringKeyStringValueDto objects.
+   * @param metadataXml A list of StringKeyStringValueDto objects.
    * @return A jax-rs Response object with the appropriate status code, header, and body.
    *
    * <p><b>Example Response:</b></p>
@@ -2167,12 +2167,47 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path( "{pathId : .+}/metadata" )
   @Produces( {MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON} )
+  @Consumes( {MediaType.APPLICATION_XML} )
+  @StatusCodes( {
+    @ResponseCode( code = 200, condition = "Successfully retrieved metadata." ),
+    @ResponseCode( code = 403, condition = "Invalid path." ),
+    @ResponseCode( code = 400, condition = "Invalid payload." ),
+    @ResponseCode( code = 500, condition = "Server Error." )} )
+  public Response doSetMetadata( @PathParam( "pathId" ) String pathId, StreamSource metadataXml ) {
+    XMLStreamReader xsr = null;
+    try {
+      Unmarshaller unmarshaller = getUnmarshaller( StringKeyStringValueDtoWrapper.class );
+      xsr = getSecureXmlStreamReader( metadataXml );
+      StringKeyStringValueDtoWrapper metadata = (StringKeyStringValueDtoWrapper) unmarshaller.unmarshal( xsr );
+      if ( metadata == null || metadata.getStringKeyStringValueDtoes() == null ) {
+        return Response.status( Response.Status.BAD_REQUEST ).entity( "Invalid payload." ).build();
+      }
+      fileService.doSetMetadata( pathId, metadata.getStringKeyStringValueDtoes() );
+      return buildOkResponse();
+    } catch ( GeneralSecurityException e ) {
+      return buildStatusResponse( Response.Status.UNAUTHORIZED );
+    } catch ( Throwable t ) {
+      return buildServerErrorResponse( t.getMessage() );
+    } finally {
+      if ( xsr != null ) {
+        try {
+          xsr.close();
+        } catch ( XMLStreamException e ) {
+          logger.warn( "Failed to close XMLStreamReader", e );
+        }
+      }
+    }
+  }
+
+  @PUT
+  @Path( "{pathId : .+}/metadata" )
+  @Produces( {MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON} )
   @Consumes( {MediaType.APPLICATION_JSON} )
   @StatusCodes( {
-      @ResponseCode( code = 200, condition = "Successfully retrieved metadata." ),
-      @ResponseCode( code = 403, condition = "Invalid path." ),
-      @ResponseCode( code = 400, condition = "Invalid payload." ),
-      @ResponseCode( code = 500, condition = "Server Error." )} )
+    @ResponseCode( code = 200, condition = "Successfully retrieved metadata." ),
+    @ResponseCode( code = 403, condition = "Invalid path." ),
+    @ResponseCode( code = 400, condition = "Invalid payload." ),
+    @ResponseCode( code = 500, condition = "Server Error." )} )
   public Response doSetMetadata( @PathParam( "pathId" ) String pathId, StringKeyStringValueDtoWrapper  metadata ) {
     try {
       if ( metadata == null || metadata.getStringKeyStringValueDtoes() == null ) {
@@ -2186,6 +2221,7 @@ public class FileResource extends AbstractJaxRSResource {
       return buildServerErrorResponse( t.getMessage() );
     }
   }
+
 
   /**
    * Creates a new folder with the specified name.
