@@ -834,7 +834,7 @@
       <version>${commons-io.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
+      <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-jcache</artifactId>
       <version>${hibernate-jcache.version}</version>
       <exclusions>
