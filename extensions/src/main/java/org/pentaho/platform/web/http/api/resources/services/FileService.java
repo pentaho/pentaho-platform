@@ -1503,15 +1503,7 @@ public class FileService {
    * @return <code> RepositoryFileAclDto </code>
    */
   public RepositoryFileAclDto doGetFileAcl( String pathId ) {
-    RepositoryFileDto file = getRepoWs().getFile( FileUtils.idToPath( pathId ) );
-    RepositoryFileAclDto fileAcl = getRepoWs().getAcl( file.getId() );
-    if ( fileAcl.isEntriesInheriting() ) {
-      List<RepositoryFileAclAceDto> aces =
-          getRepoWs().getEffectiveAcesWithForceFlag( file.getId(), fileAcl.isEntriesInheriting() );
-      fileAcl.setAces( aces, fileAcl.isEntriesInheriting() );
-    }
-    addAdminRole( fileAcl );
-    return fileAcl;
+    return doGetFileAcl( pathId, false );
   }
 
   /**
