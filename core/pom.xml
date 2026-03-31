@@ -377,7 +377,7 @@
       <artifactId>osgi.core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
+      <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-core</artifactId>
       <version>${hibernate-core.version}</version>
       <scope>compile</scope>
