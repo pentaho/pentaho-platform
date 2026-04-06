@@ -15,7 +15,16 @@
     <property name="url" value="/webservices/unifiedRepository"/>
     <property name="service">
       <bean class="org.pentaho.platform.web.jaxws.spring.SpringService">
-        <property name="impl" value="org.pentaho.platform.repository2.unified.webservices.jaxws.DiUnifiedRepositoryJaxwsWebService"/>
+        <property name="bean">
+          <bean class="org.pentaho.platform.repository2.unified.webservices.jaxws.DiUnifiedRepositoryJaxwsWebService">
+            <constructor-arg>
+              <pen:bean class="org.pentaho.platform.api.repository2.unified.IUnifiedRepository"/>
+            </constructor-arg>
+            <constructor-arg>
+              <pen:bean class="org.pentaho.platform.api.mimetype.IPlatformMimeResolver"/>
+            </constructor-arg>
+          </bean>
+        </property>
       </bean>
     </property>
   </bean>
@@ -77,7 +86,14 @@
   <!--  GWT services are defined as Spring beans.  The id maps to the request URL like so:
       requests to "/ws/gwt/myService" will be dispatched to a bean with id "ws-gwt-myService"
   -->
-  <bean id="ws-gwt-unifiedRepository" class="org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService"/>
+  <bean id="ws-gwt-unifiedRepository" class="org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService">
+    <constructor-arg>
+      <pen:bean class="org.pentaho.platform.api.repository2.unified.IUnifiedRepository"/>
+    </constructor-arg>
+    <constructor-arg>
+      <pen:bean class="org.pentaho.platform.api.mimetype.IPlatformMimeResolver"/>
+    </constructor-arg>
+  </bean>
 
   <!-- JAX-RS beans -->
   <bean class="org.pentaho.platform.web.http.api.resources.RootResource" scope="request"/>

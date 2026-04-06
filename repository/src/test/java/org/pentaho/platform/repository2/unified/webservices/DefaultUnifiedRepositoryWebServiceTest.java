@@ -13,10 +13,23 @@
 
 package org.pentaho.platform.repository2.unified.webservices;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import junit.framework.TestCase;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
+import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.webservices.NodeRepositoryFileDataDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 
@@ -101,6 +114,172 @@ public class DefaultUnifiedRepositoryWebServiceTest extends TestCase {
     List<RepositoryFile> list = repository.getDeletedFiles();
     assertEquals( 2, list.size() );
     assertEquals( list, expectedList );
+  }
+
+  public void testCreateFileFiltersUnsupportedMimeType() {
+    IUnifiedRepository repositoryMock = mock( IUnifiedRepository.class );
+    IPlatformMimeResolver mimeResolver = mock( IPlatformMimeResolver.class );
+    when( mimeResolver.resolveMimeForFileName( "blocked.unknown" ) ).thenReturn( null );
+
+    DefaultUnifiedRepositoryWebService ws = new DefaultUnifiedRepositoryWebService( repositoryMock, mimeResolver );
+    RepositoryFileDto fileDto = new RepositoryFileAdapter().marshal( new RepositoryFile.Builder( "blocked.unknown" ).build() );
+
+    try {
+      ws.createFile( "parent", fileDto, createNodeRepositoryFileDataDto(), "msg" );
+      fail( "Expected createFile to reject unsupported mime type" );
+    } catch ( RuntimeException e ) {
+      assertTrue( e.getMessage().contains( "unsupported file types" ) );
+    }
+
+    verify( repositoryMock, never() ).createFile( anyString(), any( RepositoryFile.class ),
+      any( NodeRepositoryFileData.class ), anyString() );
+  }
+
+  public void testCreateFileAllowsSupportedMimeType() {
+    IUnifiedRepository repositoryMock = mock( IUnifiedRepository.class );
+    IPlatformMimeResolver mimeResolver = mock( IPlatformMimeResolver.class );
+    when( mimeResolver.resolveMimeForFileName( "allowed.prpt" ) ).thenReturn( "text/prpt" );
+    RepositoryFile createdFile = new RepositoryFile.Builder( "allowed.prpt" ).build();
+    when( repositoryMock.createFile( eq( "parent" ), any( RepositoryFile.class ), any( NodeRepositoryFileData.class ),
+      eq( "msg" ) ) ).thenReturn( createdFile );
+
+    DefaultUnifiedRepositoryWebService ws = new DefaultUnifiedRepositoryWebService( repositoryMock, mimeResolver );
+    RepositoryFileDto fileDto = new RepositoryFileAdapter().marshal( new RepositoryFile.Builder( "allowed.prpt" ).build() );
+
+    RepositoryFileDto result = ws.createFile( "parent", fileDto, createNodeRepositoryFileDataDto(), "msg" );
+
+    assertNotNull( result );
+    verify( repositoryMock ).createFile( eq( "parent" ), any( RepositoryFile.class ),
+      any( NodeRepositoryFileData.class ), eq( "msg" ) );
+  }
+
+  public void testCreateFileAllowsUnsupportedMimeTypeUnderEtcChildFolder() {
+    IUnifiedRepository repositoryMock = mock( IUnifiedRepository.class );
+    IPlatformMimeResolver mimeResolver = mock( IPlatformMimeResolver.class );
+    when( mimeResolver.resolveMimeForFileName( "blocked.unknown" ) ).thenReturn( null );
+    when( repositoryMock.getFileById( "etc-child-id" ) )
+      .thenReturn( new RepositoryFile.Builder( "etc-child" ).path( "/etc/custom" ).folder( true ).build() );
+    RepositoryFile createdFile = new RepositoryFile.Builder( "blocked.unknown" ).build();
+    when( repositoryMock.createFile( eq( "etc-child-id" ), any( RepositoryFile.class ), any( NodeRepositoryFileData.class ),
+      eq( "msg" ) ) ).thenReturn( createdFile );
+
+    DefaultUnifiedRepositoryWebService ws = new DefaultUnifiedRepositoryWebService( repositoryMock, mimeResolver );
+    RepositoryFileDto fileDto = new RepositoryFileAdapter().marshal( new RepositoryFile.Builder( "blocked.unknown" ).build() );
+
+    RepositoryFileDto result = ws.createFile( "etc-child-id", fileDto, createNodeRepositoryFileDataDto(), "msg" );
+
+    assertNotNull( result );
+    verify( repositoryMock ).createFile( eq( "etc-child-id" ), any( RepositoryFile.class ),
+      any( NodeRepositoryFileData.class ), eq( "msg" ) );
+  }
+
+  public void testCopyFileFiltersUnsupportedMimeType() {
+    IUnifiedRepository repositoryMock = mock( IUnifiedRepository.class );
+    IPlatformMimeResolver mimeResolver = mock( IPlatformMimeResolver.class );
+    when( mimeResolver.resolveMimeForFileName( "/public/blocked.unknown" ) ).thenReturn( null );
+
+    DefaultUnifiedRepositoryWebService ws = new DefaultUnifiedRepositoryWebService( repositoryMock, mimeResolver );
+
+    try {
+      ws.copyFile( "file-id", "/public/blocked.unknown", "msg" );
+      fail( "Expected copyFile to reject unsupported mime type" );
+    } catch ( RuntimeException e ) {
+      assertTrue( e.getMessage().contains( "unsupported file types" ) );
+    }
+
+    verify( repositoryMock, never() ).copyFile( anyString(), anyString(), anyString() );
+  }
+
+  public void testCopyFileAllowsSupportedMimeType() {
+    IUnifiedRepository repositoryMock = mock( IUnifiedRepository.class );
+    IPlatformMimeResolver mimeResolver = mock( IPlatformMimeResolver.class );
+    when( mimeResolver.resolveMimeForFileName( "/public/allowed.prpt" ) ).thenReturn( "text/prpt" );
+
+    DefaultUnifiedRepositoryWebService ws = new DefaultUnifiedRepositoryWebService( repositoryMock, mimeResolver );
+    ws.copyFile( "file-id", "/public/allowed.prpt", "msg" );
+
+    verify( repositoryMock ).copyFile( "file-id", "/public/allowed.prpt", "msg" );
+  }
+
+  public void testCopyFileAllowsWhenDestinationIsExistingFolder() {
+    IUnifiedRepository repositoryMock = mock( IUnifiedRepository.class );
+    IPlatformMimeResolver mimeResolver = mock( IPlatformMimeResolver.class );
+    when( repositoryMock.getFile( "/public" ) )
+      .thenReturn( new RepositoryFile.Builder( "public" ).path( "/public" ).folder( true ).build() );
+    when( mimeResolver.resolveMimeForFileName( "/public" ) ).thenReturn( null );
+
+    DefaultUnifiedRepositoryWebService ws = new DefaultUnifiedRepositoryWebService( repositoryMock, mimeResolver );
+    ws.copyFile( "file-id", "/public", "msg" );
+
+    verify( repositoryMock ).copyFile( "file-id", "/public", "msg" );
+  }
+
+  public void testCopyFileAllowsUnsupportedMimeTypeUnderEtcChildDestination() {
+    IUnifiedRepository repositoryMock = mock( IUnifiedRepository.class );
+    IPlatformMimeResolver mimeResolver = mock( IPlatformMimeResolver.class );
+    when( mimeResolver.resolveMimeForFileName( "/etc/custom/blocked.unknown" ) ).thenReturn( null );
+
+    DefaultUnifiedRepositoryWebService ws = new DefaultUnifiedRepositoryWebService( repositoryMock, mimeResolver );
+    ws.copyFile( "file-id", "/etc/custom/blocked.unknown", "msg" );
+
+    verify( repositoryMock ).copyFile( "file-id", "/etc/custom/blocked.unknown", "msg" );
+  }
+
+  public void testMoveFileFiltersUnsupportedMimeType() {
+    IUnifiedRepository repositoryMock = mock( IUnifiedRepository.class );
+    IPlatformMimeResolver mimeResolver = mock( IPlatformMimeResolver.class );
+    when( mimeResolver.resolveMimeForFileName( "/public/blocked.unknown" ) ).thenReturn( null );
+
+    DefaultUnifiedRepositoryWebService ws = new DefaultUnifiedRepositoryWebService( repositoryMock, mimeResolver );
+
+    try {
+      ws.moveFile( "file-id", "/public/blocked.unknown", "msg" );
+      fail( "Expected moveFile to reject unsupported mime type" );
+    } catch ( RuntimeException e ) {
+      assertTrue( e.getMessage().contains( "unsupported file types" ) );
+    }
+
+    verify( repositoryMock, never() ).moveFile( anyString(), anyString(), anyString() );
+  }
+
+  public void testMoveFileAllowsSupportedMimeType() {
+    IUnifiedRepository repositoryMock = mock( IUnifiedRepository.class );
+    IPlatformMimeResolver mimeResolver = mock( IPlatformMimeResolver.class );
+    when( mimeResolver.resolveMimeForFileName( "/public/allowed.prpt" ) ).thenReturn( "text/prpt" );
+
+    DefaultUnifiedRepositoryWebService ws = new DefaultUnifiedRepositoryWebService( repositoryMock, mimeResolver );
+    ws.moveFile( "file-id", "/public/allowed.prpt", "msg" );
+
+    verify( repositoryMock ).moveFile( "file-id", "/public/allowed.prpt", "msg" );
+  }
+
+  public void testMoveFileAllowsWhenDestinationIsExistingFolder() {
+    IUnifiedRepository repositoryMock = mock( IUnifiedRepository.class );
+    IPlatformMimeResolver mimeResolver = mock( IPlatformMimeResolver.class );
+    when( repositoryMock.getFile( "/public" ) )
+      .thenReturn( new RepositoryFile.Builder( "public" ).path( "/public" ).folder( true ).build() );
+    when( mimeResolver.resolveMimeForFileName( "/public" ) ).thenReturn( null );
+
+    DefaultUnifiedRepositoryWebService ws = new DefaultUnifiedRepositoryWebService( repositoryMock, mimeResolver );
+    ws.moveFile( "file-id", "/public", "msg" );
+
+    verify( repositoryMock ).moveFile( "file-id", "/public", "msg" );
+  }
+
+  public void testMoveFileAllowsUnsupportedMimeTypeUnderEtcChildDestination() {
+    IUnifiedRepository repositoryMock = mock( IUnifiedRepository.class );
+    IPlatformMimeResolver mimeResolver = mock( IPlatformMimeResolver.class );
+    when( mimeResolver.resolveMimeForFileName( "/etc/custom/blocked.unknown" ) ).thenReturn( null );
+
+    DefaultUnifiedRepositoryWebService ws = new DefaultUnifiedRepositoryWebService( repositoryMock, mimeResolver );
+    ws.moveFile( "file-id", "/etc/custom/blocked.unknown", "msg" );
+
+    verify( repositoryMock ).moveFile( "file-id", "/etc/custom/blocked.unknown", "msg" );
+  }
+
+  private NodeRepositoryFileDataDto createNodeRepositoryFileDataDto() {
+    NodeRepositoryFileDataAdapter adapter = new NodeRepositoryFileDataAdapter();
+    return adapter.marshal( new NodeRepositoryFileData( new DataNode( "root" ), 0 ) );
   }
 
   /**

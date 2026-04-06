@@ -13,11 +13,12 @@
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 
 import jakarta.jws.WebService;
 import java.util.ArrayList;
@@ -44,9 +45,20 @@ public class DefaultUnifiedRepositoryJaxwsWebService extends DefaultUnifiedRepos
     super( repo );
   }
 
+  /**
+   * Used in unit test.
+   */
+  public DefaultUnifiedRepositoryJaxwsWebService( final IUnifiedRepository repo,
+      final IPlatformMimeResolver platformMimeResolver ) {
+    super( repo, platformMimeResolver );
+  }
+
   public RepositoryFileDto createBinaryFileWithAcl( final String parentFolderId, final RepositoryFileDto file,
       final SimpleRepositoryFileDataDto simpleJaxWsData, final RepositoryFileAclDto acl, final String versionMessage ) {
     validateEtcWriteAccess( parentFolderId );
+    if ( !file.isFolder() && !isEtcChildFolderId( parentFolderId ) ) {
+      validateMimeTypeForWriteOperation( file.getName() );
+    }
     return repositoryFileAdapter.marshal( repo.createFile( parentFolderId, repositoryFileAdapter.unmarshal( file ),
         SimpleRepositoryFileDataDto.convert( simpleJaxWsData ), repositoryFileAclAdapter.unmarshal( acl ),
         versionMessage ) );
@@ -55,6 +67,9 @@ public class DefaultUnifiedRepositoryJaxwsWebService extends DefaultUnifiedRepos
   public RepositoryFileDto createBinaryFile( final String parentFolderId, final RepositoryFileDto file,
       final SimpleRepositoryFileDataDto simpleJaxWsData, final String versionMessage ) {
     validateEtcWriteAccess( parentFolderId );
+    if ( !file.isFolder() && !isEtcChildFolderId( parentFolderId ) ) {
+      validateMimeTypeForWriteOperation( file.getName() );
+    }
     return repositoryFileAdapter.marshal( repo.createFile( parentFolderId, repositoryFileAdapter.unmarshal( file ),
         SimpleRepositoryFileDataDto.convert( simpleJaxWsData ), versionMessage ) );
   }
