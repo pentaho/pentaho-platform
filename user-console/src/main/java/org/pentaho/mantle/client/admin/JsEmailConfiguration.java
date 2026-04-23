@@ -42,6 +42,8 @@ public class JsEmailConfiguration extends JavaScriptObject {
 
   public final native boolean isSmtpQuitWait() /*-{ return this.smtpQuitWait; }-*/; //
 
+  public final native boolean isSmtpSendPartial() /*-{ return this.smtpSendPartial; }-*/; //
+
   public final native String getUserId() /*-{ return this.userId; }-*/; //
 
   public final native String getPassword() /*-{ return this.password; }-*/; //
@@ -65,6 +67,8 @@ public class JsEmailConfiguration extends JavaScriptObject {
   public final native void setSmtpProtocol( final String smtpProtocol ) /*-{ this.smtpProtocol = smtpProtocol; }-*/; //
 
   public final native void setSmtpQuitWait( final boolean smtpQuitWait ) /*-{ this.smtpQuitWait = smtpQuitWait; }-*/; //
+
+  public final native void setSmtpSendPartial( final boolean smtpSendPartial ) /*-{ this.smtpSendPartial = smtpSendPartial; }-*/; //
 
   public final native void setUserId( final String userId ) /*-{ this.userId = userId; }-*/; //
 

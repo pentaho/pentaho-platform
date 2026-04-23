@@ -62,6 +62,10 @@ public interface IEmailConfiguration {
 
   public void setSmtpQuitWait( final boolean smtpQuitWait );
 
+  public boolean isSmtpSendPartial();
+
+  public void setSmtpSendPartial( final boolean smtpSendPartial );
+
   public String getAuthMechanism();
 
   public void setAuthMechanism( final String authMechanism );

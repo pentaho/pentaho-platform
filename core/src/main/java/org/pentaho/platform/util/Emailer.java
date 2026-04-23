@@ -13,6 +13,13 @@
 
 package org.pentaho.platform.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.Properties;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -36,12 +43,6 @@ import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.util.ByteArrayDataSource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.Properties;
 
 public class Emailer {
 
@@ -189,6 +190,7 @@ public class Emailer {
       props.put( "mail.smtp.ssl", ObjectUtils.toString( service.getEmailConfig().isUseSsl() ) );
       props.put( "mail.smtp.quitwait", ObjectUtils.toString( service.getEmailConfig().isSmtpQuitWait() ) );
       props.put( "mail.from.default", service.getEmailConfig().getDefaultFrom() );
+      props.put( "mail.smtp.sendpartial", ObjectUtils.toString( service.getEmailConfig().isSmtpSendPartial() ) );
       setAuthMechanism( service.getEmailConfig().getAuthMechanism() );
       String fromName = service.getEmailConfig().getFromName();
       if ( StringUtils.isEmpty( fromName ) ) {

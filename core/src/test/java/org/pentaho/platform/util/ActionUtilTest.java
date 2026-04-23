@@ -14,24 +14,6 @@
 package org.pentaho.platform.util;
 
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.pentaho.platform.api.action.ActionInvocationException;
-import org.pentaho.platform.api.action.IAction;
-import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.engine.PluginBeanException;
-import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.workitem.DummyPublisher;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -41,6 +23,37 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.pentaho.platform.api.action.ActionInvocationException;
+import org.pentaho.platform.api.action.IAction;
+import org.pentaho.platform.api.engine.IApplicationContext;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.PluginBeanException;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.workitem.IWorkItemLifecycleEventPublisher;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.workitem.DummyPublisher;
 
 @RunWith( MockitoJUnitRunner.class )
 public class ActionUtilTest {
@@ -301,5 +314,118 @@ public class ActionUtilTest {
     // verify that the expected keys are no longer present in the map
     Assert.assertNull( map.get( ActionUtil.INVOKER_ACTIONID ) );
     Assert.assertNull( map.get( ActionUtil.QUARTZ_ACTIONID ) );
+  }
+
+  @Test
+  public void testAddAttachment_UsesGeneratedContentNameWhenEnabled() throws Exception {
+    Map<String, Object> actionParams = new HashMap<>();
+    actionParams.put( "_SCH_EMAIL_USE_GENERATED_NAME", "true" );
+    actionParams.put( "_SCH_EMAIL_ATTACHMENT_NAME", "custom-name" );
+
+    Map<String, Object> params = new HashMap<>();
+    params.put( ActionUtil.QUARTZ_LINEAGE_ID, "lineage-id" );
+
+    RepositoryFile sourceFile = mock( RepositoryFile.class );
+    when( sourceFile.getId() ).thenReturn( "file-id" );
+    when( sourceFile.getName() ).thenReturn( "generated-output" );
+
+    IUnifiedRepository repo = mock( IUnifiedRepository.class );
+    when( repo.getFile( "/public/generated/output.*" ) ).thenReturn( sourceFile );
+    when( repo.getFileMetadata( "file-id" ) ).thenReturn( new HashMap<>() );
+    when( repo.getDataForRead( "file-id", SimpleRepositoryFileData.class ) ).thenReturn(
+      new SimpleRepositoryFileData( new ByteArrayInputStream( "x".getBytes() ), "UTF-8", null ) );
+
+    Emailer emailer = mock( Emailer.class );
+
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
+      pentahoSystem.when( () -> PentahoSystem.get( IUnifiedRepository.class ) ).thenReturn( repo );
+
+      Method addAttachment = ActionUtil.class.getDeclaredMethod( "addAttachment", Map.class, Map.class,
+        String.class, Emailer.class );
+      addAttachment.setAccessible( true );
+      addAttachment.invoke( null, actionParams, params, "/public/generated/output.*", emailer );
+    }
+
+    verify( emailer ).setAttachmentName( "generated-output.bin" );
+  }
+
+  @Test
+  public void testIsSchedulerFailureEmailEnabled_TrueWhenSystemSettingTrue() throws Exception {
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
+      pentahoSystem.when( () -> PentahoSystem.getSystemSetting( "scheduler.failure.email.enabled", "false" ) )
+        .thenReturn( "true" );
+
+      Method method = ActionUtil.class.getDeclaredMethod( "isSchedulerFailureEmailEnabled" );
+      method.setAccessible( true );
+      assertTrue( (Boolean) method.invoke( null ) );
+    }
+  }
+
+  @Test
+  public void testIsSchedulerFailureEmailEnabled_FalseWhenSystemSettingFalse() throws Exception {
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
+      pentahoSystem.when( () -> PentahoSystem.getSystemSetting( "scheduler.failure.email.enabled", "false" ) )
+        .thenReturn( "false" );
+
+      Method method = ActionUtil.class.getDeclaredMethod( "isSchedulerFailureEmailEnabled" );
+      method.setAccessible( true );
+      assertFalse( (Boolean) method.invoke( null ) );
+    }
+  }
+
+  @Test
+  public void testMergeAddresses_MergesScheduleAndAdminRecipients() throws Exception {
+    Method method = ActionUtil.class.getDeclaredMethod( "mergeAddresses", String.class, String.class );
+    method.setAccessible( true );
+
+    assertEquals( "schedule@acme.com,admin@acme.com",
+      method.invoke( null, "schedule@acme.com", "admin@acme.com" ) );
+    assertEquals( "admin@acme.com", method.invoke( null, "", "admin@acme.com" ) );
+    assertEquals( "schedule@acme.com", method.invoke( null, "schedule@acme.com", "" ) );
+  }
+
+  @Test
+  public void testLoadAdminFailureEmailProperties_MissingFileReturnsEmptyProps() throws Exception {
+    IApplicationContext appContext = mock( IApplicationContext.class );
+    when( appContext.getSolutionPath( ActionUtil.SCHEDULER_FAILURE_EMAIL_PROPERTIES ) )
+      .thenReturn( "C:/does/not/exist/scheduler_failure_email.properties" );
+
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
+      pentahoSystem.when( PentahoSystem::getApplicationContext ).thenReturn( appContext );
+
+      Method method = ActionUtil.class.getDeclaredMethod( "loadAdminFailureEmailProperties" );
+      method.setAccessible( true );
+      method.invoke( null );
+
+      Field field = ActionUtil.class.getDeclaredField( "adminFailureEmailProperties" );
+      field.setAccessible( true );
+      Properties props = (Properties) field.get( null );
+      assertTrue( props.isEmpty() );
+    }
+  }
+
+  @Test
+  public void testLoadAdminFailureEmailProperties_MalformedFileReturnsEmptyProps() throws Exception {
+    Path temp = Files.createTempFile( "scheduler_failure_email", ".properties" );
+    Files.write( temp, "ADMIN_TO=abc\\u00ZZ".getBytes( StandardCharsets.ISO_8859_1 ) );
+
+    IApplicationContext appContext = mock( IApplicationContext.class );
+    when( appContext.getSolutionPath( ActionUtil.SCHEDULER_FAILURE_EMAIL_PROPERTIES ) )
+      .thenReturn( temp.toAbsolutePath().toString() );
+
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
+      pentahoSystem.when( PentahoSystem::getApplicationContext ).thenReturn( appContext );
+
+      Method method = ActionUtil.class.getDeclaredMethod( "loadAdminFailureEmailProperties" );
+      method.setAccessible( true );
+      method.invoke( null );
+
+      Field field = ActionUtil.class.getDeclaredField( "adminFailureEmailProperties" );
+      field.setAccessible( true );
+      Properties props = (Properties) field.get( null );
+      assertTrue( props.isEmpty() );
+    } finally {
+      Files.deleteIfExists( temp );
+    }
   }
 }
