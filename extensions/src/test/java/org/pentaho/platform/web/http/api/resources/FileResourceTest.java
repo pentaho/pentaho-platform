@@ -37,6 +37,7 @@ import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileAc
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDtoWrapper;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
@@ -1025,64 +1026,46 @@ public class FileResourceTest {
       fileResource.setFileAcls( PATH_ID, new StreamSource( new ByteArrayInputStream( xmlDocWithExternalEntitiesLol.getBytes() ) ) ).getStatus() );
   }
 
-  /* Note: tests commented out because we removed the Accepts: XML decorator from this method; should only
-   * accept JSON now.
-   * [PPP-5021] Ensure external entities cannot be inserted into XML payloads
-   */
-//  @Test
-//  public void testDoSetMetadataXxeError() throws JAXBException, XMLStreamException {
-//    String xmlDocWithExternalEntitiesLol =
-//      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-//        + "<!DOCTYPE lolz ["
-//        + "<!ENTITY lol \"lol\">"
-//        + "<!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">"
-//        + "<!ENTITY lol2 \"&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;\">"
-//        + "<!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">"
-//        + "<!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">"
-//        + "]>"
-//        + "\n"
-//        + "<stringKeyStringValueDto><key>fooKey</key><value>barValue&lol4;</value></stringKeyStringValueDto>";
-//
-//    doCallRealMethod().when( fileResource ).doSetMetadata( anyString(), any( StreamSource.class ) );
-//    doCallRealMethod().when( fileResource ).getUnmarshaller( any() );
-//    doCallRealMethod().when( fileResource ).getSecureXmlStreamReader( any( StreamSource.class ) );
-//    assertEquals( INTERNAL_SERVER_ERROR.getStatusCode(),
-//      fileResource.doSetMetadata( PATH_ID, new StreamSource( new ByteArrayInputStream( xmlDocWithExternalEntitiesLol.getBytes() ) ) ).getStatus() );
-//  }
+  @Test
+  public void testDoSetMetadataXxeError() throws JAXBException, XMLStreamException {
+    String xmlDocWithExternalEntitiesLol =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+        + "<!DOCTYPE lolz ["
+        + "<!ENTITY lol \"lol\">"
+        + "<!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">"
+        + "<!ENTITY lol2 \"&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;\">"
+        + "<!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">"
+        + "<!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">"
+        + "]>"
+        + "\n"
+        + "<stringKeyStringValueDtoes>"
+        + "<stringKeyStringValueDto><key>fooKey</key><value>barValue&lol4;</value></stringKeyStringValueDto>"
+        + "<stringKeyStringValueDto><key>fooKey1</key><value>barValue1</value></stringKeyStringValueDto>"
+        + "</stringKeyStringValueDtoes>";
+
+    doCallRealMethod().when( fileResource ).doSetMetadata( anyString(), any( StreamSource.class ) );
+    doCallRealMethod().when( fileResource ).getUnmarshaller( any() );
+    doCallRealMethod().when( fileResource ).getSecureXmlStreamReader( any( StreamSource.class ) );
+    assertEquals( INTERNAL_SERVER_ERROR.getStatusCode(),
+      fileResource.doSetMetadata( PATH_ID, new StreamSource( new ByteArrayInputStream( xmlDocWithExternalEntitiesLol.getBytes() ) ) ).getStatus() );
+  }
 
   /*
    * [PPP-5021] Ensure external entities cannot be inserted into XML payloads
    */
-//  @Test
-//  public void testDoSetMetadataXxeErrorClean() throws JAXBException, XMLStreamException {
-//    String xmlDocWithExternalEntitiesLol =
-//      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-//        + "<stringKeyStringValueDtoes><stringKeyStringValueDto><key>fooKey</key><value>barValue</value></stringKeyStringValueDto>"
-//        + "<stringKeyStringValueDto><key>fooKey1</key><value>barValue1</value></stringKeyStringValueDto></stringKeyStringValueDtoes>";
-//
-//    doCallRealMethod().when( fileResource ).doSetMetadata( anyString(), any( StreamSource.class ) );
-//    doCallRealMethod().when( fileResource ).getUnmarshaller( any() );
-//    doCallRealMethod().when( fileResource ).getSecureXmlStreamReader( any( StreamSource.class ) );
-//    assertEquals( OK.getStatusCode(),
-//      fileResource.doSetMetadata( PATH_ID, new StreamSource( new ByteArrayInputStream( xmlDocWithExternalEntitiesLol.getBytes() ) ) ).getStatus() );
-//  }
+  @Test
+  public void testDoSetMetadataXxeErrorClean() throws JAXBException, XMLStreamException {
+    String xmlDocWithExternalEntitiesLol =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+        + "<stringKeyStringValueDtoes><stringKeyStringValueDto><key>fooKey</key><value>barValue</value></stringKeyStringValueDto>"
+        + "<stringKeyStringValueDto><key>fooKey1</key><value>barValue1</value></stringKeyStringValueDto></stringKeyStringValueDtoes>";
 
-//  public void generateStringKeyAndValueXml() throws JAXBException {
-//    // save this in case someone needs to rebuild the XML
-//    StringKeyStringValueDto stringKeyStringValueDto1 = new StringKeyStringValueDto();
-//    stringKeyStringValueDto1.setKey( "fooKey" );
-//    stringKeyStringValueDto1.setValue( "barValue" );
-//    StringKeyStringValueDto stringKeyStringValueDto2 = new StringKeyStringValueDto();
-//    stringKeyStringValueDto2.setKey( "fooKey" );
-//    stringKeyStringValueDto2.setValue( "barValue" );
-//    List<StringKeyStringValueDto> stringKeyStringValueDtoList = new ArrayList<>();
-//    stringKeyStringValueDtoList.add( stringKeyStringValueDto1 );
-//    stringKeyStringValueDtoList.add( stringKeyStringValueDto2 );
-//    JAXBContext jaxbContext = JAXBContext.newInstance( StringKeyStringValueDto.class, ArrayList.class );
-//    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//    jaxbContext.createMarshaller().marshal( stringKeyStringValueDtoList, bos );
-//    System.out.println( bos.toString() );
-//  }
+    doCallRealMethod().when( fileResource ).doSetMetadata( anyString(), any( StreamSource.class ) );
+    doCallRealMethod().when( fileResource ).getUnmarshaller( any() );
+    doCallRealMethod().when( fileResource ).getSecureXmlStreamReader( any( StreamSource.class ) );
+    assertEquals( OK.getStatusCode(),
+      fileResource.doSetMetadata( PATH_ID, new StreamSource( new ByteArrayInputStream( xmlDocWithExternalEntitiesLol.getBytes() ) ) ).getStatus() );
+  }
 
   /*
    * [PPP-5021] Ensure external entities cannot be inserted into XML payloads
@@ -1777,15 +1760,17 @@ public class FileResourceTest {
   }
 
   @Test
-  public void testDoSetMetadata() throws Exception {
+  public void testDoSetMetadataJson() throws Exception {
     List<StringKeyStringValueDto> metadata = mock( List.class );
 
+    StringKeyStringValueDtoWrapper metadataWrapper = new StringKeyStringValueDtoWrapper();
+    metadataWrapper.setStringKeyStringValueDtoes( metadata );
     doNothing().when( fileResource.fileService ).doSetMetadata( PATH_ID, metadata );
 
     Response mockResponse = mock( Response.class );
     doReturn( mockResponse ).when( fileResource ).buildOkResponse();
 
-    Response testResponse = fileResource.doSetMetadata( PATH_ID, metadata );
+    Response testResponse = fileResource.doSetMetadata( PATH_ID, metadataWrapper );
     assertEquals( mockResponse, testResponse );
 
     verify( fileResource.fileService, times( 1 ) ).doSetMetadata( PATH_ID, metadata );
@@ -1793,8 +1778,11 @@ public class FileResourceTest {
   }
 
   @Test
-  public void testDoSetMetadataError() throws Exception {
-    List<StringKeyStringValueDto> metadata = mock( List.class );
+  public void testDoSetMetadataJsonError() throws Exception {
+    List<StringKeyStringValueDto> metadata =  mock( List.class );
+
+    StringKeyStringValueDtoWrapper metadataWrapper = new StringKeyStringValueDtoWrapper();
+    metadataWrapper.setStringKeyStringValueDtoes( metadata );
 
     Response mockUnauthorizedResponse = mock( Response.class );
     doReturn( mockUnauthorizedResponse ).when( fileResource ).buildStatusResponse( Response.Status.UNAUTHORIZED );
@@ -1809,15 +1797,15 @@ public class FileResourceTest {
 
     // Test 1
     Exception mockGeneralSecurityException = mock( GeneralSecurityException.class );
-    doThrow( mockGeneralSecurityException ).when( fileResource.fileService ).doSetMetadata( PATH_ID, metadata );
+    doThrow( mockGeneralSecurityException ).when( fileResource.fileService ).doSetMetadata( PATH_ID, metadataWrapper.getStringKeyStringValueDtoes() );
 
-    Response testResponse = fileResource.doSetMetadata( PATH_ID, metadata );
+    Response testResponse = fileResource.doSetMetadata( PATH_ID, metadataWrapper );
     assertEquals( mockUnauthorizedResponse, testResponse );
 
     // Test 2
     doThrow( mockThrowable ).when( fileResource.fileService ).doSetMetadata( PATH_ID, metadata );
 
-    testResponse = fileResource.doSetMetadata( PATH_ID, metadata );
+    testResponse = fileResource.doSetMetadata( PATH_ID, metadataWrapper );
     assertEquals( mockThrowableResponse, testResponse );
 
     verify( fileResource.fileService, times( 2 ) ).doSetMetadata( PATH_ID, metadata );
@@ -1826,7 +1814,75 @@ public class FileResourceTest {
     verify( fileResource, times( 1 ) ).buildServerErrorResponse( errMsg );
   }
 
+  @Test
+  public void testDoSetMetadataXML() throws Exception {
+    List<StringKeyStringValueDto> metadata = mock( List.class );
 
+    StringKeyStringValueDtoWrapper metadataWrapper = new StringKeyStringValueDtoWrapper();
+    metadataWrapper.setStringKeyStringValueDtoes( metadata );
+    doNothing().when( fileResource.fileService ).doSetMetadata( PATH_ID, metadata );
+
+    Unmarshaller mockUnmarshaller = mock( Unmarshaller.class );
+    XMLStreamReader mockXsr = mock( XMLStreamReader.class );
+    doReturn( mockUnmarshaller ).when( fileResource ).getUnmarshaller( StringKeyStringValueDtoWrapper.class );
+    doReturn( mockXsr ).when( fileResource ).getSecureXmlStreamReader( any( StreamSource.class ) );
+    doReturn( metadataWrapper ).when( mockUnmarshaller ).unmarshal( mockXsr );
+
+    Response mockResponse = mock( Response.class );
+    doReturn( mockResponse ).when( fileResource ).buildOkResponse();
+
+    StreamSource mockStreamSource = mock( StreamSource.class );
+    Response testResponse = fileResource.doSetMetadata( PATH_ID, mockStreamSource );
+    assertEquals( mockResponse, testResponse );
+
+    verify( fileResource.fileService, times( 1 ) ).doSetMetadata( PATH_ID, metadata );
+    verify( fileResource, times( 1 ) ).buildOkResponse();
+  }
+
+  @Test
+  public void testDoSetMetadataXMLError() throws Exception {
+    List<StringKeyStringValueDto> metadata =  mock( List.class );
+
+    StringKeyStringValueDtoWrapper metadataWrapper = new StringKeyStringValueDtoWrapper();
+    metadataWrapper.setStringKeyStringValueDtoes( metadata );
+
+    Unmarshaller mockUnmarshaller = mock( Unmarshaller.class );
+    XMLStreamReader mockXsr = mock( XMLStreamReader.class );
+    doReturn( mockUnmarshaller ).when( fileResource ).getUnmarshaller( StringKeyStringValueDtoWrapper.class );
+    doReturn( mockXsr ).when( fileResource ).getSecureXmlStreamReader( any( StreamSource.class ) );
+    doReturn( metadataWrapper ).when( mockUnmarshaller ).unmarshal( mockXsr );
+
+    Response mockUnauthorizedResponse = mock( Response.class );
+    doReturn( mockUnauthorizedResponse ).when( fileResource ).buildStatusResponse( Response.Status.UNAUTHORIZED );
+
+    Throwable mockThrowable = mock( RuntimeException.class );
+
+    String errMsg = "errMsg";
+    doReturn( errMsg ).when( mockThrowable ).getMessage();
+
+    Response mockThrowableResponse = mock( Response.class );
+    doReturn( mockThrowableResponse ).when( fileResource ).buildServerErrorResponse( errMsg );
+
+    StreamSource mockStreamSource = mock( StreamSource.class );
+
+    // Test 1
+    Exception mockGeneralSecurityException = mock( GeneralSecurityException.class );
+    doThrow( mockGeneralSecurityException ).when( fileResource.fileService ).doSetMetadata( PATH_ID, metadataWrapper.getStringKeyStringValueDtoes() );
+
+    Response testResponse = fileResource.doSetMetadata( PATH_ID, mockStreamSource );
+    assertEquals( mockUnauthorizedResponse, testResponse );
+
+    // Test 2
+    doThrow( mockThrowable ).when( fileResource.fileService ).doSetMetadata( PATH_ID, metadata );
+
+    testResponse = fileResource.doSetMetadata( PATH_ID, mockStreamSource );
+    assertEquals( mockThrowableResponse, testResponse );
+
+    verify( fileResource.fileService, times( 2 ) ).doSetMetadata( PATH_ID, metadata );
+    verify( fileResource, times( 1 ) ).buildStatusResponse( Response.Status.UNAUTHORIZED );
+    verify( mockThrowable, times( 1 ) ).getMessage();
+    verify( fileResource, times( 1 ) ).buildServerErrorResponse( errMsg );
+  }
   @Test
   public void testCustomMime() {
     FileResource fileResource = new FileResource();
