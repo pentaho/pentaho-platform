@@ -13,14 +13,15 @@
 
 package org.pentaho.platform.plugin.services.email;
 
-import junit.framework.TestCase;
-import org.dom4j.Document;
-import org.pentaho.di.core.KettleEnvironment;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+
+import org.dom4j.Document;
+import org.pentaho.di.core.KettleEnvironment;
+
+import junit.framework.TestCase;
 
 /**
  * Test class for the {@link }EmailConfigurationXml} class
@@ -65,6 +66,7 @@ public class EmailConfigurationXmlTest extends TestCase {
     assertEquals( true, emailConfiguration.isUseSsl() );
     assertEquals( true, emailConfiguration.isDebug() );
     assertEquals( true, emailConfiguration.isSmtpQuitWait() );
+    assertEquals( true, emailConfiguration.isSmtpSendPartial() );
     assertEquals( "sampleuser@sampleserver.com", emailConfiguration.getDefaultFrom() );
     assertEquals( "sampleuser", emailConfiguration.getUserId() );
     assertEquals( "samplepassword", emailConfiguration.getPassword() );
@@ -92,6 +94,7 @@ public class EmailConfigurationXmlTest extends TestCase {
     assertEquals( true, emailConfiguration.isUseSsl() );
     assertEquals( true, emailConfiguration.isDebug() );
     assertEquals( true, emailConfiguration.isSmtpQuitWait() );
+    assertEquals( true, emailConfiguration.isSmtpSendPartial() );
     assertEquals( "sampleuser@sampleserver.com", emailConfiguration.getDefaultFrom() );
     assertEquals( "sampleuser", emailConfiguration.getUserId() );
     assertEquals( "samplepassword", emailConfiguration.getPassword() );
@@ -122,6 +125,7 @@ public class EmailConfigurationXmlTest extends TestCase {
     assertEquals( false, emailConfiguration.isUseSsl() );
     assertEquals( false, emailConfiguration.isDebug() );
     assertEquals( false, emailConfiguration.isSmtpQuitWait() );
+    assertEquals( false, emailConfiguration.isSmtpSendPartial() );
     assertEquals( "", emailConfiguration.getDefaultFrom() );
     assertEquals( "", emailConfiguration.getUserId() );
     assertEquals( "", emailConfiguration.getPassword() );
@@ -150,6 +154,7 @@ public class EmailConfigurationXmlTest extends TestCase {
     assertEquals( false, emailConfiguration.isUseSsl() );
     assertEquals( false, emailConfiguration.isDebug() );
     assertEquals( false, emailConfiguration.isSmtpQuitWait() );
+    assertEquals( false, emailConfiguration.isSmtpSendPartial() );
     assertEquals( "", emailConfiguration.getDefaultFrom() );
     assertEquals( "sampleuser", emailConfiguration.getUserId() );
     assertEquals( "", emailConfiguration.getPassword() );
