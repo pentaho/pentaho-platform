@@ -13,6 +13,7 @@
 
 package org.pentaho.platform.util.xml;
 
+import net.sf.saxon.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.io.SAXReader;
@@ -25,10 +26,16 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import java.util.Objects;
 
 public class XMLParserFactoryProducer {
 
   private static final Log logger = LogFactory.getLog( XMLParserFactoryProducer.class );
+
+  private static Configuration saxonConfig = new Configuration();
+
   /**
    * Creates an instance of {@link DocumentBuilderFactory} class
    * with enabled {@link XMLConstants#FEATURE_SECURE_PROCESSING} property.
@@ -86,5 +93,70 @@ public class XMLParserFactoryProducer {
     reader.setIncludeExternalDTDDeclarations( false );
     reader.setIncludeInternalDTDDeclarations( false );
     return reader;
+  }
+
+  /**
+   * Returns the Saxon configuration object being used by this class to create instances of {@link TransformerFactory}
+   *
+   * @return Saxon configuration object being used by this class to create instances of {@link TransformerFactory}
+   */
+  public static Configuration getSaxonConfig() {
+    return saxonConfig;
+  }
+
+  /**
+   * Sets the Saxon configuration object to be used by this class to create instances of {@link TransformerFactory}.
+   * a {@code null} value will reset the configuration to a new instance of {@link Configuration}
+   */
+  public static void setSaxonConfig( Configuration config ) {
+    saxonConfig = Objects.requireNonNullElseGet( config, Configuration::new );
+  }
+
+  /**
+   * Creates an instance of {@link TransformerFactory} class with enabled
+   * {@link XMLConstants#FEATURE_SECURE_PROCESSING} property.
+   *
+   * @throws TransformerConfigurationException if a TransformerFactory cannot be created which satisfies the
+   *                                           requested configuration
+   */
+  public static TransformerFactory createSecureTransformerFactory()
+    throws TransformerConfigurationException {
+    return createSecureTransformerFactory( false );
+  }
+
+  /**
+   * Creates an instance of {@link TransformerFactory} class with enabled
+   * {@link XMLConstants#FEATURE_SECURE_PROCESSING} property. Depending on {@code useConfiguration} parameter value,
+   * it may use the class' Saxon configuration object for creation
+   *
+   * @param useConfiguration if this class' Saxon configuration object is to be used when creating the factory
+   * @throws TransformerConfigurationException if a TransformerFactory cannot be created which satisfies the
+   *                                           requested configuration
+   */
+  public static TransformerFactory createSecureTransformerFactory( boolean useConfiguration )
+    throws TransformerConfigurationException {
+    return createSecureTransformerFactory( useConfiguration ? saxonConfig : null );
+  }
+
+  /**
+   * Creates an instance of {@link TransformerFactory} class with enabled
+   * {@link XMLConstants#FEATURE_SECURE_PROCESSING} property or using this class' Saxon configuration object
+   *
+   * @param config Saxon configuration to use, or null to use default TransformerFactory implementation
+   * @throws TransformerConfigurationException if a TransformerFactory cannot be created which satisfies the
+   *                                           requested configuration
+   */
+  public static TransformerFactory createSecureTransformerFactory( Configuration config )
+    throws TransformerConfigurationException {
+    TransformerFactory transformerFactory = null;
+
+    if ( config == null ) {
+      transformerFactory = TransformerFactory.newInstance();
+      transformerFactory.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, true );
+    } else {
+      transformerFactory = new net.sf.saxon.jaxp.SaxonTransformerFactory( config );
+    }
+
+    return transformerFactory;
   }
 }
