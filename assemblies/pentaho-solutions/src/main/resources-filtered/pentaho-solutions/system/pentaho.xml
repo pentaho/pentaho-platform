@@ -221,4 +221,19 @@
     Example:
     <default-scheduler-output-path>/public/output</default-scheduler-output-path>
   -->
+
+  <!--
+    Controls whether scheduler-level failure emails are sent for failed scheduled actions
+    (reports, jobs, transformations, etc.).
+    Defaults to disabled.
+
+    When enabled, failure emails are sent to:
+      - The schedule's own email recipients (_SCH_EMAIL_TO/_SCH_EMAIL_CC/_SCH_EMAIL_BCC)
+      - Admin recipients configured in system/scheduler_failure_email.properties (ADMIN_TO/CC/BCC)
+
+    true  = send failure email when a scheduled action fails
+    false = do not send scheduler-level failure emails
+  -->
+  <scheduler.failure.email.enabled>false</scheduler.failure.email.enabled>
+
 </pentaho-system>

@@ -13,10 +13,20 @@
 
 package org.pentaho.platform.plugin.services.email;
 
-import junit.framework.TestCase;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Map;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.http.Consts;
 import org.apache.http.HttpException;
@@ -37,19 +47,10 @@ import jakarta.mail.Session;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.ws.rs.HttpMethod;
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
-import java.util.Properties;
-import java.util.stream.Collectors;
+import junit.framework.TestCase;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 
 @RunWith( MockitoJUnitRunner.class )
 public class EmailServiceTest extends TestCase {
@@ -97,7 +98,7 @@ public class EmailServiceTest extends TestCase {
 
     final EmailConfiguration emailConfigOriginal =
             new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", "smtp.com", 36,
-                    EmailConstants.PROTOCOL_SMTP, true, "user", "password", false, true );
+                    EmailConstants.PROTOCOL_SMTP, true, true, "user", "password", false, true );
     boolean response = emailService.isValid( emailConfigOriginal );
     assertTrue( response );
 
@@ -115,7 +116,7 @@ public class EmailServiceTest extends TestCase {
 
     final EmailConfiguration emailConfigOriginal =
             new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", "", 36,
-                    EmailConstants.PROTOCOL_SMTP, true, "user", "password", false, true );
+                    EmailConstants.PROTOCOL_SMTP, true, true, "user", "password", false, true );
 
     emailConfigOriginal.setAuthMechanism( EmailConstants.AUTH_TYPE_XOAUTH2 );
     emailConfigOriginal.setGrantType( EmailConstants.GRANT_TYPE_CLIENT_CREDENTIALS );
@@ -143,7 +144,7 @@ public class EmailServiceTest extends TestCase {
 
     final EmailConfiguration emailConfigOriginal =
             new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", "", 36,
-                    EmailConstants.PROTOCOL_SMTP, true, "user", "password", false, true );
+                    EmailConstants.PROTOCOL_SMTP, true, true, "user", "password", false, true );
 
     emailConfigOriginal.setAuthMechanism( EmailConstants.AUTH_TYPE_XOAUTH2 );
     emailConfigOriginal.setClientId( "cid" );
@@ -175,7 +176,7 @@ public class EmailServiceTest extends TestCase {
 
     final EmailConfiguration emailConfigOriginal =
             new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", "", 36,
-                    EmailConstants.PROTOCOL_SMTP, true, "user", "password", false, true );
+                    EmailConstants.PROTOCOL_SMTP, true, true, "user", "password", false, true );
     emailConfigOriginal.setAuthMechanism( EmailConstants.AUTH_TYPE_XOAUTH2 );
     emailConfigOriginal.setClientId( "cid" );
     emailConfigOriginal.setClientSecret( "clientsecret" );
@@ -210,7 +211,7 @@ public class EmailServiceTest extends TestCase {
 
     final EmailConfiguration emailConfigOriginal =
             new EmailConfiguration( false, false, "test@pentaho.com", "", "smtp.com", 36,
-                    EmailConstants.PROTOCOL_SMTP, true, "", "", false, true );
+                    EmailConstants.PROTOCOL_SMTP, true, true, "", "", false, true );
     boolean response = emailService.isValid( emailConfigOriginal );
     assertEquals( true, response );
   }
@@ -220,7 +221,7 @@ public class EmailServiceTest extends TestCase {
 
     final EmailConfiguration emailConfigOriginal =
             new EmailConfiguration( true, false, "", "", "smtp.com", 36,
-                    EmailConstants.PROTOCOL_SMTP, true, "", "", false, true );
+                    EmailConstants.PROTOCOL_SMTP, true, true, "", "", false, true );
 
     boolean response = emailService.isValid( emailConfigOriginal );
     assertEquals( false, response );
@@ -230,7 +231,7 @@ public class EmailServiceTest extends TestCase {
   public void testSendEmailTestNoAuth() throws Exception {
     EmailConfiguration emailConfigOriginal =
             new EmailConfiguration( false, false, "test@pentaho.com", "Pentaho Scheduler", "", 25,
-                    EmailConstants.PROTOCOL_SMTP, true, "", "", true, true );
+                    EmailConstants.PROTOCOL_SMTP, true, true, "", "", true, true );
     assertEquals( EmailService.TEST_EMAIL_SUCCESS, emailService.sendEmailTest( emailConfigOriginal ) );
     assertEquals( 1, MockMail.size() );
     final Message message = MockMail.get( 0 );
@@ -256,7 +257,7 @@ public class EmailServiceTest extends TestCase {
 
     EmailConfiguration emailConfigOriginal =
             new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", "", 25,
-                    EmailConstants.PROTOCOL_GRAPH_API, true, "test", "", true, true );
+                    EmailConstants.PROTOCOL_GRAPH_API, true, true, "test", "", true, true );
     emailConfigOriginal.setAuthMechanism( EmailConstants.AUTH_TYPE_XOAUTH2 );
     emailConfigOriginal.setClientId( "cid" );
     emailConfigOriginal.setClientSecret( "secret" );
@@ -300,7 +301,7 @@ public class EmailServiceTest extends TestCase {
     String mockUrlFulToken = server.url( urlPathToken ).toString();
     EmailConfiguration emailConfigOriginal =
             new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", "smtp.office365.com", 587,
-                    EmailConstants.PROTOCOL_SMTP, true, "PentahoBA_mailTest@Hitachivantara.com", "", true, true );
+                    EmailConstants.PROTOCOL_SMTP, true, true, "PentahoBA_mailTest@Hitachivantara.com", "", true, true );
     emailConfigOriginal.setAuthMechanism( EmailConstants.AUTH_TYPE_XOAUTH2 );
 
     Properties emailProperties = new Properties();
@@ -365,7 +366,7 @@ public class EmailServiceTest extends TestCase {
 
     EmailConfiguration emailConfigOriginal =
             new EmailConfiguration( true, false, "tes@test.com", "Pentaho Scheduler", "", 25,
-                    EmailConstants.PROTOCOL_GRAPH_API, true, "test@test.com", "", true, true );
+                    EmailConstants.PROTOCOL_GRAPH_API, true, true, "test@test.com", "", true, true );
     emailConfigOriginal.setAuthMechanism( EmailConstants.AUTH_TYPE_XOAUTH2 );
     emailConfigOriginal.setClientId( "cid" );
     emailConfigOriginal.setClientSecret( "secret" );
@@ -444,7 +445,7 @@ public class EmailServiceTest extends TestCase {
 
     EmailConfiguration emailConfigOriginal =
             new EmailConfiguration( true, false, "tes@test.com", "Pentaho Scheduler", "", 25,
-                    EmailConstants.PROTOCOL_GRAPH_API, true, "test@test.com", "", true, true );
+                    EmailConstants.PROTOCOL_GRAPH_API, true, true, "test@test.com", "", true, true );
     emailConfigOriginal.setAuthMechanism( EmailConstants.AUTH_TYPE_XOAUTH2 );
     emailConfigOriginal.setClientId( "cid" );
     emailConfigOriginal.setClientSecret( "secret" );
@@ -472,7 +473,7 @@ public class EmailServiceTest extends TestCase {
     KettleEnvironment.init();
     EmailConfiguration emailConfigOriginal =
             new EmailConfiguration( true, false, "test@pentaho.com", "Pentaho Scheduler", "smtp.com", 25,
-                    EmailConstants.PROTOCOL_SMTP, true, "user", "password", true, true );
+                    EmailConstants.PROTOCOL_SMTP, true, true, "user", "password", true, true );
     emailConfigOriginal.setAuthMechanism( EmailConstants.AUTH_TYPE_BASIC );
 
     emailService.sendEmailTest( emailConfigOriginal );
