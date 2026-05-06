@@ -176,7 +176,6 @@
     <barbecue.version>1.5-beta1</barbecue.version>
     <jaxws-spring.version>1.8</jaxws-spring.version>
     <antlr-complete.version>3.5.2</antlr-complete.version>
-    <hibernate-core.version>5.4.24.Final</hibernate-core.version>
     <license.inception.year>2002</license.inception.year>
     <jsr181-api.version>1.0-MR1</jsr181-api.version>
     <ascsapjco3wrp.version>20100529</ascsapjco3wrp.version>
