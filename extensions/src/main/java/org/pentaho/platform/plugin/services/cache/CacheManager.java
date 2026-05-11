@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -203,7 +204,7 @@ public class CacheManager implements ICacheManager {
     }
   }
 
-  public void cacheStop() {
+  public synchronized void cacheStop() {
     if ( cacheEnabled ) {
       regionCache.clear();
       regionFactory.stop();
@@ -241,15 +242,18 @@ public class CacheManager implements ICacheManager {
     return cacheProperties;
   }
 
-  public boolean cacheEnabled( String region ) {
+  public synchronized boolean cacheEnabled( String region ) {
+    if ( !checkCacheEnabled() || regionCache == null || region == null ) {
+      return false;
+    }
     return regionCache.get( region ) != null;
   }
 
-  public void onLogout( final IPentahoSession session ) {
+  public synchronized void onLogout( final IPentahoSession session ) {
     killSessionCache( session );
   }
 
-  public boolean addCacheRegion( String region, Properties cacheProperties ) {
+  public synchronized boolean addCacheRegion( String region, Properties cacheProperties ) {
     boolean returnValue = false;
     if ( checkCacheEnabled() ) {
       if ( !cacheEnabled( region ) ) {
@@ -269,7 +273,7 @@ public class CacheManager implements ICacheManager {
     return returnValue;
   }
 
-  public boolean addCacheRegion( String region ) {
+  public synchronized boolean addCacheRegion( String region ) {
     boolean returnValue = false;
     if ( checkCacheEnabled() ) {
       if ( !cacheEnabled( region ) ) {
@@ -290,7 +294,7 @@ public class CacheManager implements ICacheManager {
     return returnValue;
   }
 
-  public boolean addCacheRegion( String region, Cache cache ) {
+  public synchronized boolean addCacheRegion( String region, Cache cache ) {
     if ( checkCacheEnabled() ) {
       if ( !cacheEnabled( region ) ) {
         regionCache.put( region, cache );
@@ -304,7 +308,7 @@ public class CacheManager implements ICacheManager {
     return true;
   }
 
-  public void clearRegionCache( String region ) {
+  public synchronized void clearRegionCache( String region ) {
     if ( checkCacheEnabled() ) {
        HvCache cache = (HvCache) regionCache.get( region );
       if ( cache != null ) {
@@ -323,13 +327,13 @@ public class CacheManager implements ICacheManager {
     }
   }
 
-  public void removeRegionCache( String region ) {
+  public synchronized void removeRegionCache( String region ) {
     if ( checkRegionEnabled( region ) ) {
       clearRegionCache( region );
     }
   }
 
-  public void putInRegionCache( String region, Object key, Object value ) {
+  public synchronized void putInRegionCache( String region, Object key, Object value ) {
     if ( checkRegionEnabled( region ) ) {
       if ( key == null || value == null ) {
         return;
@@ -339,7 +343,7 @@ public class CacheManager implements ICacheManager {
     }
   }
 
-  public Object getFromRegionCache( String region, Object key ) {
+  public synchronized Object getFromRegionCache( String region, Object key ) {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
       return hvcache.getDirectAccessRegion().getFromCache( key, null );
@@ -347,7 +351,37 @@ public class CacheManager implements ICacheManager {
     return null;
   }
 
-  public List<Object> getAllValuesFromRegionCache( String region ) {
+  @Override
+  public synchronized Object getOrCreateFromRegionCache( String region, Object key, Supplier<Object> creator ) {
+    if ( key == null || creator == null ) {
+      return null;
+    }
+
+    if ( !checkCacheEnabled() ) {
+      // ensures caller can always rely on this method to return something even if the cache is disabled
+      return creator.get();
+    }
+
+    if ( !cacheEnabled( region ) ) {
+      if ( !addCacheRegion( region ) ) {
+        CacheManager.logger.warn( "Failed to create cache region " + region + ". Returning created object without caching." );
+        return creator.get();
+      }
+    }
+
+    Object cached = getFromRegionCache( region, key );
+    if ( cached != null ) {
+      return cached;
+    }
+
+    Object created = creator.get();
+    if ( created != null ) {
+      putInRegionCache( region, key, created );
+    }
+    return created;
+  }
+
+  public synchronized List<Object> getAllValuesFromRegionCache( String region ) {
     List<Object> list = new ArrayList<>();
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
@@ -357,7 +391,7 @@ public class CacheManager implements ICacheManager {
     return list;
   }
 
-  public Set getAllKeysFromRegionCache( String region ) {
+  public synchronized Set getAllKeysFromRegionCache( String region ) {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
       return hvcache.getAllKeys();
@@ -365,7 +399,7 @@ public class CacheManager implements ICacheManager {
     return null;
   }
 
-  public Set getAllEntriesFromRegionCache( String region ) {
+  public synchronized Set getAllEntriesFromRegionCache( String region ) {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
       javax.cache.Cache<Object, Object> cache = ( ( JCacheAccessImpl ) hvcache.getStorageAccess() ).getUnderlyingCache();
@@ -376,7 +410,7 @@ public class CacheManager implements ICacheManager {
     return null;
   }
 
-  public void removeFromRegionCache( String region, Object key ) {
+  public synchronized void removeFromRegionCache( String region, Object key ) {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );
       hvcache.getStorageAccess().evictData( key );
@@ -386,11 +420,11 @@ public class CacheManager implements ICacheManager {
     }
   }
 
-  public boolean cacheEnabled() {
+  public synchronized boolean cacheEnabled() {
     return cacheEnabled;
   }
 
-  public void clearCache() {
+  public synchronized void clearCache() {
     if ( cacheEnabled ) {
       Iterator it = regionCache.entrySet().iterator();
       while ( it.hasNext() ) {
@@ -403,15 +437,15 @@ public class CacheManager implements ICacheManager {
     }
   }
 
-  public Object getFromGlobalCache( Object key ) {
+  public synchronized Object getFromGlobalCache( Object key ) {
     return getFromRegionCache( GLOBAL, key );
   }
 
-  public Object getFromSessionCache( IPentahoSession session, String key ) {
+  public synchronized Object getFromSessionCache( IPentahoSession session, String key ) {
     return getFromRegionCache( SESSION, getCorrectedKey( session, key ) );
   }
 
-  public void killSessionCache( IPentahoSession session ) {
+  public synchronized void killSessionCache( IPentahoSession session ) {
     if ( cacheEnabled ) {
       HvCache hvcache = (HvCache) regionCache.get( SESSION );
       if ( hvcache != null ) {
@@ -430,23 +464,23 @@ public class CacheManager implements ICacheManager {
     }
   }
 
-  public void killSessionCaches() {
+  public synchronized void killSessionCaches() {
     removeRegionCache( SESSION );
   }
 
-  public void putInGlobalCache( Object key, Object value ) {
+  public synchronized void putInGlobalCache( Object key, Object value ) {
     putInRegionCache( GLOBAL, key, value );
   }
 
-  public void putInSessionCache( IPentahoSession session, String key, Object value ) {
+  public synchronized void putInSessionCache( IPentahoSession session, String key, Object value ) {
     putInRegionCache( SESSION, getCorrectedKey( session, key ), value );
   }
 
-  public void removeFromGlobalCache( Object key ) {
+  public synchronized void removeFromGlobalCache( Object key ) {
     removeFromRegionCache( GLOBAL, key );
   }
 
-  public void removeFromSessionCache( IPentahoSession session, String key ) {
+  public synchronized void removeFromSessionCache( IPentahoSession session, String key ) {
     removeFromRegionCache( SESSION, getCorrectedKey( session, key ) );
   }
 

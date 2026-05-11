@@ -55,6 +55,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -747,6 +748,11 @@ public class MondrianCatalogHelperTest {
 
     @Override public Object getFromRegionCache( String region, Object key ) {
       return catalogs.get( region.concat( "-" + key.toString() ) );
+    }
+
+    @Override public Object getOrCreateFromRegionCache( String region, Object key, Supplier<Object> creator ) {
+      String cacheKey = region.concat( "-" + key.toString() );
+      return catalogs.computeIfAbsent( cacheKey, k -> creator.get() );
     }
 
     @Override public Set getAllEntriesFromRegionCache( String region ) {

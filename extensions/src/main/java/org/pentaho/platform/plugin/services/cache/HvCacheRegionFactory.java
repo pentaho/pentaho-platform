@@ -41,9 +41,19 @@ public class HvCacheRegionFactory extends JCacheRegionFactory {
       case CREATE_WARN:
         L2CACHE_LOGGER.missingCacheCreated( regionName, ConfigSettings.MISSING_CACHE_STRATEGY, MissingCacheStrategy.CREATE.getExternalRepresentation() );
       case CREATE:
-        return getCacheManager().createCache( regionName,
-                PentahoCacheUtil.getDefaultCacheConfiguration( regionName,
-                        HvCacheRegionFactory.class.getClassLoader().getResource( EHCACHE_XML_PATH ) ) );
+        try {
+          return getCacheManager().createCache( regionName,
+                  PentahoCacheUtil.getDefaultCacheConfiguration( regionName,
+                          HvCacheRegionFactory.class.getClassLoader().getResource( EHCACHE_XML_PATH ) ) );
+        } catch ( javax.cache.CacheException e ) {
+          // A concurrent thread may have created the cache between the parent's getCache() check and our
+          // createCache() call. Attempt to retrieve the already-created cache before giving up.
+          Cache<Object, Object> existing = getCacheManager().getCache( regionName );
+          if ( existing != null ) {
+            return existing;
+          }
+          throw e;
+        }
       case FAIL:
         throw new CacheException( "On-the-fly creation of JCache Cache objects is not supported [" + regionName + "]" );
       default:

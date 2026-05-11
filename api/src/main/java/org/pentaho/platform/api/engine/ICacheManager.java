@@ -16,6 +16,7 @@ package org.pentaho.platform.api.engine;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public interface ICacheManager extends ILogoutListener {
   public static final String SESSION = "SESSION"; //$NON-NLS-1$
@@ -183,6 +184,25 @@ public interface ICacheManager extends ILogoutListener {
    */
 
   public Object getFromRegionCache( String region, Object key );
+
+  /**
+   * Returns a value from a specific cache region if present. If the region does not exist, it is created.
+   * If the value is not present, this method atomically creates, stores, and returns a value produced
+   * by the supplied creator function. 
+   * 
+   * NOTE: This method is only truly atomic if we deprecate the other getFromRegionCache and putInRegionCache 
+   * methods, and only use this method to access the cache. If the cache is accessed outside of this 
+   * method, all bets are off regarding atomicity.
+   *
+   * @param region
+   *          the region where the object is stored
+   * @param key
+   *          the key that the data object is stored with
+   * @param creator
+   *          function that creates the value when it is absent from the cache
+   * @return The cached or newly created data object
+   */
+  public Object getOrCreateFromRegionCache( String region, Object key, Supplier<Object> creator );
 
   /**
    * Get a Set of Map.Entry objects from the cache within a specific region

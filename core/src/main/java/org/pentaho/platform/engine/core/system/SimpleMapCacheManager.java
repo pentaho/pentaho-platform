@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * 
@@ -81,6 +82,25 @@ public class SimpleMapCacheManager implements ICacheManager {
 
   public Object getFromRegionCache( String region, Object key ) {
     return simpleMap.get( getCorrectedKey( region, key ) );
+  }
+
+  @Override
+  public Object getOrCreateFromRegionCache( String region, Object key, Supplier<Object> creator ) {
+    if ( key == null || creator == null ) {
+      return null;
+    }
+
+    String correctedKey = getCorrectedKey( region, key );
+    synchronized ( simpleMap ) {
+      Object value = simpleMap.get( correctedKey );
+      if ( value == null ) {
+        value = creator.get();
+        if ( value != null ) {
+          simpleMap.put( correctedKey, value );
+        }
+      }
+      return value;
+    }
   }
 
   public Set getAllEntriesFromRegionCache( String region ) {
