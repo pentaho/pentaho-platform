@@ -261,14 +261,16 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public void moveFile( String fileId, String destAbsPath, String versionMessage ) {
-    if ( !isEtcChildPath( destAbsPath ) && !isExistingFolderPath( destAbsPath ) ) {
+    // Validate MIME only for files (not folders) being moved, and only if not to /etc child or existing folder
+    if ( isFile( fileId ) && !isEtcChildPath( destAbsPath ) && !isExistingFolderPath( destAbsPath ) ) {
       validateMimeTypeForWriteOperation( destAbsPath );
     }
     repo.moveFile( fileId, destAbsPath, versionMessage );
   }
 
   public void copyFile( String fileId, String destAbsPath, String versionMessage ) {
-    if ( !isEtcChildPath( destAbsPath ) && !isExistingFolderPath( destAbsPath ) ) {
+    // Validate MIME only for files (not folders) being copied, and only if not to /etc child or existing folder
+    if ( isFile( fileId ) && !isEtcChildPath( destAbsPath ) && !isExistingFolderPath( destAbsPath ) ) {
       validateMimeTypeForWriteOperation( destAbsPath );
     }
     repo.copyFile( fileId, destAbsPath, versionMessage );
@@ -442,6 +444,14 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     }
     RepositoryFile parentFolder = repo.getFileById( parentFolderId );
     return parentFolder != null && isEtcChildPath( parentFolder.getPath() );
+  }
+
+  protected boolean isFile( String fileId ) {
+    if ( repo == null || fileId == null ) {
+      return false;
+    }
+    RepositoryFile file = repo.getFileById( fileId );
+    return file != null && !file.isFolder();
   }
 
   protected void validateEtcReadAccess( String path ) {
