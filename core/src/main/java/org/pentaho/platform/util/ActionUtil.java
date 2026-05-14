@@ -496,9 +496,7 @@ public class ActionUtil {
           emailer.setSubject( "Pentaho Scheduler" + ( emailer.getAttachmentName() != null ? " : " + emailer.getAttachmentName() : "" ) );
         }
         String message = (String) actionParams.get( SCH_EMAIL_MESSAGE );
-        if ( message != null && !"".equals( message ) ) {
-          emailer.setBody( message );
-        }
+        emailer.setBody( message != null ? message : "" );
         emailer.send();
       } else {
         logger.error( Messages.getInstance().getErrorString( "ActionUtil.ERROR_0001_INVALID_EMAIL_LIST" ) );
