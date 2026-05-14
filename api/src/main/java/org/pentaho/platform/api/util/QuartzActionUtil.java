@@ -20,6 +20,15 @@ public class QuartzActionUtil {
   public static final String QUARTZ_APPEND_DATE_FORMAT = "appendDateFormat"; //$NON-NLS-1$
   public static final String QUARTZ_AUTO_CREATE_UNIQUE_FILENAME = "autoCreateUniqueFilename"; //$NON-NLS-1$
   public static final String QUARTZ_LINEAGE_ID = "lineage-id"; //$NON-NLS-1$
+  public static final String QUARTZ_LAST_EXECUTION_TIME = "QuartzScheduler-LastExecutionTime"; //$NON-NLS-1$
+    /**
+   * @deprecated since 2026-02
+   * 
+   * This reserved map key is no longer used by the scheduler and should not be used by callers.
+   * Can only remove if we ensure that no clients have schedules with this property set in their jobParams.
+   * Otherwise, it will appear in the UI variable list.
+   */
+  @Deprecated( since = "2026-02", forRemoval = false )
   public static final String QUARTZ_PREVIOUS_TRIGGER_NOW = "previousTriggerNow"; //$NON-NLS-1$
   public static final String QUARTZ_RESTART_FLAG = "ActionAdapterQuartzJob-Restart"; //$NON-NLS-1$
   public static final String QUARTZ_START_TIME = "startTime"; //$NON-NLS-1$
