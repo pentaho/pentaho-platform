@@ -278,7 +278,8 @@ public class RepositoryImportResource {
       for ( int i = 0; i < fileNameOverrides.size(); i++ ) {
         InputStream fileUpload = fileUploads.get( i );
 
-        String fileName = fileNameOverrides.get( i );
+        // URL-decode the filename to restore original name with special characters
+        String fileName = java.net.URLDecoder.decode( fileNameOverrides.get( i ), charSet );
 
         RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
         bundleBuilder.input( fileUpload );
