@@ -28,6 +28,7 @@ import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginOperation;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -96,8 +97,14 @@ public class RepositoryResource extends AbstractJaxRSResource {
   protected RepositoryDownloadWhitelist whitelist;
 
   static {
-    Configuration config = org.pentaho.platform.util.xml.XMLParserFactoryProducer.getSaxonConfig();
-    XactionSaxonExtensions.registerAll( config );
+    ISystemConfig settings = PentahoSystem.get( ISystemConfig.class );
+    if ( settings != null && "true".equals( settings.getProperty( "system.allowXActionParameters" ) ) ) {
+      logger.info( "System allowXActionParameters is set; if this is not intended, check the configuration." );
+      Configuration config = org.pentaho.platform.util.xml.XMLParserFactoryProducer.getSaxonConfig();
+      if ( config != null ) {
+        XactionSaxonExtensions.registerAll( config );
+      }
+    }
   }
 
   @GET

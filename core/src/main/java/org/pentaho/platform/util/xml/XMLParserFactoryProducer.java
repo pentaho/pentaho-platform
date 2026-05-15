@@ -37,9 +37,9 @@ public class XMLParserFactoryProducer {
   private static Configuration saxonConfig = new Configuration();
 
   /**
-   * Creates an instance of {@link DocumentBuilderFactory} class
-   * with enabled {@link XMLConstants#FEATURE_SECURE_PROCESSING} property.
-   * Enabling this feature prevents from some XXE attacks (e.g. XML bomb)
+   * Creates an instance of {@link DocumentBuilderFactory} class with enabled
+   * {@link XMLConstants#FEATURE_SECURE_PROCESSING} property.
+   * Enabling this feature prevents from some XXE attacks (e.g. XML bomb).
    * See PPP-3506 for more details.
    *
    * @throws ParserConfigurationException if feature can't be enabled
@@ -54,18 +54,14 @@ public class XMLParserFactoryProducer {
   }
 
   /**
-   * Creates an instance of {@link SAXParserFactory} class with enabled {@link XMLConstants#FEATURE_SECURE_PROCESSING} property.
-   * Enabling this feature prevents from some XXE attacks (e.g. XML bomb)
+   * Creates an instance of {@link SAXParserFactory} class with enabled
+   * {@link XMLConstants#FEATURE_SECURE_PROCESSING} property.
+   * Enabling this feature prevents from some XXE attacks (e.g. XML bomb).
    *
-   * @throws ParserConfigurationException if a parser cannot
-   *     be created which satisfies the requested configuration.
-   *
-   * @throws SAXNotRecognizedException When the underlying XMLReader does
-   *            not recognize the property name.
-   *
-   * @throws SAXNotSupportedException When the underlying XMLReader
-   *            recognizes the property name but doesn't support the
-   *            property.
+   * @throws ParserConfigurationException if a parser cannot be created which satisfies the requested configuration.
+   * @throws SAXNotRecognizedException    When the underlying XMLReader does not recognize the property name.
+   * @throws SAXNotSupportedException     When the underlying XMLReader recognizes the property name but doesn't
+   *                                      support the property.
    */
   public static SAXParserFactory createSecureSAXParserFactory()
     throws SAXNotSupportedException, SAXNotRecognizedException, ParserConfigurationException {
@@ -106,7 +102,7 @@ public class XMLParserFactoryProducer {
 
   /**
    * Sets the Saxon configuration object to be used by this class to create instances of {@link TransformerFactory}.
-   * a {@code null} value will reset the configuration to a new instance of {@link Configuration}
+   * A {@code null} value will reset the configuration to a new instance of {@link Configuration}
    */
   public static void setSaxonConfig( Configuration config ) {
     saxonConfig = Objects.requireNonNullElseGet( config, Configuration::new );
