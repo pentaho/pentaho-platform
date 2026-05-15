@@ -129,8 +129,10 @@ public class XactionSaxonExtensions {
    * Register all 3 extensions into a Saxon Configuration.
    */
   public static void registerAll( Configuration config ) {
-    config.registerExtensionFunction( new MsgGetInstance() );
-    config.registerExtensionFunction( new MsgGetXslString() );
-    config.registerExtensionFunction( new LocGetTextDirection() );
+    if ( config != null ) {
+      config.registerExtensionFunction( new MsgGetInstance() );
+      config.registerExtensionFunction( new MsgGetXslString() );
+      config.registerExtensionFunction( new LocGetTextDirection() );
+    }
   }
 }

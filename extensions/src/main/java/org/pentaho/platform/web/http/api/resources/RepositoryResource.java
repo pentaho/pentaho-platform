@@ -15,6 +15,17 @@ package org.pentaho.platform.web.http.api.resources;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.GenericEntity;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import net.sf.saxon.Configuration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -23,13 +34,14 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginOperation;
-import org.pentaho.platform.api.engine.PluginBeanException;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
@@ -45,19 +57,6 @@ import org.pentaho.platform.web.http.api.resources.utils.XactionSaxonExtensions;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
-import jakarta.servlet.http.HttpServletRequest;
-
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.GenericEntity;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -71,10 +70,10 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static jakarta.ws.rs.core.MediaType.WILDCARD;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
-import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
+import static jakarta.ws.rs.core.MediaType.WILDCARD;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
@@ -102,8 +101,14 @@ public class RepositoryResource extends AbstractJaxRSResource {
   protected RepositoryDownloadWhitelist whitelist;
 
   static {
-    Configuration config = org.pentaho.platform.util.xml.XMLParserFactoryProducer.getSaxonConfig();
-    XactionSaxonExtensions.registerAll( config );
+    ISystemConfig settings = PentahoSystem.get( ISystemConfig.class );
+    if ( settings != null && "true".equals( settings.getProperty( "system.allowXActionParameters" ) ) ) {
+      logger.info( "System allowXActionParameters is set; if this is not intended, check the configuration." );
+      Configuration config = org.pentaho.platform.util.xml.XMLParserFactoryProducer.getSaxonConfig();
+      if ( config != null ) {
+        XactionSaxonExtensions.registerAll( config );
+      }
+    }
   }
 
   @GET
