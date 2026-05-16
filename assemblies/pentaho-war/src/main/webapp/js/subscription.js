@@ -77,7 +77,6 @@ function doParameterFormDisplay( id ) {
 					}
 				}
 				alert(destMsg);
-				// subsMsgObj.value = '';
 			}
 		} catch (ignored) {
 		}
@@ -300,8 +299,6 @@ function doSave( id, url, createNew ) {
 		form.elements['_PENTAHO_ADDITIONAL_PARAMS_'].value = submitUrl;
 
 		form.elements['subscribe'].value = 'save';
-		// document.location.href=submitUrl;
-		// return false;
 		form.target = '';
 		form.action = url;
 		form.submit();
@@ -430,7 +427,6 @@ function doSubscribedArchive( id, actionUrl ) {
 	
 		var name= document.getElementById('subscription-archive'+id).value;
 		form.elements['subscribe-name'].value = name;
-		// submitUrl += '&subscribe-name='+escape(name);
 		form.action = formAction;
 		form.target = target;
 		form.submit();

@@ -288,7 +288,6 @@ function doRun( id, baseUrl, target, background ) {
 	// change this URL to point to another machine if required...
 	// ----------------------------------------------------------
 	var submitUrl = baseUrl;
-	// delete line? var action = submitUrl;
 	var formCheck = false;
 	try {
 		formCheck = doFormCheck( id );
@@ -305,12 +304,8 @@ function doRun( id, baseUrl, target, background ) {
 		
 		var params = window.getParams();
 		var json = {};
-		json.inputFile = params['path']; // createPath(params['solution'], params['path'], params['action']);
-		
-		// delete params['solution'];
-		// delete params['path'];
-		// delete params['action'];
-		
+		json.inputFile = params['path'];
+
 		json.outputFile = null;
 		json.simpleJobTrigger = {repeatInterval:0, repeatCount:0, startTime:null, endTime:null};
 		json.jobParameters = getParamEntries(params);
@@ -478,7 +473,6 @@ function getParameters( id ) {
       return params;
     }
 }
-
 
 function closeMantleTab(){
   try{
