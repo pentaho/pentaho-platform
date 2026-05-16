@@ -130,7 +130,7 @@ function doCancelScheduling( id, cancelEditing) {
 		var form = document.forms['form_'+id];
 		var form2 = document.forms['save_form_'+id];
 		doClearEditingFields(form, form2);
-		if (USEPOSTFORFORMS) {
+		if (typeof USEPOSTFORFORMS !== "undefined" && USEPOSTFORFORMS) {
 			if (cancelEditing) {
 				form2.target = '';
 				form2.submit();
@@ -201,7 +201,7 @@ function modifyURL(url, appendStr) {
 function doSave( id, url, createNew ) {
 	var submitUrl = null;
 
-	if (!USEPOSTFORFORMS) {
+	if (typeof USEPOSTFORFORMS === "undefined" || !USEPOSTFORFORMS) {
 		submitUrl = modifyURL(url, 'subscribe=save');
 	} else {
 		submitUrl = url;
@@ -235,7 +235,7 @@ function doSave( id, url, createNew ) {
 		var element = form.elements[ n ];
 		if( (element.type == 'checkbox') && (element.id.indexOf( 'schedule-' ) == 0 ) && (element.checked == true) ) {
 			hasSchedules = true;
-			if (!USEPOSTFORFORMS) {
+			if (typeof USEPOSTFORFORMS === "undefined" || !USEPOSTFORFORMS) {
 				submitUrl += '&'+element.id+'=true';
 			} else {
 				break;
@@ -284,7 +284,7 @@ function doSave( id, url, createNew ) {
 		}
 	}
 
-	if (!USEPOSTFORFORMS) {
+	if (typeof USEPOSTFORFORMS === "undefined" || !USEPOSTFORFORMS) {
 		submitUrl += '&subscribe-name='+escape(name);		
 		submitUrl += '&destination='+escape(destination);
 		document.location.href=submitUrl;
@@ -318,7 +318,7 @@ function doSubscribed(id, actionUrl, displayUrl ) {
 	var target='REPORTWINDOW';
 	var options = '';
 	var form = document.forms['save_form_'+id];
-	if (!USEPOSTFORFORMS) {
+	if (typeof USEPOSTFORFORMS === "undefined" || !USEPOSTFORFORMS) {
 
 		if( action == 'run' ) {
 			submitUrl += actionUrl + 'subscribe=run';
@@ -379,12 +379,11 @@ function doSubscribed(id, actionUrl, displayUrl ) {
 			eval(mthName);
 		} catch (ignored) {
 		}
-
-	}	
+	}
 }
 
 function doSubscribedArchive( id, actionUrl ) {
-	if (!USEPOSTFORFORMS) {
+	if (typeof USEPOSTFORFORMS === "undefined" || !USEPOSTFORFORMS) {
  		var submitUrl = '';
 		var action= document.getElementById('subscription-archive-action'+id).value;
 		var target='REPORTWINDOW';

@@ -280,8 +280,6 @@ function doPost( url, query, func) {
   // submit the request
   http_request.open('POST', url, true);
   http_request.setRequestHeader("Content-type", "application/json");
-  http_request.setRequestHeader("Content-length", query.length);
-  http_request.setRequestHeader("Connection", "close");
   http_request.send(query);
 }
 
@@ -329,7 +327,7 @@ function doRun( id, baseUrl, target, background ) {
 		return false;
 	}
 	// this is set in the xsl file
-	if (!USEPOSTFORFORMS) {
+	if (typeof USEPOSTFORFORMS === "undefined" || !USEPOSTFORFORMS) {
 		submitUrl += params;
 		return executeAction(target, submitUrl);
 	} else {
