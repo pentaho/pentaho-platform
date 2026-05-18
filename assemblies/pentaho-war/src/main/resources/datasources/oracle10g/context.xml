@@ -22,4 +22,11 @@
 		url="jdbc:oracle:thin:@localhost:1521:pentaho"
 		validationQuery="select 1"/>
 
+	<Resources className="org.apache.catalina.webresources.StandardRoot">
+		<PostResources className="org.apache.catalina.webresources.DirResourceSet"
+					   base="${catalina.base}/../pentaho-solutions/drivers/lib_test"
+					   webAppMount="/WEB-INF/lib"
+					   internalPath="/"/>
+	</Resources>
+
 </Context>
