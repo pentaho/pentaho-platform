@@ -102,14 +102,6 @@
           <groupId>cglib</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>validation-api</artifactId>
-          <groupId>javax.validation</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>validation-api</artifactId>
-          <groupId>javax.validation</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>hsqldb</artifactId>
           <groupId>org.hsqldb</groupId>
         </exclusion>
