@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
 import org.pentaho.commons.connection.memory.MemoryMetaData;
 import org.pentaho.commons.connection.memory.MemoryResultSet;
+import org.pentaho.di.core.bowl.DefaultBowl;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleValueException;
@@ -415,6 +416,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
     String solutionPath = "solution:";
 
     Repository repository = connectToRepository();
+    clearBowlCache( repository );
     boolean result = false;
 
     try {
@@ -851,6 +853,14 @@ public class KettleComponent extends ComponentBase implements RowListener {
     }
 
     return success;
+  }
+
+  protected void clearBowlCache( Repository repository ) {
+    if ( repository != null ) {
+      repository.getBowl().clearCache();
+    } else {
+      DefaultBowl.getInstance().clearCache();
+    }
   }
 
   private String getMonitorStepName() {

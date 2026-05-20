@@ -997,6 +997,86 @@ public class FileServiceTest {
 
   // endregion
 
+  @Test
+  public void testSystemRestoreClearsBowlCacheBeforeImport() throws Exception {
+    doReturn( true ).when( fileService ).doCanAdminister();
+    doNothing().when( fileService ).clearBowlCache();
+
+    try {
+      fileService.systemRestore( mock( InputStream.class ), "true", "true", "true", "/tmp/test-restore.log", "DEBUG", "backup.zip" );
+    } catch ( Exception ignored ) {
+      // other dependencies not fully set up; clearBowlCache() is called before any other dependencies
+    }
+
+    verify( fileService ).clearBowlCache();
+  }
+
+  @Test
+  public void testSystemBackupClearsBowlCacheBeforeExport() throws Exception {
+    doReturn( true ).when( fileService ).doCanAdminister();
+    doNothing().when( fileService ).clearBowlCache();
+
+    try {
+      fileService.systemBackup( "/tmp/test-backup.log", "DEBUG", "backup.zip" );
+    } catch ( Exception ignored ) {
+      // other dependencies not fully set up; clearBowlCache() is called before any other dependencies
+    }
+
+    verify( fileService ).clearBowlCache();
+  }
+
+  @Test
+  public void testCreateFileClearsBowlCacheBeforeWrite() throws Exception {
+    doNothing().when( fileService ).clearBowlCache();
+    InputStream inputStream = mock( InputStream.class );
+    RepositoryFileOutputStream repositoryFileOutputStream = mock( RepositoryFileOutputStream.class );
+    doReturn( repositoryFileOutputStream ).when( fileService ).getRepositoryFileOutputStream( nullable( String.class ) );
+    doReturn( 1 ).when( fileService ).copy( inputStream, repositoryFileOutputStream );
+
+    fileService.createFile( UTF_8, PATH_SPECIAL_CHARACTERS, inputStream );
+
+    verify( fileService ).clearBowlCache();
+  }
+
+  @Test
+  public void testDoGetFileOrDirAsDownloadClearsBowlCacheBeforeRead() throws Throwable {
+    doNothing().when( fileService ).clearBowlCache();
+
+    try {
+      fileService.doGetFileOrDirAsDownload( "userAgent", null, "true" );
+    } catch ( Throwable ignored ) {
+      // clearBowlCache() is called before the pathId null check
+    }
+
+    verify( fileService ).clearBowlCache();
+  }
+
+  @Test
+  public void testDoGetFileAsInlineClearsBowlCacheBeforeRead() throws Exception {
+    doNothing().when( fileService ).clearBowlCache();
+
+    try {
+      fileService.doGetFileAsInline( ":home:user:file.txt" );
+    } catch ( Exception ignored ) {
+      // other dependencies not fully set up; clearBowlCache() is called before any other dependencies
+    }
+
+    verify( fileService ).clearBowlCache();
+  }
+
+  @Test
+  public void testDoGetFileOrDirClearsBowlCacheBeforeRead() throws Exception {
+    doNothing().when( fileService ).clearBowlCache();
+
+    try {
+      fileService.doGetFileOrDir( ":home:user:file.txt" );
+    } catch ( Exception ignored ) {
+      // other dependencies not fully set up; clearBowlCache() is called before any other dependencies
+    }
+
+    verify( fileService ).clearBowlCache();
+  }
+
   private static String encode( String pathControlCharacter ) throws UnsupportedEncodingException {
     return URLEncoder.encode( pathControlCharacter, UTF_8 );
   }

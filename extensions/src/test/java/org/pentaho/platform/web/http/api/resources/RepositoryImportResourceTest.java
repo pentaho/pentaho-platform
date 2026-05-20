@@ -19,9 +19,12 @@ import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -201,5 +204,16 @@ public class RepositoryImportResourceTest {
       Assert.assertThrows( PentahoAccessControlException.class,
         () -> importResource.validateImportAccess( "/mock/path/" ) );
     }
+  }
+
+  @Test
+  public void doPostImportClearsBowlCacheBeforeImport() {
+    RepositoryImportResource importResource = spy( new RepositoryImportResource() );
+    doNothing().when( importResource ).clearBowlCache();
+    InputStream mockInputStream = mock( InputStream.class );
+    FormDataContentDisposition formDataContentDisposition = mock( FormDataContentDisposition.class );
+    when( policy.isAllowed( nullable( String.class ) ) ).thenAnswer( (Answer<Boolean>) invocation -> true );
+    importResource.doPostImport( IMPORT_DIR, mockInputStream, "true", "true", "true", "true", "UTF-8", "WARN", formDataContentDisposition, "" );
+    verify( importResource ).clearBowlCache();
   }
 }

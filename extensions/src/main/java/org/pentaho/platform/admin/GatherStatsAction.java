@@ -33,6 +33,7 @@ package org.pentaho.platform.admin;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.di.core.bowl.DefaultBowl;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.trans.Trans;
@@ -54,6 +55,7 @@ public class GatherStatsAction implements IAction {
 
     String jobFileFullPath = getJobFileFullPath();
 
+    clearBowlCache();
     TransMeta transMeta = new TransMeta( jobFileFullPath );
     if ( transMeta != null ) {
       Trans trans = new Trans( transMeta );
@@ -69,6 +71,10 @@ public class GatherStatsAction implements IAction {
 
   public String getTransFileName() {
     return transFileName;
+  }
+
+  protected void clearBowlCache() {
+    DefaultBowl.getInstance().clearCache();
   }
 
   public void setTransFileName( String transFileName ) {
