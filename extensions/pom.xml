@@ -574,7 +574,6 @@
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
-      <version>${validation-api.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
