@@ -19,4 +19,11 @@
 		driverClassName="org.postgresql.Driver" url="jdbc:postgresql://localhost:5432/jackrabbit"
 		validationQuery="select 1"/>
 
+	<Resources className="org.apache.catalina.webresources.StandardRoot">
+		<PostResources className="org.apache.catalina.webresources.DirResourceSet"
+					   base="${catalina.base}/../pentaho-solutions/drivers/lib"
+					   webAppMount="/WEB-INF/lib"
+					   internalPath="/"/>
+	</Resources>
+
 </Context>
