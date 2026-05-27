@@ -15,6 +15,10 @@
       <source>${project.basedir}/src/main/resources/drivers/README</source>
       <outputDirectory>./pentaho-solutions/drivers</outputDirectory>
     </file>
+    <file>
+      <source>${project.basedir}/src/main/resources/drivers/lib/README</source>
+      <outputDirectory>./pentaho-solutions/drivers/lib</outputDirectory>
+    </file>
   </files>
   <fileSets>
     <fileSet>
