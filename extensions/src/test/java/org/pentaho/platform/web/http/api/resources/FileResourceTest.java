@@ -81,6 +81,7 @@ import java.util.List;
 
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.UNSUPPORTED_MEDIA_TYPE;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -1046,7 +1047,7 @@ public class FileResourceTest {
     doCallRealMethod().when( fileResource ).doSetMetadata( anyString(), any( StreamSource.class ) );
     doCallRealMethod().when( fileResource ).getUnmarshaller( any() );
     doCallRealMethod().when( fileResource ).getSecureXmlStreamReader( any( StreamSource.class ) );
-    assertEquals( INTERNAL_SERVER_ERROR.getStatusCode(),
+    assertEquals( UNSUPPORTED_MEDIA_TYPE.getStatusCode(),
       fileResource.doSetMetadata( PATH_ID, new StreamSource( new ByteArrayInputStream( xmlDocWithExternalEntitiesLol.getBytes() ) ) ).getStatus() );
   }
 
