@@ -86,6 +86,7 @@ http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/penta
   <import resource="applicationContext-spring-security-jdbc.xml" />
 
   
+  <import resource="vfs-filtered-extensions.spring.xml" />
   <import resource="pentahoObjects.spring.xml" />
   <import resource="importExport.xml" />
   <import resource="defaultUser.spring.xml"/>
