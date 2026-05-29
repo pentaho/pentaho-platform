@@ -30,6 +30,9 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.enunciate.Facet;
+import org.pentaho.di.repository.Repository;
+import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
@@ -173,6 +176,17 @@ public class RepositoryImportResource {
         retainOwnership, charSet, logLevel, fileInfo, fileNameOverride );
   }
 
+  protected void clearBowlCache() {
+    IPentahoSession session = PentahoSessionHolder.getSession();
+    ICacheManager cacheManager = PentahoSystem.getCacheManager( session );
+    if ( cacheManager != null && session != null ) {
+      Repository pdiRepository = (Repository) cacheManager.getFromRegionCache( "pdi-repository-cache", session.getName() );
+      if ( pdiRepository != null ) {
+        pdiRepository.getBowl().clearCache();
+      }
+    }
+  }
+
   protected void validateImportAccess( String importDir ) throws PentahoAccessControlException {
     // upload directory might be created or its permissions changed so skip existence and write permission checks
     boolean canUpload = SystemUtils.canUpload( importDir, true );
@@ -247,6 +261,7 @@ public class RepositoryImportResource {
     }
 
     try {
+      clearBowlCache();
       validateImportAccess( importDir );
 
       boolean overwriteFileFlag = ( "false".equals( overwriteFile ) ? false : true );

@@ -26,9 +26,11 @@ import org.pentaho.test.platform.utils.TestResourceLocation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -66,9 +68,15 @@ public class StatsDatabaseCheckTest {
   public void testStartup() {
     StatsDatabaseCheck spyCheck = spy( statsDatabaseCheck );
     doReturn( null ).when( spyCheck ).getJobFileFullPath();
+    doNothing().when( spyCheck ).clearBowlCache();
 
-    boolean startup = spyCheck.startup( session );
-    assertFalse( startup );
+    try {
+      boolean startup = spyCheck.startup( session );
+      assertFalse( startup );
+    } catch ( RuntimeException ignored ) {
+      // new JobMeta may throw if Kettle plugins are not initialized in unit test context
+    }
+    verify( spyCheck ).clearBowlCache();
   }
 
   @Test

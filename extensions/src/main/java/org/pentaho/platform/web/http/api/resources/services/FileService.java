@@ -25,7 +25,9 @@ import org.pentaho.di.core.bowl.Bowl;
 import org.pentaho.di.core.bowl.DefaultBowl;
 import org.pentaho.di.core.vfs.IKettleVFS;
 import org.pentaho.di.core.vfs.KettleVFS;
+import org.pentaho.di.repository.Repository;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
@@ -152,6 +154,7 @@ public class FileService {
 
   public DownloadFileWrapper systemBackup( String logFile, String logLevel, String outputFile ) throws IllegalArgumentException, IOException, ExportException {
     if ( doCanAdminister() ) {
+      clearBowlCache();
       String encodedFileName;
       encodedFileName = makeEncodedFileName( outputFile );
       IRepositoryExportLogger exportLogger;
@@ -207,6 +210,7 @@ public class FileService {
   public void systemRestore( final InputStream fileUpload, String overwriteFile,
                              String applyAclSettings, String overwriteAclSettings, String logFile, String logLevel, String backupBundlePath ) throws IllegalArgumentException, PlatformImportException, SecurityException {
     if ( doCanAdminister() ) {
+      clearBowlCache();
       boolean overwriteFileFlag = !"false".equals( overwriteFile );
       boolean applyAclSettingsFlag = !"false".equals( applyAclSettings );
       boolean overwriteAclSettingsFlag = "true".equals( overwriteAclSettings );
@@ -384,6 +388,7 @@ public class FileService {
    */
   public void createFile( String charsetName, String pathId, InputStream fileContents )
       throws Exception {
+    clearBowlCache();
     try {
       if ( FileUtils.containsControlCharacters( pathId ) ) {
         throw new InvalidNameException();
@@ -639,6 +644,7 @@ public class FileService {
 
   public DownloadFileWrapper doGetFileOrDirAsDownload( String userAgent, String pathId, String strWithManifest )
       throws Throwable {
+    clearBowlCache();
 
     // if no path is sent, return bad request
     if ( StringUtils.isEmpty( pathId ) ) {
@@ -695,6 +701,7 @@ public class FileService {
    */
   // have to accept anything for browsers to work
   public RepositoryFileToStreamWrapper doGetFileAsInline( String pathId ) throws FileNotFoundException {
+    clearBowlCache();
     String path = null;
     RepositoryFile repositoryFile = null;
     // Check if the path is actually and ID
@@ -817,6 +824,7 @@ public class FileService {
    * @throws FileNotFoundException, IllegalArgumentException
    */
   public RepositoryFileToStreamWrapper doGetFileOrDir( String pathId ) throws FileNotFoundException {
+    clearBowlCache();
 
     String path = idToPath( pathId );
 
@@ -1484,6 +1492,21 @@ public class FileService {
    *
    * @return <code>boolean</code>
    */
+  protected void clearBowlCache() {
+    getBowl().clearCache();
+    // Also clear the PDI repository bowl for this session. .ktr/.kjb file converters (StreamToTransNodeConverter,
+    // StreamToJobNodeConverter) obtain a per-session Repository from the "pdi-repository-cache" ICacheManager region
+    // and call repository.getBowl() to resolve shared objects. If that bowl is stale the export will use cached data.
+    IPentahoSession session = getSession();
+    ICacheManager cacheManager = PentahoSystem.getCacheManager( session );
+    if ( cacheManager != null && session != null ) {
+      Repository pdiRepository = (Repository) cacheManager.getFromRegionCache( "pdi-repository-cache", session.getName() );
+      if ( pdiRepository != null ) {
+        pdiRepository.getBowl().clearCache();
+      }
+    }
+  }
+
   public boolean doCanAdminister() {
     boolean status = false;
     try {
