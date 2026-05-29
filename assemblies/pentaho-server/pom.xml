@@ -5,10 +5,10 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>10.2.0.4-354</version>
+    <version>10.2.0.4-354-CUST-311</version>
   </parent>
   <artifactId>pentaho-server-ce</artifactId>
-  <version>10.2.0.4-354</version>
+  <version>10.2.0.4-354-CUST-311</version>
   <packaging>pom</packaging>
   <properties>
     <tomcat.directory>${project.build.directory}/apache-tomcat-${tomcat.version}</tomcat.directory>
@@ -45,7 +45,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-tomcat-logs</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.4-354</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
