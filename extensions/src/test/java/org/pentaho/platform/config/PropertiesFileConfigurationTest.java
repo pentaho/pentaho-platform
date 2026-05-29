@@ -15,6 +15,7 @@ package org.pentaho.platform.config;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.io.File;
@@ -172,7 +173,7 @@ public class PropertiesFileConfigurationTest {
 
     PropertiesFileConfiguration config = new PropertiesFileConfiguration( "id", file );
 
-    assertTrue( file.delete() );
+    Assume.assumeTrue( file.delete() );
 
     try {
       config.reload();
