@@ -2133,16 +2133,22 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces( {MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON} )
   @Consumes( {MediaType.APPLICATION_XML} )
   @StatusCodes( {
-    @ResponseCode( code = 200, condition = "Successfully retrieved metadata." ),
+    @ResponseCode( code = 200, condition = "Successfully stored metadata." ),
     @ResponseCode( code = 403, condition = "Invalid path." ),
     @ResponseCode( code = 400, condition = "Invalid payload." ),
+    @ResponseCode( code = 415, condition = "Invalid, missing or unparseable XML payload." ),
     @ResponseCode( code = 500, condition = "Server Error." )} )
   public Response doSetMetadata( @PathParam( "pathId" ) String pathId, StreamSource metadataXml ) {
+    if ( metadataXml == null ) {
+      return Response.status( Response.Status.UNSUPPORTED_MEDIA_TYPE ).entity( "Missing XML payload." ).build();
+    }
     XMLStreamReader xsr = null;
     try {
-      Unmarshaller unmarshaller = getUnmarshaller( StringKeyStringValueDtoWrapper.class );
       xsr = getSecureXmlStreamReader( metadataXml );
-      StringKeyStringValueDtoWrapper metadata = (StringKeyStringValueDtoWrapper) unmarshaller.unmarshal( xsr );
+      if ( xsr == null ) {
+        return Response.status( Response.Status.UNSUPPORTED_MEDIA_TYPE ).entity( "Invalid XML payload." ).build();
+      }
+      StringKeyStringValueDtoWrapper metadata = unmarshalMetadata( xsr );
       if ( metadata == null || metadata.getStringKeyStringValueDtoes() == null ) {
         return Response.status( Response.Status.BAD_REQUEST ).entity( "Invalid payload." ).build();
       }
@@ -2150,16 +2156,40 @@ public class FileResource extends AbstractJaxRSResource {
       return buildOkResponse();
     } catch ( GeneralSecurityException e ) {
       return buildStatusResponse( Response.Status.UNAUTHORIZED );
+    } catch ( InvalidXmlPayloadException | JAXBException | XMLStreamException e ) {
+      return Response.status( Response.Status.UNSUPPORTED_MEDIA_TYPE ).entity( "Invalid or unparseable XML payload." ).build();
     } catch ( Throwable t ) {
       return buildServerErrorResponse( t.getMessage() );
     } finally {
-      if ( xsr != null ) {
-        try {
-          xsr.close();
-        } catch ( XMLStreamException e ) {
-          logger.warn( "Failed to close XMLStreamReader", e );
-        }
+      closeXmlStreamReader( xsr );
+    }
+  }
+
+  private StringKeyStringValueDtoWrapper unmarshalMetadata( XMLStreamReader xsr ) throws JAXBException, InvalidXmlPayloadException {
+    try {
+      Unmarshaller unmarshaller = getUnmarshaller( StringKeyStringValueDtoWrapper.class );
+      return (StringKeyStringValueDtoWrapper) unmarshaller.unmarshal( xsr );
+    } catch ( RuntimeException e ) {
+      if ( e.getCause() instanceof XMLStreamException ) {
+        throw new InvalidXmlPayloadException( e );
       }
+      throw e;
+    }
+  }
+
+  private void closeXmlStreamReader( XMLStreamReader xsr ) {
+    if ( xsr != null ) {
+      try {
+        xsr.close();
+      } catch ( XMLStreamException e ) {
+        logger.warn( "Failed to close XMLStreamReader", e );
+      }
+    }
+  }
+
+  private static class InvalidXmlPayloadException extends Exception {
+    InvalidXmlPayloadException( Throwable cause ) {
+      super( cause );
     }
   }
 
