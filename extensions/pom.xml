@@ -1265,7 +1265,7 @@
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-core</artifactId>
-      <version>${pdi.version}</version>
+      <version>10.2.0.4-354-CUST-311</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -1305,7 +1305,7 @@
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-engine</artifactId>
-      <version>${pdi.version}</version>
+      <version>10.2.0.4-354-CUST-311</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -2672,7 +2672,7 @@
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>kettle-core</artifactId>
-      <version>${project.version}</version>
+      <version>10.2.0.4-354-CUST-311</version>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
