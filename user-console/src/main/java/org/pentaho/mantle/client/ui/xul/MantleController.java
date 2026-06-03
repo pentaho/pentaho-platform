@@ -232,7 +232,6 @@ public class MantleController extends AbstractXulEventHandler {
       String currentLanguage = resourceBundle.getLanguage();
 
       MenuBar langMenu = (MenuBar) languageMenu.getManagedObject();
-      langMenu.insertSeparator( 0 );
       for ( String lang : supportedLanguages.keySet() ) {
         CheckBoxMenuItem langMenuItem = new CheckBoxMenuItem( supportedLanguages.get( lang ), new SwitchLocaleCommand( lang ) );
         langMenuItem.getElement().setId( supportedLanguages.get( lang ) + "_menu_item" );
