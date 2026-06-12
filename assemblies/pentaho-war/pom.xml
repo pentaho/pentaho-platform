@@ -112,6 +112,24 @@
           <artifactId>hsqldb</artifactId>
           <groupId>org.hsqldb</groupId>
         </exclusion>
+        <!-- Exclude Eclipse/JFace UI libraries - not needed for server -->
+        <exclusion>
+          <artifactId>org.eclipse.jface</artifactId>
+          <groupId>org.eclipse.platform</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jface</artifactId>
+          <groupId>org.eclipse</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>org.eclipse.swt</artifactId>
+          <groupId>org.eclipse.platform</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-xul-swt</artifactId>
+          <groupId>org.pentaho</groupId>
+        </exclusion>
+
       </exclusions>
     </dependency>
 
