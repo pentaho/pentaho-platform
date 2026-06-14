@@ -85,6 +85,7 @@
     <bsf.version>2.4.0</bsf.version>
     <lucene-core.version>3.6.0</lucene-core.version>
     <jmock-junit4.version>2.5.1</jmock-junit4.version>
+    <commons-configuration2.version>2.15.0</commons-configuration2.version>
     <commons-text.version>1.11.0</commons-text.version>
     <commons-lang3.version>3.18.0</commons-lang3.version>
     <jmi.version>200507110943</jmi.version>
