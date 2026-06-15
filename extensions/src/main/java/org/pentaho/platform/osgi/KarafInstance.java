@@ -14,7 +14,7 @@
 package org.pentaho.platform.osgi;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.pentaho.platform.settings.PortFileManager;
 import org.pentaho.platform.settings.ServerPort;
 import org.pentaho.platform.settings.ServerPortRegistry;

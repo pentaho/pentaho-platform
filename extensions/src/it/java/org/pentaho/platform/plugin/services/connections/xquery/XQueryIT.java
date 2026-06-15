@@ -23,7 +23,7 @@ import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.trans.XPathException;
 
 import org.apache.commons.collections.ListUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.pentaho.commons.connection.IPeekable;
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;

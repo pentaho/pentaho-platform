@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.pentaho.commons.connection.DataUtilities;

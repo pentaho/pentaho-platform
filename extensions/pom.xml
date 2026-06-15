@@ -173,7 +173,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>${commons-lang3.version}</version>
+      <version>${commons-lang.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -183,9 +183,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>${commons-lang.version}</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>${commons-text.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -1331,6 +1331,31 @@
         <exclusion>
           <artifactId>commons-httpclient</artifactId>
           <groupId>commons-httpclient</groupId>
+        </exclusion>
+        <!-- Exclude Eclipse/SWT UI libraries - not needed for server platform -->
+        <exclusion>
+          <artifactId>org.eclipse.jface</artifactId>
+          <groupId>org.eclipse.platform</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>org.eclipse.core.commands</artifactId>
+          <groupId>org.eclipse.platform</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>org.eclipse.equinox.common</artifactId>
+          <groupId>org.eclipse.platform</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>org.eclipse.equinox.bidi</artifactId>
+          <groupId>org.eclipse.platform</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>org.eclipse.swt</artifactId>
+          <groupId>org.eclipse.platform</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+          <groupId>org.eclipse.platform</groupId>
         </exclusion>
       </exclusions>
     </dependency>

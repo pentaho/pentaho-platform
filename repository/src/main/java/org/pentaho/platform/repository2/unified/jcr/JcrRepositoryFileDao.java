@@ -1213,7 +1213,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   @Override
   public Properties getLocalePropertiesForFile( RepositoryFile repositoryFile, String locale ) {
-    if ( org.apache.commons.lang.StringUtils.isBlank( locale ) ) {
+    if ( org.apache.commons.lang3.StringUtils.isBlank( locale ) ) {
       locale = RepositoryFile.DEFAULT_LOCALE;
     }
     if ( repositoryFile != null && repositoryFile.getLocalePropertiesMap() != null ) {

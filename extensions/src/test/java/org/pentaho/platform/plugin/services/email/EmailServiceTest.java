@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.http.Consts;
 import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
