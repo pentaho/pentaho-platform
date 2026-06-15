@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.repository2.userroledao.jackrabbit.security;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.apache.jackrabbit.core.security.authentication.CryptedSimpleCredentials;
 import org.pentaho.platform.engine.security.messages.Messages;
 import org.pentaho.platform.util.StringUtil;
@@ -66,7 +66,7 @@ public class DefaultPentahoPasswordEncoder implements PasswordEncoder {
           "DefaultPentahoPasswordEncoder.ERROR_0002_ENCPASS_CANNOT_BE_NULL" ) ); //$NON-NLS-1$
       Validate.notNull( rawPass, Messages.getInstance().getString(
           "DefaultPentahoPasswordEncoder.ERROR_0001_RAWPASS_CANNOT_BE_NULL" ) ); //$NON-NLS-1$
-    } catch ( IllegalArgumentException e ) {
+    } catch ( IllegalArgumentException | NullPointerException e ) {
       return false;
     }
     try {

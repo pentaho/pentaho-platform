@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.web.servlet;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IMessageFormatter;
@@ -76,7 +76,7 @@ public class UIServlet extends ServletBase {
       }
 
       // find out which component is going to fulfill this request
-      String componentName = StringEscapeUtils.escapeHtml( request.getParameter( "component" ) ); //$NON-NLS-1$
+      String componentName = StringEscapeUtils.escapeHtml4( request.getParameter( "component" ) ); //$NON-NLS-1$
       if ( componentName == null ) {
         response.setContentType( "text/html" ); //$NON-NLS-1$
         StringBuffer buffer = new StringBuffer();

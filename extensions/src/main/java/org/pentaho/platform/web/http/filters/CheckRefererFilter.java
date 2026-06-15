@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.web.http.filters;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.InitializingBean;
 
