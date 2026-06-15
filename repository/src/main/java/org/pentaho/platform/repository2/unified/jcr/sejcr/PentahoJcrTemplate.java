@@ -78,19 +78,61 @@ public class PentahoJcrTemplate extends JcrTemplate {
       // Callback code threw application exception...
       throw pentahoConvertJcrAccessException( ex );
     } finally {
-      // Session will be null if getSession() fails.
+      releaseSession( session );
       if ( session != null ) {
-        releaseSession( session );
+        decrementFactoryProtection( session );
       }
     }
   }
 
   private void useSession( Session session ) {
-    getUsageCount( session ).incrementAndGet();
+    int newCount = getUsageCount( session ).incrementAndGet();
+    if ( LOG.isDebugEnabled() ) {
+      LOG.debug( "[JCR-TEMPLATE-USE] Thread=" + Thread.currentThread().getName()
+        + " SessionId=" + System.identityHashCode( session )
+        + " RefCount=" + newCount
+        + " (template acquisition)" );
+    }
   }
 
   private void releaseSession( Session session ) {
-    getUsageCount( session ).decrementAndGet();
+    int newCount = getUsageCount( session ).decrementAndGet();
+    if ( LOG.isDebugEnabled() ) {
+      LOG.debug( "[JCR-TEMPLATE-RELEASE] Thread=" + Thread.currentThread().getName()
+        + " SessionId=" + System.identityHashCode( session )
+        + " RefCount=" + newCount
+        + " (template release)" );
+    }
+  }
+
+  /**
+   * Decrement the factory's protection increment that was applied during session retrieval.
+   * The factory increments the usage count to protect the session from eviction while it's
+   * being transferred; this method releases that protection once the session is returned to cache.
+   */
+  private void decrementFactoryProtection( Session session ) {
+    try {
+      Object usageCount = session.getAttribute( USAGE_COUNT );
+      if ( usageCount instanceof AtomicInteger ) {
+        int count = ( (AtomicInteger) usageCount ).decrementAndGet();
+        if ( LOG.isDebugEnabled() ) {
+          LOG.debug( "[JCR-FACTORY-RELEASE] Thread=" + Thread.currentThread().getName()
+            + " SessionId=" + System.identityHashCode( session )
+            + " RefCount=" + count
+            + " (factory protection release" + ( count == 0 ? " - SESSION SAFE FOR EVICTION" : "" ) + ")" );
+        }
+        if ( count < 0 ) {
+          LOG.warn( "[JCR-REFCOUNT-ERROR] Usage count went negative; factory protection decrement imbalance:"
+            + " SessionId=" + System.identityHashCode( session )
+            + " RefCount=" + count
+            + " Session=" + session );
+        }
+      }
+    } catch ( Exception e ) {
+      if ( LOG.isDebugEnabled() ) {
+        LOG.debug( "Could not decrement factory protection: " + e.getMessage() );
+      }
+    }
   }
 
   /**
