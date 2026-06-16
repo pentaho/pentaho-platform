@@ -37,13 +37,17 @@ import org.pentaho.platform.repository.hibernate.HibernateUtil;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -123,15 +127,19 @@ public class CacheManager implements ICacheManager {
   // ~ Instance Fields ======================================================
   private RegionFactory regionFactory;
 
-  private Map<String, Cache> regionCache;
+  private ConcurrentMap<String, Cache> regionCache;
 
   private String regionFactoryClassname;
 
-  private boolean cacheEnabled;
+  private final boolean cacheEnabled;
 
   private final Properties cacheProperties = new Properties();
 
   private ICacheExpirationRegistry cacheExpirationRegistry;
+
+  private final ConcurrentMap<CacheCreationKey, CompletableFuture<Object>> inFlightCreations = new ConcurrentHashMap<>();
+
+  private final ThreadLocal<Set<CacheCreationKey>> threadOwnedCreations = ThreadLocal.withInitial( HashSet::new );
 
   // ~ Constructors =========================================================
 
@@ -151,6 +159,7 @@ public class CacheManager implements ICacheManager {
    * 
    */
   public CacheManager() {
+    boolean cacheEnabled1 = false;
     ISystemSettings settings = PentahoSystem.getSystemSettings();
     String s = System.getProperty( "java.io.tmpdir" ); //$NON-NLS-1$
     char c = s.charAt( s.length() - 1 );
@@ -162,10 +171,11 @@ public class CacheManager implements ICacheManager {
       if ( regionFactoryClassname != null ) {
         Properties cacheProperties = getCacheProperties( settings );
         setupRegionProvider( cacheProperties );
-        this.cacheEnabled = true;
+        cacheEnabled1 = true;
       }
     }
 
+    this.cacheEnabled = cacheEnabled1;
     PentahoSystem.addLogoutListener( this );
   }
 
@@ -179,7 +189,7 @@ public class CacheManager implements ICacheManager {
         Map<String, Object> cachePropertiesMap = cacheProperties.entrySet().stream()
           .collect( Collectors.toMap( e -> e.getKey().toString(), Map.Entry::getValue) );
         regionFactory.start( HibernateUtil.getSessionFactory().getSessionFactoryOptions(), cachePropertiesMap );
-        regionCache = new HashMap<String, Cache>();
+        regionCache = new ConcurrentHashMap<>();
         ( (SessionFactoryImplementor) HibernateUtil.getSessionFactory() ).getServiceRegistry()
           .getService( EventListenerRegistry.class ).prependListeners(
             EventType.LOAD, new HibernateLoadEventListener() );
@@ -204,7 +214,7 @@ public class CacheManager implements ICacheManager {
     }
   }
 
-  public synchronized void cacheStop() {
+  public void cacheStop() {
     if ( cacheEnabled ) {
       regionCache.clear();
       regionFactory.stop();
@@ -242,62 +252,75 @@ public class CacheManager implements ICacheManager {
     return cacheProperties;
   }
 
-  public synchronized boolean cacheEnabled( String region ) {
+  public boolean cacheEnabled( String region ) {
     if ( !checkCacheEnabled() || regionCache == null || region == null ) {
       return false;
     }
     return regionCache.get( region ) != null;
   }
 
-  public synchronized void onLogout( final IPentahoSession session ) {
+  public void onLogout( final IPentahoSession session ) {
     killSessionCache( session );
   }
 
-  public synchronized boolean addCacheRegion( String region, Properties cacheProperties ) {
-    boolean returnValue = false;
-    if ( checkCacheEnabled() ) {
-      if ( !cacheEnabled( region ) ) {
-        Cache cache = buildCache( region, HibernateUtil.getSessionFactory(), cacheProperties );
-        if ( cache == null ) {
-          CacheManager.logger
-              .error( Messages.getInstance().getString( "CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE" ) ); //$NON-NLS-1$
-        } else {
-          regionCache.put( region, cache );
-          returnValue = true;
-        }
-      } else {
-        CacheManager.logger.warn( Messages.getInstance().getString(
-            "CacheManager.WARN_0002_REGION_ALREADY_EXIST", region ) ); //$NON-NLS-1$
-      }
+  public boolean addCacheRegion( String region, Properties cacheProperties ) {
+    if ( !checkCacheEnabled() || region == null ) {
+      return false;
     }
-    return returnValue;
+    if ( cacheEnabled( region ) ) {
+      CacheManager.logger.warn( Messages.getInstance().getString(
+        "CacheManager.WARN_0002_REGION_ALREADY_EXIST", region ) ); //$NON-NLS-1$
+      return true;
+    }
+
+    Cache cache = buildCache( region, HibernateUtil.getSessionFactory(), cacheProperties );
+    if ( cache == null ) {
+      CacheManager.logger
+        .error( Messages.getInstance().getString( "CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE" ) ); //$NON-NLS-1$
+      return false;
+    }
+
+    Cache previous = regionCache.putIfAbsent( region, cache );
+    if ( previous == null ) {
+      return true;
+    }
+
+    CacheManager.logger.warn( Messages.getInstance().getString(
+      "CacheManager.WARN_0002_REGION_ALREADY_EXIST", region ) ); //$NON-NLS-1$
+    return true;
   }
 
-  public synchronized boolean addCacheRegion( String region ) {
-    boolean returnValue = false;
-    if ( checkCacheEnabled() ) {
-      if ( !cacheEnabled( region ) ) {
-        Cache cache = buildCache( region, HibernateUtil.getSessionFactory(), null );
-        if ( cache == null ) {
-          CacheManager.logger
-              .error( Messages.getInstance().getString( "CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE" ) ); //$NON-NLS-1$
-        } else {
-          regionCache.put( region, cache );
-          returnValue = true;
-        }
-      } else {
-        CacheManager.logger.warn( Messages.getInstance().getString(
-            "CacheManager.WARN_0002_REGION_ALREADY_EXIST", region ) ); //$NON-NLS-1$
-        returnValue = true;
-      }
+  public boolean addCacheRegion( String region ) {
+    if ( !checkCacheEnabled() || region == null ) {
+      return false;
     }
-    return returnValue;
+    if ( cacheEnabled( region ) ) {
+      CacheManager.logger.warn( Messages.getInstance().getString(
+        "CacheManager.WARN_0002_REGION_ALREADY_EXIST", region ) ); //$NON-NLS-1$
+      return true;
+    }
+
+    Cache cache = buildCache( region, HibernateUtil.getSessionFactory(), null );
+    if ( cache == null ) {
+      CacheManager.logger
+        .error( Messages.getInstance().getString( "CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE" ) ); //$NON-NLS-1$
+      return false;
+    }
+
+    Cache previous = regionCache.putIfAbsent( region, cache );
+    if ( previous == null ) {
+      return true;
+    }
+
+    CacheManager.logger.warn( Messages.getInstance().getString(
+      "CacheManager.WARN_0002_REGION_ALREADY_EXIST", region ) ); //$NON-NLS-1$
+    return true;
   }
 
-  public synchronized boolean addCacheRegion( String region, Cache cache ) {
-    if ( checkCacheEnabled() ) {
+  public boolean addCacheRegion( String region, Cache cache ) {
+    if ( checkCacheEnabled() && region != null && cache != null ) {
       if ( !cacheEnabled( region ) ) {
-        regionCache.put( region, cache );
+        regionCache.putIfAbsent( region, cache );
       } else {
         CacheManager.logger.warn( Messages.getInstance().getString(
           "CacheManager.WARN_0002_REGION_ALREADY_EXIST", region ) );
@@ -308,7 +331,7 @@ public class CacheManager implements ICacheManager {
     return true;
   }
 
-  public synchronized void clearRegionCache( String region ) {
+  public void clearRegionCache( String region ) {
     if ( checkCacheEnabled() ) {
        HvCache cache = (HvCache) regionCache.get( region );
       if ( cache != null ) {
@@ -327,32 +350,33 @@ public class CacheManager implements ICacheManager {
     }
   }
 
-  public synchronized void removeRegionCache( String region ) {
+  public void removeRegionCache( String region ) {
     if ( checkRegionEnabled( region ) ) {
       clearRegionCache( region );
     }
   }
 
-  public synchronized void putInRegionCache( String region, Object key, Object value ) {
+  public void putInRegionCache( String region, Object key, Object value ) {
     if ( checkRegionEnabled( region ) ) {
       if ( key == null || value == null ) {
         return;
       }
       HvCache hvcache = ( HvCache ) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
-      hvcache.getDirectAccessRegion().putIntoCache( key, value, null );
+      if ( null != hvcache ) {
+        hvcache.getDirectAccessRegion().putIntoCache( key, value, null );
+      }
     }
   }
 
-  public synchronized Object getFromRegionCache( String region, Object key ) {
+  public Object getFromRegionCache( String region, Object key ) {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
-      return hvcache.getDirectAccessRegion().getFromCache( key, null );
+      return null != hvcache ? hvcache.getDirectAccessRegion().getFromCache( key, null ) : null;
     }
     return null;
   }
 
-  @Override
-  public synchronized Object getOrCreateFromRegionCache( String region, Object key, Supplier<Object> creator ) {
+  public Object getOrCreateFromRegionCache( String region, Object key, Supplier<Object> creator ) {
     if ( key == null || creator == null ) {
       return null;
     }
@@ -374,57 +398,112 @@ public class CacheManager implements ICacheManager {
       return cached;
     }
 
-    Object created = creator.get();
-    if ( created != null ) {
-      putInRegionCache( region, key, created );
+    // we need to ensure only one caller tries to create a new object at a time
+    // but we should not lock the rest of the cache while the creation process happens
+    CacheCreationKey creationKey = new CacheCreationKey( region, key );
+    CompletableFuture<Object> newCreation = new CompletableFuture<>();
+    CompletableFuture<Object> activeCreation = inFlightCreations.putIfAbsent( creationKey, newCreation );
+
+    if ( activeCreation == null ) {
+      // nobody else is trying to create this cache entry, so we are the one responsible for creating it
+      // make sure this thread doesn't somehow recursively try to create the object again
+      Set<CacheCreationKey> ownedCreations = threadOwnedCreations.get();
+      ownedCreations.add( creationKey );
+      try {
+        // Re-check after becoming creator because another thread may have populated before registration.
+        cached = getFromRegionCache( region, key );
+        if ( cached != null ) {
+          newCreation.complete( cached );
+          return cached;
+        }
+
+        Object created = creator.get();
+        if ( created != null ) {
+          putInRegionCache( region, key, created );
+        }
+        // notify other threads that would have tried to create the new object at the same time
+        newCreation.complete( created );
+        return created;
+      } catch ( Exception t ) {
+        newCreation.completeExceptionally( t );
+        throw rethrowCacheCreationFailure( t );
+      } finally {
+        ownedCreations.remove( creationKey );
+        if ( ownedCreations.isEmpty() ) {
+          threadOwnedCreations.remove();
+        }
+        inFlightCreations.remove( creationKey, newCreation );
+      }
     }
-    return created;
+
+    if ( threadOwnedCreations.get().contains( creationKey ) ) {
+      throw new CacheException( "Recursive cache creation detected for key " + key + " in region " + region );
+    }
+
+    try {
+      // someone else was already creating this object, wait on them to finish
+      return activeCreation.join();
+    } catch ( CompletionException e ) {
+      Throwable cause = e.getCause() == null ? e : e.getCause();
+      throw rethrowCacheCreationFailure( cause );
+    }
   }
 
-  public synchronized List<Object> getAllValuesFromRegionCache( String region ) {
+  public List<Object> getAllValuesFromRegionCache( String region ) {
     List<Object> list = new ArrayList<>();
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
-      javax.cache.Cache<Object, Object> cache = ( ( JCacheAccessImpl ) hvcache.getStorageAccess() ).getUnderlyingCache();
-      cache.forEach( entry -> list.add( entry.getValue() ) );
+      if ( null != hvcache ) {
+        javax.cache.Cache<Object, Object> cache =
+          ( (JCacheAccessImpl) hvcache.getStorageAccess() ).getUnderlyingCache();
+        cache.forEach( entry -> list.add( entry.getValue() ) );
+      }
     }
     return list;
   }
 
-  public synchronized Set getAllKeysFromRegionCache( String region ) {
+  public Set getAllKeysFromRegionCache( String region ) {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
-      return hvcache.getAllKeys();
+      if ( null != hvcache ) {
+        Set<Object> keys = new HashSet<>( hvcache.getAllKeys() );
+        return keys;
+      }
     }
     return null;
   }
 
-  public synchronized Set getAllEntriesFromRegionCache( String region ) {
+  public Set getAllEntriesFromRegionCache( String region ) {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
-      javax.cache.Cache<Object, Object> cache = ( ( JCacheAccessImpl ) hvcache.getStorageAccess() ).getUnderlyingCache();
-      Set cacheValues = new HashSet<>();
-      cache.forEach( entry -> cacheValues.add( entry.getValue() ) );
-      return cacheValues;
+      if ( null != hvcache ) {
+        javax.cache.Cache<Object, Object> cache =
+          ( (JCacheAccessImpl) hvcache.getStorageAccess() ).getUnderlyingCache();
+        Set cacheValues = new HashSet<>();
+        cache.forEach( entry -> cacheValues.add( entry.getValue() ) );
+        return cacheValues;
+      }
     }
     return null;
   }
 
-  public synchronized void removeFromRegionCache( String region, Object key ) {
+  public void removeFromRegionCache( String region, Object key ) {
     if ( checkRegionEnabled( region ) ) {
       HvCache hvcache = (HvCache) regionCache.get( region );
-      hvcache.getStorageAccess().evictData( key );
+      if ( null != hvcache ) {
+        hvcache.getStorageAccess().evictData( key );
+      }
     } else {
       CacheManager.logger.warn( Messages.getInstance().getString(
         "CacheManager.WARN_0003_REGION_DOES_NOT_EXIST", region ) ); //$NON-NLS-1$
     }
   }
 
-  public synchronized boolean cacheEnabled() {
+  public boolean cacheEnabled() {
     return cacheEnabled;
   }
 
-  public synchronized void clearCache() {
+  public void clearCache() {
     if ( cacheEnabled ) {
       Iterator it = regionCache.entrySet().iterator();
       while ( it.hasNext() ) {
@@ -437,15 +516,15 @@ public class CacheManager implements ICacheManager {
     }
   }
 
-  public synchronized Object getFromGlobalCache( Object key ) {
+  public Object getFromGlobalCache( Object key ) {
     return getFromRegionCache( GLOBAL, key );
   }
 
-  public synchronized Object getFromSessionCache( IPentahoSession session, String key ) {
+  public Object getFromSessionCache( IPentahoSession session, String key ) {
     return getFromRegionCache( SESSION, getCorrectedKey( session, key ) );
   }
 
-  public synchronized void killSessionCache( IPentahoSession session ) {
+  public void killSessionCache( IPentahoSession session ) {
     if ( cacheEnabled ) {
       HvCache hvcache = (HvCache) regionCache.get( SESSION );
       if ( hvcache != null ) {
@@ -464,23 +543,23 @@ public class CacheManager implements ICacheManager {
     }
   }
 
-  public synchronized void killSessionCaches() {
+  public void killSessionCaches() {
     removeRegionCache( SESSION );
   }
 
-  public synchronized void putInGlobalCache( Object key, Object value ) {
+  public void putInGlobalCache( Object key, Object value ) {
     putInRegionCache( GLOBAL, key, value );
   }
 
-  public synchronized void putInSessionCache( IPentahoSession session, String key, Object value ) {
+  public void putInSessionCache( IPentahoSession session, String key, Object value ) {
     putInRegionCache( SESSION, getCorrectedKey( session, key ), value );
   }
 
-  public synchronized void removeFromGlobalCache( Object key ) {
+  public void removeFromGlobalCache( Object key ) {
     removeFromRegionCache( GLOBAL, key );
   }
 
-  public synchronized void removeFromSessionCache( IPentahoSession session, String key ) {
+  public void removeFromSessionCache( IPentahoSession session, String key ) {
     removeFromRegionCache( SESSION, getCorrectedKey( session, key ) );
   }
 
@@ -541,5 +620,48 @@ public class CacheManager implements ICacheManager {
       }
     }
     return false;
+  }
+
+  private RuntimeException rethrowCacheCreationFailure( Throwable t ) {
+    if ( t instanceof RuntimeException ) {
+      return (RuntimeException) t;
+    }
+    // this block is needed because we're using this to handle a CompletableFuture throwing an exception,
+    // which is a CompletionException, which could in turn wrap any Throwable, including Error.
+    if ( t instanceof Error ) {
+      throw (Error) t;
+    }
+    String message = t.getMessage();
+    if ( message == null || message.isEmpty() ) {
+      message = t.toString();
+    }
+    return new CacheException( message, t );
+  }
+
+  private static final class CacheCreationKey {
+    private final String region;
+    private final Object key;
+
+    private CacheCreationKey( String region, Object key ) {
+      this.region = region;
+      this.key = key;
+    }
+
+    @Override
+    public boolean equals( Object obj ) {
+      if ( this == obj ) {
+        return true;
+      }
+      if ( !( obj instanceof CacheCreationKey ) ) {
+        return false;
+      }
+      CacheCreationKey other = (CacheCreationKey) obj;
+      return Objects.equals( region, other.region ) && Objects.equals( key, other.key );
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash( region, key );
+    }
   }
 }
