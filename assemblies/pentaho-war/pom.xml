@@ -121,6 +121,10 @@
           <groupId>pentaho-kettle</groupId>
           <artifactId>kettle-engine</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.swt</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
