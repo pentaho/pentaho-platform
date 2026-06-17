@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.api.engine;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Iterator;
 import java.util.Locale;

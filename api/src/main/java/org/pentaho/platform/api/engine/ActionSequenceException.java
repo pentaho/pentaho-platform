@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.api.engine;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.pentaho.actionsequence.dom.IActionControlStatement;
 import org.pentaho.actionsequence.dom.IActionDefinition;
 import org.pentaho.actionsequence.dom.IActionIfStatement;

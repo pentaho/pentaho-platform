@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class RepositoryRequest {
   private static final Pattern FILES_TYPES_PATTERN = FILES_TYPE_FILTER.getRegExPattern();
