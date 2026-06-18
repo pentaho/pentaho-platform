@@ -85,7 +85,6 @@
     <bsf.version>2.4.0</bsf.version>
     <lucene-core.version>3.6.0</lucene-core.version>
     <jmock-junit4.version>2.5.1</jmock-junit4.version>
-    <commons-lang.version>3.18.0</commons-lang.version>
     <commons-text.version>1.11.0</commons-text.version>
     <jmi.version>200507110943</jmi.version>
     <pentaho-concurrent.version>1.0.0</pentaho-concurrent.version>
