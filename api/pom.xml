@@ -12,7 +12,7 @@
   <properties>
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
-    <commons-lang.version>3.18.0</commons-lang.version>
+    <commons-lang.version>2.6</commons-lang.version>
     <license.header.file>${basedir}/../license/templates/LGPL-2.1.txt</license.header.file>
     <pentaho-connections.version>11.1.0.0-SNAPSHOT</pentaho-connections.version>
     <pentaho-actionsequence-dom.version>11.1.0.0-SNAPSHOT</pentaho-actionsequence-dom.version>
@@ -33,8 +33,8 @@
       <artifactId>commons-logging</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
       <version>${commons-lang.version}</version>
       <scope>compile</scope>
       <exclusions>

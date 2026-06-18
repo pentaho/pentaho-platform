@@ -14,7 +14,7 @@
 package org.pentaho.platform.plugin.services.importexport;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;

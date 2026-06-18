@@ -14,7 +14,7 @@
 package org.pentaho.platform.util;
 
 import net.sf.saxon.Configuration;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;

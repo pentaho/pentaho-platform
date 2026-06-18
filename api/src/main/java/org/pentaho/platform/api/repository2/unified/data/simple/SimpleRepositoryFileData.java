@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.api.repository2.unified.data.simple;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 
 import java.io.ByteArrayOutputStream;

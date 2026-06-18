@@ -14,7 +14,7 @@
     <javax.transaction-api.version>1.2</javax.transaction-api.version>
     <license.header.file>${basedir}/../license/templates/GPL-2.0.txt</license.header.file>
     <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
-    <commons-lang.version>3.18.0</commons-lang.version>
+    <commons-lang.version>2.6</commons-lang.version>
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <license.header.definition.file>${basedir}/../license/styles/javadoc_style_license_header.xml</license.header.definition.file>
     <hsqldb.version>1.8.0.7</hsqldb.version>
@@ -93,9 +93,21 @@
       <version>${xmlbeans.version}</version>
     </dependency>
     <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>${commons-lang.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>*</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>${commons-lang.version}</version>
+      <version>${commons-lang3.version}</version>
+      <scope>test</scope>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>

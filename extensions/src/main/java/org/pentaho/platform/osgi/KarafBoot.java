@@ -16,7 +16,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.AbstractFileFilter;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.main.Main;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.KettleClientEnvironment;

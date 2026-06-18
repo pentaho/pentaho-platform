@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
-import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang.ClassUtils;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.beans.factory.config.BeanDefinition;

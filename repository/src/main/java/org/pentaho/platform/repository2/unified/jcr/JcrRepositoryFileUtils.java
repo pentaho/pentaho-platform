@@ -45,8 +45,8 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionManager;
 
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.JcrConstants;
@@ -242,14 +242,14 @@ public class JcrRepositoryFileUtils {
         LocalePropertyResolver lpr = new LocalePropertyResolver( name );
         LocalizationUtil localizationUtil = new LocalizationUtil( localePropertiesMap, pentahoLocale.getLocale() );
         title = localizationUtil.resolveLocalizedString( lpr.resolveDefaultTitleKey(), null );
-        if ( org.apache.commons.lang3.StringUtils.isBlank( title ) ) {
+        if ( org.apache.commons.lang.StringUtils.isBlank( title ) ) {
           title = localizationUtil.resolveLocalizedString( lpr.resolveTitleKey(), null );
-          if ( org.apache.commons.lang3.StringUtils.isBlank( title ) ) {
+          if ( org.apache.commons.lang.StringUtils.isBlank( title ) ) {
             title = localizationUtil.resolveLocalizedString( lpr.resolveNameKey(), title );
           }
         }
         description = localizationUtil.resolveLocalizedString( lpr.resolveDefaultDescriptionKey(), null );
-        if ( org.apache.commons.lang3.StringUtils.isBlank( description ) ) {
+        if ( org.apache.commons.lang.StringUtils.isBlank( description ) ) {
           description = localizationUtil.resolveLocalizedString( lpr.resolveDescriptionKey(), description );
         }
       }

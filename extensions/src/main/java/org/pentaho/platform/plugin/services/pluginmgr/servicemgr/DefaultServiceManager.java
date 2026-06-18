@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.plugin.services.pluginmgr.servicemgr;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IServiceConfig;
 import org.pentaho.platform.api.engine.IServiceManager;
 import org.pentaho.platform.api.engine.ServiceException;

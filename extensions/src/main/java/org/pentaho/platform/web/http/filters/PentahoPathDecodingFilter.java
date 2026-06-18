@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.web.http.filters;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;

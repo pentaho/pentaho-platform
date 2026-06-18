@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.plugin.action.javascript;
 
-import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mozilla.javascript.Context;
@@ -124,7 +124,7 @@ public class JavascriptRule extends ComponentBase {
   @Override
   protected boolean executeAction() {
     Context cx = ContextFactory.getGlobal().enterContext();
-    StringBuilder buffer = new StringBuilder();
+    StringBuffer buffer = new StringBuffer();
     @SuppressWarnings( "unchecked" )
     Iterator<String> iter = getResourceNames().iterator();
     while ( iter.hasNext() ) {
@@ -253,7 +253,7 @@ public class JavascriptRule extends ComponentBase {
       }
       inputValue = getInputValue( inputName );
       if ( inputValue instanceof String ) {
-        inputValue = StringEscapeUtils.escapeHtml4( (String) inputValue );
+        inputValue = StringEscapeUtils.escapeHtml( (String) inputValue );
       }
       Object wrapper;
       if ( inputValue instanceof IPentahoResultSet ) {

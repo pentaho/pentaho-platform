@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.engine.core.solution;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.util.PentahoCheckedChainedException;
 

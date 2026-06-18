@@ -20,7 +20,7 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * General filename and filepath manipulation utilities for the Hitachi Vantara Repository. NOTE: these methods will work
@@ -231,11 +231,13 @@ public class RepositoryFilenameUtils {
     if ( fullFilenameToAdd == null ) {
       return null;
     }
-    if ( StringUtils.isBlank( fullFilenameToAdd ) ) {
+    if ( org.apache.commons.lang.StringUtils.isBlank( fullFilenameToAdd ) ) {
       return normalizeNoEndSeparator( basePath );
     }
-    int prefix = getPrefixLength(fullFilenameToAdd.replace(":", "_"));
-
+    int prefix = 0;
+    if ( StringUtils.hasLength( fullFilenameToAdd ) ) {
+      prefix = getPrefixLength( fullFilenameToAdd.replace( ":", "_" ) );
+    }
     if ( prefix < 0 ) {
       return null;
     }

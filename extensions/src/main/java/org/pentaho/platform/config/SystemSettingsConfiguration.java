@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.config;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.pentaho.platform.api.engine.IConfiguration;
