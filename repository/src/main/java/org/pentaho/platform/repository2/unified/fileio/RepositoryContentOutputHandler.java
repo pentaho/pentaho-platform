@@ -14,7 +14,7 @@
 package org.pentaho.platform.repository2.unified.fileio;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.services.outputhandler.BaseOutputHandler;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
