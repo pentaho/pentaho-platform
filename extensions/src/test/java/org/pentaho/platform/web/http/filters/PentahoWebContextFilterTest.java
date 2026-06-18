@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.web.http.filters;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -497,7 +497,7 @@ public class PentahoWebContextFilterTest {
   }
 
   private String escapeEnvironmentVariable( String value ) {
-    return "\"" + StringEscapeUtils.escapeJavaScript( value ) + "\"";
+    return "\"" + StringEscapeUtils.escapeEcmaScript( value ) + "\"";
   }
   // endregion
 

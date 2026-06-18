@@ -14,7 +14,7 @@
 package org.pentaho.platform.plugin.action.chartbeans;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.pentaho.actionsequence.dom.ActionSequenceDocument;
 import org.pentaho.actionsequence.dom.IActionSequenceDocument;
 import org.pentaho.actionsequence.dom.IActionSequenceInput;

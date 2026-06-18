@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.web.http.api.resources.services;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;

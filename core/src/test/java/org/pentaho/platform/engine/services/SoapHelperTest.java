@@ -14,7 +14,7 @@
 package org.pentaho.platform.engine.services;
 
 import junit.framework.TestCase;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;

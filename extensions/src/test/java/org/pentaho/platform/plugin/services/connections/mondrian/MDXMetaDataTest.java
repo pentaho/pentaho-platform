@@ -30,7 +30,7 @@ import mondrian.olap.Member;
 import mondrian.olap.Result;
 
 import org.apache.commons.collections.ListUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 public class MDXMetaDataTest {

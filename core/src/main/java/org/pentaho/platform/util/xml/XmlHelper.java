@@ -42,7 +42,7 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IDocumentResourceLoader;
@@ -182,7 +182,7 @@ public class XmlHelper {
   }
 
   public static String encode( final String string ) {
-    return StringEscapeUtils.escapeXml( string );
+    return StringEscapeUtils.escapeXml11( string );
   }
 
   private static final int BUFF_SIZE = 512;

@@ -12,7 +12,7 @@
 
 package org.pentaho.platform.plugin.services.pluginmgr;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;

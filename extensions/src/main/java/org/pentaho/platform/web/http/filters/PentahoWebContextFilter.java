@@ -13,8 +13,8 @@
 
 package org.pentaho.platform.web.http.filters;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.concurrent.ConcurrentException;
 import org.apache.commons.lang3.concurrent.LazyInitializer;
 import org.owasp.encoder.Encode;
@@ -368,7 +368,7 @@ public class PentahoWebContextFilter implements Filter {
 
   private String getReservedCharsDisplayVar() {
     List<Character> reservedCharacters = JcrRepositoryFileUtils.getReservedChars();
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     for ( int i = 0; i < reservedCharacters.size(); i++ ) {
       if ( reservedCharacters.get( i ) >= 0x07 && reservedCharacters.get( i ) <= 0x0d ) {
         sb.append( StringEscapeUtils.escapeJava( "" + reservedCharacters.get( i ) ) );
@@ -615,7 +615,7 @@ public class PentahoWebContextFilter implements Filter {
 
   private String escapeEnvironmentVar( String value ) {
     if ( value != null ) {
-      value = "\"" + StringEscapeUtils.escapeJavaScript( value ) + "\"";
+      value = "\"" + StringEscapeUtils.escapeEcmaScript( value ) + "\"";
     }
 
     return value;
@@ -682,7 +682,7 @@ public class PentahoWebContextFilter implements Filter {
     StringBuilder buf = new StringBuilder();
     buf.append( ".*[" );
     for ( Character ch : JcrRepositoryFileUtils.getReservedChars() ) {
-      buf.append( StringEscapeUtils.escapeJavaScript( ch.toString() ) );
+      buf.append( StringEscapeUtils.escapeEcmaScript( ch.toString() ) );
     }
     buf.append( "]+.*" );
     return buf.toString();
