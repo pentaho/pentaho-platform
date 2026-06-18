@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.plugin.services.metadata;
 
-import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang.reflect.FieldUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

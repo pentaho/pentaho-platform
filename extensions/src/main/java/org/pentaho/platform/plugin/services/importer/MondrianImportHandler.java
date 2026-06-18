@@ -33,8 +33,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import mondrian.util.Pair;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.text.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.eigenbase.xom.XOMException;
 import org.eigenbase.xom.XOMUtil;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
@@ -66,8 +66,6 @@ public class MondrianImportHandler implements IPlatformImportHandler {
   protected static final String PROVIDER = "Provider";
 
   protected static final String DEFAULT_PROVIDER = "mondrian";
-
-  private static final String QUOT_ENTITY = "&quot;"; //$NON-NLS-1$
 
   private final List<IMimeType> mimeTypes;
   private final IMondrianCatalogService mondrianRepositoryImporter;
@@ -221,7 +219,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
 
     if ( dsName != null ) {
       sb.append( "DataSource=\"" )
-        .append( StringEscapeUtils.escapeXml11( dsName.replace( QUOT_ENTITY, "\"" ) ) )
+        .append( StringEscapeUtils.escapeXml( dsName.replaceAll( "&quot;", "\"" ) ) )
         .append( "\";" );
     }
     if ( !parameters.containsKey( "EnableXmla" ) ) {
@@ -230,7 +228,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
         .append( ";" );
     }
     sb.append( "Provider=\"" )
-      .append( StringEscapeUtils.escapeXml11( provider.replace( QUOT_ENTITY, "\"" ) ) )
+      .append( StringEscapeUtils.escapeXml( provider.replaceAll( "&quot;", "\"" ) ) )
       .append( "\"" );
 
     // Build a list of the remaining properties
@@ -238,7 +236,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
       if ( !parameter.getKey().equals( DATA_SOURCE ) && !parameter.getKey().equals( PROVIDER ) ) {
         //value contains custom-escaped quotes.
         //It needs custom unescape and standard escapeXml for following mondrian parsing
-        String parseSafeValue = StringEscapeUtils.escapeXml11( parameter.getValue().replace( QUOT_ENTITY, "\"" ) );
+        String parseSafeValue = StringEscapeUtils.escapeXml( parameter.getValue().replaceAll( "&quot;", "\"" ) );
         sb.append( ";" );
         sb.append( parameter.getKey() );
         sb.append( "=\"" );

@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.web.http.api.resources.utils;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
 import java.io.File;

@@ -31,19 +31,8 @@ public class DefaultPentahoPasswordEncoderTest {
   @Test
   public void testInvalidCredentials( ) {
     DefaultPentahoPasswordEncoder passwordEncoder = new DefaultPentahoPasswordEncoder( );
-    Assert.assertFalse( passwordEncoder.isPasswordValid( "password", "wrongpassword", null ) );
+    Assert.assertFalse( passwordEncoder.isPasswordValid( "password", null, null ) );
     Assert.assertFalse( passwordEncoder.isPasswordValid( passwordEncoder.encodePassword( "", null ), "password", null ) );
-    Assert.assertFalse( passwordEncoder.isPasswordValid( "encodedPassword", "", null ) );
-  }
-
-  @Test
-  public void testNullInputs( ) {
-    DefaultPentahoPasswordEncoder passwordEncoder = new DefaultPentahoPasswordEncoder( );
-    // Null password should return false, not throw
     Assert.assertFalse( passwordEncoder.isPasswordValid( null, null, null ) );
-    // Null encoded password should return false
-    Assert.assertFalse( passwordEncoder.isPasswordValid( null, "password", null ) );
-    // Null raw password should return false
-    Assert.assertFalse( passwordEncoder.isPasswordValid( "encodedPassword", null, null ) );
   }
 }

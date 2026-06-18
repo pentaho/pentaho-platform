@@ -38,7 +38,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionManager;
 
-import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.jackrabbit.core.VersionManagerImpl;
 import org.junit.Before;
 import org.junit.Rule;

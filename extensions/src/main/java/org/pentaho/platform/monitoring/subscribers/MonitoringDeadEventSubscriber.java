@@ -15,7 +15,7 @@ package org.pentaho.platform.monitoring.subscribers;
 
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.Subscribe;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.pentaho.platform.api.monitoring.IMonitoringSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.plugin.services.security.userrole;
 
-import org.springframework.util.Assert;
+import org.eclipse.core.runtime.Assert;
 import org.springframework.security.core.userdetails.UserCache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -79,8 +79,8 @@ public class PentahoJCacheBasedUserCache implements UserCache {
   }
 
   @Override public void putUserInCache( UserDetails user ) {
-    Assert.notNull( user, "user cannot be null" );
-    Assert.hasText( user.getUsername(), "username cannot be null or empty" );
+    Assert.isNotNull( user );
+    Assert.isNotNull( user.getUsername() );
 
     if ( logger.isDebugEnabled() ) {
       logger.debug( "Cache put UserDetails for username : " + user.getUsername() );
@@ -90,7 +90,7 @@ public class PentahoJCacheBasedUserCache implements UserCache {
   }
 
   @Override public void removeUserFromCache( String username ) {
-    Assert.hasText( username, "username cannot be null or empty" );
+    Assert.isNotNull( username );
     if ( logger.isDebugEnabled() ) {
       logger.debug( "Cache remove UserDetails for username : " + username );
     }

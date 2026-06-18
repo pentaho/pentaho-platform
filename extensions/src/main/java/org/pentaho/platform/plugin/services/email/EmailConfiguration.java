@@ -17,8 +17,8 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.Properties;
 
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.email.IEmailConfiguration;
 
 import jakarta.xml.bind.annotation.XmlRootElement;

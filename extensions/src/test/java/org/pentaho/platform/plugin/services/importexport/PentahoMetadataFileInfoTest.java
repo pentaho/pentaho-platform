@@ -14,7 +14,7 @@
 package org.pentaho.platform.plugin.services.importexport;
 
 import junit.framework.TestCase;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Class Description

@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.web.http;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import jakarta.servlet.ServletContext;
 import java.io.File;

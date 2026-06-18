@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.Locale;

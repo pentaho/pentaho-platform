@@ -13,7 +13,7 @@
 
 package org.pentaho.platform.repository2.unified.fileio;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.ISourcesStreamEvents;

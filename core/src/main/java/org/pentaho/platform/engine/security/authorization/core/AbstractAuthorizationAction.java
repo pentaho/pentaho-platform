@@ -12,7 +12,7 @@
 
 package org.pentaho.platform.engine.security.authorization.core;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IAuthorizationAction;
 
 import java.util.Objects;
