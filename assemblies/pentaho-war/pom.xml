@@ -45,6 +45,12 @@
       <scope>runtime</scope>
     </dependency>
     <!-- endregion -->
+    <!-- PDI UI library is needed by platform to initialize spoon and retrieve run configuration for execution -->
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.jface</artifactId>
+      <version>${jface.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>pentaho</groupId>
