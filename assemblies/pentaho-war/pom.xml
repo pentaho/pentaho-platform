@@ -50,8 +50,14 @@
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.jface</artifactId>
       <version>${jface.version}</version>
+      <exclusions>
+        <!-- Eclipse OSGi conflicts with Karaf's Felix OSGi framework -->
+        <exclusion>
+          <artifactId>org.eclipse.osgi</artifactId>
+          <groupId>org.eclipse.platform</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
-
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-extensions</artifactId>
