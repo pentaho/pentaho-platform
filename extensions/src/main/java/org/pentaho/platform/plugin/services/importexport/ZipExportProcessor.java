@@ -22,8 +22,10 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.importexport.ExportException;
+import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
@@ -44,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -208,6 +211,16 @@ public class ZipExportProcessor extends BaseExportProcessor {
             logger.trace( "Finished creating locale entry for repository object [ " + ( ( repositoryFile != null ) ? repositoryFile.getName() : "" ) + " ] " );
           }
         }
+      } catch ( Exception e ) {
+        // Handle any errors during file export (corrupted data, permissions, etc.)
+        // Log the error with file name and continue with next handler or file
+        String errorMsg = "Error exporting file: " + repositoryFile.getName() + " - " 
+            + e.getClass().getSimpleName() + ": " + e.getMessage();
+        if ( logger != null ) {
+          logger.warn( errorMsg, e );
+        }
+        log.warn( errorMsg, e );
+        // Continue to next handler instead of failing completely
       }
     }
   }
@@ -222,12 +235,54 @@ public class ZipExportProcessor extends BaseExportProcessor {
     if ( this.withManifest ) {
       // add this entity to the manifest
       RepositoryFileAcl fileAcl = getUnifiedRepository().getAcl( repositoryFile.getId() );
+      
+      // If this is a user home folder (e.g., /home/user1), ensure the owner is the user
+      fileAcl = ensureUserHomeFolderOwnership( repositoryFile, fileAcl );
+      
       try {
         getExportManifest().add( repositoryFile, fileAcl );
       } catch ( ExportManifestFormatException e ) {
         throw new ExportException( e.getMessage() );
       }
     }
+  }
+
+  /**
+   * For user home folders (path like /home/username), ensure the owner in the ACL is the user.
+   * This fixes cases where user home folders may have been created with the wrong owner.
+   * 
+   * @param repositoryFile the file/folder being exported
+   * @param fileAcl the ACL from the repository
+   * @return the ACL, potentially corrected to have the user as owner for user home folders
+   */
+  private RepositoryFileAcl ensureUserHomeFolderOwnership( RepositoryFile repositoryFile, RepositoryFileAcl fileAcl ) {
+    if ( fileAcl == null || !repositoryFile.isFolder() ) {
+      return fileAcl;
+    }
+    
+    String path = repositoryFile.getPath();
+    // Check if this is a user home folder: /home/username (direct child of /home)
+    if ( path != null && path.startsWith( "/home/" ) ) {
+      String[] pathParts = path.split( "/" );
+      // /home/username should have 3 parts: "", "home", "username"
+      if ( pathParts.length == 3 ) {
+        String username = pathParts[2];
+        
+        // Create a SID for this user
+        RepositoryFileSid userSid = new RepositoryFileSid( username, RepositoryFileSid.Type.USER );
+        
+        // If the current owner is not this user, create a new ACL with the user as owner
+        if ( fileAcl.getOwner() == null || !fileAcl.getOwner().getName().equals( username ) ) {
+          // Build a new ACL with the user as owner, keeping the existing ACEs
+          fileAcl = new RepositoryFileAcl.Builder( userSid )
+              .aces( fileAcl.getAces() )
+              .entriesInheriting( fileAcl.isEntriesInheriting() )
+              .build();
+        }
+      }
+    }
+    
+    return fileAcl;
   }
 
   /**
@@ -268,13 +323,30 @@ public class ZipExportProcessor extends BaseExportProcessor {
           exportDirectory( repositoryFile, outputStream, filePath );
         } else {
           try {
-            if ( logger != null ) {
-              logger.debug( "Repository Object [ " + repositoryFile.getName() + " ] is a file. Adding it to the bundle" );
+            // Check if we should skip generated content files
+            boolean isFileAGC = isFileAGeneratedContent( repositoryFile );
+            if ( isFileAGC && shouldSkipGeneratedContent( repositoryFile ) ) {
+              if ( logger != null && logger.isDebugEnabled() ) {
+                logger.debug( "Skipping generated content file [ " + repositoryFile.getName() + " ] (generated content not included in backup)" );
+              }
+              continue;
+            }
+            
+            if ( logger != null && logger.isDebugEnabled()  ) {
+              logger.debug( "Repository Object [ " + repositoryFile.getName() + " ] is a file"  + ( ( isFileAGC ) ? "and a generated content": "" ) +  ". Adding it to the bundle" );
             }
             exportFile( repositoryFile, outputStream, filePath );
           } catch ( ZipException e ) {
             // possible duplicate entry, log it and continue on with the other files in the directory
             log.debug( e.getMessage(), e );
+          } catch ( Exception e ) {
+            // Gracefully handle any other export errors (corrupted files, permission issues, etc.)
+            String errorMsg = "Failed to export file: " + repositoryFile.getName() + " - " + e.getMessage();
+            if ( logger != null ) {
+              logger.warn( errorMsg, e );
+            }
+            log.warn( errorMsg, e );
+            // Continue processing other files instead of crashing
           }
         }
       } else {
@@ -290,6 +362,12 @@ public class ZipExportProcessor extends BaseExportProcessor {
     if ( logger != null ) {
       logger.trace( "Finished creating locale entry for repository object [ " + repositoryDir.getName() + " ] " );
     }
+  }
+
+  private boolean isFileAGeneratedContent( RepositoryFile file) {
+    // now check metadata for RESERVEDMAPKEY_LINEAGE_ID
+    Map<String, Serializable> metadata = getUnifiedRepository().getFileMetadata( file.getId() );
+    return metadata.containsKey( IScheduler.RESERVEDMAPKEY_LINEAGE_ID );
   }
 
   protected boolean isExportCandidate( String path ) {
@@ -482,5 +560,20 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
   public void setExportManifest( ExportManifest exportManifest ) {
     this.exportManifest = exportManifest;
+  }
+
+  /**
+   * Determines if a file should be skipped during export based on generated content filtering.
+   * Generated content is identified by the presence of "lineage-id" metadata, which marks files
+   * created from scheduler/background job execution.
+   * 
+   * @param repositoryFile The file to check
+   * @return true if the file should be skipped (is generated content and includeGeneratedContent is false)
+   */
+  protected boolean shouldSkipGeneratedContent( RepositoryFile repositoryFile ) {
+    // This method is intended to be overridden by subclasses (like PentahoPlatformExporter)
+    // that have access to ComponentConfig for selective backup/restore
+    // By default, no filtering is applied
+    return false;
   }
 }

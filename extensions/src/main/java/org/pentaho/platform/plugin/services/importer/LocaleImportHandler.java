@@ -37,6 +37,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
+import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.w3c.dom.Document;
@@ -174,7 +175,31 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     if ( locale.getFile() != null ) {
       localeFileName = locale.getFile().getName();
     }
-    RepositoryFile localeFolder = unifiedRepository.getFile( locale.getPath() );
+    
+    // Decode and normalize locale path before repository lookup
+    // Support both new format (with URL encoding: +, %XX) and old format (with literal spaces)
+    String localePath = locale.getPath();
+    
+    // Strategy 1: Try with URL decoding (new backups with + and %XX)
+    String decodedPath = ExportFileNameEncoder.decodeZipFileName( localePath );
+    if ( !decodedPath.startsWith( RepositoryFile.SEPARATOR ) ) {
+      decodedPath = RepositoryFile.SEPARATOR + decodedPath;
+    }
+    
+    RepositoryFile localeFolder = null;
+    try {
+      localeFolder = unifiedRepository.getFile( decodedPath );
+    } catch ( Exception e ) {
+      // Strategy 2: Try without decoding (old backups with literal spaces)
+      if ( !localePath.startsWith( RepositoryFile.SEPARATOR ) ) {
+        localePath = RepositoryFile.SEPARATOR + localePath;
+      }
+      try {
+        localeFolder = unifiedRepository.getFile( localePath );
+      } catch ( Exception e2 ) {
+        getLogger().debug( "Locale folder not found with either strategy: " + decodedPath + " or " + localePath );
+      }
+    }
 
     if ( isLocaleFolder( localeFileName, localePropertiesFromIndex ) ) {
       localeParent = localeFolder;

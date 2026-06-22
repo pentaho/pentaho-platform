@@ -5,6 +5,7 @@ bin/
 .settings
 .metadata/
 .recommenders/
+.java-version
 
 out/
 build-utils/dist/
@@ -12,6 +13,10 @@ build-utils/lib/
 build-utils/test-lib/
 extensions/test-src/connections-solution/test/tmp/
 extensions/test-src/solution/test/tmp/
+
+# Test-run temp dirs (random numeric suffix)
+extensions/test[0-9]*/
+extensions/KarafBootTest[0-9]*/
 
 # Files/Folders generated when building
 pentaho.log

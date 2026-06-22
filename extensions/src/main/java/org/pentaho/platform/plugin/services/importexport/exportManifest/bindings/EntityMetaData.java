@@ -136,6 +136,10 @@ public class EntityMetaData {
   protected String title;
   @XmlAttribute( name = "runAfterImport" )
   protected Boolean runAfterImport;
+  @XmlAttribute( name = "parentPath" )
+  protected String parentPath;
+  @XmlAttribute( name = "isGeneratedContent" )
+  protected Boolean isGeneratedContent;
 
   /**
    * Gets the value of the name property.
@@ -403,6 +407,52 @@ public class EntityMetaData {
    */
   public void setRunAfterImport( Boolean value ) {
     this.runAfterImport = value;
+  }
+
+  /**
+   * Gets the value of the parentPath property.
+   * 
+   * @return possible object is {@link String }
+   * 
+   */
+  public String getParentPath() {
+    return parentPath;
+  }
+
+  /**
+   * Sets the value of the parentPath property.
+   * 
+   * @param value
+   *          allowed object is {@link String }
+   * 
+   */
+  public void setParentPath( String value ) {
+    this.parentPath = value;
+  }
+
+  /**
+   * Gets the value of the isGeneratedContent property.
+   * Returns false by default for backward compatibility with old manifests.
+   * 
+   * @return possible object is {@link Boolean }, defaults to false if not set
+   * 
+   */
+  public boolean isGeneratedContent() {
+    if ( isGeneratedContent == null ) {
+      return false;
+    }
+    return isGeneratedContent;
+  }
+
+  /**
+   * Sets the value of the isGeneratedContent property.
+   * 
+   * @param value
+   *          allowed object is {@link Boolean }
+   * 
+   */
+  public void setIsGeneratedContent( Boolean value ) {
+    this.isGeneratedContent = value;
   }
 
 }

@@ -22,6 +22,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileExtraMetaData;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.plugin.services.importexport.ExportManifestRepositoryException;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.CustomProperty;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.EntityAcl;
@@ -33,6 +35,7 @@ import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings
 import org.pentaho.platform.repository.usersettings.UserSettingService;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxy;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
@@ -170,6 +173,36 @@ public class ExportManifestEntity {
     String adjustedPath = repositoryFile.getPath().substring( rootFolder.length() );
     entityMetaData.setPath( adjustedPath );
     entityMetaData.setTitle( repositoryFile.getTitle() );
+    
+    // Store parent path for easier import lookup
+    if ( repositoryFile.isFolder() ) {
+      String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator( repositoryFile.getPath() );
+      if ( parentPath != null && !parentPath.isEmpty() && !parentPath.equals( "/" ) ) {
+        String adjustedParentPath = parentPath.substring( rootFolder.length() );
+        if ( adjustedParentPath.isEmpty() ) {
+          adjustedParentPath = "/";
+        }
+        entityMetaData.setParentPath( adjustedParentPath );
+      }
+    }
+    
+    // Check if this file is generated content and mark it in the manifest
+    // This allows the import process to make filtering decisions based on the manifest
+    if ( !repositoryFile.isFolder() ) {
+      try {
+        IUnifiedRepository repo = PentahoSystem.get( IUnifiedRepository.class, PentahoSessionHolder.getSession() );
+        if ( repo != null && repositoryFile.getId() != null ) {
+          java.util.Map<String, Serializable> metadata = repo.getFileMetadata( repositoryFile.getId() );
+          if ( metadata != null && metadata.containsKey( "lineage-id" ) ) {
+            entityMetaData.setIsGeneratedContent( true );
+          }
+        }
+      } catch ( Exception e ) {
+        // Non-fatal error - generated content marking is non-critical for export
+        // Log if needed, but don't fail the export
+      }
+    }
+    
     setPath( adjustedPath );
   }
 

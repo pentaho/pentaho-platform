@@ -14,6 +14,7 @@
 package org.pentaho.platform.plugin.services.importexport;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -27,6 +28,8 @@ import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestEntity;
+import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
+import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
 
 /**
  * General purpose objects whose lifecycle is that of an formal import session
@@ -48,6 +51,7 @@ public class ImportSession {
   private boolean retainOwnership;
   private boolean overwriteAclSettings;
   private String currentManifestKey;
+  private ComponentConfig componentOverrides; // Component selection overrides for selective restore
 
   private final HashSet<RepositoryFile> importedRepositoryFiles = new HashSet<RepositoryFile>();
   private final List<String> importedScheduleJobIds = new ArrayList<String>();
@@ -70,6 +74,7 @@ public class ImportSession {
     importedScheduleJobIds.clear();
     skippedFiles.clear();
     foldersCreatedImplicitly.clear();
+    componentOverrides = null; // Clear component overrides
   }
 
   public Log getLogger() {
@@ -137,18 +142,89 @@ public class ImportSession {
     // If we are writing ACL's we'll have to check later in RepositoryFileImportHandler whether to overwrite
     // based on the isOverwriteAcl setting and whether we are creating or updating the RepositoryFile.
     RepositoryFileAcl acl = null;
+    
+    getLogger().trace( "=== processAclForFile DEBUG ===" );
+    getLogger().trace( "  filePath (decoded): " + filePath );
+    
+    // CRITICAL FIX: The manifest stores paths with URL encoding ONLY for the filename part
+    // e.g., "home/mike/Buyer+Report+%28sparkline+report%292026-06-02.html" 
+    // We need to try multiple encoding strategies for backward compatibility
+    
+    List<String> pathsToTry = new ArrayList<>();
+    pathsToTry.add( filePath );  // First try: decoded (legacy format)
+    
+    // Second try: encode using the proper path encoder that preserves separators
+    try {
+      String encodedPath = ExportFileNameEncoder.encodeZipPathName( filePath );
+      if ( !pathsToTry.contains( encodedPath ) ) {
+        pathsToTry.add( encodedPath );
+        getLogger().trace( "  encodeZipPathName result: " + encodedPath );
+      }
+    } catch ( Exception e ) {
+      getLogger().debug( "Failed with encodeZipPathName: " + e.getMessage() );
+    }
+    
+    // Third try: encode only the filename part manually (in case path has mixed separators)
+    try {
+      int lastSlash = filePath.lastIndexOf( '/' );
+      if ( lastSlash >= 0 ) {
+        String pathPart = filePath.substring( 0, lastSlash + 1 );  // e.g., "home/mike/"
+        String namePart = filePath.substring( lastSlash + 1 );      // e.g., "Buyer Report..."
+        String encodedName = ExportFileNameEncoder.encodeZipFileName( namePart );
+        String result = pathPart + encodedName;
+        if ( !pathsToTry.contains( result ) ) {
+          pathsToTry.add( result );
+          getLogger().trace( "  Selective encoding result: " + result );
+        }
+      }
+    } catch ( Exception e ) {
+      getLogger().debug( "Failed with selective encoding: " + e.getMessage() );
+    }
+    
+    getLogger().trace( "  Paths to try (in order): " + pathsToTry );
+    getLogger().trace( "  applyAclSettings: " + applyAclSettings );
+    getLogger().trace( "  retainOwnership: " + retainOwnership );
+    getLogger().trace( "  Condition (applyAclSettings || !retainOwnership): " + ( applyAclSettings || !retainOwnership ) );
+    getLogger().trace( "  manifest is null: " + (manifest == null) );
+    
     if ( applyAclSettings || !retainOwnership ) {
+      getLogger().trace( "  -> CONDITION PASSED, attempting to fetch ACL from manifest" );
       try {
         if ( manifest != null ) {
-          ExportManifestEntity entity = manifest.getExportManifestEntity( filePath );
-          if ( entity != null ) {
-            acl = entity.getRepositoryFileAcl();
+          // Try all path formats until one matches
+          for ( String pathToTry : pathsToTry ) {
+            getLogger().trace( "  -> Trying path: '" + pathToTry + "'" );
+            ExportManifestEntity entity = manifest.getExportManifestEntity( pathToTry );
+            if ( entity != null ) {
+              acl = entity.getRepositoryFileAcl();
+              getLogger().trace( "  -> FOUND! Using: " + pathToTry + ". ACL is " + (acl != null ? "NOT null (has permissions)" : "null (no permissions)") );
+              if ( acl != null ) {
+                getLogger().trace( "       ACL owner: " + acl.getOwner() );
+                getLogger().trace( "       ACL aces count: " + (acl.getAces() != null ? acl.getAces().size() : 0) );
+              }
+              break;  // Found it, stop trying
+            }
           }
+          
+          if ( acl == null ) {
+            getLogger().trace( "  -> Manifest entity NOT FOUND for any format: " + pathsToTry );
+            getLogger().trace( "  -> Note: File entities may not be indexed in manifest HashMap due to namespace issues" );
+            getLogger().trace( "  -> ACL will be null, using default permissions" );
+          }
+        } else {
+          getLogger().trace( "  -> Manifest is null, cannot fetch ACL" );
         }
       } catch ( Exception e ) {
+        getLogger().trace( "  -> Exception when fetching ACL: " + e.getMessage() );
         getLogger().trace( e );
       }
+    } else {
+      getLogger().trace( "  -> CONDITION FAILED (applyAclSettings=false AND retainOwnership=true), returning null WITHOUT checking manifest" );
     }
+    
+    getLogger().trace( "  -> RETURNING: " + (acl != null ? "ACL object" : "NULL") );
+    getLogger().trace( "=== END processAclForFile DEBUG ===" );
+    
     return acl;
   }
 
@@ -308,6 +384,22 @@ public class ImportSession {
    */
   public List<String> getImportedScheduleJobIds() {
     return importedScheduleJobIds;
+  }
+
+  /**
+   * Set component overrides for selective restore
+   * @param componentOverrides ComponentConfig specifying which components to restore
+   */
+  public void setComponentOverrides( ComponentConfig componentOverrides ) {
+    this.componentOverrides = componentOverrides;
+  }
+
+  /**
+   * Get component overrides for selective restore
+   * @return ComponentConfig if selective restore, null for full restore
+   */
+  public ComponentConfig getComponentOverrides() {
+    return componentOverrides;
   }
 
   /**

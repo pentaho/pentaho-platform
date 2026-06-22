@@ -15,7 +15,21 @@ package org.pentaho.platform.api.importexport;
 
 
 public interface IExportHelper {
+
   public void doExport( Object exportArg ) throws ExportException;
 
   public String getName();
+
+  /**
+   * Determines if this helper should execute for the given backup profile.
+   * Allows helpers to be profile-aware without the framework needing to know about them.
+   *
+   * @param componentOverrides the backup component configuration (null = full backup)
+   *                           Implementation receives BackupComponentConfig from plugin layer
+   * @return true if this helper should execute, false to skip
+   */
+  default boolean shouldExecute( Object componentOverrides ) {
+    // Default: always execute (for backward compatibility with existing helpers)
+    return true;
+  }
 }

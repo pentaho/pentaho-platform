@@ -31,6 +31,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileExtraMetaData;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifestFormatException;
+import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
@@ -79,17 +80,81 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       throw new PlatformImportException( "Error importing bundle. RepositoryFileImportBundle expected" );
     }
     RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) bnd;
+    
+    getLogger().trace( "=== importFile START ===" );
+    getLogger().trace( "  Bundle path: " + bundle.getPath() );
+    getLogger().trace( "  Bundle name: " + bundle.getName() );
+    getLogger().trace( "  Bundle.getAcl() at entry: " + (bundle.getAcl() == null ? "NULL" : "NOT null") );
+    getLogger().trace( "  ImportSession.isApplyAclSettings: " + getImportSession().isApplyAclSettings() );
+    getLogger().trace( "  ImportSession.isRetainOwnership: " + getImportSession().isRetainOwnership() );
+    getLogger().trace( "  ImportSession.isOverwriteAclSettings: " + getImportSession().isOverwriteAclSettings() );
+    getLogger().trace( "=== END importFile START INFO ===" );
+    
     if ( bundle.isSchedulable() == null ) {
       bundle.setSchedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT );
     }
-    String repositoryFilePath = RepositoryFilenameUtils.concat( bundle.getPath(), bundle.getName() );
+    
+    // CRITICAL: Decode ZIP entry names before repository operations
+    // Bundle paths/names may contain URL-encoded characters (+ for spaces, %XX for special chars)
+    // Repository expects normalized paths without encoding
+    // Support both new format (with URL encoding: +, %XX) and old format (with literal spaces)
+    String originalPath = bundle.getPath();
+    String originalName = bundle.getName();
+    
+    String decodedPath = ExportFileNameEncoder.decodeZipFileName( originalPath );
+    String decodedName = ExportFileNameEncoder.decodeZipFileName( originalName );
+    
+    // Repository paths MUST start with separator - ensure this is the case
+    if ( !decodedPath.startsWith( RepositoryFile.SEPARATOR ) ) {
+      decodedPath = RepositoryFile.SEPARATOR + decodedPath;
+    }
+    
+    // Update bundle with decoded values so all subsequent operations use them
+    // This ensures consistency throughout the import chain
+    if ( !decodedPath.equals( originalPath ) ) {
+      bundle.setPath( decodedPath );
+    }
+    if ( !decodedName.equals( originalName ) ) {
+      bundle.setName( decodedName );
+    }
+    
+    String repositoryFilePath = RepositoryFilenameUtils.concat( decodedPath, decodedName );
     getLogger().trace( messages.getString( "RepositoryFileImportFileHandler.ProcessingFile", repositoryFilePath ) );
 
     // Check if the name is valid
     validateName( bundle );
 
     // Verify if destination already exists in the repository.
-    RepositoryFile file = repository.getFile( repositoryFilePath );
+    // Note: Try with decoded path first (new format), then without decoding (old format with literal spaces)
+    RepositoryFile file = null;
+    try {
+      file = repository.getFile( repositoryFilePath );
+    } catch ( Exception e ) {
+      // If decoding caused an issue, try with original path (old format with spaces)
+      if ( !originalPath.equals( decodedPath ) ) {
+        String normalizedOriginalPath = originalPath;
+        if ( !normalizedOriginalPath.startsWith( RepositoryFile.SEPARATOR ) ) {
+          normalizedOriginalPath = RepositoryFile.SEPARATOR + normalizedOriginalPath;
+        }
+        String fallbackPath = RepositoryFilenameUtils.concat( normalizedOriginalPath, originalName );
+        try {
+          file = repository.getFile( fallbackPath );
+          // Found using original path - update bundle to use it
+          if ( file != null ) {
+            bundle.setPath( normalizedOriginalPath );
+            bundle.setName( originalName );
+            repositoryFilePath = fallbackPath;
+          }
+        } catch ( Exception e2 ) {
+          // Parent folder may not exist yet; treat as file not found
+          getLogger().debug( "File not found with either strategy: " + repositoryFilePath + " or " + fallbackPath );
+        }
+      } else {
+        // Parent folder may not exist yet; treat as file not found
+        getLogger().debug( "File not found or parent path does not exist: " + repositoryFilePath + " (" + e.getMessage() + ")" );
+      }
+    }
+    
     if ( file != null ) {
       if ( file.isFolder() && getImportSession().getFoldersCreatedImplicitly().contains( repositoryFilePath ) ) {
         getLogger().trace( messages.getString(
@@ -404,6 +469,17 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       final Serializable parentId = checkAndCreatePath( repositoryPath, getImportSession().getCurrentManifestKey() );
 
       final RepositoryFileAcl acl = bundle.getAcl();
+      
+      getLogger().info( "=== createFile DEBUG ===" );
+      getLogger().info( "  repositoryPath: " + repositoryPath );
+      getLogger().info( "  bundle.getAcl() is " + (acl == null ? "NULL" : "NOT null") );
+      if ( acl != null ) {
+        getLogger().info( "       ACL owner: " + acl.getOwner() );
+        getLogger().info( "       ACL aces count: " + (acl.getAces() != null ? acl.getAces().size() : 0) );
+      }
+      getLogger().info( "  -> Creating file " + (acl != null ? "WITH explicit ACL" : "WITHOUT explicit ACL (will use defaults)") );
+      getLogger().info( "=== END createFile DEBUG ===" );
+      
       if ( null == acl ) {
         return repository.createFile( parentId, file, data, bundle.getComment() );
       } else {
@@ -483,6 +559,16 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     final String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator( repositoryPath );
     final RepositoryFile parentFile = repository.getFile( parentPath );
     if ( parentFile == null ) {
+      // If parent not found and parent path is root, try alternative root paths
+      if ( parentPath != null && ( parentPath.equals( "/" ) || parentPath.isEmpty() ) ) {
+        // Try to get root folder by different methods
+        RepositoryFile rootFile = repository.getFile( "/" );
+        if ( rootFile != null && rootFile.getId() != null ) {
+          return rootFile.getId();
+        }
+        // If still null, this is an error - can't create at repo root without root ID
+        return null;
+      }
       return null;
     }
     Serializable parentFileId = parentFile.getId();

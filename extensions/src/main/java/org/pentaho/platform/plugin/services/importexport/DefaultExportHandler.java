@@ -85,7 +85,16 @@ public class DefaultExportHandler implements ExportHandler {
 
     // just send the converter the file id and let it decide which type to get
     // since it is already based on the file extension
-    return converter.convert( repositoryFile.getId() );
+    try {
+      return converter.convert( repositoryFile.getId() );
+    } catch ( Exception e ) {
+      // Log the error with file name and rethrow so calling code can handle it
+      String errorMsg = "Error converting file: " + repositoryFile.getName() 
+          + " (ID: " + repositoryFile.getId() + ") - " 
+          + e.getClass().getSimpleName() + ": " + e.getMessage();
+      log.warn( errorMsg, e );
+      throw new ExportException( errorMsg, e );
+    }
   }
 
   public void setConverters( Map<String, Converter> converters ) {

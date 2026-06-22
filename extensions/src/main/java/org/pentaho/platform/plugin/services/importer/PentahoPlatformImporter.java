@@ -116,6 +116,13 @@ public class PentahoPlatformImporter implements IPlatformImporter {
       }
       try {
         logImportFile( file );
+        // FileService sets the restore flag on the import logger, but the import
+        // helpers gate their INFO logging on SolutionImportHandler.isPerformingRestore().
+        // Propagate the flag from the logger (authoritative) to the handler so both agree.
+        // This covers both the systemRestore and selectiveRestore paths in FileService.
+        if ( handler instanceof SolutionImportHandler ) {
+          ( (SolutionImportHandler) handler ).setPerformingRestore( repositoryImportLogger.isPerformingRestore() );
+        }
         handler.importFile( file );
       } catch ( DomainIdNullException e1 ) {
         throw new PlatformImportException( messages

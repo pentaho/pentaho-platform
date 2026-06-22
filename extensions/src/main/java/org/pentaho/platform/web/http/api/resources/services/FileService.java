@@ -53,6 +53,8 @@ import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.RepositoryTextLayout;
 import org.pentaho.platform.plugin.services.importexport.ExportHandler;
+import org.pentaho.platform.plugin.services.importexport.ComponentConfig;
+import org.pentaho.platform.plugin.services.importexport.ExportFileNameEncoder;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
@@ -92,9 +94,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.channels.IllegalSelectorException;
+import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.text.Collator;
@@ -137,6 +139,9 @@ public class FileService {
   private PentahoPlatformExporter backupExporter;
 
   private void validateFilePath( String logFile ) throws IllegalArgumentException {
+    if ( logFile == null || logFile.isEmpty() ) {
+      return; // Allow null/empty logFile - fallback will be used
+    }
     if ( logFile.contains( ".." ) || logFile.contains( "//" ) || logFile.contains( "\\\\" ) || ( !logFile.endsWith( ".txt" ) && !logFile.endsWith( ".log" ) ) ) {
       throw new IllegalArgumentException( Messages.getInstance().getString( "FileService.ERROR_INVALID_LOG_FILENAME", logFile ) );
     }
@@ -150,8 +155,12 @@ public class FileService {
       Level level = Level.valueOf( logLevel );
       FileOutputStream fileOutputStream = null;
       try {
-        validateFilePath( logFile );
-        fileOutputStream = new FileOutputStream( logFile );
+        if ( logFile != null && !logFile.isEmpty() ) {
+          validateFilePath( logFile );
+          fileOutputStream = new FileOutputStream( logFile );
+        } else {
+          fileOutputStream = retrieveFallbackLogFileLocation( "backup" );
+        }
       } catch ( FileNotFoundException e ) {
         try {
           fileOutputStream = retrieveFallbackLogFileLocation( "backup" );
@@ -263,6 +272,200 @@ public class FileService {
         IOUtils.copy( inputStream, output );
       }
     };
+  }
+
+  /**
+   * Performs a selective backup of the Pentaho system based on component configuration.
+   *
+   * @param logFile Path to the log file
+   * @param logLevel Log level (DEBUG, INFO, WARN, ERROR)
+   * @param outputFile Output file name
+   * @param componentConfig Configuration specifying which components to include
+   * @return DownloadFileWrapper containing the backup stream
+   * @throws IllegalArgumentException if parameters are invalid
+   * @throws IOException if file operations fail
+   * @throws ExportException if export fails
+   */
+  public DownloadFileWrapper selectiveBackup( String logFile, String logLevel, String outputFile,
+      ComponentConfig componentConfig ) throws IllegalArgumentException, IOException, ExportException {
+    if ( doCanAdminister() ) {
+      if ( componentConfig == null || !componentConfig.isValid() ) {
+        throw new IllegalArgumentException( "Invalid component configuration: at least one component must be selected" );
+      }
+
+      String encodedFileName = makeEncodedFileName( outputFile );
+      IRepositoryExportLogger exportLogger;
+      Level level = Level.valueOf( logLevel );
+      FileOutputStream fileOutputStream = null;
+      try {
+        if ( logFile != null && !logFile.isEmpty() ) {
+          validateFilePath( logFile );
+          fileOutputStream = new FileOutputStream( logFile );
+        } else {
+          fileOutputStream = retrieveFallbackLogFileLocation( "selective_backup" );
+        }
+      } catch ( FileNotFoundException e ) {
+        try {
+          fileOutputStream = retrieveFallbackLogFileLocation( "selective_backup" );
+        } catch ( FileNotFoundException fileNotFoundException ) {
+          throw new ExportException( fileNotFoundException );
+        }
+      }
+      ByteArrayOutputStream exportLoggerStream = new ByteArrayOutputStream();
+      IPentahoPlatformExporter exporter = PentahoSystem.get( IPentahoPlatformExporter.class );
+      if ( exporter == null ) {
+        logger.error( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_PLATFORM_EXPORTER" ) );
+        throw new ExportException( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_PLATFORM_EXPORTER" ) );
+      }
+
+      exportLogger = exporter.getRepositoryExportLogger();
+      if ( exportLogger == null ) {
+        logger.error( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_EXPORT_LOGGER" ) );
+        throw new ExportException( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_EXPORT_LOGGER" ) );
+      }
+
+      RepositoryTextLayout stringLayout = new RepositoryTextLayout( level );
+      exportLogger.startJob( exportLoggerStream, level, stringLayout );
+
+      // Set the component configuration on the exporter
+      PentahoPlatformExporter platformExporter = (PentahoPlatformExporter) exporter;
+      
+      // Log the received component config
+      logger.info( "SELECTIVE BACKUP - Received component config: " + componentConfig );
+      if ( componentConfig != null ) {
+        logger.info( "  includeContent: " + componentConfig.isIncludeContent() );
+        logger.info( "  includeUsers: " + componentConfig.isIncludeUsers() );
+        logger.info( "  includeDatasources: " + componentConfig.isIncludeDatasources() );
+        logger.info( "  includeMondrian: " + componentConfig.isIncludeMondrian() );
+        logger.info( "  includeMetastore: " + componentConfig.isIncludeMetastore() );
+        logger.info( "  includeSchedules: " + componentConfig.isIncludeSchedules() );
+        logger.info( "  includeUserSettings: " + componentConfig.isIncludeUserSettings() );
+      }
+      
+      platformExporter.setComponentConfig( componentConfig );
+
+      // Perform the selective export
+      StreamingOutput streamingOutput = getSelectiveBackupStream( platformExporter );
+      exportLogger.endJob();
+      try {
+        exportLoggerStream.writeTo( fileOutputStream );
+      } catch ( IOException e ) {
+        logger.error( e.getLocalizedMessage() );
+      }
+      final String attachment = HttpMimeTypeListener.buildContentDispositionValue( outputFile, true );
+      return new DownloadFileWrapper( streamingOutput, attachment, encodedFileName );
+    } else {
+      throw new SecurityException();
+    }
+  }
+
+  /**
+   * Helper method to get streaming output for selective backup
+   */
+  private StreamingOutput getSelectiveBackupStream( PentahoPlatformExporter exporter )
+      throws IOException, ExportException {
+    final File zipFile = exporter.performExport();
+    return new StreamingOutput() {
+      @Override
+      public void write( OutputStream output ) throws IOException {
+        try ( FileInputStream inputStream = new FileInputStream( zipFile ) ) {
+          IOUtils.copy( inputStream, output );
+        } finally {
+          try {
+            if ( zipFile != null && !Files.deleteIfExists( zipFile.toPath() ) ) {
+              logger.warn( Messages.getInstance().getString( "FileService.WARN_UNABLE_TO_DELETE_TEMP_FILE", zipFile.getAbsolutePath() ) );
+            }
+          } catch ( Exception e ) {
+            logger.warn( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_DELETE_TEMP_FILE", zipFile.getAbsolutePath() ), e );
+          }
+        }
+      }
+    };
+  }
+
+  /**
+   * Performs a selective restore of the Pentaho system from a backup.
+   *
+   * @param fileUpload Input stream of the backup file
+   * @param overwriteFile Whether to overwrite existing files
+   * @param applyAclSettings Whether to apply ACL settings
+   * @param overwriteAclSettings Whether to overwrite existing ACL settings
+   * @param logFile Path to the log file
+   * @param logLevel Log level (DEBUG, INFO, WARN, ERROR)
+   * @param componentOverrides Optional override of components to restore
+   * @throws IllegalArgumentException if parameters are invalid
+   * @throws PlatformImportException if import fails
+   * @throws SecurityException if user lacks permissions
+   */
+  public void selectiveRestore( final InputStream fileUpload, String overwriteFile,
+                                String applyAclSettings, String overwriteAclSettings, String retainOwnership, String logFile, String logLevel,
+                                ComponentConfig componentOverrides, String backupBundlePath ) throws IllegalArgumentException, PlatformImportException,
+      SecurityException {
+    if ( doCanAdminister() ) {
+      boolean overwriteFileFlag = !"false".equals( overwriteFile );
+      boolean applyAclSettingsFlag = !"false".equals( applyAclSettings );
+      boolean overwriteAclSettingsFlag = "true".equals( overwriteAclSettings );
+      boolean retainOwnershipFlag = "true".equals( retainOwnership );
+      IRepositoryImportLogger importLogger;
+      Level level = Level.valueOf( logLevel );
+
+      FileOutputStream fileOutputStream = null;
+      try {
+        validateFilePath( logFile );
+        fileOutputStream = new FileOutputStream( logFile );
+      } catch ( FileNotFoundException e ) {
+        try {
+          fileOutputStream = retrieveFallbackLogFileLocation( "selective_restore" );
+        } catch ( FileNotFoundException fileNotFoundException ) {
+          throw new PlatformImportException( fileNotFoundException.getLocalizedMessage() );
+        }
+      }
+      ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
+      String importDirectory = "/";
+      RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
+      bundleBuilder.input( fileUpload );
+      bundleBuilder.charSet( "UTF-8" );
+      bundleBuilder.hidden( RepositoryFile.HIDDEN_BY_DEFAULT );
+      bundleBuilder.schedulable( RepositoryFile.SCHEDULABLE_BY_DEFAULT );
+      bundleBuilder.path( importDirectory );
+      bundleBuilder.overwriteFile( overwriteFileFlag );
+      bundleBuilder.name( backupBundlePath != null ? backupBundlePath : "backup.zip" );
+      bundleBuilder.applyAclSettings( applyAclSettingsFlag );
+      bundleBuilder.overwriteAclSettings( overwriteAclSettingsFlag );
+      bundleBuilder.retainOwnership( retainOwnershipFlag );
+      bundleBuilder.preserveDsw( true );
+
+      // Store component overrides on ImportSession for use during import filtering
+      if ( componentOverrides != null ) {
+        ImportSession.getSession().setComponentOverrides( componentOverrides );
+        bundleBuilder.comment( "componentOverrides:" + componentOverrides.toString() );
+      }
+
+      ImportSession.getSession().setAclProperties( applyAclSettingsFlag, true, overwriteAclSettingsFlag );
+
+      IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
+      importLogger = importer.getRepositoryImportLogger();
+      RepositoryTextLayout stringLayout = new RepositoryTextLayout( level );
+      importLogger.setPerformingRestore( true );
+      importLogger.startJob( importLoggerStream, importDirectory, level, stringLayout );
+      try {
+        importer.importFile( bundleBuilder.build() );
+      } catch ( Exception e ) {
+        throw e;
+      } finally {
+        importLogger.endJob();
+        if ( componentOverrides != null ) {
+          ImportSession.getSession().setComponentOverrides( null );
+        }
+        try {
+          importLoggerStream.writeTo( fileOutputStream );
+        } catch ( IOException e ) {
+          e.printStackTrace();
+        }
+      }
+    } else {
+      throw new SecurityException();
+    }
   }
 
   /**
@@ -1992,12 +2195,21 @@ public class FileService {
   }
 
   protected String decode( String folder ) {
+    if ( folder == null ) {
+      return folder;
+    }
+    
     String decodeName = folder;
     try {
-      decodeName = URLDecoder.decode( folder, "UTF-8" );
+      // Use ExportFileNameEncoder for consistent decoding with export side
+      // This handles malformed encoding more gracefully than raw URLDecoder
+      decodeName = ExportFileNameEncoder.decodeZipFileName( folder );
     } catch ( Exception ex ) {
-      logger.error( ex );
+      logger.debug( "Could not decode file name: " + folder + " - " + ex.getMessage() );
+      // Return original if decoding fails
+      decodeName = folder;
     }
+    
     return decodeName;
   }
 

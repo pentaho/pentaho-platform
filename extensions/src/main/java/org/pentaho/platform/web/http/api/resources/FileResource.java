@@ -16,6 +16,7 @@ package org.pentaho.platform.web.http.api.resources;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.sun.jersey.multipart.FormDataParam;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,6 +47,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.api.importexport.ExportException;
+import org.pentaho.platform.plugin.services.importexport.ComponentConfig;
 import org.pentaho.platform.plugin.services.importexport.Exporter;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
@@ -231,6 +233,140 @@ public class FileResource extends AbstractJaxRSResource {
       throw new WebApplicationException( e, Response.Status.INTERNAL_SERVER_ERROR );
     } catch ( SecurityException e ) {
       throw new WebApplicationException( e, Response.Status.FORBIDDEN );
+    }
+  }
+
+  /**
+   * Performs a selective backup of the Pentaho system with chosen components.
+   * Allows selection of which components (content, users, datasources, etc.) to include in the backup.
+   *
+   * <p><b>Example Request:</b><br />
+   * POST pentaho/api/repo/files/selectiveBackup
+   * <br/>Content-Type: application/json
+   * <br/>{
+   *   "includeContent": true,
+   *   "includeUsers": true,
+   *   "includeDatasources": false,
+   *   "includeMetastore": false,
+   *   "includeSchedules": false,
+   *   "includeUserSettings": false,
+   *   "includeMondrian": false
+   * }
+   * </p>
+   *
+   * @param componentConfig JSON configuration specifying which components to include
+   * @param logFile Optional log file path
+   * @param logLevel Optional log level (DEBUG, INFO, WARN, ERROR)
+   * @param outputFile Optional output file path
+   * @return A ZIP file stream containing the selective backup
+   */
+  @POST
+  @Path( "/selectiveBackup" )
+  @Consumes( MediaType.APPLICATION_JSON )
+  @Produces( APPLICATION_ZIP )
+  @StatusCodes( {
+      @ResponseCode( code = 200, condition = "Successfully exported selected components" ),
+      @ResponseCode( code = 400, condition = "Invalid component configuration" ),
+      @ResponseCode( code = 403, condition = "User does not have administrative permissions" ),
+      @ResponseCode( code = 500, condition = "Failure to complete the export." )} )
+  public Response selectiveBackup( ComponentConfig componentConfig,
+      @QueryParam( "logFile" ) String logFile,
+      @QueryParam( "logLevel" ) String logLevel,
+      @QueryParam( "outputFile" ) String outputFile ) {
+    FileService.DownloadFileWrapper wrapper;
+    try {
+      // Validate that at least one component is selected
+      if ( componentConfig == null || !componentConfig.isValid() ) {
+        throw new IllegalArgumentException( "Invalid component configuration: at least one component must be selected" );
+      }
+
+      wrapper = fileService.selectiveBackup( logFile, logLevel, outputFile, componentConfig );
+      return buildZipOkResponse( wrapper );
+    } catch ( IllegalArgumentException iae ) {
+      throw new WebApplicationException( iae, Response.Status.BAD_REQUEST );
+    } catch ( IOException e ) {
+      throw new WebApplicationException( e, Response.Status.INTERNAL_SERVER_ERROR );
+    } catch ( ExportException e ) {
+      throw new WebApplicationException( e, Response.Status.INTERNAL_SERVER_ERROR );
+    } catch ( SecurityException e ) {
+      throw new WebApplicationException( e, Response.Status.FORBIDDEN );
+    }
+  }
+
+  /**
+   * Performs a selective restore of the Pentaho system from a backup.
+   * Allows override of component selection from the backup manifest.
+   *
+   * <p><b>Example Request:</b><br />
+   * POST pentaho/api/repo/files/selectiveRestore
+   * <br/>Content-Type: multipart/form-data
+   * <br/>Parameters:
+   * <br/>  - fileUpload: The selective backup ZIP file
+   * <br/>  - componentOverrides: (Optional) JSON override of components to restore
+   * <br/>  - overwriteFile: (Optional) true to overwrite existing files
+   * <br/>  - applyAclSettings: (Optional) true to apply ACL settings
+   * </p>
+   *
+   * @param fileUpload The selective backup ZIP file
+   * @param componentOverridesJson Optional JSON string with component configuration overrides
+   * @param overwriteFile Whether to overwrite existing files
+   * @param applyAclSettings Whether to apply ACL settings
+   * @param overwriteAclSettings Whether to overwrite existing ACL settings
+   * @param logFile Optional log file path
+   * @param logLevel Optional log level (DEBUG, INFO, WARN, ERROR)
+   * @return Response indicating success or failure
+   */
+  @POST
+  @Path( "/selectiveRestore" )
+  @Consumes( MediaType.MULTIPART_FORM_DATA )
+  @StatusCodes( {
+      @ResponseCode( code = 200, condition = "Successfully imported selected components" ),
+      @ResponseCode( code = 400, condition = "Invalid backup file or component configuration" ),
+      @ResponseCode( code = 403, condition = "User does not have administrative permissions" ),
+      @ResponseCode( code = 500, condition = "Failure to complete the import." )} )
+  public Response selectiveRestore(
+      @FormDataParam( "fileUpload" ) InputStream fileUpload,
+      @FormDataParam( "componentOverrides" ) String componentOverridesJson,
+      @FormDataParam( "overwriteFile" ) String overwriteFile,
+      @FormDataParam( "applyAclSettings" ) String applyAclSettings,
+      @FormDataParam( "overwriteAclSettings" ) String overwriteAclSettings,
+      @FormDataParam( "retainOwnership" ) String retainOwnership,
+      @FormDataParam( "logFile" ) String logFile,
+      @FormDataParam( "logLevel" ) String logLevel,
+      @FormDataParam( "backupBundlePath" ) String backupBundlePath ) {
+    try {
+      // Parse component overrides if provided
+      ComponentConfig componentOverrides = null;
+      if ( componentOverridesJson != null && !componentOverridesJson.isEmpty() ) {
+        componentOverrides = parseComponentConfigJson( componentOverridesJson );
+      }
+
+      fileService.selectiveRestore( fileUpload, overwriteFile, applyAclSettings, overwriteAclSettings, retainOwnership,
+          logFile, logLevel, componentOverrides, backupBundlePath );
+      return Response.ok().build();
+    } catch ( IllegalArgumentException iae ) {
+      throw new WebApplicationException( iae, Response.Status.BAD_REQUEST );
+    } catch ( PlatformImportException e ) {
+      throw new WebApplicationException( e, Response.Status.INTERNAL_SERVER_ERROR );
+    } catch ( SecurityException e ) {
+      throw new WebApplicationException( e, Response.Status.FORBIDDEN );
+    }
+  }
+
+  /**
+   * Helper method to parse JSON string to ComponentConfig
+   * Uses Jackson ObjectMapper for robust JSON parsing
+   *
+   * @param json JSON string representation of ComponentConfig
+   * @return Parsed ComponentConfig
+   * @throws IllegalArgumentException if JSON is invalid
+   */
+  private ComponentConfig parseComponentConfigJson( String json ) throws IllegalArgumentException {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      return mapper.readValue( json, ComponentConfig.class );
+    } catch ( Exception e ) {
+      throw new IllegalArgumentException( "Invalid JSON format for component configuration: " + e.getMessage() );
     }
   }
 
