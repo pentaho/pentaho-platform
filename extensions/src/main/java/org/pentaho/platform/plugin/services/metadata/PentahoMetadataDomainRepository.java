@@ -2,13 +2,14 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 - 2026 by Pentaho Canada Inc. : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2029-07-20
+ * Change Date: 2030-06-15
  ******************************************************************************/
+
 
 
 package org.pentaho.platform.plugin.services.metadata;
@@ -107,7 +108,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   // The default encoding for file storage
   private static final String DEFAULT_ENCODING = "UTF-8";
 
-  // The default mime-type for the Hitachi Vantara Domain files
+  // The default mime-type for the Pentaho Domain files
   private static final String DOMAIN_MIME_TYPE = "text/xml";
 
   // The default mime-type for locale files

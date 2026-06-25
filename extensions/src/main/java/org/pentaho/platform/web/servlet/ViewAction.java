@@ -2,13 +2,14 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 - 2026 by Pentaho Canada Inc. : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2029-07-20
+ * Change Date: 2030-06-15
  ******************************************************************************/
+
 
 
 package org.pentaho.platform.web.servlet;
@@ -326,7 +327,7 @@ public class ViewAction extends ServletBase {
      */
 
     // Proposed fix for bug BISERVER-97 by Ezequiel Cuellar
-    // Changed to set parameterXsl from the value specified specified in the Hitachi Vantara.xml tag "default-parameter-xsl"
+    // Changed to set parameterXsl from the value specified specified in the Pentaho.xml tag "default-parameter-xsl"
     // Proposed fix for bug BISERVER-238 by Ezequiel Cuellar
     // Code refactoring. DefaultParameterForm.xsl was always getting set so I just refactored the code
     // by adding a default value of DefaultParameterForm.xsl when getting the value of default-parameter-xsl

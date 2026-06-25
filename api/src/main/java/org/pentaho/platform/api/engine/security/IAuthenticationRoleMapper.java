@@ -2,13 +2,14 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 - 2026 by Pentaho Canada Inc. : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2029-07-20
+ * Change Date: 2030-06-15
  ******************************************************************************/
+
 
 
 package org.pentaho.platform.api.engine.security;
@@ -20,7 +21,7 @@ package org.pentaho.platform.api.engine.security;
 public interface IAuthenticationRoleMapper {
 
   /**
-   * Takes a string name of third party role and returns the mapped Hitachi Vantara security role.
+   * Takes a string name of third party role and returns the mapped Pentaho security role.
    * 
    * @param ldapRole Third party role.
    * @return Returns the Pentaho security role.
@@ -28,7 +29,7 @@ public interface IAuthenticationRoleMapper {
   public String toPentahoRole( String thirdPartyRole );
 
   /**
-   * Takes a Hitachi Vantara security role and returns the mapped third party role.
+   * Takes a Pentaho security role and returns the mapped third party role.
    * 
    * @param pentahoRole Pentaho security role.
    * @return Returns the third party role.

@@ -2,13 +2,14 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 - 2026 by Pentaho Canada Inc. : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2029-07-20
+ * Change Date: 2030-06-15
  ******************************************************************************/
+
 
 
 package org.pentaho.platform.engine.security.acls;
@@ -30,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Base Hitachi Vantara Access Control entry. Subclassed <tt>AbstractBasicAclEntry</tt> from Spring Security project.
+ * Base Pentaho Access Control entry. Subclassed <tt>AbstractBasicAclEntry</tt> from Spring Security project.
  * Provides known access controls.
  *
  * @author mbatchel

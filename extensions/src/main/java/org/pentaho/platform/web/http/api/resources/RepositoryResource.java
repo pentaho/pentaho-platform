@@ -2,13 +2,14 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 - 2026 by Pentaho Canada Inc. : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2029-07-20
+ * Change Date: 2030-06-15
  ******************************************************************************/
+
 
 
 package org.pentaho.platform.web.http.api.resources;
@@ -390,7 +391,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
    *
    *&lt;div class=&quot;groupOption&quot;&gt;
    *&lt;input checked=&quot;checked&quot; name=&quot;securityProvider&quot; type=&quot;radio&quot; value=&quot;jackrabbit&quot; /&gt;
-   *&lt;div class=&quot;pentahoSecurityLabel authValue&quot;&gt;Local - Use basic Hitachi Vantara authentication&lt;/div&gt;
+   *&lt;div class=&quot;pentahoSecurityLabel authValue&quot;&gt;Local - Use basic Pentaho authentication&lt;/div&gt;
    *&lt;/div&gt;
    *&lt;div class=&quot;groupOption&quot;&gt;
    *&lt;input name=&quot;securityProvider&quot; type=&quot;radio&quot; value=&quot;ldap&quot; /&gt;
