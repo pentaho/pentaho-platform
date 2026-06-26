@@ -1,14 +1,21 @@
 package org.pentaho.platform.plugin.services.importer.helper;
 
+import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.importexport.IImportHelper;
 import org.pentaho.platform.api.importexport.ImportException;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
+import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
+import org.pentaho.platform.plugin.services.importer.SolutionImportHandler;
 import org.pentaho.platform.plugin.services.importexport.ComponentConfig;
 import org.pentaho.platform.plugin.services.importexport.ImportExportMetrics;
+import org.pentaho.platform.plugin.services.importexport.ImportSource;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
 import org.pentaho.platform.plugin.services.messages.Messages;
-import org.pentaho.platform.plugin.services.importer.SolutionImportHandler;
-import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 /**
  * Import helper for metastore restoration.
@@ -32,7 +39,7 @@ public class MetastoreImportHelper implements IImportHelper {
       return true; // Full restore - include all content
     }
     if ( config instanceof ComponentConfig ) {
-      return ( ( ComponentConfig ) config ).isIncludeMetastore();
+      return ( (ComponentConfig) config ).isIncludeMetastore();
     }
     return true; // Unknown type - default to include
   }
@@ -91,26 +98,57 @@ public class MetastoreImportHelper implements IImportHelper {
    */
   public void importMetaStore( ExportManifestMetaStore manifestMetaStore ) {
     if ( solutionImportHandler.isPerformingRestore() ) {
-      solutionImportHandler.getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_START_IMPORT_METASTORE" ) );
+      solutionImportHandler.getLogger()
+        .info( Messages.getInstance().getString( "SolutionImportHandler.INFO_START_IMPORT_METASTORE" ) );
     }
     if ( manifestMetaStore != null ) {
       // get the zipped metastore from the export bundle
       RepositoryFileImportBundle.Builder bundleBuilder =
-          new RepositoryFileImportBundle.Builder()
-              .path( manifestMetaStore.getFile() )
-              .name( manifestMetaStore.getName() )
-              .withParam( "description", manifestMetaStore.getDescription() )
-              .charSet( "UTF-8" )
-              .overwriteFile( overwriteFile )
-              .mime( "application/vnd.pentaho.metastore" );
+        new RepositoryFileImportBundle.Builder()
+          .path( manifestMetaStore.getFile() )
+          .name( manifestMetaStore.getName() )
+          .withParam( "description", manifestMetaStore.getDescription() )
+          .charSet( "UTF-8" )
+          .overwriteFile( overwriteFile )
+          .mime( "application/vnd.pentaho.metastore" );
 
-      solutionImportHandler.getCachedImports().put( manifestMetaStore.getFile(), bundleBuilder );
-      if ( solutionImportHandler.isPerformingRestore() ) {
-        solutionImportHandler.getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_SUCCESSFUL_IMPORT_METASTORE" ) );
-        // Track metastore import as success in metrics
-        ImportExportMetrics metrics = solutionImportHandler.getMetrics();
-        if ( metrics != null ) {
-          metrics.recordSuccess( ImportExportMetrics.Category.METASTORE );
+      try {
+        InputStream input = getFileInputStream( manifestMetaStore.getFile() );
+        if ( input != null ) {
+          try ( InputStream is = input ) {
+            byte[] bytes = IOUtils.toByteArray( is );
+            bundleBuilder.input( new ByteArrayInputStream( bytes ) );
+          }
+          IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
+          importer.importFile( solutionImportHandler.build( bundleBuilder ) );
+          if ( solutionImportHandler.isPerformingRestore() ) {
+            solutionImportHandler.getLogger()
+              .info( Messages.getInstance().getString( "SolutionImportHandler.INFO_SUCCESSFUL_IMPORT_METASTORE" ) );
+            // Track metastore import as success in metrics
+            ImportExportMetrics metrics = solutionImportHandler.getMetrics();
+            if ( metrics != null ) {
+              metrics.recordSuccess( ImportExportMetrics.Category.METASTORE );
+            }
+          }
+        } else {
+          if ( solutionImportHandler.isPerformingRestore() ) {
+            solutionImportHandler.getLogger()
+              .warn( Messages.getInstance()
+                .getString( "SolutionImportHandler.WARN_METASTORE_FILE_NOT_FOUND", manifestMetaStore.getFile() ) );
+            // Track metastore import as failure in metrics
+            ImportExportMetrics metrics = solutionImportHandler.getMetrics();
+            if ( metrics != null ) {
+              metrics.recordFailure( ImportExportMetrics.Category.METASTORE, "metastore", "Import failed" );
+            }
+          }
+        }
+      } catch ( Exception e ) {
+        solutionImportHandler.getMetrics()
+          .recordFailure( ImportExportMetrics.Category.METASTORE, "metastore", "Import failed" );
+        if ( solutionImportHandler.isPerformingRestore() ) {
+          solutionImportHandler.getLogger().error( Messages.getInstance()
+            .getString( "SolutionImportHandler.ERROR_IMPORTING_REPOSITORY_OBJECT", manifestMetaStore.getFile(),
+              e.getLocalizedMessage() ) );
         }
       }
     } else {
@@ -121,7 +159,27 @@ public class MetastoreImportHelper implements IImportHelper {
       }
     }
     if ( solutionImportHandler.isPerformingRestore() ) {
-      solutionImportHandler.getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_END_IMPORT_METASTORE" ) );
+      solutionImportHandler.getLogger()
+        .info( Messages.getInstance().getString( "SolutionImportHandler.INFO_END_IMPORT_METASTORE" ) );
     }
+  }
+
+  private InputStream getFileInputStream( String fileName ) {
+    InputStream inputStream = null;
+    if ( fileName != null ) {
+      try {
+        for ( ImportSource.IRepositoryFileBundle fileBundle : solutionImportHandler.getFiles() ) {
+          if ( fileBundle.getFile() != null && fileBundle.getFile().getName().equals( fileName ) ) {
+            inputStream = fileBundle.getInputStream();
+            break;
+          }
+        }
+      } catch ( Exception e ) {
+        if ( solutionImportHandler.isPerformingRestore() ) {
+          solutionImportHandler.getLogger().error( "Error retrieving metastore file input stream: " + e.getMessage() );
+        }
+      }
+    }
+    return inputStream;
   }
 }
