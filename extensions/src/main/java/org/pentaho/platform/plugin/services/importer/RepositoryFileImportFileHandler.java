@@ -470,15 +470,15 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
       final RepositoryFileAcl acl = bundle.getAcl();
       
-      getLogger().info( "=== createFile DEBUG ===" );
-      getLogger().info( "  repositoryPath: " + repositoryPath );
-      getLogger().info( "  bundle.getAcl() is " + (acl == null ? "NULL" : "NOT null") );
+      getLogger().trace( "=== createFile DEBUG ===" );
+      getLogger().trace( "  repositoryPath: " + repositoryPath );
+      getLogger().trace( "  bundle.getAcl() is " + (acl == null ? "NULL" : "NOT null") );
       if ( acl != null ) {
-        getLogger().info( "       ACL owner: " + acl.getOwner() );
-        getLogger().info( "       ACL aces count: " + (acl.getAces() != null ? acl.getAces().size() : 0) );
+        getLogger().trace( "       ACL owner: " + acl.getOwner() );
+        getLogger().trace( "       ACL aces count: " + (acl.getAces() != null ? acl.getAces().size() : 0) );
       }
-      getLogger().info( "  -> Creating file " + (acl != null ? "WITH explicit ACL" : "WITHOUT explicit ACL (will use defaults)") );
-      getLogger().info( "=== END createFile DEBUG ===" );
+      getLogger().trace( "  -> Creating file " + (acl != null ? "WITH explicit ACL" : "WITHOUT explicit ACL (will use defaults)") );
+      getLogger().trace( "=== END createFile DEBUG ===" );
       
       if ( null == acl ) {
         return repository.createFile( parentId, file, data, bundle.getComment() );

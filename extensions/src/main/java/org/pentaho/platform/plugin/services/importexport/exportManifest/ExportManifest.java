@@ -302,6 +302,19 @@ public class ExportManifest {
   }
 
   public void addUserExport( UserExport userExport ) {
+    if ( userExport == null ) {
+      return;
+    }
+    // Avoid duplicate user entries in the manifest. The schedule export path adds the schedule
+    // owner once per schedule, which would otherwise repeat the same user many times.
+    String username = userExport.getUsername();
+    if ( username != null ) {
+      for ( UserExport existing : this.userExports ) {
+        if ( username.equals( existing.getUsername() ) ) {
+          return;
+        }
+      }
+    }
     this.userExports.add( userExport );
   }
 
@@ -310,6 +323,19 @@ public class ExportManifest {
   }
 
   public void addRoleExport( RoleExport roleExport ) {
+    if ( roleExport == null ) {
+      return;
+    }
+    // Avoid duplicate role entries in the manifest. The same role can be reached from multiple
+    // users (e.g. the shared "Authenticated" role) during the per-user/schedule-owner export.
+    String rolename = roleExport.getRolename();
+    if ( rolename != null ) {
+      for ( RoleExport existing : this.roleExports ) {
+        if ( rolename.equals( existing.getRolename() ) ) {
+          return;
+        }
+      }
+    }
     this.roleExports.add( roleExport );
   }
 

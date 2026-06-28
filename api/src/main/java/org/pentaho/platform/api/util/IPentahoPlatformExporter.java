@@ -39,6 +39,18 @@ public interface IPentahoPlatformExporter {
    */
   boolean exportUserAndRole( String username );
 
+  /**
+   * Export only the runtime-to-logical role bindings for the roles assigned to the given user,
+   * without exporting the user object itself. Used when the platform is configured with an external
+   * authentication provider (jdbc/ldap): user and role objects are managed externally, but their
+   * logical-role bindings live in the Pentaho repository and must be backed up so they can be
+   * restored.
+   *
+   * @param username the username whose role mappings should be exported
+   * @return true if the role mappings were exported successfully, false otherwise
+   */
+  boolean exportUserRoleBindings( String username );
+
   Object getComponentConfig();
 
 }

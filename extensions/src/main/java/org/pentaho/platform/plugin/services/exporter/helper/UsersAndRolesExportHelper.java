@@ -34,7 +34,9 @@ import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Export helper for users and roles.
@@ -79,7 +81,12 @@ public class UsersAndRolesExportHelper implements IExportHelper {
       if ( provider.equalsIgnoreCase( "jackrabbit" ) ) {
         exportUsersAndRoles( exporter );
       } else {
-        exporter.getRepositoryExportLogger().info( "Nothing to export from users and roles as the authentication is external");
+        // External authentication provider (jdbc/ldap): user and role objects are managed
+        // externally and are not exported. However, the runtime-to-logical role bindings live in
+        // the Pentaho repository, so we still export them so they can be restored.
+        exporter.getRepositoryExportLogger().info(
+            "Authentication is external - exporting role mappings (runtime-to-logical roles) only" );
+        exportRoles( exporter );
       }
 
       if ( exporter.getExportMetrics() != null ) {
@@ -156,6 +163,8 @@ public class UsersAndRolesExportHelper implements IExportHelper {
 
     UserDetailsService userDetailsService = PentahoSystem.get( UserDetailsService.class );
     IUserRoleListService userRoleListService = PentahoSystem.get( IUserRoleListService.class );
+    IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = PentahoSystem.get(
+        IRoleAuthorizationPolicyRoleBindingDao.class );
     ITenant tenant = TenantUtils.getCurrentTenant();
     IUserSettingService service = getUserSettingService();
 
@@ -165,9 +174,16 @@ public class UsersAndRolesExportHelper implements IExportHelper {
       userExport.setUsername( username );
       userExport.setPassword( userDetailsService.loadUserByUsername( username ).getPassword() );
 
+      // Track roles already in the manifest so we do not add duplicate RoleExport entries.
+      Set<String> exportedRoleNames = collectExportedRoleNames( exporter );
+
       for ( String role : userRoleListService.getRolesForUser( tenant, username ) ) {
         exporter.getRepositoryExportLogger().trace( "user [ " + username + " ] has an associated role [ " + role + " ]" );
         userExport.setRole( role );
+        // Also export the runtime-role -> logical-role binding for this role so that the schedule
+        // owner's permissions are preserved. Schedules-only backups never run exportRoles(), so
+        // without this the role-to-logical-role mapping would be lost on restore.
+        exportRoleBinding( role, exporter, roleBindingDao, exportedRoleNames );
       }
 
       if ( service != null && service instanceof IAnyUserSettingService ) {
@@ -207,6 +223,39 @@ public class UsersAndRolesExportHelper implements IExportHelper {
   }
 
   /**
+   * Export only the runtime-to-logical role bindings for the roles assigned to the given user,
+   * without exporting the user object itself. Used when the platform is configured with an external
+   * authentication provider (jdbc/ldap): user and role objects are managed externally, but their
+   * logical-role bindings live in the Pentaho repository and must be backed up so they can be
+   * restored.
+   *
+   * @param username the username whose role mappings should be exported
+   * @return true if processed successfully, false otherwise
+   */
+  public boolean exportUserRoleBindings( String username, PentahoPlatformExporter exporter ) {
+    if ( username == null || username.trim().isEmpty() ) {
+      return false;
+    }
+    try {
+      IUserRoleListService userRoleListService = PentahoSystem.get( IUserRoleListService.class );
+      IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = PentahoSystem.get(
+          IRoleAuthorizationPolicyRoleBindingDao.class );
+      ITenant tenant = TenantUtils.getCurrentTenant();
+      Set<String> exportedRoleNames = collectExportedRoleNames( exporter );
+      for ( String role : userRoleListService.getRolesForUser( tenant, username ) ) {
+        exporter.getRepositoryExportLogger().debug( "Exporting runtime-to-logical role mapping for role [ "
+            + role + " ] of external user [ " + username + " ]" );
+        exportRoleBinding( role, exporter, roleBindingDao, exportedRoleNames );
+      }
+      return true;
+    } catch ( Exception e ) {
+      exporter.getRepositoryExportLogger().error( "Failed to export role mappings for user [ " + username + " ]: "
+          + e.getMessage(), e );
+      return false;
+    }
+  }
+
+  /**
    * Export all roles in the system
    */
   protected void exportRoles( PentahoPlatformExporter exporter ) {
@@ -227,13 +276,11 @@ public class UsersAndRolesExportHelper implements IExportHelper {
         exporter.getMetricsCollector().addRoles( rolesSize );
       }
     }
+    Set<String> exportedRoleNames = collectExportedRoleNames( exporter );
     for ( String role : roles ) {
       try {
         exporter.getRepositoryExportLogger().debug( "Starting backup of role [ " + role + " ] " );
-        RoleExport roleExport = new RoleExport();
-        roleExport.setRolename( role );
-        roleExport.setPermission( roleBindingDao.getRoleBindingStruct( null ).bindingMap.get( role ) );
-        exporter.getExportManifest().addRoleExport( roleExport );
+        exportRoleBinding( role, exporter, roleBindingDao, exportedRoleNames );
         successfulExportRoles++;
         if ( exporter.getExportMetrics() != null ) {
           exporter.getExportMetrics().recordSuccess( ImportExportMetrics.Category.ROLES );
@@ -250,6 +297,42 @@ public class UsersAndRolesExportHelper implements IExportHelper {
     exporter.getRepositoryExportLogger().info( Messages.getInstance().getString( "PentahoPlatformExporter.INFO_SUCCESSFUL_ROLE_EXPORT_COUNT", successfulExportRoles, rolesSize ) );
 
     exporter.getRepositoryExportLogger().info( Messages.getInstance().getString( "PentahoPlatformExporter.INFO_END_EXPORT_ROLE" ) );
+  }
+
+  /**
+   * Export the runtime-role to logical-role binding for a single role into the manifest, unless it
+   * has already been exported. The {@code exportedRoleNames} set avoids adding duplicate
+   * {@link RoleExport} entries when the same role is reached from multiple users (schedule-owner
+   * dependency export) or from {@link #exportRoles(PentahoPlatformExporter)}.
+   *
+   * @return {@code true} if a new RoleExport was added, {@code false} if it was skipped
+   */
+  protected boolean exportRoleBinding( String role, PentahoPlatformExporter exporter,
+      IRoleAuthorizationPolicyRoleBindingDao roleBindingDao, Set<String> exportedRoleNames ) {
+    if ( role == null || roleBindingDao == null || exportedRoleNames.contains( role ) ) {
+      return false;
+    }
+    RoleExport roleExport = new RoleExport();
+    roleExport.setRolename( role );
+    roleExport.setPermission( roleBindingDao.getRoleBindingStruct( null ).bindingMap.get( role ) );
+    exporter.getExportManifest().addRoleExport( roleExport );
+    exportedRoleNames.add( role );
+    return true;
+  }
+
+  /**
+   * Collect the names of roles already present in the export manifest so that role bindings are not
+   * exported twice.
+   */
+  protected Set<String> collectExportedRoleNames( PentahoPlatformExporter exporter ) {
+    Set<String> names = new HashSet<>();
+    List<RoleExport> existing = exporter.getExportManifest().getRoleExports();
+    if ( existing != null ) {
+      for ( RoleExport roleExport : existing ) {
+        names.add( roleExport.getRolename() );
+      }
+    }
+    return names;
   }
 
   public IUserSettingService getUserSettingService() {
