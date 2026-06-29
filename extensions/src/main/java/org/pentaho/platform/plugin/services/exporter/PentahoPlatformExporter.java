@@ -425,6 +425,39 @@ public class PentahoPlatformExporter extends ZipExportProcessor implements IPent
   }
 
   /**
+   * Export only the runtime-to-logical role bindings for the roles assigned to the given user.
+   * Required by the IPentahoPlatformExporter interface. Used when the platform is configured with an
+   * external authentication provider (jdbc/ldap), where user and role objects are managed externally
+   * but their logical-role bindings still live in the Pentaho repository.
+   *
+   * @param username the username whose role mappings should be exported
+   * @return true if the role mappings were exported successfully, false otherwise
+   */
+  @Override
+  public boolean exportUserRoleBindings( String username ) {
+    if ( username == null || username.trim().isEmpty() ) {
+      return false;
+    }
+
+    // Find and delegate to the UsersAndRolesExportHelper
+    for ( IExportHelper helper : exportHelpers ) {
+      if ( helper instanceof UsersAndRolesExportHelper ) {
+        try {
+          UsersAndRolesExportHelper usersHelper = (UsersAndRolesExportHelper) helper;
+          return usersHelper.exportUserRoleBindings( username, this );
+        } catch ( Exception e ) {
+          getRepositoryExportLogger().error( "Error exporting role mappings for user [ " + username + " ]: "
+              + e.getMessage(), e );
+          return false;
+        }
+      }
+    }
+
+    getRepositoryExportLogger().warn( "UsersAndRolesExportHelper not found in registered export helpers" );
+    return false;
+  }
+
+  /**
    * Export file/folder content from the repository.
    * This method is called by exportFileByPath() and is required for backward compatibility.
    * The actual export logic has been moved to RepositoryContentExportHelper.

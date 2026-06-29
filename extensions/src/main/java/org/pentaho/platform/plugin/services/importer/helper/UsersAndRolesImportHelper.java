@@ -28,6 +28,7 @@ import org.pentaho.platform.api.importexport.ImportException;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
@@ -88,7 +89,15 @@ public class UsersAndRolesImportHelper implements IImportHelper {
       }
 
       if ( !provider.equalsIgnoreCase( "jackrabbit" ) ) {
-        solutionImportHandler.getLogger().info( "Nothing to import from users and roles as the authentication is external");
+        // External authentication provider (jdbc/ldap): user and role objects are managed
+        // externally and are not imported. However, the runtime-to-logical role bindings live in
+        // the Pentaho repository, so we still apply them from the manifest.
+        solutionImportHandler.getLogger().info(
+            "Authentication is external - importing role mappings (runtime-to-logical roles) only" );
+        ExportManifest externalManifest = solutionImportHandler.getImportSession().getManifest();
+        if ( externalManifest != null ) {
+          importRoleBindings( externalManifest.getRoleExports(), solutionImportHandler );
+        }
         return;
       }
 
@@ -275,6 +284,10 @@ public class UsersAndRolesImportHelper implements IImportHelper {
           }
           userList.add( username );
         }
+
+        // Ensure each of the user's roles exists, creating any that are missing, and apply
+        // the runtime-to-logical role mapping (permission bindings) from the export manifest.
+        ensureRolesExistWithMappings( tenant, roleDao, user.getRoles(), handler );
         return true; // User exists, treat as success
       }
     } catch ( Exception e ) {
@@ -299,6 +312,11 @@ public class UsersAndRolesImportHelper implements IImportHelper {
       }
       userList.add( username );
     }
+
+    // Ensure each of the user's roles exists (creating any that are missing) and apply the
+    // runtime-to-logical role mapping BEFORE creating the user, so the user's role
+    // memberships reference valid, existing roles.
+    ensureRolesExistWithMappings( tenant, roleDao, user.getRoles(), handler );
 
     String[] userRoles = user.getRoles().toArray( new String[] {} );
     try {
@@ -329,6 +347,81 @@ public class UsersAndRolesImportHelper implements IImportHelper {
       handler.getLogger().debug( "Successfully restored user [ " + username + " ] specific settings" );
     }
     return true;
+  }
+
+  /**
+   * Ensures that each of the supplied roles exists in the platform, creating any that are
+   * missing, and applies the runtime-to-logical role mapping (permission bindings) for each
+   * role using the permissions defined in the export manifest.
+   *
+   * @param tenant   the tenant the roles belong to
+   * @param roleDao  the user/role DAO used to look up and create roles
+   * @param roleNames the role names to ensure exist
+   * @param handler  the active import handler (provides the manifest and logger)
+   */
+  private void ensureRolesExistWithMappings( ITenant tenant, IUserRoleDao roleDao,
+      List<String> roleNames, SolutionImportHandler handler ) {
+    if ( roleNames == null || roleNames.isEmpty() ) {
+      return;
+    }
+
+    IRoleAuthorizationPolicyRoleBindingDao roleBindingDao =
+        PentahoSystem.get( IRoleAuthorizationPolicyRoleBindingDao.class );
+
+    // Build a lookup of role name -> exported permissions (logical roles) from the manifest
+    Map<String, List<String>> rolePermissions = new HashMap<>();
+    ExportManifest manifest =
+        handler.getImportSession() != null ? handler.getImportSession().getManifest() : null;
+    if ( manifest != null && manifest.getRoleExports() != null ) {
+      for ( RoleExport roleExport : manifest.getRoleExports() ) {
+        rolePermissions.put( roleExport.getRolename(), roleExport.getPermissions() );
+      }
+    }
+
+    for ( String roleName : roleNames ) {
+      if ( roleName == null || roleName.trim().isEmpty() ) {
+        continue;
+      }
+
+      // Check if the role already exists
+      boolean roleExists = false;
+      try {
+        roleExists = roleDao.getRole( tenant, roleName ) != null;
+      } catch ( Exception e ) {
+        // Role does not exist (or could not be looked up) - it will be created below
+        roleExists = false;
+      }
+
+      if ( !roleExists ) {
+        try {
+          roleDao.createRole( tenant, roleName, null, new String[] {} );
+          if ( handler.isPerformingRestore() ) {
+            handler.getLogger().debug( "Created role [ " + roleName + " ]" );
+          }
+        } catch ( AlreadyExistsException e ) {
+          // Acceptable - role is a default role or was created concurrently
+          if ( handler.isPerformingRestore() ) {
+            handler.getLogger().debug( "Role [ " + roleName + " ] already exists" );
+          }
+        } catch ( Exception e ) {
+          handler.getLogger().error( "Failed to create role [ " + roleName + " ]: " + e.getMessage(), e );
+          continue;
+        }
+      }
+
+      // Apply the runtime-to-logical role mapping (permission bindings) from the manifest
+      List<String> permissions = rolePermissions.get( roleName );
+      if ( roleBindingDao != null && permissions != null && !permissions.isEmpty() ) {
+        try {
+          roleBindingDao.setRoleBindings( tenant, roleName, permissions );
+          if ( handler.isPerformingRestore() ) {
+            handler.getLogger().debug( "Applied runtime-to-logical role mapping for role [ " + roleName + " ]" );
+          }
+        } catch ( Exception e ) {
+          handler.getLogger().error( "Failed to set role bindings for role [ " + roleName + " ]: " + e.getMessage(), e );
+        }
+      }
+    }
   }
 
   /**
@@ -536,6 +629,103 @@ public class UsersAndRolesImportHelper implements IImportHelper {
     if ( handler.isPerformingRestore() ) {
       handler.getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_END_IMPORT_ROLE" ) );
     }
+  }
+
+  /**
+   * Apply the runtime-to-logical role mappings (permission bindings) for the supplied roles without
+   * creating any users or roles. Used when the platform is configured with an external authentication
+   * provider (jdbc/ldap), where user and role objects are managed externally but their logical-role
+   * bindings are stored in the Pentaho repository and must be restored.
+   *
+   * @param roles   the exported roles (rolename + permissions) whose bindings should be applied
+   * @param handler the active import handler
+   */
+  public void importRoleBindings( List<RoleExport> roles, SolutionImportHandler handler ) {
+    if ( roles == null || roles.isEmpty() ) {
+      return;
+    }
+    IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = PentahoSystem.get(
+        IRoleAuthorizationPolicyRoleBindingDao.class );
+    if ( roleBindingDao == null ) {
+      handler.getLogger().warn( "Role binding DAO not available - cannot apply runtime-to-logical role mappings" );
+      return;
+    }
+    if ( handler.isPerformingRestore() ) {
+      handler.getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_START_IMPORT_ROLE" ) );
+      handler.getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_COUNT_ROLE", roles.size() ) );
+    }
+    ITenant tenant = new Tenant( "/pentaho/" + TenantUtils.getDefaultTenant(), true );
+    int mappedCount = 0;
+    for ( RoleExport role : roles ) {
+      if ( role == null || role.getRolename() == null ) {
+        continue;
+      }
+      try {
+        roleBindingDao.setRoleBindings( tenant, role.getRolename(), role.getPermissions() );
+        mappedCount++;
+        if ( handler.isPerformingRestore() ) {
+          handler.getLogger().debug( "Applied runtime-to-logical role mapping for role [ " + role.getRolename() + " ]" );
+        }
+      } catch ( Exception e ) {
+        handler.getLogger().error( Messages.getInstance()
+            .getString( "ERROR.SettingRolePermissions", role.getRolename() ), e );
+        // Continue with next role even if applying the binding fails
+      }
+    }
+    if ( handler.isPerformingRestore() ) {
+      handler.getLogger().info( "Applied runtime-to-logical role mappings for [ " + mappedCount + " ] role(s)" );
+      handler.getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_END_IMPORT_ROLE" ) );
+    }
+  }
+
+  /**
+   * Import a schedule owner during a schedule restore.
+   * <p>
+   * For the internal (jackrabbit) provider this creates the user, their home folder and roles.
+   * For an external authentication provider (jdbc/ldap) the user and role objects are managed
+   * externally, so we only ensure the user's home folder exists and apply the runtime-to-logical
+   * role mappings from the manifest.
+   *
+   * @param username the schedule owner username
+   * @param manifest the export manifest containing user and role information
+   * @param handler  the active import handler
+   * @return true if the owner was handled successfully, false otherwise
+   */
+  public boolean importScheduleOwnerUser( String username, ExportManifest manifest, SolutionImportHandler handler ) {
+    ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+    String provider = systemConfig != null
+        ? systemConfig.getProperty( "security.provider", "jackrabbit" ) : "jackrabbit";
+
+    if ( provider.equalsIgnoreCase( "jackrabbit" ) ) {
+      return importUserAndRole( username, manifest, handler );
+    }
+
+    // External authentication provider: skip user/role creation.
+    if ( handler.isPerformingRestore() ) {
+      handler.getLogger().debug( "Authentication is external - skipping creation of schedule owner [ " + username
+          + " ]; ensuring home folder and applying role mappings only" );
+    }
+    try {
+      ITenant tenant = new Tenant( "/pentaho/" + TenantUtils.getDefaultTenant(), true );
+      ITenantManager tenantManager = PentahoSystem.get( ITenantManager.class );
+      if ( tenantManager != null ) {
+        tenantManager.createUserHomeFolder( tenant, username );
+        if ( handler.isPerformingRestore() ) {
+          handler.getLogger().debug( "Verified/created home folder for external user [ " + username + " ]" );
+        }
+      }
+    } catch ( Exception e ) {
+      // Don't fail if home folder creation has issues
+      if ( handler.isPerformingRestore() ) {
+        handler.getLogger().debug( "Could not verify home folder for external user [ " + username + " ]: " + e.getMessage() );
+      }
+    }
+
+    // Apply the runtime-to-logical role mappings from the manifest (role objects are external).
+    if ( manifest != null ) {
+      importRoleBindings( manifest.getRoleExports(), handler );
+    }
+    return true;
   }
 
   /**

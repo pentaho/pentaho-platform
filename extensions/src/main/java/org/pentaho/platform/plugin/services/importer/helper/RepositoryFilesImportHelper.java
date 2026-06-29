@@ -119,6 +119,7 @@ public class RepositoryFilesImportHelper implements IImportHelper {
       solutionImportHandler.getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_COUNT_FILEFOLDER", solutionImportHandler.getFiles().size() ) );
     }
     int successfulFilesImportCount = 0;
+    int skippedGeneratedContentCount = 0;
     String manifestVersion = null;
     if ( manifest != null ) {
       manifestVersion = manifest.getManifestInformation().getManifestVersion();
@@ -256,6 +257,7 @@ bundleBuilder.input( bundleInputStream );
         }
         
         if ( isFileAGC ) {
+          skippedGeneratedContentCount++;
           if ( solutionImportHandler.isPerformingRestore() ) {
             solutionImportHandler.getLogger().debug( "Skipping generated content file during restore: " + sourcePath
               + " (identified via " + gcSource + ")" );
@@ -335,6 +337,10 @@ bundleBuilder.input( bundleInputStream );
       solutionImportHandler.getLogger().info( Messages.getInstance().getString(
         "SolutionImportHandler.INFO_SUCCESSFUL_REPOSITORY_IMPORT_COUNT", successfulFilesImportCount
           + successfulLocaleFilesProcessed, solutionImportHandler.getFiles().size() ) );
+      if ( skippedGeneratedContentCount > 0 ) {
+        solutionImportHandler.getLogger().info( "Excluded " + skippedGeneratedContentCount
+          + " generated content file(s) during restore (include-generated-content=false)" );
+      }
       solutionImportHandler.getLogger().info( Messages.getInstance().getString( "SolutionImportHandler.INFO_END_IMPORT_FILEFOLDER" ) );
     }
   }

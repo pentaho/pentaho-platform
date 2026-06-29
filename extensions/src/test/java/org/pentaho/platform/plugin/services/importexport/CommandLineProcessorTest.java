@@ -141,17 +141,35 @@ public class CommandLineProcessorTest extends Assert {
 
   @Test
   public void get002PrintHelpTest() throws IllegalAccessException {
-    CommandLineProcessor.printHelp();
-
-    String help = CONSOLE_BUFFER.toString();
-
     Options options = (Options) FieldUtils.readDeclaredStaticField( CommandLineProcessor.class, "options", true );
     @SuppressWarnings( "unchecked" )
+    java.util.Set<String> advancedKeys =
+        (java.util.Set<String>) FieldUtils.readDeclaredStaticField( CommandLineProcessor.class, "ADVANCED_OPTION_KEYS", true );
+    @SuppressWarnings( "unchecked" )
     Collection<Option> optionCollection = options.getOptions();
+
+    // Default help lists the common options but hides the advanced per-component
+    // backup/restore flags (those are shown only with --help-advanced).
+    CommandLineProcessor.printHelp();
+    String defaultHelp = CONSOLE_BUFFER.toString();
     for ( Option option : optionCollection ) {
-      if ( !help.contains( "-" + option.getOpt() ) ) {
-        fail();
+      String longToken = option.getLongOpt() != null ? "--" + option.getLongOpt() : "-" + option.getOpt();
+      if ( advancedKeys.contains( option.getOpt() ) ) {
+        assertFalse( "Advanced option " + longToken + " must be hidden from the default help",
+            defaultHelp.contains( longToken ) );
+      } else {
+        assertTrue( "Option -" + option.getOpt() + " must appear in the default help",
+            defaultHelp.contains( "-" + option.getOpt() ) );
       }
+    }
+
+    // Advanced help (--help-advanced) lists every option, including the advanced ones.
+    CONSOLE_BUFFER.reset();
+    CommandLineProcessor.printHelp( true );
+    String advancedHelp = CONSOLE_BUFFER.toString();
+    for ( Option option : optionCollection ) {
+      assertTrue( "Option -" + option.getOpt() + " must appear in the advanced help",
+          advancedHelp.contains( "-" + option.getOpt() ) );
     }
   }
 
@@ -229,6 +247,58 @@ public class CommandLineProcessorTest extends Assert {
     } catch ( ParseException e ) {
       // expected
     }
+  }
+
+  @Test
+  public void get005ConfigFileDefaultsTest() throws Exception {
+    depensOnConstructor();
+
+    File config = File.createTempFile( "CommandLineProcessorConfig", ".properties" );
+    try {
+      FileUtils.writeStringToFile( config,
+          "username=configUser\n"
+              + "url=http://config-host:8080/pentaho\n"
+              + "logLevel=DEBUG\n",
+          java.nio.charset.StandardCharsets.UTF_8 );
+
+      // Value supplied on the command line wins over the config file.
+      CommandLineProcessor cliWins = new CommandLineProcessor( new String[] {
+        getOption( "-", "i" ),
+        "--config=" + config.getAbsolutePath(),
+        "--username=cliUser" } );
+      assertEquals( "cliUser", cliWins.getOptionValue( "username", true, false ) );
+
+      // Missing on the command line -> value falls back to the config file.
+      CommandLineProcessor configWins = new CommandLineProcessor( new String[] {
+        getOption( "-", "i" ),
+        "--config=" + config.getAbsolutePath() } );
+      assertEquals( "configUser", configWins.getOptionValue( "username", true, false ) );
+      assertEquals( "http://config-host:8080/pentaho", configWins.getOptionValue( "url", true, false ) );
+      assertEquals( "DEBUG", configWins.getOptionValue( "logLevel", false, true ) );
+
+      // Keys absent from both CLI and config still resolve to null.
+      assertNull( configWins.getOptionValue( "password", false, true ) );
+    } finally {
+      config.delete();
+    }
+  }
+
+  @Test
+  public void get006MissingConfigFileWarnsButDoesNotFailTest() throws Exception {
+    depensOnConstructor();
+
+    String missingPath = new File( System.getProperty( "java.io.tmpdir" ),
+        "pex-no-such-config-" + System.nanoTime() + ".properties" ).getAbsolutePath();
+
+    // An explicitly named but missing config file must not break construction;
+    // option resolution simply falls through to its normal (null) result.
+    CommandLineProcessor clp = new CommandLineProcessor( new String[] {
+      getOption( "-", "i" ),
+      "--config=" + missingPath,
+      "--username=cliUser" } );
+
+    assertEquals( "cliUser", clp.getOptionValue( "username", true, false ) );
+    assertNull( clp.getOptionValue( "url", false, true ) );
   }
 
   @Test

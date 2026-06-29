@@ -725,4 +725,26 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       return false;
     }
   }
+
+  /**
+   * Import a schedule owner user by delegating to UsersAndRolesImportHelper.
+   * <p>
+   * For the internal (jackrabbit) provider this creates the user, home folder and roles. For an
+   * external authentication provider (jdbc/ldap) the user and role objects are managed externally,
+   * so only the user's home folder is ensured and the runtime-to-logical role mappings from the
+   * manifest are applied.
+   *
+   * @param username the username of the schedule owner to import
+   * @param manifest the export manifest containing user and role information
+   * @return true if the owner was handled successfully or already exists, false otherwise
+   */
+  public boolean importScheduleOwnerUser( String username, ExportManifest manifest ) {
+    UsersAndRolesImportHelper helper = getUsersAndRolesImportHelper();
+    if ( helper != null ) {
+      return helper.importScheduleOwnerUser( username, manifest, this );
+    } else {
+      getLogger().warn( "UsersAndRolesImportHelper not available - cannot import schedule owner user [ " + username + " ]" );
+      return false;
+    }
+  }
 }
