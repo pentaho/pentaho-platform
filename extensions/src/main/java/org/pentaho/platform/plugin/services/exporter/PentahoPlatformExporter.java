@@ -53,12 +53,18 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class PentahoPlatformExporter extends ZipExportProcessor implements IPentahoPlatformExporter {
 
   private static final Logger log = LoggerFactory.getLogger( PentahoPlatformExporter.class );
+
+  // Serializes exports across the whole JVM. The exporter is a Spring singleton with
+  // mutable per-export state (zos, exportManifest, counters); two concurrent backups
+  // sharing it would corrupt each other's ZIP stream ("no current ZIP entry").
+  private static final ReentrantLock EXPORT_LOCK = new ReentrantLock();
 
   public static final String ROOT = "/";
   public static final String DATA_SOURCES_PATH_IN_ZIP = "_datasources/";
@@ -252,6 +258,11 @@ public class PentahoPlatformExporter extends ZipExportProcessor implements IPent
   @Override
   public File performExport( RepositoryFile exportRepositoryFile ) throws ExportException, IOException {
 
+    // Only one export may run at a time; concurrent backups would corrupt the shared
+    // ZIP stream and manifest. Other exports queue here until this one completes.
+    EXPORT_LOCK.lock();
+    try {
+
     // Initialize component config if not set (backward compatibility)
     if ( componentConfig == null ) {
       componentConfig = ComponentConfig.fullSystem();
@@ -379,6 +390,9 @@ public class PentahoPlatformExporter extends ZipExportProcessor implements IPent
     getRepositoryExportLogger().info( Messages.getInstance().getString( "PentahoPlatformExporter.INFO_END_EXPORT_PROCESS" ) );
 
     return exportFile;
+    } finally {
+      EXPORT_LOCK.unlock();
+    }
   }
 
   public boolean parseXmlaEnabled( String dataSourceInfo ) {
