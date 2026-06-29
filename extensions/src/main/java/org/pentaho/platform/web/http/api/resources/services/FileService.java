@@ -169,7 +169,11 @@ public class FileService {
         }
       }
       ByteArrayOutputStream exportLoggerSream = new ByteArrayOutputStream();
-      IPentahoPlatformExporter exporter = PentahoSystem.get( IPentahoPlatformExporter.class );
+      // Use the cached backup exporter so the same instance (and its logger) is used for
+      // both startJob() and performExport(). With the exporter bean scoped as prototype,
+      // a second PentahoSystem.get() would return a different instance whose logger has no
+      // job started for this thread, causing "No job started for current Thread".
+      IPentahoPlatformExporter exporter = getBackupExporter();
       if ( exporter == null ) {
         logger.error( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_PLATFORM_EXPORTER" ) );
         throw new ExportException( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_PLATFORM_EXPORTER" ) );
