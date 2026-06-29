@@ -209,7 +209,7 @@
 		</constructor-arg>
 	</bean>
 
-	<bean id="IPentahoPlatformExporter" class="org.pentaho.platform.plugin.services.exporter.PentahoPlatformExporter" scope="prototype">
+	<bean id="IPentahoPlatformExporter" class="org.pentaho.platform.plugin.services.exporter.PentahoPlatformExporter">
 		<constructor-arg ref="unifiedRepository"/>
 		<property name="repositoryExportLogger">
 			<bean class="org.pentaho.platform.plugin.services.importexport.Log4JRepositoryExportLogger" />
