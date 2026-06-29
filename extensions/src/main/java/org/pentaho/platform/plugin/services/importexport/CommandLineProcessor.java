@@ -34,6 +34,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.di.core.KettleClientEnvironment;
@@ -112,6 +113,12 @@ public class CommandLineProcessor {
 
   private static final Options options = new Options();
 
+  // Granular per-component backup/restore flags, hidden from the default --help (shown via --help-advanced).
+  // Profiles (--backup-profile / --restore-profile) are the headline interface; these refine for power users.
+  private static final java.util.Set<String> ADVANCED_OPTION_KEYS = new java.util.HashSet<>( java.util.Arrays.asList(
+      "bc", "bu", "bd", "bm", "bs", "bset", "bmo",
+      "rc", "ru", "rd", "rm", "rs", "rset", "rmo" ) );
+
   private static Exception exception;
 
   private static String errorMessage;
@@ -119,9 +126,14 @@ public class CommandLineProcessor {
   private final CommandLine commandLine;
 
   private final RequestType requestType;
+
+  // Default values for any option, loaded from an optional properties file.
+  private final Properties configProperties;
   private static final String DEFAULT_LOG_LEVEL = "INFO";
   private static final String INFO_OPTION_HELP_KEY = "h";
   private static final String INFO_OPTION_HELP_NAME = "help";
+  private static final String INFO_OPTION_HELP_ADVANCED_KEY = "ha";
+  private static final String INFO_OPTION_HELP_ADVANCED_NAME = "help-advanced";
   private static final String INFO_OPTION_IMPORT_KEY = "i";
   private static final String INFO_OPTION_IMPORT_NAME = "import";
   private static final String INFO_OPTION_EXPORT_KEY = "e";
@@ -176,6 +188,19 @@ public class CommandLineProcessor {
   private static final String INFO_OPTION_APPLY_ACL_SETTINGS_NAME = "applyAclSettings";
   private static final String INFO_OPTION_OVERWRITE_ACL_SETTINGS_KEY = "o_acl";
   private static final String INFO_OPTION_OVERWRITE_ACL_SETTINGS_NAME = "overwriteAclSettings";
+
+  // Optional properties file supplying default values for any other option.
+  private static final String INFO_OPTION_CONFIG_KEY = "cfg";
+  private static final String INFO_OPTION_CONFIG_NAME = "config";
+  // Environment variable that may point at a default config file.
+  private static final String ENV_CONFIG_PATH = "PENTAHO_IE_CONFIG";
+  // Default config file location used when neither --config nor the env var is set.
+  private static final String DEFAULT_CONFIG_RELATIVE_PATH = ".pentaho-backup/import-export.properties";
+  // Prefix for environment-variable fallback (e.g. --url -> PENTAHO_URL).
+  private static final String ENV_OPTION_PREFIX = "PENTAHO_";
+  // Dry run: resolve and print the effective command without executing it.
+  private static final String INFO_OPTION_DRY_RUN_KEY = "dry";
+  private static final String INFO_OPTION_DRY_RUN_NAME = "dry-run";
   
   // Selective backup/restore component flags
   private static final String INFO_OPTION_BACKUP_CONTENT_KEY = "bc";
@@ -244,9 +269,16 @@ public class CommandLineProcessor {
     clientConfig = new DefaultClientConfig();
     clientConfig.getFeatures().put( JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE );
 
+    // Stream large uploads (e.g. restore/import archives) in chunks instead of buffering the
+    // entire multipart request body in memory. Without this, posting a large .zip throws
+    // java.lang.OutOfMemoryError: Java heap space (Jersey's PosterOutputStream buffers it all).
+    clientConfig.getProperties().put( ClientConfig.PROPERTY_CHUNKED_ENCODING_SIZE, 1024 * 1024 );
+
     // create the Options
     options.addOption( INFO_OPTION_HELP_KEY, INFO_OPTION_HELP_NAME, false, Messages.getInstance()
         .getString( "CommandLineProcessor.INFO_OPTION_HELP_DESCRIPTION" ) );
+    options.addOption( INFO_OPTION_HELP_ADVANCED_KEY, INFO_OPTION_HELP_ADVANCED_NAME, false, Messages.getInstance()
+        .getString( "CommandLineProcessor.INFO_OPTION_HELP_ADVANCED_DESCRIPTION" ) );
 
     options.addOption( INFO_OPTION_IMPORT_KEY, INFO_OPTION_IMPORT_NAME, false, Messages.getInstance()
         .getString( "CommandLineProcessor.INFO_OPTION_IMPORT_DESCRIPTION" ) );
@@ -388,6 +420,15 @@ public class CommandLineProcessor {
     
     options.addOption( INFO_OPTION_STREAM_LOGS_KEY, INFO_OPTION_STREAM_LOGS_NAME, true, Messages.getInstance()
         .getString( "CommandLineProcessor.INFO_OPTION_STREAM_LOGS_DESCRIPTION" ) );
+
+    options.addOption( INFO_OPTION_CONFIG_KEY, INFO_OPTION_CONFIG_NAME, true,
+        "Optional path to a properties file providing default values for any option (e.g. url, "
+            + "username, password, logLevel). Precedence: command line > config file > PENTAHO_* "
+            + "environment variables. Defaults to ~/" + DEFAULT_CONFIG_RELATIVE_PATH + " when present." );
+
+    options.addOption( INFO_OPTION_DRY_RUN_KEY, INFO_OPTION_DRY_RUN_NAME, false,
+        "Resolve and print the effective command (command line > config file > PENTAHO_* environment) "
+            + "for the requested backup/restore/import/export and exit without executing it." );
   }
 
   /**
@@ -402,10 +443,17 @@ public class CommandLineProcessor {
       // reset the exception information
       exception = null;
 
+      // Dry run: print the fully-resolved command and exit without executing anything.
+      if ( commandLineProcessor.isDryRun()
+          && commandLineProcessor.getRequestType() != RequestType.HELP ) {
+        commandLineProcessor.printDryRun();
+        return;
+      }
+
       // new service only
       switch ( commandLineProcessor.getRequestType() ) {
         case HELP:
-          printHelp();
+          printHelp( commandLineProcessor.commandLine.hasOption( INFO_OPTION_HELP_ADVANCED_NAME ) );
           break;
 
         case IMPORT:
@@ -529,7 +577,10 @@ public class CommandLineProcessor {
   protected CommandLineProcessor( String[] args ) throws ParseException {
     // parse the command line arguments
     commandLine = new CmdParser().parse( options, args );
-    if ( commandLine.hasOption( INFO_OPTION_HELP_NAME ) || commandLine.hasOption( INFO_OPTION_HELP_KEY ) ) {
+    // load optional default values (config file) before resolving the request type
+    configProperties = loadConfigProperties( commandLine );
+    if ( commandLine.hasOption( INFO_OPTION_HELP_NAME ) || commandLine.hasOption( INFO_OPTION_HELP_KEY )
+        || commandLine.hasOption( INFO_OPTION_HELP_ADVANCED_NAME ) ) {
       requestType = RequestType.HELP;
     } else {
       if ( commandLine.hasOption( INFO_OPTION_REST_NAME ) || commandLine.hasOption( INFO_OPTION_REST_KEY ) ) {
@@ -1469,18 +1520,181 @@ public class CommandLineProcessor {
    */
   protected String getOptionValue( final String option, final boolean required, final boolean emptyOk )
       throws ParseException {
-    final String value = StringUtils.trim( commandLine.getOptionValue( option ) );
+    String value = StringUtils.removeStart( StringUtils.trim( commandLine.getOptionValue( option ) ), "=" );
+
+    // Fall back to the config file and then environment variables when the option
+    // was not supplied on the command line.
+    if ( StringUtils.isEmpty( value ) ) {
+      value = resolveDefaultValue( option );
+    }
 
     if ( StringUtils.isEmpty( value ) && ( required || !emptyOk ) ) {
       throw new ParseException( Messages.getInstance().getErrorString( "CommandLineProcessor.ERROR_0001_MISSING_ARG",
           option ) );
     }
 
-    return StringUtils.removeStart( value, "=" );
+    return value;
+  }
+
+  /**
+   * Loads the optional defaults properties file. The file location is resolved, in order, from:
+   * the {@code --config} option, the {@code PENTAHO_IE_CONFIG} environment variable, and finally a
+   * default of {@code ~/.pentaho-backup/import-export.properties} (only used when it exists).
+   *
+   * @param cmd the parsed command line
+   * @return the loaded properties (never {@code null}; empty when no file is found)
+   */
+  private static Properties loadConfigProperties( CommandLine cmd ) {
+    Properties props = new Properties();
+
+    String path = StringUtils.removeStart( StringUtils.trim( cmd.getOptionValue( INFO_OPTION_CONFIG_NAME ) ), "=" );
+    if ( StringUtils.isEmpty( path ) ) {
+      path = System.getenv( ENV_CONFIG_PATH );
+    }
+    boolean explicit = StringUtils.isNotEmpty( path );
+    if ( StringUtils.isEmpty( path ) ) {
+      String home = System.getProperty( "user.home" );
+      if ( StringUtils.isNotEmpty( home ) ) {
+        path = new File( home, DEFAULT_CONFIG_RELATIVE_PATH ).getAbsolutePath();
+      }
+    }
+
+    if ( StringUtils.isNotEmpty( path ) ) {
+      File file = new File( path );
+      if ( file.isFile() ) {
+        try ( InputStream in = Files.newInputStream( file.toPath() ) ) {
+          props.load( in );
+          System.out.println( "Loaded import/export defaults from: " + file.getAbsolutePath() );
+        } catch ( IOException e ) {
+          System.err.println( "Warning: could not read config file '" + path + "': " + e.getMessage() );
+        }
+      } else if ( explicit ) {
+        // Only warn when the user explicitly pointed at a file that is missing.
+        System.err.println( "Warning: config file not found: " + path );
+      }
+    }
+
+    return props;
+  }
+
+  /**
+   * Resolves a default value for the given option from the config file (keyed by the option's long
+   * name) and, failing that, from an environment variable named {@code PENTAHO_<OPTION>} where the
+   * option name is upper-cased and non-alphanumeric characters become underscores
+   * (e.g. {@code file-path} -&gt; {@code PENTAHO_FILE_PATH}).
+   *
+   * @param option the long option name
+   * @return the resolved value, or {@code null} when none is available
+   */
+  private String resolveDefaultValue( final String option ) {
+    if ( configProperties != null ) {
+      String fromConfig = configProperties.getProperty( option );
+      if ( StringUtils.isEmpty( fromConfig ) ) {
+        fromConfig = configProperties.getProperty( option.toLowerCase() );
+      }
+      if ( StringUtils.isNotEmpty( fromConfig ) ) {
+        return StringUtils.removeStart( StringUtils.trim( fromConfig ), "=" );
+      }
+    }
+
+    String envName = ENV_OPTION_PREFIX + option.toUpperCase().replaceAll( "[^A-Z0-9]", "_" );
+    String fromEnv = System.getenv( envName );
+    if ( StringUtils.isNotEmpty( fromEnv ) ) {
+      return StringUtils.removeStart( StringUtils.trim( fromEnv ), "=" );
+    }
+
+    return null;
   }
 
   public static String getErrorMessage() {
     return errorMessage;
+  }
+
+  /**
+   * Returns {@code true} when a dry run was requested ({@code -dry}/{@code --dry-run}). In that case
+   * the effective command is printed and nothing is executed.
+   */
+  boolean isDryRun() {
+    return commandLine.hasOption( INFO_OPTION_DRY_RUN_KEY ) || commandLine.hasOption( INFO_OPTION_DRY_RUN_NAME );
+  }
+
+  /**
+   * Prints the fully-resolved command for the requested operation: every option's effective value
+   * and where it came from (command line, config file, or {@code PENTAHO_*} environment variable),
+   * followed by a single copy-paste-ready command line. Nothing is executed. The password is masked.
+   */
+  void printDryRun() {
+    System.out.println();
+    System.out.println( "=== DRY RUN: no changes will be made ===" );
+    System.out.println( "Operation : " + requestType );
+    System.out.println( "Precedence: command line > config file > PENTAHO_* environment" );
+    System.out.println();
+
+    StringBuilder cmd = new StringBuilder( "import-export.sh" );
+    System.out.println( "Resolved options:" );
+
+    java.util.List<org.apache.commons.cli.Option> opts = new java.util.ArrayList<>();
+    for ( Object o : options.getOptions() ) {
+      opts.add( (org.apache.commons.cli.Option) o );
+    }
+    opts.sort( java.util.Comparator.comparing( o -> String.valueOf( o.getLongOpt() ) ) );
+
+    for ( org.apache.commons.cli.Option opt : opts ) {
+      String name = opt.getLongOpt();
+      if ( name == null || name.equals( INFO_OPTION_DRY_RUN_NAME ) || name.equals( INFO_OPTION_HELP_NAME )
+          || name.equals( INFO_OPTION_HELP_ADVANCED_NAME ) || name.equals( INFO_OPTION_CONFIG_NAME ) ) {
+        continue;
+      }
+
+      if ( opt.hasArg() ) {
+        String[] resolved = resolveWithSource( name );
+        String value = resolved[ 0 ];
+        String source = resolved[ 1 ];
+        if ( StringUtils.isNotEmpty( value ) ) {
+          boolean isPassword = name.equals( INFO_OPTION_PASSWORD_NAME );
+          String shown = isPassword ? "********" : value;
+          System.out.println( String.format( "  --%-26s = %-44s [%s]", name, shown, source ) );
+          cmd.append( " --" ).append( name ).append( "=" ).append( shown );
+        }
+      } else if ( commandLine.hasOption( name )
+          || ( opt.getOpt() != null && commandLine.hasOption( opt.getOpt() ) ) ) {
+        System.out.println( String.format( "  --%-26s   %-44s [cli]", name, "(flag)" ) );
+        cmd.append( " --" ).append( name );
+      }
+    }
+
+    System.out.println();
+    System.out.println( "Translated command (password masked):" );
+    System.out.println( "  " + cmd );
+    System.out.println();
+  }
+
+  /**
+   * Resolves an option value the same way {@link #getOptionValue} does (command line &gt; config
+   * file &gt; {@code PENTAHO_*} environment) but never throws, and reports the source. Returns
+   * {@code [value, source]} where value may be {@code null} and source is one of {@code cli},
+   * {@code config}, {@code env (NAME)}, or {@code none}.
+   */
+  private String[] resolveWithSource( String name ) {
+    String cli = StringUtils.removeStart( StringUtils.trim( commandLine.getOptionValue( name ) ), "=" );
+    if ( StringUtils.isNotEmpty( cli ) ) {
+      return new String[] { cli, "cli" };
+    }
+    if ( configProperties != null ) {
+      String fromConfig = configProperties.getProperty( name );
+      if ( StringUtils.isEmpty( fromConfig ) ) {
+        fromConfig = configProperties.getProperty( name.toLowerCase() );
+      }
+      if ( StringUtils.isNotEmpty( fromConfig ) ) {
+        return new String[] { StringUtils.removeStart( StringUtils.trim( fromConfig ), "=" ), "config" };
+      }
+    }
+    String envName = ENV_OPTION_PREFIX + name.toUpperCase().replaceAll( "[^A-Z0-9]", "_" );
+    String fromEnv = System.getenv( envName );
+    if ( StringUtils.isNotEmpty( fromEnv ) ) {
+      return new String[] { StringUtils.removeStart( StringUtils.trim( fromEnv ), "=" ), "env (" + envName + ")" };
+    }
+    return new String[] { null, "none" };
   }
 
   /**
@@ -1526,10 +1740,30 @@ public class CommandLineProcessor {
   }
 
   protected static void printHelp() {
+    printHelp( false );
+  }
+
+  protected static void printHelp( boolean advanced ) {
     HelpFormatter formatter = new HelpFormatter();
+    Options helpOptions;
+    if ( advanced ) {
+      helpOptions = options;
+    } else {
+      // Hide the granular per-component flags from the default help; profiles are the headline interface
+      helpOptions = new Options();
+      for ( Object o : options.getOptions() ) {
+        org.apache.commons.cli.Option opt = ( org.apache.commons.cli.Option ) o;
+        if ( !ADVANCED_OPTION_KEYS.contains( opt.getOpt() ) ) {
+          helpOptions.addOption( opt );
+        }
+      }
+    }
+    String footer = Messages.getInstance().getString( "CommandLineProcessor.INFO_PRINTHELP_FOOTER" );
+    if ( !advanced ) {
+      footer = footer + Messages.getInstance().getString( "CommandLineProcessor.INFO_PRINTHELP_ADVANCED_HINT" );
+    }
     formatter.printHelp( Messages.getInstance().getString( "CommandLineProcessor.INFO_PRINTHELP_CMDLINE" ), Messages
-        .getInstance().getString( "CommandLineProcessor.INFO_PRINTHELP_HEADER" ), options, Messages.getInstance()
-        .getString( "CommandLineProcessor.INFO_PRINTHELP_FOOTER" ) );
+        .getInstance().getString( "CommandLineProcessor.INFO_PRINTHELP_HEADER" ), helpOptions, footer );
   }
 
   /**
@@ -1554,7 +1788,7 @@ public class CommandLineProcessor {
   /**
    * Build ComponentConfig from command line options.
    * Supports two approaches:
-   * 1. Using a predefined profile: --backup-profile=CONTENT_ONLY|FULL_SYSTEM|SECURITY|DATA_SOURCE|INFRASTRUCTURE
+   * 1. Using a predefined profile: --backup-profile=CONTENT_ONLY|FULL_SYSTEM|SECURITY|DATA_SOURCE|SCHEDULES|SETTINGS
    * 2. Using individual component flags: --backup-content=true --backup-users=true etc.
    *
    * @return ComponentConfig if any components are selected, null if using full system backup
@@ -1607,7 +1841,7 @@ public class CommandLineProcessor {
   /**
    * Build ComponentConfig from a predefined profile
    *
-   * @param profile Profile name (FULL_SYSTEM, CONTENT_ONLY, SECURITY, DATA_SOURCE, SCHEDULES, SETTINGS, INFRASTRUCTURE)
+   * @param profile Profile name (FULL_SYSTEM, CONTENT_ONLY, SECURITY, DATA_SOURCE, SCHEDULES, SETTINGS)
    * @return ComponentConfig based on profile
    */
   private ComponentConfig buildProfileBasedConfig( String profile ) {
@@ -1631,12 +1865,9 @@ public class CommandLineProcessor {
       case "SETTINGS":
         config = ComponentConfig.settings();
         break;
-      case "INFRASTRUCTURE":
-        config = ComponentConfig.infrastructure();
-        break;
       default:
         System.err.println( "Unknown backup profile: " + profile +
-            ". Valid profiles: FULL_SYSTEM, CONTENT_ONLY, SECURITY, DATA_SOURCE, SCHEDULES, SETTINGS, INFRASTRUCTURE" );
+            ". Valid profiles: FULL_SYSTEM, CONTENT_ONLY, SECURITY, DATA_SOURCE, SCHEDULES, SETTINGS" );
         return null;
     }
     return config;

@@ -128,17 +128,6 @@ public class SelectiveBackupIntegrationTest {
   }
 
   @Test
-  public void testInfrastructureBackupProfile() {
-    ComponentConfig config = ComponentConfig.infrastructure();
-    exporter.setComponentConfig( config );
-
-    Object retrievedConfig = exporter.getComponentConfig();
-    assertNotNull( retrievedConfig );
-    assertTrue( ( ( ComponentConfig ) retrievedConfig ).isIncludeSchedules() );
-    assertTrue( ( ( ComponentConfig ) retrievedConfig ).isIncludeUserSettings() );
-  }
-
-  @Test
   public void testComponentCountCalculation() {
     ComponentConfig config = ComponentConfig.fullSystem();
     assertTrue( config.getComponentCount() == 7 );

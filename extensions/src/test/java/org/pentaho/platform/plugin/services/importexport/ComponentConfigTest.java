@@ -92,22 +92,6 @@ public class ComponentConfigTest {
   }
 
   @Test
-  public void testInfrastructureBackup() {
-    ComponentConfig config = ComponentConfig.infrastructure();
-
-    assertFalse( config.isIncludeContent() );
-    assertFalse( config.isIncludeUsers() );
-    assertFalse( config.isIncludeDatasources() );
-    assertFalse( config.isIncludeMetastore() );
-    assertTrue( config.isIncludeSchedules() );
-    assertTrue( config.isIncludeUserSettings() );
-    assertFalse( config.isIncludeMondrian() );
-
-    assertTrue( config.isValid() );
-    assertEquals( 2, config.getComponentCount() );
-  }
-
-  @Test
   public void testCustomConfiguration() {
     ComponentConfig config = new ComponentConfig( "Custom Backup" );
     config.setIncludeContent( true );

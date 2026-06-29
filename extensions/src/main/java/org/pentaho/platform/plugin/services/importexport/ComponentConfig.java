@@ -209,23 +209,6 @@ public class ComponentConfig implements Serializable {
   }
 
   /**
-   * Infrastructure backup - schedules and settings (deprecated, use schedules() or settings() instead)
-   */
-  @Deprecated
-  public static ComponentConfig infrastructure() {
-    ComponentConfig config = new ComponentConfig( "Infrastructure Backup" );
-    config.includeContent = false;
-    config.includeUsers = false;
-    config.includeDatasources = false;
-    config.includeMetastore = false;
-    config.includeSchedules = true;
-    config.includeUserSettings = true;
-    config.includeMondrian = false;
-    config.includeGeneratedContent = false; // N/A for infrastructure
-    return config;
-  }
-
-  /**
    * Validate backup configuration
    */
   @JsonIgnore
