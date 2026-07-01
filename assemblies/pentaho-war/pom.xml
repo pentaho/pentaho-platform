@@ -991,6 +991,23 @@
       <artifactId>activation</artifactId>
       <version>1.1</version>
     </dependency>
+<<<<<<< Updated upstream
+=======
+
+    <!-- Temporary added until solution for PPP-6546 is in the build -->
+    <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
+      <version>1.9</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+>>>>>>> Stashed changes
   </dependencies>
   <build>
     <plugins>
@@ -1146,6 +1163,36 @@
             <configuration>
               <target>
                 <copy file="${project.build.directory}/webjars/META-INF/resources/webjars/jquery/${jquery.version}/dist/jquery.min.js" todir="${project.build.directory}/pentaho-server/tomcat/webapps/pentaho/docs/" />
+              </target>
+            </configuration>
+          </execution>
+          <execution>
+            <!--
+              gremlin-shaded relocates Jackson to org.apache.tinkerpop.shaded.jackson, but the
+              jar still ships Maven provenance metadata (META-INF/maven/com.fasterxml.jackson.core/**)
+              declaring jackson-databind 2.15.2, which security scanners flag (CVE-2023-35116 etc.).
+              Strip it from the staged webapp lib after the war is assembled (this antrun plugin is
+              declared after maven-war-plugin, so its package execution runs last). Safe at runtime:
+              the metadata is informational and MRJAR class variants fall back to the base relocated
+              classes. Requires 'zip' on PATH.
+            -->
+            <id>strip-gremlin-shaded-jackson-metadata</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <apply executable="zip" failonerror="false" relative="false">
+                  <arg value="-q"/>
+                  <arg value="-d"/>
+                  <srcfile/>
+                  <arg value="META-INF/maven/com.fasterxml.jackson.core*"/>
+                  <arg value="META-INF/versions/*/com/fasterxml*"/>
+                  <fileset dir="${prepared.war.lib.directory}">
+                    <include name="gremlin-shaded-*.jar"/>
+                  </fileset>
+                </apply>
               </target>
             </configuration>
           </execution>
