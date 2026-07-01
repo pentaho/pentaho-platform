@@ -31,6 +31,7 @@ public class ActionInvokeStatus implements IActionInvokeStatus {
 
   public void setThrowable( final Throwable throwable ) {
     this.throwable = throwable;
+    
   }
 
   public Throwable getThrowable() {
