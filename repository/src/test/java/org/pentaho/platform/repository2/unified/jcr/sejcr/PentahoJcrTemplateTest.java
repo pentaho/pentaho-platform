@@ -41,6 +41,7 @@ public class PentahoJcrTemplateTest {
 
   private AtomicInteger usedUsageCount = new AtomicInteger( 0 );
   private AtomicInteger releasedUsageCount = new AtomicInteger( 0 );
+  private AtomicInteger factoryProtectionUsageCount = new AtomicInteger( 0 );
 
   @Mock private SessionFactory sessionFactory;
   @Mock private Session session;
@@ -49,9 +50,12 @@ public class PentahoJcrTemplateTest {
 
   @Before public void before() throws RepositoryException {
     when( sessionFactory.getSession() ).thenReturn( session );
-    // using two AtomicIntegers to independently check the "use" vs. "release" counts.
+    // Now with factory protection decrement, getAttribute is called 3 times per execute():
+    // 1. useSession() - increments
+    // 2. releaseSession() - decrements  
+    // 3. decrementFactoryProtection() - decrements (factory protection release)
     when( session.getAttribute( USAGE_COUNT ) )
-      .thenReturn( usedUsageCount, releasedUsageCount );
+      .thenReturn( usedUsageCount, releasedUsageCount, factoryProtectionUsageCount );
     jcrTemplate.setSessionFactory( sessionFactory );
     jcrTemplate.setAllowCreate( true );
   }
@@ -63,20 +67,25 @@ public class PentahoJcrTemplateTest {
     jcrTemplate.execute( action, true );
 
     verify( action ).doInJcr( session );
-    verify( session, times( 2 ) ).getAttribute( USAGE_COUNT );
+    // Now with factory protection: useSession (1 call) + releaseSession (1 call) + decrementFactoryProtection (1 call) = 3 total
+    verify( session, times( 3 ) ).getAttribute( USAGE_COUNT );
 
     assertThat( "first usage increments", usedUsageCount.get(), equalTo( 1 ) );
     assertThat( "second usage decrements", releasedUsageCount.get(), equalTo( -1 ) );
+    assertThat( "third factory protection decrements", factoryProtectionUsageCount.get(), equalTo( -1 ) );
   }
 
   @Test
   public void executeUpdatesUsageCountNestedExec() throws IOException, RepositoryException {
     jcrTemplate.setSessionFactory( sessionFactory );
 
-    // the session will be used 2 times,
-    // then released two times.
+    // With factory protection: each execute() calls getAttribute 3 times
+    // Outer execute: 3 calls (use, release, factory-release)
+    // Inner execute: 3 calls (use, release, factory-release)
+    // Total: 6 getAttribute calls
     when( session.getAttribute( USAGE_COUNT ) )
-      .thenReturn( usedUsageCount, usedUsageCount, releasedUsageCount, releasedUsageCount );
+      .thenReturn( usedUsageCount, usedUsageCount, releasedUsageCount, 
+                   releasedUsageCount, factoryProtectionUsageCount, factoryProtectionUsageCount );
 
     when( action.doInJcr( session ) )
       .thenAnswer( s -> {
@@ -88,9 +97,11 @@ public class PentahoJcrTemplateTest {
 
     verify( action ).doInJcr( session );
     verify( nestedAction ).doInJcr( session );
-    verify( session, times( 4 ) ).getAttribute( USAGE_COUNT );
-    assertThat( "first usage increments", usedUsageCount.get(), equalTo( 2 ) );
-    assertThat( "second usage decrements", releasedUsageCount.get(), equalTo( -2 ) );
+    // 6 calls: outer execute (3) + inner execute (3)
+    verify( session, times( 6 ) ).getAttribute( USAGE_COUNT );
+    assertThat( "first usage increments twice (nested)", usedUsageCount.get(), equalTo( 2 ) );
+    assertThat( "second usage decrements twice (nested)", releasedUsageCount.get(), equalTo( -2 ) );
+    assertThat( "third factory protection decrements twice (nested)", factoryProtectionUsageCount.get(), equalTo( -2 ) );
   }
 
 }
