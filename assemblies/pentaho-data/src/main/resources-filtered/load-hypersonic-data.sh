@@ -14,7 +14,7 @@
 
 ### ====================================================================== ###
 ##                                                                          ##
-##  HSQLDB Start Script                                                     ##
+##  HSQLDB Load Data Script                                                ##
 ##                                                                          ##
 ### ====================================================================== ###
 
@@ -34,9 +34,8 @@ THE_CLASSPATH=
 
 # Check if lib directory exists
 if [ ! -d "$DIR_REL/lib" ]; then
-  echo "Warning: lib directory not found at $DIR_REL/lib"
+  echo "Error: lib directory not found at $DIR_REL/lib"
   echo "This script should be run from the assembled package"
-  echo "Please build the project with: mvn clean install"
   exit 1
 fi
 
@@ -56,44 +55,34 @@ fi
 
 echo "classpath is $THE_CLASSPATH"
 
-echo "Starting HSQLDB Server..."
-"$_PENTAHO_JAVA" -cp "$THE_CLASSPATH" org.hsqldb.Server -database.0 mem:sampledata -dbname.0 sampledata -database.1 mem:hibernate -dbname.1 hibernate -database.2 mem:quartz -dbname.2 quartz -port 9001 &
-
-SERVER_PID=$!
-echo "Server started with PID: $SERVER_PID"
-
-# Wait for server to be ready
-echo "Waiting for server to start..."
-sleep 5
-
-# Load data in background so it doesn't block the server
-(
+# Load sampledata script
 echo "Loading sampledata..."
 "$_PENTAHO_JAVA" -cp "$THE_CLASSPATH" org.hsqldb.cmdline.SqlTool --autoCommit --inlineRc=url=jdbc:hsqldb:hsql://localhost:9001/sampledata,user=SA,password= "$DIR_REL"/../data/hsqldb/sampledata.script
+
 if [ $? -eq 0 ]; then
   echo "Sampledata loaded successfully"
 else
   echo "Error loading sampledata"
 fi
 
+# Load hibernate script
 echo "Loading hibernate..."
 "$_PENTAHO_JAVA" -cp "$THE_CLASSPATH" org.hsqldb.cmdline.SqlTool --autoCommit --inlineRc=url=jdbc:hsqldb:hsql://localhost:9001/hibernate,user=SA,password= "$DIR_REL"/../data/hsqldb/hibernate.script
+
 if [ $? -eq 0 ]; then
   echo "Hibernate loaded successfully"
 else
   echo "Warning: Error loading hibernate (optional)"
 fi
 
+# Load quartz script
 echo "Loading quartz..."
 "$_PENTAHO_JAVA" -cp "$THE_CLASSPATH" org.hsqldb.cmdline.SqlTool --autoCommit --inlineRc=url=jdbc:hsqldb:hsql://localhost:9001/quartz,user=SA,password= "$DIR_REL"/../data/hsqldb/quartz.script
+
 if [ $? -eq 0 ]; then
   echo "Quartz loaded successfully"
 else
   echo "Warning: Error loading quartz (optional)"
 fi
-) &
 
-echo "Server started. Data loading in background..."
-
-# Keep the server running
-wait $SERVER_PID
+echo "Data loading complete"

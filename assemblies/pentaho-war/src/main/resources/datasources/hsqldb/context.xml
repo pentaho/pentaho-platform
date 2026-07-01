@@ -3,20 +3,20 @@
 	<Resource name="jdbc/Hibernate" auth="Container" type="javax.sql.DataSource"
 		factory="org.pentaho.di.core.database.util.DecryptingDataSourceFactory" maxActive="20" minIdle="0" maxIdle="5" initialSize="0"
 		maxWait="10000" username="hibuser" password="password"
-		driverClassName="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:hsql://localhost/hibernate"
+		driverClassName="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:hibernate"
 		validationQuery="select count(*) from INFORMATION_SCHEMA.SYSTEM_SEQUENCES" />
 		
 	<Resource name="jdbc/Quartz" auth="Container" type="javax.sql.DataSource"
 		factory="org.pentaho.di.core.database.util.DecryptingDataSourceFactory" maxActive="20" minIdle="0" maxIdle="5" initialSize="0"
 		maxWait="10000" username="pentaho_user" password="password" testOnBorrow="true"
-		driverClassName="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:hsql://localhost/quartz"
+		driverClassName="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:quartz"
 		validationQuery="select count(*) from INFORMATION_SCHEMA.SYSTEM_SEQUENCES"/>
 
 	<Resource name="jdbc/jackrabbit" auth="Container" type="javax.sql.DataSource"
 		factory="org.pentaho.di.core.database.util.DecryptingDataSourceFactory" maxActive="20" minIdle="0"
 		maxIdle="5" initialSize="0"
 		maxWait="10000" username="jcr_user" password="password"
-		driverClassName="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:hsql://localhost/jackrabbit"
+		driverClassName="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:jackrabbit"
 		validationQuery="select 1"/>
 
 </Context>
