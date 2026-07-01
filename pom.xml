@@ -78,7 +78,7 @@
     <jaybird.version>2.1.6</jaybird.version>
     <resolver.version>20050927</resolver.version>
     <commons-collections.version>3.2.2</commons-collections.version>
-    <commons-jxpath.version>1.2</commons-jxpath.version>
+    <commons-jxpath.version>1.4.0</commons-jxpath.version>
     <maven-surefire-plugin.reuseForks>false</maven-surefire-plugin.reuseForks>
     <sapdbc.version>7.4.4</sapdbc.version>
     <jcr.version>2.0</jcr.version>
