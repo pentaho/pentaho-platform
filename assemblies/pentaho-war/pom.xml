@@ -991,23 +991,6 @@
       <artifactId>activation</artifactId>
       <version>1.1</version>
     </dependency>
-<<<<<<< Updated upstream
-=======
-
-    <!-- Temporary added until solution for PPP-6546 is in the build -->
-    <dependency>
-      <groupId>commons-configuration</groupId>
-      <artifactId>commons-configuration</artifactId>
-      <version>1.9</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
->>>>>>> Stashed changes
   </dependencies>
   <build>
     <plugins>
