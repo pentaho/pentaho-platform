@@ -152,6 +152,20 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
         }
 
         session.refresh( false );
+        
+        // Increment usage count to track factory retrieval
+        // This must be decremented by PentahoJcrTemplate.decrementFactoryProtection()
+        // to maintain balanced reference counting and prevent premature cache eviction
+        Object usageCount = session.getAttribute( USAGE_COUNT );
+        if ( usageCount instanceof AtomicInteger ) {
+          int newCount = ( (AtomicInteger) usageCount ).incrementAndGet();
+          if ( logger.isDebugEnabled() ) {
+            logger.debug( "[JCR-FACTORY-RETRIEVE] Thread=" + Thread.currentThread().getName()
+              + " SessionId=" + System.identityHashCode( session )
+              + " RefCount=" + newCount
+              + " User=" + ( (SimpleCredentials) creds ).getUserID() );
+          }
+        }
 
       } catch ( Exception e ) {
         logger.error( "Error obtaining session from cache. Creating one directly instead: " + creds, e );
