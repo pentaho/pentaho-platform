@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importer;
 
@@ -50,7 +51,7 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
     String fileName = importBundle.getName();
 
     String filePath =
-      ( importBundle.getPath().equals( "/" ) || importBundle.getPath().equals( "\\" ) ) ? "" : importBundle.getPath();
+        ( importBundle.getPath().equals( "/" ) || importBundle.getPath().equals( "\\" ) ) ? "" : importBundle.getPath();
 
     // If is locale file store it for later processing.
     // need to extract this from meta.xml
@@ -75,7 +76,7 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
   }
 
   private void fillLocaleEntry( LocaleFilesProcessor localeFilesProcessor, DocumentMetaData metaData, String filePath,
-      String fileName, RepositoryFile rf ) throws IOException {
+                                String fileName, RepositoryFile rf ) throws IOException {
     String description =
         (String) metaData.getBundleAttribute( ODFMetaAttributeNames.DublinCore.NAMESPACE, ODFMetaAttributeNames.DublinCore.DESCRIPTION );
     if ( StringUtils.isEmpty( description, true ) ) {
@@ -94,9 +95,10 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
 
   // keep it protected for test goal, we should not add any logic for this method such we just
   // incapsulate getting information from external class
+
   /**
    * extract metadata from input bundle
-   * 
+   *
    * @param bytes
    * @return
    * @throws PlatformImportException if we are failed to create metadata from input data

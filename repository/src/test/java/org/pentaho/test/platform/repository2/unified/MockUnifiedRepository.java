@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.test.platform.repository2.unified;
 
@@ -40,8 +41,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;

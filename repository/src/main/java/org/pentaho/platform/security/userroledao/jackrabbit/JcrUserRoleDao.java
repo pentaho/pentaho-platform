@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.security.userroledao.jackrabbit;
 
@@ -16,6 +17,7 @@ import org.apache.jackrabbit.api.security.user.AuthorizableExistsException;
 import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.NameFactory;
 import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
+import org.pentaho.platform.api.engine.security.authorization.caching.IAuthorizationDecisionCache;
 import org.pentaho.platform.api.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -51,14 +53,25 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
   JcrTemplate adminJcrTemplate;
 
   public JcrUserRoleDao( JcrTemplate adminJcrTemplate, ITenantedPrincipleNameResolver userNameUtils,
+                         ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName,
+                         String repositoryAdminUsername, IRepositoryFileAclDao repositoryFileAclDao, IRepositoryFileDao repositoryFileDao,
+                         IPathConversionHelper pathConversionHelper, ILockHelper lockHelper,
+                         IRepositoryDefaultAclHandler defaultAclHandler, final List<String> systemRoles, final List<String> extraRoles,
+                         UserCache userCache ) throws NamespaceException {
+    this( adminJcrTemplate, userNameUtils, roleNameUtils, authenticatedRoleName, tenantAdminRoleName, repositoryAdminUsername,
+      repositoryFileAclDao, repositoryFileDao, pathConversionHelper, lockHelper, defaultAclHandler, systemRoles,
+      extraRoles, userCache, null );
+  }
+
+  public JcrUserRoleDao( JcrTemplate adminJcrTemplate, ITenantedPrincipleNameResolver userNameUtils,
       ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName,
       String repositoryAdminUsername, IRepositoryFileAclDao repositoryFileAclDao, IRepositoryFileDao repositoryFileDao,
       IPathConversionHelper pathConversionHelper, ILockHelper lockHelper,
       IRepositoryDefaultAclHandler defaultAclHandler, final List<String> systemRoles, final List<String> extraRoles,
-      UserCache userCache ) throws NamespaceException {
+      UserCache userCache, IAuthorizationDecisionCache decisionCache ) throws NamespaceException {
     super( userNameUtils, roleNameUtils, authenticatedRoleName, tenantAdminRoleName, repositoryAdminUsername,
         repositoryFileAclDao, repositoryFileDao, pathConversionHelper, lockHelper, defaultAclHandler, systemRoles,
-        extraRoles, userCache );
+        extraRoles, userCache, decisionCache );
     this.adminJcrTemplate = adminJcrTemplate;
   }
 

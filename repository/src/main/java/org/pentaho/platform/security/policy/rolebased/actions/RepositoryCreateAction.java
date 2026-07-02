@@ -7,28 +7,19 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
 
 package org.pentaho.platform.security.policy.rolebased.actions;
 
-import java.util.ResourceBundle;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
-/**
- * User: nbaker Date: 3/19/13
- */
-public class RepositoryCreateAction extends AbstractAuthorizationAction {
+public class RepositoryCreateAction extends AbstractLocalizedAuthorizationAction {
   public static final String NAME = "org.pentaho.repository.create";
-  ResourceBundle resourceBundle;
 
+  @NonNull
   @Override
   public String getName() {
     return NAME;
-  }
-
-  @Override
-  public String getLocalizedDisplayName( String localeString ) {
-    resourceBundle = getResourceBundle( localeString );
-    return resourceBundle.getString( NAME );
   }
 }

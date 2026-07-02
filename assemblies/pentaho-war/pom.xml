@@ -5,37 +5,37 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>10.3.0.0-SNAPSHOT</version>
+    <version>11.1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>pentaho-war</artifactId>
-  <version>10.3.0.0-SNAPSHOT</version>
+  <version>11.1.0.0-SNAPSHOT</version>
   <packaging>war</packaging>
   <properties>
     <rdbms>hsqldb</rdbms>
-    <commons-database.version>10.3.0.0-SNAPSHOT</commons-database.version>
+    <commons-database.version>11.1.0.0-SNAPSHOT</commons-database.version>
     <prepared.war.directory>${pentaho-server.directory}/tomcat/webapps/pentaho</prepared.war.directory>
-    <pentaho-hadoop-shims.version>10.3.0.0-SNAPSHOT</pentaho-hadoop-shims.version>
+    <pentaho-hadoop-shims.version>11.1.0.0-SNAPSHOT</pentaho-hadoop-shims.version>
     <prepared.war.lib.directory>${prepared.war.directory}/WEB-INF/lib</prepared.war.lib.directory>
     <datasource.resources.directory>${basedir}/src/main/resources/datasources</datasource.resources.directory>
-    <hibernate-ehcache.version>5.4.24.Final</hibernate-ehcache.version>
     <maven-resources-plugin.version>3.0.1</maven-resources-plugin.version>
     <jcommon-xml.version>1.0.12</jcommon-xml.version>
     <package.resources.directory>${basedir}/src/main/webapp</package.resources.directory>
     <replacer.version>1.5.2</replacer.version>
     <rxjava.version>2.2.3</rxjava.version>
     <google-http-client.version>1.42.3</google-http-client.version>
-    <big-data-plugin.version>10.3.0.0-SNAPSHOT</big-data-plugin.version>
+    <big-data-plugin.version>11.1.0.0-SNAPSHOT</big-data-plugin.version>
+    <jface.version>3.31.0</jface.version>
   </properties>
   <dependencies>
     <!-- region - Fasterxml jackson providers are required to be in the main classloader for serialization of POJOs
          in the Publish Model step. -->
     <dependency>
-      <groupId>com.fasterxml.jackson.jaxrs</groupId>
-      <artifactId>jackson-jaxrs-json-provider</artifactId>
+      <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+      <artifactId>jackson-jakarta-rs-json-provider</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.jaxrs</groupId>
-      <artifactId>jackson-jaxrs-base</artifactId>
+      <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+      <artifactId>jackson-jakarta-rs-base</artifactId>
     </dependency>
     <!-- endregion -->
 
@@ -46,7 +46,19 @@
       <scope>runtime</scope>
     </dependency>
     <!-- endregion -->
-
+    <!-- PDI UI library is needed by platform to initialize spoon and retrieve run configuration for execution -->
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.jface</artifactId>
+      <version>${jface.version}</version>
+      <exclusions>
+        <!-- Eclipse OSGi conflicts with Karaf's Felix OSGi framework -->
+        <exclusion>
+          <artifactId>org.eclipse.osgi</artifactId>
+          <groupId>org.eclipse.platform</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-extensions</artifactId>
@@ -59,10 +71,6 @@
         </exclusion>
         <exclusion>
           <artifactId>servlet-api</artifactId>
-          <groupId>javax.servlet</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>javax.servlet-api</artifactId>
           <groupId>javax.servlet</groupId>
         </exclusion>
         <exclusion>
@@ -82,11 +90,11 @@
           <groupId>org.apache.xmlgraphics</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>org.osgi.core</artifactId>
+          <artifactId>osgi.core</artifactId>
           <groupId>org.osgi</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>org.osgi.core</artifactId>
+          <artifactId>osgi.core</artifactId>
           <groupId>org.osgi</groupId>
         </exclusion>
         <exclusion>
@@ -138,10 +146,21 @@
     </dependency>
     <dependency>
       <groupId>com.hitachivantara.security.web</groupId>
-      <artifactId>csrf-token-service-client-java-jax-rs-v1</artifactId>
+      <artifactId>csrf-token-service-client-java-jax-rs-v3</artifactId>
       <scope>compile</scope>
     </dependency>
     <!-- endregion HV Web Security -->
+
+    <!-- region GFS -->
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-generic-file-system-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-generic-file-system-impl</artifactId>
+    </dependency>
+    <!-- endregion GFS -->
 
     <dependency>
       <groupId>org.pentaho</groupId>
@@ -267,22 +286,28 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>org.pentaho</groupId>
+      <artifactId>pentaho-registry</artifactId>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-capability-manager</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-big-data-legacy-core</artifactId>
-      <version>${big-data-plugin.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>pentaho</groupId>-->
+<!--      <artifactId>pentaho-big-data-legacy-core</artifactId>-->
+<!--      <version>${big-data-plugin.version}</version>-->
+<!--      <exclusions>-->
+<!--        <exclusion>-->
+<!--          <groupId>*</groupId>-->
+<!--          <artifactId>*</artifactId>-->
+<!--        </exclusion>-->
+<!--      </exclusions>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
@@ -415,30 +440,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
+      <artifactId>log4j-slf4j2-impl</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-jcl</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.sf.saxon</groupId>
-      <artifactId>saxon-jdom</artifactId>
-      <version>${saxon.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.sf.saxon</groupId>
-      <artifactId>saxon-sql</artifactId>
-      <version>${saxon.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.sf.saxon</groupId>
-      <artifactId>saxon-xom</artifactId>
-      <version>${saxon.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -471,6 +478,11 @@
       <version>${pentaho-hadoop-shims.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.pentaho</groupId>
+      <artifactId>shim-api</artifactId>
+      <version>${pentaho-hadoop-shims.version}</version>
+    </dependency>
+    <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-metaverse-api</artifactId>
       <version>${project.version}</version>
@@ -479,6 +491,12 @@
     <dependency>
       <groupId>org.pentaho</groupId>
       <artifactId>pdi-engine-api</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.pentaho.di.plugins</groupId>
+      <artifactId>pdi-engine-configuration-api</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
@@ -549,13 +567,18 @@
     <!-- pentaho-platform-core (PentahoSystem) and pdi-osgi-bridge-core (KarafLifecycleListener and OSGIPluginRegistryExtension) -->
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
+      <artifactId>osgi.core</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.compendium</artifactId>
+      <artifactId>osgi.cmpn</artifactId>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.service.log</artifactId>
+      <version>1.5.0</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
@@ -590,9 +613,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.xml.soap</groupId>
-      <artifactId>saaj-api</artifactId>
-      <version>${saaj.version}</version>
+      <groupId>jakarta.xml.soap</groupId>
+      <artifactId>jakarta.xml.soap-api</artifactId>
+      <version>${jakarta.xml.soap-api.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -702,7 +725,6 @@
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcmail-jdk15to18</artifactId>
-      <version>${bcprov-jdk15to18.version}</version>
     </dependency>
     <dependency>
       <groupId>net.sourceforge.barbecue</groupId>
@@ -715,17 +737,8 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <groupId>org.eclipse.core</groupId>
-      <artifactId>commands</artifactId>
-      <version>${commands.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+    <!-- Eclipse platform commands dependency removed: not needed for server-side WAR build
+         If needed, use org.eclipse.platform:org.eclipse.core.commands:3.9.800 from pentaho-kettle -->
     <dependency>
       <groupId>com.github.librepdf</groupId>
       <artifactId>openpdf</artifactId>
@@ -738,9 +751,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>javax.jws</groupId>
-      <artifactId>jsr181-api</artifactId>
-      <version>${jsr181-api.version}</version>
+      <groupId>jakarta.jws</groupId>
+      <artifactId>jakarta.jws-api</artifactId>
+      <version>${jakarta.jws-api.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -803,11 +816,6 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.pentaho</groupId>
-      <artifactId>pentaho-hadoop-shims-common-mapreduce</artifactId>
-      <version>${pentaho-hadoop-shims.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>xmlgraphics-commons</artifactId>
       <version>${xml-graphics-common.version}</version>
@@ -829,9 +837,9 @@
       <version>${commons-io.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-ehcache</artifactId>
-      <version>${hibernate-ehcache.version}</version>
+      <groupId>org.hibernate.orm</groupId>
+      <artifactId>hibernate-jcache</artifactId>
+      <version>${hibernate-jcache.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -865,9 +873,14 @@
       <artifactId>rhino</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>${commons-lang.version}</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${commons-lang3.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>${commons-text.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
@@ -880,9 +893,13 @@
       <version>${jackcess.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.sun.mail</groupId>
-      <artifactId>javax.mail</artifactId>
-      <version>${mail.version}</version>
+      <groupId>jakarta.mail</groupId>
+      <artifactId>jakarta.mail-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>javax.json</artifactId>
+      <version>1.0.4</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -912,6 +929,17 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>*</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
       <version>${slf4j.version}</version>
       <exclusions>
         <exclusion>
@@ -958,6 +986,11 @@
       <artifactId>google-http-client-gson</artifactId>
       <version>${google-http-client.version}</version>
     </dependency>
+    <dependency>
+      <groupId>javax.activation</groupId>
+      <artifactId>activation</artifactId>
+      <version>1.1</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -983,6 +1016,74 @@
               </artifactItems>
             </configuration>
           </execution>
+          <execution>
+            <!--
+              Dependencies for Javax XML Binding API, JAXB Runtime, Javax Activation API, Javax Transaction API and IStack Commons Runtime
+              These dependencies are required for OSGi environment and Felix directly depends on javax.xml.bind (Javax XML Bind API and Javax JAXB runtime) and we are making these available to OSGi through jre.properties.
+              Even if these dependencies are added to pom.xml dependencies section, maven is trying to add the latest version of artifacts instead of adding jars with both versions.
+              So, Following configuration helps to copy the both versions of jars to the lib.
+             -->
+            <id>copy-extra-dependencies</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>jakarta.xml.bind</groupId>
+                  <artifactId>jakarta.xml.bind-api</artifactId>
+                  <version>${jakarta.xml.bind-api.version}</version>
+                  <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+                  <type>jar</type>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>jakarta.xml.bind</groupId>
+                  <artifactId>jakarta.xml.bind-api</artifactId>
+                  <version>${jakarta.xml.bind-osgi.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+                </artifactItem>
+
+                <artifactItem>
+                  <groupId>org.glassfish.jaxb</groupId>
+                  <artifactId>jaxb-runtime</artifactId>
+                  <version>${jaxb-runtime.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.glassfish.jaxb</groupId>
+                  <artifactId>jaxb-runtime</artifactId>
+                  <version>${jaxb-api-osgi.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+                </artifactItem>
+
+                <artifactItem>
+                  <groupId>jakarta.transaction</groupId>
+                  <artifactId>jakarta.transaction-api</artifactId>
+                  <version>${jakarta.transaction-api-osgi.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>jakarta.transaction</groupId>
+                  <artifactId>jakarta.transaction-api</artifactId>
+                  <version>${jakarta.transaction.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>com.sun.istack</groupId>
+                  <artifactId>istack-commons-runtime</artifactId>
+                  <version>${istack-osgi.version}</version>
+                  <outputDirectory>${prepared.war.lib.directory}</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -997,6 +1098,10 @@
             <resource>
               <directory>src/main/resources-filtered/</directory>
               <filtering>true</filtering>
+            </resource>
+            <resource>
+              <directory>${prepared.war.lib.directory}</directory>
+              <targetPath>WEB-INF/lib</targetPath>
             </resource>
           </webResources>
           <webXml>${package.resources.directory}/WEB-INF/web.xml</webXml>
@@ -1041,6 +1146,39 @@
             <configuration>
               <target>
                 <copy file="${project.build.directory}/webjars/META-INF/resources/webjars/jquery/${jquery.version}/dist/jquery.min.js" todir="${project.build.directory}/pentaho-server/tomcat/webapps/pentaho/docs/" />
+              </target>
+            </configuration>
+          </execution>
+          <execution>
+            <!--
+              gremlin-shaded relocates Jackson to org.apache.tinkerpop.shaded.jackson, but the
+              jar still ships Maven provenance metadata (META-INF/maven/com.fasterxml.jackson.core/**)
+              declaring jackson-databind 2.15.2, which security scanners flag (CVE-2023-35116 etc.).
+              Strip it from the staged webapp lib after the war is assembled (this antrun plugin is
+              declared after maven-war-plugin, so its package execution runs last). Safe at runtime:
+              the metadata is informational and MRJAR class variants fall back to the base relocated
+              classes. Requires 'zip' on PATH.
+            -->
+            <id>strip-gremlin-shaded-jackson-metadata</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <!-- Rewrite the gremlin-shaded jar in-process using Ant's own zip task
+                     so the build does not depend on an external 'zip' binary (absent on
+                     some CI agents). Removes the Jackson Maven provenance metadata and any
+                     unrelocated multi-release Jackson classes, while preserving the
+                     functional relocated org.apache.tinkerpop.shaded.jackson classes. -->
+                <pathconvert property="gremlin.shaded.jar" setonempty="false">
+                  <fileset dir="${prepared.war.lib.directory}" includes="gremlin-shaded-*.jar"/>
+                </pathconvert>
+                <zip destfile="${gremlin.shaded.jar}.stripped">
+                  <zipfileset src="${gremlin.shaded.jar}"
+                              excludes="META-INF/maven/com.fasterxml.jackson.core/**,META-INF/versions/*/com/fasterxml/**"/>
+                </zip>
+                <move file="${gremlin.shaded.jar}.stripped" tofile="${gremlin.shaded.jar}" overwrite="true"/>
               </target>
             </configuration>
           </execution>

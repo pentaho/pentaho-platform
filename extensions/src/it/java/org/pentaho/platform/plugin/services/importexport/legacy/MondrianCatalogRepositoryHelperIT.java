@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importexport.legacy;
 
@@ -46,7 +47,7 @@ public class MondrianCatalogRepositoryHelperIT {
     FileSystemBackedUnifiedRepository repository =
         new FileSystemBackedUnifiedRepository( TestResourceLocation.TEST_RESOURCES + "/MondrianCatalogRepositoryHelperTest" );
     MondrianCatalogRepositoryHelper helper = new MondrianCatalogRepositoryHelper( repository );
-    Map<String, InputStream> schemaFiles = helper.getModrianSchemaFiles( "sample" );
+    Map<String, InputStream> schemaFiles = helper.getMondrianSchemaFiles( "sample" );
     assertEquals( 1, schemaFiles.size() );
     assertSchemaFile(
         TestResourceLocation.TEST_RESOURCES + "/MondrianCatalogRepositoryHelperTest/etc/mondrian/sample/schema.xml", schemaFiles.get( "schema.xml" ) );
@@ -58,7 +59,7 @@ public class MondrianCatalogRepositoryHelperIT {
     FileSystemBackedUnifiedRepository repository =
         new FileSystemBackedUnifiedRepository( TestResourceLocation.TEST_RESOURCES + "/MondrianCatalogRepositoryHelperTest" );
     MondrianCatalogRepositoryHelper helper = new MondrianCatalogRepositoryHelper( repository );
-    Map<String, InputStream> schemaFiles = helper.getModrianSchemaFiles( "food" );
+    Map<String, InputStream> schemaFiles = helper.getMondrianSchemaFiles( "food" );
     assertEquals( 3, schemaFiles.size() );
     assertSchemaFile(
         TestResourceLocation.TEST_RESOURCES + "/MondrianCatalogRepositoryHelperTest/etc/mondrian/food/schema.xml",

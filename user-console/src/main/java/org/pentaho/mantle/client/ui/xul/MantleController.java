@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.mantle.client.ui.xul;
 
@@ -231,7 +232,6 @@ public class MantleController extends AbstractXulEventHandler {
       String currentLanguage = resourceBundle.getLanguage();
 
       MenuBar langMenu = (MenuBar) languageMenu.getManagedObject();
-      langMenu.insertSeparator( 0 );
       for ( String lang : supportedLanguages.keySet() ) {
         CheckBoxMenuItem langMenuItem = new CheckBoxMenuItem( supportedLanguages.get( lang ), new SwitchLocaleCommand( lang ) );
         langMenuItem.getElement().setId( supportedLanguages.get( lang ) + "_menu_item" );

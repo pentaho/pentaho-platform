@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.engine.services.runtime;
 
@@ -36,7 +37,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -1847,7 +1848,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
           if ( defaultValue instanceof Object[] ) {
             setObjectArrayParameters( fieldName, (Object[]) defaultValue );
           }
-          String value = StringEscapeUtils.escapeXml( defaultValue.toString() );
+          String value = StringEscapeUtils.escapeXml11( defaultValue.toString() );
           body.append( "<input type=\"hidden\" name=\"" + fieldName + "\" value=\"" + value + "\"></input>" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } catch ( Exception e ) {
           body.append( "<input type=\"hidden\" name=\"" + fieldName + "\" value=\"" + defaultValue + "\"></input>" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

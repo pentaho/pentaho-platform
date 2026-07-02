@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository;
 
@@ -43,6 +44,8 @@ public class DatabaseHelper {
   private static final String PROP_SERVERNAME = "SERVERNAME"; //$NON-NLS-1$
 
   private static final String PROP_PASSWORD = "PASSWORD"; //$NON-NLS-1$
+
+  private static final String PROP_CONNECTION_ID = "CONNECTION_ID"; //$NON-NLS-1$LS-1$
 
   private static final String PROP_USERNAME = "USERNAME"; //$NON-NLS-1$
 
@@ -103,6 +106,7 @@ public class DatabaseHelper {
     rootNode.setProperty( PROP_HOST_NAME, setNull( databaseConnection.getHostname() ) );
     rootNode.setProperty( PROP_DATABASE_NAME, setNull( databaseConnection.getDatabaseName() ) );
     rootNode.setProperty( PROP_PORT, Long.parseLong( port ) );
+    rootNode.setProperty( PROP_CONNECTION_ID, setNull( databaseConnection.getConnectionId() ) );
     rootNode.setProperty( PROP_USERNAME, setNull( databaseConnection.getUsername() ) );
     rootNode.setProperty( PROP_PASSWORD, encryptPassword( databaseConnection.getPassword() ) );
     rootNode.setProperty( PROP_SERVERNAME, setNull( databaseConnection.getInformixServername() ) );
@@ -187,6 +191,7 @@ public class DatabaseHelper {
     databaseConnection.setAccessType( accessType != null
       ? DatabaseAccessType.getAccessTypeByName( accessType ) : null );
     databaseConnection.setHostname( databaseMeta.environmentSubstitute( databaseMeta.getHostname() ) );
+    databaseConnection.setConnectionId( databaseMeta.environmentSubstitute( databaseMeta.getConnectionId() ) );
     databaseConnection.setDatabaseName( databaseMeta.environmentSubstitute( databaseMeta.getDatabaseName() ) );
     databaseConnection.setDatabasePort( databaseMeta.environmentSubstitute( databaseMeta.getDatabasePortNumberString() ) );
     databaseConnection.setUsername( databaseMeta.environmentSubstitute( databaseMeta.getUsername() ) );
@@ -250,6 +255,7 @@ public class DatabaseHelper {
     databaseConnection.setAccessType( accessType != null
       ? DatabaseAccessType.getAccessTypeByName( accessType ) : null );
     databaseConnection.setHostname( getString( rootNode, PROP_HOST_NAME ) );
+    databaseConnection.setConnectionId( getString( rootNode, PROP_CONNECTION_ID ) );
     databaseConnection.setDatabaseName( getString( rootNode, PROP_DATABASE_NAME ) );
     databaseConnection.setDatabasePort( getString( rootNode, PROP_PORT ) );
     databaseConnection.setUsername( getString( rootNode, PROP_USERNAME ) );

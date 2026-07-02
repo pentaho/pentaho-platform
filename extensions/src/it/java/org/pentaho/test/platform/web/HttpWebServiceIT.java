@@ -7,14 +7,15 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.test.platform.web;
 
-import com.mockrunner.mock.web.MockHttpServletRequest;
-import com.mockrunner.mock.web.MockHttpServletResponse;
-import com.mockrunner.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.dom4j.Document;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -24,7 +25,7 @@ import org.pentaho.platform.web.servlet.HttpWebService;
 import org.pentaho.test.platform.engine.core.BaseTestCase;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,15 +58,15 @@ public class HttpWebServiceIT extends BaseTestCase {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpSession session = new MockHttpSession();
     request.setSession( session );
-    request.setupAddParameter( "action", "securitydetails" ); //$NON-NLS-1$//$NON-NLS-2$
-    request.setupAddParameter( "details", "all" ); //$NON-NLS-1$ //$NON-NLS-2$
+    request.addParameter( "action", "securitydetails" ); //$NON-NLS-1$//$NON-NLS-2$
+    request.addParameter( "details", "all" ); //$NON-NLS-1$ //$NON-NLS-2$
     MockHttpServletResponse response = new MockHttpServletResponse();
     HttpWebService servlet = new HttpWebService();
     servlet.doGet( request, response );
     assertTrue( "missing or invalid SOAP wrapper elements", //$NON-NLS-1$
-        isSoapValid( response.getOutputStreamContent() ) );
+        isSoapValid( response.getContentAsString() ) );
     assertTrue( "missing or invalid users, roles, or acls elements", //$NON-NLS-1$
-        isBodyValid( response.getOutputStreamContent() ) );
+        isBodyValid( response.getContentAsString() ) );
     // System.out.println(response.getOutputStreamContent());
   }
 

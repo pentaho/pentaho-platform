@@ -7,45 +7,32 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.servlet;
 
-import com.sun.jersey.api.core.ResourceConfig;
-import com.sun.jersey.spi.MessageBodyWorkers;
-import com.sun.jersey.spi.container.WebApplication;
-import com.sun.jersey.spi.container.servlet.ServletContainer;
-import com.sun.jersey.spi.container.servlet.WebServletConfig;
-import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
-import org.apache.logging.log4j.LogManager;
+import org.glassfish.jersey.servlet.WebServletConfig;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
-import org.pentaho.platform.api.util.LogUtil;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import org.glassfish.jersey.servlet.ServletContainer;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -57,22 +44,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.glassfish.jersey.server.ResourceConfig;
 
 /**
  * Created by Dmitriy Stepanov on 28.03.18.
  */
-@RunWith( PowerMockRunner.class )
-@PowerMockIgnore( "jdk.internal.reflect.*" )
-@PrepareForTest( { SpringServlet.class, ServletContainer.class, JAXRSServlet.class } )
 public class JAXRSServletTest {
 
   protected static final String URL = "/url";
 
   class JAXRSServletT extends JAXRSServlet {
-    @Override protected void callSuperInitiate( ResourceConfig rc, WebApplication wa ) {
-      if ( callSuperIterate.get() ) {
-        super.callSuperInitiate( rc, wa );
-      }
+    protected WebServletConfig createWebConfig( ServletContainer container ) {
+      return new WebServletConfig( container );
     }
 
     protected void setBackWardSendErrorCompatible( Boolean flag ) {
@@ -86,7 +69,7 @@ public class JAXRSServletTest {
   @Before
   public void setUp() throws Exception {
     callSuperIterate.set( false );
-    jaxrsServlet = PowerMockito.spy( new JAXRSServletT() );
+    jaxrsServlet = Mockito.spy( new JAXRSServletT() );
   }
 
   @Test
@@ -102,9 +85,9 @@ public class JAXRSServletTest {
     HttpServletResponse response = mock( HttpServletResponse.class );
     when( request.getMethod() ).thenReturn( "POST" );
     try {
-      Mockito.doNothing().when( (SpringServlet) jaxrsServlet ).service( request, response );
+      Mockito.doNothing().when( jaxrsServlet ).service( request, response );
       jaxrsServlet.service( request, response );
-      verify( (SpringServlet) jaxrsServlet ).service( eq( request ), eq( response ) );
+      verify( jaxrsServlet ).service( eq( request ), eq( response ) );
 
       when( request.getMethod() ).thenReturn( JAXRSServlet.GET );
 
@@ -177,15 +160,14 @@ public class JAXRSServletTest {
     doReturn( Collections.emptyEnumeration() ).when( webServletConfig ).getInitParameterNames();
     doReturn( null ).when( servletContext ).getAttribute( "javax.enterprise.inject.spi.BeanManager" );
     doReturn( servletContext ).when( webServletConfig ).getServletContext();
-    doReturn( resourceConfig ).when( webServletConfig ).getDefaultResourceConfig( any() );
-    doReturn( classes ).when( resourceConfig ).getRootResourceClasses();
+    doReturn( classes ).when( resourceConfig ).getClasses();
     doReturn( context ).when( jaxrsServlet ).getAppContext();
     doReturn( Collections.emptyEnumeration() ).when( request ).getHeaderNames();
     try {
       jaxrsServlet.init();
       jaxrsServlet.service( request, response );
-      verify( (SpringServlet) jaxrsServlet ).service( eq( request ), eq( response ) );
-      verify( response ).setStatus( 404, "Not Found" );
+      verify( jaxrsServlet ).service( eq( request ), eq( response ) );
+      verify( response ).setStatus( 404 );
 
       jaxrsServlet.setBackWardSendErrorCompatible( true );
       jaxrsServlet.service( request, response );
@@ -211,66 +193,6 @@ public class JAXRSServletTest {
           fail.set( true );
         }
         return null;
-      } ).when( (SpringServlet) jaxrsServlet ).service( eq( request ), eq( response ) );
-  }
-
-  @Test
-  public void initiateTest() throws Exception {
-    ResourceConfig rc = mock( ResourceConfig.class );
-    HashMap<String, Boolean> features = new HashMap<>();
-    when( rc.getFeatures() ).thenReturn( features );
-    WebApplication wa = mock( WebApplication.class );
-    when( jaxrsServlet.getServletConfig() ).thenReturn( mock( ServletConfig.class ) );
-    MessageBodyWorkers messageBodyWorkers = mock( MessageBodyWorkers.class );
-    doReturn( messageBodyWorkers ).when( wa ).getMessageBodyWorkers();
-    doReturn( null ).when( messageBodyWorkers ).getWriters( MediaType.WILDCARD_TYPE );
-    doReturn( mock( ConfigurableApplicationContext.class ) ).when( jaxrsServlet ).getAppContext();
-    PowerMockito.doNothing().when( jaxrsServlet, "callSuperInitiate", any(), any() );
-    setDebugLogLevel();
-    jaxrsServlet.initiate( rc, wa );
-    verify( wa ).getMessageBodyWorkers();
-    Boolean condition = features.get( ResourceConfig.FEATURE_TRACE );
-    if ( condition == null ) {
-      condition = false;
-    }
-    assertTrue( condition );
-    condition = features.get( ResourceConfig.FEATURE_TRACE_PER_REQUEST );
-    if ( condition == null ) {
-      condition = false;
-    }
-    assertTrue( condition );
-  }
-
-  private void setDebugLogLevel() {
-    // Try java.util.logging as backend
-    java.util.logging.Logger.getLogger( JAXRSServlet.class.getName() ).setLevel( Level.ALL );
-
-    // Try Log4J as backend
-    LogUtil.setLevel(LogManager.getLogger(JAXRSServlet.class), org.apache.logging.log4j.Level.DEBUG);
-  }
-
-  @Test
-  public void initTest() throws Exception {
-    ServletConfig servletConfig = mock( ServletConfig.class );
-    WebServletConfig webServletConfig = mock( WebServletConfig.class );
-    ServletContext servletContext = mock( ServletContext.class );
-    doReturn( webServletConfig ).when( jaxrsServlet ).createWebConfig( jaxrsServlet );
-    doReturn( servletConfig ).when( jaxrsServlet ).getServletConfig();
-    doReturn( Collections.emptyEnumeration() ).when( webServletConfig ).getInitParameterNames();
-    doReturn( null ).when( servletContext ).getAttribute( "javax.enterprise.inject.spi.BeanManager" );
-    doReturn( servletContext ).when( webServletConfig ).getServletContext();
-    doReturn( mock( ConfigurableApplicationContext.class ) ).when( jaxrsServlet ).getAppContext();
-
-    try {
-      jaxrsServlet.init();
-    } catch ( ServletException e ) {
-      e.printStackTrace();
-      fail( "ServletException appeared" );
-    }
-    Field web = ServletContainer.class.getDeclaredField( "webComponent" );
-    web.setAccessible( true );
-    Object obj = web.get( jaxrsServlet );
-    assertTrue( obj.getClass().getCanonicalName().contains( this.getClass().getPackage().getName() ) );
-    assertFalse( obj.getClass().getCanonicalName().contains( ServletContainer.class.getPackage().getName() ) );
+      } ).when( jaxrsServlet ).service( eq( request ), eq( response ) );
   }
 }

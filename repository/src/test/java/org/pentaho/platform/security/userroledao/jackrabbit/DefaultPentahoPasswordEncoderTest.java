@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.security.userroledao.jackrabbit;
 
@@ -30,8 +31,19 @@ public class DefaultPentahoPasswordEncoderTest {
   @Test
   public void testInvalidCredentials( ) {
     DefaultPentahoPasswordEncoder passwordEncoder = new DefaultPentahoPasswordEncoder( );
-    Assert.assertFalse( passwordEncoder.isPasswordValid( "password", null, null ) );
+    Assert.assertFalse( passwordEncoder.isPasswordValid( "password", "wrongpassword", null ) );
     Assert.assertFalse( passwordEncoder.isPasswordValid( passwordEncoder.encodePassword( "", null ), "password", null ) );
+    Assert.assertFalse( passwordEncoder.isPasswordValid( "encodedPassword", "", null ) );
+  }
+
+  @Test
+  public void testNullInputs( ) {
+    DefaultPentahoPasswordEncoder passwordEncoder = new DefaultPentahoPasswordEncoder( );
+    // Null password should return false, not throw
     Assert.assertFalse( passwordEncoder.isPasswordValid( null, null, null ) );
+    // Null encoded password should return false
+    Assert.assertFalse( passwordEncoder.isPasswordValid( null, "password", null ) );
+    // Null raw password should return false
+    Assert.assertFalse( passwordEncoder.isPasswordValid( "encodedPassword", null, null ) );
   }
 }

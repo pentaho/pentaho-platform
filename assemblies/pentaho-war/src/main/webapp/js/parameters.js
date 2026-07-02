@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 // used in getParameters and doClearIgnoreFields to ignore specific hidden fields
 
@@ -279,8 +280,6 @@ function doPost( url, query, func) {
   // submit the request
   http_request.open('POST', url, true);
   http_request.setRequestHeader("Content-type", "application/json");
-  http_request.setRequestHeader("Content-length", query.length);
-  http_request.setRequestHeader("Connection", "close");
   http_request.send(query);
 }
 
@@ -289,7 +288,6 @@ function doRun( id, baseUrl, target, background ) {
 	// change this URL to point to another machine if required...
 	// ----------------------------------------------------------
 	var submitUrl = baseUrl;
-	// delete line? var action = submitUrl;
 	var formCheck = false;
 	try {
 		formCheck = doFormCheck( id );
@@ -306,12 +304,8 @@ function doRun( id, baseUrl, target, background ) {
 		
 		var params = window.getParams();
 		var json = {};
-		json.inputFile = params['path']; // createPath(params['solution'], params['path'], params['action']);
-		
-		// delete params['solution'];
-		// delete params['path'];
-		// delete params['action'];
-		
+		json.inputFile = params['path'];
+
 		json.outputFile = null;
 		json.simpleJobTrigger = {repeatInterval:0, repeatCount:0, startTime:null, endTime:null};
 		json.jobParameters = getParamEntries(params);
@@ -328,7 +322,7 @@ function doRun( id, baseUrl, target, background ) {
 		return false;
 	}
 	// this is set in the xsl file
-	if (!USEPOSTFORFORMS) {
+	if (typeof USEPOSTFORFORMS === "undefined" || !USEPOSTFORFORMS) {
 		submitUrl += params;
 		return executeAction(target, submitUrl);
 	} else {
@@ -360,7 +354,7 @@ function executeAction (target, submitUrl) {
 // convert characters from entities like &#305; to display characters (HTML)
 function convertHtmlEntitiesToCharacters(theStr) {
     var newDiv = document.createElement(newDiv);
-    newDiv.innerHTML = theStr;
+    pho.util.xss.setHtml(newDiv, theStr);
     return newDiv.innerHTML;
 }
 
@@ -479,7 +473,6 @@ function getParameters( id ) {
       return params;
     }
 }
-
 
 function closeMantleTab(){
   try{

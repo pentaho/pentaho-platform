@@ -7,13 +7,14 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.filters;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.concurrent.ConcurrentException;
 import org.apache.commons.lang3.concurrent.LazyInitializer;
 import org.owasp.encoder.Encode;
@@ -33,16 +34,16 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.ConfigurationAdminNonOsgiProxy;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRegistration;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -367,7 +368,7 @@ public class PentahoWebContextFilter implements Filter {
 
   private String getReservedCharsDisplayVar() {
     List<Character> reservedCharacters = JcrRepositoryFileUtils.getReservedChars();
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     for ( int i = 0; i < reservedCharacters.size(); i++ ) {
       if ( reservedCharacters.get( i ) >= 0x07 && reservedCharacters.get( i ) <= 0x0d ) {
         sb.append( StringEscapeUtils.escapeJava( "" + reservedCharacters.get( i ) ) );
@@ -614,7 +615,7 @@ public class PentahoWebContextFilter implements Filter {
 
   private String escapeEnvironmentVar( String value ) {
     if ( value != null ) {
-      value = "\"" + StringEscapeUtils.escapeJavaScript( value ) + "\"";
+      value = "\"" + StringEscapeUtils.escapeEcmaScript( value ) + "\"";
     }
 
     return value;
@@ -681,7 +682,7 @@ public class PentahoWebContextFilter implements Filter {
     StringBuilder buf = new StringBuilder();
     buf.append( ".*[" );
     for ( Character ch : JcrRepositoryFileUtils.getReservedChars() ) {
-      buf.append( StringEscapeUtils.escapeJavaScript( ch.toString() ) );
+      buf.append( StringEscapeUtils.escapeEcmaScript( ch.toString() ) );
     }
     buf.append( "]+.*" );
     return buf.toString();

@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
@@ -47,7 +48,7 @@ public class PentahoSessionCredentialsStrategy implements CredentialsStrategy {
   public PentahoSessionCredentialsStrategy( final String preAuthenticationToken,
       final ITenantedPrincipleNameResolver tenantedUserNameUtils ) {
     super();
-    Assert.hasText( preAuthenticationToken );
+    Assert.hasText( preAuthenticationToken, "The pre-authentication token must not be null or empty. Ensure a valid token is provided." );
     this.preAuthenticationToken = preAuthenticationToken;
     this.tenantedUserNameUtils = tenantedUserNameUtils;
   }

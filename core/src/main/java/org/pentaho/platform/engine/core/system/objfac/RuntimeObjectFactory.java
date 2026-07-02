@@ -7,15 +7,16 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.engine.core.system.objfac;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoObjectRegistration;
 import org.pentaho.platform.api.engine.IPentahoRegistrableObjectFactory;

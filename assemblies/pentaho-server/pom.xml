@@ -5,16 +5,16 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-assemblies</artifactId>
-    <version>10.3.0.0-SNAPSHOT</version>
+    <version>11.1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>pentaho-server-ce</artifactId>
-  <version>10.3.0.0-SNAPSHOT</version>
+  <version>11.1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
     <tomcat.directory>${project.build.directory}/apache-tomcat-${tomcat.version}</tomcat.directory>
     <replacer.version>1.5.2</replacer.version>
     <wkhtmltox.version>0.10.0_rc2</wkhtmltox.version>
-    <wkhtmltoimage.version>${wkhtmltox.version}-static</wkhtmltoimage.version>
+    <wkhtmltoimage.version>0.10.0_rc2-static</wkhtmltoimage.version>
     <resources.directory>${basedir}/src/main/resources</resources.directory>
   </properties>
   <dependencies>
@@ -58,19 +58,9 @@
 <!--      <classifier>jdk8</classifier>-->
     </dependency>
     <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>${mysql-connector-java.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>${h2.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet.jsp</groupId>
-      <artifactId>jsp-api</artifactId>
-      <version>${jsp-api.version}</version>
+      <groupId>jakarta.servlet.jsp</groupId>
+      <artifactId>jakarta.servlet.jsp-api</artifactId>
+      <version>${jakarta.servlet.jsp.version}</version>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
@@ -137,9 +127,10 @@
               <artifactItems>
                 <artifactItem>
                   <groupId>org.apache.tomcat</groupId>
-                  <artifactId>tomcat-windows-x64</artifactId>
+                  <artifactId>tomcat</artifactId>
                   <version>${tomcat.version}</version>
                   <type>zip</type>
+                  <classifier>windows-x64</classifier>
                   <overWrite>true</overWrite>
                   <outputDirectory>${project.build.directory}</outputDirectory>
                   <excludes>**/webapps/docs/**,
@@ -147,15 +138,6 @@
                     **/webapps/host-manager/**,
                     **/webapps/manager/**,
                     **/webapps/ROOT/**</excludes>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>pentaho</groupId>
-                  <artifactId>oss-licenses</artifactId>
-                  <version>${project.version}</version>
-                  <type>zip</type>
-                  <overWrite>false</overWrite>
-                  <outputDirectory>${pentaho-server.directory}/licenses</outputDirectory>
-                  <includes>PentahoServer_OSS_Licenses.html</includes>
                 </artifactItem>
                 <artifactItem>
                   <groupId>pentaho</groupId>

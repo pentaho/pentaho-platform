@@ -9,13 +9,6 @@
   </formats>
   <baseDirectory>pentaho-server</baseDirectory>
 
-  <!-- Add shim drivers README file -->
-  <files>
-    <file>
-      <source>${project.basedir}/src/main/resources/drivers/README</source>
-      <outputDirectory>./pentaho-solutions/drivers</outputDirectory>
-    </file>
-  </files>
   <fileSets>
     <fileSet>
       <directory>${project.basedir}/src/main/resources-filtered</directory>
@@ -77,6 +70,14 @@
     <fileSet>
       <directory>${project.build.directory}/pentaho-solutions/system/dialects/hsqldb</directory>
       <outputDirectory>pentaho-solutions/system</outputDirectory>
+    </fileSet>
+    <!-- license -->
+    <fileSet>
+      <directory>${project.basedir}/../..</directory>
+      <includes>
+        <include>LICENSE.TXT</include>
+      </includes>
+      <outputDirectory>.</outputDirectory>
     </fileSet>
   </fileSets>
 
@@ -152,7 +153,6 @@
         <include>commons-logging:commons-logging</include>
         <include>org.hsqldb:hsqldb</include>
         <include>mysql:mysql-connector-java</include>
-        <include>com.h2database:h2</include>
         <include>org.postgresql:postgresql</include>
       </includes>
       <outputDirectory>tomcat/lib</outputDirectory>

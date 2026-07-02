@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.webservices;
 
@@ -156,4 +157,6 @@ public interface IUnifiedRepositoryWebService {
   void setLocalePropertiesForFileByFileId( final String fileId, final String locale, final Properties properties );
 
   void deleteLocalePropertiesForFile( final String fileId, final String locale );
+
+  default void logout() { }
 }

@@ -15,11 +15,6 @@
       <source>${pentaho-server.directory}/META-INF/MANIFEST.MF</source>
       <outputDirectory>.</outputDirectory>
     </file>
-    <!-- Add shim drivers README file -->
-    <file>
-      <source>${project.basedir}/src/main/resources/drivers/README</source>
-      <outputDirectory>./drivers</outputDirectory>
-    </file>
   </files>
 
   <fileSets>

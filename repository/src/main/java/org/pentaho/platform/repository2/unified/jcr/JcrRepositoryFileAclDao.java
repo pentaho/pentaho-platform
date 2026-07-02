@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.jcr;
 
@@ -115,7 +116,7 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
         AccessControlPolicy[] acPolicies = session.getAccessControlManager().getEffectivePolicies( absPath );
         // logic assumes policies are ordered from leaf to root
         for ( AccessControlPolicy policy : acPolicies ) {
-          Assert.isTrue( policy instanceof AccessControlList );
+          Assert.isTrue( policy instanceof AccessControlList, "Policy must be an instance of AccessControlList" );
           AccessControlList acList = ( (AccessControlList) policy );
           if ( !isEntriesInheriting( session, absPath, acList ) ) {
             List<RepositoryFileAce> aces = new ArrayList<RepositoryFileAce>();
@@ -266,11 +267,11 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
       throw new RuntimeException( Messages.getInstance().getString( "JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED" ) ); //$NON-NLS-1$
     }
 
-    Assert.notNull( id );
-    Assert.notNull( recipient );
-    Assert.notNull( permission );
+    Assert.notNull( id, "ID must not be null" );
+    Assert.notNull( recipient, "Recipient must not be null" );
+    Assert.notNull( permission, "Permission must not be null" );
     RepositoryFileAcl acl = getAcl( id );
-    Assert.notNull( acl );
+    Assert.notNull( acl, "ACL must not be null" );
     // TODO mlowery find an ACE with the recipient and update that rather than adding a new ACE
     RepositoryFileSid newRecipient = recipient;
     if ( recipient.getType().equals( Type.USER ) ) {

@@ -2,16 +2,19 @@
 This exists so that ehcache-failsafe.xml is not used. ehcache-failsafe.xml specifies overflowToDisk="true" which will
 cause "too many open files" errors for DbBasedSolutionRepositoryTest. So this config specifies overflowToDisk="false".
 -->
-<ehcache updateCheck="false">
-  <diskStore path="java.io.tmpdir"/>
-  <defaultCache
-      maxElementsInMemory="10000"
-      eternal="false"
-      timeToIdleSeconds="120"
-      timeToLiveSeconds="120"
-      overflowToDisk="false"
-      diskPersistent="false"
-      diskExpiryThreadIntervalSeconds="120"
-      memoryStoreEvictionPolicy="LRU"
-      />
-</ehcache>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.ehcache.org/v3"
+        xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
+
+  <cache alias="defaultCache">
+    <key-type>java.lang.Object</key-type>
+    <value-type>java.lang.Object</value-type>
+    <expiry>
+      <ttl unit="seconds">120</ttl>
+    </expiry>
+    <resources>
+      <heap unit="entries">10000</heap>
+    </resources>
+  </cache>
+
+</config>

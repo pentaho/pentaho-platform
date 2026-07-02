@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
@@ -36,142 +37,157 @@ import java.util.Map;
  */
 public class BeanBuilder implements FactoryBean {
 
+  private static final String ID_ATTRIBUTE = "id";
   private String type;
   private Map<String, String> attributes;
-  private static ThreadLocal<BeanBuilder> resolvingBean = new ThreadLocal<BeanBuilder>();
-  private static Logger log = LoggerFactory.getLogger( BeanBuilder.class );
+  private static final ThreadLocal<BeanBuilder> resolvingBean = new ThreadLocal<>();
+  private static final Logger log = LoggerFactory.getLogger( BeanBuilder.class );
   private Integer dampeningTimeout = null;
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.springframework.beans.factory.FactoryBean#getObject()
    */
   public Object getObject() {
 
     try {
       if ( resolvingBean.get() == this ) {
-        log.warn( "Circular Reference detected in bean creation ( "
-            + type
-            + " : "
-            + attributes
-            + "). Very likely a published "
-            + "pentaho bean is resolving itself. Ensure that the published attributes do not match that of the Pentaho "
-            + "bean query. The system will attempt to find the next highest available bean, but at a performance "
-            + "penilty" );
+        log.warn(
+          "Circular Reference detected in bean creation ( {} : {}). "
+            + "Very likely a published pentaho bean is resolving itself. "
+            + "Ensure that the published attributes do not match that of the Pentaho bean query. "
+            + "The system will attempt to find the next highest available bean, but at a performance penalty",
+          type, attributes );
+
         // attempt to find a lower priority bean for them
-        Class cls = getClass().getClassLoader().loadClass( type.trim() );
+        Class<?> cls = getClass().getClassLoader().loadClass( type.trim() );
+
         resolvingBean.set( this );
-        List<IPentahoObjectReference<?>> objectReferences =
+
+        List<? extends IPentahoObjectReference<?>> objectReferences =
             PentahoSystem.getObjectFactory().getObjectReferences( cls, PentahoSessionHolder.getSession(), attributes );
-        resolvingBean.set( null );
+
+        resolvingBean.remove();
+
         if ( objectReferences.size() > 1 ) {
           // we have more than one, return the second highest
           return objectReferences.get( 1 ).getObject();
-        } else {
-          // there's only one bean, this is a fatal situation
-          throw new IllegalStateException( "Fatal Circular reference in Pentaho Bean ( " + type + " : " + attributes
-              + ")" );
         }
 
-      } else {
-        final Class cls = getClass().getClassLoader().loadClass( type.trim() );
-        resolvingBean.set( this );
-        Object val = null;
-        IPentahoObjectReference objectReference =
-            PentahoSystem.getObjectFactory().getObjectReference( cls, PentahoSessionHolder.getSession(),
-                attributes );
-        if ( objectReference != null ) {
-          val = objectReference.getObject();
-        }
-        resolvingBean.set( null );
-        if ( val == null ) {
-          log.debug( "No object was found to satisfy pen:bean request [" + type + " : " + attributes + "]" );
-
-          final int f_dampeningTimeout = getDampeningTimeout();
-          // send back a proxy
-          if ( cls.isInterface() && dampeningTimeout > -1 ) {
-            log.debug( "Request bean which wasn't found is interface-based. Instantiating a Proxy dampener" );
-
-            val = Proxy.newProxyInstance( cls.getClassLoader(), new Class[] { cls }, new InvocationHandler() {
-              String lock = "lock_" + getClass().getName(); // class name to prevent locking somewhere else by the same string
-              Object target;
-              Thread watcher;
-              boolean dead = false;
-
-              private void startWatcherThread( final int millis ) {
-
-                watcher = new Thread( new Runnable() {
-                  @Override public void run() {
-                    int countdown = millis;
-                    while ( countdown > 0 ) {
-                      IPentahoObjectReference objectReference;
-                      try {
-                        objectReference =
-                            PentahoSystem.getObjectFactory().getObjectReference( cls, PentahoSessionHolder.getSession(),
-                                attributes );
-                        if ( objectReference != null ) {
-                          target = objectReference.getObject();
-                        }
-                      } catch ( ObjectFactoryException e ) {
-                        log.debug( "Error fetching from PentahoSystem", e );
-                      }
-
-                      if ( target != null ) {
-                        synchronized ( lock ) {
-                          lock.notifyAll();
-                        }
-                        return;
-                      }
-                      countdown -= 100;
-                    }
-                    dead = true;
-                  }
-                } );
-                watcher.start();
-              }
-
-              @Override public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
-                if ( target == null && f_dampeningTimeout > 0 ) {
-                  synchronized ( lock ) {
-                    if ( watcher == null && !dead ) {
-                      startWatcherThread( f_dampeningTimeout );
-                      lock.wait( f_dampeningTimeout );
-                    }
-                  }
-                }
-                if ( target == null ) {
-
-                  // Last chance. If the attributes are empty, try a plain PentahoSystem.get() which will find bean's
-                  // with the ID equal to the simple name of the class
-                  if ( attributes.isEmpty() || ( attributes.size() == 1 && attributes.containsKey( "id" ) ) ) {
-                    target = getFallbackBySimpleName( cls, attributes );
-                  }
-                  if ( target == null ) {
-                    throw new IllegalStateException( "Target of Bean was never resolved: " + cls.getName() );
-                  }
-                }
-                return method.invoke( target, args );
-              }
-            } );
-          } else if ( !cls.isInterface() && ( attributes.isEmpty() || ( attributes.size() == 1 && attributes.containsKey( "id" ) ) ) ) {
-            val = getFallbackBySimpleName( cls, attributes );
-          }
-        }
-        return val;
+        // there's only one bean, this is a fatal situation
+        throw new IllegalStateException(
+          "Fatal Circular reference in Pentaho Bean ( " + type + " : " + attributes + ")" );
       }
-    } catch ( ClassNotFoundException e ) {
-      throw new RuntimeException( e );
-    } catch ( ObjectFactoryException e ) {
+
+      final Class<?> cls = getClass().getClassLoader().loadClass( type.trim() );
+
+      resolvingBean.set( this );
+
+      Object val = null;
+      IPentahoObjectReference<?> objectReference =
+        PentahoSystem.getObjectFactory().getObjectReference( cls, PentahoSessionHolder.getSession(), attributes );
+      if ( objectReference != null ) {
+        val = objectReference.getObject();
+      }
+
+      resolvingBean.remove();
+
+      if ( val == null ) {
+        log.debug( "No object was found to satisfy pen:bean request [{} : {}]", type, attributes );
+
+        final int f_dampeningTimeout = getDampeningTimeout();
+        // send back a proxy
+        if ( cls.isInterface() && dampeningTimeout > -1 ) {
+          log.debug( "Request bean which wasn't found is interface-based. Instantiating a Proxy dampener" );
+
+          val = Proxy.newProxyInstance( cls.getClassLoader(), new Class[] { cls }, new InvocationHandler() {
+            // class name to prevent locking somewhere else by the same string
+            final String lock = "lock_" + getClass().getName();
+            Object target;
+            Thread watcher;
+            boolean dead = false;
+
+            private void startWatcherThread( final int millis ) {
+
+              watcher = new Thread( () -> {
+                int countdown = millis;
+                while ( countdown > 0 ) {
+                  IPentahoObjectReference<?> objectReference1;
+                  try {
+                    objectReference1 = PentahoSystem.getObjectFactory()
+                      .getObjectReference( cls, PentahoSessionHolder.getSession(), attributes );
+                    if ( objectReference1 != null ) {
+                      target = objectReference1.getObject();
+                    }
+                  } catch ( ObjectFactoryException e ) {
+                    log.debug( "Error fetching from PentahoSystem", e );
+                  }
+
+                  if ( target != null ) {
+                    synchronized ( lock ) {
+                      lock.notifyAll();
+                    }
+
+                    return;
+                  }
+
+                  countdown -= 100;
+                }
+
+                dead = true;
+              } );
+              watcher.start();
+            }
+
+            @Override
+            public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
+              if ( target == null && f_dampeningTimeout > 0 ) {
+                synchronized ( lock ) {
+                  if ( watcher == null && !dead ) {
+                    startWatcherThread( f_dampeningTimeout );
+                    lock.wait( f_dampeningTimeout );
+                  }
+                }
+              }
+
+              if ( target == null ) {
+                // Last chance. If the attributes are empty, try a plain PentahoSystem.get() which will find bean's
+                // with the ID equal to the simple name of the class
+                if ( hasNoAttributesOtherThanId() ) {
+                  target = getFallbackBySimpleName( cls );
+                }
+
+                if ( target == null ) {
+                  throw new IllegalStateException( "Target of Bean was never resolved: " + cls.getName() );
+                }
+              }
+
+              return method.invoke( target, args );
+            }
+          } );
+        } else if ( !cls.isInterface() && hasNoAttributesOtherThanId() ) {
+          val = getFallbackBySimpleName( cls );
+        }
+      }
+
+      return val;
+
+    } catch ( ClassNotFoundException | ObjectFactoryException e ) {
       throw new RuntimeException( e );
     }
+  }
 
-
+  private boolean hasNoAttributesOtherThanId() {
+    return attributes == null
+      || attributes.isEmpty()
+      || ( attributes.size() == 1 && attributes.containsKey( ID_ATTRIBUTE ) );
   }
 
   private int getDampeningTimeout() {
     if ( dampeningTimeout == null ) {
       dampeningTimeout = 0;
+
       ISystemConfig iSystemConfig = PentahoSystem.get( ISystemConfig.class );
       if ( iSystemConfig != null ) {
         String property = iSystemConfig.getProperty( "system.dampening-timeout" );
@@ -180,28 +196,32 @@ public class BeanBuilder implements FactoryBean {
         }
       }
     }
+
     return dampeningTimeout;
   }
 
-  private Object getFallbackBySimpleName( Class clazz, Map<String, String> attributes ) {
+  private Object getFallbackBySimpleName( Class<?> clazz ) {
     Object lastChanceObject;
-    if ( attributes != null && attributes.containsKey( "id" ) ) {
-      lastChanceObject = PentahoSystem.get( clazz, attributes.get( "id" ), PentahoSessionHolder.getSession() );
+    if ( attributes != null && attributes.containsKey( ID_ATTRIBUTE ) ) {
+      lastChanceObject = PentahoSystem.get( clazz, attributes.get( ID_ATTRIBUTE ), PentahoSessionHolder.getSession() );
     } else {
       lastChanceObject = PentahoSystem.get( clazz, PentahoSessionHolder.getSession() );
     }
+
     if ( lastChanceObject != null ) {
-      log.warn( "Target of <pen:bean class=\"" + clazz.getName()
-          + "\"> was found using deprecated bean ID == class.getSimpleName() "
-          + "fallback. The target bean with the id \"" + clazz.getSimpleName()
-          + "\" should be published directly with <pen:publish>" );
+      log.warn(
+        "Target of <pen:bean class=\"{}\"> was found using deprecated bean ID == class.getSimpleName() fallback. "
+          + "The target bean with the id \"{}\" should be published directly with <pen:publish>",
+        clazz.getName(),
+        clazz.getSimpleName() );
     }
+
     return lastChanceObject;
   }
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.springframework.beans.factory.FactoryBean#getObjectType()
    */
   public Class<?> getObjectType() {
@@ -210,7 +230,7 @@ public class BeanBuilder implements FactoryBean {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.springframework.beans.factory.FactoryBean#isSingleton()
    */
   public boolean isSingleton() {

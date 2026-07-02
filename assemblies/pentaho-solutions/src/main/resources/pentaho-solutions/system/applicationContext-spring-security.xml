@@ -8,9 +8,9 @@
        xmlns:util="http://www.springframework.org/schema/util"
        xmlns:sec="http://www.springframework.org/schema/security"
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
-                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd
-                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-5.8.xsd
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
                            http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
        default-lazy-init="true">
 
@@ -38,7 +38,7 @@
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
                                    mdcFilter,
-                                   exceptionTranslationFilterForWS,
+                                   exceptionTranslationFilter,
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/api/repos/**"
@@ -69,7 +69,7 @@
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
                                    mdcFilter,
-                                   exceptionTranslationFilterForWS,
+                                   exceptionTranslationFilter,
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/plugin/reporting/api/jobs/**"
@@ -84,7 +84,7 @@
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
                                    mdcFilter,
-                                   exceptionTranslationFilterForWS,
+                                   exceptionTranslationFilter,
                                    filterInvocationInterceptorForWS,
                                    preFlightFilter" />
 
@@ -100,7 +100,7 @@
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
                                    mdcFilter,
-                                   exceptionTranslationFilterForWS,
+                                   exceptionTranslationFilter,
                                    filterInvocationInterceptorForWS" />
 
         <sec:filter-chain pattern="/**"
@@ -155,6 +155,8 @@
         class="org.pentaho.platform.web.http.security.PentahoBasicAuthenticationEntryPoint">
     <property name="realmName" value="Pentaho Realm" />
   </bean>
+
+  <bean id="unauthorizedEntryPoint" class="org.pentaho.platform.web.http.security.Http401UnauthorizedEntryPoint" />
 
   <!-- custom Pentaho begin -->
 
@@ -238,15 +240,105 @@
   <!--
       ===================== HTTP REQUEST SECURITY ====================
   -->
-  <bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
-    <constructor-arg ref="authenticationProcessingFilterEntryPoint"/>
-    <property name="accessDeniedHandler">
-      <bean class="org.springframework.security.web.access.AccessDeniedHandlerImpl" />
-    </property>
+  <bean id="webBrowserRequestMatcher" class="org.springframework.security.web.util.matcher.OrRequestMatcher">
+    <constructor-arg>
+      <util:list>
+        <ref bean="webBrowserRequestMatcherSecFetch" />
+
+        <!--
+          This matcher is for requests considered insecure by the web browser, where the server is accessed via public
+          IP with HTTP, or private IP (even with HTTPS), or HTTPS with an invalid SSL certificate, causing `sec-fetch-*`
+          headers not to be sent. If the server is always accessed via a domain, either via HTTP, or via HTTPS with a
+          valid SSL certificate, then it should be possible to remove this, for added security.
+        -->
+        <ref bean="webBrowserRequestMatcherFallback" />
+      </util:list>
+    </constructor-arg>
   </bean>
 
-  <bean id="exceptionTranslationFilterForWS" class="org.springframework.security.web.access.ExceptionTranslationFilter">
-    <constructor-arg ref="basicProcessingFilterEntryPoint"/>
+  <bean id="webBrowserRequestMatcherSecFetch"
+        class="org.pentaho.platform.web.servlet.matchers.WebBrowserSecFetchRequestMatcher" />
+  <bean id="webBrowserRequestMatcherFallback"
+        class="org.pentaho.platform.web.servlet.matchers.WebBrowserUserAgentRequestMatcher">
+    <!-- If needed, browser and non-browser `user-agent` header patterns may be changed from defaults:
+    <constructor-arg>
+      <util:list>
+        <value>\bchrome/\b</value>
+        <value>\bheadlesschrome/\b</value>
+        <value>\bfirefox/\b</value>
+        <value>\bsafari/\b</value>
+        <value>\bedge/\b</value>
+        <value>\btrident/\b</value>
+        <value>\bmsie/\b</value>
+        <value>\bopera/\b</value>
+        <value>\bopr/\b</value>
+      </util:list>
+    </constructor-arg>
+    <constructor-arg>
+      <util:list>
+        <value>\bcurl/\b</value>
+        <value>\bwget/\b</value>
+        <value>\bpostmanruntime/\b</value>
+        <value>\bpython-requests/\b</value>
+        <value>\bbot\b</value>
+        <value>\bcrawler\b</value>
+        <value>\bspider\b</value>
+        <value>\bjava/\b</value>
+        <value>\bphp/\b</value>
+        <value>\bruby/\b</value>
+      </util:list>
+    </constructor-arg>
+    -->
+  </bean>
+
+  <bean id="userNavigationRequestMatcher" class="org.springframework.security.web.util.matcher.OrRequestMatcher">
+    <constructor-arg>
+      <util:list>
+        <ref bean="userNavigationRequestMatcherSecFetch" />
+
+        <!--
+          This matcher is for requests considered insecure by the web browser, where the server is accessed via public
+          IP with HTTP, or private IP (even with HTTPS), or HTTPS with an invalid SSL certificate, causing `sec-fetch-*`
+          headers not to be sent. If the server is always accessed via a domain, either via HTTP, or via HTTPS with a
+          valid SSL certificate, then it should be possible to remove this, for added security.
+        -->
+        <ref bean="userNavigationRequestMatcherFallback" />
+      </util:list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="userNavigationRequestMatcherSecFetch"
+        class="org.pentaho.platform.web.servlet.matchers.UserNavigationSecFetchRequestMatcher" />
+  <bean id="userNavigationRequestMatcherFallback" class="org.springframework.security.web.util.matcher.AndRequestMatcher">
+    <constructor-arg>
+      <util:list>
+        <!-- Only use `accept` header matcher if `sec-fetch-*` headers are not present. -->
+        <bean class="org.springframework.security.web.util.matcher.NegatedRequestMatcher">
+          <constructor-arg ref="webBrowserRequestMatcherSecFetch" />
+        </bean>
+        <ref bean="webBrowserRequestMatcherFallback" />
+        <bean class="org.pentaho.platform.web.servlet.matchers.UserNavigationAcceptRequestMatcher">
+          <!-- If needed, matching `accept` header patterns may be changed from defaults:
+          <constructor-arg>
+            <util:list>
+              <value>\btext/html\b</value>
+              <value>\bapplication/xhtml\+xml\b</value>
+            </util:list>
+          </constructor-arg>
+          -->
+        </bean>
+      </util:list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="httpSessionRequestCache" class="org.springframework.security.web.savedrequest.HttpSessionRequestCache">
+    <!-- After login, only send the user back to "user navigation" requests. Otherwise, go back /Home -->
+    <property name="requestMatcher" ref="userNavigationRequestMatcher" />
+  </bean>
+
+  <bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
+    <constructor-arg ref="userNavigationAwareAuthenticationEntryPoint"/>
+    <constructor-arg ref="httpSessionRequestCache"/>
     <property name="accessDeniedHandler">
       <bean class="org.springframework.security.web.access.AccessDeniedHandlerImpl" />
     </property>
@@ -264,23 +356,23 @@
     <constructor-arg ref="loginAttemptService"/>
   </bean>
 
+  <bean id="authenticationSuccessHandler"
+        class="org.pentaho.platform.web.http.security.PreventBruteForceSavedRequestAwareAuthenticationSuccessHandler">
+    <constructor-arg ref="loginAttemptService"/>
+    <property name="defaultTargetUrl" value="/Home" />
+    <property name="requestCache" ref="httpSessionRequestCache"/>
+  </bean>
+  <bean id="authenticationFailureHandler"
+        class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+    <constructor-arg type="java.lang.String" value="/Login?login_error=1" />
+  </bean>
+
   <bean id="authenticationProcessingFilter"
         class="org.pentaho.platform.web.http.security.PreventBruteForceUsernamePasswordAuthenticationFilter">
     <constructor-arg ref="loginAttemptService"/>
-    <property name="authenticationManager">
-      <ref bean="authenticationManager" />
-    </property>
-    <property name="authenticationSuccessHandler">
-      <bean class="org.pentaho.platform.web.http.security.PreventBruteForceSavedRequestAwareAuthenticationSuccessHandler">
-        <constructor-arg ref="loginAttemptService"/>
-        <property name="defaultTargetUrl" value="/Home" />
-      </bean>
-    </property>
-    <property name="authenticationFailureHandler">
-      <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
-        <constructor-arg type="java.lang.String" value="/Login?login_error=1" />
-      </bean>
-    </property>
+    <property name="authenticationManager" ref="authenticationManager" />
+    <property name="authenticationSuccessHandler" ref="authenticationSuccessHandler" />
+    <property name="authenticationFailureHandler" ref="authenticationFailureHandler" />
     <property name="filterProcessesUrl" value="/j_spring_security_check" />
     <property name="usernameParameter" value="j_username" />
     <property name="passwordParameter" value="j_password" />
@@ -292,6 +384,22 @@
     <property name="forceHttps" value="false" />
   </bean>
 
+  <bean id="userNavigationAwareAuthenticationEntryPoint"
+        class="org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint">
+    <constructor-arg>
+      <util:map>
+        <!-- 1. Browser - User Navigation: redirect to the /Login page -->
+        <entry key-ref="userNavigationRequestMatcher" value-ref="authenticationProcessingFilterEntryPoint" />
+
+        <!-- 2. Browser - Other: reject with 401, but with no challenge in WWW-Authenticate header -->
+        <entry key-ref="webBrowserRequestMatcher" value-ref="unauthorizedEntryPoint" />
+      </util:map>
+    </constructor-arg>
+
+    <!-- 3. Non-Browser: reject with 401 and a basic auth challenge in WWW-Authenticate header -->
+    <property name="defaultEntryPoint" ref="basicProcessingFilterEntryPoint" />
+  </bean>
+
   <bean id="httpRequestAccessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
     <constructor-arg>
       <util:list>
@@ -301,6 +409,7 @@
     <property name="allowIfAllAbstainDecisions" value="false" />
   </bean>
 
+  <bean id="requireJsConfigRequestMatcher" class="org.pentaho.platform.web.servlet.matchers.RequireJsConfigRequestMatcher" />
 
   <bean id="filterInvocationInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
     <property name="authenticationManager" ref="authenticationManager" />
@@ -314,15 +423,11 @@
     <property name="securityMetadataSource">
       <!-- http://stackoverflow.com/questions/30099851/spring-security-samples-preauth-xml-example-fails-to-run#answer-30105317 -->
       <sec:filter-security-metadata-source request-matcher="ciRegex" use-expressions="false">
-        <sec:intercept-url pattern="\A/osgi/cxf/hadoop-cluster/runTests.*\Z" access="Authenticated" />
-        <sec:intercept-url pattern="\A/osgi/cxf/hadoop-cluster/.*\Z" access="Administrator" />
         <sec:intercept-url pattern="\A/content/common-ui/resources/web/(.+/)*.+\.js.*\Z" access="Anonymous,Authenticated" />
-        <sec:intercept-url pattern="\A/js/require(-js)?(-cfg)?.js(\?.*)?\Z" access="Anonymous,Authenticated" />
-        <sec:intercept-url pattern="\A/content/common-ui/resources/web/require(-js)?(-cfg)?.js(\?.*)?\Z" access="Anonymous,Authenticated" />
-        <sec:intercept-url pattern="\A/content/common-ui/resources/web/dojo/require(-js)?(-cfg)?.js(\?.*)?\Z" access="Anonymous,Authenticated" />
-        <sec:intercept-url pattern="\A/content/config/deploy/client-config-enabler-require-js-cfg.js\Z" access="Anonymous,Authenticated" />
-        <sec:intercept-url pattern="\A/content/config/admin-plugin/client-config-enabler-require-js-cfg.js\Z" access="Anonymous,Authenticated" />
-        <sec:intercept-url pattern="\A/content/admin-plugin/resources/admin-plugin-require-js-cfg.js\Z" access="Anonymous,Authenticated" />
+        <!-- This Require JS config is not served from the /content or /api/repos content generators,
+             and is thus not handled by requireJsConfigRequestMatcher and needs to be so explicitly -->
+        <sec:intercept-url pattern="\A/js/require-js-cfg.js(\?.*)?\Z" access="Anonymous,Authenticated" />
+        <sec:intercept-url request-matcher-ref="requireJsConfigRequestMatcher" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/content/data-access/resources/gwt/.*css\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/webcontext.js.*\Z" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/content/common-ui/resources/web/cache/cache-service.js.*\Z" access="Anonymous,Authenticated" />
@@ -406,6 +511,7 @@
         <sec:intercept-url pattern="\A/plugin/reporting/api/jobs/.*\Z" access="Anonymous,Authenticated" method="HEAD" />
         <sec:intercept-url pattern="\A/api/repos/.*\Z" access="Anonymous,Authenticated" method="OPTIONS" />
         <sec:intercept-url pattern="\A/api/repos/.*\Z" access="Anonymous,Authenticated" method="HEAD" />
+        <sec:intercept-url request-matcher-ref="requireJsConfigRequestMatcher" access="Anonymous,Authenticated" />
         <sec:intercept-url pattern="\A/api/.*\Z" access="Authenticated" />
         <sec:intercept-url pattern="\A/plugin/.*\Z" access="Authenticated" />
       </sec:filter-security-metadata-source>

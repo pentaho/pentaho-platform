@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.util;
 
@@ -38,7 +39,6 @@ public class TestAll {
     suite.addTestSuite( PasswordServiceTest.class );
     suite.addTestSuite( PentahoSystemExceptionTest.class );
     suite.addTestSuite( VersionHelperTest.class );
-    suite.addTestSuite( XmlHelperTest.class );
 
     return suite;
   }

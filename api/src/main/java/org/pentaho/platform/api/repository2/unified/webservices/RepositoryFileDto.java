@@ -7,17 +7,19 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.api.repository2.unified.webservices;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
 import java.io.Serializable;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /*!
  * This program is free software; you can redistribute it and/or modify it under the
@@ -42,6 +44,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * @author mlowery
  */
+@JsonInclude( JsonInclude.Include.NON_NULL )
 @XmlRootElement
 public class RepositoryFileDto implements Serializable {
   private static final long serialVersionUID = 3578911355440278525L;

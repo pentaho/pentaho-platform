@@ -54,6 +54,7 @@
         <extension>xjpivot</extension>
         <extension>xml</extension>
         <extension>xreportspec</extension>
+        <extension>backup</extension>
       </MimeTypeDefinition>      
     </MimeTypeDefinitions>
   </ImportHandler>
@@ -68,10 +69,10 @@
   
   <ImportHandler class="com.pentaho.repository.importexport.PDIImportFileHandler">
     <MimeTypeDefinitions>
-      <MimeTypeDefinition mimeType="application/vnd.pentaho.job" converter="PDIJobStreamConverter" hidden="true" versionEnabled="true" versionCommentEnabled="true">
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.job" converter="PDIJobStreamConverter" hidden="false" versionEnabled="true" versionCommentEnabled="true">
         <extension>kjb</extension>
       </MimeTypeDefinition>
-      <MimeTypeDefinition mimeType="application/vnd.pentaho.transformation" converter="PDIJobStreamConverter" hidden="true" versionEnabled="true" versionCommentEnabled="true">
+      <MimeTypeDefinition mimeType="application/vnd.pentaho.transformation" converter="PDIJobStreamConverter" hidden="false" versionEnabled="true" versionCommentEnabled="true">
         <extension>ktr</extension>
       </MimeTypeDefinition>
     </MimeTypeDefinitions>

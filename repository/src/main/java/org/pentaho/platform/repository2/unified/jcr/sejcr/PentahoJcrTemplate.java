@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
@@ -77,7 +78,10 @@ public class PentahoJcrTemplate extends JcrTemplate {
       // Callback code threw application exception...
       throw pentahoConvertJcrAccessException( ex );
     } finally {
-      releaseSession( session );
+      // Session will be null if getSession() fails.
+      if ( session != null ) {
+        releaseSession( session );
+      }
     }
   }
 

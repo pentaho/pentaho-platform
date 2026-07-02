@@ -189,7 +189,7 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
                 <ul class="nav nav-tabs nav-stacked">
                   {{#eachRecent recent}}
                   <li>
-                    <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}' tabindex="-1">
+                    <a href="javascript:Home.openRepositoryFile('{{encodeUri (escapeQuotes fullPath)}}', 'run')" title='{{title}}' tabindex="-1">
                       <div class="row-fluid">
                         <div class="span10 ellipsis">
                           {{#if xanalyzer}} <i class="pull-left content-icon file-xanalyzer"></i> {{/if}}
@@ -253,7 +253,7 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
                 <ul class="nav nav-tabs nav-stacked">
                   {{#eachFavorite favorites}}
                   <li>
-                    <a href="javascript:Home.openRepositoryFile('{{escapeQuotes fullPath}}', 'run')" title='{{title}}' tabindex="-1">
+                    <a href="javascript:Home.openRepositoryFile('{{encodeUri (escapeQuotes fullPath)}}', 'run')" title='{{title}}' tabindex="-1">
                       <div class="row-fluid">
                         <div class="span10 ellipsis">
                           {{#if xanalyzer}} <i class="pull-left content-icon file-xanalyzer"></i> {{/if}}

@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importexport;
 
@@ -44,7 +45,8 @@ public class CommandLineProcessorPasswordTest {
   private static MockedStatic<EnvUtil>  envUtilMock;
 
   @BeforeClass
-  public static void beforeAll() {
+  public static void beforeAll() throws Exception {
+    KettleClientEnvironment.init();
     envUtilMock = mockStatic( EnvUtil.class );
     envUtilMock.when( () -> EnvUtil.getSystemProperty( Const.KETTLE_REDIRECT_STDOUT, "N" ) ).thenReturn( "N" );
     envUtilMock.when( () -> EnvUtil.getSystemProperty( Const.KETTLE_REDIRECT_STDERR, "N" ) ).thenReturn( "N" );

@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.wadl;
 
@@ -58,7 +59,7 @@ public class PentahoResourceDocletTest {
 
     annotationDescPath = mock( AnnotationDesc.class );
     when( annotationDescPath.annotationType() ).thenReturn( annotationTypeDeprecated );
-    when( annotationDescPath.toString() ).thenReturn( "@javax.ws.rs.Path" );
+    when( annotationDescPath.toString() ).thenReturn( "@jakarta.ws.rs.Path" );
 
     methodDoc = mock( MethodDoc.class );
     when( methodDoc.name() ).thenReturn( "methodName" );

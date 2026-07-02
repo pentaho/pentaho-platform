@@ -7,15 +7,16 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.util;
 
 import junit.framework.TestCase;
 import org.pentaho.platform.api.util.PasswordServiceException;
 
-import javax.mail.PasswordAuthentication;
+import jakarta.mail.PasswordAuthentication;
 import java.util.Base64;
 
 import static org.mockito.ArgumentMatchers.anyString;

@@ -7,13 +7,14 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.test.platform.web;
 
-import com.mockrunner.mock.web.MockHttpServletRequest;
-import com.mockrunner.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpSession;
 import org.apache.commons.logging.Log;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -23,8 +24,8 @@ import org.pentaho.platform.web.http.session.PentahoHttpSessionListener;
 import org.pentaho.test.platform.engine.core.BaseTest;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionEvent;
 import java.io.File;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -92,10 +93,10 @@ public class SessionIT extends BaseTest {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpSession session = new MockHttpSession();
     request.setSession( session );
-    request.setupAddParameter( "solution", "samples" ); //$NON-NLS-1$//$NON-NLS-2$
-    request.setupAddParameter( "path", "steel-wheels/reports" ); //$NON-NLS-1$ //$NON-NLS-2$
-    request.setupAddParameter( "action", "Inventory List.xaction" ); //$NON-NLS-1$ //$NON-NLS-2$
-    request.setupAddParameter( "details", "all" ); //$NON-NLS-1$ //$NON-NLS-2$
+    request.addParameter( "solution", "samples" ); //$NON-NLS-1$//$NON-NLS-2$
+    request.addParameter( "path", "steel-wheels/reports" ); //$NON-NLS-1$ //$NON-NLS-2$
+    request.addParameter( "action", "Inventory List.xaction" ); //$NON-NLS-1$ //$NON-NLS-2$
+    request.addParameter( "details", "all" ); //$NON-NLS-1$ //$NON-NLS-2$
     HttpSession httpSession = session;
 
     Enumeration attrNames = httpSession.getAttributeNames();

@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.context;
 
@@ -19,7 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

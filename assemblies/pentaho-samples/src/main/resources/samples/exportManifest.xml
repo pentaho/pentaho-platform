@@ -4950,11 +4950,11 @@
         <connectionPoolingProperties/>
         <databaseName>SampleData</databaseName>
         <databasePort>9001</databasePort>
-        <databaseType>
+        <ns2:databaseType>
             <defaultDatabasePort>9001</defaultDatabasePort>
             <name>Hypersonic</name>
             <shortName>HYPERSONIC</shortName>
-        </databaseType>
+        </ns2:databaseType>
         <extraOptions/>
         <forcingIdentifiersToLowerCase>false</forcingIdentifiersToLowerCase>
         <forcingIdentifiersToUpperCase>false</forcingIdentifiersToUpperCase>

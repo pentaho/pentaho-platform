@@ -5,8 +5,9 @@
 <hibernate-configuration>
   <session-factory>
 
-    <property name="cache.provider_class">org.hibernate.cache.EhCacheProvider</property>
-    <property name="hibernate.cache.region.factory_class">org.pentaho.platform.plugin.services.cache.HvCacheRegionFactory</property>
+    <property name="hibernate.javax.cache.provider">org.ehcache.jsr107.EhcacheCachingProvider</property>
+    <property name="hibernate.javax.cache.uri">ehcache.xml</property>
+    <property name="hibernate.cache.region.factory_class">org.hibernate.cache.jcache.internal.JCacheRegionFactory</property>
 
     <property name="hibernate.generate_statistics">true</property>
     <property name="hibernate.cache.use_query_cache">true</property>
@@ -14,11 +15,12 @@
     <!--  Oracle 10g Configuration -->
     <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
     <property name="connection.url">jdbc:oracle:thin:@localhost:1521:sampledata</property>
-    <property name="dialect">org.hibernate.dialect.Oracle10gDialect</property>
+    <property name="dialect">org.hibernate.dialect.OracleDialect</property>
     <property name="connection.username">hibuser</property>
     <property name="connection.password">password</property>
     <property name="connection.pool_size">10</property>
     <property name="show_sql">false</property>
     <property name="hibernate.jdbc.use_streams_for_binary">true</property>
+    <property name="hibernate.id.db_structure_naming_strategy">legacy</property>
   </session-factory>
 </hibernate-configuration>

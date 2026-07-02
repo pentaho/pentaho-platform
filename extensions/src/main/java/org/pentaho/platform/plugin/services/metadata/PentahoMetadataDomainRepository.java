@@ -7,13 +7,14 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.metadata;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -242,7 +243,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     int datasourceModelTagPosition = sb.indexOf( "datasourceModel" );
     if ( datasourceModelTagPosition != -1 ) {
       String xmiDomainId = endsWithXmi( domainId );
-      String noXmiDomainId = StringEscapeUtils.escapeXml( noXmi( domainId ) );
+      String noXmiDomainId = StringEscapeUtils.escapeXml11( noXmi( domainId ) );
       String tag = "<CWM:Description body=";
 
       int startTagPosition = sb.indexOf( tag, datasourceModelTagPosition );

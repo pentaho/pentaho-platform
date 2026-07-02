@@ -15,6 +15,21 @@
   user-select: none;
 }
 
+#fileBrowser .fileBrowserFiles > .body > .file {
+  display: flex;
+}
+
+#fileBrowser .fileBrowserColumn .body .file .icon {
+  flex: none;
+}
+
+#fileBrowser .fileBrowserColumn .body .file .title {
+  flex: auto;
+  text-overflow: ellipsis;
+  width: 100%;
+  overflow: hidden;
+}
+
 .main-container {
   padding-top: 20px;
   padding-bottom: 20px;

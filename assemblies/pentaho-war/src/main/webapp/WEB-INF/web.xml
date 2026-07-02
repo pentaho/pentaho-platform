@@ -196,10 +196,6 @@
     <listener-class>org.pentaho.platform.web.http.session.PentahoCacheSessionListener</listener-class>
   </listener>
 
-  <listener>
-    <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
-  </listener>
-
   <!-- insert additional listeners -->
 
   <!-- Last listener: PentahoSystemReadyListener, performs notification to plugins that the system
@@ -272,6 +268,10 @@
   <servlet>
     <servlet-name>PluginDispatchServlet</servlet-name>
     <servlet-class>org.pentaho.platform.web.servlet.PluginDispatchServlet</servlet-class>
+    <init-param>
+      <param-name>jakarta.ws.rs.Application</param-name>
+      <param-value>org.pentaho.platform.web.servlet.jersey.JAXRSPluginApplication</param-value>
+    </init-param>
   </servlet>
 
   <servlet>
@@ -353,8 +353,12 @@
     <description>JAX-RS endpoint</description>
     <servlet-class>org.pentaho.platform.web.servlet.JAXRSServlet</servlet-class>
     <init-param>
-      <param-name>com.sun.jersey.config.property.WadlGeneratorConfig</param-name>
+      <param-name>jersey.config.server.wadl.generatorConfig</param-name>
       <param-value>org.pentaho.platform.web.servlet.PentahoWadlGeneratorConfig</param-value>
+    </init-param>
+    <init-param>
+      <param-name>jakarta.ws.rs.Application</param-name>
+      <param-value>org.pentaho.platform.web.servlet.jersey.JAXRSApplication</param-value>
     </init-param>
   </servlet>
 

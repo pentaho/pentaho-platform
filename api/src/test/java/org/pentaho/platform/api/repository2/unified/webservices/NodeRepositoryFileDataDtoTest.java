@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.api.repository2.unified.webservices;
 
@@ -21,12 +22,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class NodeRepositoryFileDataDtoTest {
   @Test
-  public void testDto() {
+  public void testDtoNode() {
 
     NodeRepositoryFileDataDto dto = new NodeRepositoryFileDataDto();
     DataNodeDto nodeMock = new DataNodeDto();
     dto.setNode( nodeMock );
-    assertEquals( dto.getNode(), nodeMock );
+    assertEquals( nodeMock, dto.getNode() );
+
+  }
+
+  @Test
+  public void testDtoDataSize() {
+
+    NodeRepositoryFileDataDto dto = new NodeRepositoryFileDataDto();
+    int dataSize = 100;
+    dto.setDataSize( dataSize );
+    assertEquals( dataSize, dto.getDataSize() );
 
   }
 }

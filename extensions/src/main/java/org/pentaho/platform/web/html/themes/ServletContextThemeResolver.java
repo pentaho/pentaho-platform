@@ -7,12 +7,13 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.html.themes;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -26,7 +27,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;

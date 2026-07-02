@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="ERROR">
+<Configuration status="ERROR" monitorInterval="30">
    <Appenders>
       <RollingFile name="PENTAHOFILE" fileName="../logs/osgi_pentaho.log"
                    filePattern="../logs/osgi_pentaho.%d{yyyy-MM-dd}.log">
@@ -20,7 +20,7 @@
    </Appenders>
    <Loggers>
       <Logger name="org.hibernate" level="ERROR"/>
-      <Logger name="net.sf.ehcache" level="ERROR"/>
+      <Logger name="org.ehcache" level="ERROR"/>
       <Logger name="org.quartz" level="ERROR"/>
       <Logger name="org.springframework" level="ERROR"/>
       <Logger name="org.springframework.security" level="ERROR"/>

@@ -7,16 +7,19 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.scheduler2.recur;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Used to specify a list of recurrences representing dates or times. The list may represent years, or days of month or
@@ -37,6 +40,12 @@ public class RecurrenceList implements ITimeRecurrence {
 
   public List<Integer> getValues() {
     return values;
+  }
+  @JsonProperty( "values" )
+  public List<String> valuesAsStrings() {
+    return values.stream()
+      .map( String::valueOf )
+      .collect( Collectors.toList() );
   }
 
   public void setValues( List<Integer> values ) {

@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository.hibernate;
 
@@ -16,14 +17,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Interceptor;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.query.Query;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IPentahoSystemEntryPoint;
@@ -188,7 +190,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
         // --------- End Contribution ---------
 
       }
-      Dialect.getDialect( HibernateUtil.configuration.getProperties() );
+      Dialect dialect = ( ( SessionFactoryImplementor ) HibernateUtil.sessionFactory ).getJdbcServices().getDialect();
       return true;
     } catch ( Throwable ex ) {
       HibernateUtil.log.error( Messages.getInstance().getErrorString( "HIBUTIL.ERROR_0006_BUILD_SESSION_FACTORY" ), ex ); //$NON-NLS-1$
@@ -499,7 +501,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
     try {
       HibernateUtil.threadSession.set( null );
       if ( session.isConnected() && session.isOpen() ) {
-        session.disconnect();
+        session.close();
       }
     } catch ( HibernateException ex ) {
       HibernateUtil.log.error( Messages.getInstance().getErrorString( "HIBUTIL.ERROR_0002_DISCONNECT" ), ex ); //$NON-NLS-1$
@@ -554,7 +556,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
     if ( searchType == ISearchable.SEARCH_TYPE_PHRASE ) {
       Query qry = session.getNamedQuery( searchable.getPhraseSearchQueryName() );
       String searchWildcard = MessageUtil.formatErrorMessage( HibernateUtil.QUERYWILDCARD, searchTerm );
-      qry.setString( "searchTerm", searchWildcard ); //$NON-NLS-1$
+      qry.setParameter( "searchTerm", searchWildcard ); //$NON-NLS-1$
       List rtn = qry.list();
       return rtn;
     }

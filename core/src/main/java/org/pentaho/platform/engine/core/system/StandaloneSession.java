@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.engine.core.system;
 
@@ -22,23 +23,14 @@ import java.util.Iterator;
 import java.util.Locale;
 
 public class StandaloneSession extends BaseSession {
-
-  /**
-   * 
-   */
   private static final long serialVersionUID = -1614831602086304014L;
-
   private static final Log logger = LogFactory.getLog( StandaloneSession.class );
+  private static final String ERROR_0001 = "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION";
 
-  @Override
-  public Log getLogger() {
-    return StandaloneSession.logger;
-  }
-
-  private HashMap attributes;
+  private HashMap<String, Object> attributes;
 
   public StandaloneSession() {
-    this( "unknown" ); //$NON-NLS-1$
+    this( "unknown" );
   }
 
   public StandaloneSession( final String name ) {
@@ -51,13 +43,19 @@ public class StandaloneSession extends BaseSession {
 
   public StandaloneSession( final String name, final String id, final Locale locale ) {
     super( name, id, locale );
-    attributes = new HashMap();
+    attributes = new HashMap<>();
   }
 
+  @Override
+  public Log getLogger() {
+    return StandaloneSession.logger;
+  }
+
+  @SuppressWarnings( "rawtypes" ) // Treated as in IPentahoSession
   public Iterator getAttributeNames() {
     if ( attributes == null ) {
-      throw new IllegalStateException( Messages.getInstance().getErrorString(
-          "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION", String.valueOf( Thread.currentThread().getId() ) ) ); //$NON-NLS-1$
+      throw new IllegalStateException(
+        Messages.getInstance().getErrorString( ERROR_0001, String.valueOf( Thread.currentThread().getId() ) ) );
     }
 
     // TODO need to turn the set iterator into an enumeration...
@@ -66,25 +64,30 @@ public class StandaloneSession extends BaseSession {
 
   public Object getAttribute( final String attributeName ) {
     if ( attributes == null ) {
-      throw new IllegalStateException( Messages.getInstance().getErrorString(
-          "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION", String.valueOf( Thread.currentThread().getId() ) ) ); //$NON-NLS-1$
+      throw new IllegalStateException(
+        Messages.getInstance().getErrorString( ERROR_0001, String.valueOf( Thread.currentThread().getId() ) ) );
     }
     return attributes.get( attributeName );
   }
 
   public void setAttribute( final String attributeName, final Object value ) {
     if ( attributes == null ) {
-      throw new IllegalStateException( Messages.getInstance().getErrorString(
-          "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION", String.valueOf( Thread.currentThread().getId() ) ) ); //$NON-NLS-1$
+      throw new IllegalStateException(
+        Messages.getInstance().getErrorString( ERROR_0001, String.valueOf( Thread.currentThread().getId() ) ) );
     }
 
-    attributes.put( attributeName, value );
+    // Make it semantically equivalent to HttpSession.setAttribute
+    if ( value == null ) {
+      attributes.remove( attributeName );
+    } else {
+      attributes.put( attributeName, value );
+    }
   }
 
   public Object removeAttribute( final String attributeName ) {
     if ( attributes == null ) {
-      throw new IllegalStateException( Messages.getInstance().getErrorString(
-          "StandaloneSession.ERROR_0001_ACCESSING_DESTROYED_SESSION", String.valueOf( Thread.currentThread().getId() ) ) ); //$NON-NLS-1$
+      throw new IllegalStateException(
+        Messages.getInstance().getErrorString( ERROR_0001, String.valueOf( Thread.currentThread().getId() ) ) );
     }
 
     Object result = getAttribute( attributeName );

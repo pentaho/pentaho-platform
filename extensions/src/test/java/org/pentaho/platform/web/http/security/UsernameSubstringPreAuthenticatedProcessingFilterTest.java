@@ -7,17 +7,18 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.security;
 
-import com.mockrunner.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.Principal;
 
 import static org.junit.Assert.assertEquals;

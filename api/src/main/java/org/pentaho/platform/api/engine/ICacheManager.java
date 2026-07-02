@@ -7,14 +7,16 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.api.engine;
 
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public interface ICacheManager extends ILogoutListener {
   public static final String SESSION = "SESSION"; //$NON-NLS-1$
@@ -169,7 +171,7 @@ public interface ICacheManager extends ILogoutListener {
    *          The data to store in the cache.
    * 
    */
-  public void putInRegionCache( String reqion, Object key, Object value );
+  public void putInRegionCache( String region, Object key, Object value );
 
   /**
    * Gets an object from the cache within a specific region
@@ -184,7 +186,28 @@ public interface ICacheManager extends ILogoutListener {
   public Object getFromRegionCache( String region, Object key );
 
   /**
+   * Returns a value from a specific cache region if present. If the region does not exist, it is created.
+   * If the value is not present, this method atomically creates, stores, and returns a value produced
+   * by the supplied creator function. 
+   * 
+   * NOTE: This method is only truly atomic if we deprecate the other getFromRegionCache and putInRegionCache 
+   * methods, and only use this method to access the cache. If the cache is accessed outside of this 
+   * method, all bets are off regarding atomicity.
+   *
+   * @param region
+   *          the region where the object is stored
+   * @param key
+   *          the key that the data object is stored with
+   * @param creator
+   *          function that creates the value when it is absent from the cache
+   * @return The cached or newly created data object
+   */
+  public Object getOrCreateFromRegionCache( String region, Object key, Supplier<Object> creator );
+
+  /**
    * Get a Set of Map.Entry objects from the cache within a specific region
+   * This method creates a new Set object containing a copy of the entries
+   * in the cache at the time the method was called.
    * 
    * @param region
    *          the region where the object was put in the cache
@@ -195,6 +218,8 @@ public interface ICacheManager extends ILogoutListener {
 
   /**
    * Get a Set of Key objects from the cache within a specific region
+   * This method creates a new Set object containing a copy of the keys
+   * in the cache at the time the method was called
    * 
    * @param region
    *          the region where the object was put in the cache
@@ -224,28 +249,7 @@ public interface ICacheManager extends ILogoutListener {
 
   public void removeFromRegionCache( String region, Object key );
 
-  /**
-   * Counts the items in the region cache
-   * 
-   * @param region
-   * @return Number of elements in the region cache
-   */
-  public long getElementCountInRegionCache( String region );
-
-  /**
-   * Counts the items in the session cache
-   * 
-   * @param region
-   * @return Number of elements in the session cache
-   */
-  public long getElementCountInSessionCache();
-
-  /**
-   * Counts the items in the global cache
-   * 
-   * @param region
-   * @return Number of elements in the global cache
-   */
-  public long getElementCountInGlobalCache();
-
+  // Removing the Cache entries count methods because
+  //      1. These methods not being used
+  //      2. Hibernate + JCache doesn't have a straight forward way to get the number
 }

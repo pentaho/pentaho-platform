@@ -7,12 +7,13 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.servlet;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IMessageFormatter;
@@ -25,10 +26,10 @@ import org.pentaho.platform.web.http.HttpOutputHandler;
 import org.pentaho.platform.web.servlet.messages.Messages;
 import org.springframework.http.MediaType;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -75,7 +76,7 @@ public class UIServlet extends ServletBase {
       }
 
       // find out which component is going to fulfill this request
-      String componentName = StringEscapeUtils.escapeHtml( request.getParameter( "component" ) ); //$NON-NLS-1$
+      String componentName = StringEscapeUtils.escapeHtml4( request.getParameter( "component" ) ); //$NON-NLS-1$
       if ( componentName == null ) {
         response.setContentType( "text/html" ); //$NON-NLS-1$
         StringBuffer buffer = new StringBuffer();

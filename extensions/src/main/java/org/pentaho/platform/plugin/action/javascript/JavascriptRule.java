@@ -7,12 +7,13 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.action.javascript;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mozilla.javascript.Context;
@@ -123,7 +124,7 @@ public class JavascriptRule extends ComponentBase {
   @Override
   protected boolean executeAction() {
     Context cx = ContextFactory.getGlobal().enterContext();
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     @SuppressWarnings( "unchecked" )
     Iterator<String> iter = getResourceNames().iterator();
     while ( iter.hasNext() ) {
@@ -252,7 +253,7 @@ public class JavascriptRule extends ComponentBase {
       }
       inputValue = getInputValue( inputName );
       if ( inputValue instanceof String ) {
-        inputValue = StringEscapeUtils.escapeHtml( (String) inputValue );
+        inputValue = StringEscapeUtils.escapeHtml4( (String) inputValue );
       }
       Object wrapper;
       if ( inputValue instanceof IPentahoResultSet ) {

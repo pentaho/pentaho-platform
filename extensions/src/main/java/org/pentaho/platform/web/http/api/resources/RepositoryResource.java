@@ -7,48 +7,61 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.api.resources;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.GenericEntity;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
+import net.sf.saxon.Configuration;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.vfs2.FileObject;
 import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
+import org.pentaho.di.core.bowl.Bowl;
+import org.pentaho.di.core.bowl.DefaultBowl;
+import org.pentaho.di.core.vfs.IKettleVFS;
+import org.pentaho.di.core.vfs.KettleVFS;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginOperation;
-import org.pentaho.platform.api.engine.PluginBeanException;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDto;
+import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDtoWrapper;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.api.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.pentaho.platform.util.RepositoryPathEncoder;
+import org.pentaho.platform.web.http.api.resources.utils.XactionSaxonExtensions;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -60,27 +73,49 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import static javax.ws.rs.core.MediaType.WILDCARD;
-import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
+import static jakarta.ws.rs.core.MediaType.WILDCARD;
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
- * The RepositoryResource service retrieves the repository files through various methods.  Allows you to execute repository content.
+ * The RepositoryResource service retrieves the repository files through various methods. Allows you to execute repository content.
  */
 @Path ( "/repos" )
 public class RepositoryResource extends AbstractJaxRSResource {
 
-  protected IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
+  /**
+   * This pattern is used to match the repository path in the format of "/api/repos/{contextId}/{resourceId}".
+   * It assumes the REST resource is being served via its default URL, {@code /api/repos}.
+   * Used by {@link #isStaticResource(HttpServletRequest)}.
+   */
+  private static final Pattern PATH_PATTERN = Pattern.compile( "\\A/api/repos/([^/]+)/(.+)\\Z" );
 
   private static final Log logger = LogFactory.getLog( RepositoryResource.class );
   public static final String GENERATED_CONTENT_PERSPECTIVE = "generatedContent"; //$NON-NLS-1$
+  private static final String XACTION = "xaction";
+  private static final String OUTPUT_TARGET = "output-target";
+  private static final String PARAMETER = "parameter";
 
+  protected IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
   protected IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class );
 
   protected RepositoryDownloadWhitelist whitelist;
+
+  static {
+    ISystemConfig settings = PentahoSystem.get( ISystemConfig.class );
+    if ( settings != null && "true".equals( settings.getProperty( "system.allowXActionParameters" ) ) ) {
+      logger.info( "System allowXActionParameters is set; if this is not intended, check the configuration." );
+      Configuration config = org.pentaho.platform.util.xml.XMLParserFactoryProducer.getSaxonConfig();
+      if ( config != null ) {
+        XactionSaxonExtensions.registerAll( config );
+      }
+    }
+  }
 
   @GET
   @Path ( "{pathId : .+}/content" )
@@ -118,8 +153,6 @@ public class RepositoryResource extends AbstractJaxRSResource {
   public Response doExecuteDefault( @PathParam ( "pathId" ) String pathId ) throws FileNotFoundException,
       MalformedURLException, URISyntaxException {
     String perspective = null;
-    StringBuffer buffer = null;
-    String url = null;
     String path = FileResource.idToPath( pathId );
 
     if ( FileResource.getRepository().getFile( path ) == null ) {
@@ -130,7 +163,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
     IContentInfo info = pluginManager.getContentTypeInfo( extension );
     for ( IPluginOperation operation : info.getOperations() ) {
-      if ( operation.getId().equalsIgnoreCase( "RUN" ) ) { //$NON-NLS-1$
+      if ( operation.getId().equalsIgnoreCase( "RUN" ) ) {
         perspective = operation.getPerspective();
         break;
       }
@@ -139,9 +172,9 @@ public class RepositoryResource extends AbstractJaxRSResource {
       perspective = GENERATED_CONTENT_PERSPECTIVE;
     }
 
-    buffer = httpServletRequest.getRequestURL();
+    StringBuffer buffer = httpServletRequest.getRequestURL();
     String queryString = httpServletRequest.getQueryString();
-    url = buffer.substring( 0, buffer.lastIndexOf( "/" ) + 1 ) + perspective + //$NON-NLS-1$
+    String url = buffer.substring( 0, buffer.lastIndexOf( "/" ) + 1 ) + perspective +
         ( ( queryString != null && queryString.length() > 0 ) ? "?" + httpServletRequest.getQueryString() : "" );
     return Response.seeOther( ( new URL( url ) ).toURI() ).build();
   }
@@ -161,7 +194,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
    * @param resourceId Identifies a resource to be retrieved. This value may be a static file residing in a publicly visible plugin folder, repository file ID or content generator ID
    * @param formParams Any arguments needed to render the resource
    *
-   * @return A jax-rs Response object with the appropriate status code, header, and body. In many cases this will trigger a streaming operation after it it is returned to the caller..
+   * @return A jax-rs Response object with the appropriate status code, header, and body. In many cases this will trigger a streaming operation after it is returned to the caller.
    *
    * <p><b>Example Response:</b></p>
    *  <pre function="syntax.xml">
@@ -178,14 +211,13 @@ public class RepositoryResource extends AbstractJaxRSResource {
   } )
   public Response doFormPost( @PathParam ( "contextId" ) String contextId, @PathParam ( "resourceId" ) String resourceId,
                               final MultivaluedMap<String, String> formParams )
-    throws ObjectFactoryException, PluginBeanException,
-      IOException, URISyntaxException {
+    throws ObjectFactoryException, PluginBeanException, IOException, URISyntaxException {
 
     httpServletRequest = JerseyUtil.correctPostRequest( formParams, httpServletRequest );
 
     if ( logger.isDebugEnabled() ) {
       for ( Object key : httpServletRequest.getParameterMap().keySet() ) {
-        logger.debug( "param [" + key + "]" ); //$NON-NLS-1$ //$NON-NLS-2$
+        logger.debug( "param [" + key + "]" );
       }
     }
 
@@ -597,7 +629,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
     if ( logger.isDebugEnabled() ) {
       for ( Object key : httpServletRequest.getParameterMap().keySet() ) {
-        logger.debug( "param [" + key + "]" ); //$NON-NLS-1$ //$NON-NLS-2$
+        logger.debug( "param [" + key + "]" );
       }
     }
 
@@ -613,8 +645,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
   @GET
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @Facet ( name = "Unsupported" )
-  public Response getExecutableTypes() {
-    ArrayList<ExecutableFileTypeDto> executableTypes = new ArrayList<ExecutableFileTypeDto>();
+  public ExecutableFileTypeDtoWrapper getExecutableTypes() {
+    ArrayList<ExecutableFileTypeDto> executableTypes = new ArrayList<>();
     for ( String contentType : pluginManager.getContentTypes() ) {
       IContentInfo contentInfo = pluginManager.getContentTypeInfo( contentType );
       ExecutableFileTypeDto executableFileType = new ExecutableFileTypeDto();
@@ -626,8 +658,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
       executableTypes.add( executableFileType );
     }
 
-    final GenericEntity<List<ExecutableFileTypeDto>> entity = new GenericEntity<List<ExecutableFileTypeDto>>( executableTypes ) { };
-    return Response.ok( entity ).build();
+    final GenericEntity<List<ExecutableFileTypeDto>> entity = new GenericEntity<>( executableTypes ) { };
+    return new ExecutableFileTypeDtoWrapper( executableTypes );
   }
 
   private boolean hasOperationId( final List<IPluginOperation> operations, final String operationId ) {
@@ -643,27 +675,126 @@ public class RepositoryResource extends AbstractJaxRSResource {
     return false;
   }
 
+  /**
+   * Determines if the request is for a static resource handled by this content generator handler
+   * assuming it's being served via its default URL, {@code /api/repos}.
+   * <p>
+   * The implementation of this method uses the exact same rules used by {@link #doService(String, String)} to identify
+   * static resources. The two must be kept in sync.
+   *
+   * @param request The request.
+   * @return {@code true} if the request is for a static resource; {@code false}, otherwise.
+   */
+  public boolean isStaticResource( @NonNull HttpServletRequest request ) {
+    final String fullPath = request.getServletPath() + ( request.getPathInfo() != null ? request.getPathInfo() : "" );
+
+    final Matcher matcher = PATH_PATTERN.matcher( fullPath );
+    if ( !matcher.matches() ) {
+      return false;
+    }
+
+    final String contextId = matcher.group( 1 );
+    final String resourceId = matcher.group( 2 );
+    final String pluginId = getPluginIdFromContextId( contextId );
+
+    // Check that the file is public and that in fact exists.
+    // It is necessary to test that the public path corresponds to an existing file because doService falls back to
+    // the (dynamic) content, otherwise.
+    return pluginId != null && doesPluginFileExist( pluginId, resourceId );
+  }
+
+  private String getPluginIdFromContextId( String contextId ) {
+    // Is the context id a repository file name (A)?
+    if ( isEncodedRepositoryFilePath( contextId ) ) {
+      // File must exist and the user must have access to it.
+      final RepositoryFile file;
+      try {
+        file = repository.getFile( FileResource.idToPath( contextId ) );
+        if ( file == null ) {
+          return null;
+        }
+      } catch ( UnifiedRepositoryException ex ) {
+        // Can be access denied, invalid path, etc.
+        //
+        // If access is denied because the user does not have Read Content permission, as would be the case for an
+        // Anonymous user, calling this from RequireJsConfigRequestMatcher, then they will not be able to use a
+        // require-js-cfg.js file pattern to determine whether certain repository files exist or not. Attempting
+        // to resolve a resource id in the context of a repository file, will always be rejected.
+        //
+        // If access is denied because the user does not have Read ACL permission on the file, then just like with other
+        // APIs, they will still not be able to distinguish between the repository file existing or them not having
+        // access to it.
+        //
+        // Whatever the repository exception, return a null plugin id.
+        logger.error( MessageFormat.format( "Repository file [{0}] not found or not accessible", contextId ), ex );
+        return null;
+      }
+
+      return pluginManager.getPluginIdForType( RepositoryFilenameUtils.getExtension( file.getName() ) );
+    }
+
+    // Is context a content type id (B) ?
+    final String pluginId = pluginManager.getPluginIdForType( contextId );
+    if ( pluginId != null ) {
+      return pluginId;
+    }
+
+    // Is context a plugin id (C) ?
+    if ( pluginManager.getRegisteredPlugins().contains( contextId ) ) {
+      return contextId;
+    }
+
+    return null;
+  }
+
+  private boolean isEncodedRepositoryFilePath( String contextId ) {
+    return contextId.startsWith( ":" ) || contextId.matches( "^[A-z]\t:.*" );
+  }
+
+  @VisibleForTesting
+  protected boolean isPvfsPath( String contextId ) {
+    return contextId.matches( "pvfs\t::.*" );
+  }
+
+  @VisibleForTesting
+  protected Bowl getBowl() {
+    return DefaultBowl.getInstance();
+  }
+
   protected Response doService( String contextId, String resourceId ) throws ObjectFactoryException,
       PluginBeanException, IOException, URISyntaxException {
 
-    ctxt( "Is [{0}] a repository file id?", contextId ); //$NON-NLS-1$
-    if ( contextId.startsWith( ":" ) || contextId.matches( "^[A-z]\t:.*" ) ) { //$NON-NLS-1$
+    ctxt( "Is [{0}] a repository file id?", contextId );
+    if ( isEncodedRepositoryFilePath( contextId ) ) {
       //
       // The context is a repository file (A)
       //
 
       final RepositoryFile file = repository.getFile( FileResource.idToPath( contextId ) );
+      Response response = null;
+
       if ( file == null ) {
-        logger.error( MessageFormat.format( "Repository file [{0}] not found", contextId ) );
-        return Response.serverError().build();
-      }
-      if ( FileResource.idToPath( contextId ).endsWith( ".prpti" ) && !validatePrptiOutputFormat() ) {
-        logger.error( MessageFormat.format( "Output Format [{0}] for PIR report not allowed for file [{1}]",
-          this.httpServletRequest.getParameterMap().get( "output-target" )[ 0 ], FileResource.idToPath( contextId ) ) );
-        return Response.serverError().status( Status.BAD_REQUEST ).build();
+        // File not found - could be a system job,
+        // so continue trying content generators instead of immediately returning error
+        if ( !PARAMETER.equals( resourceId ) ) {
+          logger.error( MessageFormat.format( "Repository file [{0}] not found", contextId ) );
+          return Response.serverError().build();
+        } else {
+          ctxt( "Repository file [{0}] not found, but performing parameter request since it can be a system job", contextId );
+          response = tryParameterContentGenerator( resourceId );
+          if ( response != null ) {
+            return response;
+          }
+          logger.warn( MessageFormat.format( "No resource [{0}] found in context [{1}].", resourceId, contextId ) );
+          return Response.status( NOT_FOUND ).build();
+        }
       }
 
-      Response response = null;
+      if ( FileResource.idToPath( contextId ).endsWith( ".prpti" ) && !validatePrptiOutputFormat() ) {
+        logger.error( MessageFormat.format( "Output Format [{0}] for PIR report not allowed for file [{1}]",
+          this.httpServletRequest.getParameterMap().get( OUTPUT_TARGET )[ 0 ], FileResource.idToPath( contextId ) ) );
+        return Response.serverError().status( Status.BAD_REQUEST ).build();
+      }
 
       ctxt( "Yep, [{0}] is a repository file id", contextId ); //$NON-NLS-1$
       final String ext = RepositoryFilenameUtils.getExtension( file.getName() );
@@ -694,6 +825,48 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
       // A.3.b (real content generator)
       CGFactory fac = new RepositoryFileCGFactory( resourceId, file );
+      response = getContentGeneratorResponse( fac );
+      if ( response != null ) {
+        return response;
+      }
+    } else if ( isPvfsPath( contextId ) ) {
+      //
+      // The context is a PVFS file (D)
+      //
+      ctxt( "Yes, [{0}] is a PVFS file id", contextId ); //$NON-NLS-1$
+      Response response = null;
+
+      // verify file exists and we have access to the connection
+      String pathId = RepositoryPathEncoder.decodeRepositoryPath( contextId );
+      IKettleVFS vfs = KettleVFS.getInstance( getBowl() );
+      FileObject fileObject;
+      try {
+        fileObject = vfs.getFileObject( pathId );
+      } catch ( Exception e ) {
+        logger.error( MessageFormat.format( "Error accessing PVFS file [{0}]", contextId ), e );
+        fileObject = null;
+      }
+      if ( fileObject == null || !fileObject.exists() ) {
+        logger.error( MessageFormat.format( "PVFS file [{0}] not found", contextId ) );
+        return Response.serverError().build();
+      }
+      if ( RepositoryPathEncoder.decodeRepositoryPath( contextId ).endsWith( ".prpti" )
+        && !validatePrptiOutputFormat() ) {
+        logger.error( MessageFormat.format( "Output Format [{0}] for PIR report not allowed for file [{1}]",
+          this.httpServletRequest.getParameterMap().get( "output-target" )[ 0 ], RepositoryPathEncoder
+            .decodeRepositoryPath( contextId ) ) );
+        return Response.serverError().status( Status.BAD_REQUEST ).build();
+      }
+
+      ctxt( "Yep, [{0}] is a pvfs file id", contextId ); //$NON-NLS-1$
+      final String ext = RepositoryFilenameUtils.getExtension( RepositoryFilenameUtils.getName( pathId ) );
+      String pluginId = pluginManager.getPluginIdForType( ext );
+      if ( pluginId == null ) {
+        logger.error( MessageFormat.format( "No plugin was found to service content of type [{0}]", ext ) );
+        return Response.serverError().build();
+      }
+
+      CGFactory fac = new VfsFileCGFactory( resourceId, fileObject );
       response = getContentGeneratorResponse( fac );
       if ( response != null ) {
         return response;
@@ -744,7 +917,15 @@ public class RepositoryResource extends AbstractJaxRSResource {
             return response;
           }
         } else {
-          ctxt( "Nope, [{0}] is not a plugin id", contextId ); //$NON-NLS-1$
+          ctxt( "Nope, [{0}] is not a plugin id, but performing parameter request since it can be a system job",
+            contextId );
+
+          if ( PARAMETER.equals( resourceId ) ) {
+            Response response = tryParameterContentGenerator( resourceId );
+            if ( response != null ) {
+              return response;
+            }
+          }
           logger.warn( MessageFormat.format( "Failed to resolve context [{0}]", contextId ) ); //$NON-NLS-1$
         }
       }
@@ -757,8 +938,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   private boolean validatePrptiOutputFormat() {
     boolean valid = true;
-    if ( this.httpServletRequest.getParameterMap() != null && this.httpServletRequest.getParameterMap().containsKey( "output-target" ) ) {
-      String outputFormat = this.httpServletRequest.getParameterMap().get( "output-target" )[0];
+    if ( this.httpServletRequest.getParameterMap() != null && this.httpServletRequest.getParameterMap().containsKey( OUTPUT_TARGET ) ) {
+      String outputFormat = this.httpServletRequest.getParameterMap().get( OUTPUT_TARGET )[0];
       valid = AllowedPrptiTypes.getByType( outputFormat ) != null;
     }
     return valid;
@@ -809,6 +990,22 @@ public class RepositoryResource extends AbstractJaxRSResource {
     }
   }
 
+  class VfsFileCGFactory extends ContentTypeCGFactory {
+    FileObject fileObject;
+
+    public VfsFileCGFactory( String contentGeneratorPath, FileObject fileObject ) {
+      super( contentGeneratorPath, fileObject.getName().getBaseName().substring( fileObject.getName().getBaseName()
+        .lastIndexOf( '.' ) + 1 ) );
+      this.fileObject = fileObject;
+    }
+
+    @Override
+    GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
+      return new GeneratorStreamingOutput( cg, this, httpServletRequest, httpServletResponse, acceptableMediaTypes,
+        fileObject, command );
+    }
+  }
+
   class ContentTypeCGFactory extends CGFactory {
     String repoFileExt;
 
@@ -825,7 +1022,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     @Override
     GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
       return new GeneratorStreamingOutput( cg, this, httpServletRequest, httpServletResponse, acceptableMediaTypes,
-          null, command );
+          command );
     }
 
     @Override
@@ -855,7 +1052,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     @Override
     GeneratorStreamingOutput getStreamingOutput( IContentGenerator cg ) {
       return new GeneratorStreamingOutput( cg, this, httpServletRequest, httpServletResponse, acceptableMediaTypes,
-          null, command );
+          command );
     }
 
     @Override
@@ -900,19 +1097,49 @@ public class RepositoryResource extends AbstractJaxRSResource {
     }
     Response response = checkPermissionIfUserIsEditingContent( fac.getContentGeneratorId() );
     if ( response == null ) {
-      rsc(
-              "Yep, [{0}] is a content generator ID. Executing (where command path is {1})..", fac.getContentGeneratorId(),
-              fac.getCommand() ); //$NON-NLS-1$
+      rsc( "Yep, [{0}] is a content generator ID. Executing (where command path is {1})..", fac.getContentGeneratorId(),
+        fac.getCommand() );
       GeneratorStreamingOutput gso = fac.getStreamingOutput( contentGenerator );
       response = Response.ok( gso ).build();
     }
     return response;
   }
 
+  // Visible  for testing
+  @NonNull
+  protected PluginResource createPluginResource() {
+    return new PluginResource( httpServletResponse );
+  }
+
+  /**
+   * Checks if the plugin file path is public and exists.
+   * <p>
+   * This method mimics {@link #getPluginFileResponse(String, String)} only checks for existence, and taking care to not
+   * change the HTTP response's headers while doing so.
+   *
+   * @param pluginId The plugin id.
+   * @param filePath The path to the file.
+   * @return true if the file exists, false otherwise.
+   */
+  protected boolean doesPluginFileExist( String pluginId, String filePath ) {
+    if ( !pluginManager.isPublic( pluginId, filePath ) ) {
+      return false;
+    }
+
+    PluginResource pluginResource = createPluginResource();
+    try {
+      // Skip updating response headers, because we're only interested in checking whether the resource exists.
+      Response readFileResponse = pluginResource.readFile( pluginId, filePath, false );
+      return readFileResponse.getStatus() != Status.NOT_FOUND.getStatusCode();
+    } catch ( IOException e ) {
+      return false;
+    }
+  }
+
   protected Response getPluginFileResponse( String pluginId, String filePath ) throws IOException {
     rsc( "Is [{0}] a path to a plugin file?", filePath ); //$NON-NLS-1$
     if ( pluginManager.isPublic( pluginId, filePath ) ) {
-      PluginResource pluginResource = new PluginResource( httpServletResponse );
+      PluginResource pluginResource = createPluginResource();
       Response readFileResponse = pluginResource.readFile( pluginId, filePath );
       // TODO: should we assume forbidden means move on in the resolution chain, or abort??
       if ( readFileResponse.getStatus() != Status.NOT_FOUND.getStatusCode() ) {
@@ -938,6 +1165,16 @@ public class RepositoryResource extends AbstractJaxRSResource {
       return response;
     }
     rsc( "Nope, [{0}] is not a repository file", path ); //$NON-NLS-1$
+    return null;
+  }
+
+  protected Response tryParameterContentGenerator( String resourceId ) {
+    ctxt( "This is a parameter request, attempting content generator" );
+    String pluginId = pluginManager.getPluginIdForType( XACTION );
+    if ( pluginId != null ) {
+      CGFactory fac = new ContentTypeCGFactory( resourceId, XACTION );
+      return getContentGeneratorResponse( fac );
+    }
     return null;
   }
 
@@ -979,12 +1216,10 @@ public class RepositoryResource extends AbstractJaxRSResource {
         if ( "URL".equalsIgnoreCase( propname ) ) { //$NON-NLS-1$
           return value;
         }
-
       }
     }
     // No URL found
-    return ""; //$NON-NLS-1$
-
+    return "";
   }
 
   public RepositoryDownloadWhitelist getWhitelist() {
@@ -998,7 +1233,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
   private Response checkPermissionIfUserIsEditingContent( String resourceId ) {
     // Check if we are editing a content
     String perspectiveId = resourceId;
-    if ( perspectiveId != null && perspectiveId.indexOf( "." ) >= 0 ) {
+    if ( perspectiveId != null && perspectiveId.indexOf( '.' ) >= 0 ) {
       String[] parts = perspectiveId.split( "\\." );
       if ( parts != null && parts.length > 0 ) {
         perspectiveId = parts[1];

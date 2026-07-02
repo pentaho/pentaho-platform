@@ -7,12 +7,13 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.api.engine;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.pentaho.actionsequence.dom.IActionControlStatement;
 import org.pentaho.actionsequence.dom.IActionDefinition;
 import org.pentaho.actionsequence.dom.IActionIfStatement;

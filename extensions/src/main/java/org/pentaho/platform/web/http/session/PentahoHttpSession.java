@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.session;
 
@@ -23,7 +24,7 @@ import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider
 import org.pentaho.platform.engine.core.system.BaseSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import java.util.Iterator;
 import java.util.Locale;
 

@@ -7,19 +7,21 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.email;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.api.email.IEmailConfiguration;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Properties;
+
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.pentaho.platform.api.email.IEmailConfiguration;
+
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Bean which contains all the information for the email configuration
@@ -39,6 +41,7 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
   private Integer smtpPort;
   private String smtpProtocol;
   private boolean smtpQuitWait;
+  private boolean smtpSendPartial;
   private String userId;
   private String password;
   private boolean useSsl;
@@ -60,7 +63,7 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
 
   public EmailConfiguration( final boolean authenticate, final boolean debug, final String defaultFrom,
       final String fromName, final String smtpHost, final Integer smtpPort, final String smtpProtocol,
-      final boolean smtpQuitWait, final String userId, final String password, final boolean useSsl,
+      final boolean smtpQuitWait, final boolean smtpSendPartial, final String userId, final String password, final boolean useSsl,
       final boolean useStartTls ) {
     this.authenticate = authenticate;
     this.debug = debug;
@@ -70,6 +73,7 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
     this.smtpPort = smtpPort;
     this.smtpProtocol = smtpProtocol;
     this.smtpQuitWait = smtpQuitWait;
+    this.smtpSendPartial = smtpSendPartial;
     this.userId = userId;
     this.password = password;
     this.useSsl = useSsl;
@@ -172,6 +176,14 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
     this.smtpQuitWait = smtpQuitWait;
   }
 
+  public boolean isSmtpSendPartial() {
+    return smtpSendPartial;
+  }
+
+  public void setSmtpSendPartial( final boolean smtpSendPartial ) {
+    this.smtpSendPartial = smtpSendPartial;
+  }
+
   public String getAuthMechanism() {
     return authMechanism == null ? "" : authMechanism;
   }
@@ -260,7 +272,8 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
   public String toString() {
     return "authenticate='" + authenticate + '\'' + ", debug='" + debug + '\'' + ", defaultFrom='" + defaultFrom + '\''
         + ", fromName='" + fromName + '\'' + ", smtpHost='" + smtpHost + '\'' + ", smtpPort=" + smtpPort
-        + ", smtpProtocol='" + smtpProtocol + '\'' + ", smtpQuitWait=" + smtpQuitWait + ", userId='" + userId + '\''
+        + ", smtpProtocol='" + smtpProtocol + '\'' + ", smtpQuitWait=" + smtpQuitWait
+        + ", smtpSendPartial=" + smtpSendPartial + ", userId='" + userId + '\''
         + ", password='" + password + '\'' + ", useSsl=" + useSsl + ", useStartTls=" + useStartTls
         + ", authMechanism='" + authMechanism + '\'' + ", clientID=" + clientId + '\'' + ", clientSecret='" + clientSecret + '\''
         + ", tokenUrl='" + tokenUrl + '\'' + ", scope=" + scope + '\'' + ", grantType=" + grantType + '\'' + ", refreshToken=" + refreshToken + '\''
@@ -277,7 +290,8 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
     }
     final EmailConfiguration that = (EmailConfiguration) obj;
     return ( this.authenticate == that.authenticate && this.debug == that.debug
-        && this.smtpQuitWait == that.smtpQuitWait && this.useSsl == that.useSsl && this.useStartTls == that.useStartTls
+        && this.smtpQuitWait == that.smtpQuitWait && this.smtpSendPartial == that.smtpSendPartial
+        && this.useSsl == that.useSsl && this.useStartTls == that.useStartTls
         && ObjectUtils.equals( this.getSmtpPort(), that.getSmtpPort() )
         && isEquals( this.defaultFrom, that.defaultFrom ) && isEquals( this.fromName, that.fromName )
         && isEquals( this.smtpHost, that.smtpHost ) && isEquals( this.smtpProtocol, that.smtpProtocol )
@@ -291,9 +305,9 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
 
   @Override
   public int hashCode() {
-    return Objects.hash( authenticate, debug, defaultFrom, fromName, smtpHost, smtpPort, smtpProtocol, smtpQuitWait,
-            userId, password, useSsl, useStartTls, authMechanism, clientId, clientSecret, tokenUrl, scope, grantType,
-            refreshToken, authorizationCode, redirectUri );
+      return Objects.hash( authenticate, debug, defaultFrom, fromName, smtpHost, smtpPort, smtpProtocol, smtpQuitWait,
+            smtpSendPartial, userId, password, useSsl, useStartTls, authMechanism, clientId, clientSecret, tokenUrl,
+            scope, grantType,  refreshToken, authorizationCode, redirectUri );
   }
 
   private boolean isEquals( final String a, final String b ) {

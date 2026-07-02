@@ -7,12 +7,16 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.filters;
 
-import com.mockrunner.mock.web.MockFilterChain;
+import org.springframework.mock.web.MockFilterChain;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockFilterConfig;
@@ -20,8 +24,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -57,7 +61,7 @@ public class PentahoAwareCharacterEncodingFilterTest {
     filterConfig.addInitParameter( "ignore", Boolean.TRUE.toString() );
 
     filter.init( filterConfig );
-    filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
+    filter.doFilter((ServletRequest) request, (ServletResponse) new MockHttpServletResponse(), (FilterChain) new MockFilterChain());
 
     assertEquals( NEW_ENCODING, request.getCharacterEncoding() );
   }
@@ -69,7 +73,7 @@ public class PentahoAwareCharacterEncodingFilterTest {
     request.setCharacterEncoding( null );
 
     filter.init( filterConfig );
-    filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
+    filter.doFilter((ServletRequest) request, (ServletResponse) new MockHttpServletResponse(), (FilterChain) new MockFilterChain());
 
     assertEquals( NEW_ENCODING, request.getCharacterEncoding() );
   }
@@ -81,7 +85,7 @@ public class PentahoAwareCharacterEncodingFilterTest {
     request.setCharacterEncoding( NEW_ENCODING );
 
     filter.init( filterConfig );
-    filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
+    filter.doFilter((ServletRequest) request, (ServletResponse) new MockHttpServletResponse(), (FilterChain) new MockFilterChain());
 
     assertEquals( NEW_ENCODING, request.getCharacterEncoding() );
   }
@@ -96,7 +100,7 @@ public class PentahoAwareCharacterEncodingFilterTest {
     ctx.addInitParameter( PentahoAwareCharacterEncodingFilter.INIT_PARAM_ENCODING, "" );
 
     filter.init( filterConfig );
-    filter.doFilter( request, new MockHttpServletResponse(), new MockFilterChain() );
+    filter.doFilter((ServletRequest) request, (ServletResponse) new MockHttpServletResponse(), (FilterChain) new MockFilterChain());
 
     assertEquals( PentahoAwareCharacterEncodingFilter.DEFAULT_CHAR_ENCODING, request.getCharacterEncoding() );
   }

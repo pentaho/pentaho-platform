@@ -7,14 +7,15 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importexport.exportManifest;
 
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.MapAdapter;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.HashMap;
 
 /**

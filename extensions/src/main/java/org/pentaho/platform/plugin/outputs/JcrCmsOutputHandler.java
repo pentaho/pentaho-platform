@@ -7,12 +7,12 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.outputs;
 
-import org.apache.commons.lang.exception.NestableRuntimeException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IContentListener;
@@ -43,9 +43,11 @@ import java.util.StringTokenizer;
 
 public abstract class JcrCmsOutputHandler extends BaseOutputHandler {
 
-  public abstract Repository getRepository();
-
   private static final Log logger = LogFactory.getLog( JcrCmsOutputHandler.class );
+  
+  private static final String ERROR_MSG_KEY = "JcrCmsOutputHandler.ERROR_0006_GETTING_OUTPUTHANDLER"; //$NON-NLS-1$
+
+  public abstract Repository getRepository();
 
   public abstract Session getJcrSession( Repository repository );
 
@@ -138,15 +140,10 @@ public abstract class JcrCmsOutputHandler extends BaseOutputHandler {
         search( "test", jcrSession ); //$NON-NLS-1$
       }
       return contentItem;
-    } catch ( LockException le ) {
+    } catch ( RepositoryException e ) {
+      // Handle JCR-specific failures gracefully
       Logger.error( JcrCmsOutputHandler.class.getName(), Messages.getInstance().getString(
-        "JcrCmsOutputHandler.ERROR_0006_GETTING_OUTPUTHANDLER" ) + contentName, le ); //$NON-NLS-1$
-    } catch ( NestableRuntimeException nre ) {
-      Logger.error( JcrCmsOutputHandler.class.getName(), Messages.getInstance().getString(
-        "JcrCmsOutputHandler.ERROR_0006_GETTING_OUTPUTHANDLER" ) + contentName, nre ); //$NON-NLS-1$
-    } catch ( RepositoryException re ) {
-      Logger.error( JcrCmsOutputHandler.class.getName(), Messages.getInstance().getString(
-        "JcrCmsOutputHandler.ERROR_0006_GETTING_OUTPUTHANDLER" ) + contentName, re ); //$NON-NLS-1$
+        ERROR_MSG_KEY ) + contentName, e ); //$NON-NLS-1$
     }
     return null;
   }

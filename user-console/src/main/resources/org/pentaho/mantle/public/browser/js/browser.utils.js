@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 define([
   "pentaho/csrf/service"
@@ -178,7 +179,7 @@ define([
       var canSchedule = false;
       $.each(this.executableTypes, function (idx, type) {
         if (fileExtension == type.extension) {
-          canSchedule = type.canSchedule == 'true';
+          canSchedule = type.canSchedule;
           return false; // break the $.each loop
         }
       });
@@ -190,7 +191,7 @@ define([
       var canEdit = false;
       $.each(this.executableTypes, function (idx, type) {
         if (fileExtension == type.extension) {
-          canEdit = type.canEdit == 'true';
+          canEdit = type.canEdit;
           return false; // break the $.each loop
         }
       });

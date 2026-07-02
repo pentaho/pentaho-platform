@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http.context;
 
@@ -34,6 +35,7 @@ import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Iterator;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -112,6 +114,9 @@ public class PentahoSolutionSpringApplicationContext extends XmlWebApplicationCo
         addLineBreak( node );
 
         TransformerFactory tFactory = TransformerFactory.newInstance();
+        tFactory.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, true );
+        tFactory.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "" );
+        tFactory.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "" );
         Transformer transformer = tFactory.newTransformer();
         DOMSource source = new DOMSource( doc );
         FileOutputStream out = new FileOutputStream( resource.getFile() );

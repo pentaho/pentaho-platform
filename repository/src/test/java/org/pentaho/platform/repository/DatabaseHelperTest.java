@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 
 package org.pentaho.platform.repository;
@@ -40,6 +41,8 @@ public class DatabaseHelperTest {
   public static final String PROP_INDEX_TBS = "INDEX_TBS"; //$NON-NLS-1$
 
   public static final String PROP_DATA_TBS = "DATA_TBS"; //$NON-NLS-1$
+
+  public static final String PROP_CONNECTION_ID = "CONNECTION_ID"; //$NON-NLS-1$
 
   public static final String PROP_SERVERNAME = "SERVERNAME"; //$NON-NLS-1$
 
@@ -86,6 +89,7 @@ public class DatabaseHelperTest {
   public static final String ATTRIBUTE_PORT_NUMBER = "PORT_NUMBER";
 
   final String DB_CONN_NAME = "DB_CONN_NAME";
+  final String DB_CONN_ID = "DB_CONN_ID";
   final String DB_NAME = "DB_NAME";
   final String DB_HOST = "DB_HOST";
   final String DB_PORT = "DB_PORT";
@@ -159,6 +163,7 @@ public class DatabaseHelperTest {
   @Test
   public void testDatabaseMetaToDatabaseConnectionWithVars() throws KettleException {
     final String DB_CONN_NAME_VAR = "DB_CONN_NAME_VAR";
+    final String CONNECTION_ID_VAR = "CONNECTION_ID_VAR";
     final String DB_NAME_VAR = "DB_NAME_VAR";
     final String DB_HOST_VAR = "DB_HOST_VAR";
     final String DB_PORT_VAR = "DB_PORT_VAR";
@@ -184,6 +189,7 @@ public class DatabaseHelperTest {
     DatabaseMeta dbMeta = new DatabaseMeta( DB_CONN_NAME, "GENERIC", "Native", DB_HOST, DB_NAME, DB_PORT, DB_USERNAME, DB_PASSWORD );
     Variables vars = new Variables();
     vars.setVariable( DB_CONN_NAME_VAR, DB_CONN_NAME );
+    vars.setVariable( CONNECTION_ID_VAR, DB_CONN_ID );
     vars.setVariable( DB_NAME_VAR, DB_NAME );
     vars.setVariable( DB_HOST_VAR, DB_HOST );
     vars.setVariable( DB_PORT_VAR, DB_PORT );
@@ -199,6 +205,7 @@ public class DatabaseHelperTest {
 
     dbMeta.shareVariablesWith( vars );
 
+    dbMeta.setConnectionId( wrapVar( CONNECTION_ID_VAR ) );
     dbMeta.setName( wrapVar( DB_CONN_NAME_VAR ) );
     dbMeta.setHostname( wrapVar( DB_HOST_VAR ) );
     dbMeta.setDBPort( wrapVar( DB_PORT_VAR ) );
@@ -221,6 +228,7 @@ public class DatabaseHelperTest {
 
     IDatabaseConnection testConnection = databaseHelper.databaseMetaToDatabaseConnection( dbMeta );
     assertEquals( "Conn name incorrect", DB_CONN_NAME, testConnection.getName() );
+    assertEquals( "DB connection Id incorrect", DB_CONN_ID, testConnection.getConnectionId() );
     assertEquals( "DB name incorrect", DB_NAME, testConnection.getDatabaseName() );
     assertEquals( "Host name incorrect", DB_HOST, testConnection.getHostname() );
     assertEquals( "Port incorrect", DB_PORT, testConnection.getDatabasePort() );
@@ -260,6 +268,7 @@ public class DatabaseHelperTest {
 
     DatabaseMeta dbMeta = new DatabaseMeta( DB_CONN_NAME, "GENERIC", "Native", DB_HOST, DB_NAME, DB_PORT, DB_USERNAME, DB_PASSWORD );
 
+    dbMeta.setConnectionId( DB_CONN_ID );
     dbMeta.setName( DB_CONN_NAME );
     dbMeta.setHostname( DB_HOST );
     dbMeta.setDBPort( DB_PORT );
@@ -283,6 +292,7 @@ public class DatabaseHelperTest {
     IDatabaseConnection testConnection = databaseHelper.databaseMetaToDatabaseConnection( dbMeta );
     assertEquals( "Conn name incorrect", DB_CONN_NAME, testConnection.getName() );
     assertEquals( "DB name incorrect", DB_NAME, testConnection.getDatabaseName() );
+    assertEquals( "Connection ID incorrect", DB_CONN_ID, testConnection.getConnectionId() );
     assertEquals( "Host name incorrect", DB_HOST, testConnection.getHostname() );
     assertEquals( "Port incorrect", DB_PORT, testConnection.getDatabasePort() );
     assertEquals( "User name incorrect", DB_USERNAME, testConnection.getUsername() );
@@ -311,6 +321,7 @@ public class DatabaseHelperTest {
     databaseConnection.setId( "id" );
     databaseConnection.setAccessType( DatabaseAccessType.CUSTOM );
 
+    databaseConnection.setConnectionId( "connectionId" );
     databaseConnection.setHostname( "hostName" );
     databaseConnection.setDatabaseName( "databaseName" );
     databaseConnection.setDatabasePort( "8080" );
@@ -352,6 +363,7 @@ public class DatabaseHelperTest {
 
     rootNode.setProperty( PROP_TYPE, "portType" );
     rootNode.setProperty( PROP_CONTYPE, "contype" );
+    rootNode.setProperty( PROP_CONNECTION_ID, "connectionId" );
     rootNode.setProperty( PROP_HOST_NAME, "portType" );
     rootNode.setProperty( PROP_DATABASE_NAME, "databaseName" );
     rootNode.setProperty( PROP_PORT, 8080 );

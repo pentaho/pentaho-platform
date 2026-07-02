@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.jcr;
 
@@ -28,8 +29,8 @@ public class DefaultPathConversionHelper implements IPathConversionHelper {
    */
   @Override
   public String absToRel( final String absPath ) {
-    Assert.hasLength( absPath );
-    Assert.isTrue( absPath.startsWith( RepositoryFile.SEPARATOR ) );
+    Assert.hasLength( absPath, "Absolute path must not be null or empty" );
+    Assert.isTrue( absPath.startsWith( RepositoryFile.SEPARATOR ), "Absolute path must start with the repository separator" );
     String convertedAbsPath = convertPathSlashes( absPath );
     if ( ( ServerRepositoryPaths.getTenantRootFolderPath() != null )
         && convertedAbsPath.startsWith( ServerRepositoryPaths.getTenantRootFolderPath() ) ) {
@@ -50,8 +51,8 @@ public class DefaultPathConversionHelper implements IPathConversionHelper {
    */
   @Override
   public String relToAbs( final String relPath ) {
-    Assert.hasLength( relPath );
-    Assert.isTrue( relPath.startsWith( RepositoryFile.SEPARATOR ) );
+    Assert.hasLength( relPath, "Relative path must not be null or empty" );
+    Assert.isTrue( relPath.startsWith( RepositoryFile.SEPARATOR ), "Relative path must start with the repository separator" );
     String convertedRelPath = convertPathSlashes( relPath );
     return ServerRepositoryPaths.getTenantRootFolderPath()
         + ( RepositoryFile.SEPARATOR.equals( convertedRelPath ) ? "" : convertedRelPath ); //$NON-NLS-1$

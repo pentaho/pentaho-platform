@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.gwt.rpc.matcher;
 
@@ -20,8 +21,8 @@ import org.pentaho.platform.web.gwt.rpc.AbstractGwtRpc;
 import org.pentaho.platform.web.gwt.rpc.IGwtRpcSerializationPolicyCache;
 import org.pentaho.platform.web.servlet.GwtRpcProxyException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.HttpMethod;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.HttpMethod;
 import java.util.Collection;
 import java.util.Collections;
 

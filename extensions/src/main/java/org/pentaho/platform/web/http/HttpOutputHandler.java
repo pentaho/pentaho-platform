@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.http;
 
@@ -22,7 +23,7 @@ import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.messages.Messages;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

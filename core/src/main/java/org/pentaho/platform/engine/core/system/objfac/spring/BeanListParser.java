@@ -7,7 +7,7 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
@@ -24,11 +24,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 
+ *
  * Parses a list bean from Spring XML
- * 
+ *
  * {@code} <pen:list class="com.foo.Clazz"/> {@code}
- * 
+ *
  * User: nbaker Date: 3/2/13
  */
 public class BeanListParser extends AbstractBeanDefinitionParser {
@@ -38,7 +38,7 @@ public class BeanListParser extends AbstractBeanDefinitionParser {
     BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition( BeanListBuilder.class.getName() );
     builder.addPropertyValue( "type", element.getAttribute( "class" ) );
 
-    Map<String, String> propMap = new HashMap<String, String>();
+    Map<String, String> propMap = new HashMap<>();
     Element objectproperties = DomUtils.getChildElementByTagName( element, Const.ATTRIBUTES );
     if ( objectproperties != null ) {
       List props = DomUtils.getChildElementsByTagName( objectproperties, Const.ATTR );
@@ -51,6 +51,7 @@ public class BeanListParser extends AbstractBeanDefinitionParser {
         }
       }
     }
+
     builder.addPropertyValue( Const.ATTRIBUTES, propMap );
 
     AbstractBeanDefinition definition = builder.getRawBeanDefinition();
@@ -61,7 +62,7 @@ public class BeanListParser extends AbstractBeanDefinitionParser {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.springframework.beans.factory.xml.AbstractBeanDefinitionParser#shouldGenerateIdAsFallback()
    */
   @Override

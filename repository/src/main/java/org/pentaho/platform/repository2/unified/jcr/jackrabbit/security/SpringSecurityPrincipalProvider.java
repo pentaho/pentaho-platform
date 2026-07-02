@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 
@@ -209,7 +210,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     }
 
     checkInitialized();
-    Assert.notNull( principalName );
+    Assert.notNull( principalName, "The principal name must not be null. Ensure a valid principal name is provided." );
     // first handle AclMetadataPrincipal, admin, anonymous, and everyone
     // specially
     if ( AclMetadataPrincipal.isAclMetadataPrincipal( principalName ) ) {
@@ -309,7 +310,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    */
   public PrincipalIterator getGroupMembership( final Principal principal ) {
     checkInitialized();
-    Assert.notNull( principal );
+    Assert.notNull( principal, "The principal name must not be null. Ensure a valid principal name is provided." );
     // first handle anonymous and everyone specially
     Set<Principal> groups = new HashSet<Principal>();
     if ( principal instanceof AnonymousPrincipal ) {

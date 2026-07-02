@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<Configuration status="ERROR">
+<Configuration status="ERROR" monitorInterval="30">
 
 	<Appenders>
 		<Console name="PENTAHOCONSOLE">
@@ -21,7 +21,7 @@
 		<Logger name="org.hibernate" level="error">
 			<appender-ref ref="PENTAHOCONSOLE" />
 		</Logger>
-		<Logger name="net.sf.ehcache" level="error">
+		<Logger name="org.ehcache" level="error">
 			<appender-ref ref="PENTAHOCONSOLE" />
 		</Logger>
 		<Logger name="org.quartz" level="error">

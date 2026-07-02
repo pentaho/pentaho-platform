@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.api.scheduler2;
 
@@ -28,23 +29,26 @@ import org.pentaho.platform.api.util.QuartzActionUtil;
 public interface IScheduler {
 
   String RESERVEDMAPKEY_ACTIONCLASS = QuartzActionUtil.QUARTZ_ACTIONCLASS;
-  String RESERVEDMAPKEY_ACTIONUSER = QuartzActionUtil.QUARTZ_ACTIONUSER;
-
   String RESERVEDMAPKEY_ACTIONID = QuartzActionUtil.QUARTZ_ACTIONID;
-
-  String RESERVEDMAPKEY_STREAMPROVIDER = QuartzActionUtil.QUARTZ_STREAMPROVIDER;
-
-  String RESERVEDMAPKEY_STREAMPROVIDER_INPUTFILE = QuartzActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE;
-
-  String RESERVEDMAPKEY_UIPASSPARAM = QuartzActionUtil.QUARTZ_UIPASSPARAM;
-
-  String RESERVEDMAPKEY_LINEAGE_ID = QuartzActionUtil.QUARTZ_LINEAGE_ID;
-
-  String RESERVEDMAPKEY_RESTART_FLAG = QuartzActionUtil.QUARTZ_RESTART_FLAG;
-
-  String RESERVEDMAPKEY_AUTO_CREATE_UNIQUE_FILENAME = QuartzActionUtil.QUARTZ_AUTO_CREATE_UNIQUE_FILENAME;
-
+  String RESERVEDMAPKEY_ACTIONUSER = QuartzActionUtil.QUARTZ_ACTIONUSER;
   String RESERVEDMAPKEY_APPEND_DATE_FORMAT = QuartzActionUtil.QUARTZ_APPEND_DATE_FORMAT;
+  String RESERVEDMAPKEY_AUTO_CREATE_UNIQUE_FILENAME = QuartzActionUtil.QUARTZ_AUTO_CREATE_UNIQUE_FILENAME;
+  String RESERVEDMAPKEY_LINEAGE_ID = QuartzActionUtil.QUARTZ_LINEAGE_ID;
+  String RESERVEDMAPKEY_LAST_EXECUTION_TIME = QuartzActionUtil.QUARTZ_LAST_EXECUTION_TIME;
+  /**
+   * @deprecated since 2026-02
+   * 
+   * This reserved map key is no longer used by the scheduler and should not be used by callers.
+   * Can only remove if we ensure that no clients have schedules with this property set in their jobParams.
+   * Otherwise, it will appear in the UI variable list.
+   */
+  @Deprecated( since = "2026-02", forRemoval = false )
+  String RESERVEDMAPKEY_PREVIOUS_TRIGGER_NOW = QuartzActionUtil.QUARTZ_PREVIOUS_TRIGGER_NOW;
+  String RESERVEDMAPKEY_RESTART_FLAG = QuartzActionUtil.QUARTZ_RESTART_FLAG;
+  String RESERVEDMAPKEY_START_TIME = QuartzActionUtil.QUARTZ_START_TIME;
+  String RESERVEDMAPKEY_STREAMPROVIDER = QuartzActionUtil.QUARTZ_STREAMPROVIDER;
+  String RESERVEDMAPKEY_STREAMPROVIDER_INPUTFILE = QuartzActionUtil.QUARTZ_STREAMPROVIDER_INPUT_FILE;
+  String RESERVEDMAPKEY_UIPASSPARAM = QuartzActionUtil.QUARTZ_UIPASSPARAM;
 
   enum SchedulerStatus {
     RUNNING, PAUSED, STOPPED

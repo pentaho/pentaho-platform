@@ -7,12 +7,13 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.util.messages;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.util.logging.Logger;
@@ -226,7 +227,7 @@ public class LocaleHelper {
    * Sets the <i>base</i> locale of the current thread.
    * <p>
    * The Pentaho server sets the base locale of threads handling HTTP requests
-   * to the corresponding request's locale, as given by {@code javax.servlet.http.HttpServletRequest#getLocale()}.
+   * to the corresponding request's locale, as given by {@code jakarta.servlet.http.HttpServletRequest#getLocale()}.
    * This is done by the
    * {@code org.pentaho.platform.web.http.filters.HttpSessionPentahoSessionIntegrationFilter}
    * filter.

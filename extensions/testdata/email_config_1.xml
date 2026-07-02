@@ -25,6 +25,8 @@
 		<!--  This is true if the email server requires an SSL connection. Usually 'false'. For GMail this is 'true' -->
 		<mail.smtp.ssl>true</mail.smtp.ssl>
 
+		<mail.smtp.sendpartial>true</mail.smtp.sendpartial>
+
    	<!--  Output debug information from the JavaMail API -->
    	<mail.debug>true</mail.debug>
 

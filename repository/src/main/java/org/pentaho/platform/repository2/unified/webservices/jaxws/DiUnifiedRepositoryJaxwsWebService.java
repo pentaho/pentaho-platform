@@ -7,16 +7,19 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
 import java.util.List;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
@@ -24,8 +27,16 @@ import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadActi
 
 @WebService ( endpointInterface = "org.pentaho.platform.repository2.unified.webservices.jaxws.IUnifiedRepositoryJaxwsWebService",
   serviceName = "unifiedRepository", portName = "unifiedRepositoryPort", targetNamespace = "http://www.pentaho.org/ws/1.0" )
-public class DiUnifiedRepositoryJaxwsWebService extends DefaultUnifiedRepositoryJaxwsWebService implements
-  IUnifiedRepositoryJaxwsWebService {
+public class DiUnifiedRepositoryJaxwsWebService extends DefaultUnifiedRepositoryJaxwsWebService {
+
+  public DiUnifiedRepositoryJaxwsWebService() {
+    super();
+  }
+
+  public DiUnifiedRepositoryJaxwsWebService( final IUnifiedRepository repo,
+      final IPlatformMimeResolver platformMimeResolver ) {
+    super( repo, platformMimeResolver );
+  }
 
   @Override
   protected void validateEtcReadAccess( String path ) {
@@ -44,5 +55,10 @@ public class DiUnifiedRepositoryJaxwsWebService extends DefaultUnifiedRepository
   @Override
   public List<RepositoryFileDto> getDeletedFiles() {
     return marshalFiles( repo.getAllDeletedFiles() );
+  }
+
+  @Override
+  public void logout() {
+    // no-op, handled in PentahoWSSpringServlet
   }
 }

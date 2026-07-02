@@ -7,12 +7,13 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importexport;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
@@ -125,8 +126,8 @@ public class PentahoMetadataFileInfo {
   }
 
   protected void initialize( final FileType fileType, final String domainId, final String locale ) {
-    Assert.hasText( domainId );
-    Assert.isTrue( locale == null || !StringUtils.isEmpty( locale ) );
+    Assert.hasText( domainId, "Domain ID must not be null or empty" );
+    Assert.isTrue( locale == null || !StringUtils.isEmpty( locale ), "Locale must be null or non-empty" );
     this.fileType = fileType;
     this.domainId = domainId;
     this.locale = locale;

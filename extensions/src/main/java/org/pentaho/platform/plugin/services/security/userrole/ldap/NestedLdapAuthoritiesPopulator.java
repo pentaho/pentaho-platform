@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.security.userrole.ldap;
 
@@ -133,7 +134,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
   }
 
   public void afterPropertiesSet() throws Exception {
-    Assert.notNull( extraRolesMapping );
+    Assert.notNull( extraRolesMapping, "Extra roles mapping must not be null" );
   }
 
 }

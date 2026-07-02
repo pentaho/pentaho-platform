@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.unified.jcr.transform;
 
@@ -145,7 +146,7 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
       final Node fileNode ) throws RepositoryException {
     Node unstructuredNode = fileNode.getNode( pentahoJcrConstants.getJCR_CONTENT() );
     final String pattern = session.getNamespacePrefix( PentahoJcrConstants.PHO_NS ) + ":" + "*"; //$NON-NLS-1$ //$NON-NLS-2$
-    Assert.isTrue( unstructuredNode.getNodes( pattern ).getSize() == 1 );
+    Assert.isTrue( unstructuredNode.getNodes( pattern ).getSize() == 1, "The unstructured node must contain exactly one child node matching the pattern. Ensure the repository structure is correct." );
     Node jcrNode = unstructuredNode.getNodes( pattern ).nextNode();
     return new NodeRepositoryFileData( internalRead( session, pentahoJcrConstants, jcrNode, null ) );
   }

@@ -7,13 +7,21 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.util;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.Properties;
+
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.email.IEmailService;
@@ -22,25 +30,19 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.messages.Messages;
 
-import javax.activation.DataHandler;
-import javax.mail.AuthenticationFailedException;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.SendFailedException;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.util.ByteArrayDataSource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.Properties;
+import jakarta.activation.DataHandler;
+import jakarta.mail.AuthenticationFailedException;
+import jakarta.mail.Authenticator;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.SendFailedException;
+import jakarta.mail.Session;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.util.ByteArrayDataSource;
 
 public class Emailer {
 
@@ -188,6 +190,7 @@ public class Emailer {
       props.put( "mail.smtp.ssl", ObjectUtils.toString( service.getEmailConfig().isUseSsl() ) );
       props.put( "mail.smtp.quitwait", ObjectUtils.toString( service.getEmailConfig().isSmtpQuitWait() ) );
       props.put( "mail.from.default", service.getEmailConfig().getDefaultFrom() );
+      props.put( "mail.smtp.sendpartial", ObjectUtils.toString( service.getEmailConfig().isSmtpSendPartial() ) );
       setAuthMechanism( service.getEmailConfig().getAuthMechanism() );
       String fromName = service.getEmailConfig().getFromName();
       if ( StringUtils.isEmpty( fromName ) ) {

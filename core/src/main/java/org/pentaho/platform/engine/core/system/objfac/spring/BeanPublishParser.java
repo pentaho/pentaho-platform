@@ -7,12 +7,13 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.beans.factory.config.BeanDefinition;

@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.web.servlet;
 
@@ -39,9 +40,11 @@ import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -158,7 +161,11 @@ public class SolutionEngineInteractivityService extends ServletBase {
 
       DOMSource source = new DOMSource( document );
       StreamResult result = new StreamResult( new StringWriter() );
-      TransformerFactory.newInstance().newTransformer().transform( source, result );
+      TransformerFactory factory = TransformerFactory.newInstance();
+      factory.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, true );
+      factory.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "" );
+      factory.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "" );
+      factory.newTransformer().transform( source, result );
       String theXML = result.getWriter().toString();
 
       response.setContentType( "text/xml" );

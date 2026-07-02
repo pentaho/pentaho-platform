@@ -31,7 +31,7 @@
             java.util.List,
             java.util.Map,
             java.util.StringTokenizer,
-            javax.servlet.http.HttpSession,
+            jakarta.servlet.http.HttpSession,
             org.pentaho.platform.engine.core.system.PentahoSessionHolder,
             org.owasp.encoder.Encode"%>
 <%!
@@ -349,6 +349,8 @@
     else { %>
     var userState = '';
     <% } %>
+
+    $("#j_username").val($("#j_username").val().trim());
 
     jQuery.ajax({
       type: "POST",

@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.util.xml.dom4j;
 
@@ -25,6 +26,7 @@ import org.pentaho.platform.util.messages.Messages;
 import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.xml.sax.EntityResolver;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -52,10 +54,10 @@ import java.util.Map;
  * text
  * 
  * Design notes: This class should never have any dependencies (i.e. imports) on anything on org.pentaho or
- * com.pentaho or their decendant packages. In general, methods in the class should not attempt to handle
- * exceptions, but should let the exceptions propogate to the caller to be handled there. Please do not use
+ * com.pentaho or their descendant packages. In general, methods in the class should not attempt to handle
+ * exceptions, but should let the exceptions propagate to the caller to be handled there. Please do not use
  * european-reuse in this class. One of the primary design goals for this class was to construct it in a way that
- * it could be used without change outside of the Pentaho platform. Related XML-helper type code that is dependant
+ * it could be used without change outside the Pentaho platform. Related XML-helper type code that is dependent
  * on the platform should be moved "up" to XmlHelper.
  */
 public class XmlDom4JHelper {
@@ -63,14 +65,14 @@ public class XmlDom4JHelper {
   private static final Log logger = LogFactory.getLog( XmlDom4JHelper.class );
 
   /**
-   * Create a <code>Document</code> from <code>str</code>.
+   * Create a {@link Document} from <code>strXml</code>.
    * 
-   * @param str
+   * @param strXml
    *          String containing the XML that will be used to create the Document
    * @param resolver
-   *          EntityResolver an instance of an EntityResolver that will resolve any external URIs. See the docs on
-   *          EntityResolver. null is an acceptable value.
-   * @return <code>Document</code> initialized with the xml in <code>strXml</code>.
+   *          an {@link EntityResolver} instance that will resolve any external URIs. See the docs on
+   *          {@link EntityResolver}. <code>null</code> is an acceptable value.
+   * @return a {@link Document} initialized with the XML in <code>strXml</code>.
    * @throws XmlParseException
    */
   public static Document getDocFromString( final String strXml, final EntityResolver resolver )
@@ -89,14 +91,14 @@ public class XmlDom4JHelper {
   }
 
   /**
-   * Create a <code>Document</code> from the contents of a file.
+   * Create a {@link Document} from the contents of a file.
    * 
-   * @param path
-   *          String containing the path to the file containing XML that will be used to create the Document.
+   * @param file
+   *          File containing XML that will be used to create the Document.
    * @param resolver
-   *          EntityResolver an instance of an EntityResolver that will resolve any external URIs. See the docs on
-   *          EntityResolver. null is an acceptable value.
-   * @return <code>Document</code> initialized with the xml in <code>strXml</code>.
+   *          an {@link EntityResolver} instance that will resolve any external URIs. See the docs on
+   *          {@link EntityResolver}. <code>null</code> is an acceptable value.
+   * @return a {@link Document} initialized with the XML in <code>strXml</code>.
    * @throws DocumentException
    *           if the document isn't valid
    * @throws IOException
@@ -109,13 +111,18 @@ public class XmlDom4JHelper {
   }
 
   /**
-   * Create a <code>Document</code> from the contents of an input stream, where the input stream contains valid
-   * XML.
-   * 
+   * Create a {@link Document} from the contents of an input stream, where the input stream contains valid XML.
+   *
    * @param inStream
-   * @return
+   *          the XML that will be used to create the Document.
+   * @param resolver
+   *          an {@link EntityResolver} instance that will resolve any external URIs. See the docs on
+   *          {@link EntityResolver}. <code>null</code> is an acceptable value.
+   * @return a {@link Document} initialized with the XML in <code>inStream</code>.
    * @throws DocumentException
+   *           if the document isn't valid
    * @throws IOException
+   *           if the file doesn't exist
    */
   public static Document getDocFromStream( final InputStream inStream, final EntityResolver resolver )
     throws DocumentException, IOException {
@@ -125,13 +132,15 @@ public class XmlDom4JHelper {
   }
 
   /**
-   * Create a <code>Document</code> from the contents of an input stream, where the input stream contains valid
-   * XML.
+   * Create a {@link Document} from the contents of an input stream, where the input stream contains valid XML.
    * 
    * @param inStream
-   * @return
+   *          the XML that will be used to create the Document.
+   * @return a {@link Document} initialized with the XML in <code>inStream</code>.
    * @throws DocumentException
+   *           if the document isn't valid
    * @throws IOException
+   *           if the file doesn't exist
    */
   public static Document getDocFromStream( final InputStream inStream ) throws DocumentException, IOException {
 
@@ -139,11 +148,11 @@ public class XmlDom4JHelper {
   }
 
   /**
-   * Use the transform specified by xslSrc and transform the document specified by docSrc, and return the resulting
-   * document.
+   * Use the transform specified by <code>xslSrc</code> and transform the document specified by <code>docSrc</code>,
+   * and return the resulting document.
    * 
    * @param xslSrc
-   *          StreamSrc containing the xsl transform
+   *          StreamSrc containing the XSL transform
    * @param docSrc
    *          StreamSrc containing the document to be transformed
    * @param params
@@ -157,19 +166,17 @@ public class XmlDom4JHelper {
    * @throws TransformerException
    *           if actual transform fails.
    */
-  protected static final StringBuffer transformXml( final StreamSource xslSrc, final StreamSource docSrc,
+  protected static StringBuffer transformXml( final StreamSource xslSrc, final StreamSource docSrc,
       final Map params, final URIResolver resolver ) throws TransformerConfigurationException, TransformerException {
 
-    StringBuffer sb = null;
-    StringWriter writer = new StringWriter();
-
-    TransformerFactory tf = TransformerFactory.newInstance();
+    TransformerFactory tf = XMLParserFactoryProducer.createSecureTransformerFactory( );
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "" );
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "" );
     if ( null != resolver ) {
       tf.setURIResolver( resolver );
     }
     // TODO need to look into compiling the XSLs...
-    Transformer t = tf.newTransformer( xslSrc ); // can throw
-    // TransformerConfigurationException
+    Transformer t = tf.newTransformer( xslSrc ); // can throw TransformerConfigurationException
     // Start the transformation
     if ( params != null ) {
       for ( Map.Entry<String, String> entry : (Iterable<Map.Entry<String, String>>) params.entrySet() ) {
@@ -178,11 +185,8 @@ public class XmlDom4JHelper {
         }
       }
     }
-    t.transform( docSrc, new StreamResult( writer ) ); // can throw
-    // TransformerException
-    sb = writer.getBuffer();
 
-    return sb;
+    return transformSource( t, docSrc );
   }
 
   /**
@@ -199,22 +203,34 @@ public class XmlDom4JHelper {
    * @throws TransformerException
    *           If the attempt to transform the document fails.
    */
-  public static final StringBuffer docToString( final org.w3c.dom.Document doc )
+  public static StringBuffer docToString( final org.w3c.dom.Document doc )
     throws TransformerConfigurationException, TransformerException {
 
-    StringBuffer sb = null;
+    TransformerFactory tf = XMLParserFactoryProducer.createSecureTransformerFactory( );
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "" );
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "" );
+    Transformer t = tf.newTransformer(); // can throw TransformerConfigurationException
+
+    return transformSource( t, new DOMSource( doc ) );
+  }
+
+  /**
+   * Transform the XML {@link Source} using the given {@link Transformer} instance, returning the result as a
+   * {@link StringBuffer}.
+   *
+   * @param t
+   *          the {@link Transformer} instance to use to transform the
+   * @param docSrc
+   *          the XML input to transform.
+   * @return a {@link StringBuffer} containing the XML results of the transform.
+   * @throws TransformerException if an unrecoverable error occurs during the course of the transformation.
+   */
+  private static StringBuffer transformSource( Transformer t, Source docSrc ) throws TransformerException {
     StringWriter writer = new StringWriter();
 
-    TransformerFactory tf = TransformerFactory.newInstance();
-    Transformer t = tf.newTransformer(); // can throw
-    // TransformerConfigurationException
+    t.transform( docSrc, new StreamResult( writer ) ); // can throw TransformerException
 
-    Source docSrc = new DOMSource( doc );
-    t.transform( docSrc, new StreamResult( writer ) ); // can throw
-    // TransformerException
-    sb = writer.getBuffer();
-
-    return sb;
+    return writer.getBuffer();
   }
 
   // TODO sbarkdull, this code is duplicated in LocaleHelper
@@ -232,9 +248,9 @@ public class XmlDom4JHelper {
     for ( int n = 0; n < rawValue.length(); n++ ) {
       int charValue = rawValue.charAt( n );
       if ( charValue >= 0x80 ) {
-        value.append( "&#x" ); //$NON-NLS-1$
+        value.append( "&#x" );
         value.append( Integer.toString( charValue, 0x10 ) );
-        value.append( ";" ); //$NON-NLS-1$
+        value.append( ';' );
       } else {
         value.append( (char) charValue );
       }
@@ -340,7 +356,10 @@ public class XmlDom4JHelper {
     DocumentException {
     DOMSource source = new DOMSource( doc );
     StreamResult result = new StreamResult( new StringWriter() );
-    TransformerFactory.newInstance().newTransformer().transform( source, result );
+    TransformerFactory tf = XMLParserFactoryProducer.createSecureTransformerFactory( );
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "" );
+    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "" );
+    tf.newTransformer().transform( source, result );
     String theXML = result.getWriter().toString();
     Document dom4jDoc = null;
     try {

@@ -7,11 +7,13 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.admin;
 
+import org.pentaho.di.core.bowl.DefaultBowl;
 import org.pentaho.di.core.Result;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleXMLException;
@@ -31,6 +33,7 @@ public class StatsDatabaseCheck implements IPentahoSystemListener {
     JobMeta jobMeta = null;
     String jobFileFullPath = getJobFileFullPath();
     try {
+      clearBowlCache();
       jobMeta = new JobMeta( jobFileFullPath, null );
     } catch ( KettleXMLException kxe ) {
       Logger.error( "Error opening " + jobFileFullPath, kxe.getMessage() );
@@ -66,6 +69,10 @@ public class StatsDatabaseCheck implements IPentahoSystemListener {
 
   public String getJobFileName() {
     return jobFileName;
+  }
+
+  protected void clearBowlCache() {
+    DefaultBowl.getInstance().clearCache();
   }
 
   public void setJobFileName( String jobFileName ) {

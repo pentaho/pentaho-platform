@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.security.userroledao.service;
 
@@ -183,7 +184,7 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
    *          the role name, including any desired prefix.
    */
   public void setDefaultRole( String defaultRole ) {
-    Assert.notNull( defaultRole );
+    Assert.notNull( defaultRole, "The default role must not be null. Ensure a valid role name is provided." );
     this.defaultRoleString = defaultRole;
     this.defaultRole = new SimpleGrantedAuthority( defaultRole );
   }

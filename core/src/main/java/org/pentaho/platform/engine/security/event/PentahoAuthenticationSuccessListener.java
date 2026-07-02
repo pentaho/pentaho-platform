@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.engine.security.event;
 
@@ -66,8 +67,7 @@ public class PentahoAuthenticationSuccessListener implements ApplicationListener
         Authentication authentication = ( (AbstractAuthenticationEvent) event ).getAuthentication();
         IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
         Assert.notNull( pentahoSession, "PentahoSessionHolder doesn't have a session" );
-        pentahoSession.setAuthenticated( authentication.getName() );
-        pentahoSession.setAttribute( IPentahoSession.SESSION_ROLES, authentication.getAuthorities() );
+        setUserDetailsInPentahoSession( pentahoSession, authentication );
         // audit session creation
         AuditHelper.audit( pentahoSession.getId(), pentahoSession.getName(), pentahoSession.getActionName(),
             pentahoSession.getObjectName(), "", MessageTypes.SESSION_START, "", "", 0, null ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -76,6 +76,11 @@ public class PentahoAuthenticationSuccessListener implements ApplicationListener
         logger.error( e.getLocalizedMessage(), e );
       }
     }
+  }
+
+  protected void setUserDetailsInPentahoSession( IPentahoSession pentahoSession, Authentication authentication ) {
+    pentahoSession.setAuthenticated( authentication.getName() );
+    pentahoSession.setAttribute( IPentahoSession.SESSION_ROLES, authentication.getAuthorities() );
   }
 
   public int getOrder() {

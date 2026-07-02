@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.importexport.legacy;
 
@@ -42,8 +43,8 @@ public class ZipSolutionRepositoryImportSource extends AbstractImportSource {
    */
   public ZipSolutionRepositoryImportSource( final ZipInputStream zipInputStream, final String charSet )
     throws org.pentaho.platform.plugin.services.importexport.InitializationException {
-    Assert.notNull( zipInputStream );
-    Assert.hasText( charSet );
+    Assert.notNull( zipInputStream, "ZipInputStream must not be null" );
+    Assert.hasText( charSet, "Character set must not be null or empty" );
     this.zipInputStream = zipInputStream;
     this.charSet = charSet;
     this.files = new ArrayList<IRepositoryFileBundle>();

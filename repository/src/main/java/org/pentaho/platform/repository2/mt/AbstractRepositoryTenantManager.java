@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository2.mt;
 
@@ -82,11 +83,11 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
       final ITenantedPrincipleNameResolver tenantedUserNameResolver,
       final ITenantedPrincipleNameResolver tenantedRoleNameResolver, final String tenantAdminRoleName,
       final List<String> singleTenantAuthenticatedAuthorityRoleBindingList ) {
-    Assert.notNull( contentDao );
-    Assert.notNull( repositoryFileAclDao );
-    Assert.notNull( roleBindingDao );
-    Assert.hasText( repositoryAdminUsername );
-    Assert.hasText( tenantAuthenticatedAuthorityNamePattern );
+    Assert.notNull( contentDao, "Content DAO must not be null" );
+    Assert.notNull( repositoryFileAclDao, "Repository File ACL DAO must not be null" );
+    Assert.notNull( roleBindingDao, "Role Binding DAO must not be null" );
+    Assert.hasText( repositoryAdminUsername, "Repository Admin Username must not be null or empty" );
+    Assert.hasText( tenantAuthenticatedAuthorityNamePattern, "Tenant Authenticated Authority Name Pattern must not be null or empty" );
     this.repositoryFileDao = contentDao;
     this.repositoryFileAclDao = repositoryFileAclDao;
     this.userRoleDao = userRoleDao;

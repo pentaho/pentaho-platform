@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.plugin.services.security.userrole;
 
@@ -80,12 +81,12 @@ public class ExtraRolesUserRoleListServiceDecorator implements IUserRoleListServ
   }
 
   public void setExtraRoles( final List<String> extraRoles ) {
-    Assert.notNull( extraRoles );
+    Assert.notNull( extraRoles, "Extra roles list must not be null" );
     this.extraRoles = new ArrayList<String>( extraRoles );
   }
 
   public void setSystemRoles( final Set<String> systemRoles ) {
-    Assert.notNull( systemRoles );
+    Assert.notNull( systemRoles, "System roles list must not be null" );
   }
 
   @Override

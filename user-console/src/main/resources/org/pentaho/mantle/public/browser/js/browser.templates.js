@@ -7,13 +7,15 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
 
+
 define([
+  "common-ui/util/xss",
   "common-ui/handlebars",
   "pentaho/shim/css.escape"
-], function () {
+], function (xssUtil) {
   var templates = {};
 
   Handlebars.registerHelper('stringifyFunc', function (fn) {
@@ -146,6 +148,10 @@ define([
       optional: (this.id == "optional-separator")
     }));
   });
+
+  Handlebars.registerHelper('html', function(html) {
+      return new Handlebars.SafeString(xssUtil.sanitizeHtml(html));
+    });
 
   Handlebars.registerHelper('i18n',
       function (str) {

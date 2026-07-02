@@ -7,8 +7,9 @@
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2029-07-20
  ******************************************************************************/
+
 
 package org.pentaho.platform.repository.legacy.acl;
 
@@ -34,7 +35,7 @@ public class AccessVoterToLegacyAcl implements IRepositoryAccessVoter {
   private IAclVoter aclVoter;
 
   public AccessVoterToLegacyAcl( IAclVoter aclVoter ) {
-    Assert.notNull( aclVoter );
+    Assert.notNull( aclVoter, "AclVoter must not be null" );
     this.aclVoter = aclVoter;
   }
 
@@ -42,16 +43,16 @@ public class AccessVoterToLegacyAcl implements IRepositoryAccessVoter {
   public boolean hasAccess( RepositoryFile file, RepositoryFilePermission operation, RepositoryFileAcl acl,
                             IPentahoSession session ) {
 
-    Assert.notNull( file );
-    Assert.notNull( operation );
-    Assert.notNull( acl );
+    Assert.notNull( file, "RepositoryFile must not be null" );
+    Assert.notNull( operation, "RepositoryFilePermission must not be null" );
+    Assert.notNull( acl, "RepositoryFileAcl must not be null" );
 
     return aclVoter.hasAccess( session, convert( file, acl ), mask( operation ) );
   }
 
   private int mask( RepositoryFilePermission permission ) {
 
-    Assert.notNull( permission );
+    Assert.notNull( permission, "permission must not be null" );
 
     if ( RepositoryFilePermission.READ == permission ) {
       return IPentahoAclEntry.PERM_EXECUTE;
