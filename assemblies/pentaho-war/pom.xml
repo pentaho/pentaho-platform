@@ -1136,6 +1136,21 @@
       </plugin>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
+        <dependencies>
+          <!-- ant-contrib provides the <for> task used to strip gremlin-shaded jars.
+               Exclude its bundled ant:ant:1.5, which clashes with the antrun Ant runtime. -->
+          <dependency>
+            <groupId>ant-contrib</groupId>
+            <artifactId>ant-contrib</artifactId>
+            <version>1.0b3</version>
+            <exclusions>
+              <exclusion>
+                <groupId>ant</groupId>
+                <artifactId>ant</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <id>copy-jquery-files</id>
@@ -1153,11 +1168,13 @@
             <!--
               gremlin-shaded relocates Jackson to org.apache.tinkerpop.shaded.jackson, but the
               jar still ships Maven provenance metadata (META-INF/maven/com.fasterxml.jackson.core/**)
-              declaring jackson-databind 2.15.2, which security scanners flag (CVE-2023-35116 etc.).
-              Strip it from the staged webapp lib after the war is assembled (this antrun plugin is
-              declared after maven-war-plugin, so its package execution runs last). Safe at runtime:
-              the metadata is informational and MRJAR class variants fall back to the base relocated
-              classes. Requires 'zip' on PATH.
+              declaring jackson-databind 2.15.2, which security scanners (JFrog Xray) fingerprint
+              and flag (CVE-2026-54512 etc.). maven-war-plugin bundles gremlin-shaded into the war
+              artifact during war:war, so the metadata must be stripped FROM THE ASSEMBLED WAR.
+              This antrun plugin is declared after maven-war-plugin, so its package execution runs
+              after war:war and before install; the modified war is the artifact consumed by the
+              server assemblies. Safe at runtime: the stripped metadata is informational and the
+              functional relocated org.apache.tinkerpop.shaded.jackson classes are preserved.
             -->
             <id>strip-gremlin-shaded-jackson-metadata</id>
             <phase>package</phase>
@@ -1166,19 +1183,42 @@
             </goals>
             <configuration>
               <target>
-                <!-- Rewrite the gremlin-shaded jar in-process using Ant's own zip task
-                     so the build does not depend on an external 'zip' binary (absent on
-                     some CI agents). Removes the Jackson Maven provenance metadata and any
-                     unrelocated multi-release Jackson classes, while preserving the
-                     functional relocated org.apache.tinkerpop.shaded.jackson classes. -->
-                <pathconvert property="gremlin.shaded.jar" setonempty="false">
-                  <fileset dir="${prepared.war.lib.directory}" includes="gremlin-shaded-*.jar"/>
-                </pathconvert>
-                <zip destfile="${gremlin.shaded.jar}.stripped">
-                  <zipfileset src="${gremlin.shaded.jar}"
-                              excludes="META-INF/maven/com.fasterxml.jackson.core/**,META-INF/versions/*/com/fasterxml/**"/>
-                </zip>
-                <move file="${gremlin.shaded.jar}.stripped" tofile="${gremlin.shaded.jar}" overwrite="true"/>
+                <taskdef name="for"
+                         classname="net.sf.antcontrib.logic.ForTask"
+                         classpathref="maven.plugin.classpath"/>
+                <!-- For each assembled war, extract its bundled gremlin-shaded jar(s), strip the
+                     Jackson Maven provenance metadata and any unrelocated multi-release Jackson
+                     classes, then write the stripped jar(s) back into the war in place. Uses Ant's
+                     own zip/unzip tasks, so no external 'zip' binary is required. -->
+                <for param="war.file">
+                  <path>
+                    <fileset dir="${project.build.directory}" includes="*.war"/>
+                  </path>
+                  <sequential>
+                    <delete dir="${project.build.directory}/gremlin-strip" quiet="true"/>
+                    <unzip src="@{war.file}" dest="${project.build.directory}/gremlin-strip">
+                      <patternset includes="WEB-INF/lib/gremlin-shaded-*.jar"/>
+                    </unzip>
+                    <for param="gremlin.jar">
+                      <path>
+                        <fileset dir="${project.build.directory}/gremlin-strip"
+                                 includes="WEB-INF/lib/gremlin-shaded-*.jar"/>
+                      </path>
+                      <sequential>
+                        <zip destfile="@{gremlin.jar}.stripped">
+                          <zipfileset src="@{gremlin.jar}"
+                                      excludes="META-INF/maven/com.fasterxml.jackson.core/**,META-INF/versions/*/com/fasterxml/**"/>
+                        </zip>
+                        <move file="@{gremlin.jar}.stripped" tofile="@{gremlin.jar}" overwrite="true"/>
+                      </sequential>
+                    </for>
+                    <zip destfile="@{war.file}" update="true">
+                      <zipfileset dir="${project.build.directory}/gremlin-strip"
+                                  includes="WEB-INF/lib/gremlin-shaded-*.jar"/>
+                    </zip>
+                    <delete dir="${project.build.directory}/gremlin-strip" quiet="true"/>
+                  </sequential>
+                </for>
               </target>
             </configuration>
           </execution>
