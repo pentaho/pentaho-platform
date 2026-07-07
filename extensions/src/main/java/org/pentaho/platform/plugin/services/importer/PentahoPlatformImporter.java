@@ -102,8 +102,12 @@ public class PentahoPlatformImporter implements IPlatformImporter {
     try {
       if ( mime == null ) {
         log.trace( messages.getString( "PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE" ) + file.getName() );
-        repositoryImportLogger.error(
-          messages.getString( "PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE" ) + file.getName() );
+
+        if ( hasActiveImportLogger() ) {
+          repositoryImportLogger.error(
+            messages.getString( "PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE" ) + file.getName() );
+        }
+
         return;
       }
 
@@ -142,27 +146,22 @@ public class PentahoPlatformImporter implements IPlatformImporter {
             messages.getString( "PentahoPlatformImporter.ERROR_0008_PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS",
               cause.getLocalizedMessage() ), PlatformImportException.PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS, cause );
         }
+
+        throw ce;
       } catch ( Exception e1 ) {
         throw new PlatformImportException(
           messages.getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERROR", e1.getLocalizedMessage() ),
           PlatformImportException.PUBLISH_GENERAL_ERROR, e1 );
       }
     } catch ( Exception e ) {
-      e.printStackTrace();
-      // If we are doing a logged import then we do not want to fail on a single file
-      // so log the error and keep going.
-      RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) file;
-      String repositoryFilePath = RepositoryFilenameUtils.concat( bundle.getPath(), bundle.getName() );
+      log.error( "Error importing file " + file.getName(), e );
 
-      if ( repositoryImportLogger.hasLogger() && repositoryFilePath != null && !repositoryFilePath.isEmpty() ) {
+      // If we are doing a logged import then we do not want to fail on a single file so log the error and keep going.
+      String repositoryFilePath = getRepositoryFilePath( file );
+      boolean isLoggerActive = hasActiveImportLogger() && repositoryFilePath != null && !repositoryFilePath.isEmpty();
+
+      if ( isLoggerActive ) {
         repositoryImportLogger.error( e );
-      } else {
-        if ( e instanceof PlatformImportException platformImportException ) {
-          throw platformImportException;
-        } else {
-          // shouldn't happen but just in case
-          throw new PlatformImportException( e.getMessage() );
-        }
       }
 
       if ( e.getCause() instanceof UnifiedRepositoryAccessDeniedException ) {
@@ -174,20 +173,37 @@ public class PentahoPlatformImporter implements IPlatformImporter {
         // needs to be propagated even if it was logged.
         throw platformImportException;
       }
+
+      if ( !isLoggerActive ) {
+        if ( e instanceof PlatformImportException platformImportException ) {
+          throw platformImportException;
+        }
+
+        throw new PlatformImportException(
+          messages.getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERROR", e.getLocalizedMessage() ),
+          PlatformImportException.PUBLISH_GENERAL_ERROR, e );
+      }
     }
   }
 
   private void logImportFile( IPlatformImportBundle file ) {
-    RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) file;
-    String repositoryFilePath = RepositoryFilenameUtils.concat( bundle.getPath(), bundle.getName() );
+    String repositoryFilePath = getRepositoryFilePath( file );
 
     // If doing a mondrian publish then there will be no active logger
-    if ( repositoryImportLogger.hasLogger() && repositoryFilePath != null && !repositoryFilePath.isEmpty() ) {
+    if ( hasActiveImportLogger() && repositoryFilePath != null && !repositoryFilePath.isEmpty() ) {
       repositoryImportLogger.setCurrentFilePath( repositoryFilePath );
       repositoryImportLogger.debug(
         "Starting " + ( repositoryImportLogger.isPerformingRestore() ? RESTORE : IMPORT ) + " of file "
           + file.getName() );
     }
+  }
+
+  private boolean hasActiveImportLogger() {
+    return repositoryImportLogger != null && repositoryImportLogger.hasLogger();
+  }
+
+  private String getRepositoryFilePath( IPlatformImportBundle file ) {
+    return RepositoryFilenameUtils.concat( file.getPath(), file.getName() );
   }
 
   public static String computeBundlePath( String bundlePath ) {
