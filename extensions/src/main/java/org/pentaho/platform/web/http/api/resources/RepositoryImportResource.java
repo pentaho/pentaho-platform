@@ -13,23 +13,20 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.enunciate.Facet;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -45,20 +42,18 @@ import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.web.http.api.resources.services.FileService;
-
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.pentaho.platform.web.http.api.resources.utils.SystemUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Path( "/repo/files/import" )
 public class RepositoryImportResource {
-
   private static final Logger LOGGER = LogManager.getLogger( RepositoryImportResource.class );
-
   private static final String DEFAULT_CHAR_SET = "UTF-8";
 
   /**
@@ -116,8 +111,10 @@ public class RepositoryImportResource {
    * @param retainOwnership         The flag indicates ability to retain ownership.
    * @param charSet                 The charset for imported file.
    * @param logLevel                The level of logging.
-   * @param fileNameOverride        If present and the content represents a single file, this parameter contains the filename to use
-   *                                when storing the file in the repository. If not present, the fileInfo.getFileName will be used.
+   * @param fileNameOverride        If present and the content represents a single file, this parameter contains the
+   *                                filename to use
+   *                                when storing the file in the repository. If not present, the fileInfo.getFileName
+   *                                will be used.
    *                                Note that the later cannot reliably handle foreign character sets.
    * @return A jax-rs Response object with the appropriate header and body.
    *
@@ -172,15 +169,18 @@ public class RepositoryImportResource {
                                 @FormDataParam( "logLevel" ) String logLevel,
                                 @FormDataParam( "fileUpload" ) FormDataContentDisposition fileInfo,
                                 @FormDataParam( "fileNameOverride" ) String fileNameOverride ) {
-    return doPostImportCommon( importDir, Arrays.asList( fileUpload ), overwriteFile, overwriteAclPermissions, applyAclPermission,
-        retainOwnership, charSet, logLevel, fileInfo, fileNameOverride );
+    return doPostImportCommon( importDir, Collections.singletonList( fileUpload ), overwriteFile,
+      overwriteAclPermissions, applyAclPermission, retainOwnership, charSet, logLevel, fileInfo, fileNameOverride );
   }
 
   protected void clearBowlCache() {
     IPentahoSession session = PentahoSessionHolder.getSession();
     ICacheManager cacheManager = PentahoSystem.getCacheManager( session );
+
     if ( cacheManager != null && session != null ) {
-      Repository pdiRepository = (Repository) cacheManager.getFromRegionCache( "pdi-repository-cache", session.getName() );
+      Repository pdiRepository =
+        (Repository) cacheManager.getFromRegionCache( "pdi-repository-cache", session.getName() );
+
       if ( pdiRepository != null ) {
         pdiRepository.getBowl().clearCache();
       }
@@ -190,6 +190,7 @@ public class RepositoryImportResource {
   protected void validateImportAccess( String importDir ) throws PentahoAccessControlException {
     // upload directory might be created or its permissions changed so skip existence and write permission checks
     boolean canUpload = SystemUtils.canUpload( importDir, true );
+
     if ( !canUpload ) {
       throw new PentahoAccessControlException( "User is not authorized to perform this operation" );
     }
@@ -226,11 +227,10 @@ public class RepositoryImportResource {
                                 @FormDataParam( "logLevel" ) String logLevel,
                                 @FormDataParam( "fileUpload" ) FormDataContentDisposition fileInfo,
                                 @FormDataParam( "fileNameOverride" ) String fileNameOverride ) {
-    List<InputStream> fileUploads = fileParts.stream()
-        .map( part -> part.getValueAs( InputStream.class ) )
-        .collect( Collectors.toList() );
+    List<InputStream> fileUploads = fileParts.stream().map( part -> part.getValueAs( InputStream.class ) ).toList();
+
     return doPostImportCommon( importDir, fileUploads, overwriteFile, overwriteAclPermissions, applyAclPermission,
-        retainOwnership, charSet, logLevel, fileInfo, fileNameOverride );
+      retainOwnership, charSet, logLevel, fileInfo, fileNameOverride );
   }
 
   /**
@@ -249,9 +249,9 @@ public class RepositoryImportResource {
    * @return
    */
   private Response doPostImportCommon( String importDir, List<InputStream> fileUploads, String overwriteFile,
-                                       String overwriteAclPermissions, String applyAclPermission, String retainOwnership,
-                                       String charSet, String logLevel, FormDataContentDisposition fileInfo,
-                                       String fileNameOverride ) {
+                                       String overwriteAclPermissions, String applyAclPermission,
+                                       String retainOwnership, String charSet, String logLevel,
+                                       FormDataContentDisposition fileInfo, String fileNameOverride ) {
     IRepositoryImportLogger importLogger = null;
     ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
     boolean logJobStarted = false;
@@ -268,20 +268,23 @@ public class RepositoryImportResource {
       boolean overwriteAclSettingsFlag = ( "true".equals( overwriteAclPermissions ) ? true : false );
       boolean applyAclSettingsFlag = ( "true".equals( applyAclPermission ) ? true : false );
       boolean retainOwnershipFlag = ( "true".equals( retainOwnership ) ? true : false );
+
       // If logLevel is null then we will default to ERROR
-      if ( logLevel == null || logLevel.length() <= 0 ) {
+      if ( logLevel == null || logLevel.isEmpty() ) {
         logLevel = "ERROR";
       }
 
       // Non-admins cannot process a manifest
       FileService fileService = new FileService();
+
       if ( !fileService.doCanAdminister() ) {
         applyAclSettingsFlag = false;
         retainOwnershipFlag = true;
       }
 
       Level level = Level.toLevel( logLevel );
-      ImportSession.getSession().setAclProperties( applyAclSettingsFlag, retainOwnershipFlag, overwriteAclSettingsFlag );
+      ImportSession.getSession()
+        .setAclProperties( applyAclSettingsFlag, retainOwnershipFlag, overwriteAclSettingsFlag );
 
       IPlatformMimeResolver mimeResolver = PentahoSystem.get( IPlatformMimeResolver.class );
       IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
@@ -315,6 +318,7 @@ public class RepositoryImportResource {
 
         bundleBuilder.mime( mimeTypeFromFile );
         importer.getRepositoryImportLogger().setPerformingRestore( false );
+
         try {
           importer.importFile( bundle );
         } catch ( PlatformImportException ex ) {
@@ -327,7 +331,8 @@ public class RepositoryImportResource {
       }
 
       // Flush the Mondrian cache to show imported data-sources.
-      IMondrianCatalogService mondrianCatalogService = PentahoSystem.get( IMondrianCatalogService.class, "IMondrianCatalogService",
+      IMondrianCatalogService mondrianCatalogService =
+        PentahoSystem.get( IMondrianCatalogService.class, "IMondrianCatalogService",
           PentahoSessionHolder.getSession() );
       mondrianCatalogService.reInit( PentahoSessionHolder.getSession() );
       logJobStarted = true;
@@ -335,17 +340,21 @@ public class RepositoryImportResource {
       return Response.serverError().entity( e.toString() ).build();
     } finally {
       ImportSession.clearSession();
-      if ( logJobStarted == true ) {
+
+      if ( logJobStarted ) {
         importLogger.endJob();
       }
     }
+
     String responseBody;
+
     try {
       responseBody = importLoggerStream.toString( charSet );
     } catch ( UnsupportedEncodingException e ) {
       LOGGER.error( "Encoding of response body is failed. (charSet=" + charSet + ")", e );
       responseBody = importLoggerStream.toString();
     }
+
     return Response.ok( responseBody, MediaType.TEXT_HTML ).build();
   }
 }

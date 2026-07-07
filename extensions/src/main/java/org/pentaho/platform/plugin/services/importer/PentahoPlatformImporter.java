@@ -13,11 +13,6 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,9 +22,9 @@ import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.mimetype.IMimeType;
+import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.ConverterException;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
-import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
@@ -37,6 +32,10 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Default implementation of IPlatformImporter. This class serves to route import requests to the appropriate
@@ -46,21 +45,20 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
  * User: nbaker Date: 5/29/12
  */
 public class PentahoPlatformImporter implements IPlatformImporter {
-
   private static final Log log = LogFactory.getLog( PentahoPlatformImporter.class );
   private static final Messages messages = Messages.getInstance();
-  private Map<String, IPlatformImportHandler> importHandlers;
+  private final Map<String, IPlatformImportHandler> importHandlers;
   private IPlatformImportHandler defaultHandler;
-  private IPlatformMimeResolver mimeResolver;
+  private final IPlatformMimeResolver mimeResolver;
   private IRepositoryImportLogger repositoryImportLogger;
-  private IRepositoryContentConverterHandler repositoryContentConverterHandler;
+  private final IRepositoryContentConverterHandler repositoryContentConverterHandler;
   private static final String IMPORT = "import";
   private static final String RESTORE = "restore";
 
   public PentahoPlatformImporter( List<IPlatformImportHandler> handlerList,
                                   IRepositoryContentConverterHandler repositoryContentConverterHandler ) {
     this.repositoryContentConverterHandler = repositoryContentConverterHandler;
-    importHandlers = new HashMap<String, IPlatformImportHandler>();
+    importHandlers = new HashMap<>();
     mimeResolver = PentahoSystem.get( IPlatformMimeResolver.class );
 
     for ( IPlatformImportHandler platformImportHandler : handlerList ) {
@@ -88,6 +86,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
     for ( IMimeType mimeType : platformImportHandler.getMimeTypes() ) {
       this.importHandlers.put( mimeType.getName(), platformImportHandler );
       this.mimeResolver.addMimeType( mimeType );
+
       for ( String extension : mimeType.getExtensions() ) {
         repositoryContentConverterHandler.addConverter( extension, mimeType.getConverter() );
       }
@@ -99,59 +98,54 @@ public class PentahoPlatformImporter implements IPlatformImporter {
    */
   public void importFile( IPlatformImportBundle file ) throws PlatformImportException {
     String mime = file.getMimeType() != null ? file.getMimeType() : mimeResolver.resolveMimeForBundle( file );
+
     try {
       if ( mime == null ) {
         log.trace( messages.getString( "PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE" ) + file.getName() );
-        repositoryImportLogger.error( messages.getString( "PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE" )
-            + file.getName() );
+        repositoryImportLogger.error(
+          messages.getString( "PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE" ) + file.getName() );
         return;
       }
+
       IPlatformImportHandler handler =
-          ( importHandlers.containsKey( mime ) == false ) ? defaultHandler : importHandlers.get( mime );
+        ( !importHandlers.containsKey( mime ) ) ? defaultHandler : importHandlers.get( mime );
+
       if ( handler == null ) {
-        throw new PlatformImportException( messages
-            .getString( "PentahoPlatformImporter.ERROR_0002_MISSING_IMPORT_HANDLER" ),
-            PlatformImportException.PUBLISH_GENERAL_ERROR
-        ); // replace with default handler?
+        // replace with default handler?
+        throw new PlatformImportException(
+          messages.getString( "PentahoPlatformImporter.ERROR_0002_MISSING_IMPORT_HANDLER" ),
+          PlatformImportException.PUBLISH_GENERAL_ERROR );
       }
+
       try {
         logImportFile( file );
         handler.importFile( file );
       } catch ( DomainIdNullException e1 ) {
-        throw new PlatformImportException( messages
-            .getString( "PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED" ),
-            PlatformImportException.PUBLISH_TO_SERVER_FAILED, e1
-        );
+        throw new PlatformImportException(
+          messages.getString( "PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED" ),
+          PlatformImportException.PUBLISH_TO_SERVER_FAILED, e1 );
       } catch ( DomainAlreadyExistsException e1 ) {
-        throw new PlatformImportException( messages
-            .getString( "PentahoPlatformImporter.ERROR_0007_PUBLISH_SCHEMA_EXISTS_ERROR" ),
-            PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR, e1
-        );
+        throw new PlatformImportException(
+          messages.getString( "PentahoPlatformImporter.ERROR_0007_PUBLISH_SCHEMA_EXISTS_ERROR" ),
+          PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR, e1 );
       } catch ( DomainStorageException e1 ) {
-        throw new PlatformImportException( messages
-            .getString( "PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED" ),
-            PlatformImportException.PUBLISH_DATASOURCE_ERROR, e1
-        );
-      } catch ( IOException e1 ) {
-        throw new PlatformImportException( messages
-            .getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERROR", e1.getLocalizedMessage() ),
-            PlatformImportException.PUBLISH_GENERAL_ERROR, e1
-        );
+        throw new PlatformImportException(
+          messages.getString( "PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED" ),
+          PlatformImportException.PUBLISH_DATASOURCE_ERROR, e1 );
       } catch ( PlatformImportException pe ) {
         throw pe; // if already converted - just rethrow
       } catch ( ConverterException ce ) {
         Throwable cause = ce.getCause();
+
         if ( cause instanceof KettleMissingPluginsException ) {
-          throw new PlatformImportException( messages
-              .getString( "PentahoPlatformImporter.ERROR_0008_PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS", cause.getLocalizedMessage() ),
-              PlatformImportException.PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS, cause
-          );
+          throw new PlatformImportException(
+            messages.getString( "PentahoPlatformImporter.ERROR_0008_PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS",
+              cause.getLocalizedMessage() ), PlatformImportException.PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS, cause );
         }
       } catch ( Exception e1 ) {
-        throw new PlatformImportException( messages
-            .getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERROR", e1.getLocalizedMessage() ),
-            PlatformImportException.PUBLISH_GENERAL_ERROR, e1
-        );
+        throw new PlatformImportException(
+          messages.getString( "PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERROR", e1.getLocalizedMessage() ),
+          PlatformImportException.PUBLISH_GENERAL_ERROR, e1 );
       }
     } catch ( Exception e ) {
       e.printStackTrace();
@@ -159,23 +153,26 @@ public class PentahoPlatformImporter implements IPlatformImporter {
       // so log the error and keep going.
       RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) file;
       String repositoryFilePath = RepositoryFilenameUtils.concat( bundle.getPath(), bundle.getName() );
-      if ( repositoryImportLogger.hasLogger() && repositoryFilePath != null && repositoryFilePath.length() > 0 ) {
+
+      if ( repositoryImportLogger.hasLogger() && repositoryFilePath != null && !repositoryFilePath.isEmpty() ) {
         repositoryImportLogger.error( e );
       } else {
-        if ( e instanceof PlatformImportException ) {
-          throw (PlatformImportException) e;
+        if ( e instanceof PlatformImportException platformImportException ) {
+          throw platformImportException;
         } else {
           // shouldn't happen but just in case
           throw new PlatformImportException( e.getMessage() );
         }
       }
+
       if ( e.getCause() instanceof UnifiedRepositoryAccessDeniedException ) {
         throw new UnifiedRepositoryAccessDeniedException();
       }
-      if ( ( e instanceof PlatformImportException )
-          && ((PlatformImportException) e).getErrorStatus() == PlatformImportException.PUBLISH_PARTIAL_UPLOAD ) {
+
+      if ( e instanceof PlatformImportException platformImportException
+        && platformImportException.getErrorStatus() == PlatformImportException.PUBLISH_PARTIAL_UPLOAD ) {
         // needs to be propagated even if it was logged.
-        throw e;
+        throw platformImportException;
       }
     }
   }
@@ -183,18 +180,23 @@ public class PentahoPlatformImporter implements IPlatformImporter {
   private void logImportFile( IPlatformImportBundle file ) {
     RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) file;
     String repositoryFilePath = RepositoryFilenameUtils.concat( bundle.getPath(), bundle.getName() );
+
     // If doing a mondrian publish then there will be no active logger
-    if ( repositoryImportLogger.hasLogger() && repositoryFilePath != null && repositoryFilePath.length() > 0 ) {
+    if ( repositoryImportLogger.hasLogger() && repositoryFilePath != null && !repositoryFilePath.isEmpty() ) {
       repositoryImportLogger.setCurrentFilePath( repositoryFilePath );
-      repositoryImportLogger.debug( "Starting " + ( repositoryImportLogger.isPerformingRestore() ? RESTORE : IMPORT ) + " of file " + file.getName() );
+      repositoryImportLogger.debug(
+        "Starting " + ( repositoryImportLogger.isPerformingRestore() ? RESTORE : IMPORT ) + " of file "
+          + file.getName() );
     }
   }
 
   public static String computeBundlePath( String bundlePath ) {
     bundlePath = RepositoryFilenameUtils.separatorsToRepository( bundlePath );
+
     if ( bundlePath.startsWith( RepositoryFile.SEPARATOR ) ) {
       bundlePath = bundlePath.substring( 1 );
     }
+
     return bundlePath;
   }
 
@@ -205,7 +207,9 @@ public class PentahoPlatformImporter implements IPlatformImporter {
     if ( in == null ) {
       throw new IllegalArgumentException();
     }
+
     String extension = null;
+
     if ( in.endsWith( RepositoryObjectType.CLUSTER_SCHEMA.getExtension() ) ) {
       extension = RepositoryObjectType.CLUSTER_SCHEMA.getExtension();
     } else if ( in.endsWith( RepositoryObjectType.DATABASE.getExtension() ) ) {
@@ -219,16 +223,21 @@ public class PentahoPlatformImporter implements IPlatformImporter {
     } else if ( in.endsWith( RepositoryObjectType.TRANSFORMATION.getExtension() ) ) {
       extension = RepositoryObjectType.TRANSFORMATION.getExtension();
     }
+
     String out = in;
+
     if ( extension != null ) {
       out = out.substring( 0, out.length() - extension.length() );
     }
+
     if ( out.contains( "/" ) || out.equals( ".." ) || out.equals( "." ) || StringUtils.isBlank( out ) ) {
       throw new IllegalArgumentException();
     }
+
     if ( System.getProperty( "KETTLE_COMPATIBILITY_PUR_OLD_NAMING_MODE", "N" ).equals( "Y" ) ) {
       out = out.replaceAll( "[/:\\[\\]\\*'\"\\|\\s\\.]", "_" ); //$NON-NLS-1$//$NON-NLS-2$
     }
+
     if ( extension != null ) {
       return out + extension;
     } else {
