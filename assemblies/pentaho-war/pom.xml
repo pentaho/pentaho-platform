@@ -1199,6 +1199,11 @@
                     <unzip src="@{war.file}" dest="${project.build.directory}/gremlin-strip">
                       <patternset includes="WEB-INF/lib/gremlin-shaded-*.jar"/>
                     </unzip>
+                    <!-- Ensure the strip dir exists even when the war bundles no gremlin-shaded
+                         jar (unzip with a non-matching patternset creates nothing); otherwise the
+                         filesets below would fail with "gremlin-strip does not exist". With the dir
+                         present, the inner loop and the update-zip both no-op harmlessly. -->
+                    <mkdir dir="${project.build.directory}/gremlin-strip"/>
                     <for param="gremlin.jar">
                       <path>
                         <fileset dir="${project.build.directory}/gremlin-strip"
