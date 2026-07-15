@@ -308,7 +308,35 @@
   </bean>
 
   <bean id="userNavigationRequestMatcherSecFetch"
-        class="org.pentaho.platform.web.servlet.matchers.UserNavigationSecFetchRequestMatcher" />
+        class="org.pentaho.platform.web.servlet.matchers.UserNavigationSecFetchRequestMatcher">
+    <!-- If needed, matching `sec-fetch-*` header values may be changed from defaults.
+         CAUTION: Adding `cross-site` and/or `same-site` to `secFetchSiteValues` treats requests from other
+         origins/sites as safe user navigation, weakening this matcher's cross-site request protections.
+         Accessing the server via a domain name and a valid SSL certificate is NOT, by itself, sufficient
+         justification for this change; only do so if other, independent, CSRF/anti-forgery protections are
+         already in place, and the security implications are fully understood.
+    <property name="secFetchDestValues">
+      <util:list>
+        <value>document</value>
+        <value>embed</value>
+        <value>frame</value>
+        <value>iframe</value>
+        <value>object</value>
+      </util:list>
+    </property>
+    <property name="secFetchModeValues">
+      <util:list>
+        <value>navigate</value>
+      </util:list>
+    </property>
+    <property name="secFetchSiteValues">
+      <util:list>
+        <value>same-origin</value>
+        <value>none</value>
+      </util:list>
+    </property>
+    -->
+  </bean>
   <bean id="userNavigationRequestMatcherFallback" class="org.springframework.security.web.util.matcher.AndRequestMatcher">
     <constructor-arg>
       <util:list>
