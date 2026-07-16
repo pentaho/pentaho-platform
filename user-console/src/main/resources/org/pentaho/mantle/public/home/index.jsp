@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2023 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2023 Pentaho.  All rights reserved.
 --%>
 
 <!DOCTYPE html>
@@ -79,7 +79,7 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
   <!-- Require Home -->
   <script type="text/javascript">
     var Home = null;
-    require(["home/home", 
+    require(["home/home",
       "common-ui/util/ContextProvider"], function (pentahoHome, ContextProvider) {
       Home = pentahoHome;
 
@@ -119,9 +119,9 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
       });
 
     });
-	
+
 	// Set a variable that the inner html pages can read to determine if the ruby theme is active
-	if (window.active_theme === "ruby") { 
+	if (window.active_theme === "ruby") {
 	  this.css_custom_location = "css/ccp-ruby.css";
 	}
   </script>
@@ -304,12 +304,12 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
   </div>
 </div>
   <script type="text/javascript">
-		
+
 		var popup_init = false;
-		
+
 		function preCreatePopover(){
 			if(!popup_init){
-				var tmp = $.fn.popover.Constructor.prototype.show; 
+				var tmp = $.fn.popover.Constructor.prototype.show;
 				$.fn.popover.Constructor.prototype.show = function () {
 				  tmp.call(this);
 
@@ -321,13 +321,13 @@ if ( PentahoSystem.getApplicationContext().getFullyQualifiedServerURL().toLowerC
 				  $('.popover').css('top', topOffset+"px");
 				  $('.arrow').css('top', offset + height / 2);
 
-				  if (!$('.popover-title').html()) 
+				  if (!$('.popover-title').html())
 						$('.popover-title').hide();
-				}; 
+				};
 				popup_init = true;
 			}
 		}
-  
+
         $('.welcome-frame').on('load', function() {
           $(this.contentDocument.body).on('click', function() {
             if ($(".popover-content").length > 0){

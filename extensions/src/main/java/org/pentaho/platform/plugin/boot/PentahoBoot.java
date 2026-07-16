@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -47,7 +47,7 @@ import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceM
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 
 /**
- * This class is designed to help embedded deployments start the Hitachi Vantara system
+ * This class is designed to help embedded deployments start the Pentaho system
  * 
  * @author jamesdixon
  */

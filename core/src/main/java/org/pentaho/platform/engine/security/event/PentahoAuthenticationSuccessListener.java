@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -28,7 +28,7 @@ import org.springframework.security.authentication.event.AuthenticationSuccessEv
 import org.springframework.util.Assert;
 
 /**
- * Synchronizes the Hitachi Vantara session's principal with the Spring Security {@code Authentication}. This listener fires
+ * Synchronizes the Pentaho session's principal with the Spring Security {@code Authentication}. This listener fires
  * either on interactive or non-interactive logins.
  * 
  * <p>

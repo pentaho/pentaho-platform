@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -30,7 +30,7 @@ import javax.jcr.SimpleCredentials;
  * </p>
  *
  * <p>
- * This class is instantiated by Hitachi Vantara Admin Console so there should not be a dependency on classes to which PAC
+ * This class is instantiated by Pentaho Admin Console so there should not be a dependency on classes to which PAC
  * will not have access.
  * </p>
  *

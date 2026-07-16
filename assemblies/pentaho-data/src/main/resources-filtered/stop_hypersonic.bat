@@ -3,14 +3,14 @@ REM ****************************************************************************
 REM
 REM Pentaho
 REM
-REM Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+REM Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
 REM
 REM Use of this software is governed by the Business Source License included
 REM in the LICENSE.TXT file.
 REM
 REM Change Date: 2029-07-20
 REM ******************************************************************************
-setlocal 
+setlocal
 cd /D "%~dp0"
 REM ---------------------------------------------
 REM - Create the classpath for this application -
@@ -30,7 +30,7 @@ REM -----------------------
 REM - Run the application -
 REM -----------------------
 :startApp
-FOR %%b IN (sampledata,hibernate,quartz) DO call :runCommand %%b 
+FOR %%b IN (sampledata,hibernate,quartz) DO call :runCommand %%b
 GOTO end
 
 :runCommand

@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -231,12 +231,12 @@ public abstract class AbstractChartFactory implements IChartFactory {
   //
 
   protected void setupTitles() {
-    // in the Hitachi Vantara chart, range-title equals yLengend title
+    // in the Pentaho chart, range-title equals yLengend title
     Node rangeTitle = chartNode.selectSingleNode( RANGE_TITLE_NODE_LOC );
     Node rangeTitleFont = chartNode.selectSingleNode( RANGE_TITLE_FONT_NODE_LOC );
     Node title = chartNode.selectSingleNode( TITLE_NODE_LOC );
 
-    // in the Hitachi Vantara chart, domain-title equals xLengend title
+    // in the Pentaho chart, domain-title equals xLengend title
     Node domainTitle = chartNode.selectSingleNode( DOMAIN_TITLE_NODE_LOC );
     Node domainTitleFont = chartNode.selectSingleNode( DOMAIN_TITLE_FONT_NODE_LOC );
     Node titleFont = chartNode.selectSingleNode( TITLE_FONT_NODE_LOC );

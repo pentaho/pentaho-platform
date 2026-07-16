@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2017 Pentaho.  All rights reserved.
 --%>
 
 <%@ page
@@ -21,10 +21,10 @@
   import="org.pentaho.platform.util.messages.LocaleHelper,
           org.pentaho.platform.engine.core.system.PentahoSystem,
           org.pentaho.platform.web.jsp.messages.Messages,
-          java.util.List" 
+          java.util.List"
 %><%
 /*
- * Copyright 2006 - 2017 Hitachi Vantara.  All rights reserved. 
+ * Copyright 2006 - 2017 Pentaho.  All rights reserved.
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -37,7 +37,7 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
- * 
+ *
  */
 	response.setCharacterEncoding(LocaleHelper.getSystemEncoding());
     response.setHeader("Pragma", "no-cache"); // Set standard HTTP/1.0 no-cache header.

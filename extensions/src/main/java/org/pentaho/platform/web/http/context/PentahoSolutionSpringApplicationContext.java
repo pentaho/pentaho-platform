@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -51,7 +51,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 /**
- * Overrides <code>getResourceByPath</code> so that relative paths are relative to the Hitachi Vantara solution repository's
+ * Overrides <code>getResourceByPath</code> so that relative paths are relative to the Pentaho solution repository's
  * system directory instead of being relative to servlet context root.
  * 
  * @author mlowery

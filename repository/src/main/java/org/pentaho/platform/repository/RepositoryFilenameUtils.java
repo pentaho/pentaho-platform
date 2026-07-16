@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -23,7 +23,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * General filename and filepath manipulation utilities for the Hitachi Vantara Repository. NOTE: these methods will work
+ * General filename and filepath manipulation utilities for the Pentaho Repository. NOTE: these methods will work
  * independently of the underlying operating system. Most methods will translate a backslash (\) to a forward slash (/)
  * but should be be depended upon to make that translation.
  * <p/>
@@ -40,7 +40,7 @@ import org.apache.commons.lang3.StringUtils;
  * impossible to determine if the filename corresponds to a file or a directory. As a result, we have chosen to say it
  * corresponds to a file.
  * <p/>
- * This class only supports Hitachi Vantara Repository (Unix) style names. Prefixes are matched as follows:
+ * This class only supports Pentaho Repository (Unix) style names. Prefixes are matched as follows:
  * 
  * <pre>
  * a/b/c.txt           --> ""          --> relative

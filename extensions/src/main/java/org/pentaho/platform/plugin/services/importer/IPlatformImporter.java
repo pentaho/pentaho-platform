@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -19,7 +19,7 @@ import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger
 import java.util.Map;
 
 /**
- * Implementations handle importing the given content into the Hitachi Vantara System.
+ * Implementations handle importing the given content into the Pentaho System.
  * <p/>
  * User: nbaker Date: 6/18/12
  */

@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -37,7 +37,7 @@ import java.util.List;
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2017 Pentaho.  All rights reserved.
  */
 
 public class PentahoSystemShutdownOrderTest {

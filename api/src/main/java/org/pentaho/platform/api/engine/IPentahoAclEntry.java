@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -14,7 +14,7 @@
 package org.pentaho.platform.api.engine;
 
 /**
- * Base Hitachi Vantara Access Control entry. Subclassed <tt>BasicAclEntry</tt> from Spring Security. Provides known access
+ * Base Pentaho Access Control entry. Subclassed <tt>BasicAclEntry</tt> from Spring Security. Provides known access
  * controls.
  *
  * @author mbatchel

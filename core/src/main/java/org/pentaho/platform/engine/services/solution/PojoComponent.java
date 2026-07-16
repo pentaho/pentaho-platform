@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -47,7 +47,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class interfaces with a plain old Java object and makes it available as a component within the Hitachi Vantara
+ * This class interfaces with a plain old Java object and makes it available as a component within the Pentaho
  * platform.
  * 
  * Resources and Input Parameters are set on a Pojo via setters. Any public setter is available to both, without

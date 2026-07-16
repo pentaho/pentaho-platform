@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -100,7 +100,7 @@ public class MetadataQueryComponent {
   }
 
   /**
-   * This sets the read only property in the Hitachi Vantara SQLConnection API
+   * This sets the read only property in the Pentaho SQLConnection API
    * 
    * @param readOnly
    *          true if read only

@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+* Copyright (c) 2002-2017 Pentaho.  All rights reserved.
 --%>
 
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core'%>
@@ -27,24 +27,24 @@
             org.owasp.encoder.Encode,
             java.net.URLClassLoader, java.net.URL"
 %>
-			
+
 <html>
   <head>
-  <% 
+  <%
   URLClassLoader loader = new URLClassLoader( new URL[] { application.getResource( "/mantle/messages/" ) } );
   ResourceBundle properties = ResourceBundle.getBundle( "mantleMessages", request.getLocale(), loader );
 %>
-    
-    <title><%= properties.getString("pentahoBATitle") %></title>    
+
+    <title><%= properties.getString("pentahoBATitle") %></title>
 
     <script type="text/javascript" src="webcontext.js"></script>
 
 	<%
-		boolean haveMobileRedirect = false;		
+		boolean haveMobileRedirect = false;
 		String ua = request.getHeader("User-Agent").toLowerCase();
-		if (!"desktop".equalsIgnoreCase(request.getParameter("mode"))) {		
-		  if (ua.contains("ipad") || ua.contains("ipod") || ua.contains("iphone") || ua.contains("android") || "mobile".equalsIgnoreCase(request.getParameter("mode"))) {		
-		    IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession()); 
+		if (!"desktop".equalsIgnoreCase(request.getParameter("mode"))) {
+		  if (ua.contains("ipad") || ua.contains("ipod") || ua.contains("iphone") || ua.contains("android") || "mobile".equalsIgnoreCase(request.getParameter("mode"))) {
+		    IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession());
 		    List<String> pluginIds = pluginManager.getRegisteredPlugins();
 		    for (String id : pluginIds) {
 		      String mobileRedirect = (String)pluginManager.getPluginSetting(id, "mobile-redirect", null);
@@ -81,7 +81,7 @@
 		  }
 		}
 	%>
-	
+
   </head>
   <body>
   </body>

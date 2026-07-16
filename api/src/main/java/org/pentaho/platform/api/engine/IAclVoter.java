@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -41,7 +41,7 @@ public interface IAclVoter {
   public IAclEntry[] getEffectiveAcls( IPentahoSession session, IAclHolder holder );
 
   /**
-   * Determines whether the user is a super-manager of Hitachi Vantara. Uses the Manager Role.
+   * Determines whether the user is a super-manager of Pentaho. Uses the Manager Role.
    *
    * @param session
    * @return <code>true</code> if the user is a super-manager
