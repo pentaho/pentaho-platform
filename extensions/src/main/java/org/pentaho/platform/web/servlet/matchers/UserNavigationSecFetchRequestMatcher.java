@@ -17,6 +17,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -115,17 +116,17 @@ public class UserNavigationSecFetchRequestMatcher implements RequestMatcher {
    * The possible values of the `sec-fetch-dest` request header for a navigation request.
    * <p>
    * See
-   * <a href="https://fetch.spec.whatwg.org/#navigation-request">Navigation Requests Destinations</a>.
+   * <a href="https://w3c.github.io/webappsec-fetch-metadata/#sec-fetch-dest-header">Navigation Requests Destinations</a>.
    */
   static final List<String> HEADER_SF_DEST_NAVIGATION = List.of( "document", "embed", "frame", "iframe", "object" );
 
   /**
-   * The value of the `sec-fetch-mode` request header for a navigate request.
+   * The possible values of the `sec-fetch-mode` request header for a navigate request.
    * <p>
    * See
-   * <a href="https://fetch.spec.whatwg.org/#concept-request-mode">Request Mode</a>.
+   * <a href="https://w3c.github.io/webappsec-fetch-metadata/#sec-fetch-mode-header">Request Mode</a>.
    */
-  static final String HEADER_SF_MODE_NAVIGATE = "navigate";
+  static final List<String> HEADER_SF_MODE_NAVIGATE = List.of( "navigate" );
 
   /**
    * The possible values of the `sec-fetch-site` request header for a safe navigation request.
@@ -133,9 +134,28 @@ public class UserNavigationSecFetchRequestMatcher implements RequestMatcher {
    * Safe navigation requests are those that are same-origin or have no origin.
    * <p>
    * See
-   * <a href="https://fetch.spec.whatwg.org/#concept-request-site">Request Site</a>.
+   * <a href="https://w3c.github.io/webappsec-fetch-metadata/#sec-fetch-site-header">Request Site</a>.
    */
   static final List<String> HEADER_SF_SITE_SAFE = List.of( "same-origin", "none" );
+
+  @NonNull
+  private List<String> secFetchDestValues = HEADER_SF_DEST_NAVIGATION;
+  @NonNull
+  private List<String> secFetchModeValues = HEADER_SF_MODE_NAVIGATE;
+  @NonNull
+  private List<String> secFetchSiteValues = HEADER_SF_SITE_SAFE;
+
+  public void setSecFetchDestValues( @Nullable Collection<String> secFetchDestValues ) {
+    this.secFetchDestValues = toHeaderValues( secFetchDestValues, HEADER_SF_DEST_NAVIGATION );
+  }
+
+  public void setSecFetchModeValues( @Nullable Collection<String> secFetchModeValues ) {
+    this.secFetchModeValues = toHeaderValues( secFetchModeValues, HEADER_SF_MODE_NAVIGATE );
+  }
+
+  public void setSecFetchSiteValues( @Nullable Collection<String> secFetchSiteValues ) {
+    this.secFetchSiteValues = toHeaderValues( secFetchSiteValues, HEADER_SF_SITE_SAFE );
+  }
 
   @Override
   public boolean matches( @NonNull HttpServletRequest request ) {
@@ -143,12 +163,27 @@ public class UserNavigationSecFetchRequestMatcher implements RequestMatcher {
       return true;
     }
 
-    return contains( HEADER_SF_DEST_NAVIGATION, request.getHeader( HEADER_SEC_FETCH_DEST ) )
-      && HEADER_SF_MODE_NAVIGATE.equals( request.getHeader( HEADER_SEC_FETCH_MODE ) )
-      && contains( HEADER_SF_SITE_SAFE, request.getHeader( HEADER_SEC_FETCH_SITE ) );
+    return contains( secFetchDestValues, request.getHeader( HEADER_SEC_FETCH_DEST ) )
+      && contains( secFetchModeValues, request.getHeader( HEADER_SEC_FETCH_MODE ) )
+      && contains( secFetchSiteValues, request.getHeader( HEADER_SEC_FETCH_SITE ) );
   }
 
-  protected boolean contains( @NonNull List<String> list, @Nullable String value ) {
-    return value != null && list.contains( value );
+  protected boolean contains( @NonNull Collection<String> values, @Nullable String value ) {
+    return value != null && values.contains( value );
+  }
+
+  protected List<String> toHeaderValues( @Nullable Collection<String> values, @NonNull List<String> defaultValues ) {
+    if ( values == null ) {
+      return defaultValues;
+    }
+
+    // An empty configured list would make this condition always false (except for `sec-fetch-user: ?1`),
+    // effectively disabling this matcher's Sec-Fetch-* based logic. This is very likely a misconfiguration,
+    // so fail fast instead of silently weakening/breaking the security check.
+    if ( values.isEmpty() ) {
+      throw new IllegalArgumentException( "The configured collection of header values must not be empty." );
+    }
+
+    return List.copyOf( values );
   }
 }

@@ -12,12 +12,15 @@
 
 package org.pentaho.platform.web.servlet.matchers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.pentaho.platform.web.servlet.matchers.UserNavigationSecFetchRequestMatcher.HEADER_SEC_FETCH_DEST;
@@ -31,10 +34,12 @@ public class UserNavigationSecFetchRequestMatcherTest {
   private static final String HEADER_SF_FALSE = "?0";
 
   private HttpServletRequest request;
+  private UserNavigationSecFetchRequestMatcher requestMatcher;
 
   @Before
   public void setUp() {
     request = mock( HttpServletRequest.class );
+    requestMatcher = new UserNavigationSecFetchRequestMatcher();
   }
 
   private void expectMatch(
@@ -48,8 +53,6 @@ public class UserNavigationSecFetchRequestMatcherTest {
     when( request.getHeader( HEADER_SEC_FETCH_DEST ) ).thenReturn( secFetchDest );
     when( request.getHeader( HEADER_SEC_FETCH_MODE ) ).thenReturn( secFetchMode );
     when( request.getHeader( HEADER_SEC_FETCH_SITE ) ).thenReturn( secFetchSite );
-
-    var requestMatcher = new UserNavigationSecFetchRequestMatcher();
 
     assertEquals( expectMatches, requestMatcher.matches( request ) );
   }
@@ -81,5 +84,50 @@ public class UserNavigationSecFetchRequestMatcherTest {
     expectMatch( null, "document", null, "same-origin", false );
     expectMatch( null, "document", "cors", "same-origin", false );
     expectMatch( null, "document", "navigate", "cross-site", false );
+  }
+
+  @Test
+  public void test_True_WhenNavigationHeadersConfiguredWithCustomValues() {
+    requestMatcher.setSecFetchDestValues( Set.of( "image" ) );
+    requestMatcher.setSecFetchModeValues( List.of( "cors" ) );
+    requestMatcher.setSecFetchSiteValues( Set.of( "cross-site" ) );
+
+    expectMatch( null, "image", "cors", "cross-site", true );
+  }
+
+  @Test
+  public void test_False_WhenNavigationHeadersConfiguredAndDefaultsNoLongerMatch() {
+    requestMatcher.setSecFetchDestValues( Set.of( "image" ) );
+    requestMatcher.setSecFetchModeValues( List.of( "cors" ) );
+    requestMatcher.setSecFetchSiteValues( Set.of( "cross-site" ) );
+
+    expectMatch( null, "document", "navigate", "same-origin", false );
+  }
+
+  @Test
+  public void test_True_WhenConfiguredValuesAreNullAndDefaultsRemainActive() {
+    requestMatcher.setSecFetchDestValues( null );
+    requestMatcher.setSecFetchModeValues( null );
+    requestMatcher.setSecFetchSiteValues( null );
+
+    expectMatch( null, "document", "navigate", "same-origin", true );
+  }
+
+  @Test
+  public void test_Throws_WhenSecFetchDestValuesConfiguredEmpty() {
+    Set<String> emptyValues = Set.of();
+    assertThrows( IllegalArgumentException.class, () -> requestMatcher.setSecFetchDestValues( emptyValues ) );
+  }
+
+  @Test
+  public void test_Throws_WhenSecFetchModeValuesConfiguredEmpty() {
+    List<String> emptyValues = List.of();
+    assertThrows( IllegalArgumentException.class, () -> requestMatcher.setSecFetchModeValues( emptyValues ) );
+  }
+
+  @Test
+  public void test_Throws_WhenSecFetchSiteValuesConfiguredEmpty() {
+    Set<String> emptyValues = Set.of();
+    assertThrows( IllegalArgumentException.class, () -> requestMatcher.setSecFetchSiteValues( emptyValues ) );
   }
 }
