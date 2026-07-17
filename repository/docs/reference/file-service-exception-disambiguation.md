@@ -1,10 +1,18 @@
+---
+type: reference
+title: Disambiguating FileService Exceptions Via Public API Calls
+description: Public-API-only snippets for detecting the real cause behind FileService's inconsistent, legacy exception surface, complementing the architecture analysis for API consumers.
+status: active
+timestamp: 2026-07-17T00:00:00Z
+---
+
 # Disambiguating `FileService` exceptions via public API calls
 
 Companion to
-[`file-service-access-control.md`](./file-service-access-control.md)
+[`file-service-access-control.md`](../architecture/file-service-access-control.md)
 (referred to below as "the FileService doc") and, transitively, to
-[`unified-repository-access-control.md`](./unified-repository-access-control.md) /
-[`unified-repository-access-control-disambiguation.md`](./unified-repository-access-control-disambiguation.md)
+[`unified-repository-access-control.md`](../architecture/unified-repository-access-control.md) /
+[`unified-repository-exception-disambiguation.md`](./unified-repository-exception-disambiguation.md)
 (the "main doc" / "main disambiguation doc") for the underlying `IUnifiedRepository`
 layer.
 

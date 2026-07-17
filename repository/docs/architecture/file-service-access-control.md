@@ -1,7 +1,15 @@
+---
+type: architecture
+title: FileService Access Control Analysis
+description: Bean composition and layer-by-layer access-control enforcement for FileService, built atop IUnifiedRepository.
+status: active
+timestamp: 2026-07-17T00:00:00Z
+---
+
 # FileService Access Control Analysis
 
-> Companion to `unified-repository-access-control.md` (the `IUnifiedRepository` layer) and
-> `unified-repository-access-control-disambiguation.md` (public-API disambiguation
+> Companion to [`unified-repository-access-control.md`](./unified-repository-access-control.md) (the `IUnifiedRepository` layer) and
+> [`unified-repository-exception-disambiguation.md`](../reference/unified-repository-exception-disambiguation.md) (public-API disambiguation
 > strategies for that layer). This document covers the **`FileService`** layer itself —
 > its own access-control-relevant logic and exception-handling behavior, on top of the
 > `IUnifiedRepository` bean it wraps.
@@ -308,14 +316,14 @@ switching mental models from the main doc to this one:
 ## 5. Notes for building a disambiguation strategy at this layer
 
 A dedicated companion file,
-[`file-service-access-control-disambiguation.md`](./file-service-access-control-disambiguation.md),
+[`file-service-exception-disambiguation.md`](../reference/file-service-exception-disambiguation.md),
 provides full per-operation, public-API-only disambiguation snippets for this layer
-(mirroring `unified-repository-access-control-disambiguation.md` for the main doc). The
+(mirroring `unified-repository-exception-disambiguation.md` for the main doc). The
 notes below summarize why the underlying `IUnifiedRepository` disambiguation approach
 needs adaptation here.
 
 The public-API disambiguation approach from
-`unified-repository-access-control-disambiguation.md` (using `hasAccess()`/`getFileById()`
+`unified-repository-exception-disambiguation.md` (using `hasAccess()`/`getFileById()`
 follow-up calls) remains valid **wherever a `FileService` call is a pure pass-through to
 `getRepoWs()`** (§2.1 pattern 1/2) or where `RepositoryFileProvider` calls
 `unifiedRepository` directly (`getFile`, `getAcl`, `hasAccess`). It is **not sufficient** on
