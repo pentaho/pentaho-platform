@@ -68,10 +68,7 @@ escalation steps.
 
 # Related Documents
 
-- [Unified Repository Access Control Analysis](../architecture/unified-repository-access-control.md)
-- [FileService Access Control Analysis](../architecture/file-service-access-control.md)
+- [0002: Modularize Architecture And Reference Docs By Subsystem](./0002-modularize-architecture-and-reference-docs-by-subsystem.md) - Follow-up decision that further split these same documents into per-layer and per-operation concepts.
 - [Repository Permission Model](../reference/repository-permission-model.md)
 - [Repository Permission Semantics And Use Cases](../reference/repository-permission-semantics.md)
 - [Repository Permission Model Known Issues](../reference/repository-permission-known-issues.md)
-- [Disambiguating IUnifiedRepository Exceptions Via Public API Calls](../reference/unified-repository-exception-disambiguation.md)
-- [Disambiguating FileService Exceptions Via Public API Calls](../reference/file-service-exception-disambiguation.md)
