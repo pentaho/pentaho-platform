@@ -195,76 +195,41 @@ custom voter denies access.
 
 ## 2.4.8 Per-node JCR privilege requirements and Magic ACE caveats
 
-> Sourced from the companion analysis in [`repository-permission-model.md`](../../reference/repository-permission-model.md) — included here because it
-> directly affects whether the `javax.jcr.AccessDeniedException` in §2.4.7 fires **at all**,
-> not just what it looks like once thrown.
-
 The Pentaho-layer voter/aclDao pre-checks (§2.4.1, §2.5) only ever evaluate **one** node per
 operation (the file, or the destination folder). The underlying JCR call frequently touches
-**additional** nodes that have no corresponding Pentaho-layer pre-check — a gap marked `⚠`
-below. If the user is missing the JCR privilege on one of those un-checked nodes, JCR throws
+**additional** nodes that have no corresponding Pentaho-layer pre-check. If the user is
+missing the JCR privilege on one of those un-checked nodes, JCR throws
 `javax.jcr.AccessDeniedException` there instead, with the same downstream translation and
 surfacing as a generic `UnifiedRepositoryException` (§2.7, §4) — but for a node the caller
 may not have expected to need permission on.
 
-| Operation | JCR call | Node | Pentaho-layer check | JCR privilege required (after Magic ACE injection) |
-|---|---|---|---|---|
-| `createFile` / `createFolder` | `node.addNode()` | parent folder | `WRITE` (voter) | `jcr:addChildNodes` |
-| `updateFile` | `node.setProperty()` | file | `WRITE` (voter) | `jcr:modifyProperties` |
-| `deleteFile` (soft) | `session.move(file → .trash)` | file | `DELETE` (voter + `aclDao`) | `jcr:removeNode` ¹ |
-| `deleteFile` (soft) | `session.move(file → .trash)` | ⚠ source parent | *(none)* | `jcr:removeChildNodes` |
-| `deleteFile` (soft) | `session.move(file → .trash)` | ⚠ `.trash` folder | *(none)* | `jcr:addChildNodes` |
-| `permanentlyDeleteFile` | `fileNode.remove()` | file | `DELETE` (voter) | `jcr:removeNode` |
-| `permanentlyDeleteFile` | `fileNode.remove()` | ⚠ source parent | *(none)* | `jcr:removeChildNodes` |
-| `moveFile` / rename | `workspace.move(src, dest)` | file (source) | `WRITE` (voter) | — |
-| `moveFile` / rename | `workspace.move(src, dest)` | dest folder | `WRITE` (voter) | `jcr:addChildNodes` |
-| `moveFile` / rename | `workspace.move(src, dest)` | ⚠ source parent | *(none)* | `jcr:removeChildNodes` |
-| `copyFile` | `workspace.copy(src, dest)` | dest folder | `WRITE` (voter) | `jcr:addChildNodes` |
-| `copyFile` | `workspace.copy(src, dest)` | ⚠ source file | *(none — no check at either layer)* | *(none — see §3 `copyFile` row)* |
-| `undeleteFile` | `session.move(.trash → orig)` | file | `WRITE` (voter) | — |
-| `updateAcl` | ACL update | file | `ACL_MANAGEMENT` (`aclDao`, in `DefaultUnifiedRepository`) | `pho:aclManagement` |
-| `lockFile` / `unlockFile` | JCR lock | — | kiosk only | `jcr:lockManagement` |
-
-¹ `deleteFile` moves the file to `.trash`; the Pentaho `aclDao.hasAccess(file, DELETE)` check
-asks for `jcr:removeNode` on the file itself. Whether this passes depends on Magic ACE
-injection — see below.
-
-**Practical consequence for §3's summary table:** a caller who has `DELETE` on a file but
-lacks `jcr:removeChildNodes` on its *parent* (or `jcr:addChildNodes` on `.trash`) will still
-receive `AccessDeniedException` → `URE` from `deleteFile` even though the Pentaho-layer
-checks on the file itself all passed. The same applies to `jcr:removeChildNodes` on the
-source parent for `moveFile`/`permanentlyDeleteFile`. These are additional, *unchecked*
-failure points beyond what the table's "No-write-or-delete-access" column's named check
-covers.
+The full per-operation table of JCR calls, nodes touched, Pentaho-layer checks, and required
+JCR privileges (after Magic ACE injection) is the authoritative
+[access-control pre-check layer reference](../../reference/unified-repository/permissions/pre-check-layer.md) —
+this directly affects whether the `javax.jcr.AccessDeniedException` from §2.4.7 fires **at
+all**, not just what it looks like once thrown.
 
 ### Magic ACE injection can make a JCR privilege check pass unexpectedly
 
 `PentahoEntryCollector` (invoked by both `aclDao.hasAccess()` and native JCR
-`hasPrivileges()`/enforcement) injects two kinds of ACEs that are **not** visible via
-`JcrRepositoryFileAclDao.getAcl()`:
-
-1. **Inheritance transformation**: if the node's ACL is set to inherit
-   (`isEntriesInheriting=true`), the parent folder's `jcr:removeChildNodes` privilege is
-   injected as `jcr:removeNode` on the node itself. This is why `DELETE` on an inheriting
-   child can succeed even when `DELETE` on the parent folder itself would not (the parent
-   folder's own ACL evaluation doesn't get this transformation).
-2. **Owner ACE**: the creator of a node always has `jcr:all` injected for that node,
-   regardless of any explicit ACE — this covers read, write, delete, lock, and version
-   management.
-
-Both mean an "expected" `AccessDeniedException` at one of the JCR calls in the table above
-may **not** occur even though the visible ACL (via `getAcl()`) suggests it should — and,
-conversely, that a caller cannot rely on `getAcl()` alone to predict whether a write/delete
-operation will succeed.
+`hasPrivileges()`/enforcement) injects ephemeral, never-persisted ACEs that are invisible to
+`JcrRepositoryFileAclDao.getAcl()` — see the [Magic ACEs reference](../../reference/unified-repository/permissions/magic-aces.md)
+for the full mechanics (owner ACE, inheritance transformation, and config-yaml ACEs). In
+short: an "expected" `AccessDeniedException` at one of the JCR calls above may **not** occur
+even though the visible ACL (via `getAcl()`) suggests it should — and, conversely, a caller
+cannot rely on `getAcl()` alone to predict whether a write/delete operation will succeed.
+This is why `DELETE` on an inheriting child can succeed even when `DELETE` on the parent
+folder itself would not — see [why DELETE on an inherited node passes when DELETE on its parent does not](../../reference/unified-repository/permissions/pre-check-layer.md#why-delete-on-an-inherited-node-passes-when-delete-on-its-parent-does-not).
 
 ### Owner-ACE gap: owners can still get `URADE` from `updateAcl`
 
-The owner ACE (`jcr:all`) does **not** include the custom `pho:aclManagement` privilege.
+The owner ACE (`jcr:all`, see [Magic ACEs](../../reference/unified-repository/permissions/magic-aces.md)) does **not** include the custom `pho:aclManagement` privilege.
 This means the creator of a file — who passes every JCR write/delete/lock/version check via
 the owner ACE — can still receive `UnifiedRepositoryAccessDeniedException` from `updateAcl`
 (§2.3, §3) unless they also hold an explicit ACE granting `ACL_MANAGEMENT`. This is a
-permanent condition for as long as they remain the owner and is not visible in `getAcl()`'s
-output (Magic ACEs are stripped by `JcrRepositoryFileAclUtils.removeAclMetadata()`).
+permanent condition for as long as they remain the owner; see
+[Owner cannot manage ACL on their own resource](../../reference/unified-repository/permissions/known-issues.md) for the full analysis.
 
 ---
+
 

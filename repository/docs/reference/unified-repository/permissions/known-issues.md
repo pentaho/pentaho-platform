@@ -1,16 +1,17 @@
 ---
 type: reference
-title: Repository Permission Model Known Issues
-description: Current inconsistent or likely-unintended behaviors observed in the repository permission model.
+title: IUnifiedRepository Permission Model Known Issues
+description: Current inconsistent, surprising, or likely-unintended access-control behaviors in the repository permission model, with suggested fixes and risk analysis.
 status: active
-timestamp: 2026-07-17T17:09:07Z
+timestamp: 2026-07-17T00:00:00Z
 ---
 
-# Questionable / Likely Unintended Behaviors
+# Questionable / Likely Unintended Permission Behaviors
 
-The items below are behaviors that emerge from the permission model but are either inconsistent with how most file systems work, internally contradictory, or likely unintentional side-effects of the design.
-
-> See also: [Repository Permission Model](./repository-permission-model.md) for the underlying mechanics and [Repository Permission Semantics And Use Cases](./repository-permission-semantics.md) for what each permission means.
+The items below are behaviors that emerge from the [ACL model](./acl-model.md), its
+[inheritance rules](./inheritance.md), and [Magic ACEs](./magic-aces.md), but are either
+inconsistent with how most file systems work, internally contradictory, or likely
+unintentional side-effects of the design.
 
 ---
 
@@ -47,11 +48,11 @@ if (!accessVoterManager.hasAccess(sourceFile, RepositoryFilePermission.READ, sou
 
 ## 🐛 deleteFile (soft): Pentaho and JCR check different things
 
-**What happens:** `JcrRepositoryFileDao.deleteFile()` calls `JcrRepositoryFileAclDao.hasAccess(file.getPath(), {DELETE})`, which evaluates `jcr:removeNode` on the file. But the actual operation is `session.move(file → .trash)`, which requires `jcr:removeChildNodes` on the **source parent folder** at the JCR level — a different privilege on a different node.
+**What happens:** `JcrRepositoryFileDao.deleteFile()` calls `JcrRepositoryFileAclDao.hasAccess(file.getPath(), {DELETE})`, which evaluates `jcr:removeNode` on the file. But the actual operation is `session.move(file → .trash)`, which requires `jcr:removeChildNodes` on the **source parent folder** at the JCR level — a different privilege on a different node. This double-check flow — the [pre-check layer's](./pre-check-layer.md) voter runs first (and can silently veto), then `aclDao.hasAccess()` runs — was designed so the pre-check always mirrors what JCR will require; this is one place where it doesn't.
 
 **Result:** A user may pass the Pentaho DELETE check but then fail at the JCR level because they lack WRITE on the file's parent folder. The error surfaces as a raw Jackrabbit `AccessDeniedException`, not a Pentaho-level one. This defeats the purpose of the pre-check layer: errors are not early or meaningful.
 
-**Contrast with `permanentlyDeleteFile()`:** that calls `fileNode.remove()`, requiring `jcr:removeNode` on the file itself — correctly aligned with the Pentaho DELETE check. Only the soft-delete path has this mismatch.
+**Contrast with `permanentlyDeleteFile()`:** that calls `fileNode.remove()`, requiring `jcr:removeNode` on the file itself — correctly aligned with the Pentaho DELETE check. Only the soft-delete path (move to `.trash`) has this mismatch.
 
 **Suggested fix:** Either (a) add an explicit `WRITE` check on the source parent folder in `JcrRepositoryFileDao.deleteFile()` to match what JCR will enforce, or (b) change the pre-check to verify `jcr:removeChildNodes` on the parent directly:
 
@@ -72,7 +73,7 @@ if (!accessVoterManager.hasAccess(parentFolder, RepositoryFilePermission.WRITE, 
 
 ## ⚠️ WRITE on a folder grants recursive descendant delete, not just direct children
 
-**What happens:** When a node is evaluated for privileges, `PentahoEntryCollector.getEntries()` walks up to the nearest non-inheriting ancestor and uses its ACEs. If that ancestor has `jcr:removeChildNodes` (WRITE), the injection adds `jcr:removeNode` to the effective ACE set for the node being evaluated. Crucially, this fires for **any** inheriting descendant — not just direct children — because each descendant independently walks all the way to the nearest explicit-ACL ancestor.
+**What happens:** When a node is evaluated for privileges, `PentahoEntryCollector.getEntries()` walks up to the nearest non-inheriting ancestor and uses its ACEs. If that ancestor has `jcr:removeChildNodes` (WRITE), the injection adds `jcr:removeNode` to the effective ACE set for the node being evaluated. Crucially, this fires for **any** inheriting descendant — not just direct children — because each descendant independently walks all the way to the nearest explicit-ACL ancestor. This is intentional (see the [inheritance transformation](./magic-aces.md)) but not obvious from the ACL UI.
 
 Example: `F` (explicit ACL, WRITE) → `A` (inheriting) → `B` (inheriting) → `C` (inheriting)
 - Evaluating `C`: walks to `F` (nearest explicit-ACL ancestor) → WRITE found → `jcr:removeNode` injected on `C` ✅
@@ -117,7 +118,7 @@ With this change, WRITE on `F` would still grant delete on `F`'s direct children
 
 ## ⚠️ Owner cannot manage ACL on their own resource
 
-**What happens:** `PentahoEntryCollector.addOwnerAce()` injects `jcr:all` for the node owner. `pho:aclManagement` is a custom privilege registered outside the JCR privilege tree and is **not** included in `jcr:all`. The owner cannot toggle "Inherit Permissions" or change ACEs without an explicit `ALL` ACE granted by an admin.
+**What happens:** `PentahoEntryCollector.addOwnerAce()` injects `jcr:all` for the node owner (see [Magic ACEs](./magic-aces.md)). `pho:aclManagement` is a custom privilege registered outside the JCR privilege tree and is **not** included in `jcr:all`. The owner cannot toggle "Inherit Permissions" or change ACEs without an explicit `ALL` ACE granted by an admin. This is permanent as long as they remain the owner, and is not visible via `JcrRepositoryFileAclDao.getAcl()`.
 
 **Why this is surprising:** In virtually every other system, resource ownership implies permission to manage access to that resource (Unix: owner controls `chmod`; Windows NTFS: owner has "Take Ownership" and can set DACLs; Google Drive: creator has sharing rights).
 
@@ -131,9 +132,9 @@ With this change, WRITE on `F` would still grant delete on `F`'s direct children
 
 ## ⚠️ WRITE without READ is expressible via API
 
-**What happens:** `WRITE` maps in `DefaultPermissionConversionHelper.initMaps()` to `jcr:modifyProperties`, `jcr:addChildNodes`, etc. — none of which include `jcr:read`. If an ACL is set via the API (bypassing the UI hierarchy) granting WRITE but not READ, the user can modify or overwrite a file they cannot open or read.
+**What happens:** `WRITE` maps in [`DefaultPermissionConversionHelper.initMaps()`](./jcr-privilege-mapping.md) to `jcr:modifyProperties`, `jcr:addChildNodes`, etc. — none of which include `jcr:read`. If an ACL is set via the API (bypassing the UI hierarchy) granting WRITE but not READ, the user can modify or overwrite a file they cannot open or read.
 
-**Why it matters:** This is only reachable via the API, since the UI enforces `WRITE ⊃ READ`. But programmatic ACL management (scripts, REST API) can produce this state. The result is a user who can blindly overwrite content without being able to verify what they are changing.
+**Why it matters:** This is only reachable via the API, since the UI enforces `WRITE ⊃ READ` (see the [permission hierarchy](./permission-hierarchy.md)). But programmatic ACL management (scripts, REST API) can produce this state. The result is a user who can blindly overwrite content without being able to verify what they are changing.
 
 **Precedent in other systems:** Write-without-read is actually a deliberate, documented pattern elsewhere:
 - **Unix/Linux:** `chmod 200 file` — write without read on a file. `chmod 300 dir` (write+execute, no read) is the classic **drop-box** directory: users can deposit files but cannot list or read what others have submitted.
@@ -141,10 +142,30 @@ With this change, WRITE on `F` would still grant delete on `F`'s direct children
 - **AWS S3:** `s3:PutObject` without `s3:GetObject` — write-only bucket; common for log submission or telemetry pipelines where submitters must not read each other's data.
 - **POSIX ACLs:** Support arbitrary permission combinations explicitly.
 
-In those systems, write-without-read is **intentional** and serves real use cases (drop boxes, submit-only pipelines). In Pentaho it is an **accidental gap** — no feature was designed around it, the UI actively prevents it, and it is only reachable through API misuse. Notably, the drop-box pattern that makes write-without-read useful in Unix also requires a sticky bit, which Pentaho does not support (see Unsupported Use Cases).
+In those systems, write-without-read is **intentional** and serves real use cases (drop boxes, submit-only pipelines). In Pentaho it is an **accidental gap** — no feature was designed around it, the UI actively prevents it, and it is only reachable through API misuse. Notably, the drop-box pattern that makes write-without-read useful in Unix also requires a sticky bit, which Pentaho does not support (see [Unsupported Use Cases](./unsupported-use-cases.md)).
 
 **Suggested fix:** Enforce the `WRITE ⊃ READ` hierarchy server-side in `JcrRepositoryFileAclDao` (or `DefaultUnifiedRepository.updateAcl()`): if WRITE is present in an ACE, automatically add READ if not already present.
 
 **Risk / Impact:**
 - **Security risk of not fixing:** Low — the UI already prevents this; API misuse is the only vector, and write-without-read does not grant access to data the user couldn't otherwise reach.
 - **Risk of fixing:** Low. Server-side normalization of ACEs is a small, well-scoped change. The only risk is silently promoting ACEs that were intentionally set to WRITE-only via the API, though no legitimate Pentaho use case for that exists.
+
+---
+
+## ⚠️ WRITE's JCR privileges include `jcr:modifyAccessControl`
+
+**What happens:** The [permission-enum-to-JCR-privilege mapping](./jcr-privilege-mapping.md) includes `jcr:modifyAccessControl` under `WRITE`. This means a user with WRITE technically has the native JCR privilege needed to modify the node's JCR-level ACL directly, even though the intended Pentaho-level path for ACL changes is `DefaultUnifiedRepository.updateAcl()`, which separately enforces `ACL_MANAGEMENT`.
+
+**Why it matters:** Any code path that reaches the JCR `AccessControlManager` directly (bypassing `updateAcl()`) would only need WRITE, not `ACL_MANAGEMENT`, to change a node's ACL — a narrower Pentaho-level permission than intended for ACL changes.
+
+**Risk / Impact:** Low today — `updateAcl()` is the only supported path for ACL changes, and it enforces `ACL_MANAGEMENT` correctly. This is a latent gap in the privilege mapping that only becomes a real risk if new code calls the JCR `AccessControlManager` directly instead of going through `updateAcl()`.
+
+---
+
+## ⚠️ Magic ACEs are invisible via `getAcl()`
+
+**What happens:** `JcrRepositoryFileAclDao.getAcl()` strips `IPentahoInternalPrincipal` entries via `JcrRepositoryFileAclUtils.removeAclMetadata()`. None of the three [Magic ACE](./magic-aces.md) sources — the owner ACE, the inheritance transformation, or config-yaml ACEs — are ever stored in JCR or returned by `getAcl()`.
+
+**Why it matters:** The effective permissions a user has can be significantly larger than what `getAcl()` reports. Any tooling, audit report, or admin UI that relies on `getAcl()` to answer "who can do what to this file" will under-report access, sometimes substantially (e.g. missing that every ancestor's WRITE grantee can delete this node, or that the owner can do anything short of ACL management).
+
+**Risk / Impact:** Medium for auditability and security review — without also modeling the Magic ACE rules, no report derived from `getAcl()` alone can be trusted as a complete access list.

@@ -69,6 +69,5 @@ escalation steps.
 # Related Documents
 
 - [0002: Modularize Architecture And Reference Docs By Subsystem](./0002-modularize-architecture-and-reference-docs-by-subsystem.md) - Follow-up decision that further split these same documents into per-layer and per-operation concepts.
-- [Repository Permission Model](../reference/repository-permission-model.md)
-- [Repository Permission Semantics And Use Cases](../reference/repository-permission-semantics.md)
-- [Repository Permission Model Known Issues](../reference/repository-permission-known-issues.md)
+- [0003: Consolidate Permission Model Into Unified-Repository Permissions Group](./0003-consolidate-permission-model-into-unified-repository-permissions-group.md) - Follow-up decision that moved the permission-model, semantics, and known-issues content referenced above into `reference/unified-repository/permissions/`.
+- [IUnifiedRepository Permissions Index](../reference/unified-repository/permissions/index.md) - Current location of the permission model, semantics, and known-issues content originally split out by this decision.
