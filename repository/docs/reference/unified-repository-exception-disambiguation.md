@@ -1,6 +1,14 @@
+---
+type: reference
+title: Disambiguating IUnifiedRepository Exceptions Via Public API Calls
+description: Public-API-only snippets for detecting the real cause behind IUnifiedRepository's coarse, legacy exception surface, complementing the architecture analysis for API consumers.
+status: active
+timestamp: 2026-07-17T00:00:00Z
+---
+
 # Disambiguating `IUnifiedRepository` exceptions via public API calls
 
-Companion to [`unified-repository-access-control.md`](./unified-repository-access-control.md)
+Companion to [`unified-repository-access-control.md`](../architecture/unified-repository-access-control.md)
 (referred to below as "the main doc"). That document's §4 shows that a not-found/no-read
 condition and a no-write/no-delete condition often surface as the **exact same** outer
 exception classes (`UnifiedRepositoryException` wrapping `DataRetrievalFailureException`),
@@ -590,7 +598,7 @@ try {
 
 **`copyFile`** — same not-found/parent-folder shape as `moveFile`, but there is no
 source-write check to make, because the source is never write/read-checked by this
-operation at all (main doc §3 `copyFile` row and permission-model.md's "Notable Gaps"):
+operation at all (main doc §3 `copyFile` row and [`repository-permission-model.md`](./repository-permission-model.md)'s "Notable Gaps"):
 
 ```java
 try {
