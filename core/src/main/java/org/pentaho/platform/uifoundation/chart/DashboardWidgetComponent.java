@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -39,7 +39,7 @@ import java.io.StringWriter;
 import java.util.List;
 
 /**
- * This class is a Hitachi Vantara user interface component.
+ * This class is a Pentaho user interface component.
  * <p/>
  * It generates dial images that can be embedded into JSPs, portals or other HTML supporting user interface.
  * <p/>

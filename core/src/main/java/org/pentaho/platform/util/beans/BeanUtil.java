@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -26,11 +26,11 @@ import java.text.MessageFormat;
 import java.util.Map;
 
 /**
- * Utility methods for processing Java Beans in a consistent manner across all Hitachi Vantara projects. This is not an
+ * Utility methods for processing Java Beans in a consistent manner across all Pentaho projects. This is not an
  * attempt to duplicate the behavior of commons-beanutils, rather, a central spot for common operations on beans so
  * we can ensure that same bean property binding functionality and logic anytime we need to work with Java Beans.
  * <p>
- * This utility is especially important in dealing with Hitachi Vantara Action beans {@link IAction}s. See
+ * This utility is especially important in dealing with Pentaho Action beans {@link IAction}s. See
  * {@link ActionHarness} for an IAction-specific flavor of this utility.
  * 
  * @author aphillips

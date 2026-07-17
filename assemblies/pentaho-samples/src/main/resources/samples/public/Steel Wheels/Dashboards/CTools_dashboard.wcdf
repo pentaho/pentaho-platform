@@ -2,7 +2,7 @@
 <cdf>
     <title>CTools Dashboard</title>
     <description>CTools Dashboard</description>
-    <author>Hitachi Vantara</author>
+    <author>Pentaho</author>
     <style>CleanRequire</style>
     <rendererType>bootstrap</rendererType>
     <require>true</require>

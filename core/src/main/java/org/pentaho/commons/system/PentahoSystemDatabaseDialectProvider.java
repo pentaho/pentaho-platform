@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -58,7 +58,7 @@ public class PentahoSystemDatabaseDialectProvider implements IDatabaseDialectPro
   }
 
   /**
-   * Returns collection of database dialects registered to the Hitachi Vantara System.
+   * Returns collection of database dialects registered to the Pentaho System.
    *
    * @param usableOnly
    * @return dialects collection

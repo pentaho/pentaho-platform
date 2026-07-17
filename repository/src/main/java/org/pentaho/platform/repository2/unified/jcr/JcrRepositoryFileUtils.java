@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -1040,7 +1040,7 @@ public class JcrRepositoryFileUtils {
   private static VersionSummary toVersionSummary( final PentahoJcrConstants pentahoJcrConstants,
       final VersionHistory versionHistory, final Version version ) throws RepositoryException {
     List<String> labels = Arrays.asList( versionHistory.getVersionLabels( version ) );
-    // get custom Hitachi Vantara properties (i.e. author and message)
+    // get custom Pentaho properties (i.e. author and message)
     Node nodeAtVersion = getNodeAtVersion( pentahoJcrConstants, version );
     String author = "BASE_VERSION";
     if ( nodeAtVersion.hasProperty( pentahoJcrConstants.getPHO_VERSIONAUTHOR() ) ) {

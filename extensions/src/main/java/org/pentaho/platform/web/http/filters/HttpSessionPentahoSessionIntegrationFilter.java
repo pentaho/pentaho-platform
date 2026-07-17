@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -49,7 +49,7 @@ import java.util.Locale;
  * Originally this functionality existed in PentahoHttpRequestListener but has been moved here. Javadoc for that class:
  * </p>
  *
- * <blockquote> In a J2EE environment, sets the Hitachi Vantara session statically per request so the session can be retrieved
+ * <blockquote> In a J2EE environment, sets the Pentaho session statically per request so the session can be retrieved
  * by other consumers within the same request without having it passed to them explicitly. -- aphillips </blockquote>
  *
  * <p>
@@ -73,7 +73,7 @@ import java.util.Locale;
  * <p/>
  * No <code>HttpSession</code> will be created by this filter if one does not already exist. If at the end of the web
  * request the <code>HttpSession</code> does not exist, a <code>HttpSession</code> will <b>only</b> be created if the
- * current Hitachi Vantara session in <code>PentahoSessionHolder</code> is not null. This avoids needless
+ * current Pentaho session in <code>PentahoSessionHolder</code> is not null. This avoids needless
  * <code>HttpSession</code> creation, but automates the storage of changes made to the <code>PentahoSessionHolder</code>
  * . There is one exception to this rule, that is if the {@link #forceEagerSessionCreation} property is
  * <code>true</code>, in which case sessions will always be created irrespective of normal session-minimization logic
@@ -88,7 +88,7 @@ import java.util.Locale;
  * with Basic authentication or similar clients that will never present the same <code>jsessionid</code> etc), the
  * {@link #setAllowSessionCreation(boolean)} should be set to <code>false</code>. Only do this if you really need to
  * conserve server memory and ensure all classes using the <code>PentahoSessionHolder</code> are designed to have no
- * persistence of the Hitachi Vantara session between web requests. Please note that if {@link #forceEagerSessionCreation} is
+ * persistence of the Pentaho session between web requests. Please note that if {@link #forceEagerSessionCreation} is
  * <code>true</code>, the <code>allowSessionCreation</code> must also be <code>true</code> (setting it to
  * <code>false</code> will cause a startup time error).
  * </p>
@@ -271,7 +271,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
 
     httpRequest.setAttribute( FILTER_APPLIED, Boolean.TRUE );
 
-    // Create a wrapper that will eagerly update the session with the Hitachi Vantara session
+    // Create a wrapper that will eagerly update the session with the Pentaho session
     // if anything in the chain does a sendError() or sendRedirect().
 
     OnRedirectUpdateSessionResponseWrapper responseWrapper =
@@ -310,9 +310,9 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
   }
 
   /**
-   * Gets the Hitachi Vantara session from the HTTP session (if available) and returns it.
+   * Gets the Pentaho session from the HTTP session (if available) and returns it.
    * <p/>
-   * If the HTTP session is null or the Hitachi Vantara session is null it will return null.
+   * If the HTTP session is null or the Pentaho session is null it will return null.
    * <p/>
    *
    * @param httpSession
@@ -327,7 +327,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
       return null;
     }
 
-    // HTTP session exists, so try to obtain a Hitachi Vantara session from it.
+    // HTTP session exists, so try to obtain a Pentaho session from it.
 
     IPentahoSession pentahoSessionFromHttpSession =
       (IPentahoSession) httpSession.getAttribute( PentahoSystem.PENTAHO_SESSION_KEY );
@@ -344,10 +344,10 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
   }
 
   /**
-   * Stores the supplied Hitachi Vantara session in the HTTP session (if available).
+   * Stores the supplied Pentaho session in the HTTP session (if available).
    *
    * @param pentahoSession
-   *          the Hitachi Vantara session obtained from the PentahoSessionHolder after the request has been processed by the
+   *          the Pentaho session obtained from the PentahoSessionHolder after the request has been processed by the
    *          filter chain. PentahoSessionHolder.getSession() cannot be used to obtain the Pentaho session as it has
    *          already been cleared by the time this method is called.
    * @param request

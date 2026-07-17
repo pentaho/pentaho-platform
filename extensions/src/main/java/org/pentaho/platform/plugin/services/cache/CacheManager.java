@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -147,7 +147,7 @@ public class CacheManager implements ICacheManager {
    * The constructor performs the following tasks:
    * <p>
    * <ul>
-   * <li>Gets the Hitachi Vantara System Settings</li>
+   * <li>Gets the Pentaho System Settings</li>
    * <li>Reads the <code>cache-provider/class</code> element.</li>
    * <li>Reads the <code>cache-provider/region</code> element.</li>
    * <li>Reads in any properties under <code>cache-provider/properties/*</li>

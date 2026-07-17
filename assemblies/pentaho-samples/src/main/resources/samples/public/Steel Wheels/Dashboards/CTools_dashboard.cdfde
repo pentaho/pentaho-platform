@@ -11230,7 +11230,7 @@
           {
             "name": "html",
             "type": "Html",
-            "value": "<span>&copy; Hitachi Vantara Corporation <script type=\"text/javascript\"> document.write(new Date().getFullYear() + \". \"); </script> All Rights Reserved.</span> "
+            "value": "<span>&copy; Pentaho Corporation <script type=\"text/javascript\"> document.write(new Date().getFullYear() + \". \"); </script> All Rights Reserved.</span> "
           },
           {
             "name": "fontSize",

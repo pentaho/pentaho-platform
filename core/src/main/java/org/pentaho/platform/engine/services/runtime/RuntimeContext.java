@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -234,7 +234,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     // If the component-definition's action-definition does not have an xsl element it reuses the one already
     // set by its previous component-definition's action-definition peer.
     // If the xsl element is not present for the component-definition then reset to the default xsl value
-    // specified in the Hitachi Vantara.xml tag "default-parameter-xsl"
+    // specified in the Pentaho.xml tag "default-parameter-xsl"
 
     // Proposed fix for bug BISERVER-238 by Ezequiel Cuellar
     // Added a default value of DefaultParameterForm.xsl when getting the value of default-parameter-xsl

@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -13,7 +13,7 @@
 
 /**
  *
- * This is the base class for all Hitachi Vantara exceptions. This class handles
+ * This is the base class for all Pentaho exceptions. This class handles
  * chaining of exceptions so that it's possible to chain back to the root
  * of an exception.
  *
@@ -24,7 +24,7 @@ package org.pentaho.platform.api.util;
 import java.io.PrintStream;
 
 /**
- * This is the base Hitachi Vantara Exception class that handles chained exceptions.
+ * This is the base Pentaho Exception class that handles chained exceptions.
  */
 public class PentahoChainedException extends RuntimeException {
 

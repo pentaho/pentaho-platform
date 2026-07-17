@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -368,7 +368,7 @@ public class CategoryDatasetChartDefinition extends DefaultCategoryDataset imple
     // set legend border visible
     setLegendBorderVisible( chartAttributes.selectSingleNode( ChartDefinition.DISPLAY_LEGEND_BORDER_NODE_NAME ) );
 
-    // first see if Hitachi Vantara System sets this property
+    // first see if Pentaho System sets this property
     String defaultIncludeNullCategories =
         PentahoSystem.getSystemSetting( "Charting/" + INCLUDE_NULL_CATEGORIES_NODE_NAME, "true" ); //$NON-NLS-1$ //$NON-NLS-2$
 

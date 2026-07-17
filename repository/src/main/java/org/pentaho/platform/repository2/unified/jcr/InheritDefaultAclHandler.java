@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -25,7 +25,7 @@ package org.pentaho.platform.repository2.unified.jcr;/*
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2013 - 2017 Hitachi Vantara.  All rights reserved.
+ * Copyright 2013 - 2017 Pentaho.  All rights reserved.
  *
  * User: pminutillo
  * Date: 2/12/13

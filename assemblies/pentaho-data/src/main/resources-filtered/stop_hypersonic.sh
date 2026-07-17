@@ -3,7 +3,7 @@
 #
 # Pentaho
 #
-# Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+# Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
 #
 # Use of this software is governed by the Business Source License included
 # in the LICENSE.TXT file.
@@ -36,6 +36,6 @@ do
 done
 echo "classpath is $THE_CLASSPATH"
 
-"$_PENTAHO_JAVA" -cp "$THE_CLASSPATH" org.hsqldb.util.ShutdownServer -url "jdbc:hsqldb:hsql://localhost/sampledata" -user "SA" -password "" 
+"$_PENTAHO_JAVA" -cp "$THE_CLASSPATH" org.hsqldb.util.ShutdownServer -url "jdbc:hsqldb:hsql://localhost/sampledata" -user "SA" -password ""
 "$_PENTAHO_JAVA" -cp "$THE_CLASSPATH" org.hsqldb.util.ShutdownServer -url "jdbc:hsqldb:hsql://localhost/hibernate" -user "SA" -password ""
-"$_PENTAHO_JAVA" -cp "$THE_CLASSPATH" org.hsqldb.util.ShutdownServer -url "jdbc:hsqldb:hsql://localhost/quartz" -user "sa" -password "" 
+"$_PENTAHO_JAVA" -cp "$THE_CLASSPATH" org.hsqldb.util.ShutdownServer -url "jdbc:hsqldb:hsql://localhost/quartz" -user "sa" -password ""

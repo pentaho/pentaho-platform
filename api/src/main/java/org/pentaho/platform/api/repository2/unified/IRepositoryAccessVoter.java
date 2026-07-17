@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -36,7 +36,7 @@ public interface IRepositoryAccessVoter {
    * @param acl
    *         ACL of the folder/file where this operation is about to be performed.
    * @param session
-   *         Hitachi Vantara session of the user.
+   *         Pentaho session of the user.
    * @return Returns true if the user has the requested access.
    */
 

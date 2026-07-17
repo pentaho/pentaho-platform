@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -16,14 +16,15 @@ package org.pentaho.mantle.client.commands;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 
+@SuppressWarnings( "unused" )
 public class PentahoHomeCommand implements Command {
+  private static final String URL = "https://www.pentaho.com";
 
   public PentahoHomeCommand() {
+    // ignore
   }
 
   public void execute() {
-    Window.open( "https://www.hitachivantara.com/go/pentaho.html?source=pentaho-puc", "_blank", "" );
-    //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    Window.open( URL, "_blank", "" );
   }
-
 }

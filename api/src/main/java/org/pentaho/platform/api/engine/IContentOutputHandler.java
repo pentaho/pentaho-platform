@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -16,7 +16,7 @@ package org.pentaho.platform.api.engine;
 import org.pentaho.platform.api.repository.IContentItem;
 
 /**
- * Interface for a class used to stream contents from a Hitachi Vantara action sequence to a destination of some kind, e.g.
+ * Interface for a class used to stream contents from a Pentaho action sequence to a destination of some kind, e.g.
  * file, database, content management system (CMS)
  * 
  * @author jdixon

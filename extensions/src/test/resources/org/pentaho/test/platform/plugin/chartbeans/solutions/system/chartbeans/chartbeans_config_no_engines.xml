@@ -1,8 +1,8 @@
 <chartbeans-config>
-  <!-- Configure the behavior of Hitachi Vantara Chartbeans -->
+  <!-- Configure the behavior of Pentaho Chartbeans -->
 
 
-  <!-- 
+  <!--
     Set the default chart rendering engine.
     This is the engine that is used if neither the ChartModel nor the ActionSequence
     specify an engine to use.
@@ -11,13 +11,13 @@
   <default-chart-engine>OpenFlashChart</default-chart-engine>
   <max-data-points-per-chart>100</max-data-points-per-chart>
 
-  <!-- 
+  <!--
     These are the default implementations for the engines supported by the platform.
-    To add an entirely new engine, define a new id and class. To override an existing 
+    To add an entirely new engine, define a new id and class. To override an existing
     engine, declare the same bean id with a new class in a plugin.xml file in an external
     plugin.
-    
-    *** No bean config for intentional failure test case *** 
+
+    *** No bean config for intentional failure test case ***
    -->
 
 </chartbeans-config>

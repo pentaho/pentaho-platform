@@ -12,7 +12,7 @@
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU Lesser General Public License for more details.
 *
-* Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
+* Copyright (c) 2002-2021 Pentaho. All rights reserved.
 --%>
 
 <!DOCTYPE html>

@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -14,7 +14,7 @@
 package org.pentaho.platform.api.engine;
 
 /**
- * Manages Hitachi Vantara Request Context
+ * Manages Pentaho Request Context
  * <p>
  * For now the only information stored in the IPentahoRequestContext is teh context path. In future more
  * information can be added to this

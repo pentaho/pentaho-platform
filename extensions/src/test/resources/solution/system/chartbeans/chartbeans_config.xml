@@ -1,8 +1,8 @@
 <chartbeans-config>
-  <!-- Configure the behavior of Hitachi Vantara Chartbeans -->
+  <!-- Configure the behavior of Pentaho Chartbeans -->
 
 
-  <!-- 
+  <!--
     Set the default chart rendering engine.
     This is the engine that is used if neither the ChartModel nor the ActionSequence
     specify an engine to use.

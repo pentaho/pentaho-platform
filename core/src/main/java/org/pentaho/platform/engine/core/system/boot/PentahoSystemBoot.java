@@ -2,7 +2,7 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 by Pentaho, LLC : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class is designed to help embedded deployments start the Hitachi Vantara system. {@link PentahoSystemBoot} is a
+ * This class is designed to help embedded deployments start the Pentaho system. {@link PentahoSystemBoot} is a
  * self-contained and very easy to configure platform initializer which does not impose the use of configuration
  * files on your filesystem. A booter instance gives you the flexibility to configure and run the platform entirely
  * in memory.
@@ -41,7 +41,7 @@ import java.util.List;
  * <li>Construct a {@link PentahoSystemBoot}
  * <li>define the system objects that your system requires, by using one of the {@link #define(Class, Class)}
  * variants
- * <li>(optionally) initialize the Hitachi Vantara system for processing requests by calling {@link #start()}
+ * <li>(optionally) initialize the Pentaho system for processing requests by calling {@link #start()}
  * </ol>
  * An extremely minimal platform might be configured like this:
  * 
