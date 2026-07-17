@@ -2,5 +2,5 @@
 
 ## Active Concepts
 
-- [Unified Repository Access Control Analysis](unified-repository-access-control.md) - Bean composition, layer-by-layer access-control enforcement, and exception taxonomy for `IUnifiedRepository`.
-- [FileService Access Control Analysis](file-service-access-control.md) - Bean composition and layer-by-layer access-control enforcement for `FileService`, built atop `IUnifiedRepository`.
+- [Unified Repository Architecture](unified-repository/index.md) - Bean composition, layer-by-layer access-control enforcement, and design observations for `IUnifiedRepository`.
+- [FileService Architecture](file-service/index.md) - Bean composition, layer-by-layer access-control enforcement, worked examples, and design observations for `FileService`, built atop `IUnifiedRepository`.
