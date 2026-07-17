@@ -8,7 +8,21 @@ timestamp: 2026-07-17T00:00:00Z
 
 # Deletion rules
 
+```mermaid
+flowchart TD
+    Start["Can user U delete node X?"] --> Owner{"Is U the owner of X?"}
+    Owner -->|yes| Yes1["✅ Yes — owner magic ACE grants jcr:all (Rule 1)"]
+    Owner -->|no| Boundary{"Does X have its own<br/>explicit ACL (Inherit off)?"}
+    Boundary -->|yes: explicit ACL boundary| Explicit{"Does U have DELETE<br/>or ALL explicitly on X?"}
+    Explicit -->|yes| Yes2["✅ Yes"]
+    Explicit -->|no| No1["❌ No — parent's WRITE does not<br/>cross the boundary (Rule 3)"]
+    Boundary -->|no: inherits from parent| ParentWrite{"Does U have WRITE<br/>on X's parent?"}
+    ParentWrite -->|yes| Yes3["✅ Yes — implicit child-delete<br/>injection (Rule 2)"]
+    ParentWrite -->|no| No2["❌ No"]
+```
+
 ## Rule 1 — Owner always wins (except ACL management)
+
 
 The user who **created** a file or folder is its owner. The owner always has full JCR access to that item — including the right to read, edit, and delete it — regardless of what the ACL says. This is enforced silently at the JCR level and is not visible in the ACL editor.
 

@@ -35,24 +35,22 @@ timestamp: 2026-07-17T00:00:00Z
 
 ## Bean composition and call chain
 
+```mermaid
+flowchart TD
+    RFP["RepositoryFileProvider (GFS)"]
+    RFP -->|"getFile, getAcl (owner lookup), hasAccess"| UR["unifiedRepository<br/>(same bean documented in the main doc)"]
+    RFP -->|"see operation list below"| FS["fileService<br/>(FileService, or CustomFileService subclass)"]
+    FS --> RWS["getRepoWs()<br/>(DefaultUnifiedRepositoryWebService)"]
+    RWS -->|"DTO-translation pass-through only"| UR
 ```
-RepositoryFileProvider (GFS)
-  ├─► unifiedRepository                         (same bean documented in the main doc)
-  │     used directly for: getFile, getAcl (owner lookup), hasAccess
-  │
-  └─► fileService                               (FileService, or CustomFileService subclass)
-        used for: doCreateDirSafe, doGetTree, isPathValid, doGetCanGetFileContent,
-                   getRepositoryFileInputStream/OutputStream, doGetDeletedFiles,
-                   doDeleteFilesPermanent, doDeleteFiles, doRestoreFiles, doGetCanCreate,
-                   doesExist, isValidFileName, doRename, doCopyFiles, doMoveFiles,
-                   doGetMetadata, doSetMetadata, doGetFileAcl, setFileAcls, getRepository()
-        │
-        └─► getRepoWs()                          (DefaultUnifiedRepositoryWebService)
-              │  DTO-translation pass-through only — see [DefaultUnifiedRepositoryWebService layer](layer-default-unified-repository-web-service.md). No extra access-control
-              │  logic, no extra exception handling beyond a few unrelated ETC-folder /
-              │  mime-type checks.
-              └─► unifiedRepository               (same bean, same rules as main doc)
-```
+
+`fileService` is used for: `doCreateDirSafe`, `doGetTree`, `isPathValid`, `doGetCanGetFileContent`,
+`getRepositoryFileInputStream`/`OutputStream`, `doGetDeletedFiles`, `doDeleteFilesPermanent`,
+`doDeleteFiles`, `doRestoreFiles`, `doGetCanCreate`, `doesExist`, `isValidFileName`, `doRename`,
+`doCopyFiles`, `doMoveFiles`, `doGetMetadata`, `doSetMetadata`, `doGetFileAcl`, `setFileAcls`,
+`getRepository()`. `getRepoWs()` (see [DefaultUnifiedRepositoryWebService layer](layer-default-unified-repository-web-service.md)) adds no extra
+access-control logic and no extra exception handling beyond a few unrelated ETC-folder /
+mime-type checks.
 
 **Key structural fact:** `RepositoryFileProvider` does **not** use a single, consistent API.
 Per the class's own comment: *"The file service wraps a unified repository and provides

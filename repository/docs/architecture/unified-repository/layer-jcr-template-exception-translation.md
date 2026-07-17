@@ -64,11 +64,14 @@ converter map ([ExceptionLoggingDecorator layer](layer-exception-logging-decorat
 `callLogThrow()` caught — i.e. the `DataRetrievalFailureException` itself, not the JCR
 exception. This means:
 
+```mermaid
+flowchart TD
+    A["UnifiedRepositoryException<br/>(thrown by ExceptionLoggingDecorator)"]
+    B["cause: org.springframework.dao.DataRetrievalFailureException<br/>(thrown by JcrTemplate)"]
+    C["cause: javax.jcr.AccessDeniedException<br/>(or PathNotFoundException / ItemNotFoundException)"]
+    A -->|getCause| B --> |getCause| C
 ```
-UnifiedRepositoryException                              (thrown by ExceptionLoggingDecorator)
- └─ cause: org.springframework.dao.DataRetrievalFailureException   (thrown by JcrTemplate)
-     └─ cause: javax.jcr.AccessDeniedException                     (or PathNotFoundException / ItemNotFoundException)
-```
+
 
 i.e. the generic `UnifiedRepositoryException`'s **direct** cause is the Spring `dao` exception,
 and the JCR exception is one level further down (`getCause().getCause()`), **not** the direct
