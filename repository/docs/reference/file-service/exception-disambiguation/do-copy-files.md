@@ -11,7 +11,7 @@ timestamp: 2026-07-17T00:00:00Z
 **`doCopyFiles`** (performs its **own** redundant `RepositoryCreateAction` ABS check
 before ever constructing a `CopyFilesOperation`, throwing the exact same
 `IllegalArgumentException` type that `CopyFilesOperation`'s constructor also throws for
-genuinely invalid arguments — FileService doc §2.1's "ABS box" point 3 / §2.3; the
+genuinely invalid arguments — FileService doc [FileService role and general shape](../../../architecture/file-service/layer-file-service.md)'s "ABS box" point 3 / [CopyFilesOperation layer](../../../architecture/file-service/layer-copy-files-operation.md); the
 *source* is not pre-checked at all and its `ItemNotFoundException`/`URE` propagates as an
 unchecked `UnifiedRepositoryException`, since neither `doCopyFiles` nor
 `CopyFilesOperation` declares or catches it):
@@ -27,7 +27,7 @@ try {
         // same user — it would have already been false at the moment doCopyFiles ran;
         // no meaningful time-of-check race here.
     } else if (!fileServiceExists(fileService, destPathId) || !fileService.isFolder(destPathId)) {
-        // Cause 2: CopyFilesOperation's OWN validation (FileService doc §2.3) — the
+        // Cause 2: CopyFilesOperation's OWN validation (FileService doc [CopyFilesOperation layer](../../../architecture/file-service/layer-copy-files-operation.md)) — the
         // destination does not exist, or exists but is not a folder. Not an
         // access-control condition — the opposite direction from IUnifiedRepository's
         // copyFile, which only errors on a missing destination PARENT.
@@ -39,7 +39,7 @@ try {
     }
 } catch (UnifiedRepositoryAccessDeniedException e) {
     // ABS-level only: no repository.create action at all (copyFile's ABS action, main doc
-    // §3) — per-file destination WRITE denial does NOT surface this way (see below).
+    // [IUnifiedRepository access-control summary table](../../unified-repository/summary-table-per-method.md)) — per-file destination WRITE denial does NOT surface this way (see below).
 } catch (UnifiedRepositoryException e) {
     // Uncaught by doCopyFiles/CopyFilesOperation, so it reaches us as-is — could be
     // SOURCE not-found/no-read, or DESTINATION write-denial (both generic URE here):

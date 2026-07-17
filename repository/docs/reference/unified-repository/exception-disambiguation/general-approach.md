@@ -20,7 +20,7 @@ diagnostic logging, but:
 
 - `getCause()`/`getCause().getCause()` structure is an internal implementation detail of
   the current `ExceptionLoggingDecorator` → `JcrTemplate` → `SessionFactoryUtils` wiring
-  (main doc §2.7). Nothing in `IUnifiedRepository`'s public method signatures documents
+  (main doc [JcrTemplate exception translation layer](../../../architecture/unified-repository/layer-jcr-template-exception-translation.md)). Nothing in `IUnifiedRepository`'s public method signatures documents
   or promises this shape. A library upgrade, a Pentaho patch, or even an unrelated
   refactor could change it silently.
 - Branching production logic on `instanceof` checks against classes several hops down an
@@ -42,10 +42,10 @@ the calling code already depends on elsewhere.
    it.** `URADE` **is a subtype** of `UnifiedRepositoryException`, so a bare
    `catch (UnifiedRepositoryException e)` silently catches `URADE` too. For every method
    in this file **except `updateAcl`**, `URADE` can *only* be the coarse ABS-level action
-   check (main doc §2.2), thrown by the AOP interceptor before the target method body —
+   check (main doc [Method Interceptor layer](../../../architecture/unified-repository/layer-method-interceptor.md)), thrown by the AOP interceptor before the target method body —
    and hence the specific file — is ever touched; the per-file, no-write-or-delete-access
    condition for those methods always surfaces as the plain generic class instead (main
-   doc §2.4/§2.7). If `URADE` falls through into the generic block's per-file follow-up
+   doc [JcrRepositoryFileDao layer](../../../architecture/unified-repository/layer-jcr-repository-file-dao.md)/[JcrTemplate exception translation layer](../../../architecture/unified-repository/layer-jcr-template-exception-translation.md)). If `URADE` falls through into the generic block's per-file follow-up
    logic (`getFileById`/`canWrite`/etc.), that logic is checking the *wrong* thing — the
    file will typically look perfectly fine (found, readable, writable), and the snippet's
    fallback `throw e`/"race or unaccounted-for failure" branch fires, mis-reporting a
@@ -57,7 +57,7 @@ the calling code already depends on elsewhere.
    one of these two public primitives:
    - `unifiedRepository.getFileById(id)` / `getFile(path)` → `null` means "not found, or
      the caller has no `jcr:read` on it" (the two are still indistinguishable from each
-     other via public API — see main doc §2.4/§2.7 for why).
+     other via public API — see main doc [JcrRepositoryFileDao layer](../../../architecture/unified-repository/layer-jcr-repository-file-dao.md)/[JcrTemplate exception translation layer](../../../architecture/unified-repository/layer-jcr-template-exception-translation.md) for why).
    - `unifiedRepository.hasAccess(path, EnumSet.of(permission))` → `false` means "the
      caller lacks that permission on that node" (`RepositoryFilePermission.READ`,
      `WRITE`, `DELETE`, `ACL_MANAGEMENT`, or `ALL`).
@@ -109,7 +109,7 @@ its ACL, or delete it. In a highly concurrent system this means:
 - This is an inherent limitation of any check-then-act pattern without inspecting the
   actual cause — not a defect in the approach, just an honest caveat. If you need
   certainty rather than a best-effort diagnosis, you must accept either the brittleness
-  of cause-chain inspection (main doc §4) or design around idempotent retries instead of
+  of cause-chain inspection (main doc [IUnifiedRepository exception taxonomy](../exception-taxonomy.md)) or design around idempotent retries instead of
   root-cause classification.
 
 ### Known gaps (no public API exists to check these)
@@ -123,7 +123,7 @@ its ACL, or delete it. In a highly concurrent system this means:
   is the closest public proxy, but it is not guaranteed to map to the exact privilege JCR
   checks internally for these operations.
 - **`jcr:removeChildNodes` on a *parent* folder** (relevant to `deleteFile`,
-  `permanentlyDeleteFile`, `moveFile`'s source parent — see main doc §2.4.8, marked `⚠`)
+  `permanentlyDeleteFile`, `moveFile`'s source parent — see main doc [per-node JCR privilege requirements and Magic ACE caveats](../../../architecture/unified-repository/layer-jcr-repository-file-dao.md#per-node-jcr-privilege-requirements-and-magic-ace-caveats), marked `⚠`)
   can only be checked via `hasAccess()` if the caller happens to already know the parent's
   path and calls `hasAccess(parentPath, WRITE)` explicitly — `IUnifiedRepository` does not
   do this for you, and the closest public permission (`WRITE`) is again only a proxy.
@@ -141,7 +141,7 @@ declared API** — no cause inspection needed to know about them, just an accura
 
 - **Well-defined, non-ambiguous, non-access-control conditions** get their own dedicated
   subclass via `ExceptionLoggingDecorator`'s converter map (checked first, see main doc
-  §2.1): `UnifiedRepositoryFileExistsException` (`undeleteFile` only), 
+  [ExceptionLoggingDecorator layer](../../../architecture/unified-repository/layer-exception-logging-decorator.md)): `UnifiedRepositoryFileExistsException` (`undeleteFile` only), 
   `UnifiedRepositoryReferentialIntegrityException` (`permanentlyDeleteFile` only), and
   `UnifiedRepositoryMalformedNameException` (`setFileMetadata` only, and only for
   metadata *keys*, not file/folder names). These should be caught **explicitly and
@@ -150,7 +150,7 @@ declared API** — no cause inspection needed to know about them, just an accura
 - **`createFile` and `updateFile`** (but *not* `createFolder`/`updateFolder`) substitute
   `UnifiedRepositoryCreateFileException`/`UnifiedRepositoryUpdateFileException` for what
   would otherwise be the generic `UnifiedRepositoryException`, for the *same*
-  not-found/no-write conditions covered elsewhere in this file (main doc §2.1). Since both
+  not-found/no-write conditions covered elsewhere in this file (main doc [ExceptionLoggingDecorator layer](../../../architecture/unified-repository/layer-exception-logging-decorator.md)). Since both
   subclasses extend `UnifiedRepositoryException`, a `catch (UnifiedRepositoryException e)`
   still catches them — but code that wants to report the most specific declared type
   should catch these explicitly.

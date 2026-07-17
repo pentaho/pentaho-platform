@@ -22,14 +22,14 @@ try {
     // Declared as re-thrown by doMoveFiles's own catch clause, but in practice this is
     // effectively dead code for the underlying moveFile() call: the repository.spring.xml
     // exceptionConverterMap has no entry for java.lang.IllegalArgumentException, so
-    // ExceptionLoggingDecorator (main doc §2.1) wraps ANY IllegalArgumentException thrown
+    // ExceptionLoggingDecorator (main doc [ExceptionLoggingDecorator layer](../../../architecture/unified-repository/layer-exception-logging-decorator.md)) wraps ANY IllegalArgumentException thrown
     // inside moveFile() (e.g. the destination's PARENT also missing) into a generic URE
     // BEFORE it ever reaches this catch — it lands in the InternalError branch below
     // instead. If this branch fires at all, it was thrown by something outside that
     // wrapped call (not identified in FileService's own code for this method).
 } catch (UnifiedRepositoryAccessDeniedException e) {
     // ABS-level only: no repository.create action at all (moveFile's ABS action, main doc
-    // §3) — thrown before any specific id is touched. Per-file SOURCE/DESTINATION
+    // [IUnifiedRepository access-control summary table](../../unified-repository/summary-table-per-method.md)) — thrown before any specific id is touched. Per-file SOURCE/DESTINATION
     // write-denial does NOT surface this way — see the InternalError branch below,
     // where it actually lands (wrapped, since it's a generic URE at the JCR layer).
 } catch (InternalError e) {

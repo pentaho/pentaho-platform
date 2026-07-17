@@ -20,15 +20,15 @@ try {
     RepositoryFile f = unifiedRepository.getFileById(acl.getId());
     if (f != null && !canManageAcl(unifiedRepository, f.getPath())) {
         // file exists/readable but caller lacks ACL_MANAGEMENT on it — matches the
-        // file-specific gate. Note the Owner-ACE gap (main doc §2.4.8): file owners
+        // file-specific gate. Note the Owner-ACE gap (main doc [per-node JCR privilege requirements and Magic ACE caveats](../../../architecture/unified-repository/layer-jcr-repository-file-dao.md#per-node-jcr-privilege-requirements-and-magic-ace-caveats)): file owners
         // are NOT exempt from this check.
     } else {
         // more likely the coarse ABS-level check failed instead — this is a global
         // permission, not a per-file one, and cannot be confirmed with a follow-up
-        // call (see main doc §2.2)
+        // call (see main doc [Method Interceptor layer](../../../architecture/unified-repository/layer-method-interceptor.md))
     }
 } catch (NullPointerException e) {
-    // Defect-shaped signal, not a documented exception (main doc §3 `updateAcl` row).
+    // Defect-shaped signal, not a documented exception (main doc [IUnifiedRepository access-control summary table](../summary-table-per-method.md) `updateAcl` row).
     if (unifiedRepository.getFileById(acl.getId()) == null) {
         // confirms: file not found / no jcr:read triggered this
     } else {

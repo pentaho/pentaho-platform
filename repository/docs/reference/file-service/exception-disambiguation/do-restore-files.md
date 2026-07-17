@@ -17,7 +17,7 @@ try {
     fileService.doRestoreFiles(fileIdsCsv);
 } catch (UnifiedRepositoryAccessDeniedException e) {
     // ABS-level only: no repository.create action at all (undeleteFile's ABS action,
-    // main doc §3) — per-file WRITE denial does NOT surface this way (see below).
+    // main doc [IUnifiedRepository access-control summary table](../../unified-repository/summary-table-per-method.md)) — per-file WRITE denial does NOT surface this way (see below).
 } catch (InternalError e) {
     // Everything else collapsed here — including genuine per-file WRITE denial (main
     // doc's undeleteFile row: uncaught AccessDeniedException at session.move() → generic

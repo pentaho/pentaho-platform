@@ -11,7 +11,7 @@ timestamp: 2026-07-17T00:00:00Z
 This subsection is not about `FileService` itself, but about how one real caller
 (`RepositoryFileProvider`, from the Generic File System) reacts to what `FileService`/
 `IUnifiedRepository` throw — included because it is a concrete, verified illustration of
-which of the divergences in §4 actually matter to a caller in practice. It translates
+which of the divergences in [FileService contract divergence](../../reference/file-service/contract-divergence.md) actually matter to a caller in practice. It translates
 those exceptions into its own (GFS) exception hierarchy (all extend
 `org.pentaho.platform.api.genericfile.exception.OperationFailedException`, itself a checked
 `Exception`):
@@ -24,7 +24,7 @@ those exceptions into its own (GFS) exception hierarchy (all extend
 | `ConflictException` | `OperationFailedException` | Pre-check: destination path already exists (rename/copy/move) |
 | `InvalidOperationException` | `OperationFailedException` | Invalid new name, invalid path, folder-vs-file content-type mismatch |
 | `InvalidPathException` | `OperationFailedException` | Malformed `GenericFilePath`, caught `FileService.InvalidNameException` |
-| `OperationFailedException` (direct) | `Exception` | Catch-all: any other exception, including the lossy `InternalError` from §2.1 pattern 3 |
+| `OperationFailedException` (direct) | `Exception` | Catch-all: any other exception, including the lossy `InternalError` from [FileService role and general shape](layer-file-service.md) pattern 3 |
 
 Two access-denial exceptions exist at this layer for a reason: `AccessControlException` and
 `ResourceAccessDeniedException` are **not interchangeable** — the former means "you may

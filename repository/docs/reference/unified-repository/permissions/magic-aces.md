@@ -12,7 +12,7 @@ Magic ACEs are **ephemeral ACEs injected at privilege evaluation time** by `Pent
 
 There are three sources of Magic ACEs:
 
-## 1. Owner ACE (`addOwnerAce`)
+## Owner ACE (`addOwnerAce`)
 
 Every node stores an **owner** in its ACL metadata (set during file/folder creation to the creating user).
 
@@ -24,7 +24,7 @@ When `hasPrivileges(nodeX, ...)` is evaluated:
 
 > **`jcr:all` ≠ Pentaho `ALL`.** `pho:aclManagement` is a custom privilege registered outside the JCR privilege tree. `jcr:all` does **not** include it. The owner magic ACE only injects `jcr:all`, so the owner does **not** automatically get `ACL_MANAGEMENT`. A node's owner can read, write, and delete it, but **cannot change its permissions** unless they also have an explicit `ALL` ACE on it (or are an admin).
 
-## 2. Inheritance Transformation (`getEntries`, lines 168–190)
+## Inheritance Transformation (`getEntries`, lines 168–190)
 
 When a node `nodeX` has `isEntriesInheriting=true`, its effective ACEs come from the nearest non-inheriting ancestor (e.g., parent folder `P`).
 
@@ -47,7 +47,7 @@ if ( !currentNode.isSame( node ) ) {   // node inherits; currentNode = non-inher
 
 **Asymmetry:** This injection only fires when the node is inheriting (`!currentNode.isSame(node)`). It does NOT fire when evaluating access on `P` itself. So WRITE on `P` lets you delete children of `P` but **not `P` itself**.
 
-## 3. Config-yaml Magic ACEs (`config.yaml` / `MagicAceDefinition`)
+## Config-yaml Magic ACEs (`config.yaml` / `MagicAceDefinition`)
 
 System-level RBAC-based ACEs loaded from `jcr/config.yaml` and injected dynamically for any user who holds the matching logical role. Not persisted.
 

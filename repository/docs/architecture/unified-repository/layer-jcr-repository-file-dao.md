@@ -13,7 +13,7 @@ Two independent enforcement mechanisms operate at this layer:
 - **`accessVoterManager` (`RepositoryAccessVoterManager`)** — an explicit Pentaho extension point.
 - **Jackrabbit native JCR session ACL enforcement** — implicit, always active for every JCR API call.
 
-## 2.4.1 `accessVoterManager` has no voters in the default configuration
+## `accessVoterManager` has no voters in the default configuration
 
 The Spring bean definition is:
 
@@ -38,9 +38,9 @@ result are no-ops unless custom `IRepositoryAccessVoter` implementations are reg
 at runtime via `registerVoter()`.
 
 In the default installation the per-file read/write gate is enforced exclusively by
-Jackrabbit (see §2.4.2).
+Jackrabbit (see [Jackrabbit native JCR session ACL enforcement](#jackrabbit-native-jcr-session-acl-enforcement)).
 
-## 2.4.2 Jackrabbit native JCR session ACL enforcement
+## Jackrabbit native JCR session ACL enforcement
 
 The JCR session obtained via `jcrTemplate` is always opened with the **current user's
 credentials** (`PentahoSessionCredentialsStrategy`). Jackrabbit enforces its own ACLs
@@ -54,7 +54,7 @@ on every JCR API call made through that session:
   manager calls): if the user lacks the required JCR privilege,
   **`javax.jcr.AccessDeniedException` is thrown**. Neither this exception nor the
   `org.springframework.dao.DataRetrievalFailureException` it gets translated into by
-  `JcrTemplate` (§2.7) is in the `ExceptionLoggingDecorator` converter map, so it surfaces
+  `JcrTemplate` ([JcrTemplate exception translation layer](layer-jcr-template-exception-translation.md)) is in the `ExceptionLoggingDecorator` converter map, so it surfaces
   to callers as a generic `UnifiedRepositoryException` — with the original
   `javax.jcr.AccessDeniedException` two `getCause()` hops down.
 
@@ -63,7 +63,7 @@ JCR session, with no exceptions and no admin bypass at the JCR API level (the JC
 bypass only applies to the separate `jcrAdminTemplate` used for user/role management,
 not to `repositoryFileDao`).
 
-## 2.4.3 Bypass for privileged users (`accessVoterManager` only)
+## Bypass for privileged users (`accessVoterManager` only)
 
 The `accessVoterManager` voter loop is **skipped entirely** when:
 
@@ -74,7 +74,7 @@ Since the voter manager already has no voters by default, this bypass only matte
 custom voters have been registered. It does **not** bypass Jackrabbit's own JCR
 enforcement.
 
-## 2.4.4 Kiosk mode
+## Kiosk mode
 
 Many write operations begin with:
 
@@ -91,7 +91,7 @@ Affected methods: `createFile`, `createFolder`, `updateFile`, `updateFolder`,
 
 ---
 
-## 2.4.5 Read operations – the "not-found confounding" pattern
+## Read operations – the "not-found confounding" pattern
 
 For all read paths the DAO **returns `null` instead of throwing an exception** when a
 file is inaccessible. The caller cannot distinguish "file does not exist" from "file
@@ -120,7 +120,7 @@ Public entry points that use these helpers (and therefore inherit `null`-on-deni
 > exists at all. Exposing "file exists, but access denied" leaks information about the
 > repository structure to the caller.
 
-## 2.4.6 Children and tree traversal
+## Children and tree traversal
 
 **`getChildren`** (`JcrRepositoryFileUtils.getChildren`): does **not** call
 `accessVoterManager`. It calls `session.getNodeByIdentifier()` for the folder then
@@ -135,15 +135,15 @@ tree). Jackrabbit native filtering still applies first at the JCR API level.
 
 ---
 
-## 2.4.7 Write operations – mixed behaviour
+## Write operations – mixed behaviour
 
 Every write operation that reaches JCR will be subject to **Jackrabbit native ACL
 enforcement** at `session.save()` (or earlier JCR calls). If the user lacks the
-required JCR privilege, `javax.jcr.AccessDeniedException` is thrown. Per §2.7, `JcrTemplate`
+required JCR privilege, `javax.jcr.AccessDeniedException` is thrown. Per [JcrTemplate exception translation layer](layer-jcr-template-exception-translation.md), `JcrTemplate`
 translates this into `org.springframework.dao.DataRetrievalFailureException` before it
 reaches `ExceptionLoggingDecorator`; since neither class is in the converter map, it
 surfaces as a generic `UnifiedRepositoryException` (with `javax.jcr.AccessDeniedException`
-two `getCause()` hops down — see §4).
+two `getCause()` hops down — see [IUnifiedRepository exception taxonomy](../../reference/unified-repository/exception-taxonomy.md)).
 
 Before reaching `session.save()`, some methods perform an `accessVoterManager` check
 (no-op in default config) that can short-circuit with a silent `null` return if a
@@ -193,20 +193,20 @@ custom voter denies access.
 
 ---
 
-## 2.4.8 Per-node JCR privilege requirements and Magic ACE caveats
+## Per-node JCR privilege requirements and Magic ACE caveats
 
-The Pentaho-layer voter/aclDao pre-checks (§2.4.1, §2.5) only ever evaluate **one** node per
+The Pentaho-layer voter/aclDao pre-checks ([`accessVoterManager` has no voters in the default configuration](#accessvotermanager-has-no-voters-in-the-default-configuration), [JcrRepositoryFileAclDao hasAccess layer](layer-jcr-repository-file-acl-dao.md)) only ever evaluate **one** node per
 operation (the file, or the destination folder). The underlying JCR call frequently touches
 **additional** nodes that have no corresponding Pentaho-layer pre-check. If the user is
 missing the JCR privilege on one of those un-checked nodes, JCR throws
 `javax.jcr.AccessDeniedException` there instead, with the same downstream translation and
-surfacing as a generic `UnifiedRepositoryException` (§2.7, §4) — but for a node the caller
+surfacing as a generic `UnifiedRepositoryException` ([JcrTemplate exception translation layer](layer-jcr-template-exception-translation.md), [IUnifiedRepository exception taxonomy](../../reference/unified-repository/exception-taxonomy.md)) — but for a node the caller
 may not have expected to need permission on.
 
 The full per-operation table of JCR calls, nodes touched, Pentaho-layer checks, and required
 JCR privileges (after Magic ACE injection) is the authoritative
 [access-control pre-check layer reference](../../reference/unified-repository/permissions/pre-check-layer.md) —
-this directly affects whether the `javax.jcr.AccessDeniedException` from §2.4.7 fires **at
+this directly affects whether the `javax.jcr.AccessDeniedException` from [write operations — mixed behaviour](#write-operations--mixed-behaviour) fires **at
 all**, not just what it looks like once thrown.
 
 ### Magic ACE injection can make a JCR privilege check pass unexpectedly
@@ -226,7 +226,7 @@ folder itself would not — see [why DELETE on an inherited node passes when DEL
 The owner ACE (`jcr:all`, see [Magic ACEs](../../reference/unified-repository/permissions/magic-aces.md)) does **not** include the custom `pho:aclManagement` privilege.
 This means the creator of a file — who passes every JCR write/delete/lock/version check via
 the owner ACE — can still receive `UnifiedRepositoryAccessDeniedException` from `updateAcl`
-(§2.3, §3) unless they also hold an explicit ACE granting `ACL_MANAGEMENT`. This is a
+([DefaultUnifiedRepository target bean](layer-default-unified-repository.md), [IUnifiedRepository access-control summary table](../../reference/unified-repository/summary-table-per-method.md)) unless they also hold an explicit ACE granting `ACL_MANAGEMENT`. This is a
 permanent condition for as long as they remain the owner; see
 [Owner cannot manage ACL on their own resource](../../reference/unified-repository/permissions/known-issues.md) for the full analysis.
 

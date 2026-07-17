@@ -20,7 +20,7 @@ try {
     // doGetMetadata's own explicit pre-check — unambiguous.
 } catch (UnifiedRepositoryAccessDeniedException e) {
     // ABS-level only: no repository.read action at all (getFileMetadata's ABS action,
-    // main doc §3) — per-file no-read does NOT surface this way (it's generic URE,
+    // main doc [IUnifiedRepository access-control summary table](../../unified-repository/summary-table-per-method.md)) — per-file no-read does NOT surface this way (it's generic URE,
     // handled in the catch below, alongside the not-found race check).
 } catch (UnifiedRepositoryException e) {
     if (!isFoundAndReadable(unifiedRepository, FileUtils.idToPath(pathId))) {

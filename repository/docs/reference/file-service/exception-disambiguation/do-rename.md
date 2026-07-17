@@ -9,7 +9,7 @@ timestamp: 2026-07-17T00:00:00Z
 # Disambiguating doRename
 
 **`doRename`** (declared `throws Exception`; has no null-check on the looked-up source
-file — FileService doc §2.1-4 — so a source that vanished/became unreadable between a
+file — FileService doc [FileService role and general shape](../../../architecture/file-service/layer-file-service.md) pattern 4 — so a source that vanished/became unreadable between a
 caller's own pre-check and this call surfaces as an uncaught `NullPointerException`
 rather than any declared type):
 
@@ -27,7 +27,7 @@ try {
     // Not an access-control condition.
 } catch (UnifiedRepositoryAccessDeniedException e) {
     // ABS-level only: no repository.create action at all (moveFile's ABS action, main
-    // doc §3) — per-file WRITE denial on the source does NOT surface this way.
+    // doc [FileService access-control summary table](../summary-table-per-operation.md)) — per-file WRITE denial on the source does NOT surface this way.
 } catch (Exception e) {
     if (fileService.getRepoWs().getFile(FileUtils.idToPath(pathId)) == null) {
         // confirms a race: source vanished/became unreadable after our own pre-check

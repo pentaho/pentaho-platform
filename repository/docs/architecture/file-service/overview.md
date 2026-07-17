@@ -33,7 +33,7 @@ timestamp: 2026-07-17T00:00:00Z
 ---
 
 
-## 1. Bean composition and call chain
+## Bean composition and call chain
 
 ```
 RepositoryFileProvider (GFS)
@@ -48,7 +48,7 @@ RepositoryFileProvider (GFS)
                    doGetMetadata, doSetMetadata, doGetFileAcl, setFileAcls, getRepository()
         │
         └─► getRepoWs()                          (DefaultUnifiedRepositoryWebService)
-              │  DTO-translation pass-through only — see §2.2. No extra access-control
+              │  DTO-translation pass-through only — see [DefaultUnifiedRepositoryWebService layer](layer-default-unified-repository-web-service.md). No extra access-control
               │  logic, no extra exception handling beyond a few unrelated ETC-folder /
               │  mime-type checks.
               └─► unifiedRepository               (same bean, same rules as main doc)
@@ -63,7 +63,7 @@ validation), sometimes because `FileService` implements extra business logic
 `doCreateDirSafe`'s parent auto-creation). This means the **effective exception contract
 for a given GFS operation depends on which of the two paths was chosen**, and the two
 paths do not always behave the same way for the same not-found/no-access condition (see
-§5).
+[FileService exception disambiguation recipes](../../reference/file-service/exception-disambiguation/index.md)).
 
 `RepositoryFileProvider` also injects a `CustomFileService` subclass instead of a plain
 `FileService`, purely to force `getRepoWs()`, `getRepositoryFileInputStream`, and

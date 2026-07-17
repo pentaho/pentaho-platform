@@ -17,7 +17,7 @@ try {
 } catch (UnifiedRepositoryAccessDeniedException e) {
     // UnifiedRepositoryAccessDeniedException IS-A UnifiedRepositoryException, so a bare
     // `catch (UnifiedRepositoryException e)` below would silently swallow this too.
-    // Per main doc §2.2/§3, this is (for every method except `updateAcl`) ALWAYS the
+    // Per main doc [Method Interceptor layer](../../../architecture/unified-repository/layer-method-interceptor.md)/[IUnifiedRepository access-control summary table](../summary-table-per-method.md), this is (for every method except `updateAcl`) ALWAYS the
     // coarse ABS-level action check, thrown by the AOP interceptor before the target
     // method body — and hence the file's own — even runs. It has nothing to do with
     // this specific file, so none of the per-file follow-up checks below apply to it;
@@ -33,7 +33,7 @@ try {
         // PARENT folder not found / unreadable
     } else if (!canWrite(unifiedRepository, parent.getPath())) {
         // parent exists/readable, but caller cannot write into it (proxy for
-        // the actual jcr:addChildNodes privilege — see main doc §2.4.8)
+        // the actual jcr:addChildNodes privilege — see main doc [per-node JCR privilege requirements and Magic ACE caveats](../../../architecture/unified-repository/layer-jcr-repository-file-dao.md#per-node-jcr-privilege-requirements-and-magic-ace-caveats))
     } else {
         throw e; // race, or a non-access failure
     }

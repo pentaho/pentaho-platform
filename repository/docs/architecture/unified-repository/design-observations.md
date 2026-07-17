@@ -33,11 +33,11 @@ product it has no effect.
 
 `javax.jcr.AccessDeniedException` is not in the `ExceptionLoggingDecorator` converter map.
 Worse, by the time it reaches `ExceptionLoggingDecorator` it has already been translated by
-`JcrTemplate` into `org.springframework.dao.DataRetrievalFailureException` (§2.7) — the
+`JcrTemplate` into `org.springframework.dao.DataRetrievalFailureException` ([JcrTemplate exception translation layer](layer-jcr-template-exception-translation.md)) — the
 **exact same class** that `PathNotFoundException`/`ItemNotFoundException` are translated
 into. So a write-denial and a not-found/no-read condition both surface as
 `UnifiedRepositoryException` wrapping a `DataRetrievalFailureException`, and are only
-distinguishable by inspecting the innermost cause (`getCause().getCause()`, see §4). Callers
+distinguishable by inspecting the innermost cause (`getCause().getCause()`, see [IUnifiedRepository exception taxonomy](../../reference/unified-repository/exception-taxonomy.md)). Callers
 that want to detect access denial specifically for write operations must catch
 `UnifiedRepositoryException`, walk to the root cause, and check for `javax.jcr.AccessDeniedException`
 — or call `hasAccess()` proactively before performing the operation.

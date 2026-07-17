@@ -27,7 +27,7 @@ try {
     RepositoryFile f = fileService.getRepoWs().getFile(FileUtils.idToPath(pathId));
     if (f != null && !canManageAcl(unifiedRepository, f.getPath())) {
         // file exists/readable but caller lacks ACL_MANAGEMENT on it — matches the
-        // file-specific gate. Note the Owner-ACE gap (main doc §2.4.8): file owners
+        // file-specific gate. Note the Owner-ACE gap (main doc [per-node JCR privilege requirements and Magic ACE caveats](../../../architecture/unified-repository/layer-jcr-repository-file-dao.md#per-node-jcr-privilege-requirements-and-magic-ace-caveats)): file owners
         // are NOT exempt from this check.
     } else {
         // more likely the coarse ABS-level check failed instead — this is a global

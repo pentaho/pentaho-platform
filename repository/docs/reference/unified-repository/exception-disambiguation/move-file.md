@@ -19,7 +19,7 @@ try {
 } catch (UnifiedRepositoryAccessDeniedException e) {
     // UnifiedRepositoryAccessDeniedException IS-A UnifiedRepositoryException, so a bare
     // `catch (UnifiedRepositoryException e)` below would silently swallow this too.
-    // Per main doc §2.2/§3, this is (for every method except `updateAcl`) ALWAYS the
+    // Per main doc [Method Interceptor layer](../../../architecture/unified-repository/layer-method-interceptor.md)/[IUnifiedRepository access-control summary table](../summary-table-per-method.md), this is (for every method except `updateAcl`) ALWAYS the
     // coarse ABS-level action check, thrown by the AOP interceptor before the target
     // method body — and hence the file's own — even runs. It has nothing to do with
     // this specific file, so none of the per-file follow-up checks below apply to it;
@@ -43,7 +43,7 @@ try {
         } else {
             // both source and destination look readable/writable per these checks —
             // remaining explanations are the source PARENT's jcr:removeChildNodes
-            // (unchecked at the Pentaho layer, main doc §2.4.8) or a race; not
+            // (unchecked at the Pentaho layer, main doc [per-node JCR privilege requirements and Magic ACE caveats](../../../architecture/unified-repository/layer-jcr-repository-file-dao.md#per-node-jcr-privilege-requirements-and-magic-ace-caveats)) or a race; not
             // further diagnosable via public API.
             throw e;
         }

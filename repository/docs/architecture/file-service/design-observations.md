@@ -18,9 +18,9 @@ needs adaptation here.
 The public-API disambiguation approach from
 [Unified Repository exception disambiguation: general approach](../../reference/unified-repository/exception-disambiguation/general-approach.md) (using `hasAccess()`/`getFileById()`
 follow-up calls) remains valid **wherever a `FileService` call is a pure pass-through to
-`getRepoWs()`** (§2.1 pattern 1/2) or where `RepositoryFileProvider` calls
+`getRepoWs()`** ([FileService role and general shape](layer-file-service.md) pattern 1/2) or where `RepositoryFileProvider` calls
 `unifiedRepository` directly (`getFile`, `getAcl`, `hasAccess`). It is **not sufficient** on
-its own for methods affected by §4's divergences, because:
+its own for methods affected by [FileService contract divergence](../../reference/file-service/contract-divergence.md)'s divergences, because:
 
 - Anything funneled through `InternalError` (`restoreFile`, and `moveFile`'s non-`URADE`/
   non-`IllegalArgumentException` branch) has already lost the information needed to tell
@@ -32,6 +32,6 @@ its own for methods affected by §4's divergences, because:
   `unifiedRepository.getFile(basePath)`/`hasAccess(basePath, READ)`) purely to tell
   not-found from no-read from "some other problem", since `doGetTree` itself gives no
   usable signal beyond `null`.
-- `setFileMetadata`'s access check is `doSetMetadata`'s own custom rule (§4 point 3), not
+- `setFileMetadata`'s access check is `doSetMetadata`'s own custom rule ([FileService contract divergence](../../reference/file-service/contract-divergence.md) point 3), not
   `hasAccess(ACL_MANAGEMENT)` — a follow-up disambiguation must replicate *that* rule
   (owner-or-triple-ABS-action-or-explicit-ACE), not the JCR privilege used elsewhere.
