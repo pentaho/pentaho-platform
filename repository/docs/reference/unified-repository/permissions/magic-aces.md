@@ -10,6 +10,14 @@ timestamp: 2026-07-17T00:00:00Z
 
 Magic ACEs are **ephemeral ACEs injected at privilege evaluation time** by `PentahoEntryCollector`. They are **never persisted** to JCR. They exist only in memory during a `hasPrivileges()` call and are invisible to `getAcl()`.
 
+```mermaid
+flowchart LR
+    Owner["Owner ACE<br/>(addOwnerAce)"] --> Effective
+    Inherit["Inheritance Transformation<br/>(getEntries)"] --> Effective
+    Config["Config-yaml ACEs<br/>(MagicAceDefinition)"] --> Effective
+    Effective["Effective in-memory ACL<br/>(used by hasPrivileges(), invisible to getAcl())"]
+```
+
 There are three sources of Magic ACEs:
 
 ## Owner ACE (`addOwnerAce`)

@@ -21,16 +21,16 @@ timestamp: 2026-07-17T00:00:00Z
 
 ## Bean composition and call chain
 
-```
-Caller
-  └─► unifiedRepository                       (ExceptionLoggingDecorator)
-        └─► unifiedRepositoryProxy             (ProxyFactoryBean with AOP chain)
-              ├─ unifiedRepositoryTransactionInterceptor   (JCR transaction)
-              ├─ unifiedRepositoryMethodInterceptor        (Spring Security method security)
-              └─► unifiedRepositoryTarget      (DefaultUnifiedRepository)
-                    ├─► repositoryFileDao      (JcrRepositoryFileDao)
-                    │     └─► JCR session      (Jackrabbit, opened with user credentials)
-                    └─► repositoryFileAclDao   (JcrRepositoryFileAclDao)
+```mermaid
+flowchart TD
+    Caller --> ELD["unifiedRepository<br/>(ExceptionLoggingDecorator)"]
+    ELD --> Proxy["unifiedRepositoryProxy<br/>(ProxyFactoryBean, AOP chain)"]
+    Proxy -->|"1: outermost"| TxI["unifiedRepositoryTransactionInterceptor<br/>(JCR transaction)"]
+    TxI -->|"2"| SecI["unifiedRepositoryMethodInterceptor<br/>(Spring Security method security)"]
+    SecI -->|"3: target"| Target["unifiedRepositoryTarget<br/>(DefaultUnifiedRepository)"]
+    Target --> FileDao["repositoryFileDao<br/>(JcrRepositoryFileDao)"]
+    Target --> AclDao["repositoryFileAclDao<br/>(JcrRepositoryFileAclDao)"]
+    FileDao --> JCR["JCR session<br/>(Jackrabbit, opened with user credentials)"]
 ```
 
 AOP interceptors in `unifiedRepositoryProxy` are applied outermost-first:

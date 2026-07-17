@@ -8,16 +8,29 @@ timestamp: 2026-07-17T00:00:00Z
 
 # Summary: Full Call Chain for `hasAccess`
 
+```mermaid
+sequenceDiagram
+    participant DUR as DefaultUnifiedRepository
+    participant AclDao as JcrRepositoryFileAclDao
+    participant Helper as DefaultPermissionConversionHelper
+    participant ACM as JCR AccessControlManager
+
+    DUR->>AclDao: hasAccess(relPath, permissions)
+    activate AclDao
+    AclDao->>Helper: pentahoPermissionsToPrivileges(session, permissions)
+    activate Helper
+    Helper->>Helper: look up permissionEnumToPrivilegeNamesMap
+    Helper->>ACM: privilegeFromName(privName)
+    ACM-->>Helper: Privilege
+    Helper-->>AclDao: Privilege[]
+    deactivate Helper
+    AclDao->>ACM: hasPrivileges(absPath, Privilege[])
+    activate ACM
+    ACM->>ACM: walk JCR node tree, resolving inherited ACLs
+    ACM-->>AclDao: boolean
+    deactivate ACM
+    AclDao-->>DUR: boolean
+    deactivate AclDao
 ```
-DefaultUnifiedRepository.hasAccess(path, permissions)
-  └─ JcrRepositoryFileAclDao.hasAccess(relPath, permissions)
-       └─ [JCR session callback]
-            ├─ DefaultPermissionConversionHelper.pentahoPermissionsToPrivileges(session, permissions)
-            │    └─ looks up permissionEnumToPrivilegeNamesMap
-            │    └─ calls session.getAccessControlManager().privilegeFromName(privName)
-            │    └─ returns Privilege[]
-            └─ session.getAccessControlManager().hasPrivileges(absPath, Privilege[])
-                 └─ Jackrabbit walks JCR node tree, resolving inherited ACLs
-                 └─ returns boolean
-```
+
 

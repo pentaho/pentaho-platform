@@ -60,6 +60,18 @@ Two layers fire per operation. Both must pass.
 
 ## Why `DELETE` on an inherited node passes when `DELETE` on its parent does not
 
+```mermaid
+flowchart TD
+    subgraph Child["hasPrivileges(file, jcr:removeNode) — file is inheriting"]
+        C1["file.isEntriesInheriting = true<br/>(or file is owned by the caller)"] --> C2["PentahoEntryCollector injects<br/>parent's jcr:removeChildNodes as jcr:removeNode<br/>(or owner's jcr:all)"]
+        C2 --> C3["✅ true"]
+    end
+    subgraph Parent["hasPrivileges(parent, jcr:removeNode) — parent evaluated directly"]
+        P1["parent.isEntriesInheriting = false<br/>(and not owned by the caller)"] --> P2["No inheritance/owner<br/>transformation applies"]
+        P2 --> P3["❌ false, unless parent has an<br/>explicit jcr:removeNode ACE"]
+    end
+```
+
 The `aclDao.hasAccess(file, {DELETE})` check evaluates `jcr:removeNode` via Jackrabbit's `hasPrivileges()`. `PentahoEntryCollector` runs before the evaluation returns and injects Magic ACEs:
 
 1. **Inheritance transformation**: if `file.isEntriesInheriting=true`, the parent folder's `jcr:removeChildNodes` gets injected as `jcr:removeNode` on `file`. `hasPrivileges(file, [jcr:removeNode])` = **true**.
