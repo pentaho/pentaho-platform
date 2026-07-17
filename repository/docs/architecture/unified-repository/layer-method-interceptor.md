@@ -20,7 +20,7 @@ When the check fails the interceptor throws
 `org.springframework.security.access.AccessDeniedException`, which is caught by
 `ExceptionLoggingDecorator` and re-thrown as `UnifiedRepositoryAccessDeniedException`.
 
-## 2.2.1 Protected methods and required ABS actions
+## Protected methods and required ABS actions
 
 The ABS action required is **global** (not per-file): it expresses a system-level
 capability, not a per-resource permission.
@@ -80,7 +80,7 @@ capability, not a per-resource permission.
 | `setLocalePropertiesForFile` |
 | `deleteLocalePropertiesForFile` |
 
-## 2.2.2 Methods NOT covered by the method interceptor
+## Methods NOT covered by the method interceptor
 
 The following methods have **no ABS check** and therefore no method-level access gate:
 
@@ -92,7 +92,7 @@ The following methods have **no ABS check** and therefore no method-level access
 These methods still go through the JCR session (user-credentials-based) and
 the `RepositoryAccessVoterManager` at the DAO level.
 
-## 2.2.3 ABS action hierarchy (derived rules configured in `repository.spring.xml`)
+## ABS action hierarchy (derived rules configured in `repository.spring.xml`)
 
 ```
 administerSecurity  ──► repositoryCreate  ──► repositoryRead

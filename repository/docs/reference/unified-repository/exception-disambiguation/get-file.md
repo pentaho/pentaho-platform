@@ -10,7 +10,7 @@ timestamp: 2026-07-17T00:00:00Z
 
 **`getFile` / `getFileById` (all overloads), `getData*`, `getAvailableLocalesForFile*`,
 `getLocalePropertiesForFile*`** — no exception is thrown at all; not-found, no-read, and
-custom-voter-denied all confound into the same silent `null` (main doc §3/§4). **There is
+custom-voter-denied all confound into the same silent `null` (main doc [IUnifiedRepository access-control summary table](../summary-table-per-method.md)/[IUnifiedRepository exception taxonomy](../exception-taxonomy.md)). **There is
 no follow-up call that helps here**: these methods *are* the check, so calling any of them
 again on the same path returns the same ambiguous `null`. This ambiguity is unresolvable
 via public API.

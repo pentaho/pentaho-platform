@@ -19,7 +19,7 @@ try {
     // unambiguous, not access-control related.
 } catch (UnifiedRepositoryAccessDeniedException e) {
     // ABS-level only: no repository.create action at all (createFolder's ABS action,
-    // main doc §3) — thrown before any specific segment is even looked up. Per-segment
+    // main doc [IUnifiedRepository access-control summary table](../../unified-repository/summary-table-per-method.md)) — thrown before any specific segment is even looked up. Per-segment
     // WRITE denial does NOT surface this way (see the generic catch below).
 } catch (UnifiedRepositoryException e) {
     // URADE from createFolder() on SOME segment of the path (doCreateDirFor creates

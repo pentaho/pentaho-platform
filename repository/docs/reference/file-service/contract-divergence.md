@@ -23,7 +23,7 @@ switching mental models from the main doc to this one:
    "root path not found", "root path not readable", and "any other repository error"
    apart at all; all three produce the same `NotFoundException` in `RepositoryFileProvider`.
 3. **`doSetMetadata` reimplements its own ACL-management gate**, independent of
-   `IUnifiedRepository.updateAcl`'s `hasAccess(ACL_MANAGEMENT)` check (main doc §2.3): it
+   `IUnifiedRepository.updateAcl`'s `hasAccess(ACL_MANAGEMENT)` check (main doc [DefaultUnifiedRepository target bean](../../architecture/unified-repository/layer-default-unified-repository.md)): it
    grants access if the caller is the ACL owner, **or** holds all three of
    `repository.read` + `repository.create` + `administer.security` ABS actions, **or** has an
    ACE explicitly granting `ACL_MANAGEMENT`/`ALL`. This is a materially different (and, for
@@ -47,11 +47,11 @@ switching mental models from the main doc to this one:
    plain `createFolder` should not assume the same for GFS `doCreateDirSafe`.
 6. **`CopyFilesOperation`'s not-found condition is inverted** relative to
    `IUnifiedRepository.copyFile`'s: it requires the **destination directory itself** to
-   already exist (§2.3), whereas the main doc's `copyFile` only errors when the
+   already exist ([CopyFilesOperation layer](../../architecture/file-service/layer-copy-files-operation.md)), whereas the main doc's `copyFile` only errors when the
    destination's *parent* is missing.
 7. **Two different "access denied" exception types with different scopes** exist at the GFS
    layer (`AccessControlException` for ABS/global denials, `ResourceAccessDeniedException`
-   for per-file denials) where the main doc has only one (`URADE`) — see §2.4's mapping
+   for per-file denials) where the main doc has only one (`URADE`) — see [JcrRepositoryFileDao layer](../../architecture/unified-repository/layer-jcr-repository-file-dao.md)'s mapping
    table. When both a global and a per-file check exist for the same operation (e.g.
    `renameFile`, `copyFile`, `moveFile`), the GFS caller must know which exception type it
    is looking at to know *which* permission needs to be granted.

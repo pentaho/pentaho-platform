@@ -10,7 +10,7 @@ timestamp: 2026-07-17T00:00:00Z
 
 **`createFolder`** (same target/shape as `createFile`, but throws the plain generic
 `UnifiedRepositoryException` — it does **not** get the `UnifiedRepositoryCreateFileException`
-treatment, main doc §2.1):
+treatment, main doc [ExceptionLoggingDecorator layer](../../../architecture/unified-repository/layer-exception-logging-decorator.md)):
 
 ```java
 try {
@@ -18,7 +18,7 @@ try {
 } catch (UnifiedRepositoryAccessDeniedException e) {
     // UnifiedRepositoryAccessDeniedException IS-A UnifiedRepositoryException, so a bare
     // `catch (UnifiedRepositoryException e)` below would silently swallow this too.
-    // Per main doc §2.2/§3, this is (for every method except `updateAcl`) ALWAYS the
+    // Per main doc [Method Interceptor layer](../../../architecture/unified-repository/layer-method-interceptor.md)/[IUnifiedRepository access-control summary table](../summary-table-per-method.md), this is (for every method except `updateAcl`) ALWAYS the
     // coarse ABS-level action check, thrown by the AOP interceptor before the target
     // method body — and hence the file's own — even runs. It has nothing to do with
     // this specific file, so none of the per-file follow-up checks below apply to it;

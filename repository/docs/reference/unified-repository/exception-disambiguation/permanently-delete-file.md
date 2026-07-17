@@ -17,7 +17,7 @@ try {
     unifiedRepository.permanentlyDeleteFile(fileId, "comment");
 } catch (UnifiedRepositoryReferentialIntegrityException e) {
     // Unambiguous, non-access condition: other JCR nodes still hold references to this
-    // file (main doc §2.1/§2.4.8) — thrown as an explicit pre-check before any JCR
+    // file (main doc [ExceptionLoggingDecorator layer](../../../architecture/unified-repository/layer-exception-logging-decorator.md)/[per-node JCR privilege requirements and Magic ACE caveats](../../../architecture/unified-repository/layer-jcr-repository-file-dao.md#per-node-jcr-privilege-requirements-and-magic-ace-caveats)) — thrown as an explicit pre-check before any JCR
     // remove call is attempted. No follow-up call needed; the exception type alone
     // already tells you exactly what happened. Do NOT run this through
     // isFoundAndReadable()/canDelete() — the file is not being denied, it is being
@@ -25,7 +25,7 @@ try {
 } catch (UnifiedRepositoryAccessDeniedException e) {
     // UnifiedRepositoryAccessDeniedException IS-A UnifiedRepositoryException, so a bare
     // `catch (UnifiedRepositoryException e)` below would silently swallow this too.
-    // Per main doc §2.2/§3, this is (for every method except `updateAcl`) ALWAYS the
+    // Per main doc [Method Interceptor layer](../../../architecture/unified-repository/layer-method-interceptor.md)/[IUnifiedRepository access-control summary table](../summary-table-per-method.md), this is (for every method except `updateAcl`) ALWAYS the
     // coarse ABS-level action check, thrown by the AOP interceptor before the target
     // method body — and hence the file's own — even runs. It has nothing to do with
     // this specific file, so none of the per-file follow-up checks below apply to it;
@@ -38,7 +38,7 @@ try {
     } else if (!canDelete(unifiedRepository, file.getPath())) {
         // no delete access on the file itself
     } else {
-        // PARENT-level jcr:removeChildNodes gap (§2.4.8), unchecked — inconclusive
+        // PARENT-level jcr:removeChildNodes gap ([per-node JCR privilege requirements and Magic ACE caveats](../../../architecture/unified-repository/layer-jcr-repository-file-dao.md#per-node-jcr-privilege-requirements-and-magic-ace-caveats)), unchecked — inconclusive
         throw e;
     }
 }

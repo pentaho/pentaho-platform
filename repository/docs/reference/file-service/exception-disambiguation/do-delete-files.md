@@ -19,7 +19,7 @@ try {
     fileService.doDeleteFilesPermanent(fileIdsCsv);
 } catch (UnifiedRepositoryAccessDeniedException e) {
     // ABS-level only: no repository.create action at all (deleteFile/permanentFlag's ABS
-    // action, main doc §3) — thrown before any specific id in the batch is even touched.
+    // action, main doc [IUnifiedRepository access-control summary table](../../unified-repository/summary-table-per-method.md)) — thrown before any specific id in the batch is even touched.
     // Per-file DELETE denial does NOT surface this way (see the generic catch below).
 } catch (Exception e) {
     // check each id individually — the batch call gives no per-id signal:
@@ -31,7 +31,7 @@ try {
         }
         // if neither, this id looks fine right now — the original failure was something
         // else (e.g. permanentlyDeleteFile's referential-integrity conflict, or a
-        // parent/.trash privilege gap — main doc §2.4.8, known gaps above); not further
+        // parent/.trash privilege gap — main doc [per-node JCR privilege requirements and Magic ACE caveats](../../../architecture/unified-repository/layer-jcr-repository-file-dao.md#per-node-jcr-privilege-requirements-and-magic-ace-caveats), known gaps above); not further
         // diagnosable, and possibly a race if this wasn't actually the failing id
     }
 }

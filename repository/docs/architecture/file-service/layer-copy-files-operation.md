@@ -17,7 +17,7 @@ timestamp: 2026-07-17T00:00:00Z
 arguments are `null`, the source list is empty, `destDirPath` is `null`, **or the
 destination directory does not exist** (pre-checked via `getRepoWs().getFile(destDirPath)`).
 Note the direction: this is the **opposite** of `IUnifiedRepository.copyFile`'s own
-not-found condition (main doc §3), which only reports an error when the destination's
+not-found condition (main doc [IUnifiedRepository access-control summary table](../../reference/unified-repository/summary-table-per-method.md)), which only reports an error when the destination's
 *parent* is missing — here, the destination folder itself must already exist. Inside
 `execute()`, an explicit `UnifiedRepositoryAccessDeniedException` can also be thrown
 directly (not via the converter map) for certain owner/permission checks internal to the

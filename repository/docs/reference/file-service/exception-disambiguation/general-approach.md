@@ -23,7 +23,7 @@ i.e. the same vantage point `RepositoryFileProvider` has: direct access to both 
 declares/throws — they do **not** go through any higher-level GFS
 (`IGenericFileProvider`) exception type.
 
-The FileService doc's §3/§4 show that, at this layer, ambiguity is **worse** than at the
+The FileService doc's [FileService access-control summary table](../summary-table-per-operation.md)/[FileService contract divergence](../contract-divergence.md) show that, at this layer, ambiguity is **worse** than at the
 `IUnifiedRepository` layer, for two reasons:
 
 1. Wherever `FileService` passes an `IUnifiedRepository` exception through unchanged, the
@@ -52,12 +52,12 @@ layer does:
 | Name used below | Fully qualified class | Notes |
 |---|---|---|
 | `FileNotFoundException` | `java.io.FileNotFoundException` | Declared/thrown directly by several `FileService` methods (`doMoveFiles`, `doGetMetadata`, `setFileAcls`, `doGetContentCreator`, `doGetFileOrDir`) as an explicit not-found pre-check — **not** related to `javax.jcr.PathNotFoundException`/`ItemNotFoundException` from the main doc, and not the same instance that flows through `getRepoWs()`. |
-| `InternalError` | `java.lang.InternalError` | The JDK's own (usually JVM-internal) unchecked `Error`, re-purposed by `doMoveFiles`/`doRestoreFiles` as a catch-all wrapper with no message and no cause set (FileService doc §2.1 pattern 3). Being an `Error`, not an `Exception`, it also won't be caught by a `catch (Exception e)` unless matched explicitly. |
+| `InternalError` | `java.lang.InternalError` | The JDK's own (usually JVM-internal) unchecked `Error`, re-purposed by `doMoveFiles`/`doRestoreFiles` as a catch-all wrapper with no message and no cause set (FileService doc [FileService role and general shape](../../../architecture/file-service/layer-file-service.md) pattern 3). Being an `Error`, not an `Exception`, it also won't be caught by a `catch (Exception e)` unless matched explicitly. |
 | `GeneralSecurityException` | `java.security.GeneralSecurityException` | Declared/thrown by `doSetMetadata` when its own custom ACL-management rule denies the caller — unrelated to `UnifiedRepositoryAccessDeniedException`. |
 | `IllegalArgumentException` | `java.lang.IllegalArgumentException` | Thrown directly by `doRename` (destination name collision) and by `CopyFilesOperation`'s constructor/`execute()` (invalid arguments, missing/non-folder destination directory) — a plain JDK unchecked exception, not a repository-specific type. |
-| `UnifiedRepositoryException` / `UnifiedRepositoryAccessDeniedException` | `org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException` / `.UnifiedRepositoryAccessDeniedException` | Same classes documented in the main doc — `FileService` propagates them unchanged wherever it does not itself intercept and rewrap them (FileService doc §2.2). |
+| `UnifiedRepositoryException` / `UnifiedRepositoryAccessDeniedException` | `org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException` / `.UnifiedRepositoryAccessDeniedException` | Same classes documented in the main doc — `FileService` propagates them unchanged wherever it does not itself intercept and rewrap them (FileService doc [DefaultUnifiedRepositoryWebService layer](../../../architecture/file-service/layer-default-unified-repository-web-service.md)). |
 | `FileService.InvalidNameException` | `org.pentaho.platform.web.http.api.resources.services.FileService.InvalidNameException` | A `public static class` **nested inside `FileService` itself** (extends plain `java.lang.Exception`) — declared/thrown only by `doCreateDirSafe`/`isValidFolderName`/`isValidFileName`'s validation. Not related to any JCR or repository-level name-validation exception. |
-| `NullPointerException` | `java.lang.NullPointerException` | The recurring not-a-real-exception defect (FileService doc §2.1-4/§4 point 4) — an unchecked JDK exception, never declared, thrown implicitly whenever a `null` lookup result is dereferenced without a check. |
+| `NullPointerException` | `java.lang.NullPointerException` | The recurring not-a-real-exception defect (patterns throughout [FileService role and general shape](../../../architecture/file-service/layer-file-service.md) and [FileService contract divergence](../contract-divergence.md) point 4) — an unchecked JDK exception, never declared, thrown implicitly whenever a `null` lookup result is dereferenced without a check. |
 
 ## The general approach
 
@@ -86,7 +86,7 @@ layer does:
 5. **A `UnifiedRepositoryAccessDeniedException` reaching a `FileService` caller is (with
    exactly one exception) *always* the coarse ABS-level action check, never a per-file
    denial** — same rule as the main disambiguation doc's point 2, inherited unchanged
-   through this layer. Per the main doc's summary table (§3) and exception taxonomy (§4),
+   through this layer. Per the main doc's summary table ([IUnifiedRepository access-control summary table](../../unified-repository/summary-table-per-method.md)) and exception taxonomy ([IUnifiedRepository exception taxonomy](../../unified-repository/exception-taxonomy.md)),
    every `IUnifiedRepository` method used by `FileService` below reports per-file
    write/delete/read-ACL denial as the **generic** `UnifiedRepositoryException`, never
    `URADE` — the **sole exception is `updateAcl`** (wrapped by `setFileAcls`), where
@@ -143,11 +143,11 @@ privileges, `jcr:removeChildNodes` on a parent, `.trash` folder access). In addi
 this layer:
 
 - **Once an exception has been collapsed into a bare `InternalError`** (`doMoveFiles`'s
-  and `doRestoreFiles`'s catch-all branch, FileService doc §2.1 pattern 3), there is no
+  and `doRestoreFiles`'s catch-all branch, FileService doc [FileService role and general shape](../../../architecture/file-service/layer-file-service.md) pattern 3), there is no
   way to recover which specific repository-level exception it originally was. The best a
   caller can do is run the generic not-found/no-write follow-up checks below and report
   the remainder as "some other repository failure".
-- **`doSetMetadata`'s custom ACL-management rule** (FileService doc §4 point 3: owner, or
+- **`doSetMetadata`'s custom ACL-management rule** (FileService doc [FileService contract divergence](../contract-divergence.md) point 3: owner, or
   all three of `repository.read`+`repository.create`+`administer.security`, or an
   explicit `ACL_MANAGEMENT`/`ALL` ACE) has no single public method that evaluates it
   directly. `doSetMetadata()` only throws a plain `GeneralSecurityException` either way

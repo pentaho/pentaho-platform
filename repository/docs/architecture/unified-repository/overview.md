@@ -19,7 +19,7 @@ timestamp: 2026-07-17T00:00:00Z
 
 ---
 
-## 1. Bean composition and call chain
+## Bean composition and call chain
 
 ```
 Caller

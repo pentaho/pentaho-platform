@@ -23,7 +23,7 @@ just the direct cause — so these take priority even over a method-specific fal
 
 | Source exception | Converted to | Thrown by (only) |
 |---|---|---|
-| `org.springframework.security.access.AccessDeniedException` | `UnifiedRepositoryAccessDeniedException` | Any ABS-guarded method (§2.2) |
+| `org.springframework.security.access.AccessDeniedException` | `UnifiedRepositoryAccessDeniedException` | Any ABS-guarded method ([Method Interceptor layer](layer-method-interceptor.md)) |
 | `RepositoryFileDaoFileExistsException` | `UnifiedRepositoryFileExistsException` | **`undeleteFile`** only — thrown when a file/folder already exists at the deleted item's original path (`DefaultDeleteHelper.undeleteFile`) |
 | `RepositoryFileDaoReferentialIntegrityException` | `UnifiedRepositoryReferentialIntegrityException` | **`permanentlyDeleteFile`** only — thrown when other JCR nodes still hold references to the file being permanently deleted (`DefaultDeleteHelper.permanentlyDeleteFile`) |
 | `RepositoryFileDaoMalformedNameException` | `UnifiedRepositoryMalformedNameException` | **`setFileMetadata`** only — thrown when a metadata **key** (not a file/folder name) contains reserved characters (`JcrRepositoryFileUtils.setMetadataItemForFile` → `checkName()`). The equivalent `checkName()` calls for file/folder names elsewhere in `JcrRepositoryFileUtils` are commented-out dead code, so no other method can throw this. |
@@ -32,7 +32,7 @@ just the direct cause — so these take priority even over a method-specific fal
 > write-access violations) is **not** in this map — and neither is the class it actually
 > arrives here as. Before reaching `ExceptionLoggingDecorator`, `JcrTemplate` translates it
 > (and `PathNotFoundException`/`ItemNotFoundException`) into
-> `org.springframework.dao.DataRetrievalFailureException` (see §2.7). That class is also not
+> `org.springframework.dao.DataRetrievalFailureException` (see [JcrTemplate exception translation layer](layer-jcr-template-exception-translation.md)). That class is also not
 > in the map, so — unless a method-specific fallback constructor applies (see below) — it
 > propagates as a generic `UnifiedRepositoryException`, not as
 > `UnifiedRepositoryAccessDeniedException` — but its cause chain still contains the original
@@ -51,14 +51,14 @@ in place of the generic `UnifiedRepositoryException`:
 
 **`createFolder` and `updateFolder` do *not* get this treatment** — despite being the
 folder-equivalents of the methods above, they still throw the plain generic
-`UnifiedRepositoryException` for the same not-found/no-write conditions (see §3).
+`UnifiedRepositoryException` for the same not-found/no-write conditions (see [IUnifiedRepository access-control summary table](../../reference/unified-repository/summary-table-per-method.md)).
 
 Both `UnifiedRepositoryCreateFileException` and `UnifiedRepositoryUpdateFileException`
 extend `UnifiedRepositoryException` directly (no other state/behavior added beyond a
 message prefix), so a `catch (UnifiedRepositoryException e)` still catches them via
 ordinary polymorphism — but code that wants to report the *most specific* declared type
 should catch these first. Because this substitution only changes the **outer** exception
-class, it has no effect on the cause-chain depth/shape documented in §2.7/§4 — the
+class, it has no effect on the cause-chain depth/shape documented in [JcrTemplate exception translation layer](layer-jcr-template-exception-translation.md)/[IUnifiedRepository exception taxonomy](../../reference/unified-repository/exception-taxonomy.md) — the
 not-found-vs-no-write disambiguation by innermost cause still applies identically underneath
 either wrapper.
 

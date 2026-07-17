@@ -23,7 +23,7 @@ try {
     fileService.doGetFileAcl(pathId);
 } catch (UnifiedRepositoryAccessDeniedException e) {
     // ABS-level only: no repository.read action at all (getAcl's ABS action, main doc
-    // §3) — thrown before the file's own ACL is even looked up.
+    // [IUnifiedRepository access-control summary table](../../unified-repository/summary-table-per-method.md)) — thrown before the file's own ACL is even looked up.
 } catch (UnifiedRepositoryException e) {
     // File found/readable, but the ACL read itself still failed — hits the
     // jcr:readAccessControl known gap from the main disambiguation doc: no public call
