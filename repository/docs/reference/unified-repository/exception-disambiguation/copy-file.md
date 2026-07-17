@@ -10,7 +10,7 @@ timestamp: 2026-07-17T00:00:00Z
 
 **`copyFile`** — same not-found/parent-folder shape as `moveFile`, but there is no
 source-write check to make, because the source is never write/read-checked by this
-operation at all (main doc §3 `copyFile` row and [Repository Permission Model](../../repository-permission-model.md)'s "Notable Gaps"):
+operation at all (main doc §3 `copyFile` row and the [Permission Model Known Issues](../permissions/known-issues.md)):
 
 ```java
 try {
