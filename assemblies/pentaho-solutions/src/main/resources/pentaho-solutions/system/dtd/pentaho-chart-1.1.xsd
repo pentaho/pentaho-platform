@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- ******************************************************************************
+ *
+ * Pentaho
+ *
+ * Copyright (C) 2026 by Pentaho Canada Inc. : http://www.pentaho.com
+ *
+ * Use of this software is governed by the Business Source License included
+ * in the LICENSE.TXT file.
+ *
+ * Change Date: 2030-06-15
+ ******************************************************************************* -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.1">
 <!-- #################################                                           IMPORTANT NOTICE                                                   ###################################################### -->	
 <!-- This schema describes the chart definition for Pentaho BI platform charts. This includes dashboard, portlet and action sequence charts. This DOES NOT include report charts or analysis charts. -->	

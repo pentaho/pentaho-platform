@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- ******************************************************************************
+ *
+ * Pentaho
+ *
+ * Copyright (C) 2026 by Pentaho Canada Inc. : http://www.pentaho.com
+ *
+ * Use of this software is governed by the Business Source License included
+ * in the LICENSE.TXT file.
+ *
+ * Change Date: 2030-06-15
+ ******************************************************************************* -->
 <ns2:ExportManifest xmlns:ns2="http://www.pentaho.com/schema/">
     <ExportManifestInformation exportDate="24-09-2013 05:43:49 WEST" exportBy="admin" rootFolder="/"/>
     <ExportManifestEntity path="public">

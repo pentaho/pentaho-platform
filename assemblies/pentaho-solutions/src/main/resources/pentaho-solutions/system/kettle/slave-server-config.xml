@@ -1,3 +1,14 @@
+<!-- ******************************************************************************
+ *
+ * Pentaho
+ *
+ * Copyright (C) 2026 by Pentaho Canada Inc. : http://www.pentaho.com
+ *
+ * Use of this software is governed by the Business Source License included
+ * in the LICENSE.TXT file.
+ *
+ * Change Date: 2030-06-15
+ ******************************************************************************* -->
 <slave_config>
   <max_log_lines>10000</max_log_lines>
   <max_log_timeout_minutes>2880</max_log_timeout_minutes>
