@@ -1,0 +1,28 @@
+-- =====================================================
+-- HSQLDB System Initialization Script for jackrabbit
+-- =====================================================
+-- Ensure system administrator exists with empty password for initialization
+CREATE USER SA PASSWORD '';
+GRANT DBA TO SA;
+
+-- =====================================================
+-- Create Jackrabbit (JCR) Database User
+-- Jackrabbit's BundleDbPersistenceManager creates its own tables on first
+-- start, so this user only needs DBA rights to create the schema objects.
+-- Credentials must match the jdbc/jackrabbit datasource in context.xml.
+-- =====================================================
+CREATE USER JCR_USER PASSWORD 'password';
+CREATE USER "jcr_user" PASSWORD 'password';
+GRANT DBA TO JCR_USER;
+GRANT DBA TO "jcr_user";
+
+-- =====================================================
+-- Set HSQLDB Configuration
+-- =====================================================
+SET WRITE_DELAY 0;
+SET SCHEMA PUBLIC;
+
+-- =====================================================
+-- Flush all data to disk immediately
+-- =====================================================
+CHECKPOINT;

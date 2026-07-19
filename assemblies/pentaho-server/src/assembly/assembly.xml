@@ -66,6 +66,15 @@
       <outputDirectory>.</outputDirectory>
     </fileSet>
 
+    <!-- copy jackrabbit database files to data/hsqldb directory -->
+    <fileSet>
+      <directory>${project.basedir}/data/hsqldb</directory>
+      <outputDirectory>data/hsqldb</outputDirectory>
+      <includes>
+        <include>jackrabbit.*</include>
+      </includes>
+    </fileSet>
+
     <!-- copy solutions hsqldb files into pentaho-solutions/system -->
     <fileSet>
       <directory>${project.build.directory}/pentaho-solutions/system/dialects/hsqldb</directory>
