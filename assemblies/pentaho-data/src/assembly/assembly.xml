@@ -37,6 +37,7 @@
     <dependencySet>
       <includes>
         <include>org.hsqldb:hsqldb</include>
+        <include>org.hsqldb:sqltool</include>
       </includes>
       <outputDirectory>data/lib</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>

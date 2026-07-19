@@ -285,12 +285,10 @@
     -->
 
     <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.BundleDbPersistenceManager">
-      <param name="url" value="jdbc:hsqldb:mem:${wsp.name};shutdown=true"/>
+      <param name="driver" value="javax.naming.InitialContext"/>
+      <param name="url" value="java:comp/env/jdbc/jackrabbit"/>
       <param name="schemaObjectPrefix" value="${wsp.name}_"/>
-      <param name="driver" value="org.hsqldb.jdbcDriver"/>
       <param name="schema" value="hsqldb"/>
-      <param name="user" value="sa"/>
-      <param name="password" value=""/>
     </PersistenceManager>
 
     <!--
@@ -413,12 +411,10 @@
     -->
 
     <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.BundleDbPersistenceManager">
-      <param name="url" value="jdbc:hsqldb:mem:version;shutdown=true"/>
+      <param name="driver" value="javax.naming.InitialContext"/>
+      <param name="url" value="java:comp/env/jdbc/jackrabbit"/>
       <param name="schemaObjectPrefix" value="version_"/>
-      <param name="driver" value="org.hsqldb.jdbcDriver"/>
       <param name="schema" value="hsqldb"/>
-      <param name="user" value="sa"/>
-      <param name="password" value=""/>
     </PersistenceManager>
 
   </Versioning>
