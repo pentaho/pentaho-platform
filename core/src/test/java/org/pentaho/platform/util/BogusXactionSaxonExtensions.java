@@ -163,4 +163,3 @@ public class BogusXactionSaxonExtensions {
     config.registerExtensionFunction( new LocGetTextDirection() );
   }
 }
-
