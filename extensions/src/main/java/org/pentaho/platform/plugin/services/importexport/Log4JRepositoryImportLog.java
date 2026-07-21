@@ -13,8 +13,10 @@
 
 package org.pentaho.platform.plugin.services.importexport;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.logging.log4j.Level;
@@ -36,6 +38,7 @@ public class Log4JRepositoryImportLog {
   private Level logLevel;
   private Appender appender;
   private StringLayout layout;
+  private Writer writer;
 
   /**
    * Constructs an object that keeps track of additional fields for Log4j logging and writes/formats an html file to the
@@ -71,8 +74,8 @@ public class Log4JRepositoryImportLog {
     logName = "RepositoryImportLog." + getThreadName();
     logger = LogManager.getLogger( logName );
     LogUtil.setLevel( logger, logLevel );
-    appender =
-        LogUtil.makeAppender( logName, new OutputStreamWriter( outputStream, StandardCharsets.UTF_8 ), this.layout );
+    writer = new OutputStreamWriter( outputStream, StandardCharsets.UTF_8 );
+    appender = LogUtil.makeAppender( logName, writer, this.layout );
     LogUtil.addAppender( appender, logger, logLevel );
   }
 
@@ -103,13 +106,12 @@ public class Log4JRepositoryImportLog {
   }
 
   protected void endJob() {
-    try {
-      outputStream.write( appender.getLayout().getFooter() );
-    } catch ( Exception e ) {
-      System.out.println( e );
-      // Don't try logging a log error.
-    }
     LogUtil.removeAppender( appender, logger );
+    try {
+      writer.flush();
+    } catch ( IOException e ) {
+      System.out.println( e );
+    }
   }
 
   private String getThreadName() {
