@@ -146,4 +146,43 @@ class LogUtilTest {
 
     assertTrue( parentLoggerConfig.isAdditive() );
   }
+
+  @Test
+  void removeAppenderUnregistersAppenderFromConfiguration() {
+    String loggerName = "org.pentaho.test.remove." + UUID.randomUUID();
+    Logger logger = LogManager.getLogger( loggerName );
+    LoggerContext context = (LoggerContext) LogManager.getContext( false );
+    Configuration configuration = context.getConfiguration();
+    Appender appender = LogUtil.makeAppender( loggerName + ".appender", new StringWriter(), "%m" );
+
+    LogUtil.addAppender( appender, logger, Level.INFO );
+    assertTrue( configuration.getAppenders().containsKey( appender.getName() ) );
+
+    LogUtil.removeAppender( appender, logger );
+
+    assertFalse( configuration.getAppenders().containsKey( appender.getName() ) );
+  }
+
+  @Test
+  void removeAppenderStopsOnlyAfterLastLoggerDetaches() {
+    String loggerName = "org.pentaho.test.remove.shared." + UUID.randomUUID();
+    Logger firstLogger = LogManager.getLogger( loggerName + ".first" );
+    Logger secondLogger = LogManager.getLogger( loggerName + ".second" );
+    LoggerContext context = (LoggerContext) LogManager.getContext( false );
+    Configuration configuration = context.getConfiguration();
+    Appender appender = LogUtil.makeAppender( loggerName + ".appender", new StringWriter(), "%m" );
+
+    LogUtil.addAppender( appender, firstLogger, Level.INFO );
+    LogUtil.addAppender( appender, secondLogger, Level.INFO );
+
+    LogUtil.removeAppender( appender, firstLogger );
+
+    assertTrue( configuration.getAppenders().containsKey( appender.getName() ) );
+    assertTrue( configuration.getLoggerConfig( secondLogger.getName() ).getAppenders()
+      .containsKey( appender.getName() ) );
+
+    LogUtil.removeAppender( appender, secondLogger );
+
+    assertFalse( configuration.getAppenders().containsKey( appender.getName() ) );
+  }
 }

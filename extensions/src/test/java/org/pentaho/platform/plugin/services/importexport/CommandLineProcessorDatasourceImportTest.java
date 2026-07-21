@@ -15,8 +15,10 @@
 package org.pentaho.platform.plugin.services.importexport;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 import jakarta.ws.rs.core.Response;
@@ -25,6 +27,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.Assert;
+import org.apache.commons.io.FileUtils;
 import org.pentaho.platform.engine.core.output.MultiOutputStream;
 import org.pentaho.platform.plugin.services.messages.Messages;
 
@@ -243,6 +246,32 @@ public class CommandLineProcessorDatasourceImportTest extends Assert {
     String output = CONSOLE_BUFFER.toString();
     assertTrue( output.contains( "Import was successful" ) );
     assertTrue( output.contains( "Success" ) );
+  }
+
+  @Test
+  public void testLogResponseMessageSeparatesAppendedResponses() throws Exception {
+    File logFile = File.createTempFile( "CommandLineProcessorDatasourceImportTest", ".log" );
+    Response firstResponse = mock( Response.class );
+    Response secondResponse = mock( Response.class );
+    when( firstResponse.getStatus() ).thenReturn( 200 );
+    when( firstResponse.hasEntity() ).thenReturn( true );
+    when( firstResponse.readEntity( String.class ) ).thenReturn( "<html>first</html>" );
+    when( secondResponse.getStatus() ).thenReturn( 200 );
+    when( secondResponse.hasEntity() ).thenReturn( true );
+    when( secondResponse.readEntity( String.class ) ).thenReturn( "<html>second</html>" );
+
+    try {
+      invokeLogResponseMessage( logFile.getAbsolutePath(), "/test/path", firstResponse,
+        CommandLineProcessor.RequestType.IMPORT );
+      invokeLogResponseMessage( logFile.getAbsolutePath(), "/test/path", secondResponse,
+        CommandLineProcessor.RequestType.IMPORT );
+
+      String contents = FileUtils.readFileToString( logFile, StandardCharsets.UTF_8 );
+      assertTrue( contents.contains( "</html>" + System.lineSeparator() + "Import was successful" ) );
+      assertTrue( contents.endsWith( System.lineSeparator() ) );
+    } finally {
+      logFile.delete();
+    }
   }
 
   /**
