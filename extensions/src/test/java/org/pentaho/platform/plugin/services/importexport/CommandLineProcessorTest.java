@@ -18,9 +18,13 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.multipart.FormDataMultiPart;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -39,10 +43,13 @@ import org.pentaho.platform.engine.core.output.MultiOutputStream;
 import org.pentaho.platform.plugin.services.importexport.CommandLineProcessor.RequestType;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.nullable;
 import static org.mockito.Mockito.when;
+
+import javax.ws.rs.core.MediaType;
 
 
 @FixMethodOrder( MethodSorters.NAME_ASCENDING )
@@ -164,7 +171,7 @@ public class CommandLineProcessorTest extends Assert {
       WebResource mockWebResource = mock( WebResource.class );
       when( mockWebResource.type( nullable( String.class ) ) ).thenThrow( new RuntimeException( exception ) );
       when( mockClient.resource( nullable( String.class ) ) ).thenReturn( mockWebResource );
-      clientMock.when( () -> Client.create( any() ) ).thenReturn( mockClient );
+      clientMock.when( () -> Client.create( any( ClientConfig.class ) ) ).thenReturn( mockClient );
 
       File file = File.createTempFile( "CommandLineProcessorTest", ".log" );
 
@@ -185,6 +192,44 @@ public class CommandLineProcessorTest extends Assert {
         file.delete();
       }
       assertTrue( CONSOLE_BUFFER.toString().contains( exception ) );
+    }
+  }
+
+  @Test
+  public void importSendsConfiguredLogLevel() throws Exception {
+    try ( MockedStatic<Client> clientMock = mockStatic( Client.class ) ) {
+      Client mockClient = mock( Client.class );
+      WebResource mockWebResource = mock( WebResource.class );
+      WebResource.Builder mockRequest = mock( WebResource.Builder.class );
+      ClientResponse mockResponse = mock( ClientResponse.class );
+      AtomicReference<String> requestLogLevel = new AtomicReference<>();
+      when( mockClient.resource( nullable( String.class ) ) ).thenReturn( mockWebResource );
+      when( mockWebResource.type( eq( MediaType.MULTIPART_FORM_DATA ) ) ).thenReturn( mockRequest );
+      when( mockRequest.post( eq( ClientResponse.class ), any( FormDataMultiPart.class ) ) ).thenAnswer( invocation -> {
+        FormDataMultiPart multipart = invocation.getArgument( 1 );
+        requestLogLevel.set( multipart.getField( "logLevel" ).getValue() );
+        return mockResponse;
+      } );
+      when( mockResponse.getStatus() ).thenReturn( ClientResponse.Status.OK.getStatusCode() );
+      when( mockResponse.hasEntity() ).thenReturn( false );
+      clientMock.when( () -> Client.create( any( ClientConfig.class ) ) ).thenReturn( mockClient );
+
+      File file = File.createTempFile( "CommandLineProcessorTest", ".zip" );
+      try {
+        CommandLineProcessor.main( new String[] {
+          "--import",
+          "--url=http://test/pentaho",
+          "--username=admin",
+          "--password=password",
+          "--path=/test",
+          "--file-path=" + file.getAbsolutePath(),
+          "--logLevel=DEBUG"
+        } );
+
+        assertEquals( "DEBUG", requestLogLevel.get() );
+      } finally {
+        file.delete();
+      }
     }
   }
 

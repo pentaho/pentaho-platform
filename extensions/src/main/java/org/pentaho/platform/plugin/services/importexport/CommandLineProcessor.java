@@ -656,6 +656,7 @@ public class CommandLineProcessor {
     } else {
       String charSet = getOptionValue( INFO_OPTION_CHARSET_NAME, false, true );
       String logFile = getOptionValue( INFO_OPTION_LOGFILE_NAME, false, true );
+      String logLevel = getOptionValue( INFO_OPTION_LOGLEVEL_NAME, false, true );
       String path = getOptionValue( INFO_OPTION_PATH_NAME, true, false );
 
       String importURL = contextURL + API_REPO_FILES_IMPORT;
@@ -683,6 +684,7 @@ public class CommandLineProcessor {
         part.field( MULTIPART_FIELD_CHAR_SET, charSet == null ? StandardCharsets.UTF_8.name() : charSet );
         part.field( MULTIPART_FIELD_APPLY_ACL_PERMISSIONS, "true".equals( permission ) ? "true" : "false",
             MediaType.MULTIPART_FORM_DATA_TYPE );
+        part.field( MULTIVALUE_FIELD_LOG_LEVEL, StringUtils.isEmpty( logLevel ) ? DEFAULT_LOG_LEVEL : logLevel );
         part.field( MULTIPART_FIELD_FILE_UPLOAD, in, MediaType.MULTIPART_FORM_DATA_TYPE );
 
         // If the import service needs the file name do the following.
@@ -716,7 +718,8 @@ public class CommandLineProcessor {
     }
   }
 
-  private void logResponseMessage( String logFile, String path, ClientResponse response, RequestType requestType ) {
+  @VisibleForTesting
+  void logResponseMessage( String logFile, String path, ClientResponse response, RequestType requestType ) {
     boolean badLogFilePath = false;
     if ( response.getStatus() == ClientResponse.Status.OK.getStatusCode() ) {
       errorMessage = Messages.getInstance().getString( "CommandLineProcessor.INFO_" + requestType.toString() + "_SUCCESSFUL" );
@@ -739,7 +742,7 @@ public class CommandLineProcessor {
       }
       System.out.println( message );
       if ( StringUtils.isNotBlank( logFile ) ) {
-        writeToFile( message.toString(), logFile );
+        writeToFile( message.append( System.lineSeparator() ).toString(), logFile );
       }
     } else {
       System.out.println( message );
