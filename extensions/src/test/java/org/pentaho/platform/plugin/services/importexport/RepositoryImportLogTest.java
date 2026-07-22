@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 import org.apache.logging.log4j.Level;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This test creates two mock import logs in two threads to test thread safety. Html output is sent to a
@@ -49,6 +50,22 @@ public class RepositoryImportLogTest extends TestCase {
     if ( r2.getTestException() != null ) {
       fail( "Thread 2 Failed with " + r2.getTestException().getMessage() );
     }
+  }
+
+  public void testErrorLevelLogWithoutEventsIncludesHeaderAndFooter() {
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    Log4JRepositoryImportLog importLog = new Log4JRepositoryImportLog( output, "/dir", Level.ERROR );
+
+    importLog.endJob();
+
+    String logText = new String( output.toByteArray(), StandardCharsets.UTF_8 );
+    assertTrue( logText.startsWith( "<!DOCTYPE HTML" ) );
+    assertTrue( logText.endsWith( "</body></html>" ) );
+    assertEquals( 1, occurrences( logText, "</table>" ) );
+  }
+
+  private int occurrences( String text, String value ) {
+    return ( text.length() - text.replace( value, "" ).length() ) / value.length();
   }
 
   public static class TestRun implements Runnable {

@@ -83,8 +83,20 @@ public class LogUtil {
     Configuration config = ctx.getConfiguration();
     LoggerConfig loggerConfig = config.getLoggerConfig( logger.getName() );
     loggerConfig.removeAppender( appender.getName() );
+    if ( !isAppenderAttached( config, appender.getName() ) ) {
+      config.getAppenders().remove( appender.getName() );
+      appender.stop();
+    }
     ctx.updateLoggers();
-    appender.stop();
+  }
+
+  private static boolean isAppenderAttached( Configuration config, String appenderName ) {
+    for ( LoggerConfig loggerConfig : config.getLoggers().values() ) {
+      if ( loggerConfig.getAppenders().containsKey( appenderName ) ) {
+        return true;
+      }
+    }
+    return config.getRootLogger().getAppenders().containsKey( appenderName );
   }
 
   /**

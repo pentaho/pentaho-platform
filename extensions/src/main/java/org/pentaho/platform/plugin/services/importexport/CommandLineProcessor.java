@@ -26,20 +26,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.CookieManager;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -60,6 +46,21 @@ import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.util.RepositoryPathEncoder;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.CookieManager;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Handles the parsing of command line arguments and creates an import process based upon them
@@ -660,6 +661,7 @@ public class CommandLineProcessor {
     } else {
       String charSet = getOptionValue( INFO_OPTION_CHARSET_NAME, false, true );
       String logFile = getOptionValue( INFO_OPTION_LOGFILE_NAME, false, true );
+      String logLevel = getOptionValue( INFO_OPTION_LOGLEVEL_NAME, false, true );
       String path = getOptionValue( INFO_OPTION_PATH_NAME, true, false );
 
       String importURL = contextURL + API_REPO_FILES_IMPORT;
@@ -687,6 +689,7 @@ public class CommandLineProcessor {
         part.field( MULTIPART_FIELD_CHAR_SET, charSet == null ? StandardCharsets.UTF_8.name() : charSet );
         part.field( MULTIPART_FIELD_APPLY_ACL_PERMISSIONS, "true".equals( permission ) ? "true" : "false",
             MediaType.MULTIPART_FORM_DATA_TYPE );
+        part.field( MULTIVALUE_FIELD_LOG_LEVEL, StringUtils.isEmpty( logLevel ) ? DEFAULT_LOG_LEVEL : logLevel );
         part.field( MULTIPART_FIELD_FILE_UPLOAD, in, MediaType.MULTIPART_FORM_DATA_TYPE );
 
         // If the import service needs the file name do the following.
@@ -770,7 +773,7 @@ public class CommandLineProcessor {
       }
       System.out.println( message );
       if ( StringUtils.isNotBlank( logFile ) ) {
-        writeToFile( message.toString(), logFile );
+        writeToFile( message.append( System.lineSeparator() ).toString(), logFile );
       }
     } else {
       System.out.println( message );

@@ -20,11 +20,16 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicReference;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -190,6 +195,46 @@ public class CommandLineProcessorTest extends Assert {
         file.delete();
       }
       assertTrue( CONSOLE_BUFFER.toString().contains( exception ) );
+    }
+  }
+
+  @Test
+  public void importSendsConfiguredLogLevel() throws Exception {
+    try ( MockedStatic<ClientBuilder> clientMock = mockStatic( ClientBuilder.class ) ) {
+      Client mockClient = mock( Client.class );
+      WebTarget mockWebTarget = mock( WebTarget.class );
+      Invocation.Builder mockRequest = mock( Invocation.Builder.class );
+      Response mockResponse = mock( Response.class );
+      AtomicReference<String> requestLogLevel = new AtomicReference<>();
+      when( mockClient.target( nullable( String.class ) ) ).thenReturn( mockWebTarget );
+      when( mockWebTarget.request( any( MediaType.class ) ) ).thenReturn( mockRequest );
+      when( mockRequest.accept( MediaType.TEXT_HTML_TYPE ) ).thenReturn( mockRequest );
+      when( mockRequest.post( any( Entity.class ) ) ).thenAnswer( invocation -> {
+        Entity entity = invocation.getArgument( 0 );
+        FormDataMultiPart multipart = (FormDataMultiPart) entity.getEntity();
+        requestLogLevel.set( multipart.getField( "logLevel" ).getValue() );
+        return mockResponse;
+      } );
+      when( mockResponse.getStatus() ).thenReturn( Response.Status.OK.getStatusCode() );
+      when( mockResponse.hasEntity() ).thenReturn( false );
+      clientMock.when( () -> ClientBuilder.newClient( any() ) ).thenReturn( mockClient );
+
+      File file = File.createTempFile( "CommandLineProcessorTest", ".zip" );
+      try {
+        CommandLineProcessor.main( new String[] {
+          "--import",
+          "--url=http://test/pentaho",
+          "--username=admin",
+          "--password=password",
+          "--path=/test",
+          "--file-path=" + file.getAbsolutePath(),
+          "--logLevel=DEBUG"
+        } );
+
+        assertEquals( "DEBUG", requestLogLevel.get() );
+      } finally {
+        file.delete();
+      }
     }
   }
 
