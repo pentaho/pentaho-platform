@@ -15,6 +15,18 @@ package org.pentaho.platform.web.http.api.resources;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.GenericEntity;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
+import net.sf.saxon.Configuration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -22,13 +34,14 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.enunciate.Facet;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginOperation;
-import org.pentaho.platform.api.engine.PluginBeanException;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
@@ -40,21 +53,9 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.util.RepositoryPathEncoder;
+import org.pentaho.platform.web.http.api.resources.utils.XactionSaxonExtensions;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-
-import jakarta.servlet.http.HttpServletRequest;
-
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.GenericEntity;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -69,14 +70,14 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static jakarta.ws.rs.core.MediaType.WILDCARD;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
-import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
+import static jakarta.ws.rs.core.MediaType.WILDCARD;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
- * The RepositoryResource service retrieves the repository files through various methods.  Allows you to execute repository content.
+ * The RepositoryResource service retrieves the repository files through various methods. Allows you to execute repository content.
  */
 @Path ( "/repos" )
 public class RepositoryResource extends AbstractJaxRSResource {
@@ -98,6 +99,17 @@ public class RepositoryResource extends AbstractJaxRSResource {
   protected IUnifiedRepository repository = PentahoSystem.get( IUnifiedRepository.class );
 
   protected RepositoryDownloadWhitelist whitelist;
+
+  static {
+    ISystemConfig settings = PentahoSystem.get( ISystemConfig.class );
+    if ( settings != null && "true".equals( settings.getProperty( "system.allowXActionParameters" ) ) ) {
+      logger.info( "System allowXActionParameters is set; if this is not intended, check the configuration." );
+      Configuration config = org.pentaho.platform.util.xml.XMLParserFactoryProducer.getSaxonConfig();
+      if ( config != null ) {
+        XactionSaxonExtensions.registerAll( config );
+      }
+    }
+  }
 
   @GET
   @Path ( "{pathId : .+}/content" )
@@ -135,8 +147,6 @@ public class RepositoryResource extends AbstractJaxRSResource {
   public Response doExecuteDefault( @PathParam ( "pathId" ) String pathId ) throws FileNotFoundException,
       MalformedURLException, URISyntaxException {
     String perspective = null;
-    StringBuffer buffer = null;
-    String url = null;
     String path = FileResource.idToPath( pathId );
 
     if ( FileResource.getRepository().getFile( path ) == null ) {
@@ -147,7 +157,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
     IContentInfo info = pluginManager.getContentTypeInfo( extension );
     for ( IPluginOperation operation : info.getOperations() ) {
-      if ( operation.getId().equalsIgnoreCase( "RUN" ) ) { //$NON-NLS-1$
+      if ( operation.getId().equalsIgnoreCase( "RUN" ) ) {
         perspective = operation.getPerspective();
         break;
       }
@@ -156,9 +166,9 @@ public class RepositoryResource extends AbstractJaxRSResource {
       perspective = GENERATED_CONTENT_PERSPECTIVE;
     }
 
-    buffer = httpServletRequest.getRequestURL();
+    StringBuffer buffer = httpServletRequest.getRequestURL();
     String queryString = httpServletRequest.getQueryString();
-    url = buffer.substring( 0, buffer.lastIndexOf( "/" ) + 1 ) + perspective + //$NON-NLS-1$
+    String url = buffer.substring( 0, buffer.lastIndexOf( "/" ) + 1 ) + perspective +
         ( ( queryString != null && queryString.length() > 0 ) ? "?" + httpServletRequest.getQueryString() : "" );
     return Response.seeOther( ( new URL( url ) ).toURI() ).build();
   }
@@ -178,7 +188,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
    * @param resourceId Identifies a resource to be retrieved. This value may be a static file residing in a publicly visible plugin folder, repository file ID or content generator ID
    * @param formParams Any arguments needed to render the resource
    *
-   * @return A jax-rs Response object with the appropriate status code, header, and body. In many cases this will trigger a streaming operation after it it is returned to the caller..
+   * @return A jax-rs Response object with the appropriate status code, header, and body. In many cases this will trigger a streaming operation after it is returned to the caller.
    *
    * <p><b>Example Response:</b></p>
    *  <pre function="syntax.xml">
@@ -195,14 +205,13 @@ public class RepositoryResource extends AbstractJaxRSResource {
   } )
   public Response doFormPost( @PathParam ( "contextId" ) String contextId, @PathParam ( "resourceId" ) String resourceId,
                               final MultivaluedMap<String, String> formParams )
-    throws ObjectFactoryException, PluginBeanException,
-      IOException, URISyntaxException {
+    throws ObjectFactoryException, PluginBeanException, IOException, URISyntaxException {
 
     httpServletRequest = JerseyUtil.correctPostRequest( formParams, httpServletRequest );
 
     if ( logger.isDebugEnabled() ) {
       for ( Object key : httpServletRequest.getParameterMap().keySet() ) {
-        logger.debug( "param [" + key + "]" ); //$NON-NLS-1$ //$NON-NLS-2$
+        logger.debug( "param [" + key + "]" );
       }
     }
 
@@ -614,7 +623,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
     if ( logger.isDebugEnabled() ) {
       for ( Object key : httpServletRequest.getParameterMap().keySet() ) {
-        logger.debug( "param [" + key + "]" ); //$NON-NLS-1$ //$NON-NLS-2$
+        logger.debug( "param [" + key + "]" );
       }
     }
 
@@ -631,7 +640,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
   @Produces ( { APPLICATION_XML, APPLICATION_JSON } )
   @Facet ( name = "Unsupported" )
   public ExecutableFileTypeDtoWrapper getExecutableTypes() {
-    ArrayList<ExecutableFileTypeDto> executableTypes = new ArrayList<ExecutableFileTypeDto>();
+    ArrayList<ExecutableFileTypeDto> executableTypes = new ArrayList<>();
     for ( String contentType : pluginManager.getContentTypes() ) {
       IContentInfo contentInfo = pluginManager.getContentTypeInfo( contentType );
       ExecutableFileTypeDto executableFileType = new ExecutableFileTypeDto();
@@ -643,7 +652,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
       executableTypes.add( executableFileType );
     }
 
-    final GenericEntity<List<ExecutableFileTypeDto>> entity = new GenericEntity<List<ExecutableFileTypeDto>>( executableTypes ) { };
+    final GenericEntity<List<ExecutableFileTypeDto>> entity = new GenericEntity<>( executableTypes ) { };
     return new ExecutableFileTypeDtoWrapper( executableTypes );
   }
 
@@ -1014,9 +1023,8 @@ public class RepositoryResource extends AbstractJaxRSResource {
     }
     Response response = checkPermissionIfUserIsEditingContent( fac.getContentGeneratorId() );
     if ( response == null ) {
-      rsc(
-              "Yep, [{0}] is a content generator ID. Executing (where command path is {1})..", fac.getContentGeneratorId(),
-              fac.getCommand() ); //$NON-NLS-1$
+      rsc( "Yep, [{0}] is a content generator ID. Executing (where command path is {1})..", fac.getContentGeneratorId(),
+        fac.getCommand() );
       GeneratorStreamingOutput gso = fac.getStreamingOutput( contentGenerator );
       response = Response.ok( gso ).build();
     }
@@ -1134,12 +1142,10 @@ public class RepositoryResource extends AbstractJaxRSResource {
         if ( "URL".equalsIgnoreCase( propname ) ) { //$NON-NLS-1$
           return value;
         }
-
       }
     }
     // No URL found
-    return ""; //$NON-NLS-1$
-
+    return "";
   }
 
   public RepositoryDownloadWhitelist getWhitelist() {
@@ -1153,7 +1159,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
   private Response checkPermissionIfUserIsEditingContent( String resourceId ) {
     // Check if we are editing a content
     String perspectiveId = resourceId;
-    if ( perspectiveId != null && perspectiveId.indexOf( "." ) >= 0 ) {
+    if ( perspectiveId != null && perspectiveId.indexOf( '.' ) >= 0 ) {
       String[] parts = perspectiveId.split( "\\." );
       if ( parts != null && parts.length > 0 ) {
         perspectiveId = parts[1];

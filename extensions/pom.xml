@@ -517,12 +517,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>jakarta.validation</groupId>
-      <artifactId>jakarta.validation-api</artifactId>
-      <version>${jakarta.validation.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.glassfish.jersey.core</groupId>
       <artifactId>jersey-server</artifactId>
       <version>${jersey.version}</version>
@@ -2145,10 +2139,6 @@
           <groupId>*</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
     </dependency>
     <dependency>
       <groupId>net.javacrumbs.json-unit</groupId>
