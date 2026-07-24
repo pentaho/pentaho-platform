@@ -62,7 +62,7 @@
     <barcode4j.version>2.0</barcode4j.version>
     <commons-validator.version>1.3.1</commons-validator.version>
     <jmockit.version>1.8</jmockit.version>
-    <ognl.version>2.6.9</ognl.version>
+    <!-- [PPP-6549] ognl.version removed: now inherited from pentaho-ce-jar-parent-pom (CVE-2016-3093 fix) -->
     <oro.version>2.0.8</oro.version>
     <mockrunner-servlet.version>0.3.7</mockrunner-servlet.version>
     <feed4j.version>1.0</feed4j.version>
