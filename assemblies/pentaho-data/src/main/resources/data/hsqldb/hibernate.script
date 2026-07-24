@@ -1,15 +1,39 @@
-CREATE SCHEMA PUBLIC AUTHORIZATION DBA
-CREATE MEMORY TABLE DATASOURCE(NAME VARCHAR(50) NOT NULL PRIMARY KEY,MAXACTCONN INTEGER,DRIVERCLASS VARCHAR(50) NOT NULL,IDLECONN INTEGER,USERNAME VARCHAR(50),PASSWORD VARCHAR(150),URL VARCHAR(512) NOT NULL,QUERY VARCHAR(100),WAIT INTEGER)
-CREATE USER SA PASSWORD ""
-CREATE USER HIBUSER PASSWORD 'PASSWORD'
-CREATE USER "hibuser" PASSWORD 'password'
-CREATE USER PENTAHO_USER PASSWORD 'PASSWORD'
-CREATE USER "pentaho_user" PASSWORD 'PASSWORD'
-GRANT DBA TO SA
-GRANT DBA TO HIBUSER
-GRANT DBA TO PENTAHO_USER
-GRANT DBA TO "hibuser"
-GRANT DBA TO "pentaho_user"
-SET WRITE_DELAY 20
-SET SCHEMA PUBLIC
-INSERT INTO DATASOURCE VALUES('SampleData',20,'org.hsqldb.jdbcDriver',5,'pentaho_user','Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde','jdbc:hsqldb:hsql://localhost:9001/sampledata','select count(*) from INFORMATION_SCHEMA.SYSTEM_SEQUENCES',1000)
+-- =====================================================
+-- HSQLDB System Initialization Script for hibernate
+-- =====================================================
+-- Ensure system administrator exists with empty password for initialization
+CREATE USER SA PASSWORD '';
+GRANT DBA TO SA;
+
+-- =====================================================
+-- Create Application Database Users
+-- =====================================================
+CREATE USER HIBUSER PASSWORD 'PASSWORD';
+CREATE USER "hibuser" PASSWORD 'password';
+CREATE USER PENTAHO_USER PASSWORD 'PASSWORD';
+CREATE USER "pentaho_user" PASSWORD 'password';
+CREATE USER JCR_USER PASSWORD 'password';
+CREATE USER "jcr_user" PASSWORD 'password';
+GRANT DBA TO HIBUSER;
+GRANT DBA TO PENTAHO_USER;
+GRANT DBA TO "hibuser";
+GRANT DBA TO "pentaho_user";
+GRANT DBA TO JCR_USER;
+GRANT DBA TO "jcr_user";
+
+-- =====================================================
+-- Set HSQLDB Configuration
+-- =====================================================
+SET WRITE_DELAY 0;
+SET SCHEMA PUBLIC;
+
+-- =====================================================
+-- Application Tables and Data
+-- =====================================================
+CREATE MEMORY TABLE IF NOT EXISTS DATASOURCE(NAME VARCHAR(50) NOT NULL PRIMARY KEY,MAXACTCONN INTEGER,DRIVERCLASS VARCHAR(50) NOT NULL,IDLECONN INTEGER,USERNAME VARCHAR(50),PASSWORD VARCHAR(150),URL VARCHAR(512) NOT NULL,QUERY VARCHAR(100),WAIT INTEGER);
+INSERT INTO DATASOURCE VALUES('SampleData',20,'org.hsqldb.jdbcDriver',5,'pentaho_user','Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde','jdbc:hsqldb:hsql://localhost:9001/sampledata','select count(*) from INFORMATION_SCHEMA.SYSTEM_SEQUENCES',1000);
+
+-- =====================================================
+-- Flush all data to disk immediately
+-- =====================================================
+CHECKPOINT;

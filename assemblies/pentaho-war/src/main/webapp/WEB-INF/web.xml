@@ -36,9 +36,24 @@
   <!-- [BEGIN HSQLDB DATABASES] -->
   <context-param>
     <param-name>hsqldb-databases</param-name>
-    <param-value>sampledata@../../data/hsqldb/sampledata,hibernate@../../data/hsqldb/hibernate,quartz@../../data/hsqldb/quartz</param-value>
+    <!--
+      The database file base name (after '@file:') MUST differ from the seed
+      script name (<dbName>.script) to avoid a base-name collision: HSQLDB uses
+      <base>.script/<base>.properties as its own native database files, so using
+      'hibernate' would make HSQLDB treat the seed 'hibernate.script' as its
+      native store and fail to initialize (users like hibuser/jcr_user are never
+      created). The dbName alias (before '@') stays unchanged so datasource URLs
+      (hsql://localhost:9001/hibernate) and seed lookup (<dbName>.script) still work.
+    -->
+    <param-value>sampledata@file:./data/hsqldb/sampledatadb,hibernate@file:./data/hsqldb/hibernatedb,quartz@file:./data/hsqldb/quartzdb,jackrabbit@file:./data/hsqldb/jackrabbitdb</param-value>
   </context-param>
   <!-- [END HSQLDB DATABASES] -->
+  
+  <!-- Load data into HSQLDB databases after server starts -->
+  <context-param>
+    <param-name>hsqldb-init-script</param-name>
+    <param-value>../../../data/hsqldb</param-value>
+  </context-param>
 
   <!-- insert additional context-params -->
 
