@@ -16,13 +16,18 @@ package org.pentaho.platform.config;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 /**
@@ -128,5 +133,68 @@ public class PropertiesFileConfigurationTest {
       file.deleteOnExit();
     }
 
+  }
+
+  @Test
+  public void testReload_fileBackedConfigurationReloadsUpdatedProperties() throws Exception {
+    File file = File.createTempFile( "PropertiesFileConfigurationTest", ".properties" );
+    file.deleteOnExit();
+    storeProperties( file, propertiesOf( "one", "1" ) );
+
+    PropertiesFileConfiguration config = new PropertiesFileConfiguration( "id", file );
+
+    assertEquals( "1", config.getProperties().getProperty( "one" ) );
+
+    storeProperties( file, propertiesOf( "one", "2", "two", "3" ) );
+
+    config.reload();
+
+    Properties reloadedProperties = config.getProperties();
+    assertEquals( "2", reloadedProperties.getProperty( "one" ) );
+    assertEquals( "3", reloadedProperties.getProperty( "two" ) );
+    assertEquals( 2, reloadedProperties.size() );
+  }
+
+  @Test
+  public void testReload_inMemoryConfigurationDoesNothing() throws Exception {
+    Properties properties = propertiesOf( "one", "1" );
+    PropertiesFileConfiguration config = new PropertiesFileConfiguration( "id", properties );
+
+    config.reload();
+
+    Properties reloadedProperties = config.getProperties();
+    assertEquals( "1", reloadedProperties.getProperty( "one" ) );
+    assertEquals( 1, reloadedProperties.size() );
+  }
+
+  @Test
+  public void testReload_fileBackedConfigurationPropagatesIOException() throws Exception {
+    File file = File.createTempFile( "PropertiesFileConfigurationTest", ".properties" );
+    storeProperties( file, propertiesOf( "one", "1" ) );
+
+    PropertiesFileConfiguration config = new PropertiesFileConfiguration( "id", file );
+
+    Assume.assumeTrue( file.delete() );
+
+    try {
+      config.reload();
+      fail( "Expected reload to propagate IOException when the file no longer exists" );
+    } catch ( IOException expected ) {
+      assertTrue( expected.getMessage().contains( file.getName() ) );
+    }
+  }
+
+  private Properties propertiesOf( String... keyValuePairs ) {
+    Properties properties = new Properties();
+    for ( int index = 0; index < keyValuePairs.length; index += 2 ) {
+      properties.setProperty( keyValuePairs[ index ], keyValuePairs[ index + 1 ] );
+    }
+    return properties;
+  }
+
+  private void storeProperties( File file, Properties properties ) throws IOException {
+    try ( FileOutputStream outputStream = new FileOutputStream( file ) ) {
+      properties.store( outputStream, "" );
+    }
   }
 }
