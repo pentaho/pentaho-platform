@@ -16,7 +16,7 @@ package org.pentaho.platform.plugin.services.importer;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;

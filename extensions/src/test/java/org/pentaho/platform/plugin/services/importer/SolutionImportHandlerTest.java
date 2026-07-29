@@ -102,20 +102,24 @@ public class SolutionImportHandlerTest {
   @Test
   public void givenLegacyDatasourceWithoutDatabaseTypeShortNameWhenRestoringThenItIsSkipped() {
     // Given
+    String connectionName = "AIM SQL Dev";
     IDatasourceMgmtService datasourceMgmtService = mockToPentahoSystem( IDatasourceMgmtService.class );
     DatabaseConnection databaseConnection = new DatabaseConnection();
-    databaseConnection.setName( "AIM SQL Dev" );
+    databaseConnection.setName( connectionName );
     databaseConnection.setDatabaseType( new DatabaseType() );
     ExportManifest manifest = new ExportManifest();
     manifest.getDatasourceList().add( databaseConnection );
 
     // When
-    importHandler.importJDBCDataSource( manifest, new SolutionImportHandler.ImportState() );
+    SolutionImportHandler.ImportState importState = new SolutionImportHandler.ImportState();
+    importState.isPerformingRestore = true;
+    importHandler.importJDBCDataSource( manifest, importState );
 
     // Then
-    verify( datasourceMgmtService, never() ).getDatasourceByName( "AIM SQL Dev" );
+    verify( datasourceMgmtService, never() ).getDatasourceByName( connectionName );
     verify( datasourceMgmtService, never() ).createDatasource( ArgumentMatchers.any() );
-    verify( logger ).error( ArgumentMatchers.anyString() );
+    verify( logger ).error( Messages.getInstance().getString( "SolutionImportHandler.ConnectionWithoutDatabaseType",
+      connectionName ) );
   }
 
   @Test
