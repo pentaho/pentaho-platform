@@ -701,7 +701,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.googlecode.jsendnsca</groupId>
+      <groupId>com.github.jsendnsca</groupId>
       <artifactId>jsendnsca</artifactId>
       <version>${jsendnsca.version}</version>
       <exclusions>
