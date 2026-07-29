@@ -100,7 +100,7 @@ public class SolutionImportHandlerTest {
   }
 
   @Test
-  public void givenLegacyDatasourceWithoutDatabaseTypeShortNameWhenRestoringThenItIsSkipped() {
+  public void givenLegacyDatasourceWithoutDatabaseTypeShortNameWhenRestoringThenItIsSkipped() throws Exception {
     // Given
     String connectionName = "AIM SQL Dev";
     IDatasourceMgmtService datasourceMgmtService = mockToPentahoSystem( IDatasourceMgmtService.class );
