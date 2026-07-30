@@ -888,11 +888,6 @@
       <version>${geronimo-stax-api_1.0_spec.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.healthmarketscience.jackcess</groupId>
-      <artifactId>jackcess</artifactId>
-      <version>${jackcess.version}</version>
-    </dependency>
-    <dependency>
       <groupId>jakarta.mail</groupId>
       <artifactId>jakarta.mail-api</artifactId>
     </dependency>
