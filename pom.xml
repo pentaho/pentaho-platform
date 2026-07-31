@@ -66,7 +66,6 @@
     <oro.version>2.0.8</oro.version>
     <mockrunner-servlet.version>0.3.7</mockrunner-servlet.version>
     <feed4j.version>1.0</feed4j.version>
-    <jackcess.version>1.2.6</jackcess.version>
     <portlet-api.version>2.0</portlet-api.version>
     <commands.version>3.3.0-I20070605-0010</commands.version>
     <stax-api.version>1.0-2</stax-api.version>
