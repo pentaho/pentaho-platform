@@ -151,13 +151,12 @@ public class XmlHelper {
       throw new UnsupportedOperationException( Messages.getInstance().getErrorString( "XMLUTL.ERROR_0012_DATA_TYPE", obj //$NON-NLS-1$
           .getClass().getName() ) );
     }
-
   }
 
   public static void decode( final String[] strings ) {
     if ( strings != null ) {
       for ( int i = 0; i < strings.length; ++i ) {
-        strings[i] = XmlHelper.decode( strings[i] );
+        strings[ i ] = XmlHelper.decode( strings[ i ] );
       }
     }
   }
@@ -165,11 +164,11 @@ public class XmlHelper {
   public static String decode( String string ) {
     // TODO replace this is a more robust encoder
     if ( string != null ) {
-      string = string.replaceAll( "&lt;", "<" ) //$NON-NLS-1$ //$NON-NLS-2$
-          .replaceAll( "&gt;", ">" ) //$NON-NLS-1$ //$NON-NLS-2$
-          .replaceAll( "&apos;", "'" ) //$NON-NLS-1$ //$NON-NLS-2$
-          .replaceAll( "&quot;", "\"" ) //$NON-NLS-1$ //$NON-NLS-2$
-          .replaceAll( "&amp;", "&" ); //$NON-NLS-1$ //$NON-NLS-2$ // DO THE & LAST!!!!
+      string = string.replace( "&lt;", "<" )
+          .replace( "&gt;", ">" )
+          .replace( "&apos;", "'" )
+          .replace( "&quot;", "\"" )
+          .replace( "&amp;", "&" ); // DO THE & LAST!!!!
     }
     return string;
   }
@@ -183,30 +182,23 @@ public class XmlHelper {
   }
 
   public static String encode( final String string ) {
-
     return StringEscapeUtils.escapeXml( string );
   }
 
   private static final int BUFF_SIZE = 512;
 
   public static String getEncoding( final File f ) throws IOException {
-    char[] cbuf = new char[XmlHelper.BUFF_SIZE];
-    Reader rdr = null;
-    try {
-      rdr = new FileReader( f );
-      rdr.read( cbuf );
-    } finally {
-      if ( rdr != null ) {
-        rdr.close();
-      }
+    char[] cBuff = new char[XmlHelper.BUFF_SIZE];
+
+    try ( Reader rdr = new FileReader( f ) ) {
+      rdr.read( cBuff );
     }
-    String strEnc = String.valueOf( cbuf );
-    return XmlHelper.getEncoding( strEnc );
+
+    return XmlHelper.getEncoding( String.valueOf( cBuff ) );
   }
 
   public static String getEncoding( final InputStream inStream ) throws IOException {
-    String encodingPI = XmlHelper.readEncodingProcessingInstruction( inStream );
-    return XmlHelper.getEncoding( encodingPI );
+    return XmlHelper.getEncoding( XmlHelper.readEncodingProcessingInstruction( inStream ) );
   }
 
   /**
@@ -214,8 +206,8 @@ public class XmlHelper {
    * Otherwise, return null.
    * 
    * @param xml
-   *          String containing the xml
-   * @return String containing the character encoding in the xml processing instruction if it exists, else null.
+   *          String containing the XML
+   * @return String containing the character encoding in the XML processing instruction if it exists, else null.
    */
   public static String getEncoding( final String xml ) {
     Matcher m = XmlHelper.RE_ENCODING.matcher( xml );
@@ -228,15 +220,15 @@ public class XmlHelper {
   }
 
   /**
-   * Find the character encoding specification in the xml String. If it exists, return the character encoding.
+   * Find the character encoding specification in the XML String. If it exists, return the character encoding.
    * Otherwise, return the system encoding.
    * 
    * @param xml
-   *          String containing the xml
+   *          String containing the XML
    * @param defaultEncoding
-   *          Encoding to use if there is no encoding in the xml document
-   * @return String containing the character encoding in the xml processing instruction, or defaultEncoding if there is
-   *         no encoding in the xml document. If defaultEncoding is also null, then it returns the value in
+   *          Encoding to use if there is no encoding in the XML document
+   * @return String containing the character encoding in the XML processing instruction, or defaultEncoding if there is
+   *         no encoding in the XML document. If defaultEncoding is also null, then it returns the value in
    *         LocaleHelper.getSystemEncoding(). if it exists, else the system encoding.
    */
   public static String getEncoding( final String xml, final String defaultEncoding ) {
@@ -282,9 +274,9 @@ public class XmlHelper {
    * document.
    * 
    * @param xslName
-   *          String containing the name of a file in the repository containing the xsl transform
+   *          String containing the name of a file in the repository containing the XSL transform
    * @param xslPath
-   *          String containing the path to the file identifyied by <code>xslName</code>
+   *          String containing the path to the file identified by <code>xslName</code>
    * @param uri
    *          String containing the URI of a resource containing the document to be transformed
    * @param params
@@ -296,7 +288,7 @@ public class XmlHelper {
    * @throws TransformerException
    *           If attempt to transform the document fails.
    */
-  public static final StringBuffer transformXml( final String xslName, final String xslPath, final String strDocument,
+  public static StringBuffer transformXml( final String xslName, final String xslPath, final String strDocument,
       final Map params, final IDocumentResourceLoader loader ) throws TransformerException {
     InputStream inStrm = null;
     try {
@@ -318,10 +310,10 @@ public class XmlHelper {
    * Use the transform specified by xslPath and xslName and transform the document specified by docInStrm, and return
    * the resulting document.
    * 
-   * @param xslSrc
-   *          StreamSrc containing the xsl transform
-   * @param docSrc
-   *          StreamSrc containing the document to be transformed
+   * @param xslName
+   *          String containing the name of a file in the repository containing the XSL transform
+   * @param xslPath
+   *          String containing the path to the file identified by <code>xslName</code>
    * @param params
    *          Map of properties to set on the transform
    * @param session
@@ -332,7 +324,7 @@ public class XmlHelper {
    *           If attempt to transform the document fails.
    */
   @SuppressWarnings( { "unchecked" } )
-  public static final StringBuffer transformXml( final String xslName, final String xslPath,
+  public static StringBuffer transformXml( final String xslName, final String xslPath,
       final InputStream docInStrm, Map params, final IDocumentResourceLoader loader ) throws TransformerException {
     StringBuffer result = null;
 
@@ -344,7 +336,6 @@ public class XmlHelper {
       Logger.error( XmlHelper.class.getName(), Messages.getInstance().getErrorString(
           "XmlHelper.ERROR_0004_NULL_DOCUMENT" ) ); //$NON-NLS-1$
     } else {
-
       // at this point, we have both of our InputStreams
 
       // Add encoding for any xsl that may set/use it
@@ -371,7 +362,7 @@ public class XmlHelper {
    * document.
    * 
    * @param xslInStream
-   *          InputStream containing the xsl transform
+   *          InputStream containing the XSL transform
    * @param docInStrm
    *          InputStream containing the document to be transformed
    * @param params
@@ -385,7 +376,7 @@ public class XmlHelper {
    * @throws TransformerException
    *           if actual transform fails.
    */
-  public static final StringBuffer transformXml( final InputStream xslInStream, final InputStream docInStrm,
+  public static StringBuffer transformXml( final InputStream xslInStream, final InputStream docInStrm,
       final Map params, final URIResolver resolver ) throws TransformerConfigurationException, TransformerException {
 
     StreamSource xslSrc = new StreamSource( xslInStream );
@@ -398,7 +389,7 @@ public class XmlHelper {
    * document.
    * 
    * @param xslSrc
-   *          StreamSrc containing the xsl transform
+   *          StreamSrc containing the XSL transform
    * @param docSrc
    *          StreamSrc containing the document to be transformed
    * @param params
@@ -412,21 +403,16 @@ public class XmlHelper {
    * @throws TransformerException
    *           if actual transform fails.
    */
-  protected static final StringBuffer transformXml( final StreamSource xslSrc, final StreamSource docSrc,
+  protected static StringBuffer transformXml( final StreamSource xslSrc, final StreamSource docSrc,
       final Map params, final URIResolver resolver ) throws TransformerConfigurationException, TransformerException {
 
-    StringBuffer sb = null;
-    StringWriter writer = new StringWriter();
-
-    TransformerFactory tf = TransformerFactory.newInstance();
-    tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_DTD, "" );
+    TransformerFactory tf = XMLParserFactoryProducer.createSecureTransformerFactory( true );
     tf.setAttribute( XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "" );
     if ( null != resolver ) {
       tf.setURIResolver( resolver );
     }
     // TODO need to look into compiling the XSLs...
-    Transformer t = tf.newTransformer( xslSrc ); // can throw
-    // TransformerConfigurationException
+    Transformer t = tf.newTransformer( xslSrc ); // can throw TransformerConfigurationException
     // Start the transformation
     if ( params != null ) {
       for ( Map.Entry<String, String> entry : (Iterable<Map.Entry<String, String>>) params.entrySet() ) {
@@ -435,11 +421,12 @@ public class XmlHelper {
         }
       }
     }
-    t.transform( docSrc, new StreamResult( writer ) ); // can throw
-    // TransformerException
-    sb = writer.getBuffer();
 
-    return sb;
+    StringWriter writer = new StringWriter();
+
+    t.transform( docSrc, new StreamResult( writer ) ); // can throw TransformerException
+
+    return writer.getBuffer();
   }
 
   /**
@@ -484,27 +471,26 @@ public class XmlHelper {
     String fileName = fullPath;
     int dotIndex = fileName.indexOf( '.' );
     String baseName = dotIndex == -1 ? fileName : fileName.substring( 0, dotIndex ); // These two lines fix an
-                                                                                     // index out
-                                                                                     // of bounds
-    String extension = dotIndex == -1 ? "" : fileName.substring( dotIndex ); // Exception that occurs when //$NON-NLS-1$
+                                                                                     // index out of bounds
+    String extension = dotIndex == -1 ? "" : fileName.substring( dotIndex ); // Exception that occurs when
                                                                              // a filename has no extension
 
     InputStream in = null;
     try {
-      if ( !variant.equals( "" ) ) { //$NON-NLS-1$
-        in = loader.loadXsl( baseName + "_" + language + "_" + country + "_" + variant + extension ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      if ( !variant.equals( "" ) ) {
+        in = loader.loadXsl( baseName + "_" + language + "_" + country + "_" + variant + extension );
       }
       if ( in == null ) {
-        in = loader.loadXsl( baseName + "_" + language + "_" + country + extension ); //$NON-NLS-1$//$NON-NLS-2$
+        in = loader.loadXsl( baseName + "_" + language + "_" + country + extension );
       }
       if ( in == null ) {
-        in = loader.loadXsl( baseName + "_" + language + extension ); //$NON-NLS-1$
+        in = loader.loadXsl( baseName + "_" + language + extension );
       }
       if ( in == null ) {
         in = loader.loadXsl( baseName + extension );
       }
     } catch ( Exception e ) {
-      Logger.error( XmlHelper.class.getName(), "Error loading localized file: " + fullPath ); //$NON-NLS-1$
+      Logger.error( XmlHelper.class.getName(), "Error loading localized file: " + fullPath );
     }
     return in;
   }
@@ -519,5 +505,4 @@ public class XmlHelper {
   public static String createXmlProcessingInstruction( final String version, final String encoding ) {
     return "<?xml version=\"" + version + "\" encoding = \"" + encoding + "\" ?>"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
   }
-
 }

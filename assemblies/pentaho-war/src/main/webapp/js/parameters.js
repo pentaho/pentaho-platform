@@ -280,8 +280,6 @@ function doPost( url, query, func) {
   // submit the request
   http_request.open('POST', url, true);
   http_request.setRequestHeader("Content-type", "application/json");
-  http_request.setRequestHeader("Content-length", query.length);
-  http_request.setRequestHeader("Connection", "close");
   http_request.send(query);
 }
 
@@ -290,7 +288,6 @@ function doRun( id, baseUrl, target, background ) {
 	// change this URL to point to another machine if required...
 	// ----------------------------------------------------------
 	var submitUrl = baseUrl;
-	// delete line? var action = submitUrl;
 	var formCheck = false;
 	try {
 		formCheck = doFormCheck( id );
@@ -307,12 +304,8 @@ function doRun( id, baseUrl, target, background ) {
 		
 		var params = window.getParams();
 		var json = {};
-		json.inputFile = params['path']; // createPath(params['solution'], params['path'], params['action']);
-		
-		// delete params['solution'];
-		// delete params['path'];
-		// delete params['action'];
-		
+		json.inputFile = params['path'];
+
 		json.outputFile = null;
 		json.simpleJobTrigger = {repeatInterval:0, repeatCount:0, startTime:null, endTime:null};
 		json.jobParameters = getParamEntries(params);
@@ -329,7 +322,7 @@ function doRun( id, baseUrl, target, background ) {
 		return false;
 	}
 	// this is set in the xsl file
-	if (!USEPOSTFORFORMS) {
+	if (typeof USEPOSTFORFORMS === "undefined" || !USEPOSTFORFORMS) {
 		submitUrl += params;
 		return executeAction(target, submitUrl);
 	} else {
@@ -480,7 +473,6 @@ function getParameters( id ) {
       return params;
     }
 }
-
 
 function closeMantleTab(){
   try{

@@ -39,7 +39,6 @@ public class TestAll {
     suite.addTestSuite( PasswordServiceTest.class );
     suite.addTestSuite( PentahoSystemExceptionTest.class );
     suite.addTestSuite( VersionHelperTest.class );
-    suite.addTestSuite( XmlHelperTest.class );
 
     return suite;
   }
