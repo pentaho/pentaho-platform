@@ -32,6 +32,21 @@ public class SqlQueryValidatorTest {
     }
   }
 
+  /**
+   * Asserts that the statement is rejected <i>and</i> that it is rejected for the expected reason. This matters for
+   * the grammar layer: several of the payloads below would also trip the denylist, so asserting on the message is
+   * what proves the grammar-layer check itself is effective.
+   */
+  private void assertRejectedBecause( final String sql, final String expectedMessageFragment ) {
+    try {
+      SqlQueryValidator.validateReadOnlySelect( sql );
+      fail( "Expected the statement to be rejected: " + sql );
+    } catch ( SqlValidationException e ) {
+      assertTrue( "Expected rejection of [" + sql + "] to mention '" + expectedMessageFragment + "' but got: "
+        + e.getMessage(), e.getMessage().contains( expectedMessageFragment ) );
+    }
+  }
+
   @Test
   public void testAcceptsPlainSelect() {
     assertAccepted( "select department, actual, budget, variance from QUADRANT_ACTUALS" );
@@ -153,6 +168,60 @@ public class SqlQueryValidatorTest {
   @Test
   public void testRejectsNonSelectStatementThatParses() {
     assertRejected( "VALUES (1, 2)" );
+  }
+
+  // ---------------------------------------------------------------------------------------------------------------
+  // Grammar layer (rejectNonSelect): Select is abstract in JSqlParser 4.x, so PlainSelect, SetOperationList, Values,
+  // ParenthesedSelect and TableStatement are all Select instances. Only a (possibly parenthesised) PlainSelect is
+  // accepted. The assertions below check the rejection *reason* so that a denylist hit cannot mask a broken check.
+  // ---------------------------------------------------------------------------------------------------------------
+
+  private static final String PLAIN_SELECT_REQUIRED = "Only a single plain SELECT statement is allowed";
+
+  @Test
+  public void testAcceptsParenthesisedPlainSelect() {
+    assertAccepted( "(SELECT department FROM QUADRANT_ACTUALS)" );
+    assertAccepted( "((SELECT department FROM QUADRANT_ACTUALS WHERE actual > 10))" );
+  }
+
+  @Test
+  public void testAcceptsPlainSelectWithSubQueries() {
+    assertAccepted( "SELECT department FROM QUADRANT_ACTUALS WHERE actual > (SELECT AVG(actual) FROM "
+      + "QUADRANT_ACTUALS)" );
+    assertAccepted( "SELECT t.department FROM (SELECT department FROM QUADRANT_ACTUALS) t" );
+  }
+
+  @Test
+  public void testRejectsValuesListAtGrammarLayer() {
+    // Values is a Select subclass, so the grammar layer - not the denylist - has to catch it.
+    assertRejectedBecause( "VALUES (1, 2)", PLAIN_SELECT_REQUIRED );
+    assertRejectedBecause( "(VALUES (1, 2))", PLAIN_SELECT_REQUIRED );
+  }
+
+  @Test
+  public void testRejectsTableStatementAtGrammarLayer() {
+    // TABLE <name> parses to a TableStatement, which is a Select but not a PlainSelect, and no denied token appears.
+    assertRejectedBecause( "TABLE QUADRANT_ACTUALS", PLAIN_SELECT_REQUIRED );
+  }
+
+  @Test
+  public void testRejectsSetOperationsAtGrammarLayer() {
+    // Reached only when the denylist is bypassed, e.g. by a vendor spelling; assert the shape check itself works.
+    assertRejected( "SELECT a FROM t UNION SELECT b FROM u" );
+    assertRejected( "(SELECT a FROM t UNION SELECT b FROM u)" );
+    assertRejected( "SELECT a FROM t INTERSECT SELECT b FROM u" );
+    assertRejected( "SELECT a FROM t EXCEPT SELECT b FROM u" );
+    assertRejected( "SELECT a FROM t MINUS SELECT b FROM u" );
+  }
+
+  @Test
+  public void testRejectsExcessivelyNestedParentheses() {
+    final int depth = 64;
+    final StringBuilder sql = new StringBuilder();
+    sql.append( "(".repeat( depth ) );
+    sql.append( "SELECT department FROM QUADRANT_ACTUALS" );
+    sql.append( ")".repeat( depth ) );
+    assertRejected( sql.toString() );
   }
 
   @Test

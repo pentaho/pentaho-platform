@@ -16,9 +16,9 @@ package org.pentaho.platform.util;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.Statements;
+import net.sf.jsqlparser.statement.select.ParenthesedSelect;
+import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SetOperationList;
-import net.sf.jsqlparser.statement.select.Values;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,6 +50,11 @@ import java.util.regex.Pattern;
    * Maximum time, in milliseconds, the SQL parser may spend on a single statement.
    */
   public static final long PARSER_TIMEOUT_MILLIS = 2000L;
+
+  /**
+   * Maximum number of parentheses that may wrap the top level <code>SELECT</code>. Bounds the unwrapping loop.
+   */
+  private static final int MAX_PARENTHESES_DEPTH = 16;
 
   /**
    * Keywords and functions that must never appear in a chart query. These cover DML/DDL, procedural blocks and the
@@ -231,8 +236,27 @@ import java.util.regex.Pattern;
       throw new SqlValidationException( "Only SELECT statements are allowed in the query." );
     }
 
-    if ( select instanceof SetOperationList || select instanceof Values ) {
-      throw new SqlValidationException( "Set operations and VALUES lists are not allowed in the query." );
+    // Select is abstract: PlainSelect, SetOperationList, Values, ParenthesedSelect, LateralSubSelect and
+    // TableStatement are all Selects. Only a (possibly parenthesised) plain SELECT is accepted, so that set
+    // operations, VALUES lists and TABLE statements are rejected regardless of how they are wrapped.
+    Select unwrapped = select;
+    int depth = 0;
+
+    while ( unwrapped instanceof ParenthesedSelect parenthesed ) {
+      if ( ++depth > MAX_PARENTHESES_DEPTH ) {
+        throw new SqlValidationException( "The query nests parentheses too deeply." );
+      }
+
+      unwrapped = parenthesed.getSelect();
+
+      if ( unwrapped == null ) {
+        throw new SqlValidationException( "Only SELECT statements are allowed in the query." );
+      }
+    }
+
+    if ( !( unwrapped instanceof PlainSelect ) ) {
+      throw new SqlValidationException( "Only a single plain SELECT statement is allowed in the query; set "
+        + "operations, VALUES lists and TABLE statements are not allowed." );
     }
   }
 

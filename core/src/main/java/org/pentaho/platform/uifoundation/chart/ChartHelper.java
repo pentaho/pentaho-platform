@@ -291,8 +291,8 @@ public class ChartHelper {
 
         } catch ( SqlValidationException e ) {
           // Do not echo the rejected statement back to the caller, only record it server side.
-          logger.error( Messages.getInstance().getErrorString( "ChartHelper.ERROR_0004_INVALID_QUERY", //$NON-NLS-1$
-              e.getMessage() ) );
+          logger.error( Messages.getInstance().getErrorString( "ChartHelper.ERROR_0004_INVALID_QUERY", e.getMessage() ),
+            e );
         } catch ( Throwable e ) {
           logger.error( Messages.getInstance().getErrorString( "Widget.ERROR_0001_COULD_NOT_CREATE_WIDGET" ), e ); //$NON-NLS-1$
         }

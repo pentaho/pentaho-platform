@@ -99,7 +99,7 @@ public class ChartHelperTest {
   }
 
   @Test
-  public void executeChartQueryRejectsSqlInjectionAndNeverOpensAConnection() {
+  public void validateAndResolveQueryRejectsSqlInjection() {
     final String[] injections = {
       "BEGIN DBMS_SESSION.SLEEP(5); END;",
       "SELECT pg_sleep(5)",
