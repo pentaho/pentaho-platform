@@ -32,6 +32,8 @@ import org.pentaho.platform.engine.services.ActionSequenceJCRHelper;
 import org.pentaho.platform.engine.services.connection.PentahoConnectionFactory;
 import org.pentaho.platform.engine.services.runtime.TemplateUtil;
 import org.pentaho.platform.uifoundation.messages.Messages;
+import org.pentaho.platform.util.SqlQueryValidator;
+import org.pentaho.platform.util.SqlValidationException;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.messages.MessagesBase;
@@ -260,8 +262,7 @@ public class ChartHelper {
                       userSession, logger );
 
               try {
-                query =
-                    TemplateUtil.applyTemplate( query, TemplateUtil.parametersToProperties( parameterProvider ), null );
+                query = validateAndResolveQuery( query, parameterProvider );
                 IPentahoResultSet results = connection.executeQuery( query );
                 chartComponent.setValues( results );
               } finally {
@@ -288,6 +289,10 @@ public class ChartHelper {
             }
           }
 
+        } catch ( SqlValidationException e ) {
+          // Do not echo the rejected statement back to the caller, only record it server side.
+          logger.error( Messages.getInstance().getErrorString( "ChartHelper.ERROR_0004_INVALID_QUERY", //$NON-NLS-1$
+              e.getMessage() ) );
         } catch ( Throwable e ) {
           logger.error( Messages.getInstance().getErrorString( "Widget.ERROR_0001_COULD_NOT_CREATE_WIDGET" ), e ); //$NON-NLS-1$
         }
@@ -313,6 +318,18 @@ public class ChartHelper {
       }
     }
     return result;
+  }
+
+  static String validateAndResolveQuery( final String query, final IParameterProvider parameterProvider )
+    throws SqlValidationException {
+    SqlQueryValidator.validateReadOnlySelect( query );
+
+    final String resolvedQuery =
+      TemplateUtil.applyTemplate( query, TemplateUtil.parametersToProperties( parameterProvider ), null );
+
+    SqlQueryValidator.validateReadOnlySelect( resolvedQuery );
+
+    return resolvedQuery;
   }
 
   /**

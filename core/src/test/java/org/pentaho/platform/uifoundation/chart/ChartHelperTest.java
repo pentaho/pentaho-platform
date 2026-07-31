@@ -22,12 +22,16 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.util.SqlValidationException;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.logging.SimpleLogger;
 
 import java.util.ArrayList;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.eq;
@@ -92,5 +96,37 @@ public class ChartHelperTest {
       staticLogger.verify( () -> Logger.warn( eq( ChartHelper.class ), anyString() ),
         times( 1 ) );
     }
+  }
+
+  @Test
+  public void executeChartQueryRejectsSqlInjectionAndNeverOpensAConnection() {
+    final String[] injections = {
+      "BEGIN DBMS_SESSION.SLEEP(5); END;",
+      "SELECT pg_sleep(5)",
+      "SELECT 1 FROM dual; DROP TABLE users",
+      "SELECT department FROM QUADRANT_ACTUALS UNION SELECT username FROM users",
+      "SELECT department FROM QUADRANT_ACTUALS -- ",
+      "DELETE FROM users"
+    };
+
+    for ( String injection : injections ) {
+      try {
+        ChartHelper.validateAndResolveQuery( injection, new SimpleParameterProvider() );
+        fail( "Expected the query to be rejected: " + injection );
+      } catch ( SqlValidationException expected ) {
+        // the query never reaches the data source
+      } catch ( Exception e ) {
+        fail( "Expected a SqlValidationException for: " + injection + " but got " + e );
+      }
+    }
+  }
+
+  @Test
+  public void executeChartQueryRunsValidSelect() throws Exception {
+    final String validQuery = "select department, actual from QUADRANT_ACTUALS";
+
+    final String returnedQuery = ChartHelper.validateAndResolveQuery( validQuery, new SimpleParameterProvider() );
+
+    assertEquals( validQuery, returnedQuery );
   }
 }
