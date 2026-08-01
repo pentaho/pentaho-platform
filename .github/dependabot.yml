@@ -2,7 +2,7 @@ version: 2
 registries:
   one-artifactory:
     type: maven-repository
-    url: https://one.hitachivantara.com/artifactory/pnt-mvn
+    url: https://repo.pentaho.com/artifactory/pnt-mvn
     username: ${{secrets.DEPENDABOT_ONE_USER}}
     password: ${{secrets.DEPENDABOT_ONE_KEY}}
     replaces-base: true
