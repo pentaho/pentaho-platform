@@ -41,11 +41,13 @@ import org.pentaho.platform.util.UUIDUtil;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.anyString;
@@ -58,6 +60,9 @@ import static org.mockito.Mockito.when;
  * @author Andrei Abramov
  */
 public class MessageFormatterTest {
+
+  /** Matches the license header comment the build prepends to the test template resource. */
+  private static final Pattern LICENSE_HEADER_PATTERN = Pattern.compile( "^\\s*<!--.*?-->\\s*", Pattern.DOTALL );
 
   IRuntimeRepository mockedRuntimeRepository;
   ISolutionEngine mockedSolutionEngine;
@@ -121,12 +126,7 @@ public class MessageFormatterTest {
       MessageFormatter mf = new MessageFormatter() {
         @Override
         String getTemplate( StringBuffer messageBuffer ) {
-          try {
-            return IOUtils.toString( this.getClass()
-              .getResourceAsStream( "viewActionErrorTestTemplate.html" ), "UTF-8" );
-          } catch ( IOException e ) {
-            return null;
-          }
+          return loadTestTemplate();
         }
 
         @Override
@@ -163,12 +163,7 @@ public class MessageFormatterTest {
       MessageFormatter mf = new MessageFormatter() {
         @Override
         String getTemplate( StringBuffer messageBuffer ) {
-          try {
-            return IOUtils.toString( this.getClass()
-              .getResourceAsStream( "viewActionErrorTestTemplate.html" ), "UTF-8" );
-          } catch ( IOException e ) {
-            return null;
-          }
+          return loadTestTemplate();
         }
       };
       StringBuffer messageBuffer = new StringBuffer();
@@ -185,6 +180,20 @@ public class MessageFormatterTest {
           + "<div id=\"details\" class=\"details\"><span class=\"label\">%STACK_TRACE_LABEL%</span><pre "
           + "class=\"stackTrace\">%STACK_TRACE%<pre></div>",
         messageBuffer.toString() );
+    }
+  }
+
+  /**
+   * Loads the error template used by the tests. The build stamps a license header onto every source file, including
+   * this test resource, so the header is stripped here: it is not part of the template under test.
+   */
+  private String loadTestTemplate() {
+    try {
+      final String template = IOUtils.toString(
+        this.getClass().getResourceAsStream( "viewActionErrorTestTemplate.html" ), StandardCharsets.UTF_8 );
+      return LICENSE_HEADER_PATTERN.matcher( template ).replaceFirst( "" ).trim();
+    } catch ( IOException e ) {
+      return null;
     }
   }
 
