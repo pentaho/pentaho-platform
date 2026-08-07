@@ -51,12 +51,6 @@ define([
               context.config.getting_started_sample_message_template,
               context.config.getting_started_sample_link_template,
               "sample-card");
-
-          GettingStartedWidget.injectMessagesArray(
-              "getting_started_tutorials",
-              context.config.getting_started_video_message_template,
-              context.config.getting_started_bc_video_link_template,
-              "tutorial-card");
         });
       }, postLoad: function (jHtml, tabSelector) {
         var tabId = $(tabSelector).attr("id");
@@ -117,38 +111,6 @@ define([
             });
           });
 
-        } else if (tabId == "tab3") {
-
-          // Fixes a scrolling issue when it is not necessary to scroll
-          jHtml.parent().css("overflow", "hidden");
-
-          function bindInteractions(internet) {
-            // Bind click interactions
-            bindCardInteractions(jHtml, ".tutorial-card", (urlVars.selectedTab == "tab3" ? urlVars.selectedContentIndex : 0), function (card) {
-              ContextProvider.get(function (context) {
-                // Update video
-                var cardIndex = jHtml.find(".tutorial-card").index(card);
-
-                if (internet) {
-                  insertVideo($("#tutorial-video"),
-                      context.config["bc_tutorial_link" + (cardIndex + 1) + "_id"],
-                      context.config.bc_tutorial_resolution);
-                }
-
-
-              })
-            });
-          }
-
-          GettingStartedWidget.checkInternet(jHtml, function () {
-            bindInteractions(true);
-
-          }, function () {
-            $("#tutorial-video").hide();
-            bindInteractions(false);
-          });
-
-
         }
 
       }, postClick: function (tabSelector) {
@@ -161,26 +123,9 @@ define([
           });
         }
 
-        // Re-populate tutorial video src link
-        if (tabId == "tab3") {
-          ContextProvider.get(function (context) {
-            var selectedCard = $(".tutorial-card.selected");
-            var cardIndex = $(".tutorial-card").index(selectedCard);
-
-            insertVideo($("#tutorial-video"),
-                context.config["bc_tutorial_link" + (cardIndex + 1) + "_id"],
-                context.config.bc_tutorial_resolution);
-          });
-        }
-
         // Clear source of welcome video to comply with tab switching
         if (prevTab == "tab1" && tabId != "tab1") {
           $("#welcome-video").empty();
-        }
-
-        // Clear source of tutorial video to comply with tab switching
-        if (prevTab == "tab3" && tabId != "tab3") {
-          $("#tutorial-video").empty();
         }
 
         prevTab = tabId;

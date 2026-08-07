@@ -58,16 +58,10 @@ define([
               context.config.getting_started_sample_message_template,
               context.config.getting_started_sample_link_template,
               "sample-card");
-
-          injectMessagesArray(
-              "getting_started_tutorials",
-              context.config.getting_started_video_message_template,
-              context.config.getting_started_video_link_template,
-              "tutorial-card");
         });
 
         // Remove embedded youtube since it shows through the other tabs
-        $("a[href=\\#tab2], a[href=\\#tab3]").bind("click", disableWelcomeVideo);
+        $("a[href=\\#tab2]").bind("click", disableWelcomeVideo);
         $(".tab-list").keydown(function (event) {
           let nextItem;
           var keyCode = event.which || event.keyCode;
@@ -116,14 +110,6 @@ define([
         } else if (tabId == "tab2") {
           bindCardInteractions($html, ".sample-card", "#sample-details-content", "sample-img", true);
 
-        } else if (tabId == "tab3") {
-          checkInternet($html,
-              function () {
-                bindCardInteractions($html, ".tutorial-card", "#tutorial-details-content", "tutorial-img", true);
-              },
-              function () {
-                bindCardInteractions($html, ".tutorial-card", "#tutorial-details-content", "tutorial-img", false);
-              });
         }
       }
     });
