@@ -19,8 +19,8 @@ those exceptions into its own (GFS) exception hierarchy (all extend
 | GFS exception | Extends | Typical trigger in this provider |
 |---|---|---|
 | `NotFoundException` | `OperationWithPathFailedException` → `OperationFailedException` | `null` result from `getFile`/`doesExist`/`doGetTree`, or caught `FileNotFoundException` from `FileService` |
-| `AccessControlException` | `OperationFailedException` | Global ABS action denied (`doGetCanCreate()` false) — i.e. an **ABS-level** denial, checked *before* calling the operation, not a per-file JCR denial |
-| `ResourceAccessDeniedException` | `OperationWithPathFailedException` → `OperationFailedException` | Caught `UnifiedRepositoryAccessDeniedException` — i.e. a **per-file** JCR/ACL denial |
+| `AccessControlException` | `OperationFailedException` | Global ABS action denied by a pre-check, or `UnifiedRepositoryAccessDeniedException` for which an operation-specific follow-up cannot reproduce resource denial |
+| `ResourceAccessDeniedException` | `OperationWithPathFailedException` → `OperationFailedException` | `UnifiedRepositoryAccessDeniedException` plus an operation-specific permission check that identifies the denied path |
 | `ConflictException` | `OperationFailedException` | Pre-check: destination path already exists (rename/copy/move) |
 | `InvalidOperationException` | `OperationFailedException` | Invalid new name, invalid path, folder-vs-file content-type mismatch |
 | `InvalidPathException` | `OperationFailedException` | Malformed `GenericFilePath`, caught `FileService.InvalidNameException` |
@@ -35,4 +35,3 @@ cannot do this to this file" (per-file JCR ACL). Several methods check both, in 
 `UnifiedRepositoryAccessDeniedException` from the operation itself.
 
 ---
-

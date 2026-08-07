@@ -3,7 +3,7 @@ type: architecture
 title: CopyFilesOperation Layer
 description: Role of `CopyFilesOperation`, used only by `FileService.doCopyFiles`.
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # `CopyFilesOperation` (used only by `FileService.doCopyFiles`)
@@ -18,14 +18,15 @@ arguments are `null`, the source list is empty, `destDirPath` is `null`, **or th
 destination directory does not exist** (pre-checked via `getRepoWs().getFile(destDirPath)`).
 Note the direction: this is the **opposite** of `IUnifiedRepository.copyFile`'s own
 not-found condition (main doc [IUnifiedRepository access-control summary table](../../reference/unified-repository/summary-table-per-method.md)), which only reports an error when the destination's
-*parent* is missing — here, the destination folder itself must already exist. Inside
-`execute()`, an explicit `UnifiedRepositoryAccessDeniedException` can also be thrown
-directly (not via the converter map) for certain owner/permission checks internal to the
-copy operation.
+*parent* is missing — here, the destination folder itself must already exist. Inside `execute()`, missing/unreadable source IDs are logged and skipped. Native JCR
+denials from destination writes, ACL reads, metadata reads/writes, or overwrite-mode ACL
+updates surface as `UnifiedRepositoryAccessDeniedException` through
+`PentahoJcrTemplate`. `MODE_OVERWRITE` can also receive the direct `updateAcl`
+`ACL_MANAGEMENT` denial. `MODE_RENAME` explicitly throws the same public type when a
+custom access voter makes a file create return `null`.
 
 > **Net effect:** a caller of `doCopyFiles` who catches `IllegalArgumentException` cannot
 > tell, from the type alone, whether the cause was "no `repository.create` ABS action at
 > all" (`doCopyFiles`'s own check) or "the destination directory is missing/not a folder"
-> (`CopyFilesOperation`'s check) — both raise the exact same class, with no message set
-> either way. A `doGetCanCreate()` follow-up call is the only way to tell them apart.
-
+> (`CopyFilesOperation`'s constructor check). Deep-folder-copy validation can also throw
+> `IllegalArgumentException` after a custom voter returns `null` from `createFolder`.

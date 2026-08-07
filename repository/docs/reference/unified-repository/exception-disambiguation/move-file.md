@@ -1,52 +1,47 @@
 ---
 type: reference
 title: Disambiguating moveFile
-description: Public-API-only disambiguation recipe for `IUnifiedRepository`'s moveFile operation(s).
+description: Public-API-only disambiguation recipe for IUnifiedRepository moveFile.
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # Disambiguating moveFile
-
-**`moveFile`** (incl. rename) — dual-target; unlike the cause-chain approach in the main
-doc, distinguishing source vs. destination here requires two explicit follow-up calls
-rather than falling out "for free" from the exception shape:
-
 
 ```java
 try {
     unifiedRepository.moveFile(fileId, destAbsPath, "comment");
 } catch (UnifiedRepositoryAccessDeniedException e) {
-    // UnifiedRepositoryAccessDeniedException IS-A UnifiedRepositoryException, so a bare
-    // `catch (UnifiedRepositoryException e)` below would silently swallow this too.
-    // Per main doc [Method Interceptor layer](../../../architecture/unified-repository/layer-method-interceptor.md)/[IUnifiedRepository access-control summary table](../summary-table-per-method.md), this is (for every method except `updateAcl`) ALWAYS the
-    // coarse ABS-level action check, thrown by the AOP interceptor before the target
-    // method body — and hence the file's own — even runs. It has nothing to do with
-    // this specific file, so none of the per-file follow-up checks below apply to it;
-    // re-throw (or report) it as a distinct, unambiguous, global-permission condition.
-    throw e;
+    RepositoryFile source = unifiedRepository.getFileById(fileId);
+    String sourceParentPath = source == null
+        ? null
+        : source.getPath().substring(0, source.getPath().lastIndexOf('/'));
+    String destParentPath = destAbsPath.substring(0, destAbsPath.lastIndexOf('/'));
+    if (source != null && !canDelete(unifiedRepository, source.getPath())) {
+        // Native JCR jcr:removeNode denial on source.
+    } else if (sourceParentPath != null && !canWrite(unifiedRepository, sourceParentPath)) {
+        // Native JCR jcr:removeChildNodes denial on source parent.
+    } else if (!canWrite(unifiedRepository, destParentPath)) {
+        // Native JCR jcr:addChildNodes denial on destination parent.
+    } else {
+        // ABS denial, custom source-WRITE voter denial, or race.
+        throw e;
+    }
 } catch (UnifiedRepositoryException e) {
     RepositoryFile source = unifiedRepository.getFileById(fileId);
+    String destParentPath = destAbsPath.substring(0, destAbsPath.lastIndexOf('/'));
     if (source == null) {
-        // SOURCE not found / no jcr:read
+        // Source not found / unreadable.
+    } else if (!isFoundAndReadable(unifiedRepository, destParentPath)) {
+        // Destination parent not found / unreadable.
     } else {
-        String destParentPath = destAbsPath.substring(0, destAbsPath.lastIndexOf('/'));
-        boolean destParentExists = isFoundAndReadable(unifiedRepository, destParentPath);
-        if (!destParentExists) {
-            // DESTINATION'S PARENT folder not found / unreadable. (The destination
-            // path itself not existing is the normal rename/move case and is NOT an
-            // error — only a missing/unreadable parent is.)
-        } else if (!canWrite(unifiedRepository, source.getPath())) {
-            // SOURCE not writable
-        } else if (!canWrite(unifiedRepository, destParentPath)) {
-            // DESTINATION folder not writable
-        } else {
-            // both source and destination look readable/writable per these checks —
-            // remaining explanations are the source PARENT's jcr:removeChildNodes
-            // (unchecked at the Pentaho layer, main doc [per-node JCR privilege requirements and Magic ACE caveats](../../../architecture/unified-repository/layer-jcr-repository-file-dao.md#per-node-jcr-privilege-requirements-and-magic-ace-caveats)) or a race; not
-            // further diagnosable via public API.
-            throw e;
-        }
+        throw e; // Non-access failure.
     }
 }
 ```
+
+`JcrRepositoryFileDao` also asks `accessVoterManager` for `WRITE` on the source
+file. That check is a no-op in the default configuration and cannot be reproduced
+reliably through `IUnifiedRepository.hasAccess()`. Native Jackrabbit move
+authorization instead requires removal access on the source, removal of a child
+from the source parent, and addition of a child to the destination parent.

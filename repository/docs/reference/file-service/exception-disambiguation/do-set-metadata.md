@@ -3,7 +3,7 @@ type: reference
 title: Disambiguating doSetMetadata
 description: Public-API-only disambiguation recipe for `FileService`'s doSetMetadata operation(s).
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # Disambiguating doSetMetadata
@@ -26,10 +26,9 @@ if (fileService.getRepoWs().getFile(FileUtils.idToPath(pathId)) == null) {
 try {
     fileService.doSetMetadata(pathId, metadata);
 } catch (UnifiedRepositoryAccessDeniedException e) {
-    // ABS-level only: doSetMetadata's OWN internal getFile()/getAcl() calls (used to
-    // resolve the file/owner before its custom rule even runs) require repository.read —
-    // if that ABS action is denied, URADE propagates here unchecked, BEFORE the custom
-    // ACL-management rule is ever evaluated. Not related to GeneralSecurityException below.
+    // Could be repository.read/create ABS denial, native jcr:readAccessControl denial
+    // while loading the ACL, or native metadata-write denial.
+    throw e;
 } catch (GeneralSecurityException e) {
     // doSetMetadata's own custom rule failed. To find out WHICH branch of that rule
     // failed, reimplement it exactly (FileService.doSetMetadata source):

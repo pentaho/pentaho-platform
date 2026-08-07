@@ -71,6 +71,30 @@ if (!accessVoterManager.hasAccess(parentFolder, RepositoryFilePermission.WRITE, 
 
 ---
 
+## 🐛 moveFile source check does not cover native removal privileges
+
+**What happens:** `JcrRepositoryFileDao.internalCopyOrMove()` asks
+`accessVoterManager` for `WRITE` on the source file. Jackrabbit's subsequent
+`workspace.move()` instead requires `jcr:removeNode` on the source and
+`jcr:removeChildNodes` on its parent. Pentaho maps those privileges to `DELETE`
+on the source and `WRITE` on the source parent.
+
+**Result:** An explicit source ACL containing `WRITE` but not `DELETE` can pass
+the Pentaho voter check and then fail in Jackrabbit. The mismatch is often hidden
+for inheriting files because the Magic ACE transformation derives
+`jcr:removeNode` from an ancestor's `jcr:removeChildNodes`.
+
+**Suggested fix:** Add explicit source `DELETE` and source-parent `WRITE` checks
+before `workspace.move()`, while retaining the existing source `WRITE` voter
+contract if custom voters must remain supported.
+
+**Risk / Impact:**
+- **Security risk of not fixing:** Low — Jackrabbit still denies the move.
+- **Risk of fixing:** Low. The checks reproduce authorization already enforced
+  by Jackrabbit and primarily improve diagnostics.
+
+---
+
 ## ⚠️ WRITE on a folder grants recursive descendant delete, not just direct children
 
 **What happens:** When a node is evaluated for privileges, `PentahoEntryCollector.getEntries()` walks up to the nearest non-inheriting ancestor and uses its ACEs. If that ancestor has `jcr:removeChildNodes` (WRITE), the injection adds `jcr:removeNode` to the effective ACE set for the node being evaluated. Crucially, this fires for **any** inheriting descendant — not just direct children — because each descendant independently walks all the way to the nearest explicit-ACL ancestor. This is intentional (see the [inheritance transformation](./magic-aces.md)) but not obvious from the ACL UI.

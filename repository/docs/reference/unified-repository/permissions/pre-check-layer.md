@@ -42,7 +42,7 @@ Two layers fire per operation. Both must pass.
 | **deleteFile** (soft) | `session.move(file → .trash)` | ⚠ `.trash` folder | — | `jcr:addChildNodes` | JCR throws |
 | **permanentlyDeleteFile** | `fileNode.remove()` | file | `DELETE` (voter) | `jcr:removeNode` | returns null / JCR throws |
 | **permanentlyDeleteFile** | `fileNode.remove()` | ⚠ source parent | — | `jcr:removeChildNodes` | JCR throws |
-| **moveFile** / **rename** | `workspace.move(src, dest)` | file (source) | `WRITE` (voter) | — | `AccessDeniedException` |
+| **moveFile** / **rename** | `workspace.move(src, dest)` | file (source) | `WRITE` (voter) | `jcr:removeNode` ³ | `AccessDeniedException` / JCR throws |
 | **moveFile** / **rename** | `workspace.move(src, dest)` | dest folder | `WRITE` (voter) | `jcr:addChildNodes` | `AccessDeniedException` / JCR throws |
 | **moveFile** / **rename** | `workspace.move(src, dest)` | ⚠ source parent | — | `jcr:removeChildNodes` | JCR throws |
 | **copyFile** | `workspace.copy(src, dest)` | dest folder | `WRITE` (voter) | `jcr:addChildNodes` | `AccessDeniedException` / JCR throws |
@@ -54,6 +54,7 @@ Two layers fire per operation. Both must pass.
 
 ¹ `deleteFile` is implemented as `session.move(file → .trash)`. The Pentaho `aclDao.hasAccess(file, DELETE)` check asks for `jcr:removeNode` on the file. Whether this passes depends on Magic ACE injection (see below).  
 ² `copyFile` does not check source permissions at either layer. A user with WRITE on the destination can copy any file they can reference by ID, regardless of READ access on the source.
+³ The Pentaho voter checks source `WRITE`, while Jackrabbit requires source removal rights. An explicit source ACE containing `WRITE` but not `DELETE` therefore passes the voter check but lacks `jcr:removeNode`. Inherited folder `WRITE` commonly hides this mismatch because the Magic ACE transformation injects `jcr:removeNode` on inheriting children.
 
 > **rename** = `moveFile` to same parent folder with a new name — identical permission checks.  
 > **`WRITE`** maps to `jcr:addChildNodes` + `jcr:removeChildNodes` + `jcr:modifyProperties` + `jcr:nodeTypeManagement` + `jcr:modifyAccessControl` + `jcr:versionManagement` + `jcr:lockManagement` — so granting WRITE on a folder implicitly grants all those JCR privileges.
@@ -78,4 +79,3 @@ The `aclDao.hasAccess(file, {DELETE})` check evaluates `jcr:removeNode` via Jack
 2. **Owner ACE**: if the current user is the owner of `file`, `jcr:all` is injected → includes `jcr:removeNode` → **true**.
 
 Neither fires when evaluating `hasPrivileges` on the **parent folder itself** (which has `isEntriesInheriting=false` and was not created by the user). Hence the asymmetry: WRITE on a folder lets you delete its children but not the folder itself.
-

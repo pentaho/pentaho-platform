@@ -1,32 +1,26 @@
 ---
 type: reference
 title: Disambiguating doGetMetadata
-description: Public-API-only disambiguation recipe for `FileService`'s doGetMetadata operation(s).
+description: Public-API-only disambiguation recipe for FileService doGetMetadata.
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # Disambiguating doGetMetadata
-
-**`doGetMetadata`** (declared `throws FileNotFoundException` via an explicit not-found
-pre-check; everything else propagates as the underlying `getRepoWs().getFileMetadata()`
-call throws it — i.e. `UnifiedRepositoryAccessDeniedException`/`UnifiedRepositoryException`
-unchanged, same as the main doc's `getFileMetadata` row):
 
 ```java
 try {
     fileService.doGetMetadata(pathId);
 } catch (FileNotFoundException e) {
-    // doGetMetadata's own explicit pre-check — unambiguous.
+    // Explicit FileService pre-check.
 } catch (UnifiedRepositoryAccessDeniedException e) {
-    // ABS-level only: no repository.read action at all (getFileMetadata's ABS action,
-    // main doc [IUnifiedRepository access-control summary table](../../unified-repository/summary-table-per-method.md)) — per-file no-read does NOT surface this way (it's generic URE,
-    // handled in the catch below, alongside the not-found race check).
+    // repository.read ABS denial or native JCR access denial.
+    throw e;
 } catch (UnifiedRepositoryException e) {
     if (!isFoundAndReadable(unifiedRepository, FileUtils.idToPath(pathId))) {
-        // race: file became unreadable/was deleted after doGetMetadata's own pre-check
+        // File vanished or became unreadable after pre-check.
     } else {
-        throw e; // some other non-access repository failure
+        throw e; // Non-access repository failure.
     }
 }
 ```

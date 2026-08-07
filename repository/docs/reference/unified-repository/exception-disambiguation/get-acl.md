@@ -3,7 +3,7 @@ type: reference
 title: Disambiguating getAcl / getEffectiveAces
 description: Public-API-only disambiguation recipe for `IUnifiedRepository`'s getAcl / getEffectiveAces operation(s).
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # Disambiguating getAcl / getEffectiveAces
@@ -14,13 +14,8 @@ timestamp: 2026-07-17T00:00:00Z
 try {
     RepositoryFileAcl acl = unifiedRepository.getAcl(fileId);
 } catch (UnifiedRepositoryAccessDeniedException e) {
-    // UnifiedRepositoryAccessDeniedException IS-A UnifiedRepositoryException, so a bare
-    // `catch (UnifiedRepositoryException e)` below would silently swallow this too.
-    // Per main doc [Method Interceptor layer](../../../architecture/unified-repository/layer-method-interceptor.md)/[IUnifiedRepository access-control summary table](../summary-table-per-method.md), this is (for every method except `updateAcl`) ALWAYS the
-    // coarse ABS-level action check, thrown by the AOP interceptor before the target
-    // method body — and hence the file's own — even runs. It has nothing to do with
-    // this specific file, so none of the per-file follow-up checks below apply to it;
-    // re-throw (or report) it as a distinct, unambiguous, global-permission condition.
+    // ABS repository.read denial or native jcr:readAccessControl denial.
+    // RepositoryFilePermission has no read-ACL equivalent, so public API cannot refine it.
     throw e;
 } catch (UnifiedRepositoryException e) {
     if (!isFoundAndReadable(unifiedRepository, fileId)) {

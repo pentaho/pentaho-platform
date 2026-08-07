@@ -3,7 +3,7 @@ type: reference
 title: "Disambiguating FileService Exceptions: General Approach"
 description: Exception/error package legend, shared helpers, the time-of-check race, and known gaps for public-API-only FileService exception disambiguation.
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # Disambiguating `FileService` exceptions via public API calls
@@ -83,18 +83,12 @@ layer does:
    `InternalError` with no message and no cause. In those cases, the honest answer is
    "narrowed to: not-found, or some other non-access-denied repository failure,
    indistinguishable further" — do not fabricate more precision than the API allows.
-5. **A `UnifiedRepositoryAccessDeniedException` reaching a `FileService` caller is (with
-   exactly one exception) *always* the coarse ABS-level action check, never a per-file
-   denial** — same rule as the main disambiguation doc's point 2, inherited unchanged
-   through this layer. Per the main doc's summary table ([IUnifiedRepository access-control summary table](../../unified-repository/summary-table-per-method.md)) and exception taxonomy ([IUnifiedRepository exception taxonomy](../../unified-repository/exception-taxonomy.md)),
-   every `IUnifiedRepository` method used by `FileService` below reports per-file
-   write/delete/read-ACL denial as the **generic** `UnifiedRepositoryException`, never
-   `URADE` — the **sole exception is `updateAcl`** (wrapped by `setFileAcls`), where
-   `DefaultUnifiedRepository` throws `URADE` **directly** for both the ABS check *and* a
-   per-file `ACL_MANAGEMENT` denial, indistinguishable by type alone. Everywhere else in
-   this document, treat a caught `URADE` as unambiguous ABS-level evidence and do **not**
-   run per-file follow-up checks against it — those belong in the generic/`InternalError`
-   branch instead, where per-file denial actually surfaces.
+5. **A `UnifiedRepositoryAccessDeniedException` reaching a `FileService` caller can mean
+   ABS denial or native JCR resource denial.** `PentahoJcrTemplate` converts JCR
+   `AccessDeniedException` to Spring Security `AccessDeniedException`, and
+   `ExceptionLoggingDecorator` converts that to `URADE`. Apply operation-specific
+   resource follow-up checks. If none reproduce, ABS denial, an unrepresented JCR
+   privilege, or a state race remains.
 
 ### Shared helpers
 
@@ -163,4 +157,3 @@ this layer:
   `FileService` entirely) is the only way to recover a not-found-vs-no-read signal here.
 
 ---
-

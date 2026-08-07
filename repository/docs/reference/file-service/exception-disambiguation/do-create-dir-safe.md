@@ -1,40 +1,59 @@
 ---
 type: reference
 title: Disambiguating doCreateDirSafe
-description: Public-API-only disambiguation recipe for `FileService`'s doCreateDirSafe operation(s).
+description: Public-API-only disambiguation recipe for FileService doCreateDirSafe.
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # Disambiguating doCreateDirSafe
 
-**`doCreateDirSafe`** (declared `throws InvalidNameException` for its own name
-validation; `createFolder()` per intermediate segment can throw either the ABS-level
-`URADE`, or a generic `URE` for a per-segment WRITE denial — different exception types):
+`doCreateDirFor` walks path segments top-down. For each missing segment it calls
+`createFolder(parentId, ...)`.
 
 ```java
 try {
     fileService.doCreateDirSafe(pathId);
 } catch (FileService.InvalidNameException e) {
-    // unambiguous, not access-control related.
+    // Invalid path/name; not access control.
 } catch (UnifiedRepositoryAccessDeniedException e) {
-    // ABS-level only: no repository.create action at all (createFolder's ABS action,
-    // main doc [IUnifiedRepository access-control summary table](../../unified-repository/summary-table-per-method.md)) — thrown before any specific segment is even looked up. Per-segment
-    // WRITE denial does NOT surface this way (see the generic catch below).
-} catch (UnifiedRepositoryException e) {
-    // URADE from createFolder() on SOME segment of the path (doCreateDirFor creates
-    // missing intermediate folders one at a time, deepest-first is NOT guaranteed —
-    // it walks the path top-down). Find which one:
-    String[] segments = FileUtils.idToPath(pathId).split("/");
-    StringBuilder currentPath = new StringBuilder();
-    for (String segment : segments) {
-        if (segment.isEmpty()) continue;
-        currentPath.append('/').append(segment);
-        if (!canWrite(unifiedRepository, currentPath.toString())) {
-            // this is (approximately) the first ancestor segment whose PARENT denies
-            // WRITE — subject to the same time-of-check race as any other follow-up here
-            break;
+    if (!canCreateAnything(fileService)) {
+        // Missing global repository.create ABS action.
+    } else {
+        String path = FileUtils.idToPath(pathId);
+        String parentPath = "/";
+        for (String segment : path.split("/")) {
+            if (segment.isEmpty()) {
+                continue;
+            }
+            String candidate = "/".equals(parentPath)
+                ? parentPath + segment
+                : parentPath + "/" + segment;
+            if (unifiedRepository.getFile(candidate) == null) {
+                if (!canWrite(unifiedRepository, parentPath)) {
+                    // Native JCR denial: this first missing segment cannot be added to parent.
+                }
+                break;
+            }
+            parentPath = candidate;
         }
+        // If no resource check reproduces denial: repository.read ABS denial,
+        // state race, or an unrepresented privilege.
     }
+} catch (UnifiedRepositoryException e) {
+    // Non-access repository failure: map to the caller's generic/unknown failure.
+    throw new OperationFailedException(e);
 }
 ```
+
+`UnifiedRepositoryAccessDeniedException` extends `UnifiedRepositoryException`, so the
+specific catch above handles both ABS denial and native JCR access denial. A remaining
+`UnifiedRepositoryException` can still occur, but it does not identify an access failure.
+At the `RepositoryFileProvider` boundary it maps directly to `OperationFailedException`.
+`createFolderCore()` performs its nearest-writable-ancestor check only for
+`UnifiedRepositoryAccessDeniedException`.
+
+If a custom `accessVoterManager` voter denies `createFolder`, that repository call returns
+`null` instead of throwing. `doCreateDirFor` does not check the result: denial on the final
+segment can be reported as success, while denial before another segment can cause a later
+`NullPointerException`.

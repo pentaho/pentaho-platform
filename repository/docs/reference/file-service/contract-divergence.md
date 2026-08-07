@@ -3,7 +3,7 @@ type: reference
 title: FileService Contract Divergence From IUnifiedRepository
 description: Where FileService's exception and access-control contract diverges from IUnifiedRepository's.
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # Where `FileService`'s contract diverges from `IUnifiedRepository`'s
@@ -49,12 +49,11 @@ switching mental models from the main doc to this one:
    `IUnifiedRepository.copyFile`'s: it requires the **destination directory itself** to
    already exist ([CopyFilesOperation layer](../../architecture/file-service/layer-copy-files-operation.md)), whereas the main doc's `copyFile` only errors when the
    destination's *parent* is missing.
-7. **Two different "access denied" exception types with different scopes** exist at the GFS
-   layer (`AccessControlException` for ABS/global denials, `ResourceAccessDeniedException`
-   for per-file denials) where the main doc has only one (`URADE`) — see [JcrRepositoryFileDao layer](../../architecture/unified-repository/layer-jcr-repository-file-dao.md)'s mapping
-   table. When both a global and a per-file check exist for the same operation (e.g.
-   `renameFile`, `copyFile`, `moveFile`), the GFS caller must know which exception type it
-   is looking at to know *which* permission needs to be granted.
+7. **GFS access-denied names do not reliably identify scope.** Underlying `URADE` can mean
+   ABS or native JCR resource denial. Some provider methods pre-check ABS and then map
+   later `URADE` to `ResourceAccessDeniedException`. `createFolderCore` checks the nearest
+   existing ancestor after `URADE`; if it cannot reproduce a resource denial, it maps to
+   `AccessControlException`. A race can still change the follow-up result. Classify using
+   operation-specific checks, not the GFS exception name alone.
 
 ---
-

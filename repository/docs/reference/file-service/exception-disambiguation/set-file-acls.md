@@ -3,16 +3,15 @@ type: reference
 title: Disambiguating setFileAcls
 description: Public-API-only disambiguation recipe for `FileService`'s setFileAcls operation(s).
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # Disambiguating setFileAcls
 
 **`setFileAcls`** (declared `throws FileNotFoundException` via an explicit pre-check;
 `UnifiedRepositoryAccessDeniedException` from the underlying `updateAcl()` propagates
-unchecked — this is the **one** method in this document where `URADE` is genuinely
-ambiguous between ABS-level and per-file, mirroring the main doc's `updateAcl` row/snippet
-exactly, since `setFileAcls` is a thin wrapper around it):
+unchecked. Here it can be the ABS check or `updateAcl`'s direct per-file
+`ACL_MANAGEMENT` denial):
 
 ```java
 try {
@@ -22,8 +21,7 @@ try {
 } catch (UnifiedRepositoryAccessDeniedException e) {
     // Could be the coarse ABS-level "repository.create" action check, OR the
     // file-specific ACL_MANAGEMENT gate in DefaultUnifiedRepository — both throw the
-    // same class (main doc's updateAcl row: the sole exception to "URADE is always
-    // ABS-level" in this whole document). Confirm which one with a follow-up call:
+    // same class. Confirm the per-file case with a follow-up call:
     RepositoryFile f = fileService.getRepoWs().getFile(FileUtils.idToPath(pathId));
     if (f != null && !canManageAcl(unifiedRepository, f.getPath())) {
         // file exists/readable but caller lacks ACL_MANAGEMENT on it — matches the

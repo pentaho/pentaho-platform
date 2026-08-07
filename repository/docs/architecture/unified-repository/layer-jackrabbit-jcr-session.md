@@ -3,7 +3,7 @@ type: architecture
 title: Jackrabbit JCR Session Layer
 description: Native Jackrabbit JCR session behavior underlying repository access control.
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # Jackrabbit JCR session (native layer)
@@ -20,16 +20,15 @@ the current Pentaho session credentials and logs into Jackrabbit as the actual u
   "access denied" at the JCR API level, and this is the primary source of the
   "not-found confounding" for read operations.
 - When a user lacks write/delete/lock privilege, mutating JCR operations throw
-  `javax.jcr.AccessDeniedException`. Per [JcrTemplate exception translation layer](layer-jcr-template-exception-translation.md), `JcrTemplate` translates this — along with
-  `PathNotFoundException`/`ItemNotFoundException` above — into the same
-  `org.springframework.dao.DataRetrievalFailureException`. Since that class is not in the
-  `ExceptionLoggingDecorator` converter map, it surfaces as a generic
-  `UnifiedRepositoryException`, indistinguishable at the outer-exception level from a
-  not-found/no-read condition (see [IUnifiedRepository exception taxonomy](../../reference/unified-repository/exception-taxonomy.md) for how to disambiguate via the cause chain).
+  `javax.jcr.AccessDeniedException`. `PentahoJcrTemplate` converts that specific JCR
+  exception to Spring Security `AccessDeniedException`; `ExceptionLoggingDecorator` then
+  converts it to `UnifiedRepositoryAccessDeniedException`. This differs from uncaught
+  `PathNotFoundException`/`ItemNotFoundException`, which use the base
+  `DataRetrievalFailureException` translation and become generic or method-specific
+  `UnifiedRepositoryException`. See [PentahoJcrTemplate exception translation](layer-jcr-template-exception-translation.md).
 - `session.getAccessControlManager().hasPrivileges()` (used by `JcrRepositoryFileAclDao.hasAccess()`
   and therefore by `DefaultUnifiedRepository.updateAcl()`) explicitly checks whether
   specific JCR privileges are held on a given path, returning `false` for
   `PathNotFoundException`.
 
 ---
-

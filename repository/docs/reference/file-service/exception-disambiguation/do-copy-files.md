@@ -1,55 +1,62 @@
 ---
 type: reference
 title: Disambiguating doCopyFiles
-description: Public-API-only disambiguation recipe for `FileService`'s doCopyFiles operation(s).
+description: Public-API-only disambiguation recipe for FileService doCopyFiles.
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # Disambiguating doCopyFiles
 
-**`doCopyFiles`** (performs its **own** redundant `RepositoryCreateAction` ABS check
-before ever constructing a `CopyFilesOperation`, throwing the exact same
-`IllegalArgumentException` type that `CopyFilesOperation`'s constructor also throws for
-genuinely invalid arguments — FileService doc [FileService role and general shape](../../../architecture/file-service/layer-file-service.md)'s "ABS box" point 3 / [CopyFilesOperation layer](../../../architecture/file-service/layer-copy-files-operation.md); the
-*source* is not pre-checked at all and its `ItemNotFoundException`/`URE` propagates as an
-unchecked `UnifiedRepositoryException`, since neither `doCopyFiles` nor
-`CopyFilesOperation` declares or catches it):
+`doCopyFiles` first performs its own `RepositoryCreateAction` check and throws
+`IllegalArgumentException` when that check fails. It then constructs and executes
+`CopyFilesOperation`.
+
+Missing or unreadable source IDs are silently skipped: `execute()` logs and continues when
+`getFileById()` returns `null`.
 
 ```java
 try {
-    fileService.doCopyFiles(destPathId, FileService.MODE_RENAME, sourceFileIdsCsv);
+    fileService.doCopyFiles(destPathId, mode, sourceFileIdsCsv);
 } catch (IllegalArgumentException e) {
-    // Two, by-type-indistinguishable causes — disambiguate with follow-up calls:
     if (!canCreateAnything(fileService)) {
-        // Cause 1: doCopyFiles's OWN ABS check failed (no repository.create action at
-        // all). This is a global, non-file-specific permission, so — same request,
-        // same user — it would have already been false at the moment doCopyFiles ran;
-        // no meaningful time-of-check race here.
-    } else if (!fileServiceExists(fileService, destPathId) || !fileService.isFolder(destPathId)) {
-        // Cause 2: CopyFilesOperation's OWN validation (FileService doc [CopyFilesOperation layer](../../../architecture/file-service/layer-copy-files-operation.md)) — the
-        // destination does not exist, or exists but is not a folder. Not an
-        // access-control condition — the opposite direction from IUnifiedRepository's
-        // copyFile, which only errors on a missing destination PARENT.
+        // doCopyFiles's own create-ABS check.
+    } else if (!fileServiceExists(fileService, destPathId)
+            || !fileService.isFolder(destPathId)) {
+        // Constructor validation: destination missing/unreadable or not a folder.
     } else {
-        // Neither check reproduces a failure now: most likely a time-of-check race (the
-        // destination's existence/folder-ness changed between the original call and this
-        // diagnostic check, e.g. someone else created/removed/replaced it) — not further
-        // diagnosable via public API.
+        // Deep-folder-copy validation can also throw this after a custom voter returned
+        // null from createFolder; otherwise race or invalid internal argument.
+        throw e;
     }
 } catch (UnifiedRepositoryAccessDeniedException e) {
-    // ABS-level only: no repository.create action at all (copyFile's ABS action, main doc
-    // [IUnifiedRepository access-control summary table](../../unified-repository/summary-table-per-method.md)) — per-file destination WRITE denial does NOT surface this way (see below).
+    if (!canCreateAnything(fileService)) {
+        // Underlying create/update/metadata repository.create ABS denial after initial check.
+    } else if (!canWrite(unifiedRepository, FileUtils.idToPath(destPathId))) {
+        // Native JCR denial on destination folder.
+    } else {
+        // Other proven sources:
+        // - underlying repository.read ABS denial;
+        // - source ACL/metadata read denial;
+        // - metadata write denial;
+        // - MODE_OVERWRITE updateAcl ACL_MANAGEMENT denial;
+        // - MODE_RENAME explicit null-create denial from a custom voter.
+        throw e;
+    }
 } catch (UnifiedRepositoryException e) {
-    // Uncaught by doCopyFiles/CopyFilesOperation, so it reaches us as-is — could be
-    // SOURCE not-found/no-read, or DESTINATION write-denial (both generic URE here):
-    for (String fileId : sourceFileIdsCsv.split(",")) {
-        if (!isFoundAndReadable(unifiedRepository, fileId)) {
-            // this id: source not found / no jcr:read
-        }
-    }
-    if (!canWrite(unifiedRepository, FileUtils.idToPath(destPathId))) {
-        // DESTINATION not writable (main doc's copyFile row)
-    }
+    // Non-access repository failure. Source missing/no-read is not here; it was skipped.
+    throw e;
 }
 ```
+
+## Mode-specific null-return defects
+
+When a custom access voter makes `createFile`/`createFolder`/`updateFile` return `null`:
+
+- `MODE_RENAME` explicitly throws `URADE` for a null created file, but a null created
+  folder reaches deep-copy validation first and can throw `IllegalArgumentException`.
+- `MODE_NO_OVERWRITE` and `MODE_OVERWRITE` dereference the null result and can throw
+  `NullPointerException`.
+
+Native Jackrabbit denial does not use these null paths; it throws JCR
+`AccessDeniedException`, which becomes `URADE`.

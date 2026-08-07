@@ -3,7 +3,7 @@ type: architecture
 title: JcrRepositoryFileDao Layer
 description: File-path-level access control in `JcrRepositoryFileDao`, including the access voter, native ACL enforcement, kiosk mode, read/write behavior, and magic ACE caveats.
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # `JcrRepositoryFileDao` – file-path-level access
@@ -52,11 +52,9 @@ on every JCR API call made through that session:
   — so they look like absent nodes to the caller.
 - **Write/mutate operations** (`session.save()`, workspace `move`/`copy`, version
   manager calls): if the user lacks the required JCR privilege,
-  **`javax.jcr.AccessDeniedException` is thrown**. Neither this exception nor the
-  `org.springframework.dao.DataRetrievalFailureException` it gets translated into by
-  `JcrTemplate` ([JcrTemplate exception translation layer](layer-jcr-template-exception-translation.md)) is in the `ExceptionLoggingDecorator` converter map, so it surfaces
-  to callers as a generic `UnifiedRepositoryException` — with the original
-  `javax.jcr.AccessDeniedException` two `getCause()` hops down.
+  **`javax.jcr.AccessDeniedException` is thrown**. `PentahoJcrTemplate` converts it to
+  Spring Security `AccessDeniedException`; `ExceptionLoggingDecorator` then converts it
+  to `UnifiedRepositoryAccessDeniedException`.
 
 This enforcement is **universal**: it applies to every method in the DAO that opens a
 JCR session, with no exceptions and no admin bypass at the JCR API level (the JCR admin
@@ -137,13 +135,11 @@ tree). Jackrabbit native filtering still applies first at the JCR API level.
 
 ## Write operations – mixed behaviour
 
-Every write operation that reaches JCR will be subject to **Jackrabbit native ACL
-enforcement** at `session.save()` (or earlier JCR calls). If the user lacks the
-required JCR privilege, `javax.jcr.AccessDeniedException` is thrown. Per [JcrTemplate exception translation layer](layer-jcr-template-exception-translation.md), `JcrTemplate`
-translates this into `org.springframework.dao.DataRetrievalFailureException` before it
-reaches `ExceptionLoggingDecorator`; since neither class is in the converter map, it
-surfaces as a generic `UnifiedRepositoryException` (with `javax.jcr.AccessDeniedException`
-two `getCause()` hops down — see [IUnifiedRepository exception taxonomy](../../reference/unified-repository/exception-taxonomy.md)).
+Every write operation that reaches JCR is subject to **Jackrabbit native ACL
+enforcement** at `session.save()` or an earlier JCR call. A missing privilege produces
+`javax.jcr.AccessDeniedException`, which follows the Pentaho-specific translation chain
+to `UnifiedRepositoryAccessDeniedException`; see
+[PentahoJcrTemplate exception translation](layer-jcr-template-exception-translation.md).
 
 Before reaching `session.save()`, some methods perform an `accessVoterManager` check
 (no-op in default config) that can short-circuit with a silent `null` return if a
@@ -170,26 +166,26 @@ custom voter denies access.
 
 | Method | Denial result |
 |---|---|
-| `updateFolder` | `javax.jcr.AccessDeniedException` → generic `UnifiedRepositoryException` |
-| `setFileMetadata` | `javax.jcr.AccessDeniedException` → generic `UnifiedRepositoryException` |
-| `setLocalePropertiesForFile*` | `javax.jcr.AccessDeniedException` → generic `UnifiedRepositoryException` |
-| `deleteLocalePropertiesForFile` | `javax.jcr.AccessDeniedException` → generic `UnifiedRepositoryException` |
-| `lockFile` / `unlockFile` | `javax.jcr.AccessDeniedException` → generic `UnifiedRepositoryException` |
-| `restoreFileAtVersion` | `javax.jcr.AccessDeniedException` → generic `UnifiedRepositoryException` |
+| `updateFolder` | `javax.jcr.AccessDeniedException` → `UnifiedRepositoryAccessDeniedException` |
+| `setFileMetadata` | `javax.jcr.AccessDeniedException` → `UnifiedRepositoryAccessDeniedException` |
+| `setLocalePropertiesForFile*` | `javax.jcr.AccessDeniedException` → `UnifiedRepositoryAccessDeniedException` |
+| `deleteLocalePropertiesForFile` | `javax.jcr.AccessDeniedException` → `UnifiedRepositoryAccessDeniedException` |
+| `lockFile` / `unlockFile` | `javax.jcr.AccessDeniedException` → `UnifiedRepositoryAccessDeniedException` |
+| `restoreFileAtVersion` | `javax.jcr.AccessDeniedException` → `UnifiedRepositoryAccessDeniedException` |
 
 **Exception thrown explicitly before `session.save()` (in addition to the eventual JCR check)**
 
 | Method | Condition | Exception thrown |
 |---|---|---|
-| `deleteFile` | `aclDao.hasAccess(DELETE)` returns `false` (second check, after voter) | `javax.jcr.AccessDeniedException` → generic `UnifiedRepositoryException` |
-| `internalCopyOrMove` (move) | `accessVoterManager.hasAccess(WRITE)` denies on source | `javax.jcr.AccessDeniedException` → generic `UnifiedRepositoryException` |
-| `internalCopyOrMove` (move or copy) | `accessVoterManager.hasAccess(WRITE)` denies on destination | `javax.jcr.AccessDeniedException` → generic `UnifiedRepositoryException` |
+| `deleteFile` | `aclDao.hasAccess(DELETE)` returns `false` (second check, after voter) | `javax.jcr.AccessDeniedException` → `UnifiedRepositoryAccessDeniedException` |
+| `internalCopyOrMove` (move) | `accessVoterManager.hasAccess(WRITE)` denies on source | `javax.jcr.AccessDeniedException` → `UnifiedRepositoryAccessDeniedException` |
+| `internalCopyOrMove` (move or copy) | `accessVoterManager.hasAccess(WRITE)` denies on destination | `javax.jcr.AccessDeniedException` → `UnifiedRepositoryAccessDeniedException` |
 
 > Note: for `deleteFile`, when the voter check passes (default: always) but
 > `aclDao.hasAccess(DELETE)` fails, this is the one case where an explicit
 > `javax.jcr.AccessDeniedException` is thrown at the Pentaho layer before `session.save()`
-> is reached. It still surfaces as a generic `UnifiedRepositoryException` because of the
-> missing converter.
+> is reached. It surfaces as `UnifiedRepositoryAccessDeniedException` through
+> `PentahoJcrTemplate` and `AccessDeniedExceptionConverter`.
 
 ---
 
@@ -199,8 +195,8 @@ The Pentaho-layer voter/aclDao pre-checks ([`accessVoterManager` has no voters i
 operation (the file, or the destination folder). The underlying JCR call frequently touches
 **additional** nodes that have no corresponding Pentaho-layer pre-check. If the user is
 missing the JCR privilege on one of those un-checked nodes, JCR throws
-`javax.jcr.AccessDeniedException` there instead, with the same downstream translation and
-surfacing as a generic `UnifiedRepositoryException` ([JcrTemplate exception translation layer](layer-jcr-template-exception-translation.md), [IUnifiedRepository exception taxonomy](../../reference/unified-repository/exception-taxonomy.md)) — but for a node the caller
+`javax.jcr.AccessDeniedException` there instead, which surfaces as
+`UnifiedRepositoryAccessDeniedException` ([PentahoJcrTemplate exception translation](layer-jcr-template-exception-translation.md), [IUnifiedRepository exception taxonomy](../../reference/unified-repository/exception-taxonomy.md)) — but for a node the caller
 may not have expected to need permission on.
 
 The full per-operation table of JCR calls, nodes touched, Pentaho-layer checks, and required
@@ -231,5 +227,4 @@ permanent condition for as long as they remain the owner; see
 [Owner cannot manage ACL on their own resource](../../reference/unified-repository/permissions/known-issues.md) for the full analysis.
 
 ---
-
 

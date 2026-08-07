@@ -3,16 +3,18 @@ type: reference
 title: "Disambiguating IUnifiedRepository Exceptions: General Approach"
 description: Shared helper functions, the time-of-check race, known gaps, and exception-type notes for public-API-only IUnifiedRepository exception disambiguation.
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # Disambiguating `IUnifiedRepository` exceptions via public API calls
 
-Companion to [Unified Repository Architecture Overview](../../../architecture/unified-repository/overview.md)
-(referred to below as "the main doc"). That document's [exception taxonomy](../exception-taxonomy.md) shows that a not-found/no-read
-condition and a no-write/no-delete condition often surface as the **exact same** outer
-exception classes (`UnifiedRepositoryException` wrapping `DataRetrievalFailureException`),
-and that they can be told apart by inspecting `getCause().getCause()`.
+Companion to [Unified Repository Architecture Overview](../../../architecture/unified-repository/overview.md).
+The [exception taxonomy](../exception-taxonomy.md) distinguishes:
+
+- not-found/no-read failures: `null`/`false`, or generic/method-specific
+  `UnifiedRepositoryException`;
+- ABS and native JCR access denials: `UnifiedRepositoryAccessDeniedException`; and
+- custom voter denials: often a silent `null`.
 
 **This file exists because that cause-chain inspection is not something application code
 should rely on.** It is useful for understanding *why* the ambiguity exists, and for
@@ -33,27 +35,15 @@ the calling code already depends on elsewhere.
 
 ## The general approach
 
-1. **The outer exception class itself is public API and needs no disambiguation help.**
-   `UnifiedRepositoryAccessDeniedException` vs. generic `UnifiedRepositoryException` vs. a
-   `null`/boolean return are all part of the declared, documented behavior of
-   `IUnifiedRepository` — catch by type as usual.
-2. **Always catch `UnifiedRepositoryAccessDeniedException` (`URADE`) *before* a generic
-   `catch (UnifiedRepositoryException e)`, never rely on the generic block to also handle
-   it.** `URADE` **is a subtype** of `UnifiedRepositoryException`, so a bare
-   `catch (UnifiedRepositoryException e)` silently catches `URADE` too. For every method
-   in this file **except `updateAcl`**, `URADE` can *only* be the coarse ABS-level action
-   check (main doc [Method Interceptor layer](../../../architecture/unified-repository/layer-method-interceptor.md)), thrown by the AOP interceptor before the target method body —
-   and hence the specific file — is ever touched; the per-file, no-write-or-delete-access
-   condition for those methods always surfaces as the plain generic class instead (main
-   doc [JcrRepositoryFileDao layer](../../../architecture/unified-repository/layer-jcr-repository-file-dao.md)/[JcrTemplate exception translation layer](../../../architecture/unified-repository/layer-jcr-template-exception-translation.md)). If `URADE` falls through into the generic block's per-file follow-up
-   logic (`getFileById`/`canWrite`/etc.), that logic is checking the *wrong* thing — the
-   file will typically look perfectly fine (found, readable, writable), and the snippet's
-   fallback `throw e`/"race or unaccounted-for failure" branch fires, mis-reporting a
-   coarse, global permission problem as an inconclusive per-file one. Every snippet below
-   catches `URADE` explicitly, ahead of the generic case, for this reason — `updateAcl` is
-   the sole exception, since there `URADE` is genuinely ambiguous between the ABS-level and
-   per-file checks and needs the follow-up call to tell them apart (see its own snippet).
-3. **To refine *why* a generic failure occurred, make a targeted follow-up call** using
+1. **Catch the outer public type first.** `UnifiedRepositoryAccessDeniedException` vs.
+   generic/method-specific `UnifiedRepositoryException` vs. a `null`/boolean return are
+   materially different outcomes.
+2. **Always catch `UnifiedRepositoryAccessDeniedException` (`URADE`) before generic
+   `UnifiedRepositoryException`.** `URADE` is a subtype. It can mean either a missing ABS
+   action or a native JCR denial on a specific resource. For `updateAcl`, it can also be
+   the direct `ACL_MANAGEMENT` check. Use operation-specific resource follow-up checks;
+   if none reproduce, the remaining explanation is ABS denial or a state race.
+3. **To refine why a failure occurred, make a targeted follow-up call** using
    one of these two public primitives:
    - `unifiedRepository.getFileById(id)` / `getFile(path)` → `null` means "not found, or
      the caller has no `jcr:read` on it" (the two are still indistinguishable from each
@@ -147,10 +137,11 @@ declared API** — no cause inspection needed to know about them, just an accura
   metadata *keys*, not file/folder names). These should be caught **explicitly and
   before** the generic disambiguation logic — they are never about access control, so
   running them through `isFoundAndReadable()`/`canWrite()`/etc. would be misleading.
-- **`createFile` and `updateFile`** (but *not* `createFolder`/`updateFolder`) substitute
-  `UnifiedRepositoryCreateFileException`/`UnifiedRepositoryUpdateFileException` for what
-  would otherwise be the generic `UnifiedRepositoryException`, for the *same*
-  not-found/no-write conditions covered elsewhere in this file (main doc [ExceptionLoggingDecorator layer](../../../architecture/unified-repository/layer-exception-logging-decorator.md)). Since both
+- **`createFile` and `updateFile`** (but not `createFolder`/`updateFolder`) substitute
+  `UnifiedRepositoryCreateFileException`/`UnifiedRepositoryUpdateFileException` for an
+  unmatched generic failure, including uncaught not-found/no-read. They do **not**
+  substitute for JCR access denial because `AccessDeniedExceptionConverter` matches first
+  and emits `URADE` (main doc [ExceptionLoggingDecorator layer](../../../architecture/unified-repository/layer-exception-logging-decorator.md)). Since both
   subclasses extend `UnifiedRepositoryException`, a `catch (UnifiedRepositoryException e)`
   still catches them — but code that wants to report the most specific declared type
   should catch these explicitly.
@@ -159,4 +150,3 @@ All five subclasses live in `org.pentaho.platform.api.repository2.unified`, alon
 `UnifiedRepositoryException` and `UnifiedRepositoryAccessDeniedException` themselves.
 
 ---
-

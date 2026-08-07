@@ -3,14 +3,14 @@ type: reference
 title: Disambiguating doGetTree
 description: Public-API-only disambiguation recipe for `FileService`'s doGetTree operation(s).
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # Disambiguating doGetTree
 
-**`doGetTree`** (collapses everything — not-found, no-read, **and ABS-level `URADE`
-alike** — to `null`; its internal `catch (UnifiedRepositoryException e)` catches `URADE`
-too, so the ABS-level check is swallowed exactly like any other cause; disambiguate by
+**`doGetTree`** (collapses everything — not-found, no-read, and `URADE` from either
+ABS or native JCR denial — to `null`; its internal
+`catch (UnifiedRepositoryException e)` catches `URADE` too; disambiguate by
 bypassing `FileService` and asking `unifiedRepository` directly about the root path):
 
 ```java
@@ -28,9 +28,8 @@ if (tree == null) {
             // behavior hid from us.
         }
     } catch (UnifiedRepositoryAccessDeniedException e) {
-        // This follow-up call ITSELF requires repository.read — if the ORIGINAL doGetTree
-        // failure was the ABS-level check, this same check fires again here (same
-        // session/user), confirming it. Unambiguous: no repository.read action at all.
+        // Follow-up itself failed. Could be repository.read ABS denial or native JCR
+        // denial; doGetTree already discarded the original cause.
     }
 }
 ```

@@ -3,7 +3,7 @@ type: reference
 title: Disambiguating doesExist / isFolder / doGetIsVisible
 description: Public-API-only disambiguation recipe for `FileService`'s doesExist / isFolder / doGetIsVisible operation(s).
 status: active
-timestamp: 2026-07-17T00:00:00Z
+timestamp: 2026-08-07T00:00:00Z
 ---
 
 # Disambiguating doesExist / isFolder / doGetIsVisible
@@ -25,7 +25,7 @@ try {
         // via public API, whether reached through FileService or IUnifiedRepository directly.
     }
 } catch (UnifiedRepositoryAccessDeniedException e) {
-    // ABS-level only: no repository.read action at all. Unlike getFile()'s "null" case
-    // above, this is unambiguous — it fires before any specific file is even looked up.
+    // For these getFile-based methods this is the repository.read ABS denial.
+    // Per-node no-read remains the null case above.
 }
 ```

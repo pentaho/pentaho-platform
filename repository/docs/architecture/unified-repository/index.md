@@ -14,7 +14,7 @@ In caller-to-storage order:
 4. [JcrRepositoryFileDao Layer](layer-jcr-repository-file-dao.md) - File-path-level access control in `JcrRepositoryFileDao`, including the access voter, native ACL enforcement, kiosk mode, read/write behavior, and magic ACE caveats.
 5. [JcrRepositoryFileAclDao hasAccess Layer](layer-jcr-repository-file-acl-dao.md) - How `JcrRepositoryFileAclDao.hasAccess()` evaluates permissions.
 6. [Jackrabbit JCR Session Layer](layer-jackrabbit-jcr-session.md) - Native Jackrabbit JCR session behavior underlying repository access control.
-7. [JcrTemplate Exception Translation Layer](layer-jcr-template-exception-translation.md) - How `JcrTemplate` translates JCR exceptions between the native session and the `ExceptionLoggingDecorator`.
+7. [PentahoJcrTemplate Exception Translation Layer](layer-jcr-template-exception-translation.md) - How Pentaho's JCR template translates native access denial and other repository exceptions.
 
 ## Design Observations
 
