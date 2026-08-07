@@ -41,7 +41,7 @@ define([
     BootstrappedTabLoader.init({
       parentSelector: "#launch-widget",
       tabContentPattern: "launch_tab{{contentNumber}}_content.html",
-      defaultTabSelector: urlVars.selectedTab,
+      defaultTabSelector: urlVars.selectedTab === "tab2" ? "tab2" : "tab1",
       before: function () {
         ContextProvider.get(function (context) {
           $("#launch-widget-title").text(context.i18n.getting_started_heading);
