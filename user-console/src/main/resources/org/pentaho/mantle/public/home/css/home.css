@@ -134,10 +134,6 @@ div#sample-button.button-container {
   position: unset;
 }
 
-div#tutorial-button.button-container {
-  position: unset;
-}
-
 .sample-card-img {
   width: 49px;
   height: 49px;
@@ -146,20 +142,6 @@ div#tutorial-button.button-container {
 .sample-details-img {
   width: 200px;
   height: 200px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.tutorial-card-img {
-  width: 89px;
-  height: 68px;
-}
-
-.tutorial-details-img {
-  width: 245px;
-  height: 163px;
-  background-size: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -355,46 +337,4 @@ div#tutorial-button.button-container {
 
 .sample-details-img#sample-img9 {
   background-image: url("../images/regional_product_mix_lg.png");
-}
-
-/* Tutorial Images Small */
-#tutorial-card1 .card-img {
-  background-image: url("../images/puc_sm.png");
-}
-
-#tutorial-card2 .card-img {
-  background-image: url("../images/datasource_sm.png");
-}
-
-#tutorial-card3 .card-img {
-  background-image: url("../images/pir_sm.png");
-}
-
-#tutorial-card4 .card-img {
-  background-image: url("../images/analysis_sm.png");
-}
-
-#tutorial-card5 .card-img {
-  background-image: url("../images/dasboard_sm.png");
-}
-
-/* Tutorial Images Large */
-.tutorial-details-img#tutorial-img1 {
-  background-image: url("../images/puc_lg.png");
-}
-
-.tutorial-details-img#tutorial-img2 {
-  background-image: url("../images/datasource_lg.png");
-}
-
-.tutorial-details-img#tutorial-img3 {
-  background-image: url("../images/pir_lg.png");
-}
-
-.tutorial-details-img#tutorial-img4 {
-  background-image: url("../images/analysis_lg.png");
-}
-
-.tutorial-details-img#tutorial-img5 {
-  background-image: url("../images/dasboard_lg.png");
 }
