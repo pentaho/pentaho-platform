@@ -24,6 +24,7 @@ import org.pentaho.platform.api.engine.IMessageFormatter;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -39,12 +40,26 @@ import org.pentaho.platform.util.web.SimpleUrlFactory;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class provides wrapper functions to make it easier to execute action sequences and generate a widget.
  */
 @Deprecated // BISERVER-12899
 public class ChartHelper {
+
+  /**
+   * Property that enables the deprecated <code>query</code> request parameter of the chart component. Disabled by
+   * default. The <code>system.</code> prefix identifies the <code>system.properties</code> configuration, so the
+   * property is declared there as <code>chart-query-parameter-enabled</code>.
+   */
+  static final String CHART_QUERY_PARAMETER_ENABLED_PROPERTY = "system.chart-query-parameter-enabled"; //$NON-NLS-1$
+
+  /**
+   * Guards the one-time warning emitted when the deprecated <code>query</code> request parameter is found enabled.
+   * Package private so that tests can reset it, since the latch is held for the lifetime of the JVM.
+   */
+  static final AtomicBoolean QUERY_PARAMETER_ENABLED_WARNING_LOGGED = new AtomicBoolean( false );
 
   private static void deprecateWarning() {
     String key = "PentahoSystem.WARN_DEPRECATED_CLASS"; //$NON-NLS-1$
@@ -247,6 +262,11 @@ public class ChartHelper {
           String query = parameterProvider.getStringParameter( "query", null ); //$NON-NLS-1$
           String dataAction = parameterProvider.getStringParameter( "data-process", null ); //$NON-NLS-1$
 
+          // The query is dropped rather than executed while the capability is disabled, so the supplied SQL
+          // never reaches a data source. Chart generation carries on with whatever other data source it was
+          // given, if any.
+          query = resolveChartQueryParameter( query, logger );
+
           IPentahoConnection connection = null;
           try {
             chartComponent.setParamName( innerParam );
@@ -312,6 +332,61 @@ public class ChartHelper {
       }
     }
     return result;
+  }
+
+  /**
+   * Resolves the deprecated <code>query</code> request parameter of the chart component against the capability
+   * flag.
+   * <p/>
+   * When the capability is disabled, which is the default, the supplied query is discarded and an error is logged,
+   * so that it never reaches a data source. Chart generation carries on without it: charts that source their data
+   * from an action sequence, from a chart definition or through the <code>data-process</code> parameter are
+   * unaffected.
+   * <p/>
+   * When the capability is enabled, the query is returned unchanged and, the first time this happens, a warning is
+   * logged so that the deviation from the secure default is visible in the server log.
+   *
+   * @param query  the SQL supplied through the <code>query</code> request parameter, possibly <code>null</code>
+   * @param logger the logger that records the discarded query
+   * @return the supplied query when the capability is enabled, <code>null</code> otherwise
+   */
+  static String resolveChartQueryParameter( final String query, final ILogger logger ) {
+    if ( query == null ) {
+      return null;
+    }
+
+    if ( isChartQueryParameterEnabled() ) {
+      if ( QUERY_PARAMETER_ENABLED_WARNING_LOGGED.compareAndSet( false, true ) ) {
+        Logger.warn( ChartHelper.class,
+          Messages.getInstance().getString( "ChartHelper.WARN_0001_QUERY_PARAMETER_ENABLED" ) ); //$NON-NLS-1$
+      }
+
+      return query;
+    }
+
+    // Do not echo the ignored statement back to the caller, only record the fact server side.
+    logger.error(
+      Messages.getInstance().getErrorString( "ChartHelper.ERROR_0004_QUERY_PARAMETER_IGNORED" ) ); //$NON-NLS-1$
+
+    return null;
+  }
+
+  /**
+   * Indicates whether the deprecated <code>query</code> request parameter of the chart component is enabled.
+   * <p/>
+   * The value is read from the <code>chart-query-parameter-enabled</code> property of
+   * <code>system.properties</code> on every call, and defaults to <code>false</code> when the property is absent
+   * or when the system configuration is unavailable, so that the capability always fails closed.
+   *
+   * @return <code>true</code> when the <code>query</code> request parameter may be used, <code>false</code>
+   *         otherwise
+   */
+  static boolean isChartQueryParameterEnabled() {
+    final ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+    final String value = ( systemConfig == null ) ? null
+      : systemConfig.getProperty( CHART_QUERY_PARAMETER_ENABLED_PROPERTY, "false" ); //$NON-NLS-1$
+
+    return "true".equalsIgnoreCase( value ); //$NON-NLS-1$
   }
 
   /**
