@@ -236,7 +236,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
         }
         repositoryFileAclDao.updateAcl( aclBuilder.build() );
       } catch ( Throwable th ) {
-        th.printStackTrace();
+        logger.error( "Unable to grant parent tenant administrators access to the new tenant", th );
       } finally {
         PentahoSessionHolder.setSession( origPentahoSession );
         SecurityContextHolder.getContext().setAuthentication( origAuthentication );
@@ -286,7 +286,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
         try {
           deleteTenants( session, tenants );
         } catch ( RepositoryException e ) {
-          e.printStackTrace();
+          logger.error( "Unable to delete tenants", e );
         }
         return null;
       }
@@ -301,7 +301,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
         try {
           deleteTenant( session, tenant );
         } catch ( RepositoryException e ) {
-          e.printStackTrace();
+          logger.error( "Unable to delete tenant", e );
         }
         return null;
       }
@@ -321,7 +321,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
         try {
           enableTenant( session, tenant, enable );
         } catch ( RepositoryException e ) {
-          e.printStackTrace();
+          logger.error( "Unable to update tenant enabled state", e );
         }
         return null;
       }
@@ -354,7 +354,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
         try {
           enableTenants( session, tenants, enable );
         } catch ( RepositoryException e ) {
-          e.printStackTrace();
+          logger.error( "Unable to update tenants enabled state", e );
         }
         return null;
       }
@@ -371,7 +371,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
           childTenants = getChildTenants( session, parentTenant, includeDisabledTenants );
         } catch ( RepositoryException e ) {
           childTenants = new ArrayList<ITenant>();
-          e.printStackTrace();
+          logger.error( "Unable to get child tenants", e );
         }
         return childTenants;
       }
@@ -388,7 +388,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
           childTenants = getChildTenants( session, parentTenant );
         } catch ( RepositoryException e ) {
           childTenants = new ArrayList<ITenant>();
-          e.printStackTrace();
+          logger.error( "Unable to get child tenants", e );
         }
         return childTenants;
       }
