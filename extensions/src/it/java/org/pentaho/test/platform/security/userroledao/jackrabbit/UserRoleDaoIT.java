@@ -59,6 +59,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactory;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -98,6 +99,8 @@ import static org.junit.Assert.fail;
 @Ignore
 // Test commented out until BISERVER-14405 is fixed.
 public class UserRoleDaoIT implements ApplicationContextAware {
+
+  private static final File REPOSITORY_HOME = new File( "/tmp/repository-future/jackrabbit-test-TRUNK" );
 
   public static final String MAIN_TENANT_1 = "maintenant1";
   public static final String SUB_TENANT1_1 = "subtenant11";
@@ -238,9 +241,7 @@ public class UserRoleDaoIT implements ApplicationContextAware {
 
   @BeforeClass
   public static void setUpClass() throws Exception {
-    // folder cannot be deleted at teardown shutdown hooks have not yet necessarily completed
-    // parent folder must match jcrRepository.homeDir bean property in repository-test-override.spring.xml
-    FileUtils.deleteDirectory( new File( "/tmp/jackrabbit-test-TRUNK" ) );
+    FileUtils.deleteDirectory( REPOSITORY_HOME );
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
   }
 
@@ -307,7 +308,6 @@ public class UserRoleDaoIT implements ApplicationContextAware {
     testJcrTemplate = null;
     roleBindingDaoTarget = null;
     authorizationPolicy = null;
-    mp = null;
     repositoryFileDao = null;
     tenantedRoleNameUtils = null;
     tenantedUserNameUtils = null;
@@ -326,9 +326,18 @@ public class UserRoleDaoIT implements ApplicationContextAware {
     subTenant2_1_2 = null;
     subTenant2_2_1 = null;
     subTenant2_2_2 = null;
-    if ( startupCalled ) {
-      manager.shutdown();
+    try {
+      if ( startupCalled ) {
+        manager.shutdown();
+      }
+    } finally {
+      if ( mp != null ) {
+        mp.stop();
+      }
+      PentahoSessionHolder.removeSession();
+      SecurityContextHolder.clearContext();
     }
+    mp = null;
     tenantManager = null;
   }
 
@@ -390,7 +399,7 @@ public class UserRoleDaoIT implements ApplicationContextAware {
   public void setApplicationContext( final ApplicationContext applicationContext ) throws BeansException {
     manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean( "backingRepositoryLifecycleManager" );
     SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean( "jcrSessionFactory" );
-    testJcrTemplate = new JcrTemplate( jcrSessionFactory );
+    testJcrTemplate = new PentahoJcrTemplate( jcrSessionFactory );
     testJcrTemplate.setAllowCreate( true );
     testJcrTemplate.setExposeNativeSession( true );
     repositoryAdminUsername = (String) applicationContext.getBean( "repositoryAdminUsername" );
