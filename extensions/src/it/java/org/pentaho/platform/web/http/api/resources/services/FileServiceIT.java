@@ -1135,6 +1135,7 @@ public class FileServiceIT {
     IAuthorizationPolicy mockAuthPolicy = mock( IAuthorizationPolicy.class );
     doReturn( false ).when( mockAuthPolicy ).isAllowed( nullable( String.class ) );
     doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
+    doReturn( mock( RepositoryFile.class ) ).when( fileService.repository ).getFile( nullable( String.class ) );
 
     /* register  mockAuthPolicy with PentahoSystem so SystemUtils can use it */
     PentahoSystem.registerObject( mockAuthPolicy );
