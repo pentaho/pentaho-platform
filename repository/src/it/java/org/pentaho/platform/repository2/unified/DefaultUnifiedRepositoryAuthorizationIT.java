@@ -85,6 +85,11 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings( "nls" )
 public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepositoryBase {
 
+  private static final String DISPLAY_HOME_IN_MODERN_USER_CONSOLE =
+      "com.pentaho.userconsole.plugins.pas-home.display";
+  private static final String DISPLAY_BROWSE_FILES_IN_MODERN_USER_CONSOLE =
+      "com.pentaho.userconsole.plugins.pas-browse-files.display";
+
   @Before
   public void setup() {
     IRepositoryVersionManager mockRepositoryVersionManager = mock( IRepositoryVersionManager.class );
@@ -943,10 +948,12 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
 
     // List could come back in any order so check elements individually
     List<String> list = roleBindingDao.getBoundLogicalRoleNames( Arrays.asList( AUTHENTICATED_ROLE_NAME, "ceo" ) );
-    assertEquals( 3, list.size() );
+    assertEquals( 5, list.size() );
     findInList( RepositoryReadAction.NAME, list );
     findInList( SchedulerAction.NAME, list );
     findInList( RepositoryCreateAction.NAME, list );
+    findInList( DISPLAY_HOME_IN_MODERN_USER_CONSOLE, list );
+    findInList( DISPLAY_BROWSE_FILES_IN_MODERN_USER_CONSOLE, list );
   }
 
   private void findInList( String name, List<String> list ) {
@@ -955,7 +962,7 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
         return;
       }
     }
-    fail( "One of the 3 roles in the role list did not match" );
+    fail( "Expected role was not found in the role list" );
   }
 
   @Test
@@ -979,10 +986,12 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
     // test with null namespace
     List<String> allowedActions = authorizationPolicy.getAllowedActions( null );
 
-    assertEquals( 3, allowedActions.size() );
+    assertEquals( 5, allowedActions.size() );
     assertTrue( allowedActions.contains( RepositoryReadAction.NAME ) );
     assertTrue( allowedActions.contains( RepositoryCreateAction.NAME ) );
     assertTrue( allowedActions.contains( SchedulerAction.NAME ) );
+    assertTrue( allowedActions.contains( DISPLAY_HOME_IN_MODERN_USER_CONSOLE ) );
+    assertTrue( allowedActions.contains( DISPLAY_BROWSE_FILES_IN_MODERN_USER_CONSOLE ) );
 
     // test with explicit namespace
     allowedActions = authorizationPolicy.getAllowedActions( NAMESPACE_REPOSITORY );
@@ -1002,10 +1011,12 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
     // login with pat (in tenant duff); pat is granted "Authenticated" so he is allowed
     login( USERNAME_PAT, tenantDuff, new String[] { tenantAuthenticatedRoleName } );
     allowedActions = authorizationPolicy.getAllowedActions( null );
-    assertEquals( 3, allowedActions.size() );
+    assertEquals( 5, allowedActions.size() );
     assertTrue( allowedActions.contains( RepositoryReadAction.NAME ) );
     assertTrue( allowedActions.contains( RepositoryCreateAction.NAME ) );
     assertTrue( allowedActions.contains( SchedulerAction.NAME ) );
+    assertTrue( allowedActions.contains( DISPLAY_HOME_IN_MODERN_USER_CONSOLE ) );
+    assertTrue( allowedActions.contains( DISPLAY_BROWSE_FILES_IN_MODERN_USER_CONSOLE ) );
 
     login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
     allowedActions = authorizationPolicy.getAllowedActions( NAMESPACE_REPOSITORY );
@@ -1047,21 +1058,21 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
       login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
       userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", null );
       userRoleDao.createUser( tenantDuff, USERNAME_PAT, PASSWORD, "", null );
-      assertEquals( 6, authorizationPolicy.getAllowedActions( null ).size() );
+      assertEquals( 8, authorizationPolicy.getAllowedActions( null ).size() );
 
       login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
-      assertEquals( 3, authorizationPolicy.getAllowedActions( null ).size() );
+      assertEquals( 5, authorizationPolicy.getAllowedActions( null ).size() );
 
       // login with admin (in tenant acme)
       login( USERNAME_ADMIN, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName } );
       roleBindingDao
           .setRoleBindings( tenantAuthenticatedRoleName, Arrays.asList( RepositoryReadAction.NAME,
               RepositoryCreateAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME ) );
-      assertEquals( 6, authorizationPolicy.getAllowedActions( null ).size() );
+      assertEquals( 8, authorizationPolicy.getAllowedActions( null ).size() );
 
       // login with pat (in tenant duff)
       login( USERNAME_PAT, tenantDuff, new String[] { tenantAuthenticatedRoleName } );
-      assertEquals( 3, authorizationPolicy.getAllowedActions( null ).size() );
+      assertEquals( 5, authorizationPolicy.getAllowedActions( null ).size() );
 
       // login with suzy again (in tenant acme); expect additional action for suzy
       login( USERNAME_SUZY, tenantAcme, new String[] { tenantAuthenticatedRoleName } );
@@ -1158,14 +1169,18 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
     assertNotNull( struct );
     assertNotNull( struct.bindingMap );
     assertEquals( 3, struct.bindingMap.size() );
-    assertEquals( Arrays.asList( new String[] { RepositoryReadAction.NAME, RepositoryCreateAction.NAME,
-      SchedulerExecuteAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME, PublishAction.NAME } ),
-      struct.bindingMap.get( superAdminRoleName ) );
-    assertEquals( Arrays.asList( new String[] { RepositoryReadAction.NAME, RepositoryCreateAction.NAME,
-      SchedulerExecuteAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME, PublishAction.NAME } ),
-      struct.bindingMap.get( tenantAdminRoleName ) );
-    assertEquals( Arrays.asList( new String[] { RepositoryReadAction.NAME, RepositoryCreateAction.NAME,
-      SchedulerAction.NAME } ), struct.bindingMap.get( tenantAuthenticatedRoleName ) );
+    List<String> expectedAdminActions = Arrays.asList( RepositoryReadAction.NAME, RepositoryCreateAction.NAME,
+      SchedulerExecuteAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME, PublishAction.NAME,
+      DISPLAY_HOME_IN_MODERN_USER_CONSOLE, DISPLAY_BROWSE_FILES_IN_MODERN_USER_CONSOLE );
+    assertEquals( 8, struct.bindingMap.get( superAdminRoleName ).size() );
+    assertTrue( struct.bindingMap.get( superAdminRoleName ).containsAll( expectedAdminActions ) );
+    assertEquals( 8, struct.bindingMap.get( tenantAdminRoleName ).size() );
+    assertTrue( struct.bindingMap.get( tenantAdminRoleName ).containsAll( expectedAdminActions ) );
+    List<String> expectedAuthenticatedActions = Arrays.asList( RepositoryReadAction.NAME,
+      RepositoryCreateAction.NAME, SchedulerAction.NAME, DISPLAY_HOME_IN_MODERN_USER_CONSOLE,
+      DISPLAY_BROWSE_FILES_IN_MODERN_USER_CONSOLE );
+    assertEquals( 5, struct.bindingMap.get( tenantAuthenticatedRoleName ).size() );
+    assertTrue( struct.bindingMap.get( tenantAuthenticatedRoleName ).containsAll( expectedAuthenticatedActions ) );
     roleBindingDao.setRoleBindings( "whatever", Arrays.asList( "org.pentaho.p1.reader" ) );
 
     struct = roleBindingDao.getRoleBindingStruct( Locale.getDefault().toString() );
@@ -1173,7 +1188,7 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
     assertEquals( Arrays.asList( new String[] { "org.pentaho.p1.reader" } ), struct.bindingMap.get( "whatever" ) );
 
     assertNotNull( struct.logicalRoleNameMap );
-    assertEquals( 6, struct.logicalRoleNameMap.size() );
+    assertEquals( 8, struct.logicalRoleNameMap.size() );
     assertEquals( "Create Content", struct.logicalRoleNameMap.get( RepositoryCreateAction.NAME ) );
 
     assertNotNull( struct.immutableRoles );
