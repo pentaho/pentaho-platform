@@ -76,6 +76,7 @@ import org.pentaho.platform.security.policy.rolebased.RoleAuthorizationPolicy;
 import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService;
 import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserRoleListService;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.pentaho.test.platform.utils.TestResourceLocation;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -119,7 +120,7 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
 
   private static final File REPOSITORY_HOME = new File( "/tmp/repository-future/jackrabbit-test-TRUNK" );
 
-  private static MicroPlatform mp = new MicroPlatform();
+  private static MicroPlatform mp = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/solution" );
 
   private static ResourceConfig config = new ResourceConfig().packages( "org.pentaho.platform.web.http.api.resources" );
   private static ServletDeploymentContext servletDeploymentContext = ServletDeploymentContext.forServlet( new ServletContainer( config ) )
@@ -197,9 +198,10 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
     }
   }
 
+  @Override
   @Before
-  public void beforeTest() throws PlatformInitializationException {
-    mp = new MicroPlatform();
+  public void setUp() throws Exception {
+    mp = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/solution" );
     // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.defineInstance( IPluginManager.class, pluginManager );
     mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
@@ -236,34 +238,38 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
     logout();
     startupCalled = true;
     SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
+    super.setUp();
   }
 
+  @Override
   @After
-  public void afterTest() throws Exception {
-    clearRoleBindings();
-    // null out fields to get back memory
-    pluginManager = null;
-    authorizationPolicy = null;
-    loginAsRepositoryAdmin();
-    SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
-    logout();
-    repositoryAdminUsername = null;
-    adminAuthorityName = null;
-    authenticatedAuthorityName = null;
-    authorizationPolicy = null;
-    testJcrTemplate = null;
+  public void tearDown() throws Exception {
     try {
+      clearRoleBindings();
+      pluginManager = null;
+      authorizationPolicy = null;
+      loginAsRepositoryAdmin();
+      SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
+      logout();
+      repositoryAdminUsername = null;
+      adminAuthorityName = null;
+      authenticatedAuthorityName = null;
+      authorizationPolicy = null;
+      testJcrTemplate = null;
       if ( startupCalled ) {
         manager.shutdown();
       }
     } finally {
-      if ( mp != null ) {
-        mp.stop();
+      try {
+        super.tearDown();
+      } finally {
+        if ( mp != null ) {
+          mp.stop();
+        }
+        PentahoSessionHolder.removeSession();
+        SecurityContextHolder.clearContext();
       }
-      PentahoSessionHolder.removeSession();
-      SecurityContextHolder.clearContext();
     }
-    // null out fields to get back memory
     repo = null;
   }
 
@@ -676,7 +682,8 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
   public void setApplicationContext( final ApplicationContext applicationContext ) throws BeansException {
     manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean( "backingRepositoryLifecycleManager" );
     SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean( "jcrSessionFactory" );
-    testJcrTemplate = new PentahoJcrTemplate( jcrSessionFactory );
+    testJcrTemplate = new PentahoJcrTemplate();
+    testJcrTemplate.setSessionFactory( jcrSessionFactory );
     testJcrTemplate.setAllowCreate( true );
     testJcrTemplate.setExposeNativeSession( true );
     repositoryAdminUsername = (String) applicationContext.getBean( "repositoryAdminUsername" );
