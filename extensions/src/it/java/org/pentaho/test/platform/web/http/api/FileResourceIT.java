@@ -266,7 +266,6 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
       repositoryAdminUsername = null;
       adminAuthorityName = null;
       authenticatedAuthorityName = null;
-      authorizationPolicy = null;
       testJcrTemplate = null;
       if ( startupCalled ) {
         manager.shutdown();
