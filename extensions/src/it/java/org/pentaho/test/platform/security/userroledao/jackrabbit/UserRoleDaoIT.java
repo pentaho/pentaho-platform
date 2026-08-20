@@ -53,6 +53,7 @@ import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameRes
 import org.pentaho.platform.security.userroledao.PentahoRole;
 import org.pentaho.platform.security.userroledao.PentahoUser;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.pentaho.test.platform.utils.TestResourceLocation;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -243,6 +244,7 @@ public class UserRoleDaoIT implements ApplicationContextAware {
   public static void setUpClass() throws Exception {
     FileUtils.deleteDirectory( REPOSITORY_HOME );
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
+    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
   }
 
   @AfterClass
@@ -252,7 +254,7 @@ public class UserRoleDaoIT implements ApplicationContextAware {
 
   @Before
   public void setUp() throws Exception {
-    mp = new MicroPlatform();
+    mp = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/solution" );
     // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.defineInstance( IPluginManager.class, pluginManager );
     mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
@@ -266,6 +268,7 @@ public class UserRoleDaoIT implements ApplicationContextAware {
     mp.defineInstance( "useMultiByteEncoding", new Boolean( false ) );
     // Start the micro-platform
     mp.start();
+    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
     loginAsRepositoryAdmin();
     setAclManagement();
     logout();
@@ -274,59 +277,28 @@ public class UserRoleDaoIT implements ApplicationContextAware {
 
   @After
   public void tearDown() throws Exception {
-    cleanupTenant( subTenant2_2_2 );
-    cleanupTenant( subTenant2_2_1 );
-    cleanupTenant( subTenant2_2 );
-    cleanupTenant( subTenant2_1_2 );
-    cleanupTenant( subTenant2_1_1 );
-    cleanupTenant( subTenant2_1 );
-    cleanupTenant( subTenant1_2_2 );
-    cleanupTenant( subTenant1_2_1 );
-    cleanupTenant( subTenant1_2 );
-    cleanupTenant( subTenant1_1_2 );
-    cleanupTenant( subTenant1_1_1 );
-    cleanupTenant( subTenant1_1 );
-    cleanupTenant( mainTenant_2 );
-    cleanupTenant( mainTenant_1 );
-    cleanupTenant( systemTenant );
-
-    // null out fields to get back memory
-    pluginManager = null;
-    authorizationPolicy = null;
-    loginAsRepositoryAdmin();
-    logout();
-
-    pPrincipalName = null;
-    userRoleDaoProxy = null;
-    userRoleDaoTestProxy = null;
-    tenantManager = null;
-    repositoryAdminUsername = null;
-    adminRoleName = null;
-    authenticatedRoleName = null;
-    sysAdminRoleName = null;
-    sysAdminUserName = null;
-    testJcrTemplate = null;
-    roleBindingDaoTarget = null;
-    authorizationPolicy = null;
-    repositoryFileDao = null;
-    tenantedRoleNameUtils = null;
-    tenantedUserNameUtils = null;
-    systemTenant = null;
-    mainTenant_1 = null;
-    mainTenant_2 = null;
-    subTenant1_1 = null;
-    subTenant1_2 = null;
-    subTenant1_1_1 = null;
-    subTenant1_1_2 = null;
-    subTenant1_2_1 = null;
-    subTenant1_2_2 = null;
-    subTenant2_1 = null;
-    subTenant2_2 = null;
-    subTenant2_1_1 = null;
-    subTenant2_1_2 = null;
-    subTenant2_2_1 = null;
-    subTenant2_2_2 = null;
     try {
+      cleanupTenant( subTenant2_2_2 );
+      cleanupTenant( subTenant2_2_1 );
+      cleanupTenant( subTenant2_2 );
+      cleanupTenant( subTenant2_1_2 );
+      cleanupTenant( subTenant2_1_1 );
+      cleanupTenant( subTenant2_1 );
+      cleanupTenant( subTenant1_2_2 );
+      cleanupTenant( subTenant1_2_1 );
+      cleanupTenant( subTenant1_2 );
+      cleanupTenant( subTenant1_1_2 );
+      cleanupTenant( subTenant1_1_1 );
+      cleanupTenant( subTenant1_1 );
+      cleanupTenant( mainTenant_2 );
+      cleanupTenant( mainTenant_1 );
+      cleanupTenant( systemTenant );
+
+      pluginManager = null;
+      authorizationPolicy = null;
+      loginAsRepositoryAdmin();
+      logout();
+
       if ( startupCalled ) {
         manager.shutdown();
       }
@@ -399,7 +371,8 @@ public class UserRoleDaoIT implements ApplicationContextAware {
   public void setApplicationContext( final ApplicationContext applicationContext ) throws BeansException {
     manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean( "backingRepositoryLifecycleManager" );
     SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean( "jcrSessionFactory" );
-    testJcrTemplate = new PentahoJcrTemplate( jcrSessionFactory );
+    testJcrTemplate = new PentahoJcrTemplate();
+    testJcrTemplate.setSessionFactory( jcrSessionFactory );
     testJcrTemplate.setAllowCreate( true );
     testJcrTemplate.setExposeNativeSession( true );
     repositoryAdminUsername = (String) applicationContext.getBean( "repositoryAdminUsername" );
