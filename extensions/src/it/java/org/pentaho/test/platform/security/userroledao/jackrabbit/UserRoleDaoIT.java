@@ -65,6 +65,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
@@ -236,9 +237,14 @@ public class UserRoleDaoIT implements ApplicationContextAware {
   private ITenant subTenant2_1_2;
   private ITenant subTenant2_2_1;
   private ITenant subTenant2_2_2;
+  private static SecurityContextHolderStrategy previousSecurityContextHolderStrategy;
+  private static String previousPentahoSessionHolderStrategy;
 
   @BeforeClass
   public static void setUpClass() throws Exception {
+    previousSecurityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+    previousPentahoSessionHolderStrategy = System.getProperty( PentahoSessionHolder.SYSTEM_PROPERTY,
+      PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
     FileUtils.deleteDirectory( REPOSITORY_HOME );
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
     SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
@@ -246,7 +252,8 @@ public class UserRoleDaoIT implements ApplicationContextAware {
 
   @AfterClass
   public static void tearDownClass() throws Exception {
-    PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
+    PentahoSessionHolder.setStrategyName( previousPentahoSessionHolderStrategy );
+    SecurityContextHolder.setContextHolderStrategy( previousSecurityContextHolderStrategy );
   }
 
   @Before
