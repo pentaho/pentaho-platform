@@ -13,6 +13,7 @@
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
+import com.google.common.cache.Cache;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,8 +23,11 @@ import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.SessionFactory;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.Repository;
 import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,6 +35,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.pentaho.platform.repository2.unified.jcr.sejcr.GuavaCachePoolPentahoJcrSessionFactory.USAGE_COUNT;
 
@@ -199,5 +208,33 @@ public class GuavaCachePoolPentahoJcrRaceConditionTest {
       throw new AssertionError( "Worker thread failed", workerFailure.get() );
     }
     assertEquals( "All balanced factory + template operations return the count to 0", 0, usageCount.get() );
+  }
+
+  @Test
+  public void evictingDeadSessionDoesNotReadUsageCountOrLogOut() throws Exception {
+    Repository repository = org.mockito.Mockito.mock( Repository.class );
+    Session cachedSession = org.mockito.Mockito.mock( Session.class );
+    SimpleCredentials credentials = new SimpleCredentials( "user", "password".toCharArray() );
+    when( repository.login( any( SimpleCredentials.class ), eq( "workspace" ) ) ).thenReturn( cachedSession );
+    when( cachedSession.isLive() ).thenReturn( true );
+    when( cachedSession.getAttribute( USAGE_COUNT ) ).thenReturn( usageCount );
+
+    GuavaCachePoolPentahoJcrSessionFactory factory =
+      new GuavaCachePoolPentahoJcrSessionFactory( repository, "workspace" );
+    factory.getSession( credentials );
+
+    clearInvocations( cachedSession );
+    when( cachedSession.isLive() ).thenReturn( false );
+    getSessionCache( factory ).invalidateAll();
+
+    verify( cachedSession, never() ).getAttribute( USAGE_COUNT );
+    verify( cachedSession, never() ).logout();
+  }
+
+  @SuppressWarnings( "unchecked" )
+  private Cache<?, ?> getSessionCache( GuavaCachePoolPentahoJcrSessionFactory factory ) throws Exception {
+    Field cacheField = GuavaCachePoolPentahoJcrSessionFactory.class.getDeclaredField( "sessionCache" );
+    cacheField.setAccessible( true );
+    return (Cache<?, ?>) cacheField.get( factory );
   }
 }

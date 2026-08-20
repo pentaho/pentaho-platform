@@ -92,6 +92,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
@@ -131,6 +132,9 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
 
   private static final String API_CONTEXT_PATH = "api";
   public static final String MAIN_TENANT_1 = "maintenant1";
+  private static String previousSpringSecurityStrategy;
+  private static SecurityContextHolderStrategy previousSecurityContextHolderStrategy;
+  private static String previousPentahoSessionHolderStrategy;
 
   private IUnifiedRepository repo;
 
@@ -183,6 +187,10 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
 
   @BeforeClass
   public static void beforeClass() throws Exception {
+    previousSpringSecurityStrategy = System.getProperty( SYSTEM_PROPERTY );
+    previousSecurityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+    previousPentahoSessionHolderStrategy = System.getProperty( PentahoSessionHolder.SYSTEM_PROPERTY,
+      PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
     System.setProperty( SYSTEM_PROPERTY, "MODE_GLOBAL" );
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
 
@@ -194,8 +202,13 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
   public static void afterClass() {
     PentahoSessionHolder.removeSession();
     SecurityContextHolder.clearContext();
-    PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
-    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
+    PentahoSessionHolder.setStrategyName( previousPentahoSessionHolderStrategy );
+    SecurityContextHolder.setContextHolderStrategy( previousSecurityContextHolderStrategy );
+    if ( previousSpringSecurityStrategy == null ) {
+      System.clearProperty( SYSTEM_PROPERTY );
+    } else {
+      System.setProperty( SYSTEM_PROPERTY, previousSpringSecurityStrategy );
+    }
   }
 
   private void cleanupUserAndRoles( final ITenant tenant ) {
@@ -212,6 +225,7 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
   @Before
   public void setUp() throws Exception {
     mp = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/solution" );
+    mp.setFullyQualifiedServerUrl( getBaseUri() + API_CONTEXT_PATH + "/" );
     // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.defineInstance( IPluginManager.class, pluginManager );
     mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
