@@ -94,10 +94,11 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
       .maximumSize( cacheSize )
       .removalListener( (RemovalListener<CacheKey, Session>) objectObjectRemovalNotification -> {
         Session session = objectObjectRemovalNotification.getValue();
-        if ( sessionIsUnused( session ) ) {
+        boolean sessionIsLive = session.isLive();
+        if ( sessionIsLive && sessionIsUnused( session ) ) {
           logger.debug( "Logging out cached session after eviction " + session );
           session.logout();
-        } else {
+        } else if ( sessionIsLive ) {
           logger.warn( "Session has expired from cache, but still marked as in use.  May be orphaned.  " + session );
         }
       } ).recordStats()

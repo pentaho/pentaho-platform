@@ -21,6 +21,8 @@ import jakarta.ws.rs.core.Response;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
+import org.apache.jackrabbit.api.JackrabbitWorkspace;
+import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.test.DeploymentContext;
@@ -32,7 +34,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
@@ -67,6 +68,7 @@ import org.pentaho.platform.repository2.mt.RepositoryTenantManager;
 import org.pentaho.platform.repository2.unified.DefaultRepositoryVersionManager;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxyFactory;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
@@ -75,24 +77,34 @@ import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRo
 import org.pentaho.platform.security.policy.rolebased.RoleAuthorizationPolicy;
 import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService;
 import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserRoleListService;
+import org.pentaho.platform.web.http.filters.PentahoRequestContextFilter;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.pentaho.test.platform.utils.TestResourceLocation;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactory;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
+import javax.jcr.security.AccessControlException;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -112,17 +124,17 @@ import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertRespon
 @ContextConfiguration ( locations = { "classpath:/repository.spring.xml",
     "classpath:/repository-test-override.spring.xml" } )
 @SuppressWarnings ( "nls" )
-@Ignore
-// Test commented out until BISERVER-14405 is fixed.
 public class FileResourceIT extends JerseyTest implements ApplicationContextAware {
 
-  private static MicroPlatform mp = new MicroPlatform();
+  private static final File REPOSITORY_HOME = new File( "/tmp/repository-future/jackrabbit-test-TRUNK" );
 
-  private static ResourceConfig config = new ResourceConfig().packages( "org.pentaho.platform.web.http.api.resources" );
-  private static ServletDeploymentContext servletDeploymentContext = ServletDeploymentContext.forServlet( new ServletContainer( config ) )
-    .contextPath( "api" )
-    .build();
+  private static MicroPlatform mp = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/solution" );
+
+  private static final String API_CONTEXT_PATH = "api";
   public static final String MAIN_TENANT_1 = "maintenant1";
+  private static String previousSpringSecurityStrategy;
+  private static SecurityContextHolderStrategy previousSecurityContextHolderStrategy;
+  private static String previousPentahoSessionHolderStrategy;
 
   private IUnifiedRepository repo;
 
@@ -156,30 +168,47 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
 
   public FileResourceIT() throws Exception {
     super();
-    mp.setFullyQualifiedServerUrl( getBaseUri() + servletDeploymentContext.getContextPath() + "/" );
+    mp.setFullyQualifiedServerUrl( getBaseUri() + API_CONTEXT_PATH + "/" );
   }
 
+  @Override
   protected DeploymentContext configureDeployment() {
-    return servletDeploymentContext;
+    ResourceConfig config = new ResourceConfig().packages( "org.pentaho.platform.web.http.api.resources" );
+    return ServletDeploymentContext.forServlet( new ServletContainer( config ) )
+      .addFilter( PentahoRequestContextFilter.class, "pentahoRequestContextFilter" )
+      .contextPath( API_CONTEXT_PATH )
+      .build();
   }
 
+  @Override
   protected TestContainerFactory getTestContainerFactory() {
     return new GrizzlyWebTestContainerFactory();
   }
 
   @BeforeClass
   public static void beforeClass() throws Exception {
+    previousSpringSecurityStrategy = System.getProperty( SYSTEM_PROPERTY );
+    previousSecurityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+    previousPentahoSessionHolderStrategy = System.getProperty( PentahoSessionHolder.SYSTEM_PROPERTY,
+      PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
     System.setProperty( SYSTEM_PROPERTY, "MODE_GLOBAL" );
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
 
-    FileUtils.deleteDirectory( new File( "/tmp/jackrabbit-test-TRUNK" ) );
+    FileUtils.deleteDirectory( REPOSITORY_HOME );
     SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
   }
 
   @AfterClass
   public static void afterClass() {
-    PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
-    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
+    PentahoSessionHolder.removeSession();
+    SecurityContextHolder.clearContext();
+    PentahoSessionHolder.setStrategyName( previousPentahoSessionHolderStrategy );
+    SecurityContextHolder.setContextHolderStrategy( previousSecurityContextHolderStrategy );
+    if ( previousSpringSecurityStrategy == null ) {
+      System.clearProperty( SYSTEM_PROPERTY );
+    } else {
+      System.setProperty( SYSTEM_PROPERTY, previousSpringSecurityStrategy );
+    }
   }
 
   private void cleanupUserAndRoles( final ITenant tenant ) {
@@ -192,9 +221,11 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
     }
   }
 
+  @Override
   @Before
-  public void beforeTest() throws PlatformInitializationException {
-    mp = new MicroPlatform();
+  public void setUp() throws Exception {
+    mp = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/solution" );
+    mp.setFullyQualifiedServerUrl( getBaseUri() + API_CONTEXT_PATH + "/" );
     // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.defineInstance( IPluginManager.class, pluginManager );
     mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
@@ -228,35 +259,66 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
 
     mp.defineInstance( IUserRoleListService.class, userRoleListService );
     mp.start();
+    loginAsRepositoryAdmin();
+    setAclManagement();
     logout();
     startupCalled = true;
     SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
+    super.setUp();
   }
 
+  @Override
   @After
-  public void afterTest() throws Exception {
-    clearRoleBindings();
-    // null out fields to get back memory
-    pluginManager = null;
-    authorizationPolicy = null;
-    loginAsRepositoryAdmin();
-    SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
-    logout();
-    repositoryAdminUsername = null;
-    adminAuthorityName = null;
-    authenticatedAuthorityName = null;
-    authorizationPolicy = null;
-    testJcrTemplate = null;
-    if ( startupCalled ) {
-      manager.shutdown();
+  public void tearDown() throws Exception {
+    try {
+      clearRoleBindings();
+      pluginManager = null;
+      authorizationPolicy = null;
+      loginAsRepositoryAdmin();
+      SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
+      logout();
+      repositoryAdminUsername = null;
+      adminAuthorityName = null;
+      authenticatedAuthorityName = null;
+      testJcrTemplate = null;
+      if ( startupCalled ) {
+        manager.shutdown();
+      }
+    } finally {
+      try {
+        super.tearDown();
+      } finally {
+        if ( mp != null ) {
+          mp.stop();
+        }
+        PentahoSessionHolder.removeSession();
+        SecurityContextHolder.clearContext();
+      }
     }
-    mp.stop();
-    // null out fields to get back memory
     repo = null;
   }
 
   protected void clearRoleBindings() throws Exception {
     loginAsRepositoryAdmin();
+  }
+
+  private void setAclManagement() {
+    testJcrTemplate.execute( new JcrCallback() {
+      @Override
+      public Object doInJcr( Session session ) throws IOException, RepositoryException {
+        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+        Workspace workspace = session.getWorkspace();
+        PrivilegeManager privilegeManager = ( (JackrabbitWorkspace) workspace ).getPrivilegeManager();
+        try {
+          privilegeManager.getPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE() );
+        } catch ( AccessControlException ace ) {
+          privilegeManager.registerPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(), false,
+              new String[0] );
+        }
+        session.save();
+        return null;
+      }
+    } );
   }
 
   protected void createTestFile( String pathId, String text ) {
@@ -664,7 +726,8 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
   public void setApplicationContext( final ApplicationContext applicationContext ) throws BeansException {
     manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean( "backingRepositoryLifecycleManager" );
     SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean( "jcrSessionFactory" );
-    testJcrTemplate = new JcrTemplate( jcrSessionFactory );
+    testJcrTemplate = new PentahoJcrTemplate();
+    testJcrTemplate.setSessionFactory( jcrSessionFactory );
     testJcrTemplate.setAllowCreate( true );
     testJcrTemplate.setExposeNativeSession( true );
     repositoryAdminUsername = (String) applicationContext.getBean( "repositoryAdminUsername" );

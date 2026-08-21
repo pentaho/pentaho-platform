@@ -24,7 +24,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
@@ -53,17 +52,20 @@ import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameRes
 import org.pentaho.platform.security.userroledao.PentahoRole;
 import org.pentaho.platform.security.userroledao.PentahoUser;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.pentaho.test.platform.utils.TestResourceLocation;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactory;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
@@ -95,9 +97,9 @@ import static org.junit.Assert.fail;
 @ContextConfiguration ( locations = { "classpath:/repository.spring.xml",
     "classpath:/repository-test-override.spring.xml" } )
 @SuppressWarnings ( "nls" )
-@Ignore
-// Test commented out until BISERVER-14405 is fixed.
 public class UserRoleDaoIT implements ApplicationContextAware {
+
+  private static final File REPOSITORY_HOME = new File( "/tmp/repository-future/jackrabbit-test-TRUNK" );
 
   public static final String MAIN_TENANT_1 = "maintenant1";
   public static final String SUB_TENANT1_1 = "subtenant11";
@@ -235,23 +237,28 @@ public class UserRoleDaoIT implements ApplicationContextAware {
   private ITenant subTenant2_1_2;
   private ITenant subTenant2_2_1;
   private ITenant subTenant2_2_2;
+  private static SecurityContextHolderStrategy previousSecurityContextHolderStrategy;
+  private static String previousPentahoSessionHolderStrategy;
 
   @BeforeClass
   public static void setUpClass() throws Exception {
-    // folder cannot be deleted at teardown shutdown hooks have not yet necessarily completed
-    // parent folder must match jcrRepository.homeDir bean property in repository-test-override.spring.xml
-    FileUtils.deleteDirectory( new File( "/tmp/jackrabbit-test-TRUNK" ) );
+    previousSecurityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+    previousPentahoSessionHolderStrategy = System.getProperty( PentahoSessionHolder.SYSTEM_PROPERTY,
+      PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
+    FileUtils.deleteDirectory( REPOSITORY_HOME );
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
+    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
   }
 
   @AfterClass
   public static void tearDownClass() throws Exception {
-    PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
+    PentahoSessionHolder.setStrategyName( previousPentahoSessionHolderStrategy );
+    SecurityContextHolder.setContextHolderStrategy( previousSecurityContextHolderStrategy );
   }
 
   @Before
   public void setUp() throws Exception {
-    mp = new MicroPlatform();
+    mp = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/solution" );
     // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.defineInstance( IPluginManager.class, pluginManager );
     mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
@@ -265,6 +272,7 @@ public class UserRoleDaoIT implements ApplicationContextAware {
     mp.defineInstance( "useMultiByteEncoding", new Boolean( false ) );
     // Start the micro-platform
     mp.start();
+    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
     loginAsRepositoryAdmin();
     setAclManagement();
     logout();
@@ -273,62 +281,39 @@ public class UserRoleDaoIT implements ApplicationContextAware {
 
   @After
   public void tearDown() throws Exception {
-    cleanupTenant( subTenant2_2_2 );
-    cleanupTenant( subTenant2_2_1 );
-    cleanupTenant( subTenant2_2 );
-    cleanupTenant( subTenant2_1_2 );
-    cleanupTenant( subTenant2_1_1 );
-    cleanupTenant( subTenant2_1 );
-    cleanupTenant( subTenant1_2_2 );
-    cleanupTenant( subTenant1_2_1 );
-    cleanupTenant( subTenant1_2 );
-    cleanupTenant( subTenant1_1_2 );
-    cleanupTenant( subTenant1_1_1 );
-    cleanupTenant( subTenant1_1 );
-    cleanupTenant( mainTenant_2 );
-    cleanupTenant( mainTenant_1 );
-    cleanupTenant( systemTenant );
+    try {
+      cleanupTenant( subTenant2_2_2 );
+      cleanupTenant( subTenant2_2_1 );
+      cleanupTenant( subTenant2_2 );
+      cleanupTenant( subTenant2_1_2 );
+      cleanupTenant( subTenant2_1_1 );
+      cleanupTenant( subTenant2_1 );
+      cleanupTenant( subTenant1_2_2 );
+      cleanupTenant( subTenant1_2_1 );
+      cleanupTenant( subTenant1_2 );
+      cleanupTenant( subTenant1_1_2 );
+      cleanupTenant( subTenant1_1_1 );
+      cleanupTenant( subTenant1_1 );
+      cleanupTenant( mainTenant_2 );
+      cleanupTenant( mainTenant_1 );
+      cleanupTenant( systemTenant );
 
-    // null out fields to get back memory
-    pluginManager = null;
-    authorizationPolicy = null;
-    loginAsRepositoryAdmin();
-    logout();
+      pluginManager = null;
+      authorizationPolicy = null;
+      loginAsRepositoryAdmin();
+      logout();
 
-    pPrincipalName = null;
-    userRoleDaoProxy = null;
-    userRoleDaoTestProxy = null;
-    tenantManager = null;
-    repositoryAdminUsername = null;
-    adminRoleName = null;
-    authenticatedRoleName = null;
-    sysAdminRoleName = null;
-    sysAdminUserName = null;
-    testJcrTemplate = null;
-    roleBindingDaoTarget = null;
-    authorizationPolicy = null;
-    mp = null;
-    repositoryFileDao = null;
-    tenantedRoleNameUtils = null;
-    tenantedUserNameUtils = null;
-    systemTenant = null;
-    mainTenant_1 = null;
-    mainTenant_2 = null;
-    subTenant1_1 = null;
-    subTenant1_2 = null;
-    subTenant1_1_1 = null;
-    subTenant1_1_2 = null;
-    subTenant1_2_1 = null;
-    subTenant1_2_2 = null;
-    subTenant2_1 = null;
-    subTenant2_2 = null;
-    subTenant2_1_1 = null;
-    subTenant2_1_2 = null;
-    subTenant2_2_1 = null;
-    subTenant2_2_2 = null;
-    if ( startupCalled ) {
-      manager.shutdown();
+      if ( startupCalled ) {
+        manager.shutdown();
+      }
+    } finally {
+      if ( mp != null ) {
+        mp.stop();
+      }
+      PentahoSessionHolder.removeSession();
+      SecurityContextHolder.clearContext();
     }
+    mp = null;
     tenantManager = null;
   }
 
@@ -390,7 +375,8 @@ public class UserRoleDaoIT implements ApplicationContextAware {
   public void setApplicationContext( final ApplicationContext applicationContext ) throws BeansException {
     manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean( "backingRepositoryLifecycleManager" );
     SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean( "jcrSessionFactory" );
-    testJcrTemplate = new JcrTemplate( jcrSessionFactory );
+    testJcrTemplate = new PentahoJcrTemplate();
+    testJcrTemplate.setSessionFactory( jcrSessionFactory );
     testJcrTemplate.setAllowCreate( true );
     testJcrTemplate.setExposeNativeSession( true );
     repositoryAdminUsername = (String) applicationContext.getBean( "repositoryAdminUsername" );

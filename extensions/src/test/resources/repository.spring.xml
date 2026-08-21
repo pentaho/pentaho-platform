@@ -681,7 +681,7 @@
   </bean>
 
 
-  <bean id="adminJcrTemplate" class="org.springframework.extensions.jcr.JcrTemplate">
+  <bean id="adminJcrTemplate" class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrTemplate">
     <property name="sessionFactory" ref="jcrAdminSessionFactory"/>
     <property name="allowCreate" value="false"/>
     <property name="exposeNativeSession" value="true"/>
