@@ -2,39 +2,34 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 - 2026 by Pentaho Canada Inc. : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2028-08-13
+ * Change Date: 2030-06-15
  ******************************************************************************/
+
 
 
 package org.pentaho.test.platform.web.http.api;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.jcr.Repository;
-import javax.ws.rs.core.MediaType;
-
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.apache.commons.io.FileUtils;
+import org.apache.jackrabbit.api.JackrabbitWorkspace;
+import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
+import org.glassfish.jersey.test.DeploymentContext;
+import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.ServletDeploymentContext;
+import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
+import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -44,6 +39,7 @@ import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
@@ -72,6 +68,7 @@ import org.pentaho.platform.repository2.mt.RepositoryTenantManager;
 import org.pentaho.platform.repository2.unified.DefaultRepositoryVersionManager;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxyFactory;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
@@ -80,31 +77,48 @@ import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRo
 import org.pentaho.platform.security.policy.rolebased.RoleAuthorizationPolicy;
 import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService;
 import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserRoleListService;
+import org.pentaho.platform.web.http.filters.PentahoRequestContextFilter;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.pentaho.test.platform.utils.TestResourceLocation;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactory;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.test.framework.AppDescriptor;
-import com.sun.jersey.test.framework.JerseyTest;
-import com.sun.jersey.test.framework.WebAppDescriptor;
-import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
-import com.sun.jersey.test.framework.spi.container.grizzly.GrizzlyTestContainerFactory;
-import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
+import javax.jcr.security.AccessControlException;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
+import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
+
 
 @RunWith ( SpringJUnit4ClassRunner.class )
 @ContextConfiguration ( locations = { "classpath:/repository.spring.xml",
@@ -112,12 +126,15 @@ import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestCon
 @SuppressWarnings ( "nls" )
 public class FileResourceIT extends JerseyTest implements ApplicationContextAware {
 
-  private static MicroPlatform mp = new MicroPlatform();
+  private static final File REPOSITORY_HOME = new File( "/tmp/repository-future/jackrabbit-test-TRUNK" );
 
-  private static WebAppDescriptor webAppDescriptor = new WebAppDescriptor.Builder(
-      "org.pentaho.platform.web.http.api.resources" ).contextPath( "api" ).build();
+  private static MicroPlatform mp = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/solution" );
 
+  private static final String API_CONTEXT_PATH = "api";
   public static final String MAIN_TENANT_1 = "maintenant1";
+  private static String previousSpringSecurityStrategy;
+  private static SecurityContextHolderStrategy previousSecurityContextHolderStrategy;
+  private static String previousPentahoSessionHolderStrategy;
 
   private IUnifiedRepository repo;
 
@@ -135,6 +152,7 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
 
   private IBackingRepositoryLifecycleManager manager;
 
+  private IPluginManager pluginManager;
   private IAuthorizationPolicy authorizationPolicy;
 
   IUserRoleDao userRoleDao;
@@ -150,31 +168,47 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
 
   public FileResourceIT() throws Exception {
     super();
-    this.setTestContainerFactory( new GrizzlyTestContainerFactory() );
-    mp.setFullyQualifiedServerUrl( getBaseURI() + webAppDescriptor.getContextPath() + "/" );
+    mp.setFullyQualifiedServerUrl( getBaseUri() + API_CONTEXT_PATH + "/" );
   }
 
-  protected AppDescriptor configure() {
-    return webAppDescriptor;
+  @Override
+  protected DeploymentContext configureDeployment() {
+    ResourceConfig config = new ResourceConfig().packages( "org.pentaho.platform.web.http.api.resources" );
+    return ServletDeploymentContext.forServlet( new ServletContainer( config ) )
+      .addFilter( PentahoRequestContextFilter.class, "pentahoRequestContextFilter" )
+      .contextPath( API_CONTEXT_PATH )
+      .build();
   }
 
+  @Override
   protected TestContainerFactory getTestContainerFactory() {
     return new GrizzlyWebTestContainerFactory();
   }
 
   @BeforeClass
   public static void beforeClass() throws Exception {
+    previousSpringSecurityStrategy = System.getProperty( SYSTEM_PROPERTY );
+    previousSecurityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+    previousPentahoSessionHolderStrategy = System.getProperty( PentahoSessionHolder.SYSTEM_PROPERTY,
+      PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
     System.setProperty( SYSTEM_PROPERTY, "MODE_GLOBAL" );
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
 
-    FileUtils.deleteDirectory( new File( "/tmp/jackrabbit-test-TRUNK" ) );
+    FileUtils.deleteDirectory( REPOSITORY_HOME );
     SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
   }
 
   @AfterClass
   public static void afterClass() {
-    PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
-    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
+    PentahoSessionHolder.removeSession();
+    SecurityContextHolder.clearContext();
+    PentahoSessionHolder.setStrategyName( previousPentahoSessionHolderStrategy );
+    SecurityContextHolder.setContextHolderStrategy( previousSecurityContextHolderStrategy );
+    if ( previousSpringSecurityStrategy == null ) {
+      System.clearProperty( SYSTEM_PROPERTY );
+    } else {
+      System.setProperty( SYSTEM_PROPERTY, previousSpringSecurityStrategy );
+    }
   }
 
   private void cleanupUserAndRoles( final ITenant tenant ) {
@@ -187,10 +221,13 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
     }
   }
 
+  @Override
   @Before
-  public void beforeTest() throws PlatformInitializationException {
-    mp = new MicroPlatform();
+  public void setUp() throws Exception {
+    mp = new MicroPlatform( TestResourceLocation.TEST_RESOURCES + "/solution" );
+    mp.setFullyQualifiedServerUrl( getBaseUri() + API_CONTEXT_PATH + "/" );
     // used by DefaultPentahoJackrabbitAccessControlHelper
+    mp.defineInstance( IPluginManager.class, pluginManager );
     mp.defineInstance( IAuthorizationPolicy.class, authorizationPolicy );
     mp.defineInstance( ITenantManager.class, tenantManager );
     mp.define( ITenant.class, Tenant.class );
@@ -222,29 +259,42 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
 
     mp.defineInstance( IUserRoleListService.class, userRoleListService );
     mp.start();
+    loginAsRepositoryAdmin();
+    setAclManagement();
     logout();
     startupCalled = true;
     SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
+    super.setUp();
   }
 
+  @Override
   @After
-  public void afterTest() throws Exception {
-    clearRoleBindings();
-    // null out fields to get back memory
-    authorizationPolicy = null;
-    loginAsRepositoryAdmin();
-    SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
-    logout();
-    repositoryAdminUsername = null;
-    adminAuthorityName = null;
-    authenticatedAuthorityName = null;
-    authorizationPolicy = null;
-    testJcrTemplate = null;
-    if ( startupCalled ) {
-      manager.shutdown();
+  public void tearDown() throws Exception {
+    try {
+      clearRoleBindings();
+      pluginManager = null;
+      authorizationPolicy = null;
+      loginAsRepositoryAdmin();
+      SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
+      logout();
+      repositoryAdminUsername = null;
+      adminAuthorityName = null;
+      authenticatedAuthorityName = null;
+      testJcrTemplate = null;
+      if ( startupCalled ) {
+        manager.shutdown();
+      }
+    } finally {
+      try {
+        super.tearDown();
+      } finally {
+        if ( mp != null ) {
+          mp.stop();
+        }
+        PentahoSessionHolder.removeSession();
+        SecurityContextHolder.clearContext();
+      }
     }
-    mp.stop();
-    // null out fields to get back memory
     repo = null;
   }
 
@@ -252,26 +302,45 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
     loginAsRepositoryAdmin();
   }
 
+  private void setAclManagement() {
+    testJcrTemplate.execute( new JcrCallback() {
+      @Override
+      public Object doInJcr( Session session ) throws IOException, RepositoryException {
+        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+        Workspace workspace = session.getWorkspace();
+        PrivilegeManager privilegeManager = ( (JackrabbitWorkspace) workspace ).getPrivilegeManager();
+        try {
+          privilegeManager.getPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE() );
+        } catch ( AccessControlException ace ) {
+          privilegeManager.registerPrivilege( pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(), false,
+              new String[0] );
+        }
+        session.save();
+        return null;
+      }
+    } );
+  }
+
   protected void createTestFile( String pathId, String text ) {
-    WebResource webResource = resource();
-    ClientResponse response =
-        webResource.path( "repo/files/" + pathId ).type( TEXT_PLAIN ).put( ClientResponse.class, text );
-    assertResponse( response, Status.OK );
+    WebTarget webTarget = target();
+    Response response =
+        webTarget.path( "repo/files/" + pathId ).request( TEXT_PLAIN ).put( Entity.entity( text, TEXT_PLAIN ) );
+    assertResponse( response, Response.Status.OK );
   }
 
   protected void createTestFileBinary( String pathId, byte[] data ) {
-    WebResource webResource = resource();
-    ClientResponse response =
-      webResource.path( "repo/files/" + pathId ).type( APPLICATION_OCTET_STREAM )
-        .put( ClientResponse.class, new String( data ) );
-    assertResponse( response, Status.OK );
+    WebTarget webTarget = target();
+    Response response =
+      webTarget.path( "repo/files/" + pathId ).request( APPLICATION_OCTET_STREAM )
+        .put( Entity.entity( data, APPLICATION_OCTET_STREAM ) );
+    assertResponse( response, Response.Status.OK );
   }
 
   protected void createTestFolder( String pathId ) {
-    WebResource webResource = resource();
+    WebTarget webTarget = target();
     // webResource.path("repo/dirs/" + pathId).put();
-    ClientResponse response = webResource.path( "repo/dirs/" + pathId ).type( TEXT_PLAIN ).put( ClientResponse.class );
-    assertResponse( response, Status.OK );
+    Response response = webTarget.path( "repo/dirs/" + pathId ).request( TEXT_PLAIN ).put( Entity.entity( "", TEXT_PLAIN ) );
+    assertResponse( response, Response.Status.OK );
   }
 
   @Test
@@ -302,7 +371,7 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
       login( sysAdminUserName, systemTenant, new String[] { adminAuthorityName } );
       login( "admin", mainTenant_1, new String[] { adminAuthorityName, authenticatedAuthorityName } );
 
-      WebResource webResource = resource();
+      WebTarget webTarget = target();
       final byte[] blob = str.getBytes();
       String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
       createTestFileBinary( publicFolderPath.replaceAll( "/", ":" ) + ":" + fileName, blob );
@@ -310,12 +379,12 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
       // the file might not actually be ready.. wait a second
       Thread.sleep( 20000 );
 
-      ClientResponse response =
-        webResource.path( "repo/files/:public:file.bn" ).accept( APPLICATION_OCTET_STREAM )
-          .get( ClientResponse.class );
-      assertResponse( response, Status.OK, APPLICATION_OCTET_STREAM );
+      Response response =
+        webTarget.path( "repo/files/:public:file.bn" ).request( APPLICATION_OCTET_STREAM )
+          .get( Response.class );
+      assertResponse( response, Response.Status.OK, APPLICATION_OCTET_STREAM );
 
-      byte[] data = response.getEntity( byte[].class );
+      byte[] data = response.readEntity( byte[].class );
       assertEquals( "contents of file incorrect/missing", str, new String( data ) );
     } catch ( Exception ex ) {
       TestCase.fail();
@@ -347,14 +416,14 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
 
       login( "admin", mainTenant_1, new String[] { authenticatedAuthorityName } );
 
-      WebResource webResource = resource();
+      WebTarget webTarget= target();
       String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
       createTestFile( publicFolderPath.replaceAll( "/", ":" ) + ":" + fileName, text );
 
-      ClientResponse response =
-        webResource.path( "repo/files/:public:" + fileName ).accept( TEXT_PLAIN ).get( ClientResponse.class );
-      assertResponse( response, Status.OK, TEXT_PLAIN );
-      assertEquals( "contents of file incorrect/missing", text, response.getEntity( String.class ) );
+      Response response =
+        webTarget.path( "repo/files/:public:" + fileName ).request( TEXT_PLAIN ).get( Response.class );
+      assertResponse( response, Response.Status.OK, TEXT_PLAIN );
+      assertEquals( "contents of file incorrect/missing", text, response.readEntity( String.class ) );
 
     } catch ( Throwable th ) {
       TestCase.fail();
@@ -386,25 +455,25 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
 
       String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
       createTestFile( publicFolderPath.replaceAll( "/", ":" ) + ":" + fileName, "abcdefg" );
-      WebResource webResource = resource();
+      WebTarget webTarget = target();
 
 
-      ClientResponse r1 =
-        webResource.path( "repo/files/:public:" + fileName ).accept( TEXT_PLAIN ).get( ClientResponse.class );
-      assertResponse( r1, Status.OK, MediaType.TEXT_PLAIN );
-      assertEquals( text, r1.getEntity( String.class ) );
+      Response r1 =
+        webTarget.path( "repo/files/:public:" + fileName ).request( TEXT_PLAIN ).get( Response.class );
+      assertResponse( r1, Response.Status.OK, MediaType.TEXT_PLAIN );
+      assertEquals( text, r1.readEntity( String.class ) );
 
       // check again but with no Accept header
-      ClientResponse r2 = webResource.path( "repo/files/:public:" + fileName ).get( ClientResponse.class );
-      assertResponse( r2, Status.OK, MediaType.TEXT_PLAIN );
-      assertEquals( text, r2.getEntity( String.class ) );
+      Response r2 = webTarget.path( "repo/files/:public:" + fileName ).request().get( Response.class );
+      assertResponse( r2, Response.Status.OK, MediaType.TEXT_PLAIN );
+      assertEquals( text, r2.readEntity( String.class ) );
 
       // check again but with */*
-      ClientResponse r3 =
-        webResource.path( "repo/files/:public:" + fileName ).accept( TEXT_PLAIN ).accept( MediaType.WILDCARD ).get(
-          ClientResponse.class );
-      assertResponse( r3, Status.OK, MediaType.TEXT_PLAIN );
-      assertEquals( text, r3.getEntity( String.class ) );
+      Response r3 =
+        webTarget.path( "repo/files/:public:" + fileName ).request( TEXT_PLAIN ).accept( MediaType.WILDCARD ).get(
+          Response.class );
+      assertResponse( r3, Response.Status.OK, MediaType.TEXT_PLAIN );
+      assertEquals( text, r3.readEntity( String.class ) );
 
     } catch ( Throwable ex ) {
       TestCase.fail();
@@ -419,10 +488,10 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
     mp.defineInstance( IUnifiedRepository.class, repo );
     loginAsRepositoryAdmin();
 
-    WebResource webResource = resource();
+    WebTarget webTarget = target();
     try {
-      webResource.path( "repo/files/public:thisfiledoesnotexist.txt" ).accept( TEXT_PLAIN ).get(
-        ClientResponse.class );
+      webTarget.path( "repo/files/public:thisfiledoesnotexist.txt" ).request( TEXT_PLAIN ).get(
+        Response.class );
     } catch ( UnifiedRepositoryException ure ) {
       assertNotNull( ure );
     }
@@ -464,12 +533,12 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
       createTestFile( "/public".replaceAll( "/", ":" ) + ":" + fileName, text );
 
       // test download of file
-      WebResource webResource = resource();
-      webResource.path( "repo/files/public:file.txt/download" ).get( ClientResponse.class );
+      WebTarget webTarget = target();
+      webTarget.path( "repo/files/public:file.txt/download" ).request().get( Response.class );
 
       // test download of dir as a zip file
-      ClientResponse r2 = webResource.path( "repo/files/public:file.txt/download" ).get( ClientResponse.class );
-      assertResponse( r2, Status.OK );
+      Response r2 = webTarget.path( "repo/files/public:file.txt/download" ).request().get( Response.class );
+      assertResponse( r2, Response.Status.OK );
       JerseyTestUtil.assertResponseIsZip( r2 );
     } catch ( Throwable ex ) {
       TestCase.fail();
@@ -498,13 +567,13 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
       mp.defineInstance( IUnifiedRepository.class, repo );
       final String fileName = "file.txt";
       createTestFile( "/public".replaceAll( "/", ":" ) + ":" + fileName, "abcdefg" );
-      WebResource webResource = resource();
-      ClientResponse response =
-        webResource.path( "repo/files/public/children" ).accept( APPLICATION_XML ).get( ClientResponse.class );
+      WebTarget webTarget = target();
+      Response response =
+        webTarget.path( "repo/files/public/children" ).request( APPLICATION_XML ).get( Response.class );
 
-      assertResponse( response, Status.OK, APPLICATION_XML );
+      assertResponse( response, Response.Status.OK, APPLICATION_XML );
 
-      String xml = response.getEntity( String.class );
+      String xml = response.readEntity( String.class );
       assertTrue( xml.startsWith( "<?" ) );
     } catch ( Throwable ex ) {
       TestCase.fail();
@@ -532,9 +601,9 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
       String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
       createTestFile( publicFolderPath.replaceAll( "/", ":" ) + ":" + "aclFile.txt", "abcdefg" );
 
-      WebResource webResource = resource();
+      WebTarget webTarget = target();
       RepositoryFileAclDto fileAcls =
-        webResource.path( "repo/files/public:aclFile.txt/acl" ).accept( APPLICATION_XML ).get(
+        webTarget.path( "repo/files/public:aclFile.txt/acl" ).request( APPLICATION_XML ).get(
           RepositoryFileAclDto.class );
       List<RepositoryFileAclAceDto> aces = fileAcls.getAces();
       assertEquals( 2, aces.size() );
@@ -556,10 +625,9 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
       aces.add( ace );
       fileAcls.setAces( aces );
 
-      ClientResponse putResponse2 =
-        webResource.path( "repo/files/public:aclFile.txt/acl" ).type( APPLICATION_XML ).put( ClientResponse.class,
-          fileAcls );
-      assertResponse( putResponse2, Status.OK );
+      Response putResponse2 =
+        webTarget.path( "repo/files/public:aclFile.txt/acl" ).request( APPLICATION_XML ).put( Entity.entity( fileAcls, APPLICATION_XML ) );
+      assertResponse( putResponse2, Response.Status.OK );
     } catch ( Throwable ex ) {
       TestCase.fail();
     } finally {
@@ -595,14 +663,14 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
 
       RepositoryFile file1 = repo.getFile( publicFolderPath + "/" + testFile1Id );
       RepositoryFile file2 = repo.getFile( publicFolderPath + "/" + testFile2Id );
-      WebResource webResource = resource();
-      webResource.path( "repo/files/delete" ).entity( file1.getId() + "," + file2.getId() ).put();
+      WebTarget webTarget = target();
+      webTarget.path( "repo/files/delete" ).request().put( Entity.entity( file1.getId() + "," + file2.getId(), APPLICATION_XML ) );
 
       RepositoryFileDto[] deletedFiles =
-        webResource.path( "repo/files/deleted" ).accept( APPLICATION_XML ).get( RepositoryFileDto[].class );
+        webTarget.path( "repo/files/deleted" ).request( APPLICATION_XML ).get( RepositoryFileDto[].class );
       assertEquals( 2, deletedFiles.length );
 
-      webResource.path( "repo/files/deletepermanent" ).entity( file2.getId() ).put();
+      webTarget.path( "repo/files/deletepermanent" ).request().put( Entity.entity( file2.getId(), APPLICATION_XML ) );
     } catch ( Throwable ex ) {
       TestCase.fail();
     } finally {
@@ -628,13 +696,13 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
       // set object in PentahoSystem
       mp.defineInstance( IUnifiedRepository.class, repo );
 
-      WebResource webResource = resource();
+      WebTarget webTarget = target();
       String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
       createTestFile( publicFolderPath.replaceAll( "/", ":" ) + ":" + "file1.txt", "abcdefg" );
       RepositoryFile file1 = repo.getFile( publicFolderPath + "/" + "file1.txt" );
       RepositoryFileDto file2 = new RepositoryFileDto();
       file2.setId( file1.getId().toString() );
-      webResource.path( "repo/files/public:file1.txt/creator" ).entity( file2 ).put();
+      webTarget.path( "repo/files/public:file1.txt/creator" ).request().put( Entity.entity( file2, APPLICATION_XML ) );
     } catch ( Throwable ex ) {
       TestCase.fail();
     } finally {
@@ -648,8 +716,8 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
   @Test
   public void testUserWorkspace() {
     PentahoSessionHolder.setSession( new StandaloneSession( "jerry" ) );
-    WebResource webResource = resource();
-    String userWorkspaceDir = webResource.path( "session/userWorkspaceDir" ).accept( TEXT_PLAIN ).get( String.class );
+    WebTarget webTarget = target();
+    String userWorkspaceDir = webTarget.path( "session/userWorkspaceDir" ).request( TEXT_PLAIN ).get( String.class );
     assertTrue( userWorkspaceDir != null );
     assertTrue( userWorkspaceDir.length() > 0 );
   }
@@ -658,7 +726,8 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
   public void setApplicationContext( final ApplicationContext applicationContext ) throws BeansException {
     manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean( "backingRepositoryLifecycleManager" );
     SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean( "jcrSessionFactory" );
-    testJcrTemplate = new JcrTemplate( jcrSessionFactory );
+    testJcrTemplate = new PentahoJcrTemplate();
+    testJcrTemplate.setSessionFactory( jcrSessionFactory );
     testJcrTemplate.setAllowCreate( true );
     testJcrTemplate.setExposeNativeSession( true );
     repositoryAdminUsername = (String) applicationContext.getBean( "repositoryAdminUsername" );
@@ -666,6 +735,7 @@ public class FileResourceIT extends JerseyTest implements ApplicationContextAwar
     adminAuthorityName = (String) applicationContext.getBean( "singleTenantAdminAuthorityName" );
     sysAdminAuthorityName = (String) applicationContext.getBean( "superAdminAuthorityName" );
     sysAdminUserName = (String) applicationContext.getBean( "superAdminUserName" );
+    pluginManager = (IPluginManager) applicationContext.getBean( "IPluginManager" );
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean( "authorizationPolicy" );
     roleBindingDaoTarget =
       (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
