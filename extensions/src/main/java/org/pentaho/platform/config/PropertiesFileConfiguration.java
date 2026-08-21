@@ -77,12 +77,26 @@ public class PropertiesFileConfiguration implements IConfiguration {
     return p;
   }
 
-  protected void loadProperties() throws IOException {
-    properties = new Properties();
-    synchronized ( propFile ) {
-      properties.load( new FileInputStream( propFile ) );
+  protected synchronized void loadProperties() throws IOException {
+    Properties loaded = readPropertiesFromFile();
+    if ( properties == null ) {
+      properties = new Properties();
     }
 
+    synchronized ( properties ) {
+      properties.clear();
+      properties.putAll( loaded );
+    }
+  }
+
+  private Properties readPropertiesFromFile() throws IOException {
+    Properties loaded = new Properties();
+    synchronized ( propFile ) {
+      try ( FileInputStream inputStream = new FileInputStream( propFile ) ) {
+        loaded.load( inputStream );
+      }
+    }
+    return loaded;
   }
 
   /**
@@ -112,6 +126,23 @@ public class PropertiesFileConfiguration implements IConfiguration {
       properties.store( new FileOutputStream( propFile ), "" );
     }
 
+  }
+
+  /**
+   * Re-reads the underlying properties file from disk and refreshes the
+   * in-memory cache without replacing the shared {@link Properties} instance.
+   * Only effective when this instance was constructed with a {@link File}
+   * argument; silently ignored for in-memory {@link Properties} instances.
+   * Thread-safe: the method is {@code synchronized} to prevent concurrent
+   * reload calls from racing with each other.
+   *
+   * @throws IOException if the file cannot be read
+   */
+  @Override
+  public synchronized void reload() throws IOException {
+    if ( propFile != null ) {
+      loadProperties();
+    }
   }
 
   protected void setPropFile( File propFile ) {
