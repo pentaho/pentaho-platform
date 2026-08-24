@@ -18,6 +18,7 @@ import com.sun.xml.ws.developer.JAXWSProperties;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,6 +78,8 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
 
   private final Logger logger = LogManager.getLogger( DefaultUnifiedRepositoryJaxwsWebServiceIT.class );
 
+  private Endpoint endpoint;
+
   // ~ Instance fields
   // =================================================================================================
 
@@ -102,11 +105,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
 
     String address = "http://localhost:9000/repo";
 
-    try {
-      Endpoint.publish( address, new DefaultUnifiedRepositoryJaxwsWebService( repo ) );
-    } catch ( Throwable th ) {
-      //ignore
-    }
+    endpoint = Endpoint.publish( address, new DefaultUnifiedRepositoryJaxwsWebService( repo ) );
 
     Service service =
         Service.create( new URL( "http://localhost:9000/repo?wsdl" ), new QName( "http://www.pentaho.org/ws/1.0",
@@ -124,6 +123,14 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
 
     repo = new UnifiedRepositoryToWebServiceAdapter( repoWebService );
 
+  }
+
+  @After
+  public void stopEndpoint() {
+    if ( endpoint != null ) {
+      endpoint.stop();
+      endpoint = null;
+    }
   }
 
   @Test

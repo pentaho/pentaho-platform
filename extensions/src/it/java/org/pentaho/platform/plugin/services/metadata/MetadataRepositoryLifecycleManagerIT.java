@@ -221,6 +221,7 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
     if ( startupCalled ) {
       manager.shutdown();
     }
+    mp.stop();
 
     // null out fields to get back memory
     repo = null;
