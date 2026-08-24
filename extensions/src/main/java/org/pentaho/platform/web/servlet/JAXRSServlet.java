@@ -17,6 +17,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.sun.jersey.api.container.ContainerException;
 import com.sun.jersey.api.container.MappableContainerException;
 import com.sun.jersey.api.core.ResourceConfig;
+import com.sun.jersey.json.impl.provider.entity.JSONJAXBElementProvider;
+import com.sun.jersey.json.impl.provider.entity.JSONListElementProvider;
+import com.sun.jersey.json.impl.provider.entity.JSONRootElementProvider;
 import com.sun.jersey.server.impl.ThreadLocalInvoker;
 import com.sun.jersey.server.probes.UriRuleProbeProvider;
 import com.sun.jersey.spi.MessageBodyWorkers;
@@ -219,6 +222,12 @@ public class JAXRSServlet extends SpringServlet {
     @Override
     protected void configure( WebConfig wc, ResourceConfig rc, WebApplication wa ) {
       super.configure( wc, rc, wa );
+
+      // BACKLOG-50639: 10.2 PUC requires its legacy JAXB JSON contract. Register the legacy writers as
+      // application providers so Jersey evaluates them before the service-discovered JacksonJsonProvider.
+      rc.getClasses().add( JSONRootElementProvider.App.class );
+      rc.getClasses().add( JSONListElementProvider.App.class );
+      rc.getClasses().add( JSONJAXBElementProvider.App.class );
 
       JAXRSServlet.this.configure( wc, rc, wa );
     }

@@ -14,6 +14,9 @@
 package org.pentaho.platform.web.servlet;
 
 import com.sun.jersey.api.core.ResourceConfig;
+import com.sun.jersey.json.impl.provider.entity.JSONJAXBElementProvider;
+import com.sun.jersey.json.impl.provider.entity.JSONListElementProvider;
+import com.sun.jersey.json.impl.provider.entity.JSONRootElementProvider;
 import com.sun.jersey.spi.MessageBodyWorkers;
 import com.sun.jersey.spi.container.WebApplication;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
@@ -164,6 +167,7 @@ public class JAXRSServletTest {
     ConfigurableApplicationContext context = mock( ConfigurableApplicationContext.class );
     String[] beans = {};
     HashSet<Class> classes = new HashSet<>();
+    HashSet<Class<?>> providerClasses = new HashSet<>();
     classes.add( ResourseClass.class );
 
     when( request.getMethod() ).thenReturn( "POST" );
@@ -180,10 +184,14 @@ public class JAXRSServletTest {
     doReturn( servletContext ).when( webServletConfig ).getServletContext();
     doReturn( resourceConfig ).when( webServletConfig ).getDefaultResourceConfig( any() );
     doReturn( classes ).when( resourceConfig ).getRootResourceClasses();
+    doReturn( providerClasses ).when( resourceConfig ).getClasses();
     doReturn( context ).when( jaxrsServlet ).getAppContext();
     doReturn( Collections.emptyEnumeration() ).when( request ).getHeaderNames();
     try {
       jaxrsServlet.init();
+      assertTrue( providerClasses.contains( JSONRootElementProvider.App.class ) );
+      assertTrue( providerClasses.contains( JSONListElementProvider.App.class ) );
+      assertTrue( providerClasses.contains( JSONJAXBElementProvider.App.class ) );
       jaxrsServlet.service( request, response );
       verify( (SpringServlet) jaxrsServlet ).service( eq( request ), eq( response ) );
       verify( response ).setStatus( 404, "Not Found" );
