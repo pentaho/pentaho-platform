@@ -27,8 +27,10 @@ import org.pentaho.test.platform.engine.core.BaseTest;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileInputStream;
-import java.util.Arrays;
+import java.io.InputStream;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -50,12 +52,25 @@ public class ThemeManagerIT extends BaseTest {
   @Test
   public void testThemes() throws Exception {
     // setup mock context
-    MockServletContext context = new MockServletContext();
-    context.addInitParameter( "/", Arrays.asList( "test-module/" ).toString() );
-    context.addInitParameter( "/test-module/", Arrays.asList( "themes.xml" ).toString());
-    File themesDotXML = new File( getSolutionPath() + "/system/themeplugin/themes.xml" );
-    context.setAttribute( "/test-module/themes.xml", themesDotXML.toURI().toURL() );
-    context.setAttribute( "/test-module/themes.xml", new FileInputStream( themesDotXML ) );
+    final File themesDotXML = new File( getSolutionPath() + "/system/themeplugin/themes.xml" );
+    MockServletContext context = new MockServletContext() {
+      @Override
+      public Set<String> getResourcePaths( String path ) {
+        return "/".equals( path ) ? Collections.singleton( "/test-module/" ) : Collections.emptySet();
+      }
+
+      @Override
+      public InputStream getResourceAsStream( String path ) {
+        if ( "/test-module/themes.xml".equals( path ) ) {
+          try {
+            return new FileInputStream( themesDotXML );
+          } catch ( FileNotFoundException e ) {
+            return null;
+          }
+        }
+        return null;
+      }
+    };
     PentahoSystem.getApplicationContext().setContext( context );
 
     StandaloneSession session = new StandaloneSession();
