@@ -25,7 +25,9 @@ import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.uifoundation.component.ActionComponent;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
+import org.pentaho.platform.web.http.api.resources.utils.XactionSaxonExtensions;
 import org.pentaho.test.platform.engine.core.BaseTest;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 
@@ -36,6 +38,10 @@ import java.util.Map;
 @SuppressWarnings( "nls" )
 public class JFreeReportIT extends BaseTest {
   private static final String SOLUTION_PATH = TestResourceLocation.TEST_RESOURCES + "/solution";
+
+  static {
+    XactionSaxonExtensions.registerAll( XMLParserFactoryProducer.getSaxonConfig() );
+  }
 
   public String getSolutionPath() {
     return SOLUTION_PATH;

@@ -19,6 +19,8 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.plugin.services.messages.Messages;
+import org.pentaho.platform.util.xml.XMLParserFactoryProducer;
+import org.pentaho.platform.web.http.api.resources.utils.XactionSaxonExtensions;
 import org.pentaho.test.platform.engine.core.BaseTest;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 
@@ -32,6 +34,10 @@ import java.util.Map;
 public class XQConnectionIT extends BaseTest {
   private static final String SOLUTION_PATH = TestResourceLocation.TEST_RESOURCES + "/solution";
   private static final String ALT_SOLUTION_PATH = TestResourceLocation.TEST_RESOURCES + "/solution";
+
+  static {
+    XactionSaxonExtensions.registerAll( XMLParserFactoryProducer.getSaxonConfig() );
+  }
 
   // private static final String PENTAHO_XML_PATH = "/system/pentaho.xml";
 

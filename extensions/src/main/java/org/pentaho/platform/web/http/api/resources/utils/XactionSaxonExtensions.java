@@ -89,8 +89,40 @@ public class XactionSaxonExtensions {
     @Override public ExtensionFunctionCall makeCallExpression() {
       return new ExtensionFunctionCall() {
         @Override public Sequence call( XPathContext context, Sequence[] arguments ) throws XPathException {
-          String key = arguments[ 1 ].head().getStringValue(); Messages messages = Messages.getInstance();
+          String key = arguments[ 1 ].head().getStringValue();
+          Messages messages = Messages.getInstance();
           return StringValue.makeStringValue( messages.getXslString( key ) );
+        }
+      };
+    }
+  }
+
+  /**
+   * <b>msg:getString(messages, key)</b><br>
+   * Namespace: org.pentaho.platform.web.xsl.messages.Messages<br>
+   * XSL usage: <code>msg:getString($messages, 'UI.SOME_KEY')</code>
+   */
+  public static class MsgGetString extends ExtensionFunctionDefinition {
+
+    private static final String NAMESPACE = "org.pentaho.platform.web.xsl.messages.Messages";
+
+    @Override public StructuredQName getFunctionQName() {
+      return new StructuredQName( "msg", NAMESPACE, "getString" );
+    }
+
+    @Override public SequenceType[] getArgumentTypes() {
+      return new SequenceType[] { SequenceType.SINGLE_STRING, SequenceType.SINGLE_STRING };
+    }
+
+    @Override public SequenceType getResultType( SequenceType[] suppliedArgumentTypes ) {
+      return SequenceType.SINGLE_STRING;
+    }
+
+    @Override public ExtensionFunctionCall makeCallExpression() {
+      return new ExtensionFunctionCall() {
+        @Override public Sequence call( XPathContext context, Sequence[] arguments ) throws XPathException {
+          String key = arguments[ 1 ].head().getStringValue();
+          return StringValue.makeStringValue( Messages.getInstance().getString( key ) );
         }
       };
     }
@@ -127,12 +159,13 @@ public class XactionSaxonExtensions {
   }
 
   /**
-   * Register all 3 extensions into a Saxon Configuration.
+  * Register all extensions into a Saxon Configuration.
    */
   public static void registerAll( Configuration config ) {
     if ( config != null ) {
       config.registerExtensionFunction( new MsgGetInstance() );
       config.registerExtensionFunction( new MsgGetXslString() );
+      config.registerExtensionFunction( new MsgGetString() );
       config.registerExtensionFunction( new LocGetTextDirection() );
     }
   }

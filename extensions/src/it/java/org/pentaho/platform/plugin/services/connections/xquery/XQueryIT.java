@@ -43,7 +43,8 @@ public class XQueryIT extends BaseTest {
   private static final String ALT_SOLUTION_PATH = TestResourceLocation.TEST_RESOURCES + "/connections-solution";
   private static final String PENTAHO_XML_PATH = "/system/pentaho.xml";
 
-  private static final String TEST_QUERY = "doc(\"" + SOLUTION_PATH + "/xquery/books.xml\")/bookstore/book";
+  private static final String TEST_QUERY = "doc(\"" + new File( SOLUTION_PATH, "xquery/books.xml" ).toURI()
+    + "\")/bookstore/book";
 
   public String getSolutionPath() {
     File file = new File( SOLUTION_PATH + PENTAHO_XML_PATH );
