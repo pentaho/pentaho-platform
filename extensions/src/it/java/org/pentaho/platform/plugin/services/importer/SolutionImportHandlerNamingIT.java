@@ -52,6 +52,7 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterH
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.core.mimetype.MimeType;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
@@ -153,6 +154,7 @@ public class SolutionImportHandlerNamingIT extends Assert {
     microPlatform.defineInstance( IPlatformMimeResolver.class, mimeResolver );
     microPlatform.defineInstance( ISolutionEngine.class, Mockito.mock( SolutionEngine.class ) );
     microPlatform.defineInstance( IDatasourceMgmtService.class, Mockito.mock( IDatasourceMgmtService.class ) );
+    microPlatform.defineInstance( "IScheduler2", Mockito.mock( IScheduler.class ) );
 
     IRepositoryContentConverterHandler converterHandler =
         new DefaultRepositoryContentConverterHandler( new HashMap<String, Converter>() );

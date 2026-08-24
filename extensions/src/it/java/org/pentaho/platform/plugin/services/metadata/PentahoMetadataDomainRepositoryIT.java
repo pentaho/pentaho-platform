@@ -723,13 +723,13 @@ public class PentahoMetadataDomainRepositoryIT {
     domainRepositorySpy.createOrUpdateAnnotationsXml( domainFile, null, annotationsXml );
     verify( repository, times( 1 ) )
         .createFile( any( String.class ), any( RepositoryFile.class ), any( IRepositoryFileData.class ),
-            any( String.class ) );
+        nullable( String.class ) );
 
     // Update
     RepositoryFile annotationsFile = mock( RepositoryFile.class );
     domainRepositorySpy.createOrUpdateAnnotationsXml( domainFile, annotationsFile, annotationsXml );
     verify( repository, times( 1 ) )
-        .updateFile( any( RepositoryFile.class ), any( IRepositoryFileData.class ), any( String.class ) );
+      .updateFile( any( RepositoryFile.class ), any( IRepositoryFileData.class ), nullable( String.class ) );
 
     // Error
     doThrow( new RuntimeException() ).when( domainRepositorySpy ).getRepository();
