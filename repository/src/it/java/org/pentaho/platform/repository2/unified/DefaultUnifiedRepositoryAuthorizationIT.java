@@ -1068,7 +1068,7 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
       roleBindingDao
           .setRoleBindings( tenantAuthenticatedRoleName, Arrays.asList( RepositoryReadAction.NAME,
               RepositoryCreateAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME ) );
-      assertEquals( 8, authorizationPolicy.getAllowedActions( null ).size() );
+      assertEquals( 6, authorizationPolicy.getAllowedActions( null ).size() );
 
       // login with pat (in tenant duff)
       login( USERNAME_PAT, tenantDuff, new String[] { tenantAuthenticatedRoleName } );
@@ -1170,11 +1170,10 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
     assertNotNull( struct.bindingMap );
     assertEquals( 3, struct.bindingMap.size() );
     List<String> expectedAdminActions = Arrays.asList( RepositoryReadAction.NAME, RepositoryCreateAction.NAME,
-      SchedulerExecuteAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME, PublishAction.NAME,
-      DISPLAY_HOME_IN_MODERN_USER_CONSOLE, DISPLAY_BROWSE_FILES_IN_MODERN_USER_CONSOLE );
-    assertEquals( 8, struct.bindingMap.get( superAdminRoleName ).size() );
+      SchedulerExecuteAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME, PublishAction.NAME );
+    assertEquals( 6, struct.bindingMap.get( superAdminRoleName ).size() );
     assertTrue( struct.bindingMap.get( superAdminRoleName ).containsAll( expectedAdminActions ) );
-    assertEquals( 8, struct.bindingMap.get( tenantAdminRoleName ).size() );
+    assertEquals( 6, struct.bindingMap.get( tenantAdminRoleName ).size() );
     assertTrue( struct.bindingMap.get( tenantAdminRoleName ).containsAll( expectedAdminActions ) );
     List<String> expectedAuthenticatedActions = Arrays.asList( RepositoryReadAction.NAME,
       RepositoryCreateAction.NAME, SchedulerAction.NAME, DISPLAY_HOME_IN_MODERN_USER_CONSOLE,
@@ -1188,7 +1187,7 @@ public class DefaultUnifiedRepositoryAuthorizationIT extends DefaultUnifiedRepos
     assertEquals( Arrays.asList( new String[] { "org.pentaho.p1.reader" } ), struct.bindingMap.get( "whatever" ) );
 
     assertNotNull( struct.logicalRoleNameMap );
-    assertEquals( 8, struct.logicalRoleNameMap.size() );
+    assertEquals( 6, struct.logicalRoleNameMap.size() );
     assertEquals( "Create Content", struct.logicalRoleNameMap.get( RepositoryCreateAction.NAME ) );
 
     assertNotNull( struct.immutableRoles );
