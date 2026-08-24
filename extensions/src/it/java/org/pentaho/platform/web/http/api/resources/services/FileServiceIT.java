@@ -1080,6 +1080,7 @@ public class FileServiceIT {
 
     /* register  mockAuthPolicy with PentahoSystem so SystemUtils can use it */
     PentahoSystem.registerObject( mockAuthPolicy );
+    PentahoSystem.registerObject( fileService.repository );
 
     // Test 1: in the home-folder
     try {
@@ -1100,6 +1101,11 @@ public class FileServiceIT {
     } catch ( Throwable t ) {
       fail();
     }
+
+    RepositoryFile mockRepoFile = mock( RepositoryFile.class );
+    doReturn( mockRepoFile ).when( fileService.repository ).getFile( "/home/testUser/test_file" );
+    doReturn( true ).when( fileService.repository ).hasAccess( "/home/testUser/test_file",
+      EnumSet.of( RepositoryFilePermission.READ ) );
 
     // Test 3: while still being on the user's home folder, user loses 'Read Content' permission
     try {
@@ -2143,6 +2149,8 @@ public class FileServiceIT {
     doCallRealMethod().when( fs ).doCreateDirSafe( nullable( String.class ) );
     doCallRealMethod().when( fs ).decode( nullable( String.class ) );
     doCallRealMethod().when( fs ).isValidFolderName( nullable( String.class ) );
+    doCallRealMethod().when( fs ).isValidFolderName( nullable( String.class ), anyBoolean() );
+    doCallRealMethod().when( fs ).isValidFileName( nullable( String.class ), anyBoolean() );
     doReturn( "New Folder" ).when( fs ).idToPath( nullable( String.class ) );
     doReturn( true ).when( fs ).doCreateDirFor( "New Folder" );
 
