@@ -3,7 +3,7 @@
 	xmlns:xforms="http://www.w3.org/2002/xforms"
 	xmlns:chiba="http://chiba.sourceforge.net/xforms"
 	xmlns:xlink="http://www.w3.org/1999/xlink"
-	xmlns:msg="org.pentaho.platform.plugin.action.messages.Messages"
+	xmlns:msg="org.pentaho.platform.web.xsl.messages.Messages"
 	exclude-result-prefixes="chiba xforms xlink msg">
 	<!-- Copyright 2005 Chibacon -->
 
