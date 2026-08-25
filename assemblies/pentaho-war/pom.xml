@@ -690,17 +690,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.mnode.mstor</groupId>
-      <artifactId>mstor</artifactId>
-      <version>${mstor.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>com.github.jsendnsca</groupId>
       <artifactId>jsendnsca</artifactId>
       <version>${jsendnsca.version}</version>
