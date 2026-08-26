@@ -220,12 +220,15 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
       authorizationPolicy = null;
       testJcrTemplate = null;
       pluginManager = null;
-      if ( startupCalled ) {
-        manager.shutdown();
-      }
     } finally {
-      if ( mp != null ) {
-        mp.stop();
+      try {
+        if ( startupCalled && manager != null ) {
+          manager.shutdown();
+        }
+      } finally {
+        if ( mp != null ) {
+          mp.stop();
+        }
       }
     }
 

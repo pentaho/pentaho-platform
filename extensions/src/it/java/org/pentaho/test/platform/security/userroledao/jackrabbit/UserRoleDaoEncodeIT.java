@@ -324,9 +324,12 @@ public class UserRoleDaoEncodeIT implements ApplicationContextAware {
     subTenant2_1_2 = null;
     subTenant2_2_1 = null;
     subTenant2_2_2 = null;
-    if ( startupCalled ) {
-      manager.shutdown();
-      PentahoSystem.shutdown();
+    try {
+      if ( startupCalled ) {
+        manager.shutdown();
+        PentahoSystem.shutdown();
+      }
+    } finally {
       SecurityContextHolder.clearContext();
     }
     tenantManager = null;
