@@ -15,6 +15,9 @@ package org.pentaho.platform.web.servlet;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.sun.jersey.api.core.ResourceConfig;
+import com.sun.jersey.json.impl.provider.entity.JSONJAXBElementProvider;
+import com.sun.jersey.json.impl.provider.entity.JSONListElementProvider;
+import com.sun.jersey.json.impl.provider.entity.JSONRootElementProvider;
 import com.sun.jersey.spi.container.WebApplication;
 import com.sun.jersey.spi.container.servlet.WebConfig;
 import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
@@ -147,11 +150,20 @@ public class JAXRSPluginServlet extends SpringServlet implements ApplicationCont
 
   @Override
   protected void initiate( ResourceConfig rc, WebApplication wa ) {
+    registerLegacyJaxbJsonWriters( rc );
     if ( logger.isDebugEnabled() ) {
       rc.getFeatures().put( ResourceConfig.FEATURE_TRACE, true );
       rc.getFeatures().put( ResourceConfig.FEATURE_TRACE_PER_REQUEST, true );
     }
     super.initiate( rc, wa );
+  }
+
+  @VisibleForTesting
+  void registerLegacyJaxbJsonWriters( ResourceConfig rc ) {
+    // Register application providers before Jersey discovers Jackson so plugin resources retain their legacy JAXB JSON contract.
+    rc.getClasses().add( JSONRootElementProvider.App.class );
+    rc.getClasses().add( JSONListElementProvider.App.class );
+    rc.getClasses().add( JSONJAXBElementProvider.App.class );
   }
 
   protected ResourceConfig getDefaultResourceConfig( Map<String, Object> props, WebConfig webConfig ) throws ServletException {

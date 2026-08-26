@@ -13,6 +13,11 @@
 
 package org.pentaho.platform.web.servlet;
 
+import com.sun.jersey.api.core.ResourceConfig;
+import com.sun.jersey.json.impl.provider.entity.JSONJAXBElementProvider;
+import com.sun.jersey.json.impl.provider.entity.JSONListElementProvider;
+import com.sun.jersey.json.impl.provider.entity.JSONRootElementProvider;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -21,8 +26,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
-import static org.mockito.Mockito.any;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -33,6 +41,20 @@ import static org.mockito.Mockito.when;
 
 @RunWith( MockitoJUnitRunner.class )
 public class JAXRSPluginServletTest {
+
+  @Test
+  public void registerLegacyJaxbJsonWriters_registersApplicationProviders_test() {
+    JAXRSPluginServlet servlet = new JAXRSPluginServlet();
+    ResourceConfig resourceConfig = mock( ResourceConfig.class );
+    Set<Class<?>> providerClasses = new HashSet<>();
+    when( resourceConfig.getClasses() ).thenReturn( providerClasses );
+
+    servlet.registerLegacyJaxbJsonWriters( resourceConfig );
+
+    assertTrue( providerClasses.contains( JSONRootElementProvider.App.class ) );
+    assertTrue( providerClasses.contains( JSONListElementProvider.App.class ) );
+    assertTrue( providerClasses.contains( JSONJAXBElementProvider.App.class ) );
+  }
 
   private void validateSendErrorForStatus( JAXRSPluginServlet servlet, int httpStatusCode, boolean shouldCallSendError )
       throws ServletException, IOException {
