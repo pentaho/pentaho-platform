@@ -219,12 +219,15 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
       tenantAuthenticatedAuthorityName = null;
       authorizationPolicy = null;
       testJcrTemplate = null;
-      if ( startupCalled ) {
-        manager.shutdown();
-      }
     } finally {
-      if ( mp != null ) {
-        mp.stop();
+      try {
+        if ( startupCalled && manager != null ) {
+          manager.shutdown();
+        }
+      } finally {
+        if ( mp != null ) {
+          mp.stop();
+        }
       }
     }
 
