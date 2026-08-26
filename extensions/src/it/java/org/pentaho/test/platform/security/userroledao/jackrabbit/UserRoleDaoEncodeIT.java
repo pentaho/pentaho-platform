@@ -263,74 +263,89 @@ public class UserRoleDaoEncodeIT implements ApplicationContextAware {
     mp.defineInstance( "useMultiByteEncoding", new Boolean( false ) );
     // Start the micro-platform
     mp.start();
+    startupCalled = true;
     loginAsRepositoryAdmin();
     setAclManagement();
     logout();
-    startupCalled = true;
   }
 
   @After
   public void tearDown() throws Exception {
-    cleanupTenant( subTenant2_2_2 );
-    cleanupTenant( subTenant2_2_1 );
-    cleanupTenant( subTenant2_2 );
-    cleanupTenant( subTenant2_1_2 );
-    cleanupTenant( subTenant2_1_1 );
-    cleanupTenant( subTenant2_1 );
-    cleanupTenant( subTenant1_2_2 );
-    cleanupTenant( subTenant1_2_1 );
-    cleanupTenant( subTenant1_2 );
-    cleanupTenant( subTenant1_1_2 );
-    cleanupTenant( subTenant1_1_1 );
-    cleanupTenant( subTenant1_1 );
-    cleanupTenant( mainTenant_2 );
-    cleanupTenant( mainTenant_1 );
-    cleanupTenant( systemTenant );
-
-    // null out fields to get back memory
-    pluginManager = null;
-    authorizationPolicy = null;
-    loginAsRepositoryAdmin();
-    logout();
-
-    pPrincipalName = null;
-    userRoleDaoProxy = null;
-    userRoleDaoTestProxy = null;
-    tenantManager = null;
-    repositoryAdminUsername = null;
-    adminRoleName = null;
-    authenticatedRoleName = null;
-    sysAdminRoleName = null;
-    sysAdminUserName = null;
-    testJcrTemplate = null;
-    roleBindingDaoTarget = null;
-    authorizationPolicy = null;
-    mp = null;
-    repositoryFileDao = null;
-    tenantedRoleNameUtils = null;
-    tenantedUserNameUtils = null;
-    systemTenant = null;
-    mainTenant_1 = null;
-    mainTenant_2 = null;
-    subTenant1_1 = null;
-    subTenant1_2 = null;
-    subTenant1_1_1 = null;
-    subTenant1_1_2 = null;
-    subTenant1_2_1 = null;
-    subTenant1_2_2 = null;
-    subTenant2_1 = null;
-    subTenant2_2 = null;
-    subTenant2_1_1 = null;
-    subTenant2_1_2 = null;
-    subTenant2_2_1 = null;
-    subTenant2_2_2 = null;
     try {
-      if ( startupCalled ) {
-        manager.shutdown();
-        PentahoSystem.shutdown();
-      }
+      cleanupTenant( subTenant2_2_2 );
+      cleanupTenant( subTenant2_2_1 );
+      cleanupTenant( subTenant2_2 );
+      cleanupTenant( subTenant2_1_2 );
+      cleanupTenant( subTenant2_1_1 );
+      cleanupTenant( subTenant2_1 );
+      cleanupTenant( subTenant1_2_2 );
+      cleanupTenant( subTenant1_2_1 );
+      cleanupTenant( subTenant1_2 );
+      cleanupTenant( subTenant1_1_2 );
+      cleanupTenant( subTenant1_1_1 );
+      cleanupTenant( subTenant1_1 );
+      cleanupTenant( mainTenant_2 );
+      cleanupTenant( mainTenant_1 );
+      cleanupTenant( systemTenant );
+
+      // null out fields to get back memory
+      pluginManager = null;
+      authorizationPolicy = null;
+      loginAsRepositoryAdmin();
+      logout();
+
+      pPrincipalName = null;
+      userRoleDaoProxy = null;
+      userRoleDaoTestProxy = null;
+      tenantManager = null;
+      repositoryAdminUsername = null;
+      adminRoleName = null;
+      authenticatedRoleName = null;
+      sysAdminRoleName = null;
+      sysAdminUserName = null;
+      testJcrTemplate = null;
+      roleBindingDaoTarget = null;
+      authorizationPolicy = null;
+      repositoryFileDao = null;
+      tenantedRoleNameUtils = null;
+      tenantedUserNameUtils = null;
+      systemTenant = null;
+      mainTenant_1 = null;
+      mainTenant_2 = null;
+      subTenant1_1 = null;
+      subTenant1_2 = null;
+      subTenant1_1_1 = null;
+      subTenant1_1_2 = null;
+      subTenant1_2_1 = null;
+      subTenant1_2_2 = null;
+      subTenant2_1 = null;
+      subTenant2_2 = null;
+      subTenant2_1_1 = null;
+      subTenant2_1_2 = null;
+      subTenant2_2_1 = null;
+      subTenant2_2_2 = null;
     } finally {
-      SecurityContextHolder.clearContext();
+      try {
+        if ( startupCalled && manager != null ) {
+          manager.shutdown();
+        }
+      } finally {
+        try {
+          if ( mp != null ) {
+            mp.stop();
+          }
+        } finally {
+          try {
+            if ( startupCalled ) {
+              PentahoSystem.shutdown();
+            }
+          } finally {
+            PentahoSessionHolder.removeSession();
+            SecurityContextHolder.clearContext();
+            mp = null;
+          }
+        }
+      }
     }
     tenantManager = null;
   }
