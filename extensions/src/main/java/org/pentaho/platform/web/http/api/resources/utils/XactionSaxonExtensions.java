@@ -32,17 +32,29 @@ import org.pentaho.platform.web.xsl.messages.Messages;
  */
 public class XactionSaxonExtensions {
 
+  private static final String CURRENT_MESSAGE_NAMESPACE = "org.pentaho.platform.web.xsl.messages.Messages";
+  private static final String LEGACY_MESSAGE_NAMESPACE = "org.pentaho.platform.plugin.action.messages.Messages";
+
   /**
    * <b>msg:getInstance()</b><br>
-   * Namespace: org.pentaho.platform.web.xsl.messages.Messages<br>
+   * Namespaces: org.pentaho.platform.web.xsl.messages.Messages and
+   * org.pentaho.platform.plugin.action.messages.Messages<br>
    * XSL usage: <code>&lt;xsl:variable name="messages" select="msg:getInstance()" /&gt;</code>
    */
   public static class MsgGetInstance extends ExtensionFunctionDefinition {
 
-    private static final String NAMESPACE = "org.pentaho.platform.web.xsl.messages.Messages";
+    private final String namespace;
+
+    public MsgGetInstance() {
+      this( CURRENT_MESSAGE_NAMESPACE );
+    }
+
+    public MsgGetInstance( String namespace ) {
+      this.namespace = namespace;
+    }
 
     @Override public StructuredQName getFunctionQName() {
-      return new StructuredQName( "msg", NAMESPACE, "getInstance" );
+      return new StructuredQName( "msg", namespace, "getInstance" );
     }
 
     @Override public SequenceType[] getArgumentTypes() {
@@ -65,15 +77,24 @@ public class XactionSaxonExtensions {
 
   /**
    * <b>msg:getXslString(messages, key)</b><br>
-   * Namespace: org.pentaho.platform.web.xsl.messages.Messages<br>
+    * Namespaces: org.pentaho.platform.web.xsl.messages.Messages and
+    * org.pentaho.platform.plugin.action.messages.Messages<br>
    * XSL usage: <code>msg:getXslString($messages, 'UI.SOME_KEY')</code>
    */
   public static class MsgGetXslString extends ExtensionFunctionDefinition {
 
-    private static final String NAMESPACE = "org.pentaho.platform.web.xsl.messages.Messages";
+    private final String namespace;
+
+    public MsgGetXslString() {
+      this( CURRENT_MESSAGE_NAMESPACE );
+    }
+
+    public MsgGetXslString( String namespace ) {
+      this.namespace = namespace;
+    }
 
     @Override public StructuredQName getFunctionQName() {
-      return new StructuredQName( "msg", NAMESPACE, "getXslString" );
+      return new StructuredQName( "msg", namespace, "getXslString" );
     }
 
     @Override public SequenceType[] getArgumentTypes() {
@@ -99,15 +120,24 @@ public class XactionSaxonExtensions {
 
   /**
    * <b>msg:getString(messages, key)</b><br>
-   * Namespace: org.pentaho.platform.web.xsl.messages.Messages<br>
+    * Namespaces: org.pentaho.platform.web.xsl.messages.Messages and
+    * org.pentaho.platform.plugin.action.messages.Messages<br>
    * XSL usage: <code>msg:getString($messages, 'UI.SOME_KEY')</code>
    */
   public static class MsgGetString extends ExtensionFunctionDefinition {
 
-    private static final String NAMESPACE = "org.pentaho.platform.web.xsl.messages.Messages";
+    private final String namespace;
+
+    public MsgGetString() {
+      this( CURRENT_MESSAGE_NAMESPACE );
+    }
+
+    public MsgGetString( String namespace ) {
+      this.namespace = namespace;
+    }
 
     @Override public StructuredQName getFunctionQName() {
-      return new StructuredQName( "msg", NAMESPACE, "getString" );
+      return new StructuredQName( "msg", namespace, "getString" );
     }
 
     @Override public SequenceType[] getArgumentTypes() {
@@ -159,13 +189,16 @@ public class XactionSaxonExtensions {
   }
 
   /**
-  * Register all extensions into a Saxon Configuration.
+   * Register all extensions into a Saxon Configuration.
    */
   public static void registerAll( Configuration config ) {
     if ( config != null ) {
       config.registerExtensionFunction( new MsgGetInstance() );
       config.registerExtensionFunction( new MsgGetXslString() );
       config.registerExtensionFunction( new MsgGetString() );
+      config.registerExtensionFunction( new MsgGetInstance( LEGACY_MESSAGE_NAMESPACE ) );
+      config.registerExtensionFunction( new MsgGetXslString( LEGACY_MESSAGE_NAMESPACE ) );
+      config.registerExtensionFunction( new MsgGetString( LEGACY_MESSAGE_NAMESPACE ) );
       config.registerExtensionFunction( new LocGetTextDirection() );
     }
   }
