@@ -43,6 +43,7 @@ import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.xml.namespace.QName;
@@ -80,6 +81,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
   private final Logger logger = LogManager.getLogger( DefaultUnifiedRepositoryJaxwsWebServiceIT.class );
 
   private Endpoint endpoint;
+  private SecurityContextHolderStrategy previousSecurityContextHolderStrategy;
 
   // ~ Instance fields
   // =================================================================================================
@@ -95,6 +97,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
 
   @Before
   public void setUp() throws Exception {
+    previousSecurityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
     super.setUp();
 
     IRepositoryVersionManager mockRepositoryVersionManager = mock( IRepositoryVersionManager.class );
@@ -128,9 +131,16 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
 
   @After
   public void stopEndpoint() {
-    if ( endpoint != null ) {
-      endpoint.stop();
-      endpoint = null;
+    try {
+      if ( endpoint != null ) {
+        endpoint.stop();
+        endpoint = null;
+      }
+    } finally {
+      SecurityContextHolder.clearContext();
+      if ( previousSecurityContextHolderStrategy != null ) {
+        SecurityContextHolder.setContextHolderStrategy( previousSecurityContextHolderStrategy );
+      }
     }
   }
 

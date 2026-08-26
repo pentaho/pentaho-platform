@@ -208,21 +208,26 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
 
   @After
   public void afterTest() throws Exception {
-    // null out fields to get back memory
-    loginAsRepositoryAdmin();
-    SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
-    logout();
+    try {
+      // null out fields to get back memory
+      loginAsRepositoryAdmin();
+      SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
+      logout();
 
-    repositoryAdminUsername = null;
-    adminAuthorityName = null;
-    tenantAuthenticatedAuthorityName = null;
-    authorizationPolicy = null;
-    testJcrTemplate = null;
-    pluginManager = null;
-    if ( startupCalled ) {
-      manager.shutdown();
+      repositoryAdminUsername = null;
+      adminAuthorityName = null;
+      tenantAuthenticatedAuthorityName = null;
+      authorizationPolicy = null;
+      testJcrTemplate = null;
+      pluginManager = null;
+      if ( startupCalled ) {
+        manager.shutdown();
+      }
+    } finally {
+      if ( mp != null ) {
+        mp.stop();
+      }
     }
-    mp.stop();
 
     // null out fields to get back memory
     repo = null;
