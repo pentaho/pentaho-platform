@@ -174,7 +174,7 @@ public class ProxyServletIT extends BaseTestCase {
 
     URIBuilder uriBuilder = new URIBuilder( "http://foo.bar/pentaho" );
     uriBuilder.addParameter( "_TRUST_USER_", "system" );
-    uriBuilder.addParameter( "_TRUST_LOCALE_OVERRIDE_", "en_PT" );
+    uriBuilder.addParameter( "_TRUST_LOCALE_OVERRIDE_", LocaleHelper.getLocale().toString() );
 
     TestProxyServlet servlet = spy( new TestProxyServlet() );
     servlet.init( config );
