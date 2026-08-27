@@ -157,6 +157,7 @@ public class GetResourceIT {
     final int repoFileLength = 100;
 
     final RepositoryFile repositoryFile = mock( RepositoryFile.class );
+    when( repositoryFile.getId() ).thenReturn( repoFileName );
 
     final InputStream inputStream = mock( InputStream.class );
     when( inputStream.read( any( byte[].class ) ) ).thenReturn( repoFileLength, -1 );

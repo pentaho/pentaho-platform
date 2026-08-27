@@ -27,7 +27,9 @@ import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
 import jakarta.ws.rs.core.Application;
 import org.glassfish.jersey.test.ServletDeploymentContext;
+import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
 import org.glassfish.jersey.test.spi.TestContainerException;
+import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -98,6 +100,11 @@ public class RepositoryPublishResourceIT extends JerseyTest implements Applicati
       .addFilter( PentahoRequestContextFilter.class, "pentahoRequestContextFilter" )
       .contextPath( "api" )
       .build();
+  }
+
+  @Override
+  protected TestContainerFactory getTestContainerFactory() {
+    return new GrizzlyWebTestContainerFactory();
   }
 
   private IPlatformImporter importer;
