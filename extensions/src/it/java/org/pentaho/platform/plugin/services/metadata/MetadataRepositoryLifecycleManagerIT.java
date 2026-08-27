@@ -216,6 +216,7 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
     ( (UserRoleDaoUserRoleListService) userRoleListService ).setUserDetailsService( userDetailsService );
     mp.defineInstance( IUserRoleListService.class, userRoleListService );
     mp.start();
+    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
     startupCalled = true;
     loginAsRepositoryAdmin();
     setAclManagement();
