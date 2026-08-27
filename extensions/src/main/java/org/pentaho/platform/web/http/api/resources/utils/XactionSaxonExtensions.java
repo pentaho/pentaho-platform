@@ -32,17 +32,29 @@ import org.pentaho.platform.web.xsl.messages.Messages;
  */
 public class XactionSaxonExtensions {
 
+  private static final String CURRENT_MESSAGE_NAMESPACE = "org.pentaho.platform.web.xsl.messages.Messages";
+  private static final String LEGACY_MESSAGE_NAMESPACE = "org.pentaho.platform.plugin.action.messages.Messages";
+
   /**
    * <b>msg:getInstance()</b><br>
-   * Namespace: org.pentaho.platform.web.xsl.messages.Messages<br>
+   * Namespaces: org.pentaho.platform.web.xsl.messages.Messages and
+   * org.pentaho.platform.plugin.action.messages.Messages<br>
    * XSL usage: <code>&lt;xsl:variable name="messages" select="msg:getInstance()" /&gt;</code>
    */
   public static class MsgGetInstance extends ExtensionFunctionDefinition {
 
-    private static final String NAMESPACE = "org.pentaho.platform.web.xsl.messages.Messages";
+    private final String namespace;
+
+    public MsgGetInstance() {
+      this( CURRENT_MESSAGE_NAMESPACE );
+    }
+
+    public MsgGetInstance( String namespace ) {
+      this.namespace = namespace;
+    }
 
     @Override public StructuredQName getFunctionQName() {
-      return new StructuredQName( "msg", NAMESPACE, "getInstance" );
+      return new StructuredQName( "msg", namespace, "getInstance" );
     }
 
     @Override public SequenceType[] getArgumentTypes() {
@@ -65,15 +77,24 @@ public class XactionSaxonExtensions {
 
   /**
    * <b>msg:getXslString(messages, key)</b><br>
-   * Namespace: org.pentaho.platform.web.xsl.messages.Messages<br>
+    * Namespaces: org.pentaho.platform.web.xsl.messages.Messages and
+    * org.pentaho.platform.plugin.action.messages.Messages<br>
    * XSL usage: <code>msg:getXslString($messages, 'UI.SOME_KEY')</code>
    */
   public static class MsgGetXslString extends ExtensionFunctionDefinition {
 
-    private static final String NAMESPACE = "org.pentaho.platform.web.xsl.messages.Messages";
+    private final String namespace;
+
+    public MsgGetXslString() {
+      this( CURRENT_MESSAGE_NAMESPACE );
+    }
+
+    public MsgGetXslString( String namespace ) {
+      this.namespace = namespace;
+    }
 
     @Override public StructuredQName getFunctionQName() {
-      return new StructuredQName( "msg", NAMESPACE, "getXslString" );
+      return new StructuredQName( "msg", namespace, "getXslString" );
     }
 
     @Override public SequenceType[] getArgumentTypes() {
@@ -89,8 +110,49 @@ public class XactionSaxonExtensions {
     @Override public ExtensionFunctionCall makeCallExpression() {
       return new ExtensionFunctionCall() {
         @Override public Sequence call( XPathContext context, Sequence[] arguments ) throws XPathException {
-          String key = arguments[ 1 ].head().getStringValue(); Messages messages = Messages.getInstance();
+          String key = arguments[ 1 ].head().getStringValue();
+          Messages messages = Messages.getInstance();
           return StringValue.makeStringValue( messages.getXslString( key ) );
+        }
+      };
+    }
+  }
+
+  /**
+   * <b>msg:getString(messages, key)</b><br>
+    * Namespaces: org.pentaho.platform.web.xsl.messages.Messages and
+    * org.pentaho.platform.plugin.action.messages.Messages<br>
+   * XSL usage: <code>msg:getString($messages, 'UI.SOME_KEY')</code>
+   */
+  public static class MsgGetString extends ExtensionFunctionDefinition {
+
+    private final String namespace;
+
+    public MsgGetString() {
+      this( CURRENT_MESSAGE_NAMESPACE );
+    }
+
+    public MsgGetString( String namespace ) {
+      this.namespace = namespace;
+    }
+
+    @Override public StructuredQName getFunctionQName() {
+      return new StructuredQName( "msg", namespace, "getString" );
+    }
+
+    @Override public SequenceType[] getArgumentTypes() {
+      return new SequenceType[] { SequenceType.SINGLE_STRING, SequenceType.SINGLE_STRING };
+    }
+
+    @Override public SequenceType getResultType( SequenceType[] suppliedArgumentTypes ) {
+      return SequenceType.SINGLE_STRING;
+    }
+
+    @Override public ExtensionFunctionCall makeCallExpression() {
+      return new ExtensionFunctionCall() {
+        @Override public Sequence call( XPathContext context, Sequence[] arguments ) throws XPathException {
+          String key = arguments[ 1 ].head().getStringValue();
+          return StringValue.makeStringValue( Messages.getInstance().getString( key ) );
         }
       };
     }
@@ -127,12 +189,16 @@ public class XactionSaxonExtensions {
   }
 
   /**
-   * Register all 3 extensions into a Saxon Configuration.
+   * Register all extensions into a Saxon Configuration.
    */
   public static void registerAll( Configuration config ) {
     if ( config != null ) {
       config.registerExtensionFunction( new MsgGetInstance() );
       config.registerExtensionFunction( new MsgGetXslString() );
+      config.registerExtensionFunction( new MsgGetString() );
+      config.registerExtensionFunction( new MsgGetInstance( LEGACY_MESSAGE_NAMESPACE ) );
+      config.registerExtensionFunction( new MsgGetXslString( LEGACY_MESSAGE_NAMESPACE ) );
+      config.registerExtensionFunction( new MsgGetString( LEGACY_MESSAGE_NAMESPACE ) );
       config.registerExtensionFunction( new LocGetTextDirection() );
     }
   }
