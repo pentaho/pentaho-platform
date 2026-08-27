@@ -1036,13 +1036,12 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     if ( StringUtils.isEmpty( locale ) ) {
       // This is a domain file
       metadataMap.put( PROPERTY_NAME_TYPE, TYPE_DOMAIN );
+      addDataSourceType( metadataMap, data );
     } else {
       // This is a locale property file
       metadataMap.put( PROPERTY_NAME_TYPE, TYPE_LOCALE );
       metadataMap.put( PROPERTY_NAME_LOCALE, locale );
     }
-
-    addDataSourceType( metadataMap, data );
 
     // Create the new file
     final RepositoryFile file = repository.createFile( getMetadataDir().getId(),
@@ -1056,7 +1055,9 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
   public RepositoryFile updateFile( RepositoryFile domainFile, SimpleRepositoryFileData data ) {
 
     final Map<String, Serializable> fileMetadata = repository.getFileMetadata( domainFile.getId() );
-    addDataSourceType( fileMetadata, data );
+    if ( isDomain( fileMetadata ) ) {
+      addDataSourceType( fileMetadata, data );
+    }
     repository.setFileMetadata( domainFile.getId(), fileMetadata );
     return repository.updateFile( domainFile, data, null );
   }

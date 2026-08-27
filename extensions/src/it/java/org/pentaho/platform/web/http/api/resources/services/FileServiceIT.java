@@ -1047,6 +1047,9 @@ public class FileServiceIT {
     doReturn( mockExportFile ).when( mockExportProcessor ).performExport( mockRepoFile );
 
     doReturn( mockRepoFile ).when( fileService.repository ).getFile( nullable( String.class ) );
+    doReturn( true ).when( fileService.repository ).hasAccess( nullable( String.class ),
+      eq( EnumSet.of( RepositoryFilePermission.READ ) ) );
+    PentahoSystem.registerObject( fileService.repository );
     doReturn( mockAuthPolicy ).when( fileService ).getPolicy();
     doReturn( mockExportProcessor ).when( fileService ).getDownloadExportProcessor( nullable( String.class ), anyBoolean(),
       anyBoolean() );

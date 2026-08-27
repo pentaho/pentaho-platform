@@ -692,6 +692,11 @@ public class PentahoMetadataDomainRepositoryIT {
     domainRepositorySpy.storeAnnotationsXml( null, annotationsXml );
     verify( domainRepositorySpy, times( 0 ) ).getMetadataRepositoryFile( nullable( String.class ) );
 
+    final RepositoryFile domainFile = mock( RepositoryFile.class );
+    final RepositoryFile annotationsFile = mock( RepositoryFile.class );
+    doReturn( domainFile ).when( domainRepositorySpy ).getMetadataRepositoryFile( domainId );
+    doReturn( annotationsFile ).when( domainRepositorySpy ).getAnnotationsXmlFile( domainFile );
+
     domainRepositorySpy.storeAnnotationsXml( domainId, annotationsXml );
     verify( domainRepositorySpy, times( 1 ) ).getMetadataRepositoryFile( nullable( String.class ) );
     verify( domainRepositorySpy, times( 1 ) ).getAnnotationsXmlFile( any( RepositoryFile.class ) );
