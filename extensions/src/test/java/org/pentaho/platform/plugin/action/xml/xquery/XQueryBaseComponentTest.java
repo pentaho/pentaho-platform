@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 public class XQueryBaseComponentTest {
 
   @Test
-  public void testPrepareQueryUsesFileUriForXmlResource() throws Exception {
+  public void testPrepareQueryUsesFileUriForXmlResource() {
     XQueryAction action = mock( XQueryAction.class );
     IActionInput sourceXml = mock( IActionInput.class );
     IActionResource xmlResource = mock( IActionResource.class );
