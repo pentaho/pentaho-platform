@@ -67,6 +67,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ;
@@ -337,7 +338,6 @@ public class PentahoMetadataDomainRepositoryTest {
     String createdFileId = "TEST_CREATED_FILE_ID";
 
     XmiParser xmiParser = Mockito.mock( XmiParser.class );
-    when( xmiParser.parseXmi( any( InputStream.class ) ) ).thenReturn( createMetadataTestObject() );
 
     RepositoryFile rfCreated = Mockito.mock( RepositoryFile.class );
     when( rfCreated.getId() ).thenReturn( createdFileId );
@@ -355,13 +355,11 @@ public class PentahoMetadataDomainRepositoryTest {
     PentahoMetadataDomainRepository pmdr = new PentahoMetadataDomainRepository( repository, null, xmiParser, null );
 
     SimpleRepositoryFileData srfd = Mockito.mock( SimpleRepositoryFileData.class );
-    when( srfd.getInputStream() ).thenReturn( new ByteArrayInputStream( new byte[0] ) );
 
     Map<String, Serializable> expectedMetadataMap = new HashMap<String, Serializable>() {{
       put( PROPERTY_NAME_DOMAIN_ID, domainId );
       put( PROPERTY_NAME_TYPE, TYPE_LOCALE );
       put( PROPERTY_NAME_LOCALE, locale );
-      put( PROPERTY_NAME_DATASOURCE_TYPE, PentahoDataSourceType.METADATA.toString() );
     } };
 
     // EXECUTE
@@ -377,6 +375,7 @@ public class PentahoMetadataDomainRepositoryTest {
             isNull() );
 
     verify( repository, times( 0 ) ).updateFile( any(), any(), any() );
+    verify( xmiParser, never() ).parseXmi( any( InputStream.class ) );
 
     verify( repository, times( 1 ) ).setFileMetadata(
             argThat( id -> createdFileId.equals( id ) ),
@@ -499,10 +498,8 @@ public class PentahoMetadataDomainRepositoryTest {
     } };
 
     XmiParser xmiParser = Mockito.mock( XmiParser.class );
-    when( xmiParser.parseXmi( any( InputStream.class ) ) ).thenReturn( createMetadataTestObject() );
 
     SimpleRepositoryFileData srfd = Mockito.mock( SimpleRepositoryFileData.class );
-    when( srfd.getInputStream() ).thenReturn( new ByteArrayInputStream( new byte[0] ) );
 
     IUnifiedRepository repository = Mockito.mock( IUnifiedRepository.class );
 
@@ -522,6 +519,7 @@ public class PentahoMetadataDomainRepositoryTest {
             argThat( map -> equalMaps( expectedMetadataMap, map ) ) );
 
     verify( repository, times( 0 ) ).createFile( any(), any(), any(), any() );
+    verify( xmiParser, never() ).parseXmi( any( InputStream.class ) );
 
     verify( repository, times( 1 ) ).updateFile(
             eq( domainFile ),
@@ -545,14 +543,12 @@ public class PentahoMetadataDomainRepositoryTest {
       put( PROPERTY_NAME_DOMAIN_ID, domainId );
       put( PROPERTY_NAME_TYPE, TYPE_LOCALE );
       put( PROPERTY_NAME_LOCALE, "jp" );
-      put( PROPERTY_NAME_DATASOURCE_TYPE, PentahoDataSourceType.METADATA.toString() );
+      put( PROPERTY_NAME_DATASOURCE_TYPE, PentahoDataSourceType.DATA_SOURCE_WIZARD.toString() );
     } };
 
     XmiParser xmiParser = Mockito.mock( XmiParser.class );
-    when( xmiParser.parseXmi( any( InputStream.class ) ) ).thenReturn( createMetadataTestObject() );
 
     SimpleRepositoryFileData srfd = Mockito.mock( SimpleRepositoryFileData.class );
-    when( srfd.getInputStream() ).thenReturn( new ByteArrayInputStream( new byte[0] ) );
 
     IUnifiedRepository repository = Mockito.mock( IUnifiedRepository.class );
 
@@ -572,6 +568,7 @@ public class PentahoMetadataDomainRepositoryTest {
             argThat( map -> equalMaps( expectedMetadataMap, map ) ) );
 
     verify( repository, times( 0 ) ).createFile( any(), any(), any(), any() );
+    verify( xmiParser, never() ).parseXmi( any( InputStream.class ) );
 
     verify( repository, times( 1 ) ).updateFile(
             eq( domainFile ),

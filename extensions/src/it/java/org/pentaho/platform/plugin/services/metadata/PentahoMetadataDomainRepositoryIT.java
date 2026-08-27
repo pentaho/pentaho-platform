@@ -692,6 +692,11 @@ public class PentahoMetadataDomainRepositoryIT {
     domainRepositorySpy.storeAnnotationsXml( null, annotationsXml );
     verify( domainRepositorySpy, times( 0 ) ).getMetadataRepositoryFile( nullable( String.class ) );
 
+    final RepositoryFile domainFile = mock( RepositoryFile.class );
+    final RepositoryFile annotationsFile = mock( RepositoryFile.class );
+    doReturn( domainFile ).when( domainRepositorySpy ).getMetadataRepositoryFile( domainId );
+    doReturn( annotationsFile ).when( domainRepositorySpy ).getAnnotationsXmlFile( domainFile );
+
     domainRepositorySpy.storeAnnotationsXml( domainId, annotationsXml );
     verify( domainRepositorySpy, times( 1 ) ).getMetadataRepositoryFile( nullable( String.class ) );
     verify( domainRepositorySpy, times( 1 ) ).getAnnotationsXmlFile( any( RepositoryFile.class ) );
@@ -723,13 +728,13 @@ public class PentahoMetadataDomainRepositoryIT {
     domainRepositorySpy.createOrUpdateAnnotationsXml( domainFile, null, annotationsXml );
     verify( repository, times( 1 ) )
         .createFile( any( String.class ), any( RepositoryFile.class ), any( IRepositoryFileData.class ),
-            any( String.class ) );
+        nullable( String.class ) );
 
     // Update
     RepositoryFile annotationsFile = mock( RepositoryFile.class );
     domainRepositorySpy.createOrUpdateAnnotationsXml( domainFile, annotationsFile, annotationsXml );
     verify( repository, times( 1 ) )
-        .updateFile( any( RepositoryFile.class ), any( IRepositoryFileData.class ), any( String.class ) );
+      .updateFile( any( RepositoryFile.class ), any( IRepositoryFileData.class ), nullable( String.class ) );
 
     // Error
     doThrow( new RuntimeException() ).when( domainRepositorySpy ).getRepository();
