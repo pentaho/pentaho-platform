@@ -63,6 +63,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
@@ -228,6 +229,7 @@ public class UserRoleDaoEncodeIT implements ApplicationContextAware {
   private ITenant subTenant2_1_2;
   private ITenant subTenant2_2_1;
   private ITenant subTenant2_2_2;
+  private static SecurityContextHolderStrategy previousSecurityContextHolderStrategy;
 
   @BeforeClass
   public static void setUpClass() throws Exception {
@@ -235,10 +237,14 @@ public class UserRoleDaoEncodeIT implements ApplicationContextAware {
     // parent folder must match jcrRepository.homeDir bean property in repository-test-override.spring.xml
     FileUtils.deleteDirectory( new File( "/tmp/jackrabbit-test-TRUNK" ) );
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
+    previousSecurityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
   }
 
   @AfterClass
   public static void tearDownClass() throws Exception {
+    SecurityContextHolder.clearContext();
+    SecurityContextHolder.setContextHolderStrategy( previousSecurityContextHolderStrategy );
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
   }
 
@@ -257,6 +263,7 @@ public class UserRoleDaoEncodeIT implements ApplicationContextAware {
     mp.defineInstance( "useMultiByteEncoding", new Boolean( false ) );
     // Start the micro-platform
     mp.start();
+    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
     startupCalled = true;
     loginAsRepositoryAdmin();
     setAclManagement();
