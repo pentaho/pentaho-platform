@@ -39,6 +39,7 @@ import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.core.mt.Tenant;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
@@ -63,6 +64,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
@@ -232,6 +234,7 @@ public class UserRoleDaoEncodeIT implements ApplicationContextAware {
   private ITenant subTenant2_1_2;
   private ITenant subTenant2_2_1;
   private ITenant subTenant2_2_2;
+  private static SecurityContextHolderStrategy previousSecurityContextHolderStrategy;
 
   @BeforeClass
   public static void setUpClass() throws Exception {
@@ -239,10 +242,14 @@ public class UserRoleDaoEncodeIT implements ApplicationContextAware {
     // parent folder must match jcrRepository.homeDir bean property in repository-test-override.spring.xml
     FileUtils.deleteDirectory( new File( "/tmp/jackrabbit-test-TRUNK" ) );
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
+    previousSecurityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
   }
 
   @AfterClass
   public static void tearDownClass() throws Exception {
+    SecurityContextHolder.clearContext();
+    SecurityContextHolder.setContextHolderStrategy( previousSecurityContextHolderStrategy );
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
   }
 
@@ -262,69 +269,90 @@ public class UserRoleDaoEncodeIT implements ApplicationContextAware {
     mp.defineInstance( "useMultiByteEncoding", new Boolean( false ) );
     // Start the micro-platform
     mp.start();
+    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
+    startupCalled = true;
     loginAsRepositoryAdmin();
     setAclManagement();
     logout();
-    startupCalled = true;
   }
 
   @After
   public void tearDown() throws Exception {
-    cleanupTenant( subTenant2_2_2 );
-    cleanupTenant( subTenant2_2_1 );
-    cleanupTenant( subTenant2_2 );
-    cleanupTenant( subTenant2_1_2 );
-    cleanupTenant( subTenant2_1_1 );
-    cleanupTenant( subTenant2_1 );
-    cleanupTenant( subTenant1_2_2 );
-    cleanupTenant( subTenant1_2_1 );
-    cleanupTenant( subTenant1_2 );
-    cleanupTenant( subTenant1_1_2 );
-    cleanupTenant( subTenant1_1_1 );
-    cleanupTenant( subTenant1_1 );
-    cleanupTenant( mainTenant_2 );
-    cleanupTenant( mainTenant_1 );
-    cleanupTenant( systemTenant );
+    try {
+      cleanupTenant( subTenant2_2_2 );
+      cleanupTenant( subTenant2_2_1 );
+      cleanupTenant( subTenant2_2 );
+      cleanupTenant( subTenant2_1_2 );
+      cleanupTenant( subTenant2_1_1 );
+      cleanupTenant( subTenant2_1 );
+      cleanupTenant( subTenant1_2_2 );
+      cleanupTenant( subTenant1_2_1 );
+      cleanupTenant( subTenant1_2 );
+      cleanupTenant( subTenant1_1_2 );
+      cleanupTenant( subTenant1_1_1 );
+      cleanupTenant( subTenant1_1 );
+      cleanupTenant( mainTenant_2 );
+      cleanupTenant( mainTenant_1 );
+      cleanupTenant( systemTenant );
 
-    // null out fields to get back memory
-    pluginManager = null;
-    authorizationPolicy = null;
-    loginAsRepositoryAdmin();
-    logout();
+      // null out fields to get back memory
+      pluginManager = null;
+      authorizationPolicy = null;
+      loginAsRepositoryAdmin();
+      logout();
 
-    pPrincipalName = null;
-    userRoleDaoProxy = null;
-    userRoleDaoTestProxy = null;
-    tenantManager = null;
-    repositoryAdminUsername = null;
-    adminRoleName = null;
-    authenticatedRoleName = null;
-    sysAdminRoleName = null;
-    sysAdminUserName = null;
-    testJcrTemplate = null;
-    roleBindingDaoTarget = null;
-    authorizationPolicy = null;
-    mp = null;
-    repositoryFileDao = null;
-    tenantedRoleNameUtils = null;
-    tenantedUserNameUtils = null;
-    systemTenant = null;
-    mainTenant_1 = null;
-    mainTenant_2 = null;
-    subTenant1_1 = null;
-    subTenant1_2 = null;
-    subTenant1_1_1 = null;
-    subTenant1_1_2 = null;
-    subTenant1_2_1 = null;
-    subTenant1_2_2 = null;
-    subTenant2_1 = null;
-    subTenant2_2 = null;
-    subTenant2_1_1 = null;
-    subTenant2_1_2 = null;
-    subTenant2_2_1 = null;
-    subTenant2_2_2 = null;
-    if ( startupCalled ) {
-      manager.shutdown();
+      pPrincipalName = null;
+      userRoleDaoProxy = null;
+      userRoleDaoTestProxy = null;
+      tenantManager = null;
+      repositoryAdminUsername = null;
+      adminRoleName = null;
+      authenticatedRoleName = null;
+      sysAdminRoleName = null;
+      sysAdminUserName = null;
+      testJcrTemplate = null;
+      roleBindingDaoTarget = null;
+      authorizationPolicy = null;
+      repositoryFileDao = null;
+      tenantedRoleNameUtils = null;
+      tenantedUserNameUtils = null;
+      systemTenant = null;
+      mainTenant_1 = null;
+      mainTenant_2 = null;
+      subTenant1_1 = null;
+      subTenant1_2 = null;
+      subTenant1_1_1 = null;
+      subTenant1_1_2 = null;
+      subTenant1_2_1 = null;
+      subTenant1_2_2 = null;
+      subTenant2_1 = null;
+      subTenant2_2 = null;
+      subTenant2_1_1 = null;
+      subTenant2_1_2 = null;
+      subTenant2_2_1 = null;
+      subTenant2_2_2 = null;
+    } finally {
+      try {
+        if ( startupCalled && manager != null ) {
+          manager.shutdown();
+        }
+      } finally {
+        try {
+          if ( mp != null ) {
+            mp.stop();
+          }
+        } finally {
+          try {
+            if ( startupCalled ) {
+              PentahoSystem.shutdown();
+            }
+          } finally {
+            PentahoSessionHolder.removeSession();
+            SecurityContextHolder.clearContext();
+            mp = null;
+          }
+        }
+      }
     }
     tenantManager = null;
   }

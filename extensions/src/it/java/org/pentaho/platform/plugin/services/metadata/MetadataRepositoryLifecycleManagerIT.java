@@ -67,6 +67,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
@@ -156,9 +157,16 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
   private JcrTemplate jcrTemplate;
 
   public static final String SYSTEM_PROPERTY = "spring.security.strategy";
+  private static SecurityContextHolderStrategy previousSecurityContextHolderStrategy;
+  private static String previousPentahoSessionHolderStrategy;
+  private static String previousSpringSecurityStrategy;
 
   @BeforeClass
   public static void beforeClass() throws Exception {
+    previousSecurityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+    previousPentahoSessionHolderStrategy = System.getProperty( PentahoSessionHolder.SYSTEM_PROPERTY,
+      PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
+    previousSpringSecurityStrategy = System.getProperty( SYSTEM_PROPERTY );
     System.setProperty( SYSTEM_PROPERTY, "MODE_GLOBAL" );
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
     FileUtils.deleteDirectory( new File( "/tmp/jackrabbit-test-TRUNK" ) );
@@ -167,7 +175,15 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
 
   @AfterClass
   public static void afterClass() {
-    PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
+    PentahoSessionHolder.removeSession();
+    SecurityContextHolder.clearContext();
+    PentahoSessionHolder.setStrategyName( previousPentahoSessionHolderStrategy );
+    SecurityContextHolder.setContextHolderStrategy( previousSecurityContextHolderStrategy );
+    if ( previousSpringSecurityStrategy == null ) {
+      System.clearProperty( SYSTEM_PROPERTY );
+    } else {
+      System.setProperty( SYSTEM_PROPERTY, previousSpringSecurityStrategy );
+    }
   }
 
   @Before
@@ -200,27 +216,42 @@ public class MetadataRepositoryLifecycleManagerIT implements ApplicationContextA
     ( (UserRoleDaoUserRoleListService) userRoleListService ).setUserDetailsService( userDetailsService );
     mp.defineInstance( IUserRoleListService.class, userRoleListService );
     mp.start();
+    SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
+    startupCalled = true;
     loginAsRepositoryAdmin();
     setAclManagement();
     logout();
-    startupCalled = true;
   }
 
   @After
   public void afterTest() throws Exception {
-    // null out fields to get back memory
-    loginAsRepositoryAdmin();
-    SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
-    logout();
+    try {
+      // null out fields to get back memory
+      loginAsRepositoryAdmin();
+      SimpleJcrTestUtils.deleteItem( testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() );
+      logout();
 
-    repositoryAdminUsername = null;
-    adminAuthorityName = null;
-    tenantAuthenticatedAuthorityName = null;
-    authorizationPolicy = null;
-    testJcrTemplate = null;
-    pluginManager = null;
-    if ( startupCalled ) {
-      manager.shutdown();
+      repositoryAdminUsername = null;
+      adminAuthorityName = null;
+      tenantAuthenticatedAuthorityName = null;
+      authorizationPolicy = null;
+      testJcrTemplate = null;
+      pluginManager = null;
+    } finally {
+      try {
+        if ( startupCalled && manager != null ) {
+          manager.shutdown();
+        }
+      } finally {
+        try {
+          if ( mp != null ) {
+            mp.stop();
+          }
+        } finally {
+          PentahoSessionHolder.removeSession();
+          SecurityContextHolder.clearContext();
+        }
+      }
     }
 
     // null out fields to get back memory
