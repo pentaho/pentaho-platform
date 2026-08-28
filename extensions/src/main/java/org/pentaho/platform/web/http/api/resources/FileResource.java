@@ -51,6 +51,7 @@ import org.pentaho.platform.plugin.services.importexport.Exporter;
 import org.pentaho.platform.repository.RepositoryDownloadWhitelist;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.unified.TreeNodeFilterSpec;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.FileVersioningConfiguration;
@@ -1754,6 +1755,18 @@ public class FileResource extends AbstractJaxRSResource {
    *                   name in the filter may be a full name or a partial name with one or more wildcard characters ("*"). The
    *                   filter does not apply to root node.
    *                   <p/>
+   *                   The Child Node Filter also accepts a structured form, which filters files and folders independently
+   *                   instead of applying the same expression to both:
+   *                   "{@value TreeNodeFilterSpec#FILE_FILTER_TOKEN}&lt;patterns&gt;" and/or
+   *                   "{@value TreeNodeFilterSpec#FOLDER_FILTER_TOKEN}&lt;patterns&gt;", where patterns is a comma
+   *                   separated list of names with optional wildcards ("*"). Both clauses are combined with
+   *                   "{@value TreeNodeFilterSpec#FILTER_TOKEN_SEPARATOR}" because the pipe (|) is the separator of
+   *                   the filter parameter itself. A missing clause means "all", so
+   *                   "{@value TreeNodeFilterSpec#FILE_FILTER_TOKEN}*.ktr{@value TreeNodeFilterSpec#INSIDE_FILTER_TOKEN_SEPARATOR}*.kjb"
+   *                   returns the complete folder structure containing only ktr and kjb files. This form is only
+   *                   supported by
+   *                   repository providers backed by JCR; other providers ignore it.
+   *                   <p/>
    *                   The Member Filter portion of the filter parameter allows the caller to specify which properties of the
    *                   metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
    *                   comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
@@ -1881,6 +1894,18 @@ public class FileResource extends AbstractJaxRSResource {
    *                    The Child Node Filter is a list of allowed names of files separated by the pipe (|) character. Each file
    *                    name in the filter may be a full name or a partial name with one or more wildcard characters ("*"). The
    *                    filter does not apply to root node.
+   *                    <p/>
+   *                    The Child Node Filter also accepts a structured form, which filters files and folders independently
+   *                    instead of applying the same expression to both:
+   *                    "{@value TreeNodeFilterSpec#FILE_FILTER_TOKEN}&lt;patterns&gt;" and/or
+   *                    "{@value TreeNodeFilterSpec#FOLDER_FILTER_TOKEN}&lt;patterns&gt;", where patterns is a comma
+   *                    separated list of names with optional wildcards ("*"). Both clauses are combined with
+   *                    "{@value TreeNodeFilterSpec#FILTER_TOKEN_SEPARATOR}" because the pipe (|) is the separator of
+   *                    the filter parameter itself. A missing clause means "all", so
+   *                    "{@value TreeNodeFilterSpec#FILE_FILTER_TOKEN}*.ktr{@value TreeNodeFilterSpec#INSIDE_FILTER_TOKEN_SEPARATOR}*.kjb"
+   *                    returns the complete folder structure containing only ktr and kjb files. This form is only
+   *                    supported by
+   *                    repository providers backed by JCR; other providers ignore it.
    *                    <p/>
    *                    The Member Filter portion of the filter parameter allows the caller to specify which properties of the
    *                    metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of

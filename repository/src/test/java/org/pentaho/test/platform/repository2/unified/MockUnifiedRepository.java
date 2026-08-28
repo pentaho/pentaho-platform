@@ -70,7 +70,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Mock implementation of the {@link IUnifiedRepository} for unit testing.
- * 
+ *
  * @author dkincade
  * @author mlowery
  */
@@ -104,7 +104,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   /**
    * Creates a mock.
-   * 
+   *
    * @param currentUserProvider
    *          create your own or use {@link SpringSecurityCurrentUserProvider}.
    */
@@ -457,14 +457,17 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   private static boolean matches( final String in, final String pattern ) {
     StringBuilder buf = new StringBuilder();
     // build a regex
-    String[] patterns = pattern.split( "\\|" );
+    String[] patterns = pattern.split( Pattern.quote( RepositoryRequest.FILTER_SEPARATOR ) );
     for ( int i = 0; i < patterns.length; i++ ) {
       if ( i > 0 ) {
+        // regex alternation, not the filter separator
         buf.append( "|" );
       }
       String tmp = patterns[i].trim();
       tmp = tmp.replace( ".", "\\." );
-      tmp = tmp.replace( "*", ".*" );
+      // the filter wildcard becomes the regex "any sequence", which must stay a regex literal: building it from
+      // the constant would only work while the constant happens to be the regex quantifier '*'
+      tmp = tmp.replace( RepositoryRequest.FILTER_WILDCARD, ".*" );
       buf.append( tmp );
     }
     Pattern p = Pattern.compile( buf.toString() );

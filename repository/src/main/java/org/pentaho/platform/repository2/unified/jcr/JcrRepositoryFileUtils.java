@@ -78,7 +78,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Class of static methods where the real JCR work takes place.
- * 
+ *
  * @author mlowery
  */
 public class JcrRepositoryFileUtils {
@@ -506,7 +506,7 @@ public class JcrRepositoryFileUtils {
   /**
    * Getting base version of the node. In the case of getting NullPointerException from Jackrabbit Content Repository
    * (see https://issues.apache.org/jira/browse/JCR-2382), catching it, logging the error and returning null
-   * 
+   *
    * @param node
    * @return version of the node or null
    * @throws UnsupportedRepositoryOperationException
@@ -1062,7 +1062,7 @@ public class JcrRepositoryFileUtils {
 
   /**
    * Returns the node as it was at the given version.
-   * 
+   *
    * @param version
    *          version to get
    * @return node at version
@@ -1157,7 +1157,7 @@ public class JcrRepositoryFileUtils {
    * first find a file that satisfies the criteria of the <code>childNodeFilter</code> mask. A file meeting the criteria
    * may be any number of folders down the repository structure, so the <code>foundFiltered</code> MutableBoolean tells
    * the caller if a file was found, at any level, meeting that criteria.
-   * 
+   *
    * @param session
    *          The current session in progress
    * @param pentahoJcrConstants
@@ -1203,7 +1203,8 @@ public class JcrRepositoryFileUtils {
     // to go)
     if ( depth != 0 ) {
       children = new ArrayList<RepositoryFileTree>();
-      int numberOfPasses = childNodeFilter != null && !childNodeFilter.equals( "*" ) ? 2 : 1;
+      int numberOfPasses =
+        childNodeFilter != null && !childNodeFilter.equals( RepositoryRequest.FILTER_WILDCARD ) ? 2 : 1;
 
       // get Filtered Children set
       HashSet<Node> filteredChildrenSet;
@@ -1442,7 +1443,7 @@ public class JcrRepositoryFileUtils {
 
   /**
    * Use override list from PentahoSystem if it exists
-   * 
+   *
    * @return
    */
   public static List<Character> getReservedChars() {
