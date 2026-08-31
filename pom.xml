@@ -45,7 +45,6 @@
     <LucidDbClient-minimal.version>0.9.4</LucidDbClient-minimal.version>
     <wsdl4j.version>1.6.2</wsdl4j.version>
     <asm-attrs.version>2.2.3</asm-attrs.version>
-    <mstor.version>0.9.13</mstor.version>
     <hamcrest-all.version>1.3</hamcrest-all.version>
     <pentaho-vfs.version>1.0</pentaho-vfs.version>
     <wstx-asl.version>3.2.4</wstx-asl.version>
