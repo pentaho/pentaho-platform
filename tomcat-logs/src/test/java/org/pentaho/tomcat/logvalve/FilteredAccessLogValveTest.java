@@ -23,6 +23,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Verifies that {@link FilteredAccessLogValve} masks credentials before they reach the access log, and that it
@@ -163,7 +164,13 @@ public class FilteredAccessLogValveTest {
     TestableFilteredAccessLogValve unwired = new TestableFilteredAccessLogValve();
     unwired.setRotatable( false );
 
-    unwired.log( message( "j_password=secret" ) );
+    try {
+      unwired.log( message( "j_password=secret" ) );
+    } catch ( Exception e ) {
+      fail( "a missing writer must not propagate a failure to the request, but threw " + e );
+    }
+
+    assertEquals( "nothing may be written when no writer is configured", "", sink.toString() );
   }
 
   @Test
