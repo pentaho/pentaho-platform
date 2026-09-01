@@ -42,8 +42,7 @@ PentahoSystem which is initialized after Spring
   <bean id="IPluginResourceLoader" class="org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader" scope="singleton" />
   <bean id="IChartBeansGenerator" class="org.pentaho.platform.plugin.action.chartbeans.DefaultChartBeansGenerator" scope="singleton" />
   <bean id="IThemeManager" class="org.pentaho.platform.web.html.themes.DefaultThemeManager" scope="singleton"/>
-  <bean id="ISystemConfig" class="org.pentaho.platform.config.SystemConfig" scope="singleton" />
-    
+
     <!-- Data connections.  Connections objects should be accessed through PentahoConnectionFactory, 
        not directly from the PentahoObjectFactory. -->
   <bean id="connection-SQL" class="org.pentaho.platform.plugin.services.connections.sql.SQLConnection" scope="prototype" />
