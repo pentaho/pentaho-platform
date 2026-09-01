@@ -58,9 +58,11 @@ public class FilteredAccessLogValveTest {
     return writer;
   }
 
-  /** What actually reached the log, without the line separator the valve appends. */
+  /** What actually reached the log, with only the single trailing separator the valve appends removed. */
   private String logged() {
-    return sink.toString().replace( System.lineSeparator(), "" );
+    String written = sink.toString();
+    String separator = System.lineSeparator();
+    return written.endsWith( separator ) ? written.substring( 0, written.length() - separator.length() ) : written;
   }
 
   @Test
@@ -129,6 +131,30 @@ public class FilteredAccessLogValveTest {
     valve.log( message( "" ) );
 
     assertEquals( "", logged() );
+  }
+
+  /** Guards the helper above: exactly one separator-terminated entry per log() call, so a double write is visible. */
+  @Test
+  public void writesExactlyOneEntryPerCall() {
+    valve.log( message( "j_password=secret" ) );
+
+    assertEquals( 1, countSeparators( sink.toString() ) );
+    assertEquals( "j_password=***", logged() );
+
+    valve.log( message( "second" ) );
+
+    assertEquals( 2, countSeparators( sink.toString() ) );
+  }
+
+  private static int countSeparators( String text ) {
+    String separator = System.lineSeparator();
+    int count = 0;
+    int index = text.indexOf( separator );
+    while ( index >= 0 ) {
+      count++;
+      index = text.indexOf( separator, index + separator.length() );
+    }
+    return count;
   }
 
   /** With no writer wired up the inherited valve must swallow the write, not propagate a failure to the request. */
