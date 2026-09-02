@@ -113,10 +113,13 @@ public class JcrTreeQueryUtilsSql2ParsingTest {
 
   @BeforeClass
   public static void startRepository() throws Exception {
-    InputStream configStream = JcrTreeQueryUtilsSql2ParsingTest.class.getResourceAsStream( REPO_CONFIG_FILE );
     String home = Files.createTempDirectory( TEST_REPOSITORY_LOCATION ).toAbsolutePath().toString();
 
-    repository = new TransientRepository( RepositoryConfig.create( configStream, home ) );
+    try ( InputStream configStream = JcrTreeQueryUtilsSql2ParsingTest.class.getResourceAsStream( REPO_CONFIG_FILE ) ) {
+      assertNotNull( "Missing test repository config " + REPO_CONFIG_FILE, configStream );
+      repository = new TransientRepository( RepositoryConfig.create( configStream, home ) );
+    }
+
     session = repository.login( new SimpleCredentials( "admin", "admin".toCharArray() ) );
 
     // the queried subtree must exist, so that the engine is exercised exactly as it is at runtime
@@ -396,7 +399,8 @@ public class JcrTreeQueryUtilsSql2ParsingTest {
   }
 
 
-  private static void addFile( final Node parent, final String name ) throws RepositoryException {    Node content = parent.addNode( name, FILE_NODE_TYPE ).addNode( "jcr:content", "nt:resource" );
+  private static void addFile( final Node parent, final String name ) throws RepositoryException {
+    Node content = parent.addNode( name, FILE_NODE_TYPE ).addNode( "jcr:content", "nt:resource" );
     content.setProperty( "jcr:data",
       session.getValueFactory().createBinary( new ByteArrayInputStream( "x".getBytes( StandardCharsets.UTF_8 ) ) ) );
   }
