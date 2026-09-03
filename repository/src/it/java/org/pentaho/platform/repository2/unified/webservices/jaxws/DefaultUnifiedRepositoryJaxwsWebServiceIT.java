@@ -18,6 +18,7 @@ import com.sun.xml.ws.developer.JAXWSProperties;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +42,7 @@ import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.xml.namespace.QName;
@@ -77,6 +79,9 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
 
   private final Logger logger = LogManager.getLogger( DefaultUnifiedRepositoryJaxwsWebServiceIT.class );
 
+  private Endpoint endpoint;
+  private SecurityContextHolderStrategy previousSecurityContextHolderStrategy;
+
   // ~ Instance fields
   // =================================================================================================
 
@@ -91,6 +96,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
 
   @Before
   public void setUp() throws Exception {
+    previousSecurityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
     super.setUp();
 
     IRepositoryVersionManager mockRepositoryVersionManager = mock( IRepositoryVersionManager.class );
@@ -102,11 +108,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
 
     String address = "http://localhost:9000/repo";
 
-    try {
-      Endpoint.publish( address, new DefaultUnifiedRepositoryJaxwsWebService( repo ) );
-    } catch ( Throwable th ) {
-      //ignore
-    }
+    endpoint = Endpoint.publish( address, new DefaultUnifiedRepositoryJaxwsWebService( repo ) );
 
     Service service =
         Service.create( new URL( "http://localhost:9000/repo?wsdl" ), new QName( "http://www.pentaho.org/ws/1.0",
@@ -124,6 +126,21 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
 
     repo = new UnifiedRepositoryToWebServiceAdapter( repoWebService );
 
+  }
+
+  @After
+  public void stopEndpoint() {
+    try {
+      if ( endpoint != null ) {
+        endpoint.stop();
+        endpoint = null;
+      }
+    } finally {
+      SecurityContextHolder.clearContext();
+      if ( previousSecurityContextHolderStrategy != null ) {
+        SecurityContextHolder.setContextHolderStrategy( previousSecurityContextHolderStrategy );
+      }
+    }
   }
 
   @Test
