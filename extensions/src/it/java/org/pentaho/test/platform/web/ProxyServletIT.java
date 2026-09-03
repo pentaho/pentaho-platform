@@ -161,6 +161,7 @@ public class ProxyServletIT extends BaseTestCase {
   public void testServiceTrustUserQueryParameter() throws ServletException, IOException, URISyntaxException {
 
     MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setMethod( "GET" );
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     request.setServletPath( "/pentaho" );
@@ -173,7 +174,7 @@ public class ProxyServletIT extends BaseTestCase {
 
     URIBuilder uriBuilder = new URIBuilder( "http://foo.bar/pentaho" );
     uriBuilder.addParameter( "_TRUST_USER_", "system" );
-    uriBuilder.addParameter( "_TRUST_LOCALE_OVERRIDE_", "en_PT" );
+    uriBuilder.addParameter( "_TRUST_LOCALE_OVERRIDE_", LocaleHelper.getLocale().toString() );
 
     TestProxyServlet servlet = spy( new TestProxyServlet() );
     servlet.init( config );
@@ -186,6 +187,7 @@ public class ProxyServletIT extends BaseTestCase {
   public void testServiceTrustLocaleOverrideQueryParameter() throws ServletException, IOException, URISyntaxException {
 
     MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setMethod( "GET" );
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     request.setServletPath( "/pentaho" );
@@ -214,6 +216,7 @@ public class ProxyServletIT extends BaseTestCase {
   public void testServiceNoUserSessionQueryParameter() throws ServletException, IOException, URISyntaxException {
 
     MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setMethod( "GET" );
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     request.setServletPath( "/pentaho" );
