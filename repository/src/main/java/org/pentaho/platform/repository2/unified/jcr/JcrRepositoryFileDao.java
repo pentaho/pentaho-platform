@@ -59,6 +59,7 @@ import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.TreeNodeFilterSpec;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.util.Assert;
@@ -66,7 +67,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * CRUD operations against JCR. Note that there is no access control in this class (implicit or explicit).
- * 
+ *
  * @author mlowery
  */
 public class JcrRepositoryFileDao implements IRepositoryFileDao {
@@ -510,6 +511,9 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   @SuppressWarnings( "unchecked" )
   public List<RepositoryFile> getChildren( final RepositoryRequest repositoryRequest ) {
     Assert.notNull( repositoryRequest.getPath(), "Repository request path must not be null" );
+    // the structured filter only applies to tree requests; a children request degrades it to "everything"
+    TreeNodeFilterSpec.applyFallback( repositoryRequest );
+
     return (List<RepositoryFile>) jcrTemplate.execute( new JcrCallback() {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
@@ -1049,11 +1053,22 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   @Override
   public RepositoryFileTree getTree( final RepositoryRequest repositoryRequest ) {
     Assert.hasText( repositoryRequest.getPath(), "Repository request path must not be null or empty" );
+
+    // the structured child node filter filters files and folders independently, which the node traversal below
+    // cannot do; it is served by a JCR-SQL2 query instead
+    final TreeNodeFilterSpec filterSpec = TreeNodeFilterSpec.parse( repositoryRequest.getChildNodeFilter() );
+
     return (RepositoryFileTree) jcrTemplate.execute( new JcrCallback() {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
         String absPath = pathConversionHelper.relToAbs( repositoryRequest.getPath() );
+
+        if ( filterSpec.isStructured() ) {
+          return JcrTreeQueryUtils.getTreeByQuery( session, pentahoJcrConstants, pathConversionHelper, lockHelper,
+              absPath, repositoryRequest, accessVoterManager );
+        }
+
         return JcrRepositoryFileUtils.getTree( session, pentahoJcrConstants, pathConversionHelper, lockHelper, absPath,
             repositoryRequest, accessVoterManager );
       }

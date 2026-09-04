@@ -53,6 +53,7 @@ import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFile
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
+import org.pentaho.platform.repository2.unified.TreeNodeFilterSpec;
 import org.pentaho.platform.util.RepositoryPathEncoder;
 
 @SuppressWarnings( "nls" )
@@ -288,10 +289,13 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
 
   @Override
   public RepositoryFileTree getTree( RepositoryRequest repositoryRequest ) {
+    // this provider does not implement the structured child node filter; degrade it to "everything" so the request
+    // does not silently return an empty tree
+    TreeNodeFilterSpec.applyFallback( repositoryRequest );
 
     File root = new File( getPhysicalFileLocation( repositoryRequest.getPath() ) );
 
-    //TODO ACL     
+    //TODO ACL
     return getTree( root, repositoryRequest.getDepth().intValue(),
         repositoryRequest.getChildNodeFilter(), repositoryRequest.getTypes() );
   }
@@ -301,7 +305,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
 
     File root = new File( getPhysicalFileLocation( relPath ) );
 
-    //TODO ACL     
+    //TODO ACL
     return getTree( root, depth, filter, RepositoryRequest.FILES_TYPE_FILTER.FILES_FOLDERS );
   }
 

@@ -32,7 +32,9 @@ public class RepositoryRequestTest {
   private static final boolean SHOW_HIDE = true;
   private static final boolean INCLUDE_SYSTEM_FOLDERS = false;
   private static final Integer DEPTH = 2;
-  private static final String LEGACY_FILTER = "FILES||ODD_FILTER";
+  private static final String LEGACY_FILTER =
+    RepositoryRequest.FILES_TYPE_FILTER.FILES + RepositoryRequest.FILTER_SEPARATOR
+      + RepositoryRequest.FILTER_SEPARATOR + "ODD_FILTER";
   private static final String INLCUDE_ONE = "includeOne";
   private static final String INCLUDE_TWO = "includeTwo";
   private static final Set<String> INCLUDE_SET = new HashSet<String>( Arrays.asList( INLCUDE_ONE, INCLUDE_TWO ) );
@@ -99,7 +101,8 @@ public class RepositoryRequestTest {
     assertEquals( newPath, request.getPath() );
 
     // Test absence of include/exclude member sets
-    String legacyFilter = "includeMembers=(include)|excludeMembers=(exclude)";
+    String legacyFilter =
+      "includeMembers=(include)" + RepositoryRequest.FILTER_SEPARATOR + "excludeMembers=(exclude)";
     try {
       new RepositoryRequest( PATH, SHOW_HIDE, DEPTH, legacyFilter );
       fail( "RuntimeException should of been thrown" );

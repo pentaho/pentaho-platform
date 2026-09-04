@@ -68,7 +68,7 @@ import static org.mockito.Mockito.when;
 @RunWith( MockitoJUnitRunner.class )
 public class AbstractJcrBackedUserRoleDaoTest {
 
-  private static final String REPO_CONFIG_FILE = "/jackrabbit/repository.xml";
+  private static final String REPO_CONFIG_FILE = "/jackrabbit/repository-in-memory.xml";
   private static TransientRepository repository;
   private static Session adminSession;
   private static final String TEST_REPOSITORY_LOCATION = "test-jcr_";
