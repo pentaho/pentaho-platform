@@ -27,18 +27,18 @@ public class RepositoryRequest {
 
   private static final Pattern FILES_MEMBERS_INCLUDE_PATTERN = Pattern.compile( "includeMembers=(.+)" );
   private static final Pattern FILES_MEMBERS_EXCLUDE_PATTERN = Pattern.compile( "excludeMembers=(.+)" );
-  public static final String PATH_SEPARATOR = "/"; //$NON-NLS-1$
+  public static final String PATH_SEPARATOR = "/";
 
   /**
    * separates the parts of the legacy filter, e.g. <code>*.ktr|FILES_FOLDERS</code>, and the terms of a child node
    * filter disjunction
    */
-  public static final String FILTER_SEPARATOR = "|"; //$NON-NLS-1$
+  public static final String FILTER_SEPARATOR = "|";
 
   /**
    * the wildcard accepted inside a node name filter; a filter made of this single character means "everything"
    */
-  public static final String FILTER_WILDCARD = "*"; //$NON-NLS-1$
+  public static final String FILTER_WILDCARD = "*";
 
   private static final Pattern FILTER_SEPARATOR_PATTERN = Pattern.compile( Pattern.quote( FILTER_SEPARATOR ) );
 

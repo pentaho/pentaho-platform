@@ -72,12 +72,12 @@ import java.util.regex.Pattern;
 public class JcrTreeQueryUtils {
   private static final Log logger = LogFactory.getLog( JcrTreeQueryUtils.class );
 
-  private static final String PATH_SEPARATOR = "/"; //$NON-NLS-1$
+  private static final String PATH_SEPARATOR = "/";
 
   /**
    * the name of the internal folder <code>DefaultDeleteHelper</code> moves the deleted files to
    */
-  private static final String TRASH_FOLDER_NAME = ".trash"; //$NON-NLS-1$
+  private static final String TRASH_FOLDER_NAME = ".trash";
 
   /**
    * The trash folder as a path segment.
@@ -91,7 +91,7 @@ public class JcrTreeQueryUtils {
   /**
    * the JCR-SQL2 <code>LIKE</code> wildcards, which the node name filter wildcard is translated to
    */
-  private static final String SQL_LIKE_WILDCARD = "%"; //$NON-NLS-1$
+  private static final String SQL_LIKE_WILDCARD = "%";
 
   /**
    * the node name filter wildcard, as a regular expression, so that a pattern can be split on it

@@ -1744,19 +1744,20 @@ public class FileResource extends AbstractJaxRSResource {
    * </p>
    *
    * @param depth      How many level should the search go.
-   * @param filter     Filter to be applied for search. The filter can be broken down into 3 parts; File types, Child Node
-   *                   Filter, and Member Filters. Each part is separated with a pipe (|) character.
+   * @param filter     Filter to be applied for search. The filter can be broken down into 3 parts; File types, Child
+   *                   Node Filter, and Member Filters. Each part is separated with a pipe (|) character.
    *                   <p/>
-   *                   File Types are represented by a word phrase. This phrase is recognized as a file type phrase and processed
-   *                   accordingly. Valid File Type word phrases include "FILES", "FOLDERS", and "FILES_FOLDERS" and denote
-   *                   whether to return files, folders, or both files and folders, respectively.
+   *                   File Types are represented by a word phrase. This phrase is recognized as a file type phrase
+   *                   and processed accordingly. Valid File Type word phrases include "FILES", "FOLDERS", and
+   *                   "FILES_FOLDERS" and denote whether to return files, folders, or both files and folders,
+   *                   respectively.
    *                   <p/>
-   *                   The Child Node Filter is a list of allowed names of files separated by the pipe (|) character. Each file
-   *                   name in the filter may be a full name or a partial name with one or more wildcard characters ("*"). The
-   *                   filter does not apply to root node.
+   *                   The Child Node Filter is a list of allowed names of files separated by the pipe (|) character.
+   *                   Each file name in the filter may be a full name or a partial name with one or more wildcard
+   *                   characters ("*"). The filter does not apply to root node.
    *                   <p/>
-   *                   The Child Node Filter also accepts a structured form, which filters files and folders independently
-   *                   instead of applying the same expression to both:
+   *                   The Child Node Filter also accepts a structured form, which filters files and folders
+   *                   independently instead of applying the same expression to both:
    *                   "{@value TreeNodeFilterSpec#FILE_FILTER_TOKEN}&lt;patterns&gt;" and/or
    *                   "{@value TreeNodeFilterSpec#FOLDER_FILTER_TOKEN}&lt;patterns&gt;", where patterns is a comma
    *                   separated list of names with optional wildcards ("*"). Both clauses are combined with
@@ -1764,17 +1765,20 @@ public class FileResource extends AbstractJaxRSResource {
    *                   the filter parameter itself. A missing clause means "all", so
    *                   "{@value TreeNodeFilterSpec#FILE_FILTER_TOKEN}*.ktr{@value TreeNodeFilterSpec#INSIDE_FILTER_TOKEN_SEPARATOR}*.kjb"
    *                   returns the complete folder structure containing only ktr and kjb files. This form is only
-   *                   supported by
-   *                   repository providers backed by JCR; other providers ignore it.
+   *                   supported by repository providers backed by JCR; other providers may ignore it if they did not
+   *                   implement the filtering logic.
    *                   <p/>
-   *                   The Member Filter portion of the filter parameter allows the caller to specify which properties of the
-   *                   metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
-   *                   comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
-   *                   be found in org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter.
-   *                   Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
-   *                   excludeMembers= clause in the same service call.
+   *                   The Member Filter portion of the filter parameter allows the caller to specify which
+   *                   properties of the metadata to return. Member Filters start with "includeMembers=" or
+   *                   "excludeMembers=" followed by a list of comma separated field names that are to be included
+   *                   in, or, excluded from, the
+   *                   list. Valid field names can be found in org.pentaho.platform.repository2.unified
+   *                   .webservices#RepositoryFileAdapter.
+   *                   Omission of a member filter will return all members. It is invalid to both and includeMembers=
+   *                   and an excludeMembers= clause in the same service call.
    * @param showHidden Include or exclude hidden files from the file list.
-   * @return A RepositoryFileTreeDto object containing the files at the root of the repository. Will return files but not folders under the "/" folder. The fields returned will include the name, filesize, description, id and title.
+   * @return A RepositoryFileTreeDto object containing the files at the root of the repository. Will return files but
+   * not folders under the "/" folder. The fields returned will include the name, filesize, description, id and title.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
@@ -1881,22 +1885,24 @@ public class FileResource extends AbstractJaxRSResource {
    * GET pentaho/api/repo/files/:public/tree?showHidden=false&filter=*|FILES&_=1389042244670
    * </p>
    *
-   * @param pathId      The path from the root folder to the root node of the tree to return using colon characters in place of /
-   *                    or \ characters. To clarify /path/to/file, the encoded pathId would be :path:to:file.
+   * @param pathId      The path from the root folder to the root node of the tree to return using colon characters
+   *                    in place of / or \ characters. To clarify /path/to/file, the encoded pathId would be
+   *                    :path:to:file.
    * @param depth       How many level should the search go.
-   * @param filter      Filter to be applied for search. The filter can be broken down into 3 parts; File types, Child Node
-   *                    Filter, and Member Filters. Each part is separated with a pipe (|) character.
+   * @param filter      Filter to be applied for search. The filter can be broken down into 3 parts; File types,
+   *                    Child Node Filter, and Member Filters. Each part is separated with a pipe (|) character.
    *                    <p/>
-   *                    File Types are represented by a word phrase. This phrase is recognized as a file type phrase and processed
-   *                    accordingly. Valid File Type word phrases include "FILES", "FOLDERS", and "FILES_FOLDERS" and denote
-   *                    whether to return files, folders, or both files and folders, respectively.
+   *                    File Types are represented by a word phrase. This phrase is recognized as a file type phrase
+   *                    and processed accordingly. Valid File Type word phrases include "FILES", "FOLDERS", and
+   *                    "FILES_FOLDERS" and denote whether to return files, folders, or both files and folders,
+   *                    respectively.
    *                    <p/>
-   *                    The Child Node Filter is a list of allowed names of files separated by the pipe (|) character. Each file
-   *                    name in the filter may be a full name or a partial name with one or more wildcard characters ("*"). The
-   *                    filter does not apply to root node.
+   *                    The Child Node Filter is a list of allowed names of files separated by the pipe (|) character
+   *                    . Each file name in the filter may be a full name or a partial name with one or more wildcard
+   *                    characters ("*"). The filter does not apply to root node.
    *                    <p/>
-   *                    The Child Node Filter also accepts a structured form, which filters files and folders independently
-   *                    instead of applying the same expression to both:
+   *                    The Child Node Filter also accepts a structured form, which filters files and folders
+   *                    independently instead of applying the same expression to both:
    *                    "{@value TreeNodeFilterSpec#FILE_FILTER_TOKEN}&lt;patterns&gt;" and/or
    *                    "{@value TreeNodeFilterSpec#FOLDER_FILTER_TOKEN}&lt;patterns&gt;", where patterns is a comma
    *                    separated list of names with optional wildcards ("*"). Both clauses are combined with
@@ -1904,18 +1910,20 @@ public class FileResource extends AbstractJaxRSResource {
    *                    the filter parameter itself. A missing clause means "all", so
    *                    "{@value TreeNodeFilterSpec#FILE_FILTER_TOKEN}*.ktr{@value TreeNodeFilterSpec#INSIDE_FILTER_TOKEN_SEPARATOR}*.kjb"
    *                    returns the complete folder structure containing only ktr and kjb files. This form is only
-   *                    supported by
-   *                    repository providers backed by JCR; other providers ignore it.
+   *                    supported by repository providers backed by JCR; other providers may ignore it if they did not
+   *                    implement the filtering logic.
    *                    <p/>
-   *                    The Member Filter portion of the filter parameter allows the caller to specify which properties of the
-   *                    metadata to return. Member Filters start with "includeMembers=" or "excludeMembers=" followed by a list of
-   *                    comma separated field names that are to be included in, or, excluded from, the list. Valid field names can
-   *                    be found in  org.pentaho.platform.repository2.unified.webservices#RepositoryFileAdapter.
-   *                    Omission of a member filter will return all members. It is invalid to both and includeMembers= and an
-   *                    excludeMembers= clause in the same service call.
+   *                    The Member Filter portion of the filter parameter allows the caller to specify which
+   *                    properties of the metadata to return. Member Filters start with "includeMembers=" or
+   *                    "excludeMembers=" followed by a list of comma separated field names that are to be included
+   *                    in, or, excluded from, the list. Valid field names can be found in  org.pentaho.platform
+   *                    .repository2.unified.webservices#RepositoryFileAdapter.
+   *                    Omission of a member filter will return all members. It is invalid to both and
+   *                    includeMembers= and an excludeMembers= clause in the same service call.
    * @param showHidden  Include or exclude hidden files from the file list.
    * @param includeAcls Include permission information about the file in the output.
-   * @return A RepositoryFileTreeDto object containing the files at the root of the repository. Will return files but not folders under the "/" folder. The fields returned will include the name, filesize, description, id and title.
+   * @return A RepositoryFileTreeDto object containing the files at the root of the repository. Will return files but
+   * not folders under the "/" folder. The fields returned will include the name, filesize, description, id and title.
    *
    * <p><b>Example Response:</b></p>
    * <pre function="syntax.xml">
