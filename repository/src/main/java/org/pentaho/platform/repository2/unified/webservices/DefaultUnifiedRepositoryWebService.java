@@ -42,13 +42,14 @@ import org.pentaho.platform.api.repository2.unified.webservices.VersionSummaryDt
 import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
+import org.pentaho.platform.repository2.unified.TreeNodeFilterSpec;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of {@link IUnifiedRepositoryWebService} that delegates to an {@link IUnifiedRepository} instance.
- * 
+ *
  * @author mlowery
  */
 @WebService( endpointInterface = "org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService",
@@ -107,6 +108,12 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   @Override
   public List<RepositoryFileDto> getChildrenFromRequest( RepositoryRequest repositoryRequest ) {
+    // the structured child node filter is only meaningful for tree requests;
+    // no provider applies it to a children request, so it is degraded here instead of returning nothing
+    if ( TreeNodeFilterSpec.applyFallback( repositoryRequest ) ) {
+      getLogger().warn( "The fileFilter/folderFilter syntax does not apply to a children request; "
+          + "the child node filter was reset to \"" + TreeNodeFilterSpec.DEFAULT_CHILD_NODE_FILTER + "\"." );
+    }
     return marshalFiles( repo.getChildren( repositoryRequest ), repositoryRequest );
   }
 

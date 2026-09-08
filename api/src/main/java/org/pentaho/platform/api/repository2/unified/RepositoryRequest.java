@@ -27,7 +27,20 @@ public class RepositoryRequest {
 
   private static final Pattern FILES_MEMBERS_INCLUDE_PATTERN = Pattern.compile( "includeMembers=(.+)" );
   private static final Pattern FILES_MEMBERS_EXCLUDE_PATTERN = Pattern.compile( "excludeMembers=(.+)" );
-  public static final String PATH_SEPARATOR = "/"; //$NON-NLS-1$
+  public static final String PATH_SEPARATOR = "/";
+
+  /**
+   * separates the parts of the legacy filter, e.g. <code>*.ktr|FILES_FOLDERS</code>, and the terms of a child node
+   * filter disjunction
+   */
+  public static final String FILTER_SEPARATOR = "|";
+
+  /**
+   * the wildcard accepted inside a node name filter; a filter made of this single character means "everything"
+   */
+  public static final String FILTER_WILDCARD = "*";
+
+  private static final Pattern FILTER_SEPARATOR_PATTERN = Pattern.compile( Pattern.quote( FILTER_SEPARATOR ) );
 
   private String path;
   private boolean showHidden = false;
@@ -63,7 +76,7 @@ public class RepositoryRequest {
     types = FILES_TYPE_FILTER.FILES_FOLDERS;
     StringBuilder strippedFilter = new StringBuilder();
     if ( !workingFilter.isEmpty() ) {
-      String[] parts = workingFilter.split( "\\|" );
+      String[] parts = FILTER_SEPARATOR_PATTERN.split( workingFilter );
       for ( String part : parts ) {
         Matcher m = FILES_TYPES_PATTERN.matcher( part );
         if ( m.matches() ) {
@@ -85,7 +98,7 @@ public class RepositoryRequest {
 
   private void appendFilter( StringBuilder strippedFilter, String part ) {
     if ( strippedFilter.length() != 0 ) {
-      strippedFilter.append( "|" );
+      strippedFilter.append( FILTER_SEPARATOR );
     }
     strippedFilter.append( part );
   }
@@ -104,7 +117,7 @@ public class RepositoryRequest {
 
   private Set<String> parseOutPattern( Pattern pattern ) {
     StringBuilder strippedFilter = new StringBuilder();
-    String[] parts = workingFilter.split( "\\|" );
+    String[] parts = FILTER_SEPARATOR_PATTERN.split( workingFilter );
     Set<String> memberSet = null;
 
     for ( String part : parts ) {
@@ -134,7 +147,8 @@ public class RepositoryRequest {
   }
 
   private void setLegacyFilter( String legacyFilter ) {
-    this.workingFilter = ( legacyFilter == null || StringUtils.isEmpty( legacyFilter ) ) ? "*" : legacyFilter;
+    this.workingFilter =
+      ( legacyFilter == null || StringUtils.isEmpty( legacyFilter ) ) ? FILTER_WILDCARD : legacyFilter;
     parseOutFileTypes();
     parseOutIncludeExclude();
     childNodeFilter = workingFilter.isEmpty() ? null : workingFilter;
@@ -217,8 +231,10 @@ public class RepositoryRequest {
 
   /**
    * @param childNodefilter
-   *          filter may be a full name or a partial name with one or more wildcard characters ("*"), or a disjunction
-   *          (using the "|" character to represent logical OR) of these; filter does not apply to root node.
+   *          filter may be a full name or a partial name with one or more wildcard characters
+   *          ("{@value #FILTER_WILDCARD}"), or a disjunction
+   *          (using the "{@value #FILTER_SEPARATOR}" character to represent logical OR) of these; filter does not
+   *          apply to root node.
    */
   public void setChildNodeFilter( String childNodeFilter ) {
     this.childNodeFilter = childNodeFilter;
@@ -241,7 +257,7 @@ public class RepositoryRequest {
   }
 
   /**
-   * 
+   *
    * @param includeAcls
    *     Set to true to return ACL permission information with the output.  Default is false.
    */

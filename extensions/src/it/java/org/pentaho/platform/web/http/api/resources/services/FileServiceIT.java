@@ -1944,7 +1944,8 @@ public class FileServiceIT {
   public void testDoGetTree() {
     String pathId = ":path:to:file:file1.ext";
     int depth = 1;
-    String filter = "*|FOLDERS";
+    String filter = RepositoryRequest.FILTER_WILDCARD + RepositoryRequest.FILTER_SEPARATOR
+      + RepositoryRequest.FILES_TYPE_FILTER.FOLDERS;
     boolean showHidden = true;
     boolean includeAcls = true;
 

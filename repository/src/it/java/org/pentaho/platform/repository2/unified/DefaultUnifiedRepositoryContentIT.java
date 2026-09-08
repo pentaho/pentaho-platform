@@ -1829,20 +1829,27 @@ public class DefaultUnifiedRepositoryContentIT extends DefaultUnifiedRepositoryB
         repo.createFolder( publicFolder.getId(), new RepositoryFile.Builder( "testFolder" ).versioned( false ).hidden(
             false ).folder( true ).build(), null, null );
 
-    root = repo.getTree( new RepositoryRequest( publicFolder.getPath(), true, 1, "*|FILES" ) );
+    root = repo.getTree( new RepositoryRequest( publicFolder.getPath(), true, 1,
+      RepositoryRequest.FILTER_WILDCARD + RepositoryRequest.FILTER_SEPARATOR
+        + RepositoryRequest.FILES_TYPE_FILTER.FILES ) );
     assertFalse( root.getChildren().isEmpty() );
     assertEquals( 1, root.getChildren().size() );
     assertEquals( "helloworld.xaction", root.getChildren().get( 0 ).getFile().getName() );
 
-    root = repo.getTree( new RepositoryRequest( publicFolder.getPath(), true, 1, "*" ) );
+    root = repo.getTree(
+      new RepositoryRequest( publicFolder.getPath(), true, 1, RepositoryRequest.FILTER_WILDCARD ) );
     assertFalse( root.getChildren().isEmpty() );
     assertEquals( 2, root.getChildren().size() );
 
-    root = repo.getTree( new RepositoryRequest( publicFolder.getPath(), true, 1, "*|FILES_FOLDERS" ) );
+    root = repo.getTree( new RepositoryRequest( publicFolder.getPath(), true, 1,
+      RepositoryRequest.FILTER_WILDCARD + RepositoryRequest.FILTER_SEPARATOR
+        + RepositoryRequest.FILES_TYPE_FILTER.FILES_FOLDERS ) );
     assertFalse( root.getChildren().isEmpty() );
     assertEquals( 2, root.getChildren().size() );
 
-    root = repo.getTree( new RepositoryRequest( publicFolder.getPath(), true, 1, "*|FOLDERS" ) );
+    root = repo.getTree( new RepositoryRequest( publicFolder.getPath(), true, 1,
+      RepositoryRequest.FILTER_WILDCARD + RepositoryRequest.FILTER_SEPARATOR
+        + RepositoryRequest.FILES_TYPE_FILTER.FOLDERS ) );
     assertFalse( root.getChildren().isEmpty() );
     assertEquals( 1, root.getChildren().size() );
     assertEquals( "testFolder", root.getChildren().get( 0 ).getFile().getName() );
