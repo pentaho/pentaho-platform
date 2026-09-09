@@ -658,11 +658,5 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
     public SessionImpl getSession() {
       return (SessionImpl) target;
     }
-
-    @Override protected void finalize() throws Throwable {
-      if ( target.isLive() ) {
-        //        target.logout();
-      }
-    }
   }
 }
