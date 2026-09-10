@@ -18,6 +18,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectReference;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -26,15 +27,21 @@ import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.api.importexport.ExportException;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.util.IPentahoPlatformExporter;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ExportHandler;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
+import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -46,6 +53,7 @@ import java.security.InvalidParameterException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import jakarta.ws.rs.core.StreamingOutput;
 
 import static org.junit.Assert.assertEquals;
@@ -63,6 +71,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mockStatic;
 
 public class FileServiceTest {
 
@@ -96,7 +105,7 @@ public class FileServiceTest {
               add( pentahoObjectReference );
             } } );
     } catch ( ObjectFactoryException e ) {
-      e.printStackTrace();
+      throw e;
     }
     when( settingsService.getSystemSetting( nullable( String.class ), nullable( String.class ) ) ).thenReturn( "" );
     PentahoSystem.registerObjectFactory( objectFactory );
@@ -1076,6 +1085,54 @@ public class FileServiceTest {
     }
 
     verify( fileService ).clearBowlCache();
+  }
+
+  @Test
+  public void testSystemBackupClosesLogFileWhenExportCannotStart() throws Exception {
+    File logFile = File.createTempFile( "backup", ".log" );
+    String logFilePath = logFile.getAbsolutePath();
+    doReturn( true ).when( fileService ).doCanAdminister();
+
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class ) ) {
+      pentahoSystem.when( () -> PentahoSystem.get( IPentahoPlatformExporter.class ) ).thenReturn( null );
+
+      boolean failedWithoutExporter = false;
+      try {
+        fileService.systemBackup( logFilePath, "DEBUG", "backup.zip" );
+      } catch ( ExportException expected ) {
+        // The failure is intentional; the log file must still be released.
+        failedWithoutExporter = true;
+      }
+      assertTrue( "Expected the backup to fail without an exporter", failedWithoutExporter );
+    }
+
+    assertTrue( logFile.delete() );
+  }
+
+  @Test
+  public void testSystemRestoreClosesLogFileWhenImportCannotStart() throws Exception {
+    File logFile = File.createTempFile( "restore", ".log" );
+    String logFilePath = logFile.getAbsolutePath();
+    InputStream fileUpload = mock( InputStream.class );
+    doReturn( true ).when( fileService ).doCanAdminister();
+    ImportSession importSession = mock( ImportSession.class );
+
+    try ( MockedStatic<PentahoSystem> pentahoSystem = mockStatic( PentahoSystem.class );
+          MockedStatic<ImportSession> importSessionStatic = mockStatic( ImportSession.class ) ) {
+      importSessionStatic.when( ImportSession::getSession ).thenReturn( importSession );
+      pentahoSystem.when( () -> PentahoSystem.get( IPlatformImporter.class ) ).thenReturn( null );
+
+      boolean failedWithoutImporter = false;
+      try {
+        fileService.systemRestore( fileUpload, "true", "true", "true", logFilePath, "DEBUG", "backup.zip" );
+      } catch ( NullPointerException expected ) {
+        // The failure is intentional; the log file must still be released.
+        failedWithoutImporter = true;
+      }
+      assertTrue( "Expected the restore to fail without an importer", failedWithoutImporter );
+    }
+
+    assertTrue( logFile.delete() );
   }
 
   private static String encode( String pathControlCharacter ) throws UnsupportedEncodingException {

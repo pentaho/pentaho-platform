@@ -160,40 +160,28 @@ public class FileService {
       encodedFileName = makeEncodedFileName( outputFile );
       IRepositoryExportLogger exportLogger;
       Level level = Level.valueOf( logLevel );
-      FileOutputStream fileOutputStream = null;
-      try {
-        validateFilePath( logFile );
-        fileOutputStream = new FileOutputStream( logFile );
-      } catch ( FileNotFoundException e ) {
-        try {
-          fileOutputStream = retrieveFallbackLogFileLocation( "backup" );
-        } catch ( FileNotFoundException fileNotFoundException ) {
-          throw new ExportException( fileNotFoundException );
-        }
-      }
-      ByteArrayOutputStream exportLoggerSream = new ByteArrayOutputStream();
-      IPentahoPlatformExporter exporter = PentahoSystem.get( IPentahoPlatformExporter.class );
-      if ( exporter == null ) {
-        logger.error( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_PLATFORM_EXPORTER" ) );
-        throw new ExportException( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_PLATFORM_EXPORTER" ) );
-      }
 
-      exportLogger = exporter.getRepositoryExportLogger();
-      if ( exportLogger == null ) {
-        logger.error( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_EXPORT_LOGGER" ) );
-        throw new ExportException( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_EXPORT_LOGGER" ) );
+      try ( FileOutputStream logOutputStream = createLogFileOutputStream( logFile, "backup" );
+        ByteArrayOutputStream exportLoggerStream = new ByteArrayOutputStream() ) {
+        IPentahoPlatformExporter exporter = PentahoSystem.get( IPentahoPlatformExporter.class );
+        if ( exporter == null ) {
+          logger.error( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_PLATFORM_EXPORTER" ) );
+          throw new ExportException( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_PLATFORM_EXPORTER" ) );
+        }
+
+        exportLogger = exporter.getRepositoryExportLogger();
+        if ( exportLogger == null ) {
+          logger.error( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_EXPORT_LOGGER" ) );
+          throw new ExportException( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_GET_EXPORT_LOGGER" ) );
+        }
+        RepositoryTextLayout stringLayout = new RepositoryTextLayout( level );
+        exportLogger.startJob( exportLoggerStream, level, stringLayout );
+        StreamingOutput streamingOutput = performBackupAndWriteLog( exportLogger, exportLoggerStream, logOutputStream );
+        final String attachment = HttpMimeTypeListener.buildContentDispositionValue( outputFile, true );
+        return new DownloadFileWrapper( streamingOutput, attachment, encodedFileName );
+      } catch ( FileNotFoundException e ) {
+        throw new ExportException( e );
       }
-      RepositoryTextLayout stringLayout = new RepositoryTextLayout( level );
-      exportLogger.startJob( exportLoggerSream, level, stringLayout );
-      StreamingOutput streamingOutput = getBackupStream();
-      exportLogger.endJob();
-      try {
-        exportLoggerSream.writeTo( fileOutputStream );
-      } catch ( IOException e ) {
-        logger.error( e.getLocalizedMessage() );
-      }
-      final String attachment = HttpMimeTypeListener.buildContentDispositionValue( outputFile, true );
-      return new DownloadFileWrapper( streamingOutput, attachment, encodedFileName );
     } else {
       throw new SecurityException();
     }
@@ -208,6 +196,15 @@ public class FileService {
     return new FileOutputStream( fallbacklogFilePath );
   }
 
+  private FileOutputStream createLogFileOutputStream( String logFile, String fallbackPrefix ) throws FileNotFoundException {
+    try {
+      validateFilePath( logFile );
+      return new FileOutputStream( logFile );
+    } catch ( FileNotFoundException e ) {
+      return retrieveFallbackLogFileLocation( fallbackPrefix );
+    }
+  }
+
   public void systemRestore( final InputStream fileUpload, String overwriteFile,
                              String applyAclSettings, String overwriteAclSettings, String logFile, String logLevel, String backupBundlePath ) throws IllegalArgumentException, PlatformImportException, SecurityException {
     if ( doCanAdminister() ) {
@@ -218,18 +215,6 @@ public class FileService {
       IRepositoryImportLogger importLogger;
       Level level = Level.valueOf( logLevel );
 
-      FileOutputStream fileOutputStream = null;
-      try {
-        validateFilePath( logFile );
-        fileOutputStream = new FileOutputStream( logFile );
-      } catch ( FileNotFoundException e ) {
-        try {
-          fileOutputStream = retrieveFallbackLogFileLocation( "restore" );
-        } catch ( FileNotFoundException fileNotFoundException ) {
-          throw new PlatformImportException( fileNotFoundException.getLocalizedMessage() );
-        }
-      }
-      ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
       String importDirectory = "/";
       RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
       bundleBuilder.input( fileUpload );
@@ -244,25 +229,63 @@ public class FileService {
       bundleBuilder.retainOwnership( true );
       bundleBuilder.preserveDsw( true );
 
-      ImportSession.getSession().setAclProperties( applyAclSettingsFlag, true, overwriteAclSettingsFlag );
+      try ( FileOutputStream logOutputStream = createLogFileOutputStream( logFile, "restore" );
+        ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream() ) {
+        ImportSession.getSession().setAclProperties( applyAclSettingsFlag, true, overwriteAclSettingsFlag );
 
-      IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
-      importLogger = importer.getRepositoryImportLogger();
-      RepositoryTextLayout stringLayout = new RepositoryTextLayout( level );
-      importLogger.setPerformingRestore( true );
-      importLogger.startJob( importLoggerStream, importDirectory, level, stringLayout );
-      try {
-        importer.importFile( bundleBuilder.build() );
-      } finally {
-        importLogger.endJob();
-        try {
-          importLoggerStream.writeTo( fileOutputStream );
-        } catch ( IOException e ) {
-          e.printStackTrace();
-        }
+        IPlatformImporter importer = PentahoSystem.get( IPlatformImporter.class );
+        importLogger = importer.getRepositoryImportLogger();
+        RepositoryTextLayout stringLayout = new RepositoryTextLayout( level );
+        importLogger.setPerformingRestore( true );
+        importLogger.startJob( importLoggerStream, importDirectory, level, stringLayout );
+        performRestoreAndWriteLog( importer, bundleBuilder, importLogger, importLoggerStream, logOutputStream );
+      } catch ( IOException e ) {
+        throw new PlatformImportException( e.getLocalizedMessage(), e );
       }
     } else {
       throw new SecurityException();
+    }
+  }
+
+  private void writeLog( ByteArrayOutputStream loggerStream, FileOutputStream logOutputStream ) {
+    try {
+      loggerStream.writeTo( logOutputStream );
+    } catch ( IOException e ) {
+      logger.error( e.getLocalizedMessage(), e );
+    }
+  }
+
+  private StreamingOutput performBackupAndWriteLog( IRepositoryExportLogger exportLogger, ByteArrayOutputStream exportLoggerStream,
+                                                     FileOutputStream logOutputStream ) throws IOException, ExportException {
+    try {
+      return getBackupStream();
+    } finally {
+      exportLogger.endJob();
+      writeLog( exportLoggerStream, logOutputStream );
+    }
+  }
+
+  private void performRestoreAndWriteLog( IPlatformImporter importer, RepositoryFileImportBundle.Builder bundleBuilder,
+                                          IRepositoryImportLogger importLogger, ByteArrayOutputStream importLoggerStream,
+                                          FileOutputStream logOutputStream ) throws PlatformImportException {
+    try {
+      importer.importFile( bundleBuilder.build() );
+    } finally {
+      importLogger.endJob();
+      writeLog( importLoggerStream, logOutputStream );
+    }
+  }
+
+  private void deleteFileQuietly( File file ) {
+    if ( file == null ) {
+      return;
+    }
+    try {
+      if ( !Files.deleteIfExists( file.toPath() ) ) {
+        logger.warn( Messages.getInstance().getString( "FileService.WARN_UNABLE_TO_DELETE_TEMP_FILE", file.getAbsolutePath() ) );
+      }
+    } catch ( Exception e ) {
+      logger.warn( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_DELETE_TEMP_FILE", file.getAbsolutePath() ), e );
     }
   }
 
@@ -274,13 +297,7 @@ public class FileService {
         try ( FileInputStream inputStream = new FileInputStream( zipFile ) ) {
           IOUtils.copy( inputStream, output );
         } finally {
-          try {
-            if ( zipFile != null && !Files.deleteIfExists( zipFile.toPath() ) ) {
-              logger.warn( Messages.getInstance().getString( "FileService.WARN_UNABLE_TO_DELETE_TEMP_FILE", zipFile.getAbsolutePath() ) );
-            }
-          } catch ( Exception e ) {
-            logger.warn( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_DELETE_TEMP_FILE", zipFile.getAbsolutePath() ), e );
-          }
+          deleteFileQuietly( zipFile );
         }
       }
     };
@@ -2033,13 +2050,7 @@ public class FileService {
         try ( final FileInputStream is = new FileInputStream( zipFile ) ) {
           IOUtils.copy(is, output);
         } finally {
-          try {
-            if ( zipFile != null && !Files.deleteIfExists( zipFile.toPath() ) ) {
-              logger.warn( Messages.getInstance().getString( "FileService.WARN_UNABLE_TO_DELETE_TEMP_FILE", zipFile.getAbsolutePath() ) );
-            }
-          } catch ( Exception e ) {
-            logger.warn( Messages.getInstance().getString( "FileService.ERROR_UNABLE_TO_DELETE_TEMP_FILE", zipFile.getAbsolutePath() ), e );
-          }
+          deleteFileQuietly( zipFile );
         }
       }
     };
