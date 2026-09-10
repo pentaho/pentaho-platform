@@ -2,7 +2,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	version="2.0" 
 	xmlns:html="http://www.w3.org/TR/REC-html40"
-    xmlns:msg="org.pentaho.platform.plugin.action.messages.Messages"
+	xmlns:msg="org.pentaho.platform.web.xsl.messages.Messages"
 	exclude-result-prefixes="html msg">
         
 	<xsl:output method="html" encoding="UTF-8" />

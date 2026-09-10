@@ -14,7 +14,6 @@
 package org.pentaho.platform.plugin.action.xml.xquery;
 
 import net.sf.saxon.trans.XPathException;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.dom4j.Document;
 import org.dom4j.Node;
@@ -276,8 +275,7 @@ public abstract class XQueryBaseComponent extends ComponentBase implements IPrep
           }
           out.close();
           inputStream.close();
-          documentPath = temp.getAbsolutePath();
-          documentPath = FilenameUtils.separatorsToUnix( documentPath );
+          documentPath = temp.toURI().toString();
 
           rawQuery = "doc(\"" + documentPath + "\")" + rawQuery; //$NON-NLS-1$ //$NON-NLS-2$
         }
