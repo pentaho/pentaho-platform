@@ -259,6 +259,31 @@
 <!-- OPTIONAL: include this if you want history support -->
 <iframe id="__gwt_historyFrame" style="width:0px;height:0px;border:0;display:none"></iframe>
 
+  <!-- Plugin Manager Dialog Close Handler -->
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        document.addEventListener('mousedown', function(event) {
+          var pluginManagerIframe = document.querySelector('#plugin-manager.gwt-Frame');
+
+          if (pluginManagerIframe) {
+            var isInsideIframe = pluginManagerIframe.contains(event.target);
+
+            if (!isInsideIframe) {
+              try {
+                pluginManagerIframe.contentWindow.postMessage({
+                  type: 'CLOSE_PLUGIN_DIALOG',
+                  source: 'pentaho-parent'
+                }, '*');
+              } catch (error) {
+                console.warn('Could not send close message to plugin manager iframe:', error);
+              }
+            }
+          }
+        }, true);
+      }, 1000);
+    });
+  </script>
 </body>
 
 <script language='javascript' src='mantle/mantle.nocache.js'></script>
