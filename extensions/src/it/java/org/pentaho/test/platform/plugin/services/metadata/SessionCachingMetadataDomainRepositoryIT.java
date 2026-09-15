@@ -81,7 +81,7 @@ public class SessionCachingMetadataDomainRepositoryIT extends BaseTest {
     for ( Thread thread : Thread.getAllStackTraces().keySet() ) {
       if ( ASYNC_CACHE_POPULATION_THREAD_NAME.equals( thread.getName() ) ) {
         try {
-          thread.join( 2000L );
+          thread.join();
         } catch ( InterruptedException e ) {
           Thread.currentThread().interrupt();
           return;
