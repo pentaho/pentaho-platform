@@ -126,7 +126,7 @@ public class XQResultSet implements IPentahoResultSet, IPeekable {
     return rtn;
   }
 
-  private Object convertToJava( final Item item ) throws XPathException {
+  static Object convertToJava( final Item item ) throws XPathException {
     if ( item instanceof NodeInfo ) {
       Object node = item;
       while ( node instanceof VirtualNode ) {
