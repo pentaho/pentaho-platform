@@ -16,6 +16,7 @@ package org.pentaho.platform.plugin.services.email;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.FilenameUtils;
+import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.platform.api.email.IEmailConfiguration;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
@@ -43,6 +44,7 @@ public class EmailServiceIT extends TestCase {
   private MicroPlatform mp;
   @Override
   public void setUp() throws Exception {
+    KettleEnvironment.init();
     mp = new MicroPlatform();
     mp.defineInstance( IAuthorizationPolicy.class, new TestAuthorizationPolicy() );
     mp.start();
