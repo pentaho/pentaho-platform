@@ -147,6 +147,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
       if ( previousSecurityContextHolderStrategy != null ) {
         SecurityContextHolder.setContextHolderStrategy( previousSecurityContextHolderStrategy );
       }
+      PentahoSessionHolder.removeSession();
       PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
     }
   }
@@ -327,6 +328,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     IPentahoSession testSession = PentahoSessionHolder.getSession();
     String tenantId = (String) testSession.getAttribute( IPentahoSession.TENANT_ID_KEY );
+    PentahoSessionHolder.removeSession();
     PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
     PentahoSessionHolder.setSession( testSession );
     endpoint = Endpoint.create( new DefaultUnifiedRepositoryJaxwsWebService( repo ) );
