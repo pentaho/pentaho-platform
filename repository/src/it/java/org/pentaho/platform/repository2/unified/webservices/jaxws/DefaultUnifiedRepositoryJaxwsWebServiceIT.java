@@ -41,6 +41,7 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.DefaultUnifiedRepositoryBase;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory.LogoutSuppressingInvocationHandler.LogoutDelegate;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.NoCachePentahoJcrSessionFactory;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrSessionFactory;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -95,6 +96,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
   private Endpoint endpoint;
   private SecurityContextHolderStrategy previousSecurityContextHolderStrategy;
   private PentahoJcrSessionFactory previousJcrSessionFactory;
+  private LogoutDelegate previousLogoutDelegate;
 
   @Autowired
   private ApplicationContext applicationContext;
@@ -126,6 +128,8 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
     CredentialsStrategySessionFactory jcrSessionFactory = applicationContext.getBean(
       "jcrSessionFactory", CredentialsStrategySessionFactory.class );
     previousJcrSessionFactory = jcrSessionFactory.getSessionFactory();
+    previousLogoutDelegate = jcrSessionFactory.getLogoutDelegate();
+    jcrSessionFactory.setLogoutDelegate( () -> true );
     jcrSessionFactory.setSessionFactory( new NoCachePentahoJcrSessionFactory( jcrSessionFactory.getRepository(),
       jcrSessionFactory.getWorkspaceName() ) );
 
@@ -142,6 +146,10 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
       if ( previousJcrSessionFactory != null ) {
         applicationContext.getBean( "jcrSessionFactory", CredentialsStrategySessionFactory.class )
             .setSessionFactory( previousJcrSessionFactory );
+      }
+      if ( previousLogoutDelegate != null ) {
+        applicationContext.getBean( "jcrSessionFactory", CredentialsStrategySessionFactory.class )
+        .setLogoutDelegate( previousLogoutDelegate );
       }
       SecurityContextHolder.clearContext();
       if ( previousSecurityContextHolderStrategy != null ) {
