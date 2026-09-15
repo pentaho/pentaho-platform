@@ -99,6 +99,9 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
 
   protected PentahoJcrSessionFactory sessionFactory;
 
+  private LogoutSuppressingInvocationHandler.LogoutDelegate logoutDelegate =
+      LogoutSuppressingInvocationHandler.LogoutDelegate.DefaultLogoutDelegate;
+
   /**
    * Constructor with all the required fields.
    *
@@ -368,9 +371,19 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * @return
    */
   public Session createSessionProxy( Session session ) {
+    LogoutSuppressingInvocationHandler handler = new LogoutSuppressingInvocationHandler( session );
+    handler.setLogoutDelegate( logoutDelegate );
     return (Session) Proxy
         .newProxyInstance( this.getClass().getClassLoader(), new Class[] { Session.class, XASession.class },
-            new LogoutSuppressingInvocationHandler( session ) );
+            handler );
+  }
+
+  public LogoutSuppressingInvocationHandler.LogoutDelegate getLogoutDelegate() {
+    return logoutDelegate;
+  }
+
+  public void setLogoutDelegate( LogoutSuppressingInvocationHandler.LogoutDelegate logoutDelegate ) {
+    this.logoutDelegate = logoutDelegate;
   }
 
 
