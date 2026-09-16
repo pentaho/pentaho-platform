@@ -70,9 +70,25 @@ public class SessionCachingMetadataDomainRepositoryIT extends BaseTest {
   public void tearDown() {
     // Clean the cache
     ICacheManager cacheManager = PentahoSystem.getCacheManager( null );
+    joinAsyncCachePopulationThreads();
     cacheManager.clearRegionCache( CACHE_NAME );
 
     super.tearDown();
+  }
+
+  private static final String ASYNC_CACHE_POPULATION_THREAD_NAME = "pentaho-runner-master";
+
+  private void joinAsyncCachePopulationThreads() {
+    for ( Thread thread : Thread.getAllStackTraces().keySet() ) {
+      if ( ASYNC_CACHE_POPULATION_THREAD_NAME.equals( thread.getName() ) ) {
+        try {
+          thread.join();
+        } catch ( InterruptedException e ) {
+          Thread.currentThread().interrupt();
+          return;
+        }
+      }
+    }
   }
 
   public void testCreate_no_delegate() throws Exception {
@@ -115,7 +131,7 @@ public class SessionCachingMetadataDomainRepositoryIT extends BaseTest {
     final String ID2 = "2"; //$NON-NLS-1$
 
     IAclNodeHelper aclNodeHelper = mock( IAclNodeHelper.class );
-    when( aclNodeHelper.canAccess( any( RepositoryFile.class ), any( EnumSet.class ) ) ).thenReturn( true );
+    when( aclNodeHelper.canAccess( nullable( RepositoryFile.class ), nullable( EnumSet.class ) ) ).thenReturn( true );
 
     MockAclAwareMetadataDomainRepository mock = new MockAclAwareMetadataDomainRepository( aclNodeHelper, null );
     mock.storeDomain( getTestDomain( ID ), false );
@@ -146,7 +162,7 @@ public class SessionCachingMetadataDomainRepositoryIT extends BaseTest {
     assertEquals( 2, PentahoSystem.getCacheManager( null ).getAllKeysFromRegionCache( CACHE_NAME ).size() );
 
     // Block access to domain ID2. Cache should be cleared for this domain
-    when( aclNodeHelper.canAccess( any( RepositoryFile.class ), any( EnumSet.class ) ) ).thenReturn( false );
+    when( aclNodeHelper.canAccess( nullable( RepositoryFile.class ), nullable( EnumSet.class ) ) ).thenReturn( false );
 
     repo.getDomain( ID2 );
 
