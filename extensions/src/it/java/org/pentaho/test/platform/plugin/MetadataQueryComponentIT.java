@@ -349,7 +349,7 @@ public class MetadataQueryComponentIT {
     exucuteComponent( mql, inputs );
 
     Assert.assertNotNull( resultSet );
-    Assert.assertEquals( 0, resultSet.getRowCount() );
+    Assert.assertEquals( 2, resultSet.getRowCount() );
   }
 
   @Test
