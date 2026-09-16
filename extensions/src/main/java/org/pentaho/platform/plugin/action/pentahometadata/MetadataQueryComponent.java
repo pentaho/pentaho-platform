@@ -274,7 +274,7 @@ public class MetadataQueryComponent {
     if ( inputs.get( parameter.getName() ) instanceof String[] ) {
       return ( (String[]) inputs.get( parameter.getName() ) ).length == 0 ? null : inputs.get( parameter.getName() );
     } else {
-      return ( (String) inputs.get( parameter.getName() ) ).length() == 0 ? null : inputs.get( parameter.getName() );
+      return ( (String) inputs.get( parameter.getName() ) ).isEmpty() ? null : inputs.get( parameter.getName() );
     }
   }
 
