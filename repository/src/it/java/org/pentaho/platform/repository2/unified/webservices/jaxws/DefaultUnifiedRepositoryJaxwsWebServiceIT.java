@@ -22,6 +22,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -38,9 +39,17 @@ import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFile
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.DefaultUnifiedRepositoryBase;
-import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
-import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory.LogoutSuppressingInvocationHandler.LogoutDelegate;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.NoCachePentahoJcrSessionFactory;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrSessionFactory;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -49,14 +58,19 @@ import javax.xml.namespace.QName;
 import jakarta.xml.ws.BindingProvider;
 import jakarta.xml.ws.Endpoint;
 import jakarta.xml.ws.Service;
+import jakarta.xml.ws.handler.MessageContext;
+import jakarta.xml.ws.handler.soap.SOAPHandler;
+import jakarta.xml.ws.handler.soap.SOAPMessageContext;
 import jakarta.xml.ws.soap.SOAPBinding;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -81,6 +95,11 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
 
   private Endpoint endpoint;
   private SecurityContextHolderStrategy previousSecurityContextHolderStrategy;
+  private PentahoJcrSessionFactory previousJcrSessionFactory;
+  private LogoutDelegate previousLogoutDelegate;
+
+  @Autowired
+  private ApplicationContext applicationContext;
 
   // ~ Instance fields
   // =================================================================================================
@@ -106,25 +125,13 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
 
     SecurityContextHolder.setStrategyName( SecurityContextHolder.MODE_GLOBAL );
 
-    String address = "http://localhost:9000/repo";
-
-    endpoint = Endpoint.publish( address, new DefaultUnifiedRepositoryJaxwsWebService( repo ) );
-
-    Service service =
-        Service.create( new URL( "http://localhost:9000/repo?wsdl" ), new QName( "http://www.pentaho.org/ws/1.0",
-            "unifiedRepository" ) );
-
-    IUnifiedRepositoryJaxwsWebService repoWebService = service.getPort( IUnifiedRepositoryJaxwsWebService.class );
-
-    // accept cookies to maintain session on server
-    ( (BindingProvider) repoWebService ).getRequestContext().put( BindingProvider.SESSION_MAINTAIN_PROPERTY, true );
-    // support streaming binary data
-    ( (BindingProvider) repoWebService ).getRequestContext().put( JAXWSProperties.HTTP_CLIENT_STREAMING_CHUNK_SIZE,
-        8192 );
-    SOAPBinding binding = (SOAPBinding) ( (BindingProvider) repoWebService ).getBinding();
-    binding.setMTOMEnabled( true );
-
-    repo = new UnifiedRepositoryToWebServiceAdapter( repoWebService );
+    CredentialsStrategySessionFactory jcrSessionFactory = applicationContext.getBean(
+      "jcrSessionFactory", CredentialsStrategySessionFactory.class );
+    previousJcrSessionFactory = jcrSessionFactory.getSessionFactory();
+    previousLogoutDelegate = jcrSessionFactory.getLogoutDelegate();
+    jcrSessionFactory.setLogoutDelegate( () -> true );
+    jcrSessionFactory.setSessionFactory( new NoCachePentahoJcrSessionFactory( jcrSessionFactory.getRepository(),
+      jcrSessionFactory.getWorkspaceName() ) );
 
   }
 
@@ -136,10 +143,20 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
         endpoint = null;
       }
     } finally {
+      if ( previousJcrSessionFactory != null ) {
+        applicationContext.getBean( "jcrSessionFactory", CredentialsStrategySessionFactory.class )
+            .setSessionFactory( previousJcrSessionFactory );
+      }
+      if ( previousLogoutDelegate != null ) {
+        applicationContext.getBean( "jcrSessionFactory", CredentialsStrategySessionFactory.class )
+        .setLogoutDelegate( previousLogoutDelegate );
+      }
       SecurityContextHolder.clearContext();
       if ( previousSecurityContextHolderStrategy != null ) {
         SecurityContextHolder.setContextHolderStrategy( previousSecurityContextHolderStrategy );
       }
+      PentahoSessionHolder.removeSession();
+      PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_GLOBAL );
     }
   }
 
@@ -158,11 +175,8 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
     userRoleDao.createUser( tenantAcme, USERNAME_SUZY, PASSWORD, "", new String[]{tenantAdminRoleName} );
     logout();
     login( USERNAME_SUZY, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName} );
+    startEndpoint();
     logger.info( "getFile" );
-    JcrRepositoryDumpToFile dumpToFile =
-        new JcrRepositoryDumpToFile( testJcrTemplate, jcrTransactionTemplate, repositoryAdminUsername,
-            "c:/build/testrepo_9", Mode.CUSTOM );
-    dumpToFile.execute();
     RepositoryFile f = repo.getFile( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ) );
     assertNotNull( f.getId() );
     assertEquals( ClientRepositoryPaths.getUserHomeFolderPath( USERNAME_SUZY ), f.getPath() );
@@ -315,6 +329,71 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceIT extends DefaultUnifiedRep
 
     logger.info( "getReservedChars" );
     assertFalse( repo.getReservedChars().isEmpty() );
+  }
+
+  private void startEndpoint() throws Exception {
+    String address = "http://localhost:9000/repo";
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    IPentahoSession testSession = PentahoSessionHolder.getSession();
+    String tenantId = (String) testSession.getAttribute( IPentahoSession.TENANT_ID_KEY );
+    PentahoSessionHolder.removeSession();
+    PentahoSessionHolder.setStrategyName( PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL );
+    PentahoSessionHolder.setSession( testSession );
+    endpoint = Endpoint.create( new DefaultUnifiedRepositoryJaxwsWebService( repo ) );
+    endpoint.getBinding().setHandlerChain( Collections.singletonList(
+      new EndpointContextHandler( authentication, tenantId, previousSecurityContextHolderStrategy ) ) );
+    endpoint.publish( address );
+
+    Service service = Service.create( new URL( address + "?wsdl" ),
+        new QName( "http://www.pentaho.org/ws/1.0", "unifiedRepository" ) );
+    IUnifiedRepositoryJaxwsWebService repoWebService = service.getPort( IUnifiedRepositoryJaxwsWebService.class );
+
+    ( (BindingProvider) repoWebService ).getRequestContext().put( JAXWSProperties.HTTP_CLIENT_STREAMING_CHUNK_SIZE, 8192 );
+    SOAPBinding binding = (SOAPBinding) ( (BindingProvider) repoWebService ).getBinding();
+    binding.setMTOMEnabled( true );
+
+    repo = new UnifiedRepositoryToWebServiceAdapter( repoWebService );
+  }
+
+  private static class EndpointContextHandler implements SOAPHandler<SOAPMessageContext> {
+    private final Authentication authentication;
+    private final String tenantId;
+    private final SecurityContextHolderStrategy securityContextHolderStrategy;
+
+    EndpointContextHandler( Authentication authentication, String tenantId,
+        SecurityContextHolderStrategy securityContextHolderStrategy ) {
+      this.authentication = authentication;
+      this.tenantId = tenantId;
+      this.securityContextHolderStrategy = securityContextHolderStrategy;
+    }
+
+    @Override
+    public boolean handleMessage( SOAPMessageContext context ) {
+      SecurityContext securityContext = securityContextHolderStrategy.createEmptyContext();
+      securityContext.setAuthentication( authentication );
+      securityContextHolderStrategy.setContext( securityContext );
+      StandaloneSession session = new StandaloneSession( authentication.getName() );
+      session.setAuthenticated( tenantId, authentication.getName() );
+      session.setAttribute( IPentahoSession.TENANT_ID_KEY, tenantId );
+      PentahoSessionHolder.setSession( session );
+      return true;
+    }
+
+    @Override
+    public boolean handleFault( SOAPMessageContext context ) {
+      return true;
+    }
+
+    @Override
+    public void close( MessageContext context ) {
+      securityContextHolderStrategy.clearContext();
+      PentahoSessionHolder.removeSession();
+    }
+
+    @Override
+    public Set<QName> getHeaders() {
+      return Collections.emptySet();
+    }
   }
 
   private NodeRepositoryFileData makeNodeRepositoryFileData1() {
