@@ -15,6 +15,7 @@ package org.pentaho.platform.plugin.services.email;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.FilenameUtils;
+import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.platform.api.email.IEmailConfiguration;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
@@ -28,6 +29,8 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
 import jakarta.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -39,17 +42,15 @@ public class EmailServiceIT extends TestCase {
 
   private File tempDir = null;
   private File defaultConfigFile = null;
-  private MicroPlatform mp;
   @Override
   public void setUp() throws Exception {
-    mp = new MicroPlatform();
+    KettleEnvironment.init();
+    MicroPlatform mp = new MicroPlatform();
     mp.defineInstance( IAuthorizationPolicy.class, new TestAuthorizationPolicy() );
     mp.start();
 
     // Setup the temp directory
-    tempDir = File.createTempFile( "EmailServiceTest", "" );
-    assertTrue( "Error setting up testing scenario", tempDir.delete() );
-    assertTrue( "Error setting up testing scenario", tempDir.mkdir() );
+    tempDir = Files.createTempDirectory( "EmailServiceTest" ).toFile();
     tempDir.deleteOnExit();
 
     final File systemDir = new File( tempDir, "system" );
@@ -60,6 +61,19 @@ public class EmailServiceIT extends TestCase {
     assertTrue( "Error setting up testing scenario", defaultConfigFile.createNewFile() );
 
     PentahoSystem.setApplicationContext( new MockApplicationContext( tempDir.getAbsolutePath() ) );
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    try {
+      PentahoSystem.shutdown();
+    } finally {
+      try {
+        KettleEnvironment.shutdown();
+      } finally {
+        super.tearDown();
+      }
+    }
   }
 
   public void testConstruction() throws Exception {
@@ -115,7 +129,7 @@ public class EmailServiceIT extends TestCase {
   }
 
   public void testEmailConfig() throws Exception {
-    assertTrue( defaultConfigFile.delete() );
+    Files.delete( defaultConfigFile.toPath() );
     assertFalse( defaultConfigFile.exists() );
 
     final EmailResource emailResource = new EmailResource();
@@ -215,38 +229,47 @@ public class EmailServiceIT extends TestCase {
 
     @Override
     public void addEntryPointHandler( final IPentahoSystemEntryPoint entryPoint ) {
+      // Entry point handlers are outside this email configuration fixture's scope.
     }
 
     @Override
     public void removeEntryPointHandler( final IPentahoSystemEntryPoint entryPoint ) {
+      // Entry point handlers are outside this email configuration fixture's scope.
     }
 
     @Override
     public void addExitPointHandler( final IPentahoSystemExitPoint exitPoint ) {
+      // Exit point handlers are outside this email configuration fixture's scope.
     }
 
     @Override
     public void removeExitPointHandler( final IPentahoSystemExitPoint exitPoint ) {
+      // Exit point handlers are outside this email configuration fixture's scope.
     }
 
     @Override
     public void invokeEntryPoints() {
+      // Entry point handlers are outside this email configuration fixture's scope.
     }
 
     @Override
     public void invokeExitPoints() {
+      // Exit point handlers are outside this email configuration fixture's scope.
     }
 
     @Override
     public void setFullyQualifiedServerURL( final String url ) {
+      // Server URLs are not used by this email configuration fixture.
     }
 
     @Override
     public void setBaseUrl( final String url ) {
+      // Server URLs are not used by this email configuration fixture.
     }
 
     @Override
     public void setSolutionRootPath( final String path ) {
+      // The test sets the solution root when it constructs this mock.
     }
 
     @Override
@@ -256,6 +279,7 @@ public class EmailServiceIT extends TestCase {
 
     @Override
     public void setContext( final Object context ) {
+      // The email configuration fixture does not consume an application context object.
     }
 
     @Override
@@ -274,14 +298,12 @@ public class EmailServiceIT extends TestCase {
 
     @Override
     public boolean isAllowed( String actionName ) {
-      // TODO Auto-generated method stub
       return true;
     }
 
     @Override
     public List<String> getAllowedActions( String actionNamespace ) {
-      // TODO Auto-generated method stub
-      return null;
+      return Collections.emptyList();
     }
   }
 }
