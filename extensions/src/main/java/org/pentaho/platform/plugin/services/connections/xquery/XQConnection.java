@@ -25,6 +25,7 @@ import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.engine.core.system.IPentahoLoggingConnection;
 import org.pentaho.platform.plugin.services.messages.Messages;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Properties;
@@ -52,6 +53,7 @@ public class XQConnection implements IPentahoLoggingConnection {
     super();
     config = new Configuration();
     sqc = new StaticQueryContext( config );
+    sqc.setBaseURI( new File( "" ).getAbsoluteFile().toURI().toString() );
   }
 
   public void setLogger( final ILogger logger ) {
