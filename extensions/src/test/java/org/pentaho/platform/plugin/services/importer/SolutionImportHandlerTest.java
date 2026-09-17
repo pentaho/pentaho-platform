@@ -48,6 +48,7 @@ import org.pentaho.platform.plugin.services.importexport.RoleExport;
 import org.pentaho.platform.plugin.services.importexport.UserExport;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.ExportManifest;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseConnection;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.DatabaseType;
 import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.ExportManifestMetaStore;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
@@ -96,6 +97,29 @@ public class SolutionImportHandlerTest {
     T t = mock( cl );
     PentahoSystem.registerObject( t );
     return t;
+  }
+
+  @Test
+  public void givenLegacyDatasourceWithoutDatabaseTypeShortNameWhenRestoringThenItIsSkipped() throws Exception {
+    // Given
+    String connectionName = "AIM SQL Dev";
+    IDatasourceMgmtService datasourceMgmtService = mockToPentahoSystem( IDatasourceMgmtService.class );
+    DatabaseConnection databaseConnection = new DatabaseConnection();
+    databaseConnection.setName( connectionName );
+    databaseConnection.setDatabaseType( new DatabaseType() );
+    ExportManifest manifest = new ExportManifest();
+    manifest.getDatasourceList().add( databaseConnection );
+
+    // When
+    SolutionImportHandler.ImportState importState = new SolutionImportHandler.ImportState();
+    importState.isPerformingRestore = true;
+    importHandler.importJDBCDataSource( manifest, importState );
+
+    // Then
+    verify( datasourceMgmtService, never() ).getDatasourceByName( connectionName );
+    verify( datasourceMgmtService, never() ).createDatasource( ArgumentMatchers.any() );
+    verify( logger ).error( Messages.getInstance().getString( "SolutionImportHandler.ConnectionWithoutDatabaseType",
+      connectionName ) );
   }
 
   @Test
