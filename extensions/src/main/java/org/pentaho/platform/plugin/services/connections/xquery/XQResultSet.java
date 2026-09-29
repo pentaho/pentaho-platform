@@ -22,7 +22,19 @@ import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.iter.AxisIterator;
+import net.sf.saxon.tree.wrapper.VirtualNode;
+import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.type.Type;
+import net.sf.saxon.value.AtomicValue;
+import net.sf.saxon.value.Base64BinaryValue;
+import net.sf.saxon.value.BooleanValue;
+import net.sf.saxon.value.CalendarValue;
+import net.sf.saxon.value.DecimalValue;
+import net.sf.saxon.value.DoubleValue;
+import net.sf.saxon.value.FloatValue;
+import net.sf.saxon.value.HexBinaryValue;
+import net.sf.saxon.value.NumericValue;
+import net.sf.saxon.value.ObjectValue;
 import org.apache.commons.collections.OrderedMap;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.logging.Log;
@@ -105,16 +117,57 @@ public class XQResultSet implements IPentahoResultSet, IPeekable {
     int maxRows = ( this.connection != null ) ? this.connection.getMaxRows() : -1;
     Item item = null;
     while ( ( item = sequenceiterator.next() ) != null ) {
-      if ( ( item == null ) ) {
-        break;
-      }
       rowCount++;
       if ( ( maxRows >= 0 ) && ( rowCount > maxRows ) ) {
         break;
       }
-      rtn.add( item.getStringValue() );
+      rtn.add( convertToJava( item ) );
     }
     return rtn;
+  }
+
+  static Object convertToJava( final Item item ) throws XPathException {
+    if ( item instanceof NodeInfo ) {
+      Object node = item;
+      while ( node instanceof VirtualNode ) {
+        node = ( (VirtualNode) node ).getUnderlyingNode();
+      }
+      return node;
+    }
+    if ( item instanceof ObjectValue ) {
+      return ( (ObjectValue) item ).getObject();
+    }
+    if ( !( item instanceof AtomicValue ) ) {
+      return item;
+    }
+
+    AtomicValue atomicValue = (AtomicValue) item;
+    BuiltInAtomicType primitiveType = atomicValue.getPrimitiveType();
+    if ( primitiveType == BuiltInAtomicType.BOOLEAN ) {
+      return Boolean.valueOf( ( (BooleanValue) atomicValue ).getBooleanValue() );
+    }
+    if ( primitiveType == BuiltInAtomicType.DECIMAL ) {
+      return ( (DecimalValue) atomicValue ).getDecimalValue();
+    }
+    if ( primitiveType == BuiltInAtomicType.INTEGER ) {
+      return Long.valueOf( ( (NumericValue) atomicValue ).longValue() );
+    }
+    if ( primitiveType == BuiltInAtomicType.DOUBLE ) {
+      return Double.valueOf( ( (DoubleValue) atomicValue ).getDoubleValue() );
+    }
+    if ( primitiveType == BuiltInAtomicType.FLOAT ) {
+      return Float.valueOf( ( (FloatValue) atomicValue ).getFloatValue() );
+    }
+    if ( primitiveType == BuiltInAtomicType.DATE_TIME || primitiveType == BuiltInAtomicType.DATE ) {
+      return ( (CalendarValue) atomicValue ).getCalendar().getTime();
+    }
+    if ( primitiveType == BuiltInAtomicType.BASE64_BINARY ) {
+      return ( (Base64BinaryValue) atomicValue ).getBinaryValue();
+    }
+    if ( primitiveType == BuiltInAtomicType.HEX_BINARY ) {
+      return ( (HexBinaryValue) atomicValue ).getBinaryValue();
+    }
+    return atomicValue.getStringValue();
   }
 
   /*
