@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFactory
   implements PentahoJcrSessionFactory {
 
-  static final String USAGE_COUNT = "usage_count"; // attribute key for tracking session usages
+  static final String USAGE_COUNT = "usage_count"; // diagnostic count of session usages
 
   private CredentialsStrategySessionFactory credentialsStrategySessionFactory;
   private int cacheDuration = 300;
@@ -80,49 +80,42 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
   }
 
   /**
-   * Session cache by credentials, partitioned by thread. Two threads obtaining sessions for the same credentials cannot
-   * use the same Session.
-   * <p>
-   * Sessions from the cache will have a "usage_count" attribute set to track if still in use, to verify they can be
-   * safely logged out on eviction. See
+    * Session cache by credentials, partitioned by thread. Two threads obtaining sessions for the same credentials cannot
+    * use the same Session.
+    * <p>
+    * Cached sessions use a lifecycle holder to coordinate active users with eviction. See
    * {@link PentahoJcrTemplate#execute(org.springframework.extensions.jcr.JcrCallback,
    * boolean)}
    */
-  private LoadingCache<CacheKey, Session> sessionCache =
+  private LoadingCache<CacheKey, CachedJcrSession> sessionCache =
     CacheBuilder.newBuilder()
       .expireAfterAccess( cacheDuration, TimeUnit.SECONDS )
       .maximumSize( cacheSize )
-      .removalListener( (RemovalListener<CacheKey, Session>) objectObjectRemovalNotification -> {
-        Session session = objectObjectRemovalNotification.getValue();
-        boolean sessionIsLive = session.isLive();
-        if ( sessionIsLive && sessionIsUnused( session ) ) {
-          logger.debug( "Logging out cached session after eviction " + session );
-          session.logout();
-        } else if ( sessionIsLive ) {
-          logger.warn( "Session has expired from cache, but still marked as in use.  May be orphaned.  " + session );
+      .removalListener( (RemovalListener<CacheKey, CachedJcrSession>) objectObjectRemovalNotification -> {
+        CachedJcrSession cachedSession = objectObjectRemovalNotification.getValue();
+        if ( cachedSession != null ) {
+          logger.debug( "Retiring cached session after eviction " + cachedSession.getSession() );
+          cachedSession.retire();
         }
       } ).recordStats()
-      .build( new CacheLoader<CacheKey, Session>() {
-        @Override public Session load( CacheKey credKey ) throws Exception {
+      .build( new CacheLoader<CacheKey, CachedJcrSession>() {
+        @Override public CachedJcrSession load( CacheKey credKey ) throws Exception {
           Session session = GuavaCachePoolPentahoJcrSessionFactory.super.getSession( credKey.creds );
+          CachedJcrSession cachedSession = new CachedJcrSession( session );
           if ( session instanceof SessionImpl ) {
+            ( (SessionImpl) session ).setAttribute( CachedJcrSession.SESSION_ATTRIBUTE, cachedSession );
             ( (SessionImpl) session ).setAttribute( USAGE_COUNT, new AtomicInteger( 0 ) );
           } else {
-            logger.warn( "Expected a Jackrabbit SessionImpl.  Will not be tracking usage." );
+            logger.warn( "Expected a Jackrabbit SessionImpl.  Will not be tracking cached session lifecycle." );
           }
-          return session;
+          return cachedSession;
         }
       } );
-
-  private boolean sessionIsUnused( Session session ) {
-    return session.getAttribute( USAGE_COUNT ) instanceof AtomicInteger
-      && ( (AtomicInteger) session.getAttribute( USAGE_COUNT ) ).get() == 0;
-  }
 
   @Override public Session getSession( Credentials creds ) throws RepositoryException {
 
 
-    // Aquire from cache
+    // Acquire from cache
     Session session;
 
     if ( transactionManager == null || !transactionManager.isCreatingTransaction() ) {
@@ -131,44 +124,49 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
       }
       try {
         CacheKey key = new CacheKey( creds );
-        // find or create
-        session = sessionCache.get( key );
-        if ( !session.isLive() ) {
-          if ( logger.isDebugEnabled() ) {
-            logger.debug( "Cached session is not longer alive. disposing: " + creds );
+        while ( true ) {
+          CachedJcrSession cachedSession = sessionCache.get( key );
+          if ( !cachedSession.acquire() ) {
+            sessionCache.asMap().remove( key, cachedSession );
+            continue;
           }
-          sessionCache.invalidate( key );
-          session = sessionCache.get( key );
-        }
+          boolean keepLease = false;
+          try {
+            session = cachedSession.getSession();
+            if ( !session.isLive() ) {
+              if ( logger.isDebugEnabled() ) {
+                logger.debug( "Cached session is no longer alive. disposing: " + creds );
+              }
+              sessionCache.asMap().remove( key, cachedSession );
+              continue;
+            }
 
-        if ( SessionFactoryUtils.isSessionThreadBound( session, credentialsStrategySessionFactory ) ) {
-          if ( logger.isDebugEnabled() ) {
-            logger.debug(
-              "Session is bound to a transaction. This should never happen, ignoring this session and creating a new "
-                +
-                "session: "
-                + creds );
+            if ( SessionFactoryUtils.isSessionThreadBound( session, credentialsStrategySessionFactory ) ) {
+              if ( logger.isDebugEnabled() ) {
+                logger.debug(
+                  "Session is bound to a transaction. This should never happen, ignoring this session and creating a "
+                    + "new session: " + creds );
+              }
+              sessionCache.asMap().remove( key, cachedSession );
+              continue;
+            }
+
+            session.refresh( false );
+
+            // Increment the diagnostic count for this factory retrieval. The matching count and lifecycle lease are
+            // released by the template after execution completes.
+            Object usageCount = session.getAttribute( USAGE_COUNT );
+            if ( usageCount instanceof AtomicInteger ) {
+              ( (AtomicInteger) usageCount ).incrementAndGet();
+            }
+            keepLease = true;
+            return session;
+          } finally {
+            if ( !keepLease ) {
+              cachedSession.release();
+            }
           }
-          sessionCache.invalidate( key );
-          session = sessionCache.get( key );
         }
-
-        session.refresh( false );
-        
-        // Increment usage count to track factory retrieval
-        // This must be decremented by PentahoJcrTemplate.decrementFactoryProtection()
-        // to maintain balanced reference counting and prevent premature cache eviction
-        Object usageCount = session.getAttribute( USAGE_COUNT );
-        if ( usageCount instanceof AtomicInteger ) {
-          int newCount = ( (AtomicInteger) usageCount ).incrementAndGet();
-          if ( logger.isDebugEnabled() ) {
-            logger.debug( "[JCR-FACTORY-RETRIEVE] Thread=" + Thread.currentThread().getName()
-              + " SessionId=" + System.identityHashCode( session )
-              + " RefCount=" + newCount
-              + " User=" + ( (SimpleCredentials) creds ).getUserID() );
-          }
-        }
-
       } catch ( Exception e ) {
         logger.error( "Error obtaining session from cache. Creating one directly instead: " + creds, e );
         session = super.getSession( creds );

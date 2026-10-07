@@ -83,8 +83,11 @@ public class PentahoJcrTemplate extends JcrTemplate {
       // getUsageCount() which requires a non-null session and would otherwise throw here,
       // masking the original exception from getSession()/doInJcr().
       if ( session != null ) {
-        releaseSession( session );
-        decrementFactoryProtection( session );
+        try {
+          releaseSession( session );
+        } finally {
+          decrementFactoryProtection( session );
+        }
       }
     }
   }
@@ -100,12 +103,17 @@ public class PentahoJcrTemplate extends JcrTemplate {
   }
 
   private void releaseSession( Session session ) {
-    int newCount = getUsageCount( session ).decrementAndGet();
-    if ( LOG.isDebugEnabled() ) {
-      LOG.debug( "[JCR-TEMPLATE-RELEASE] Thread=" + Thread.currentThread().getName()
-        + " SessionId=" + System.identityHashCode( session )
-        + " RefCount=" + newCount
-        + " (template release)" );
+    try {
+      int newCount = getUsageCount( session ).decrementAndGet();
+      if ( LOG.isDebugEnabled() ) {
+        LOG.debug( "[JCR-TEMPLATE-RELEASE] Thread=" + Thread.currentThread().getName()
+          + " SessionId=" + System.identityHashCode( session )
+          + " RefCount=" + newCount
+          + " (template release)" );
+      }
+    } catch ( Exception e ) {
+      // Cleanup must continue so the cached-session lease is released even if the diagnostic counter is unavailable.
+      LOG.warn( "Could not release usage count for sessionId=" + System.identityHashCode( session ), e );
     }
   }
 
@@ -137,13 +145,27 @@ public class PentahoJcrTemplate extends JcrTemplate {
       // with the full exception: failing to release factory protection can leave a cached session
       // permanently non-evictable, and the stack trace helps diagnose intermittent refcount issues.
       LOG.warn( "Could not decrement factory protection for sessionId=" + System.identityHashCode( session ), e );
+    } finally {
+      releaseCachedSession( session );
+    }
+  }
+
+  private void releaseCachedSession( Session session ) {
+    try {
+      Object cachedSession = session.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE );
+      if ( cachedSession instanceof CachedJcrSession ) {
+        ( (CachedJcrSession) cachedSession ).release();
+      }
+    } catch ( Exception e ) {
+      // Do not let cleanup failures mask the result or exception from the JCR callback.
+      LOG.warn( "Could not release cached JCR session lease for sessionId=" + System.identityHashCode( session ), e );
     }
   }
 
   /**
-   * Cached Sessions retrieved from {@link GuavaCachePoolPentahoJcrSessionFactory}
-   * will have a "usage_count" attribute indicating whether the session is
-   * currently in use.  This allows safe eviction.
+  * Cached Sessions retrieved from {@link GuavaCachePoolPentahoJcrSessionFactory}
+  * have a lifecycle lease that prevents eviction from logging out an active session. The usage counter is retained for
+  * diagnostics; the lifecycle holder controls deferred logout.
    */
   private AtomicInteger getUsageCount( Session session ) {
     Objects.requireNonNull( session );

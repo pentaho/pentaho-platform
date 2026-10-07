@@ -39,6 +39,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.pentaho.platform.repository2.unified.jcr.sejcr.GuavaCachePoolPentahoJcrSessionFactory.USAGE_COUNT;
@@ -229,6 +230,39 @@ public class GuavaCachePoolPentahoJcrRaceConditionTest {
 
     verify( cachedSession, never() ).getAttribute( USAGE_COUNT );
     verify( cachedSession, never() ).logout();
+  }
+
+  @Test
+  public void evictionDuringExecutionLogsOutSessionAfterLastUse() throws Exception {
+    Repository repository = org.mockito.Mockito.mock( Repository.class );
+    Session cachedSession = org.mockito.Mockito.mock( Session.class );
+    SimpleCredentials credentials = new SimpleCredentials( "user", "password".toCharArray() );
+    when( repository.login( any( SimpleCredentials.class ), eq( "workspace" ) ) ).thenReturn( cachedSession );
+    when( cachedSession.isLive() ).thenReturn( true );
+    when( cachedSession.getAttribute( USAGE_COUNT ) ).thenReturn( usageCount );
+
+    GuavaCachePoolPentahoJcrSessionFactory factory =
+      new GuavaCachePoolPentahoJcrSessionFactory( repository, "workspace" );
+    factory.getSession( credentials );
+    factory.getSession( credentials );
+    CachedJcrSession lifecycle = (CachedJcrSession) getSessionCache( factory ).asMap().values().iterator().next();
+    when( cachedSession.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE ) ).thenReturn( lifecycle );
+
+    SessionFactory templateSessionFactory = org.mockito.Mockito.mock( SessionFactory.class );
+    when( templateSessionFactory.getSession() ).thenReturn( cachedSession );
+    jcrTemplate.setSessionFactory( templateSessionFactory );
+    when( action.doInJcr( any( Session.class ) ) ).thenAnswer( invocation -> {
+      getSessionCache( factory ).invalidateAll();
+      verify( cachedSession, never() ).logout();
+      return null;
+    } );
+
+    jcrTemplate.execute( action, true );
+    verify( cachedSession, never() ).logout();
+
+    jcrTemplate.execute( action, true );
+
+    verify( cachedSession, times( 1 ) ).logout();
   }
 
   @SuppressWarnings( "unchecked" )
