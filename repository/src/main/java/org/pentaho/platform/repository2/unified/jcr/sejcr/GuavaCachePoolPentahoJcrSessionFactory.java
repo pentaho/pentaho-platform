@@ -24,6 +24,7 @@ import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.extensions.jcr.SessionFactory;
 import org.springframework.extensions.jcr.SessionFactoryUtils;
 
 import javax.jcr.Credentials;
@@ -39,20 +40,24 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * JCR Session Factory which caches Sessions by Credentials per Thread. The size of the cache and TTL of the entries can
- * be configured with repository.spring.properties
- * <p>
- * Created by nbaker on 6/9/14.
+ * JCR session factory that caches sessions by credential identity and requesting thread ID.
+ * Cache capacity and entry lifetime are configured with the repository system configuration. Eviction retires the
+ * associated {@link CachedJcrSession} asynchronously; active template or transaction leases keep the session alive
+ * until their owners release it. Zero cache size or TTL selects direct-login sessions managed for the duration of use.
  */
 class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFactory
   implements PentahoJcrSessionFactory {
 
   static final String USAGE_COUNT = "usage_count"; // diagnostic count of session usages
   private static final String REPOSITORY_CONFIG_ID = "repository";
+  /** Maximum number of cache lookup/lease-acquisition races before using a direct-login fallback. */
   private static final int MAX_CACHE_ACQUISITION_ATTEMPTS = 3;
 
-  // Shared across all factory instances: eviction-triggered logout is repository I/O and must never run
-  // synchronously on whichever caller's thread happens to cross maximumSize/TTL for an unrelated cache entry.
+  /**
+   * Shared daemon executor for eviction cleanup. Session logout may perform repository I/O, so dispatching Guava
+    * removal notifications here prevents an unrelated cache-acquisition thread from blocking on that work. The
+    * cached pool can expand when multiple slow cleanups overlap; its daemon threads do not keep the JVM alive.
+   */
   private static final ExecutorService EVICTION_EXECUTOR = Executors.newCachedThreadPool(
     runnable -> {
       Thread thread = new Thread( runnable, "jcr-cached-session-eviction" );
@@ -60,19 +65,36 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
       return thread;
     } );
 
+  /** Owning Spring factory used to detect sessions already bound under its transaction resource key. */
   private CredentialsStrategySessionFactory credentialsStrategySessionFactory;
   private int cacheDuration = 300;
   private int cacheSize = 100;
 
   private Logger logger = LoggerFactory.getLogger( getClass() );
   private PentahoTransactionManager transactionManager;
+  /** Cache of per-thread session lifecycle holders. */
   private final LoadingCache<CacheKey, CachedJcrSession> sessionCache;
 
 
+  /**
+   * Creates a cache-backed session factory using the repository's configured cache size and time-to-live.
+   *
+   * @param repository repository used to create JCR sessions
+   * @param workspace workspace passed to repository login
+   */
   public GuavaCachePoolPentahoJcrSessionFactory( Repository repository, String workspace ) {
     this( repository, workspace, null );
   }
 
+  /**
+   * Creates a cache-backed factory and optionally bypasses the cache while a transaction is being created.
+  * Cache configuration is read before the cache is constructed; a size or TTL of zero selects managed direct
+  * sessions instead of retaining entries.
+   *
+   * @param repository repository used to create JCR sessions
+   * @param workspace workspace passed to repository login
+   * @param transactionManager optional manager used to detect transaction-creation context; may be {@code null}
+   */
   public GuavaCachePoolPentahoJcrSessionFactory( Repository repository, String workspace,
                                                  PentahoTransactionManager transactionManager ) {
     super( repository, workspace );
@@ -98,12 +120,12 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
   }
 
   /**
-    * Session cache by credentials, partitioned by thread. Two threads obtaining sessions for the same credentials cannot
-    * use the same Session.
-    * <p>
-    * Cached sessions use a lifecycle holder to coordinate active users with eviction. See
-   * {@link PentahoJcrTemplate#execute(org.springframework.extensions.jcr.JcrCallback,
-   * boolean)}
+  * Builds the cache keyed by credentials and calling thread ID, keeping concurrent callers on separate entries.
+   * Removal notifications retire lifecycle holders asynchronously; active holders defer logout until their leases
+   * are released. The loader wraps each newly logged-in session with its lifecycle holder.
+   *
+   * @return a configured loading cache for session holders
+   * @see PentahoJcrTemplate#execute(org.springframework.extensions.jcr.JcrCallback, boolean)
    */
   private LoadingCache<CacheKey, CachedJcrSession> createSessionCache() {
     return CacheBuilder.newBuilder()
@@ -125,6 +147,13 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
       } );
   }
 
+  /**
+   * Associates a newly created Jackrabbit session with a lifecycle holder and diagnostic usage counter.
+   * Non-{@link SessionImpl} implementations are still returned in a holder, but cannot expose these attributes.
+   *
+   * @param session newly created repository session
+   * @return the holder used to coordinate retirement and active use
+   */
   private CachedJcrSession trackSession( Session session ) {
     CachedJcrSession cachedSession = new CachedJcrSession( session );
     if ( session instanceof SessionImpl ) {
@@ -136,6 +165,14 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
     return cachedSession;
   }
 
+  /**
+   * Obtains a direct-login session and, where session attributes are supported, gives it the same lease lifecycle as
+   * a cached session while marking it retired so that it closes after its final callback or Spring binding.
+   *
+   * @param creds credentials supplied to the repository
+   * @return the direct-login session
+   * @throws RepositoryException if repository login fails
+   */
   private Session getUncachedSession( Credentials creds ) throws RepositoryException {
     Session session = super.getSession( creds );
     if ( session instanceof SessionImpl ) {
@@ -148,6 +185,14 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
     return session;
   }
 
+  /**
+   * Returns a session for the supplied credentials, using the per-thread cache when eligible and a managed direct
+   * login when caching is disabled, transaction creation is in progress, or cache acquisition cannot complete.
+   *
+   * @param creds credentials for the repository login
+   * @return a session for the caller; cached sessions carry a factory lease until the template accepts or rolls it back
+   * @throws RepositoryException if the direct or fallback repository login fails
+   */
   @Override public Session getSession( Credentials creds ) throws RepositoryException {
     if ( isCreatingTransaction() ) {
       logger.debug( "Thread is transacted, obtaining session directly, not cached: {}", creds );
@@ -169,10 +214,22 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
     return getUncachedSession( creds );
   }
 
+  /**
+   * Reports whether the configured transaction manager is currently creating a transaction.
+   *
+   * @return {@code true} when the manager identifies a transaction-creation context
+   */
   private boolean isCreatingTransaction() {
     return transactionManager != null && transactionManager.isCreatingTransaction();
   }
 
+  /**
+   * Attempts a bounded number of cache acquisitions, retrying when eviction wins the race with lease acquisition.
+   *
+   * @param creds credentials used to derive the cache key
+   * @return an acquired live session, or {@code null} when all attempts lose to eviction
+   * @throws Exception if cache loading or session validation fails
+   */
   private Session getCachedSession( Credentials creds ) throws Exception {
     CacheKey key = new CacheKey( creds );
     for ( int attempt = 0; attempt < MAX_CACHE_ACQUISITION_ATTEMPTS; attempt++ ) {
@@ -186,6 +243,16 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
     return null;
   }
 
+  /**
+   * Validates and retains a holder returned by the cache. Invalid, already-bound, or refresh-failing entries are
+   * removed, and any factory lease that is not handed to the caller is rolled back in {@code finally}.
+   *
+   * @param key cache key associated with the holder
+   * @param cachedSession holder returned by the cache
+   * @param creds credentials used for diagnostics
+   * @return the live session when acquisition succeeds; {@code null} when the holder cannot be used
+   * @throws Exception if validation or refresh throws after removing the invalid entry
+   */
   private Session acquireCachedSession( CacheKey key, CachedJcrSession cachedSession, Credentials creds )
       throws Exception {
     if ( !cachedSession.acquire() ) {
@@ -222,6 +289,13 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
     }
   }
 
+  /**
+   * Increments the legacy diagnostic counter when a session is handed off by the factory.
+   * Lifecycle safety is enforced by {@link CachedJcrSession}; this counter remains useful for diagnostics.
+   *
+   * @param session session carrying the counter attribute
+   * @param creds credentials used to identify the user in debug logging
+   */
   private void incrementFactoryUsageCount( Session session, Credentials creds ) {
     Object usageCount = session.getAttribute( USAGE_COUNT );
     if ( usageCount instanceof AtomicInteger ) {
@@ -234,32 +308,49 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
     }
   }
 
+  /**
+   * Invalidates all cache entries and asks Guava to dispatch any pending removal notifications.
+   * Retired sessions still in use remain open until their outstanding lifecycle leases are released.
+   */
   void invalidateCachedSessions() {
     sessionCache.invalidateAll();
     sessionCache.cleanUp();
   }
 
   /**
-   * Wires the owning {@link SessionFactory} used as the key for
-   * {@code SessionFactoryUtils.isSessionThreadBound(Session, SessionFactory)}, so a cached session that is
-   * legitimately bound to an active transaction elsewhere is never handed out again from the cache.
+  * Wires the owning {@link SessionFactory} used as the key for
+  * {@code SessionFactoryUtils.isSessionThreadBound(Session, SessionFactory)}. Without this reference, the guard
+  * cannot detect a session bound to this factory and may return it again from the cache.
+  *
+  * @param credentialsStrategySessionFactory owning Spring session factory used for resource lookup
    */
   void setCredentialsStrategySessionFactory( CredentialsStrategySessionFactory credentialsStrategySessionFactory ) {
     this.credentialsStrategySessionFactory = credentialsStrategySessionFactory;
   }
 
   /**
-   * Used by the sessionCache as a key for Jcr Sessions.
+  * Immutable cache key that partitions a credentials identity by the requesting thread ID.
+  * Credentials equality intentionally uses the user ID; the thread component keeps concurrent callers separated.
    */
   private static final class CacheKey {
+    /** Credentials used to derive the user identity portion of this key. */
     private final SimpleCredentials creds;
+    /** Requesting thread identity; prevents sessions from being shared across threads. */
     private final long threadId;
 
+    /** Captures the credentials identity and current thread for one cache lookup. */
     private CacheKey( Credentials creds ) {
       this.creds = (SimpleCredentials) creds;
       this.threadId = Thread.currentThread().getId();
     }
 
+    /**
+     * Compares cache keys by user identity and requesting thread, deliberately ignoring password and credential
+     * attributes so one user's session can be reused for that thread.
+     *
+     * @param o object to compare
+     * @return {@code true} when both keys identify the same user and thread
+     */
     @Override
     public boolean equals( Object o ) {
       if ( this == o ) {
@@ -276,6 +367,7 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
         && threadId == cacheKey.threadId;
     }
 
+    /** Returns a hash consistent with {@link #equals(Object)}. */
     @Override
     public int hashCode() {
       int result = creds != null ? creds.getUserID().hashCode() : 0;

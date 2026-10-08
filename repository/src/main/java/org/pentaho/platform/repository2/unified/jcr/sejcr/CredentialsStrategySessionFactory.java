@@ -159,6 +159,13 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   }
 
 
+  /**
+   * Returns the configured delegate, lazily creating the default cache-backed factory when necessary.
+   * The default factory is wired back to this {@code SessionFactory} so thread-bound session detection uses the same
+   * Spring resource key as transaction binding.
+   *
+   * @return the delegate used to acquire repository sessions
+   */
   public PentahoJcrSessionFactory getSessionFactory() {
     if ( sessionFactory == null ) {
       // use default
@@ -167,6 +174,12 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
     return sessionFactory;
   }
 
+  /**
+   * Sets the delegate used to acquire sessions and wires this factory as the resource key for a Guava delegate's
+   * thread-bound-session guard.
+   *
+   * @param sessionFactory delegate to configure; may be {@code null} to restore lazy default creation
+   */
   public void setSessionFactory( PentahoJcrSessionFactory sessionFactory ) {
     this.sessionFactory = sessionFactory;
     if ( sessionFactory instanceof GuavaCachePoolPentahoJcrSessionFactory ) {
@@ -357,7 +370,12 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   }
 
   /**
-   * @see org.springframework.extensions.jcr.SessionFactory#getSession()
+   * Obtains a session using the configured credentials, then applies the session proxy and observation listeners.
+   * If proxy creation or listener registration fails after acquisition, the underlying session lease is discarded
+   * before the original failure is rethrown.
+   *
+   * @return the prepared session proxy
+   * @throws RepositoryException if acquisition or listener registration fails
    */
   public Session getSession() throws RepositoryException {
     Credentials creds = credentialsStrategy.getCredentials();
@@ -404,6 +422,13 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
     return sessionHolderProvider.createSessionHolder( session );
   }
 
+  /**
+   * Releases a session whose proxy/listener handoff failed before the caller could own it. Cached sessions have both
+   * their diagnostic factory count and lifecycle lease rolled back; direct sessions are logged out.
+   * Cleanup failures are logged so the original handoff exception remains primary.
+   *
+   * @param session acquired session that could not be handed to the caller
+   */
   private void discardFailedSession( Session session ) {
     try {
       Object attribute = session.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE );

@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
 import static org.pentaho.platform.repository2.unified.jcr.sejcr.GuavaCachePoolPentahoJcrSessionFactory.USAGE_COUNT;
 
 /**
- * Test suite for the JCR session race-condition fix (BISERVER-15667).
+ * Tests the JCR session usage-count race and the factory's cache-fallback behavior.
  *
  * <p>Unlike a pure arithmetic check on a local counter, these tests drive the real
  * {@link PentahoJcrTemplate#execute(JcrCallback, boolean)} code path so that the production
@@ -63,10 +63,9 @@ import static org.pentaho.platform.repository2.unified.jcr.sejcr.GuavaCachePoolP
  * tests protect is that after {@code execute()} completes the count is only back to {@code 0} (i.e. the
  * session becomes evictable) once BOTH the factory retrieval and the template are done with it.</p>
  *
- * <p>Note: the factory's actual cache retrieval requires a live Jackrabbit {@code Repository}, which is
- * out of scope for a unit test, so the factory-side {@code usage_count} increment is simulated by
- * incrementing the shared attribute immediately before each {@code execute()} (mirroring the contract in
- * {@link GuavaCachePoolPentahoJcrSessionFactory#getSession(javax.jcr.Credentials)}).</p>
+ * <p>The usage-count tests simulate the factory increment immediately before each {@code execute()} to isolate the
+ * template accounting contract. The additional factory tests use a mocked JCR {@code Repository} with the real Guava
+ * cache; real storage and transaction integration are covered by {@code *IT} tests.</p>
  */
 @RunWith( MockitoJUnitRunner.class )
 public class GuavaCachePoolPentahoJcrRaceConditionTest {
@@ -211,6 +210,7 @@ public class GuavaCachePoolPentahoJcrRaceConditionTest {
     assertEquals( "All balanced factory + template operations return the count to 0", 0, usageCount.get() );
   }
 
+  /** Verifies eviction of an already-closed session does not inspect its usage attribute or call logout again. */
   @Test
   public void evictingDeadSessionDoesNotReadUsageCountOrLogOut() throws Exception {
     Repository repository = org.mockito.Mockito.mock( Repository.class );
@@ -232,6 +232,7 @@ public class GuavaCachePoolPentahoJcrRaceConditionTest {
     verify( cachedSession, never() ).logout();
   }
 
+  /** Verifies a cache refresh failure releases the attempted lease and the factory falls back to direct login. */
   @Test
   public void refreshFailureReleasesCachedLeaseAndFallsBackToDirectLogin() throws Exception {
     Repository repository = org.mockito.Mockito.mock( Repository.class );
@@ -251,6 +252,7 @@ public class GuavaCachePoolPentahoJcrRaceConditionTest {
     verify( repository, times( 2 ) ).login( any( SimpleCredentials.class ), eq( "workspace" ) );
   }
 
+  /** Verifies session acquisition bypasses the cache while the transaction manager is creating a transaction. */
   @Test
   public void sessionCreationDuringTransactionBypassesTheCache() throws Exception {
     Repository repository = org.mockito.Mockito.mock( Repository.class );

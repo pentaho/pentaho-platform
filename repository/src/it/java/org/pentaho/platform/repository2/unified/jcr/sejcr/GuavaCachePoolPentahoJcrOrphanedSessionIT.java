@@ -54,11 +54,14 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * Verifies that cache eviction during an active template callback defers logout until the callback releases
- * its final cached-session lease.
+ * Verifies cached-session lifecycle behavior against the real unified repository. Scenarios cover eviction during
+ * callbacks, Spring transaction synchronization and suspension, nested template use, write completion, stale sessions,
+ * and resources that escape a callback. Unlike the mock-based unit tests, these cases exercise Jackrabbit session and
+ * repository behavior end to end.
  */
 public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRepositoryBase {
 
+  /** Verifies SUPPORTS read-only synchronization retains and reuses an evicted session across sequential callbacks. */
   @Test
   public void sequentialCallbacksInReadOnlySynchronizationReuseLiveSession() {
     loginAsSysTenantAdmin();
@@ -102,6 +105,7 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
     }
   }
 
+  /** Verifies returned lazy-file and binary-stream resources remain usable after their source session is closed. */
   @Test
   public void escapedLazyFileAndBinaryStreamRemainUsableAfterSessionLogout() throws Exception {
     loginAsRepositoryAdmin();
@@ -172,6 +176,7 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
     }
   }
 
+  /** Removes the named fixture node through an administrator transaction when test cleanup is required. */
   private void removeTestNode( String nodeName ) {
     jcrTransactionTemplate.execute( transaction -> jcrTemplate.execute( session -> {
       if ( session.getRootNode().hasNode( nodeName ) ) {
@@ -182,6 +187,11 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
     }, true ) );
   }
 
+  /**
+   * Runs real JCR callbacks on multiple workers while the cache is repeatedly invalidated between barrier phases.
+   * Every callback must retain a live, thread-owned session, and every evicted session must be closed after its
+   * callback finishes.
+   */
   @Test
   public void realConcurrentCallbacksSurviveEvictionAndReleaseEverySession() throws Exception {
     CredentialsStrategySessionFactory configuredFactory =
@@ -244,6 +254,11 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
     }
   }
 
+  /**
+   * Synchronizes a worker with the test thread around a cache invalidation phase.
+   *
+   * @param barrier barrier shared by workers and the coordinating test thread
+   */
   private void awaitEvictionBarrier( CyclicBarrier barrier ) {
     try {
       barrier.await( 20, TimeUnit.SECONDS );
@@ -255,6 +270,7 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
     }
   }
 
+  /** Verifies a suspended outer transaction retains its session while a REQUIRES_NEW transaction is evicted. */
   @Test
   public void suspendedTransactionKeepsRetiredSessionUntilOuterCompletion() {
     loginAsRepositoryAdmin();
@@ -312,16 +328,23 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
     }
   }
 
+  /** Verifies an evicted write session remains usable until its enclosing transaction commits. */
   @Test
   public void evictedWriteSessionRemainsLiveUntilCommit() {
     verifyEvictedWriteSession( false );
   }
 
+  /** Verifies an evicted write session remains usable until its enclosing transaction rolls back. */
   @Test
   public void evictedWriteSessionRemainsLiveUntilRollback() {
     verifyEvictedWriteSession( true );
   }
 
+  /**
+   * Exercises transaction-completion cleanup for an evicted write session and checks the committed repository state.
+   *
+   * @param rollback {@code true} to mark the transaction rollback-only; otherwise the write is committed
+   */
   private void verifyEvictedWriteSession( boolean rollback ) {
     // Root-level test nodes require the repository administrator, not the tenant administrator.
     loginAsRepositoryAdmin();
@@ -368,6 +391,7 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
     }
   }
 
+  /** Verifies a session evicted during a successful callback closes after the template releases its final lease. */
   @Test
   public void evictedLiveSessionIsClosedAfterTemplateCompletes() {
     loginAsSysTenantAdmin();
@@ -404,6 +428,7 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
     }
   }
 
+  /** Verifies callback failure still releases the final lease and closes an evicted session. */
   @Test
   public void evictedLiveSessionIsClosedWhenCallbackFails() {
     loginAsSysTenantAdmin();
@@ -441,6 +466,7 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
     }
   }
 
+  /** Verifies an externally logged-out cache entry is replaced on the next template execution. */
   @Test
   public void externallyClosedCachedSessionIsReplacedOnNextTemplateUse() {
     loginAsSysTenantAdmin();
@@ -471,6 +497,7 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
     }
   }
 
+  /** Verifies nested callbacks reuse an evicted but Spring-bound session until outer completion releases it. */
   @Test
   public void nestedTemplateExecutionKeepsEvictedSessionUntilOuterCallbackCompletes() {
     loginAsSysTenantAdmin();

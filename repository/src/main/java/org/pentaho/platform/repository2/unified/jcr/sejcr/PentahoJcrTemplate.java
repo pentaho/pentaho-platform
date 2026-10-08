@@ -34,7 +34,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.pentaho.platform.repository2.unified.jcr.sejcr.GuavaCachePoolPentahoJcrSessionFactory.USAGE_COUNT;
 
 /**
- * Copy of superclass' execute with better exception conversions.
+ * JCR template that applies Pentaho exception translation and coordinates session usage with cache eviction.
+ * Cached-session leases are released after callback use and, for Spring-bound sessions, only after transaction
+ * completion; this prevents eviction from logging out a session still owned by an active callback or transaction.
  *
  * @author mlowery
  */
@@ -55,7 +57,15 @@ public class PentahoJcrTemplate extends JcrTemplate {
   // =========================================================================================================
 
   /**
-   * Copy of superclass' execute with pentahoConvertJcrAccessException substitutions.
+    * Executes a JCR callback while retaining the session's cache lifecycle lease for the full use interval.
+    * Factory handoff protection is consumed separately from callback use; Spring-bound sessions receive a
+    * transaction synchronization that retains them through {@code afterCompletion}. Cleanup preserves callback or
+    * acquisition failures and applies Pentaho-specific access-denied translation.
+    *
+    * @param action callback to execute with the acquired JCR session
+    * @param exposeNativeSession whether to expose the underlying session rather than a logout-suppressing proxy
+    * @return the callback result
+    * @throws DataAccessException if session acquisition or callback execution fails
    */
   @Override
   public Object execute( JcrCallback action, boolean exposeNativeSession ) throws DataAccessException {
@@ -99,6 +109,17 @@ public class PentahoJcrTemplate extends JcrTemplate {
     }
   }
 
+  /**
+   * Releases callback accounting and factory protection, then releases the lifecycle lease or direct session.
+   * A missing session means acquisition failed and there is nothing to clean up. Cleanup failures are contained by
+   * the delegated release methods so they cannot replace a callback failure.
+   *
+   * @param session session returned by the factory, or {@code null} if acquisition failed
+   * @param cachedSession lifecycle holder, or {@code null} for an untracked session
+   * @param cachedSessionLeaseAcquired whether this execution owns a holder lease
+   * @param sessionUsageStarted whether callback usage accounting was successfully started
+   * @param releaseFactoryProtection whether the factory's diagnostic protection count must be decremented
+   */
   private void releaseAfterExecution( Session session, CachedJcrSession cachedSession,
                                       boolean cachedSessionLeaseAcquired, boolean sessionUsageStarted,
                                       boolean releaseFactoryProtection ) {
@@ -123,6 +144,7 @@ public class PentahoJcrTemplate extends JcrTemplate {
     }
   }
 
+  /** Starts callback usage accounting for the acquired session. */
   private void useSession( Session session ) {
     int newCount = getUsageCount( session ).incrementAndGet();
     if ( LOG.isDebugEnabled() ) {
@@ -131,6 +153,14 @@ public class PentahoJcrTemplate extends JcrTemplate {
     }
   }
 
+  /**
+   * Adds one lifecycle lease for the active Spring binding unless that holder already has a synchronization in the
+   * current synchronization scope. The synchronization releases the lease after transaction completion.
+   *
+   * @param session session whose Spring binding is being checked
+   * @param cachedSession holder to retain for the binding lifetime
+   * @throws IllegalStateException if the holder can no longer be retained
+   */
   private void retainSpringBinding( Session session, CachedJcrSession cachedSession ) {
     if ( !TransactionSynchronizationManager.isSynchronizationActive()
         || !SessionFactoryUtils.isSessionThreadBound( session, getSessionFactory() ) ) {
@@ -155,19 +185,23 @@ public class PentahoJcrTemplate extends JcrTemplate {
     }
   }
 
+  /** Releases one transaction-scoped lease when Spring finishes the synchronization lifecycle. */
   private static final class CachedSessionSynchronization implements TransactionSynchronization {
     private final CachedJcrSession cachedSession;
 
+    /** Creates a synchronization that owns one lease on the supplied cached session. */
     private CachedSessionSynchronization( CachedJcrSession cachedSession ) {
       this.cachedSession = cachedSession;
     }
 
+    /** Releases the transaction's retained lease after commit or rollback. */
     @Override
     public void afterCompletion( int status ) {
       cachedSession.release();
     }
   }
 
+  /** Decrements diagnostic callback usage; logs failures and continues lifecycle cleanup. */
   private void releaseSession( Session session ) {
     try {
       int newCount = getUsageCount( session ).decrementAndGet();
@@ -211,6 +245,7 @@ public class PentahoJcrTemplate extends JcrTemplate {
     }
   }
 
+  /** Releases a direct-login session unless Spring still owns it, without masking callback outcomes. */
   private void releaseUncachedSession( Session session ) {
     try {
       SessionFactoryUtils.releaseSession( session, getSessionFactory() );
@@ -221,9 +256,13 @@ public class PentahoJcrTemplate extends JcrTemplate {
   }
 
   /**
-  * Cached Sessions retrieved from {@link GuavaCachePoolPentahoJcrSessionFactory}
-  * have a lifecycle lease that prevents eviction from logging out an active session. The usage counter is retained for
-  * diagnostics; the lifecycle holder controls deferred logout.
+   * Returns the diagnostic usage counter attached to a session.
+   * Cached sessions use the counter for factory/template diagnostics while {@link CachedJcrSession} owns deferred
+   * logout; sessions without the attribute receive a temporary counter so template execution remains safe.
+   *
+   * @param session session whose counter is requested
+   * @return its attached counter, or a new zero-valued counter when the attribute is absent
+   * @throws NullPointerException if {@code session} is {@code null}
    */
   private AtomicInteger getUsageCount( Session session ) {
     Objects.requireNonNull( session );
@@ -241,6 +280,12 @@ public class PentahoJcrTemplate extends JcrTemplate {
     return SessionFactoryUtils.getSession( getSessionFactory(), this.isAllowCreate() );
   }
 
+  /**
+   * Applies Pentaho's access-denied translation to callback runtime failures, including generic security failures.
+   *
+   * @param ex runtime failure raised by callback execution
+   * @return an access-denied exception for security failures, otherwise the superclass translation
+   */
   private RuntimeException pentahoConvertJcrAccessException( final RuntimeException ex ) {
     if ( ex instanceof SecurityException ) {
       return new org.springframework.security.access.AccessDeniedException( Messages.getInstance().getString(
@@ -250,6 +295,12 @@ public class PentahoJcrTemplate extends JcrTemplate {
     }
   }
 
+  /**
+   * Applies Pentaho's access-denied translation to JCR access-denied failures.
+   *
+   * @param ex repository failure raised during JCR access
+   * @return an access-denied exception for JCR access denial, otherwise the superclass translation
+   */
   private RuntimeException pentahoConvertJcrAccessException( final RepositoryException ex ) {
     if ( ex instanceof AccessDeniedException ) {
       return new org.springframework.security.access.AccessDeniedException( Messages.getInstance().getString(

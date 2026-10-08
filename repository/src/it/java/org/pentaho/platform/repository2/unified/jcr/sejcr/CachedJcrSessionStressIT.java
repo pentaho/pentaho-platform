@@ -26,9 +26,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-/** Opt-in high-cardinality lifecycle stress test; intentionally excluded from the default Surefire unit-test run. */
+/**
+ * Opt-in high-cardinality test of {@link CachedJcrSession}'s concurrent retirement and release protocol.
+ * It uses lightweight sessions and a bounded worker pool rather than repository I/O; the default unit-test run
+ * intentionally excludes this memory- and CPU-intensive integration test.
+ */
 public class CachedJcrSessionStressIT {
 
+  /**
+   * Races retirement against release for 200,000 simultaneously live holders and checks exactly-once logout.
+   * Sixteen disjoint holder partitions each use one retirement worker and one release worker; a start latch aligns
+   * the race, and bounded waits make worker stalls fail the test rather than hang the build.
+   */
   @Test
   public void twoHundredThousandSimultaneouslyLiveHoldersRetireAndReleaseExactlyOnce() throws Exception {
     int count = 200_000;
@@ -88,6 +97,16 @@ public class CachedJcrSessionStressIT {
     }
   }
 
+  /**
+   * Applies one side of the retirement/release race to a disjoint range of holders.
+   *
+   * @param ready latch decremented when this worker is ready
+   * @param start latch that releases all race workers together
+   * @param holders lifecycle holders shared by the two worker groups
+   * @param from inclusive first holder index assigned to this worker
+   * @param to exclusive end index assigned to this worker
+   * @param retire whether to retire each holder (twice to verify idempotency), or release it
+   */
   private void race( CountDownLatch ready, CountDownLatch start, CachedJcrSession[] holders, int from, int to,
                      boolean retire ) {
     ready.countDown();

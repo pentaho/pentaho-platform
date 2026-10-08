@@ -50,18 +50,27 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
   // The opt-in correctness stress needs repeated cross-worker eviction, not benchmark-grade sample volume.
   private static final int STRESS_OPERATIONS = 50_000;
 
+  /** Verifies active callbacks remain usable and all sessions are retired exactly once during high-cardinality churn. */
   @Test
   public void highCardinalityEvictionDoesNotCloseActiveCallbacksOrOrphanSessions() throws Exception {
     runWorkload( 32, 256, STRESS_OPERATIONS, true );
   }
 
+  /** Verifies repeated cache hits reuse one session per worker and balance all callback leases. */
   @Test
   public void cacheHitsRemainReusableAndBalanceAllLeases() throws Exception {
     Result result = runWorkload( 16, 1, STRESS_OPERATIONS, false );
     assertEquals( "One cached session per worker should serve repeated operations", 16, result.created );
   }
 
-  /** Standalone comparative benchmark; use identical JVM flags and this identical source on both worktrees. */
+  /**
+   * Runs the cache-hit and cache-churn workloads as a comparative benchmark.
+   * Use identical JVM flags and this identical source on both worktrees; output includes throughput, latency
+   * percentiles, allocation, worker CPU, garbage-collection time, and session lifecycle counts.
+   *
+   * @param args optional operation count followed by measured-round count
+   * @throws Exception if workload setup, execution, or validation fails
+   */
   public static void main( String[] args ) throws Exception {
     int operations = args.length > 0 ? Integer.parseInt( args[ 0 ] ) : 200_000;
     int rounds = args.length > 1 ? Integer.parseInt( args[ 1 ] ) : 3;
@@ -73,6 +82,12 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
     }
   }
 
+  /**
+   * Allocates and initializes a lightweight session without invoking Jackrabbit's repository-opening constructor.
+   *
+   * @param metrics shared lifecycle counters updated by the session
+   * @return a live session owned by the current thread
+   */
   static LightweightSession newSession( Metrics metrics ) {
     // The fixture overrides every method used here. Bypass Jackrabbit's storage-opening constructor, just as Mockito
     // does, but without per-invocation recording or hundreds of thousands of heavyweight mock objects.
@@ -85,11 +100,24 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
     return session;
   }
 
+  /** Runs a validated workload and returns its session-creation count. */
   private static Result runWorkload( int workers, int usersPerWorker, int operations, boolean evictActive )
       throws Exception {
     return runWorkload( workers, usersPerWorker, operations, evictActive, true );
   }
 
+  /**
+   * Executes one measured workload, optionally checking lifecycle invariants after final cache invalidation.
+   * The workload owns its executor and always shuts it down in {@code finally}.
+   *
+   * @param workers number of bounded worker threads
+   * @param usersPerWorker distinct credential identities selected by each worker
+   * @param operations total callback executions to measure
+   * @param evictActive whether callbacks trigger cache invalidation during the run
+   * @param validate whether assertion failures abort the run and final lifecycle counts are checked
+   * @return lifecycle result for the run
+   * @throws Exception if setup, workers, validation, or teardown fail
+   */
   private static Result runWorkload( int workers, int usersPerWorker, int operations, boolean evictActive,
                                     boolean validate ) throws Exception {
     Workload workload = new Workload( workers, usersPerWorker, operations, evictActive, validate );
@@ -107,7 +135,11 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
     }
   }
 
-  /** One shared context per run; worker setup stays outside the measured operation loop. */
+  /**
+   * Owns one benchmark run's repository stand-in, cache, template, worker coordination, and measurements.
+   * Worker initialization is performed before the timed operation loop; cleanup invalidates the cache and stops
+   * the bounded executor even when a worker or assertion fails.
+   */
   private static final class Workload {
     private final int workers;
     private final int usersPerWorker;
@@ -129,6 +161,7 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
     private final ThreadMXBean threadMetrics;
     private final long gcBefore;
 
+    /** Constructs an isolated run context and initializes its bounded worker pool and measurement state. */
     private Workload( int workers, int usersPerWorker, int operations, boolean evictActive, boolean validate )
         throws Exception {
       this.workers = workers;
@@ -157,6 +190,7 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
       gcBefore = gcMillis();
     }
 
+    /** Submits one worker for each disjoint range of measured operation indexes. */
     private void submitWorkers() {
       for ( int worker = 0; worker < workers; worker++ ) {
         int from = operations * worker / workers;
@@ -165,6 +199,12 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
       }
     }
 
+    /**
+     * Creates this worker's credential set and callback, then waits for the coordinated workload start.
+     *
+     * @param from inclusive first operation index assigned to this worker
+     * @param to exclusive end operation index assigned to this worker
+     */
     private void runWorker( int from, int to ) {
       SimpleCredentials[] users = new SimpleCredentials[ usersPerWorker ];
       for ( int user = 0; user < users.length; user++ ) {
@@ -193,6 +233,7 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
       }
     }
 
+    /** Measures per-worker allocation and CPU while selecting credentials and executing the assigned operations. */
     private void runOperations( SimpleCredentials[] users, JcrCallback action, int from, int to )
         throws InterruptedException {
       long allocatedBefore = allocatedBytes( threadMetrics );
@@ -210,6 +251,7 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
       }
     }
 
+    /** Times one template callback and records benchmark-mode failures without hiding their count. */
     private void executeOperation( JcrCallback action, int operation ) {
       // Time execution and failure accounting, not credential selection; no per-operation result allocation.
       long before = System.nanoTime();
@@ -225,6 +267,7 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
       durations[ operation ] = System.nanoTime() - before;
     }
 
+    /** Waits for all workers, releases the start gate, and returns elapsed wall-clock time. */
     private long awaitWorkers() throws Exception {
       assertTrue( "All stress workers must be ready", ready.await( 30, TimeUnit.SECONDS ) );
       long startNanos = System.nanoTime();
@@ -236,6 +279,7 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
       return System.nanoTime() - startNanos;
     }
 
+    /** Checks session creation, closure, and duplicate-logout totals when correctness validation is enabled. */
     private void validateSessions() {
       if ( validate ) {
         assertEquals( "All sessions must be disposed after callbacks and final cache invalidation",
@@ -245,6 +289,7 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
     }
 
     /** Intentional CLI benchmark protocol: metrics must reach stdout even without an SLF4J provider. */
+    /** Writes one locale-stable benchmark row, including latency, resource, and lifecycle measurements. */
     @SuppressWarnings( "java:S106" )
     private void printResult( long elapsed ) {
       System.out.printf( Locale.ROOT,
@@ -257,6 +302,7 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
         metrics.created.get(), metrics.closed.get(), failures.get() );
     }
 
+    /** Cancels remaining workers, awaits executor termination, and invalidates cached sessions. */
     private void cleanup() throws InterruptedException {
       start.countDown();
       futures.forEach( future -> future.cancel( true ) );
@@ -265,6 +311,12 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
       cacheFactory.invalidateCachedSessions();
     }
 
+    /**
+     * Creates a minimal dynamic repository proxy that returns lightweight sessions for login calls.
+     *
+     * @param metrics shared counters passed to sessions created by this repository
+     * @return repository stand-in that implements only the methods exercised by this workload
+     */
     private static Repository newRepository( Metrics metrics ) {
       return (Repository) Proxy.newProxyInstance( Repository.class.getClassLoader(),
         new Class<?>[] { Repository.class }, ( proxy, method, args ) -> {
@@ -284,6 +336,7 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
         } );
     }
 
+    /** Returns current-thread allocated bytes when the running JVM exposes the extended management API. */
     private static long allocatedBytes( ThreadMXBean metrics ) {
       if ( metrics instanceof com.sun.management.ThreadMXBean ) {
         com.sun.management.ThreadMXBean extended = (com.sun.management.ThreadMXBean) metrics;
@@ -294,39 +347,60 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
       return 0;
     }
 
+    /** Returns the cumulative collection time reported by the JVM's garbage collectors. */
     private static long gcMillis() {
       return ManagementFactory.getGarbageCollectorMXBeans().stream()
         .mapToLong( collector -> Math.max( 0, collector.getCollectionTime() ) ).sum();
     }
   }
 
+  /** Thread-safe counters shared by the repository and its lightweight sessions. */
   static final class Metrics {
+    /** Number of lightweight sessions created by repository login calls. */
     final AtomicInteger created = new AtomicInteger();
+    /** Number of sessions whose first logout transitioned them to closed. */
     final AtomicInteger closed = new AtomicInteger();
+    /** Number of redundant logout attempts observed after a session was already closed. */
     final AtomicInteger duplicateLogouts = new AtomicInteger();
   }
 
+  /** Immutable summary returned by one workload, currently containing the number of created sessions. */
   private static final class Result {
+    /** Total sessions created during the workload. */
     final int created;
 
+    /** Creates a result containing the number of sessions created during the workload. */
     private Result( int created ) {
       this.created = created;
     }
   }
 
+  /**
+   * Minimal observable Jackrabbit session stand-in for cache and template lifecycle tests.
+   * The allocator bypasses the superclass constructor; overrides implement only the session operations exercised by
+   * the workload and enforce thread ownership on refresh.
+   */
   static class LightweightSession extends SessionImpl {
+    /** Volatile liveness flag observed by concurrent workers and eviction cleanup. */
     volatile boolean live;
+    /** Number of logout calls, used to detect duplicate cleanup attempts. */
     int logoutCalls;
+    /** Thread that owns this session; refresh verifies that it is not shared across workers. */
     long ownerThread;
+    /** Shared counters updated when this session is created or closed. */
     Metrics metrics;
+    /** Lifecycle-holder value exposed through the Jackrabbit attribute API. */
     Object lifecycleAttribute;
+    /** Diagnostic factory/template usage counter exposed as a session attribute. */
     AtomicInteger usageCount;
 
+    /** Must not be called; instances are allocated with Objenesis to avoid opening Jackrabbit storage. */
     private LightweightSession() throws RepositoryException {
       super( null, (Subject) null, null );
       throw new UnsupportedOperationException( "Instantiate only with the test allocator" );
     }
 
+    /** Returns the fixture's lifecycle or usage-count attribute. */
     @Override
     public Object getAttribute( String name ) {
       if ( "usage_count".equals( name ) ) {
@@ -335,6 +409,7 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
       return "cached_jcr_session".equals( name ) ? lifecycleAttribute : null;
     }
 
+    /** Stores the fixture's lifecycle or usage-count attribute. */
     @Override
     public void setAttribute( String name, Object value ) {
       if ( "usage_count".equals( name ) ) {
@@ -346,6 +421,7 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
       }
     }
 
+    /** Rejects refresh after logout and detects accidental cross-thread session reuse. */
     @Override
     public void refresh( boolean keepChanges ) throws RepositoryException {
       if ( !live ) {
@@ -355,11 +431,13 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
         Thread.currentThread().getId() );
     }
 
+    /** Reports the fixture's volatile live state. */
     @Override
     public boolean isLive() {
       return live;
     }
 
+    /** Records each logout attempt and updates shared closed/duplicate counters. */
     @Override
     public synchronized void logout() {
       logoutCalls++;
@@ -371,6 +449,7 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
       }
     }
 
+    /** Returns a stable diagnostic label without relying on Jackrabbit initialization. */
     @Override
     public String toString() {
       return "LightweightSession-" + System.identityHashCode( this );

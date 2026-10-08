@@ -43,6 +43,11 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.pentaho.platform.repository2.unified.jcr.sejcr.GuavaCachePoolPentahoJcrSessionFactory.USAGE_COUNT;
 
+/**
+ * Unit tests for {@link PentahoJcrTemplate}'s session usage accounting, callback exception translation, and cleanup.
+ * Mock sessions isolate template lifecycle behavior from repository I/O; real transaction/repository interactions
+ * are exercised by the integration tests.
+ */
 @RunWith( MockitoJUnitRunner.class )
 public class PentahoJcrTemplateTest {
 
@@ -57,6 +62,7 @@ public class PentahoJcrTemplateTest {
   @Mock private JcrCallback action;
   @Mock private JcrCallback nestedAction;
 
+  /** Configures the mock factory/session and distinct counters for each template accounting phase. */
   @Before public void before() throws RepositoryException {
     when( sessionFactory.getSession() ).thenReturn( session );
     // Now with factory protection decrement, getAttribute is called 3 times per execute():
@@ -69,6 +75,7 @@ public class PentahoJcrTemplateTest {
     jcrTemplate.setAllowCreate( true );
   }
 
+  /** Verifies one callback starts usage and releases both callback and factory-protection counts. */
   @Test
   public void executeUpdatesUsageCount() throws IOException, RepositoryException {
     jcrTemplate.setSessionFactory( sessionFactory );
@@ -84,6 +91,7 @@ public class PentahoJcrTemplateTest {
     assertThat( "third factory protection decrements", factoryProtectionUsageCount.get(), equalTo( -1 ) );
   }
 
+  /** Verifies nested callbacks balance their independent usage and factory-protection accounting in order. */
   @Test
   public void executeUpdatesUsageCountNestedExec() throws IOException, RepositoryException {
     jcrTemplate.setSessionFactory( sessionFactory );
@@ -119,6 +127,7 @@ public class PentahoJcrTemplateTest {
     assertThat( "third factory protection decrements twice (nested)", factoryProtectionUsageCount.get(), equalTo( -2 ) );
   }
 
+  /** Verifies callback security failures are translated to Spring's access-denied exception with their cause. */
   @Test
   public void securityExceptionIsConvertedToAccessDeniedException() throws IOException, RepositoryException {
     when( action.doInJcr( session ) ).thenThrow( new SecurityException( "access denied" ) );
@@ -131,6 +140,7 @@ public class PentahoJcrTemplateTest {
     }
   }
 
+  /** Verifies diagnostic-attribute failures during cleanup neither mask the callback failure nor block logout. */
   @Test
   public void unavailableDiagnosticsDoNotMaskCallbackFailureOrPreventRetiredSessionLogout()
       throws IOException, RepositoryException {
@@ -154,6 +164,7 @@ public class PentahoJcrTemplateTest {
     verify( session, times( 1 ) ).logout();
   }
 
+  /** Verifies a failed usage start does not decrement an unstarted use but still releases factory protection. */
   @Test
   public void failedUsageStartReleasesFactoryProtectionWithoutDecrementingAnUnstartedUse()
       throws IOException, RepositoryException {
@@ -175,6 +186,7 @@ public class PentahoJcrTemplateTest {
     verify( session, times( 1 ) ).logout();
   }
 
+  /** Verifies factory acquisition failure propagates unchanged without touching a session or invoking the callback. */
   @Test
   public void failedFactoryAcquisitionDoesNotMaskOriginalExceptionOrTouchASession() throws RepositoryException {
     RuntimeException acquisitionFailure = new IllegalStateException( "Factory unavailable" );

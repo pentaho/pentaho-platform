@@ -24,22 +24,44 @@ import javax.jcr.Session;
 final class CachedJcrSession {
   private static final Logger LOG = LoggerFactory.getLogger( CachedJcrSession.class );
 
+  /** Session attribute under which the lifecycle holder is published to template and factory code. */
   static final String SESSION_ATTRIBUTE = "cached_jcr_session";
 
   private final Session session;
+  /** Active factory handoffs, template callbacks, and transaction bindings retaining this session. */
   private int activeUses;
+  /** Factory acquisitions not yet transferred to a template or explicitly rolled back. */
   private int pendingFactoryLeases;
+  /** Whether the cache or owner has permanently made this holder unavailable for new cache acquisitions. */
   private boolean retired;
+  /** Whether the single logout attempt has been claimed by a thread. */
   private boolean logoutStarted;
 
+  /**
+   * Creates a lifecycle holder for a repository session.
+   *
+   * @param session the JCR session whose use and logout lifecycle this instance coordinates
+   */
   CachedJcrSession( Session session ) {
     this.session = session;
   }
 
+  /**
+   * Returns the underlying JCR session.
+   *
+   * @return the coordinated session
+   */
   Session getSession() {
     return session;
   }
 
+  /**
+   * Starts a factory-to-template handoff if the session has not been retired.
+   * Both an active-use lease and a pending factory lease are recorded; the latter must be consumed by
+   * {@link #consumeFactoryLease()} or rolled back by {@link #releaseUnhandedFactoryLease()}.
+   *
+   * @return {@code true} when the caller owns a new factory lease; {@code false} after retirement or logout begins
+   */
   synchronized boolean acquire() {
     if ( retired || logoutStarted ) {
       return false;
@@ -49,6 +71,11 @@ final class CachedJcrSession {
     return true;
   }
 
+  /**
+   * Transfers one pending factory lease to a template execution without changing the active-use count.
+   *
+   * @return {@code true} if a pending factory lease was consumed; {@code false} if no lease was available
+   */
   synchronized boolean consumeFactoryLease() {
     if ( pendingFactoryLeases == 0 ) {
       return false;
@@ -57,6 +84,12 @@ final class CachedJcrSession {
     return true;
   }
 
+  /**
+   * Retains a session that is already bound to a Spring operation, including a nested callback after cache retirement.
+   * A retired holder may be extended only while an existing active use still keeps the session alive.
+   *
+   * @return {@code true} if the bound use was retained; {@code false} if logout has started or no active use remains
+   */
   synchronized boolean acquireForBoundUse() {
     if ( logoutStarted || ( retired && activeUses == 0 ) ) {
       return false;
@@ -65,6 +98,9 @@ final class CachedJcrSession {
     return true;
   }
 
+  /**
+   * Releases one active-use lease and logs out the session if retirement has made this the final lease.
+   */
   void release() {
     boolean shouldLogout;
     synchronized ( this ) {
@@ -78,6 +114,10 @@ final class CachedJcrSession {
     logoutIfRequired( shouldLogout );
   }
 
+  /**
+   * Rolls back a factory lease that could not be handed to a template and releases its active-use protection.
+   * If retirement is pending, this release may trigger the session's single logout attempt.
+   */
   void releaseUnhandedFactoryLease() {
     boolean shouldLogout;
     synchronized ( this ) {
@@ -95,6 +135,10 @@ final class CachedJcrSession {
     logoutIfRequired( shouldLogout );
   }
 
+  /**
+   * Permanently prevents new cache acquisitions and logs out immediately when no active leases remain.
+   * Repeated calls are safe; logout is claimed at most once.
+   */
   void retire() {
     boolean shouldLogout;
     synchronized ( this ) {
@@ -104,6 +148,7 @@ final class CachedJcrSession {
     logoutIfRequired( shouldLogout );
   }
 
+  /** Claims the sole logout attempt when retirement and the final release have both occurred. */
   private boolean markLogoutIfReady() {
     if ( retired && activeUses == 0 && !logoutStarted ) {
       logoutStarted = true;
@@ -112,6 +157,7 @@ final class CachedJcrSession {
     return false;
   }
 
+  /** Performs the claimed logout outside the holder monitor so repository I/O cannot block state transitions. */
   private void logoutIfRequired( boolean shouldLogout ) {
     if ( !shouldLogout ) {
       return;

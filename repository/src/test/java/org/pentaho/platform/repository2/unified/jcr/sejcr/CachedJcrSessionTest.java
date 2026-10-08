@@ -35,16 +35,23 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+/**
+ * Unit tests for the lease state machine that coordinates cached JCR session use and retirement.
+ * The mocked session isolates lifecycle accounting from repository behavior; assertions focus on rejecting new
+ * cache users after retirement, preserving existing owners, and attempting logout exactly once.
+ */
 @RunWith( MockitoJUnitRunner.class )
 public class CachedJcrSessionTest {
 
   @Mock private Session session;
 
+  /** Configures each test session as live so logout behavior is observable. */
   @Before
   public void setUp() {
     when( session.isLive() ).thenReturn( true );
   }
 
+  /** Verifies retirement rejects new acquisitions and defers logout until both existing leases are released. */
   @Test
   public void retirementWaitsForAllActiveUsesAndRejectsNewAcquisitions() {
     CachedJcrSession cachedSession = new CachedJcrSession( session );
@@ -64,6 +71,7 @@ public class CachedJcrSessionTest {
     verify( session, times( 1 ) ).logout();
   }
 
+  /** Verifies an already-active bound operation can nest after retirement without reviving cache access. */
   @Test
   public void boundNestedUseCanExtendRetiredSessionWhileOuterLeaseRemainsActive() {
     CachedJcrSession cachedSession = new CachedJcrSession( session );
@@ -82,6 +90,7 @@ public class CachedJcrSessionTest {
     verify( session, times( 1 ) ).logout();
   }
 
+  /** Verifies a bound-use lease cannot resurrect a retired session after its final active lease is gone. */
   @Test
   public void boundUseCannotReviveSessionAfterFinalLeaseWasReleased() {
     CachedJcrSession cachedSession = new CachedJcrSession( session );
@@ -91,6 +100,7 @@ public class CachedJcrSessionTest {
     verify( session, times( 1 ) ).logout();
   }
 
+  /** Verifies each factory acquisition has one consumable handoff and that completed uses balance before logout. */
   @Test
   public void eachFactoryAcquisitionCreatesOneTemplateHandoff() {
     CachedJcrSession cachedSession = new CachedJcrSession( session );
@@ -107,6 +117,7 @@ public class CachedJcrSessionTest {
     verify( session, times( 1 ) ).logout();
   }
 
+  /** Verifies a failed handoff can be rolled back without leaving a stale factory lease for the next acquisition. */
   @Test
   public void failedFactoryHandoffCanBeFollowedByANewTemplateHandoff() {
     CachedJcrSession cachedSession = new CachedJcrSession( session );
@@ -125,6 +136,7 @@ public class CachedJcrSessionTest {
     verify( session, times( 1 ) ).logout();
   }
 
+  /** Verifies retirement with no active owners logs out immediately and remains idempotent. */
   @Test
   public void retirementWithoutActiveUsesLogsOutImmediatelyAndOnlyOnce() {
     CachedJcrSession cachedSession = new CachedJcrSession( session );
@@ -135,6 +147,7 @@ public class CachedJcrSessionTest {
     verify( session, times( 1 ) ).logout();
   }
 
+  /** Verifies an unmatched release is ignored rather than causing an unowned session to be logged out. */
   @Test
   public void unmatchedReleaseDoesNotLogOutSession() {
     CachedJcrSession cachedSession = new CachedJcrSession( session );
@@ -145,6 +158,7 @@ public class CachedJcrSessionTest {
     verify( session, never() ).logout();
   }
 
+  /** Verifies retirement does not invoke logout again when the underlying session is already closed. */
   @Test
   public void retirementDoesNotLogOutSessionThatIsAlreadyClosed() {
     when( session.isLive() ).thenReturn( false );
@@ -155,6 +169,7 @@ public class CachedJcrSessionTest {
     verify( session, never() ).logout();
   }
 
+  /** Verifies a runtime failure from logout is contained by retirement cleanup. */
   @Test
   public void logoutFailureDoesNotEscapeRetirement() {
     doThrow( new IllegalStateException( "logout failed" ) ).when( session ).logout();
@@ -165,6 +180,10 @@ public class CachedJcrSessionTest {
     verify( session, times( 1 ) ).logout();
   }
 
+  /**
+   * Races retirement against the final release and verifies both paths claim at most one logout attempt.
+   * A shared start latch maximizes overlap; worker failures are relayed to the test thread.
+   */
   @Test
   public void concurrentRetirementAndFinalReleaseLogOutExactlyOnce() throws Exception {
     CachedJcrSession cachedSession = new CachedJcrSession( session );
@@ -184,6 +203,14 @@ public class CachedJcrSessionTest {
     verify( session, times( 1 ) ).logout();
   }
 
+  /**
+   * Waits for a shared start signal, invokes one lifecycle operation, and records any worker failure for the test.
+   *
+   * @param start latch that releases the worker into the race
+   * @param completed latch counted down when the worker exits
+   * @param failure first failure observed by any worker
+   * @param operation lifecycle operation assigned to this worker
+   */
   private void runAfterSignal( CountDownLatch start, CountDownLatch completed, AtomicReference<Throwable> failure,
                                Runnable operation ) {
     try {

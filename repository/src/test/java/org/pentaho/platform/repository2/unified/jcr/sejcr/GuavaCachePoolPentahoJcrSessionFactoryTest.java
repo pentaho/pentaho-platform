@@ -52,9 +52,14 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/** Failure injection at the real Guava/factory boundary; repository failures are deliberately mocked. */
+/**
+ * Unit tests for cache configuration, lease handoff, and fallback behavior at the real Guava/factory boundary.
+ * Repository sessions are controlled mocks, allowing failures and eviction races to be deterministic without
+ * requiring repository storage; real-repository lifecycle behavior is covered by the integration tests.
+ */
 public class GuavaCachePoolPentahoJcrSessionFactoryTest {
 
+  /** Verifies guest credentials take the managed direct-login path and are released after template use. */
   @Test
   public void guestCredentialsUseManagedFallbackEvenWithDebugLogging() throws Exception {
     Repository repository = mock( Repository.class );
@@ -86,6 +91,7 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     }
   }
 
+  /** Verifies configured capacity is applied to the cache constructed by the factory. */
   @Test
   public void configuredCacheSizeIsAppliedBeforeBuildingCache() throws Exception {
     Repository repository = mock( Repository.class );
@@ -113,16 +119,25 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     }
   }
 
+  /** Verifies a zero cache size selects one managed direct login rather than repeated cache retries. */
   @Test
   public void zeroCacheSizeUsesBoundedManagedFallback() throws Exception {
     verifyDisabledCache( "0", "300" );
   }
 
+  /** Verifies a zero cache TTL selects the managed direct-login path rather than immediate-expiry churn. */
   @Test
   public void zeroCacheTtlUsesBoundedManagedFallback() throws Exception {
     verifyDisabledCache( "100", "0" );
   }
 
+  /**
+   * Exercises the disabled-cache path for the supplied size/TTL pair and checks callback-scoped cleanup.
+   *
+   * @param size configured maximum cache size
+   * @param ttl configured entry lifetime in seconds
+   * @throws Exception if the mocked repository or template execution fails
+   */
   private void verifyDisabledCache( String size, String ttl ) throws Exception {
     Repository repository = mock( Repository.class );
     List<Session> sessions = new ArrayList<>();
@@ -152,6 +167,16 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     }
   }
 
+  /**
+   * Creates a factory with an isolated Pentaho system configuration for the requested cache settings.
+   * The object factory is deregistered immediately after construction to avoid leaking global test state.
+   *
+   * @param repository mocked repository used by the factory
+   * @param size configured cache size
+   * @param ttl configured cache lifetime in seconds
+   * @return a factory initialized with those settings
+   * @throws Exception if configuration setup or factory construction fails
+   */
   private GuavaCachePoolPentahoJcrSessionFactory configuredFactory( Repository repository, String size, String ttl )
       throws Exception {
     ISystemConfig config = mock( ISystemConfig.class );
@@ -172,6 +197,7 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     }
   }
 
+  /** Verifies repeated eviction is bounded and acquisition eventually uses a direct-login fallback. */
   @Test
   public void repeatedEvictionBeforeAcquisitionHasBoundedLoginAttempts() throws Exception {
     Repository repository = mock( Repository.class );
@@ -197,6 +223,7 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     }
   }
 
+  /** Verifies a fallback session is released when its callback fails and the callback exception remains primary. */
   @Test
   public void uncachedFallbackIsClosedWhenCallbackFails() throws Exception {
     Repository repository = mock( Repository.class );
@@ -232,6 +259,7 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     }
   }
 
+  /** Verifies listener-registration failure rolls back the factory lease before rethrowing the failure. */
   @Test
   public void failedListenerHandoffReleasesFactoryLease() throws Exception {
     Repository repository = mock( Repository.class );
@@ -265,13 +293,11 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
   }
 
   /**
-   * {@code acquireCachedSession()}'s {@code isSessionThreadBound(session, credentialsStrategySessionFactory)}
-   * guard exists to refuse handing out a cached session that is legitimately bound to an active transaction
-   * elsewhere, forcing a fresh session instead. {@code SessionFactoryUtils.isSessionThreadBound(Session, null)}
-   * always returns {@code false} without even inspecting the thread-local binding, so if
-   * {@code credentialsStrategySessionFactory} is never wired to the real owning {@link SessionFactory}, the guard
-   * can never fire regardless of whether the session really is thread-bound.
+   * Verifies an already transaction-bound session is not handed out again by the cache.
+   * The test primes the cache, binds that session under the owning {@link SessionFactory} key, and reacquires the
+   * same credentials; the factory must reject the bound entry and obtain a distinct session.
    */
+  /** Verifies an already transaction-bound session is not handed out again by the cache. */
   @Test
   public void threadBoundCachedSessionIsNotReusedFromTheCache() throws Exception {
     Repository repository = mock( Repository.class );
@@ -306,6 +332,7 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     }
   }
 
+  /** Verifies refresh failure discards the cached entry and its managed fallback closes after callback completion. */
   @Test
   public void failedRefreshDisposesCachedSessionAndFallbackAfterCallback() throws Exception {
     Repository repository = mock( Repository.class );
@@ -345,6 +372,11 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
    * acquiring its OWN, unrelated user's session would be forced to pay, inline, for ANOTHER idle user's slow
    * {@code logout()} I/O as a side effect of crossing {@code maximumSize} - head-of-line blocking / tail-latency
    * injection under eviction churn.
+   */
+  /**
+   * Verifies natural maximum-size eviction dispatches slow logout away from an unrelated acquisition thread.
+   * Latches establish that cleanup starts and finishes, while elapsed time and thread identity guard against
+   * reintroducing synchronous head-of-line blocking.
    */
   @Test
   public void unrelatedAcquisitionIsNotBlockedByAnotherUsersSlowEviction() throws Exception {
@@ -422,8 +454,7 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
         callingThread, logoutThread.get() );
     } finally {
       factory.invalidateCachedSessions();
-      logoutFinished.await( 2, TimeUnit.SECONDS );
-      if ( idleLive.get() ) {
+      if ( !logoutFinished.await( 2, TimeUnit.SECONDS ) && idleLive.get() ) {
         idleSession.logout();
       }
       if ( busySession.isLive() ) {
@@ -432,6 +463,12 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     }
   }
 
+  /**
+   * Creates a live Jackrabbit session mock with observable attributes and lifecycle behavior.
+   *
+   * @return a session whose liveness, attributes, refresh, and logout are controlled by the fixture
+   * @throws Exception if Mockito cannot configure the session fixture
+   */
   private Session trackedSession() throws Exception {
     SessionImpl session = mock( SessionImpl.class );
     AtomicBoolean live = new AtomicBoolean( true );
@@ -455,6 +492,14 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     return session;
   }
 
+  /**
+   * Decorates the real loading cache so each lookup is invalidated before the factory can acquire its holder.
+   * This deterministically exercises the cache-get/lease-acquire race while preserving the actual loader and
+   * removal-listener behavior.
+   *
+   * @param factory factory whose cache is decorated for the test
+   * @throws Exception if the cache cannot be accessed or decorated
+   */
   @SuppressWarnings( "unchecked" )
   private void evictBeforeEveryAcquisition( GuavaCachePoolPentahoJcrSessionFactory factory ) throws Exception {
     // Deterministically model another thread evicting the entry after Guava returns it but before acquire().
