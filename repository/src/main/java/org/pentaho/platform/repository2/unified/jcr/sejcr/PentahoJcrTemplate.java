@@ -21,12 +21,13 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactoryUtils;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import java.io.IOException;
-import java.security.AccessControlException;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -60,15 +61,29 @@ public class PentahoJcrTemplate extends JcrTemplate {
   public Object execute( JcrCallback action, boolean exposeNativeSession ) throws DataAccessException {
 
     Session session = null;
+    CachedJcrSession cachedSession = null;
+    boolean releaseFactoryProtection = true;
+    boolean cachedSessionLeaseAcquired = false;
+    boolean sessionUsageStarted = false;
     try {
       session = getSession();
+      Object attribute = session.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE );
+      if ( attribute instanceof CachedJcrSession ) {
+        cachedSession = (CachedJcrSession) attribute;
+        if ( !cachedSession.consumeFactoryLease() ) {
+          releaseFactoryProtection = false;
+          if ( !cachedSession.acquireForBoundUse() ) {
+            throw new IllegalStateException( "Cannot use a cached JCR session after its final lease was released" );
+          }
+        }
+        cachedSessionLeaseAcquired = true;
+        retainSpringBinding( session, cachedSession );
+      }
       useSession( session );
+      sessionUsageStarted = true;
 
       Session sessionToExpose = ( exposeNativeSession ? session : createSessionProxy( session ) );
-      Object result = action.doInJcr( sessionToExpose );
-      // TODO: does flushing (session.refresh) should work here?
-      // flushIfNecessary(session, existingTransaction);
-      return result;
+      return action.doInJcr( sessionToExpose );
     } catch ( RepositoryException ex ) {
       throw pentahoConvertJcrAccessException( ex );
       // IOException are not converted here
@@ -79,15 +94,31 @@ public class PentahoJcrTemplate extends JcrTemplate {
       // Callback code threw application exception...
       throw pentahoConvertJcrAccessException( ex );
     } finally {
-      // Guard against a null session (e.g. getSession() threw): releaseSession() delegates to
-      // getUsageCount() which requires a non-null session and would otherwise throw here,
-      // masking the original exception from getSession()/doInJcr().
-      if ( session != null ) {
-        try {
-          releaseSession( session );
-        } finally {
-          decrementFactoryProtection( session );
-        }
+      releaseAfterExecution( session, cachedSession, cachedSessionLeaseAcquired,
+        sessionUsageStarted, releaseFactoryProtection );
+    }
+  }
+
+  private void releaseAfterExecution( Session session, CachedJcrSession cachedSession,
+                                      boolean cachedSessionLeaseAcquired, boolean sessionUsageStarted,
+                                      boolean releaseFactoryProtection ) {
+    // Acquisition can fail before a session exists. Cleanup must not mask that original exception.
+    if ( session == null ) {
+      return;
+    }
+    try {
+      if ( sessionUsageStarted ) {
+        releaseSession( session );
+      }
+      if ( releaseFactoryProtection ) {
+        decrementFactoryProtection( session );
+      }
+    } finally {
+      if ( cachedSessionLeaseAcquired ) {
+        // Retain the holder locally: callback cleanup can make session attributes unavailable.
+        cachedSession.release();
+      } else if ( cachedSession == null ) {
+        releaseUncachedSession( session );
       }
     }
   }
@@ -95,10 +126,45 @@ public class PentahoJcrTemplate extends JcrTemplate {
   private void useSession( Session session ) {
     int newCount = getUsageCount( session ).incrementAndGet();
     if ( LOG.isDebugEnabled() ) {
-      LOG.debug( "[JCR-TEMPLATE-USE] Thread=" + Thread.currentThread().getName()
-        + " SessionId=" + System.identityHashCode( session )
-        + " RefCount=" + newCount
-        + " (template acquisition)" );
+      LOG.debug( "[JCR-TEMPLATE-USE] Thread={} SessionId={} RefCount={} (template acquisition)",
+        Thread.currentThread().getName(), System.identityHashCode( session ), newCount );
+    }
+  }
+
+  private void retainSpringBinding( Session session, CachedJcrSession cachedSession ) {
+    if ( !TransactionSynchronizationManager.isSynchronizationActive()
+        || !SessionFactoryUtils.isSessionThreadBound( session, getSessionFactory() ) ) {
+      return;
+    }
+    for ( TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations() ) {
+      if ( synchronization instanceof CachedSessionSynchronization
+          && ( (CachedSessionSynchronization) synchronization ).cachedSession == cachedSession ) {
+        return;
+      }
+    }
+    if ( !cachedSession.acquireForBoundUse() ) {
+      throw new IllegalStateException( "Cannot protect a Spring-bound JCR session after its final lease was released" );
+    }
+    try {
+      // Both SessionFactoryUtils and LocalTransactionManager can bind sessions. Preserve either owner's lifetime,
+      // including suspended synchronizations, without a process-wide registry or one listener per nested callback.
+      TransactionSynchronizationManager.registerSynchronization( new CachedSessionSynchronization( cachedSession ) );
+    } catch ( RuntimeException e ) {
+      cachedSession.release();
+      throw e;
+    }
+  }
+
+  private static final class CachedSessionSynchronization implements TransactionSynchronization {
+    private final CachedJcrSession cachedSession;
+
+    private CachedSessionSynchronization( CachedJcrSession cachedSession ) {
+      this.cachedSession = cachedSession;
+    }
+
+    @Override
+    public void afterCompletion( int status ) {
+      cachedSession.release();
     }
   }
 
@@ -106,10 +172,8 @@ public class PentahoJcrTemplate extends JcrTemplate {
     try {
       int newCount = getUsageCount( session ).decrementAndGet();
       if ( LOG.isDebugEnabled() ) {
-        LOG.debug( "[JCR-TEMPLATE-RELEASE] Thread=" + Thread.currentThread().getName()
-          + " SessionId=" + System.identityHashCode( session )
-          + " RefCount=" + newCount
-          + " (template release)" );
+        LOG.debug( "[JCR-TEMPLATE-RELEASE] Thread={} SessionId={} RefCount={} (template release)",
+          Thread.currentThread().getName(), System.identityHashCode( session ), newCount );
       }
     } catch ( Exception e ) {
       // Cleanup must continue so the cached-session lease is released even if the diagnostic counter is unavailable.
@@ -128,10 +192,9 @@ public class PentahoJcrTemplate extends JcrTemplate {
       if ( usageCount instanceof AtomicInteger ) {
         int count = ( (AtomicInteger) usageCount ).decrementAndGet();
         if ( LOG.isDebugEnabled() ) {
-          LOG.debug( "[JCR-FACTORY-RELEASE] Thread=" + Thread.currentThread().getName()
-            + " SessionId=" + System.identityHashCode( session )
-            + " RefCount=" + count
-            + " (factory protection release" + ( count == 0 ? " - SESSION SAFE FOR EVICTION" : "" ) + ")" );
+          LOG.debug( "[JCR-FACTORY-RELEASE] Thread={} SessionId={} RefCount={} (factory protection release{})",
+            Thread.currentThread().getName(), System.identityHashCode( session ), count,
+            count == 0 ? " - SESSION SAFE FOR EVICTION" : "" );
         }
         if ( count < 0 ) {
           LOG.warn( "[JCR-REFCOUNT-ERROR] Usage count went negative; factory protection decrement imbalance:"
@@ -145,20 +208,15 @@ public class PentahoJcrTemplate extends JcrTemplate {
       // with the full exception: failing to release factory protection can leave a cached session
       // permanently non-evictable, and the stack trace helps diagnose intermittent refcount issues.
       LOG.warn( "Could not decrement factory protection for sessionId=" + System.identityHashCode( session ), e );
-    } finally {
-      releaseCachedSession( session );
     }
   }
 
-  private void releaseCachedSession( Session session ) {
+  private void releaseUncachedSession( Session session ) {
     try {
-      Object cachedSession = session.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE );
-      if ( cachedSession instanceof CachedJcrSession ) {
-        ( (CachedJcrSession) cachedSession ).release();
-      }
+      SessionFactoryUtils.releaseSession( session, getSessionFactory() );
     } catch ( Exception e ) {
       // Do not let cleanup failures mask the result or exception from the JCR callback.
-      LOG.warn( "Could not release cached JCR session lease for sessionId=" + System.identityHashCode( session ), e );
+      LOG.warn( "Could not release uncached JCR session {}", System.identityHashCode( session ), e );
     }
   }
 
@@ -173,8 +231,7 @@ public class PentahoJcrTemplate extends JcrTemplate {
     if ( usageCount instanceof AtomicInteger ) {
       return (AtomicInteger) usageCount;
     } else {
-      LOG.debug( "No usage count associated with session " + session
-        + "\nThis can safely happen with uncached sessions. " );
+      LOG.debug( "No usage count associated with uncached session {}", session );
       return new AtomicInteger( 0 );
     }
   }
@@ -185,7 +242,7 @@ public class PentahoJcrTemplate extends JcrTemplate {
   }
 
   private RuntimeException pentahoConvertJcrAccessException( final RuntimeException ex ) {
-    if ( ex instanceof AccessControlException ) {
+    if ( ex instanceof SecurityException ) {
       return new org.springframework.security.access.AccessDeniedException( Messages.getInstance().getString(
         "PentahoJcrTemplate.ERROR_0001_ACCESS_DENIED" ), ex ); //$NON-NLS-1$
     } else {

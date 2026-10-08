@@ -28,6 +28,7 @@ final class CachedJcrSession {
 
   private final Session session;
   private int activeUses;
+  private int pendingFactoryLeases;
   private boolean retired;
   private boolean logoutStarted;
 
@@ -44,6 +45,23 @@ final class CachedJcrSession {
       return false;
     }
     activeUses++;
+    pendingFactoryLeases++;
+    return true;
+  }
+
+  synchronized boolean consumeFactoryLease() {
+    if ( pendingFactoryLeases == 0 ) {
+      return false;
+    }
+    pendingFactoryLeases--;
+    return true;
+  }
+
+  synchronized boolean acquireForBoundUse() {
+    if ( logoutStarted || ( retired && activeUses == 0 ) ) {
+      return false;
+    }
+    activeUses++;
     return true;
   }
 
@@ -52,6 +70,23 @@ final class CachedJcrSession {
     synchronized ( this ) {
       if ( activeUses == 0 ) {
         LOG.warn( "Ignoring unmatched release for cached JCR session {}", System.identityHashCode( session ) );
+        return;
+      }
+      activeUses--;
+      shouldLogout = markLogoutIfReady();
+    }
+    logoutIfRequired( shouldLogout );
+  }
+
+  void releaseUnhandedFactoryLease() {
+    boolean shouldLogout;
+    synchronized ( this ) {
+      if ( pendingFactoryLeases > 0 ) {
+        pendingFactoryLeases--;
+      }
+      if ( activeUses == 0 ) {
+        LOG.warn( "Ignoring unmatched factory lease release for cached JCR session {}",
+          System.identityHashCode( session ) );
         return;
       }
       activeUses--;

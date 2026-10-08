@@ -51,6 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Copy-and-paste of {@link JcrSessionFactory} except that this implementation delegates to a {@link
@@ -359,8 +360,12 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
       LOG.debug( "using credentials:" + creds );
     }
     Session session = getSessionFactory().getSession( creds );
-    session = createSessionProxy( session );
-    return addListeners( session );
+    try {
+      return addListeners( createSessionProxy( session ) );
+    } catch ( RepositoryException | RuntimeException e ) {
+      discardFailedSession( session );
+      throw e;
+    }
   }
 
   /**
@@ -392,6 +397,25 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    */
   public SessionHolder getSessionHolder( Session session ) {
     return sessionHolderProvider.createSessionHolder( session );
+  }
+
+  private void discardFailedSession( Session session ) {
+    try {
+      Object attribute = session.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE );
+      if ( attribute instanceof CachedJcrSession ) {
+        CachedJcrSession cachedSession = (CachedJcrSession) attribute;
+        cachedSession.retire();
+        Object usageCount = session.getAttribute( GuavaCachePoolPentahoJcrSessionFactory.USAGE_COUNT );
+        if ( usageCount instanceof AtomicInteger ) {
+          ( (AtomicInteger) usageCount ).decrementAndGet();
+        }
+        cachedSession.releaseUnhandedFactoryLease();
+      } else {
+        session.logout();
+      }
+    } catch ( RuntimeException e ) {
+      LOG.warn( "Could not discard JCR session after a failed factory handoff", e );
+    }
   }
 
   /**

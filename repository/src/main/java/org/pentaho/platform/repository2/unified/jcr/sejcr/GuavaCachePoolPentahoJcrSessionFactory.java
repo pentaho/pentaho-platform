@@ -31,6 +31,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,6 +45,8 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
   implements PentahoJcrSessionFactory {
 
   static final String USAGE_COUNT = "usage_count"; // diagnostic count of session usages
+  private static final String REPOSITORY_CONFIG_ID = "repository";
+  private static final int MAX_CACHE_ACQUISITION_ATTEMPTS = 3;
 
   private CredentialsStrategySessionFactory credentialsStrategySessionFactory;
   private int cacheDuration = 300;
@@ -51,6 +54,7 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
 
   private Logger logger = LoggerFactory.getLogger( getClass() );
   private PentahoTransactionManager transactionManager;
+  private final LoadingCache<CacheKey, CachedJcrSession> sessionCache;
 
 
   public GuavaCachePoolPentahoJcrSessionFactory( Repository repository, String workspace ) {
@@ -63,20 +67,22 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
     this.transactionManager = transactionManager;
 
     ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
-    if ( systemConfig != null && systemConfig.getConfiguration( "repository" ) != null ) {
+    if ( systemConfig != null && systemConfig.getConfiguration( REPOSITORY_CONFIG_ID ) != null ) {
       try {
         this.cacheDuration =
-          Integer.parseInt( systemConfig.getConfiguration( "repository" ).getProperties().getProperty(
+          Integer.parseInt( systemConfig.getConfiguration( REPOSITORY_CONFIG_ID ).getProperties().getProperty(
             "cache-ttl", "300" ) );
 
 
         this.cacheSize =
-          Integer.parseInt( systemConfig.getConfiguration( "repository" ).getProperties().getProperty(
+          Integer.parseInt( systemConfig.getConfiguration( REPOSITORY_CONFIG_ID ).getProperties().getProperty(
             "cache-size", "100" ) );
       } catch ( IOException e ) {
         logger.info( "Could not find repository.cache-duration" );
       }
     }
+    // Build only after reading configuration; a field initializer would always use the defaults.
+    this.sessionCache = createSessionCache();
   }
 
   /**
@@ -87,105 +93,145 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
    * {@link PentahoJcrTemplate#execute(org.springframework.extensions.jcr.JcrCallback,
    * boolean)}
    */
-  private LoadingCache<CacheKey, CachedJcrSession> sessionCache =
-    CacheBuilder.newBuilder()
+  private LoadingCache<CacheKey, CachedJcrSession> createSessionCache() {
+    return CacheBuilder.newBuilder()
       .expireAfterAccess( cacheDuration, TimeUnit.SECONDS )
       .maximumSize( cacheSize )
       .removalListener( (RemovalListener<CacheKey, CachedJcrSession>) objectObjectRemovalNotification -> {
         CachedJcrSession cachedSession = objectObjectRemovalNotification.getValue();
         if ( cachedSession != null ) {
-          logger.debug( "Retiring cached session after eviction " + cachedSession.getSession() );
+          logger.debug( "Retiring cached session after eviction {}", cachedSession.getSession() );
           cachedSession.retire();
         }
       } ).recordStats()
       .build( new CacheLoader<CacheKey, CachedJcrSession>() {
         @Override public CachedJcrSession load( CacheKey credKey ) throws Exception {
           Session session = GuavaCachePoolPentahoJcrSessionFactory.super.getSession( credKey.creds );
-          CachedJcrSession cachedSession = new CachedJcrSession( session );
-          if ( session instanceof SessionImpl ) {
-            ( (SessionImpl) session ).setAttribute( CachedJcrSession.SESSION_ATTRIBUTE, cachedSession );
-            ( (SessionImpl) session ).setAttribute( USAGE_COUNT, new AtomicInteger( 0 ) );
-          } else {
-            logger.warn( "Expected a Jackrabbit SessionImpl.  Will not be tracking cached session lifecycle." );
-          }
-          return cachedSession;
+          return trackSession( session );
         }
       } );
+  }
 
-  @Override public Session getSession( Credentials creds ) throws RepositoryException {
-
-
-    // Acquire from cache
-    Session session;
-
-    if ( transactionManager == null || !transactionManager.isCreatingTransaction() ) {
-      if ( logger.isDebugEnabled() ) {
-        logger.debug( "Thread is not transacted, checking cache for session: " + creds );
-      }
-      try {
-        CacheKey key = new CacheKey( creds );
-        while ( true ) {
-          CachedJcrSession cachedSession = sessionCache.get( key );
-          if ( !cachedSession.acquire() ) {
-            sessionCache.asMap().remove( key, cachedSession );
-            continue;
-          }
-          boolean keepLease = false;
-          try {
-            session = cachedSession.getSession();
-            if ( !session.isLive() ) {
-              if ( logger.isDebugEnabled() ) {
-                logger.debug( "Cached session is no longer alive. disposing: " + creds );
-              }
-              sessionCache.asMap().remove( key, cachedSession );
-              continue;
-            }
-
-            if ( SessionFactoryUtils.isSessionThreadBound( session, credentialsStrategySessionFactory ) ) {
-              if ( logger.isDebugEnabled() ) {
-                logger.debug(
-                  "Session is bound to a transaction. This should never happen, ignoring this session and creating a "
-                    + "new session: " + creds );
-              }
-              sessionCache.asMap().remove( key, cachedSession );
-              continue;
-            }
-
-            session.refresh( false );
-
-            // Increment the diagnostic count for this factory retrieval. The matching count and lifecycle lease are
-            // released by the template after execution completes.
-            Object usageCount = session.getAttribute( USAGE_COUNT );
-            if ( usageCount instanceof AtomicInteger ) {
-              ( (AtomicInteger) usageCount ).incrementAndGet();
-            }
-            keepLease = true;
-            return session;
-          } finally {
-            if ( !keepLease ) {
-              cachedSession.release();
-            }
-          }
-        }
-      } catch ( Exception e ) {
-        logger.error( "Error obtaining session from cache. Creating one directly instead: " + creds, e );
-        session = super.getSession( creds );
-      }
+  private CachedJcrSession trackSession( Session session ) {
+    CachedJcrSession cachedSession = new CachedJcrSession( session );
+    if ( session instanceof SessionImpl ) {
+      ( (SessionImpl) session ).setAttribute( CachedJcrSession.SESSION_ATTRIBUTE, cachedSession );
+      ( (SessionImpl) session ).setAttribute( USAGE_COUNT, new AtomicInteger( 0 ) );
     } else {
-      if ( logger.isDebugEnabled() ) {
-        logger.debug( "Thread is transacted, obtaining session directly, not cached: " + creds );
-      }
-      session = super.getSession( creds );
+      logger.warn( "Expected a Jackrabbit SessionImpl. Will not be tracking cached session lifecycle." );
+    }
+    return cachedSession;
+  }
+
+  private Session getUncachedSession( Credentials creds ) throws RepositoryException {
+    Session session = super.getSession( creds );
+    if ( session instanceof SessionImpl ) {
+      CachedJcrSession cachedSession = trackSession( session );
+      cachedSession.acquire();
+      incrementFactoryUsageCount( session, creds );
+      // No cache owns this fallback: close it after the callback and any Spring binding have released it.
+      cachedSession.retire();
     }
     return session;
+  }
+
+  @Override public Session getSession( Credentials creds ) throws RepositoryException {
+    if ( isCreatingTransaction() ) {
+      logger.debug( "Thread is transacted, obtaining session directly, not cached: {}", creds );
+      return super.getSession( creds );
+    }
+    if ( cacheSize == 0 || cacheDuration == 0 ) {
+      return getUncachedSession( creds );
+    }
+
+    logger.debug( "Thread is not transacted, checking cache for session: {}", creds );
+    try {
+      Session session = getCachedSession( creds );
+      if ( session != null ) {
+        return session;
+      }
+    } catch ( Exception e ) {
+      logger.error( "Error obtaining session from cache. Creating one directly instead: {}", creds, e );
+    }
+    return getUncachedSession( creds );
+  }
+
+  private boolean isCreatingTransaction() {
+    return transactionManager != null && transactionManager.isCreatingTransaction();
+  }
+
+  private Session getCachedSession( Credentials creds ) throws Exception {
+    CacheKey key = new CacheKey( creds );
+    for ( int attempt = 0; attempt < MAX_CACHE_ACQUISITION_ATTEMPTS; attempt++ ) {
+      CachedJcrSession cachedSession = sessionCache.get( key );
+      Session session = acquireCachedSession( key, cachedSession, creds );
+      if ( session != null ) {
+        return session;
+      }
+    }
+    logger.debug( "Cache eviction prevented acquisition; using an uncached session for {}", creds );
+    return null;
+  }
+
+  private Session acquireCachedSession( CacheKey key, CachedJcrSession cachedSession, Credentials creds )
+      throws Exception {
+    if ( !cachedSession.acquire() ) {
+      sessionCache.asMap().remove( key, cachedSession );
+      return null;
+    }
+
+    boolean keepLease = false;
+    try {
+      Session session = cachedSession.getSession();
+      if ( !session.isLive() ) {
+        logger.debug( "Cached session is no longer alive. disposing: {}", creds );
+        sessionCache.asMap().remove( key, cachedSession );
+        return null;
+      }
+
+      if ( SessionFactoryUtils.isSessionThreadBound( session, credentialsStrategySessionFactory ) ) {
+        logger.debug( "Session is bound to a transaction. Ignoring it and creating a new session: {}", creds );
+        sessionCache.asMap().remove( key, cachedSession );
+        return null;
+      }
+
+      session.refresh( false );
+      incrementFactoryUsageCount( session, creds );
+      keepLease = true;
+      return session;
+    } catch ( Exception e ) {
+      sessionCache.asMap().remove( key, cachedSession );
+      throw e;
+    } finally {
+      if ( !keepLease ) {
+        cachedSession.releaseUnhandedFactoryLease();
+      }
+    }
+  }
+
+  private void incrementFactoryUsageCount( Session session, Credentials creds ) {
+    Object usageCount = session.getAttribute( USAGE_COUNT );
+    if ( usageCount instanceof AtomicInteger ) {
+      int newCount = ( (AtomicInteger) usageCount ).incrementAndGet();
+      if ( logger.isDebugEnabled() ) {
+        logger.debug( "[JCR-FACTORY-RETRIEVE] Thread={} SessionId={} RefCount={} User={}",
+          Thread.currentThread().getName(), System.identityHashCode( session ), newCount,
+          creds instanceof SimpleCredentials ? ( (SimpleCredentials) creds ).getUserID() : null );
+      }
+    }
+  }
+
+  void invalidateCachedSessions() {
+    sessionCache.invalidateAll();
+    sessionCache.cleanUp();
   }
 
   /**
    * Used by the sessionCache as a key for Jcr Sessions.
    */
-  private class CacheKey {
-    SimpleCredentials creds;
-    Long threadId;
+  private static final class CacheKey {
+    private final SimpleCredentials creds;
+    private final long threadId;
 
     private CacheKey( Credentials creds ) {
       this.creds = (SimpleCredentials) creds;
@@ -203,20 +249,15 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
 
       CacheKey cacheKey = (CacheKey) o;
 
-      if ( creds != null ? !creds.getUserID().equals( cacheKey.creds.getUserID() ) : cacheKey.creds != null ) {
-        return false;
-      }
-      if ( threadId != null ? !threadId.equals( cacheKey.threadId ) : cacheKey.threadId != null ) {
-        return false;
-      }
-
-      return true;
+      return Objects.equals( creds != null ? creds.getUserID() : null,
+        cacheKey.creds != null ? cacheKey.creds.getUserID() : null )
+        && threadId == cacheKey.threadId;
     }
 
     @Override
     public int hashCode() {
       int result = creds != null ? creds.getUserID().hashCode() : 0;
-      result = 31 * result + ( threadId != null ? threadId.hashCode() : 0 );
+      result = 31 * result + Long.hashCode( threadId );
       return result;
     }
   }
