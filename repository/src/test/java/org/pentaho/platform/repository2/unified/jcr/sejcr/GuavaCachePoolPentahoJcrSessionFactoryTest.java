@@ -34,12 +34,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -337,23 +340,20 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
   }
 
   /**
-   * Characterizes a production resilience hazard rather than a functional bug: {@code createSessionCache()}
-   * registers its {@code RemovalListener} on the plain {@link com.google.common.cache.CacheBuilder}, without
-   * {@code RemovalListeners.asynchronous(...)}. Guava therefore runs eviction notifications synchronously, inline,
-   * on whichever caller's thread happens to cross {@code maximumSize} while loading an unrelated key.
-   *
-   * <p>In production this means: an incoming request for user B's session can be forced to pay, inline, for
-   * logging out an idle, completely unrelated user A's session, with no bound on how long that takes (real
-   * {@code Session#logout()} is repository I/O). Under load/eviction churn this turns an O(1) cache hit for one
-   * user into unpredictable tail latency for another. This test proves the hazard is real today; it does not
-   * assert any desired/fixed behavior, since no production code was changed while writing it.</p>
+   * {@code createSessionCache()}'s Guava {@code RemovalListener} must run eviction-triggered
+   * {@code retire()}/{@code session.logout()} asynchronously, off the acquiring thread. Otherwise a thread
+   * acquiring its OWN, unrelated user's session would be forced to pay, inline, for ANOTHER idle user's slow
+   * {@code logout()} I/O as a side effect of crossing {@code maximumSize} - head-of-line blocking / tail-latency
+   * injection under eviction churn.
    */
   @Test
-  public void unrelatedAcquisitionSynchronouslyAbsorbsAnotherUsersSlowEviction() throws Exception {
+  public void unrelatedAcquisitionIsNotBlockedByAnotherUsersSlowEviction() throws Exception {
     long slowLogoutMillis = 300;
     Repository repository = mock( Repository.class );
     AtomicBoolean idleLive = new AtomicBoolean( true );
     AtomicReference<Thread> logoutThread = new AtomicReference<>();
+    CountDownLatch logoutStarted = new CountDownLatch( 1 );
+    CountDownLatch logoutFinished = new CountDownLatch( 1 );
     Map<String, Object> idleAttributes = new ConcurrentHashMap<>();
     SessionImpl idleSession = mock( SessionImpl.class );
     when( idleSession.isLive() ).thenAnswer( invocation -> idleLive.get() );
@@ -367,8 +367,10 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     doAnswer( invocation -> {
       // Simulate slow repository-side logout I/O, and record which thread was forced to pay for it.
       logoutThread.set( Thread.currentThread() );
+      logoutStarted.countDown();
       Thread.sleep( slowLogoutMillis );
       idleLive.set( false );
+      logoutFinished.countDown();
       return null;
     } ).when( idleSession ).logout();
 
@@ -405,17 +407,22 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
       }, true );
       long elapsedMillis = ( System.nanoTime() - before ) / 1_000_000;
 
-      assertFalse( "Loading an unrelated user's session must evict and log out the idle entry", idleLive.get() );
-      assertEquals( "The idle session's slow logout ran inline on the unrelated caller's own thread, not a "
-          + "dedicated background/eviction thread",
+      assertTrue( "The eviction listener must at least start the idle session's logout",
+        logoutStarted.await( 2, TimeUnit.SECONDS ) );
+      assertTrue( "An unrelated session acquisition must return well before another user's slow synchronous "
+          + "logout completes (took " + elapsedMillis + "ms, expected well under " + slowLogoutMillis + "ms)",
+        elapsedMillis < slowLogoutMillis );
+
+      assertTrue( "The idle session's slow logout must eventually complete on a background thread",
+        logoutFinished.await( 2, TimeUnit.SECONDS ) );
+      assertFalse( "Loading an unrelated user's session must still evict and log out the idle entry",
+        idleLive.get() );
+      assertNotEquals( "The idle session's logout must run on a dedicated eviction thread, not the unrelated "
+          + "caller's own thread",
         callingThread, logoutThread.get() );
-      assertTrue( "An unrelated session acquisition absorbed another user's slow synchronous logout and should "
-          + "take at least as long as that logout (took " + elapsedMillis + "ms, expected at least "
-          + slowLogoutMillis + "ms) because Guava's removal listener runs synchronously on the calling thread "
-          + "by default",
-        elapsedMillis >= slowLogoutMillis );
     } finally {
       factory.invalidateCachedSessions();
+      logoutFinished.await( 2, TimeUnit.SECONDS );
       if ( idleLive.get() ) {
         idleSession.logout();
       }
