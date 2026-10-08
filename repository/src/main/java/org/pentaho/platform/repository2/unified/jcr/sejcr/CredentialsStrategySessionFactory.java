@@ -162,13 +162,18 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   public PentahoJcrSessionFactory getSessionFactory() {
     if ( sessionFactory == null ) {
       // use default
-      sessionFactory = new GuavaCachePoolPentahoJcrSessionFactory( this.repository, this.workspaceName, null );
+      setSessionFactory( new GuavaCachePoolPentahoJcrSessionFactory( this.repository, this.workspaceName, null ) );
     }
     return sessionFactory;
   }
 
   public void setSessionFactory( PentahoJcrSessionFactory sessionFactory ) {
     this.sessionFactory = sessionFactory;
+    if ( sessionFactory instanceof GuavaCachePoolPentahoJcrSessionFactory ) {
+      // So the cache's thread-bound guard can recognize sessions bound against this factory as the
+      // Spring SessionFactory key, instead of never firing.
+      ( (GuavaCachePoolPentahoJcrSessionFactory) sessionFactory ).setCredentialsStrategySessionFactory( this );
+    }
   }
 
   public void afterPropertiesSet() throws Exception {

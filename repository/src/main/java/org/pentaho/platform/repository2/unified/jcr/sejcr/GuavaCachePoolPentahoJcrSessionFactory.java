@@ -227,6 +227,15 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
   }
 
   /**
+   * Wires the owning {@link SessionFactory} used as the key for
+   * {@code SessionFactoryUtils.isSessionThreadBound(Session, SessionFactory)}, so a cached session that is
+   * legitimately bound to an active transaction elsewhere is never handed out again from the cache.
+   */
+  void setCredentialsStrategySessionFactory( CredentialsStrategySessionFactory credentialsStrategySessionFactory ) {
+    this.credentialsStrategySessionFactory = credentialsStrategySessionFactory;
+  }
+
+  /**
    * Used by the sessionCache as a key for Jcr Sessions.
    */
   private static final class CacheKey {
