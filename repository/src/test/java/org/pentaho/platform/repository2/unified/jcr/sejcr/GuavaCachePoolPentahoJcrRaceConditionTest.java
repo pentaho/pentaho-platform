@@ -13,7 +13,6 @@
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
-import com.google.common.cache.Cache;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,17 +26,18 @@ import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
-import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -226,49 +226,47 @@ public class GuavaCachePoolPentahoJcrRaceConditionTest {
 
     clearInvocations( cachedSession );
     when( cachedSession.isLive() ).thenReturn( false );
-    getSessionCache( factory ).invalidateAll();
+    factory.invalidateCachedSessions();
 
     verify( cachedSession, never() ).getAttribute( USAGE_COUNT );
     verify( cachedSession, never() ).logout();
   }
 
   @Test
-  public void evictionDuringExecutionLogsOutSessionAfterLastUse() throws Exception {
+  public void refreshFailureReleasesCachedLeaseAndFallsBackToDirectLogin() throws Exception {
     Repository repository = org.mockito.Mockito.mock( Repository.class );
     Session cachedSession = org.mockito.Mockito.mock( Session.class );
+    Session fallbackSession = org.mockito.Mockito.mock( Session.class );
     SimpleCredentials credentials = new SimpleCredentials( "user", "password".toCharArray() );
-    when( repository.login( any( SimpleCredentials.class ), eq( "workspace" ) ) ).thenReturn( cachedSession );
+    when( repository.login( any( SimpleCredentials.class ), eq( "workspace" ) ) )
+      .thenReturn( cachedSession, fallbackSession );
     when( cachedSession.isLive() ).thenReturn( true );
-    when( cachedSession.getAttribute( USAGE_COUNT ) ).thenReturn( usageCount );
+    doThrow( new RepositoryException( "refresh failed" ) ).when( cachedSession ).refresh( false );
 
     GuavaCachePoolPentahoJcrSessionFactory factory =
       new GuavaCachePoolPentahoJcrSessionFactory( repository, "workspace" );
-    factory.getSession( credentials );
-    factory.getSession( credentials );
-    CachedJcrSession lifecycle = (CachedJcrSession) getSessionCache( factory ).asMap().values().iterator().next();
-    when( cachedSession.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE ) ).thenReturn( lifecycle );
 
-    SessionFactory templateSessionFactory = org.mockito.Mockito.mock( SessionFactory.class );
-    when( templateSessionFactory.getSession() ).thenReturn( cachedSession );
-    jcrTemplate.setSessionFactory( templateSessionFactory );
-    when( action.doInJcr( any( Session.class ) ) ).thenAnswer( invocation -> {
-      getSessionCache( factory ).invalidateAll();
-      verify( cachedSession, never() ).logout();
-      return null;
-    } );
-
-    jcrTemplate.execute( action, true );
-    verify( cachedSession, never() ).logout();
-
-    jcrTemplate.execute( action, true );
-
-    verify( cachedSession, times( 1 ) ).logout();
+    assertSame( "A failed cached-session refresh should fall back to a direct repository login",
+      fallbackSession, factory.getSession( credentials ) );
+    verify( repository, times( 2 ) ).login( any( SimpleCredentials.class ), eq( "workspace" ) );
   }
 
-  @SuppressWarnings( "unchecked" )
-  private Cache<?, ?> getSessionCache( GuavaCachePoolPentahoJcrSessionFactory factory ) throws Exception {
-    Field cacheField = GuavaCachePoolPentahoJcrSessionFactory.class.getDeclaredField( "sessionCache" );
-    cacheField.setAccessible( true );
-    return (Cache<?, ?>) cacheField.get( factory );
+  @Test
+  public void sessionCreationDuringTransactionBypassesTheCache() throws Exception {
+    Repository repository = org.mockito.Mockito.mock( Repository.class );
+    Session directSession = org.mockito.Mockito.mock( Session.class );
+    SimpleCredentials credentials = new SimpleCredentials( "user", "password".toCharArray() );
+    when( repository.login( any( SimpleCredentials.class ), eq( "workspace" ) ) ).thenReturn( directSession );
+    PentahoTransactionManager transactionManager = new PentahoTransactionManager() {
+      @Override
+      public boolean isCreatingTransaction() {
+        return true;
+      }
+    };
+    GuavaCachePoolPentahoJcrSessionFactory factory =
+      new GuavaCachePoolPentahoJcrSessionFactory( repository, "workspace", transactionManager );
+
+    assertSame( "Transaction creation must use a direct session", directSession, factory.getSession( credentials ) );
+    verify( repository, times( 1 ) ).login( any( SimpleCredentials.class ), eq( "workspace" ) );
   }
 }
