@@ -5,15 +5,15 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>pentaho-platform-ce-parent</artifactId>
-    <version>10.2.0.6-378</version>
+    <version>10.2.0.9-418</version>
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-repository</artifactId>
-  <version>10.2.0.6-CUST-339</version>
+  <version>10.2.0.9-CUST-339</version>
   <properties>
-    <platform.version>10.2.0.6-378</platform.version>
-    <pentaho-connections.version>10.2.0.6-378</pentaho-connections.version>
-    <pentaho-metadata.version>10.2.0.6-378</pentaho-metadata.version>
+    <platform.version>10.2.0.9-418</platform.version>
+    <pentaho-connections.version>10.2.0.9-418</pentaho-connections.version>
+    <pentaho-metadata.version>10.2.0.9-418</pentaho-metadata.version>
     <license.header.file>${basedir}/../license/templates/GPL-2.0.txt</license.header.file>
     <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
     <commons-lang.version>2.6</commons-lang.version>
