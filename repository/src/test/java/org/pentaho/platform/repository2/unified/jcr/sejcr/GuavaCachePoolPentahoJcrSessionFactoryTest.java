@@ -36,6 +36,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
@@ -290,6 +291,95 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
       factory.invalidateCachedSessions();
       cachedSession.logout();
       fallback.logout();
+    }
+  }
+
+  /**
+   * Characterizes a production resilience hazard rather than a functional bug: {@code createSessionCache()}
+   * registers its {@code RemovalListener} on the plain {@link com.google.common.cache.CacheBuilder}, without
+   * {@code RemovalListeners.asynchronous(...)}. Guava therefore runs eviction notifications synchronously, inline,
+   * on whichever caller's thread happens to cross {@code maximumSize} while loading an unrelated key.
+   *
+   * <p>In production this means: an incoming request for user B's session can be forced to pay, inline, for
+   * logging out an idle, completely unrelated user A's session, with no bound on how long that takes (real
+   * {@code Session#logout()} is repository I/O). Under load/eviction churn this turns an O(1) cache hit for one
+   * user into unpredictable tail latency for another. This test proves the hazard is real today; it does not
+   * assert any desired/fixed behavior, since no production code was changed while writing it.</p>
+   */
+  @Test
+  public void unrelatedAcquisitionSynchronouslyAbsorbsAnotherUsersSlowEviction() throws Exception {
+    long slowLogoutMillis = 300;
+    Repository repository = mock( Repository.class );
+    AtomicBoolean idleLive = new AtomicBoolean( true );
+    AtomicReference<Thread> logoutThread = new AtomicReference<>();
+    Map<String, Object> idleAttributes = new ConcurrentHashMap<>();
+    SessionImpl idleSession = mock( SessionImpl.class );
+    when( idleSession.isLive() ).thenAnswer( invocation -> idleLive.get() );
+    when( idleSession.getAttribute( any( String.class ) ) )
+      .thenAnswer( invocation -> idleAttributes.get( invocation.getArgument( 0 ) ) );
+    doAnswer( invocation -> {
+      idleAttributes.put( invocation.getArgument( 0 ), invocation.getArgument( 1 ) );
+      return null;
+    } ).when( idleSession ).setAttribute( any( String.class ), any() );
+    doAnswer( invocation -> null ).when( idleSession ).refresh( false );
+    doAnswer( invocation -> {
+      // Simulate slow repository-side logout I/O, and record which thread was forced to pay for it.
+      logoutThread.set( Thread.currentThread() );
+      Thread.sleep( slowLogoutMillis );
+      idleLive.set( false );
+      return null;
+    } ).when( idleSession ).logout();
+
+    Session busySession = trackedSession();
+    SimpleCredentials idleUser = new SimpleCredentials( "idle-user", new char[ 0 ] );
+    SimpleCredentials busyUser = new SimpleCredentials( "busy-user", new char[ 0 ] );
+    when( repository.login( eq( idleUser ), eq( "workspace" ) ) ).thenReturn( idleSession );
+    when( repository.login( eq( busyUser ), eq( "workspace" ) ) ).thenReturn( busySession );
+
+    // maximumSize=1 forces Guava to evict the idle entry as soon as a second, unrelated user's entry is loaded.
+    GuavaCachePoolPentahoJcrSessionFactory factory = configuredFactory( repository, "1", "300" );
+    try {
+      SessionFactory idleFactory = mock( SessionFactory.class );
+      when( idleFactory.getSession() ).thenAnswer( invocation -> factory.getSession( idleUser ) );
+      PentahoJcrTemplate idleTemplate = new PentahoJcrTemplate();
+      idleTemplate.setSessionFactory( idleFactory );
+      idleTemplate.setAllowCreate( true );
+      idleTemplate.execute( session -> null, true );
+      assertTrue( "The idle user's cached session must still be live before the unrelated acquisition",
+        idleLive.get() );
+
+      SessionFactory busyFactory = mock( SessionFactory.class );
+      when( busyFactory.getSession() ).thenAnswer( invocation -> factory.getSession( busyUser ) );
+      PentahoJcrTemplate busyTemplate = new PentahoJcrTemplate();
+      busyTemplate.setSessionFactory( busyFactory );
+      busyTemplate.setAllowCreate( true );
+
+      Thread callingThread = Thread.currentThread();
+      long before = System.nanoTime();
+      busyTemplate.execute( session -> {
+        assertSame( "An unrelated user must still receive its own session despite the eviction side effect",
+          busySession, session );
+        return null;
+      }, true );
+      long elapsedMillis = ( System.nanoTime() - before ) / 1_000_000;
+
+      assertFalse( "Loading an unrelated user's session must evict and log out the idle entry", idleLive.get() );
+      assertEquals( "The idle session's slow logout ran inline on the unrelated caller's own thread, not a "
+          + "dedicated background/eviction thread",
+        callingThread, logoutThread.get() );
+      assertTrue( "An unrelated session acquisition absorbed another user's slow synchronous logout and should "
+          + "take at least as long as that logout (took " + elapsedMillis + "ms, expected at least "
+          + slowLogoutMillis + "ms) because Guava's removal listener runs synchronously on the calling thread "
+          + "by default",
+        elapsedMillis >= slowLogoutMillis );
+    } finally {
+      factory.invalidateCachedSessions();
+      if ( idleLive.get() ) {
+        idleSession.logout();
+      }
+      if ( busySession.isLive() ) {
+        busySession.logout();
+      }
     }
   }
 
