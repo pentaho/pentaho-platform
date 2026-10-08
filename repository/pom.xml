@@ -9,7 +9,7 @@
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>pentaho-platform-repository</artifactId>
-  <version>10.2.0.6-CUST-339-SNAPSHOT</version>
+  <version>10.2.0.6-CUST-339</version>
   <properties>
     <platform.version>10.2.0.6-378</platform.version>
     <pentaho-connections.version>10.2.0.6-378</pentaho-connections.version>
