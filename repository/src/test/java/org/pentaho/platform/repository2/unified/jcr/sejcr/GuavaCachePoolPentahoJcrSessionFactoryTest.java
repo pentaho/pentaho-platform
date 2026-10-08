@@ -261,6 +261,48 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     }
   }
 
+  /**
+   * {@code acquireCachedSession()}'s {@code isSessionThreadBound(session, credentialsStrategySessionFactory)}
+   * guard exists to refuse handing out a cached session that is legitimately bound to an active transaction
+   * elsewhere, forcing a fresh session instead. {@code SessionFactoryUtils.isSessionThreadBound(Session, null)}
+   * always returns {@code false} without even inspecting the thread-local binding, so if
+   * {@code credentialsStrategySessionFactory} is never wired to the real owning {@link SessionFactory}, the guard
+   * can never fire regardless of whether the session really is thread-bound.
+   */
+  @Test
+  public void threadBoundCachedSessionIsNotReusedFromTheCache() throws Exception {
+    Repository repository = mock( Repository.class );
+    Session boundSession = trackedSession();
+    Session freshSession = trackedSession();
+    SimpleCredentials credentials = new SimpleCredentials( "user", new char[ 0 ] );
+    when( repository.login( credentials, "workspace" ) ).thenReturn( boundSession, freshSession );
+
+    GuavaCachePoolPentahoJcrSessionFactory factory =
+      new GuavaCachePoolPentahoJcrSessionFactory( repository, "workspace" );
+    CredentialsStrategySessionFactory credentialsFactory =
+      new CredentialsStrategySessionFactory( repository, new ConstantCredentialsStrategy( credentials ) );
+    credentialsFactory.setSessionFactory( factory );
+
+    Session primed = factory.getSession( credentials );
+    assertSame( "Sanity check: the cache must hand out the session it just created", boundSession, primed );
+
+    // Simulate the cached session legitimately being bound to an active Spring-managed transaction elsewhere,
+    // under the exact key (credentialsFactory) the template/transaction infrastructure binds against.
+    org.springframework.transaction.support.TransactionSynchronizationManager.bindResource(
+      credentialsFactory, new org.springframework.extensions.jcr.SessionHolder( primed ) );
+    try {
+      Session reacquired = factory.getSession( credentials );
+      assertFalse( "A session already bound to an active transaction must never be handed out again from the "
+          + "cache while that binding is active",
+        boundSession == reacquired );
+    } finally {
+      org.springframework.transaction.support.TransactionSynchronizationManager.unbindResource( credentialsFactory );
+      factory.invalidateCachedSessions();
+      boundSession.logout();
+      freshSession.logout();
+    }
+  }
+
   @Test
   public void failedRefreshDisposesCachedSessionAndFallbackAfterCallback() throws Exception {
     Repository repository = mock( Repository.class );
