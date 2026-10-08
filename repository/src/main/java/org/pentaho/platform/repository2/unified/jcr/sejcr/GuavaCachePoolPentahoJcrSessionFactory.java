@@ -18,6 +18,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalListeners;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -32,6 +33,8 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -47,6 +50,15 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
   static final String USAGE_COUNT = "usage_count"; // diagnostic count of session usages
   private static final String REPOSITORY_CONFIG_ID = "repository";
   private static final int MAX_CACHE_ACQUISITION_ATTEMPTS = 3;
+
+  // Shared across all factory instances: eviction-triggered logout is repository I/O and must never run
+  // synchronously on whichever caller's thread happens to cross maximumSize/TTL for an unrelated cache entry.
+  private static final ExecutorService EVICTION_EXECUTOR = Executors.newCachedThreadPool(
+    runnable -> {
+      Thread thread = new Thread( runnable, "jcr-cached-session-eviction" );
+      thread.setDaemon( true );
+      return thread;
+    } );
 
   private CredentialsStrategySessionFactory credentialsStrategySessionFactory;
   private int cacheDuration = 300;
@@ -97,13 +109,14 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
     return CacheBuilder.newBuilder()
       .expireAfterAccess( cacheDuration, TimeUnit.SECONDS )
       .maximumSize( cacheSize )
-      .removalListener( (RemovalListener<CacheKey, CachedJcrSession>) objectObjectRemovalNotification -> {
-        CachedJcrSession cachedSession = objectObjectRemovalNotification.getValue();
-        if ( cachedSession != null ) {
-          logger.debug( "Retiring cached session after eviction {}", cachedSession.getSession() );
-          cachedSession.retire();
-        }
-      } ).recordStats()
+      .removalListener( RemovalListeners.asynchronous(
+        (RemovalListener<CacheKey, CachedJcrSession>) objectObjectRemovalNotification -> {
+          CachedJcrSession cachedSession = objectObjectRemovalNotification.getValue();
+          if ( cachedSession != null ) {
+            logger.debug( "Retiring cached session after eviction {}", cachedSession.getSession() );
+            cachedSession.retire();
+          }
+        }, EVICTION_EXECUTOR ) ).recordStats()
       .build( new CacheLoader<CacheKey, CachedJcrSession>() {
         @Override public CachedJcrSession load( CacheKey credKey ) throws Exception {
           Session session = GuavaCachePoolPentahoJcrSessionFactory.super.getSession( credKey.creds );
