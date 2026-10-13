@@ -95,9 +95,10 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
   @Test
   public void configuredCacheSizeIsAppliedBeforeBuildingCache() throws Exception {
     Repository repository = mock( Repository.class );
+    CountDownLatch firstSessionClosed = new CountDownLatch( 1 );
     List<Session> sessions = new ArrayList<>();
     when( repository.login( any( SimpleCredentials.class ), eq( "workspace" ) ) ).thenAnswer( invocation -> {
-      Session session = trackedSession();
+      Session session = trackedSession( sessions.isEmpty() ? firstSessionClosed : null );
       sessions.add( session );
       return session;
     } );
@@ -112,6 +113,8 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
         template.setAllowCreate( true );
         template.execute( session -> null, true );
       }
+      assertTrue( "The evicted least-recently-used session should eventually be logged out",
+        firstSessionClosed.await( 5, TimeUnit.SECONDS ) );
       assertEquals( "The configured capacity must evict an idle entry on the third distinct user",
         1, sessions.stream().filter( session -> !session.isLive() ).count() );
     } finally {
@@ -263,7 +266,8 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
   @Test
   public void failedListenerHandoffReleasesFactoryLease() throws Exception {
     Repository repository = mock( Repository.class );
-    Session cachedSession = trackedSession();
+    CountDownLatch cachedSessionClosed = new CountDownLatch( 1 );
+    Session cachedSession = trackedSession( cachedSessionClosed );
     SimpleCredentials credentials = new SimpleCredentials( "user", new char[ 0 ] );
     when( repository.login( credentials, "workspace" ) ).thenReturn( cachedSession );
     GuavaCachePoolPentahoJcrSessionFactory factory =
@@ -286,6 +290,8 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
         assertSame( listenerFailure, expected );
       }
       factory.invalidateCachedSessions();
+      assertTrue( "The invalidated session should close after the failed handoff releases its lease",
+        cachedSessionClosed.await( 5, TimeUnit.SECONDS ) );
       assertFalse( "A factory lease must be rolled back when the proxy never reaches a template", cachedSession.isLive() );
     } finally {
       cachedSession.logout();
@@ -336,7 +342,8 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
   @Test
   public void failedRefreshDisposesCachedSessionAndFallbackAfterCallback() throws Exception {
     Repository repository = mock( Repository.class );
-    Session cachedSession = trackedSession();
+    CountDownLatch cachedSessionClosed = new CountDownLatch( 1 );
+    Session cachedSession = trackedSession( cachedSessionClosed );
     Session fallback = trackedSession();
     when( repository.login( any( SimpleCredentials.class ), eq( "workspace" ) ) )
       .thenReturn( cachedSession, fallback );
@@ -356,6 +363,8 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
         assertTrue( "The fallback must stay live during the callback", session.isLive() );
         return null;
       }, true );
+      assertTrue( "A failed cached session should be logged out asynchronously after its lease is released",
+        cachedSessionClosed.await( 5, TimeUnit.SECONDS ) );
       assertFalse( "A failed cached session must be discarded rather than failing on every cache hit",
         cachedSession.isLive() );
       assertFalse( "An uncached fallback must not be orphaned after its callback", fallback.isLive() );
@@ -470,6 +479,11 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
    * @throws Exception if Mockito cannot configure the session fixture
    */
   private Session trackedSession() throws Exception {
+    return trackedSession( null );
+  }
+
+  /** Creates a tracked session and optionally signals when its logout completes. */
+  private Session trackedSession( CountDownLatch logoutCompleted ) throws Exception {
     SessionImpl session = mock( SessionImpl.class );
     AtomicBoolean live = new AtomicBoolean( true );
     Map<String, Object> attributes = new ConcurrentHashMap<>();
@@ -481,6 +495,9 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     } ).when( session ).setAttribute( any( String.class ), any() );
     doAnswer( invocation -> {
       live.set( false );
+      if ( logoutCompleted != null ) {
+        logoutCompleted.countDown();
+      }
       return null;
     } ).when( session ).logout();
     doAnswer( invocation -> {
