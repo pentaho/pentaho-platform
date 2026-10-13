@@ -34,8 +34,9 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -53,17 +54,22 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
   /** Maximum number of cache lookup/lease-acquisition races before using a direct-login fallback. */
   private static final int MAX_CACHE_ACQUISITION_ATTEMPTS = 3;
 
+  /** Maximum number of eviction cleanups (repository logouts) that may run concurrently. */
+  static final int MAX_CONCURRENT_EVICTION_CLEANUPS = 4;
+  /** Idle time after which an eviction worker thread exits, so an idle system holds no cleanup threads. */
+  private static final long EVICTION_WORKER_KEEP_ALIVE_SECONDS = 60;
+
   /**
    * Shared daemon executor for eviction cleanup. Session logout may perform repository I/O, so dispatching Guava
-    * removal notifications here prevents an unrelated cache-acquisition thread from blocking on that work. The
-    * cached pool can expand when multiple slow cleanups overlap; its daemon threads do not keep the JVM alive.
+   * removal notifications here prevents an unrelated cache-acquisition thread from blocking on that work.
+   * <p>
+   * Concurrency is bounded at {@link #MAX_CONCURRENT_EVICTION_CLEANUPS} worker threads, so slow or stuck logouts
+   * cannot exhaust native threads. Notifications beyond that wait in an unbounded queue: a retired session must
+   * always be logged out eventually, so cleanup is never rejected, dropped or run on the thread that triggered the
+   * eviction. Each queued entry is only a retired holder awaiting logout, and the queue grows only as fast as cache
+   * entries are evicted.
    */
-  private static final ExecutorService EVICTION_EXECUTOR = Executors.newCachedThreadPool(
-    runnable -> {
-      Thread thread = new Thread( runnable, "jcr-cached-session-eviction" );
-      thread.setDaemon( true );
-      return thread;
-    } );
+  static final ThreadPoolExecutor EVICTION_EXECUTOR = createEvictionExecutor();
 
   /** Owning Spring factory used to detect sessions already bound under its transaction resource key. */
   private CredentialsStrategySessionFactory credentialsStrategySessionFactory;
@@ -71,7 +77,8 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
   private int cacheSize = 100;
 
   private Logger logger = LoggerFactory.getLogger( getClass() );
-  private PentahoTransactionManager transactionManager;
+  /** Reports whether a REQUIRES_NEW transaction is being created; {@code null} disables the cache bypass. */
+  private volatile PentahoTransactionManager transactionManager;
   /** Cache of per-thread session lifecycle holders. */
   private final LoadingCache<CacheKey, CachedJcrSession> sessionCache;
 
@@ -119,8 +126,23 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
     this.sessionCache = createSessionCache();
   }
 
-  /**
-  * Builds the cache keyed by credentials and calling thread ID, keeping concurrent callers on separate entries.
+  /**   * Creates the bounded daemon pool used for eviction cleanup; idle workers time out.
+   *
+   * @return the configured executor
+   */
+  private static ThreadPoolExecutor createEvictionExecutor() {
+    ThreadPoolExecutor executor = new ThreadPoolExecutor( MAX_CONCURRENT_EVICTION_CLEANUPS,
+      MAX_CONCURRENT_EVICTION_CLEANUPS, EVICTION_WORKER_KEEP_ALIVE_SECONDS, TimeUnit.SECONDS,
+      new LinkedBlockingQueue<>(), runnable -> {
+        Thread thread = new Thread( runnable, "jcr-cached-session-eviction" );
+        thread.setDaemon( true );
+        return thread;
+      } );
+    executor.allowCoreThreadTimeOut( true );
+    return executor;
+  }
+
+  /**  * Builds the cache keyed by credentials and calling thread ID, keeping concurrent callers on separate entries.
    * Removal notifications retire lifecycle holders asynchronously; active holders defer logout until their leases
    * are released. The loader wraps each newly logged-in session with its lifecycle holder.
    *
@@ -187,15 +209,18 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
 
   /**
    * Returns a session for the supplied credentials, using the per-thread cache when eligible and a managed direct
-   * login when caching is disabled, transaction creation is in progress, or cache acquisition cannot complete.
+   * login when caching is disabled or cache acquisition cannot complete. A {@code REQUIRES_NEW} transaction being
+   * created gets a direct login that never enters the cache, so it cannot share a session with the transaction it
+   * suspends.
    *
    * @param creds credentials for the repository login
    * @return a session for the caller; cached sessions carry a factory lease until the template accepts or rolls it back
    * @throws RepositoryException if the direct or fallback repository login fails
    */
   @Override public Session getSession( Credentials creds ) throws RepositoryException {
-    if ( isCreatingTransaction() ) {
-      logger.debug( "Thread is transacted, obtaining session directly, not cached: {}", creds );
+    if ( isCreatingIndependentTransaction() ) {
+      logger.debug( "An independent transaction is being created, obtaining session directly, not cached: {}",
+        creds );
       return super.getSession( creds );
     }
     if ( cacheSize == 0 || cacheDuration == 0 ) {
@@ -215,12 +240,13 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
   }
 
   /**
-   * Reports whether the configured transaction manager is currently creating a transaction.
+   * Reports whether the configured transaction manager is currently beginning a {@code REQUIRES_NEW} transaction.
    *
-   * @return {@code true} when the manager identifies a transaction-creation context
+   * @return {@code true} when a manager is configured and an independent transaction is being created
    */
-  private boolean isCreatingTransaction() {
-    return transactionManager != null && transactionManager.isCreatingTransaction();
+  private boolean isCreatingIndependentTransaction() {
+    PentahoTransactionManager manager = transactionManager;
+    return manager != null && manager.isCreatingIndependentTransaction();
   }
 
   /**
@@ -228,9 +254,10 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
    *
    * @param creds credentials used to derive the cache key
    * @return an acquired live session, or {@code null} when all attempts lose to eviction
-   * @throws Exception if cache loading or session validation fails
+   * @throws ExecutionException if loading a session into the cache fails
+   * @throws RepositoryException if validating or refreshing the cached session fails
    */
-  private Session getCachedSession( Credentials creds ) throws Exception {
+  private Session getCachedSession( Credentials creds ) throws ExecutionException, RepositoryException {
     CacheKey key = new CacheKey( creds );
     for ( int attempt = 0; attempt < MAX_CACHE_ACQUISITION_ATTEMPTS; attempt++ ) {
       CachedJcrSession cachedSession = sessionCache.get( key );
@@ -251,10 +278,10 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
    * @param cachedSession holder returned by the cache
    * @param creds credentials used for diagnostics
    * @return the live session when acquisition succeeds; {@code null} when the holder cannot be used
-   * @throws Exception if validation or refresh throws after removing the invalid entry
+   * @throws RepositoryException if refreshing the session fails; the invalid entry is removed first
    */
   private Session acquireCachedSession( CacheKey key, CachedJcrSession cachedSession, Credentials creds )
-      throws Exception {
+      throws RepositoryException {
     if ( !cachedSession.acquire() ) {
       sessionCache.asMap().remove( key, cachedSession );
       return null;
@@ -326,6 +353,17 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
    */
   void setCredentialsStrategySessionFactory( CredentialsStrategySessionFactory credentialsStrategySessionFactory ) {
     this.credentialsStrategySessionFactory = credentialsStrategySessionFactory;
+  }
+
+  /**{@code REQUIRES_NEW} transaction is being created. While
+   * one is, sessions are logged in directly and never taken from, or shared through, the per-thread cache: the new
+   *er taken from, or shared through, the per-thread cache: a transaction owns its session,
+   * and a {@code REQUIRES_NEW} transaction must not reuse the session of the transaction it suspended.
+   *
+   * @param transactionManager manager reporting transaction creation; {@code null} disables the bypass
+   */
+  void setTransactionManager( PentahoTransactionManager transactionManager ) {
+    this.transactionManager = transactionManager;
   }
 
   /**

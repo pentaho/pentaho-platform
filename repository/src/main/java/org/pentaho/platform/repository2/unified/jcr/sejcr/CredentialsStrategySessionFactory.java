@@ -100,6 +100,11 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
 
   protected PentahoJcrSessionFactory sessionFactory;
 
+  /**
+   * Transaction manager bound to this factory, if any. It is handed to a cache-backed delegate so that a
+   * {@code REQUIRES_NEW} transaction's session bypasses the per-thread cache.
+   */
+  private PentahoTransactionManager transactionManager;
   private LogoutSuppressingInvocationHandler.LogoutDelegate logoutDelegate =
       LogoutSuppressingInvocationHandler.LogoutDelegate.DefaultLogoutDelegate;
 
@@ -162,30 +167,50 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   /**
    * Returns the configured delegate, lazily creating the default cache-backed factory when necessary.
    * The default factory is wired back to this {@code SessionFactory} so thread-bound session detection uses the same
-   * Spring resource key as transaction binding.
+   * Spring resource key as transaction binding, and it receives the registered transaction manager.
    *
    * @return the delegate used to acquire repository sessions
    */
   public PentahoJcrSessionFactory getSessionFactory() {
     if ( sessionFactory == null ) {
       // use default
-      setSessionFactory( new GuavaCachePoolPentahoJcrSessionFactory( this.repository, this.workspaceName, null ) );
+      setSessionFactory(
+        new GuavaCachePoolPentahoJcrSessionFactory( this.repository, this.workspaceName, transactionManager ) );
     }
     return sessionFactory;
   }
 
   /**
    * Sets the delegate used to acquire sessions and wires this factory as the resource key for a Guava delegate's
-   * thread-bound-session guard.
+   * thread-bound-session guard. A transaction manager already registered with this factory is passed on as well.
    *
    * @param sessionFactory delegate to configure; may be {@code null} to restore lazy default creation
    */
   public void setSessionFactory( PentahoJcrSessionFactory sessionFactory ) {
     this.sessionFactory = sessionFactory;
     if ( sessionFactory instanceof GuavaCachePoolPentahoJcrSessionFactory ) {
+      GuavaCachePoolPentahoJcrSessionFactory cacheFactory = (GuavaCachePoolPentahoJcrSessionFactory) sessionFactory;
       // So the cache's thread-bound guard can recognize sessions bound against this factory as the
       // Spring SessionFactory key, instead of never firing.
-      ( (GuavaCachePoolPentahoJcrSessionFactory) sessionFactory ).setCredentialsStrategySessionFactory( this );
+      cacheFactory.setCredentialsStrategySessionFactory( this );
+      if ( transactionManager != null ) {
+        cacheFactory.setTransactionManager( transactionManager );
+      }
+    }
+  }
+
+  /**
+   * Registers the transaction manager that begins transactions on this factory's sessions. A cache-backed delegate
+   * then logs in directly while a {@code REQUIRES_NEW} transaction is being created, so that transaction never reuses
+   * the session of the transaction it suspended. {@link PentahoTransactionManager#setSessionFactory} calls this
+   * automatically.
+   *
+   * @param transactionManager the manager bound to this factory; may be {@code null} to remove the registration
+   */
+  public void setTransactionManager( PentahoTransactionManager transactionManager ) {
+    this.transactionManager = transactionManager;
+    if ( sessionFactory instanceof GuavaCachePoolPentahoJcrSessionFactory ) {
+      ( (GuavaCachePoolPentahoJcrSessionFactory) sessionFactory ).setTransactionManager( transactionManager );
     }
   }
 

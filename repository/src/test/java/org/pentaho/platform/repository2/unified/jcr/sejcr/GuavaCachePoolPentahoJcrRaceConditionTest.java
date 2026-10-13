@@ -252,7 +252,7 @@ public class GuavaCachePoolPentahoJcrRaceConditionTest {
     verify( repository, times( 2 ) ).login( any( SimpleCredentials.class ), eq( "workspace" ) );
   }
 
-  /** Verifies session acquisition bypasses the cache while the transaction manager is creating a transaction. */
+  /** Verifies session acquisition bypasses the cache while an independent transaction is being created. */
   @Test
   public void sessionCreationDuringTransactionBypassesTheCache() throws Exception {
     Repository repository = org.mockito.Mockito.mock( Repository.class );
@@ -261,7 +261,7 @@ public class GuavaCachePoolPentahoJcrRaceConditionTest {
     when( repository.login( any( SimpleCredentials.class ), eq( "workspace" ) ) ).thenReturn( directSession );
     PentahoTransactionManager transactionManager = new PentahoTransactionManager() {
       @Override
-      public boolean isCreatingTransaction() {
+      public boolean isCreatingIndependentTransaction() {
         return true;
       }
     };

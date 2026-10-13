@@ -14,6 +14,7 @@
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
+import org.springframework.extensions.jcr.SessionFactory;
 import org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
@@ -26,6 +27,21 @@ import org.springframework.transaction.TransactionException;
  */
 public class PentahoTransactionManager extends LocalTransactionManager {
   private ThreadLocal<TransactionDefinition> activeTransactionDefinition = new ThreadLocal<>();
+
+  /**
+   * Sets the session factory transactions are opened on and, when it is a {@link CredentialsStrategySessionFactory},
+   * registers this manager with it. The factory's cache-backed delegate can then tell that a {@code REQUIRES_NEW}
+   * transaction is being created and log in directly instead of sharing the thread's cached session.
+   *
+   * @param sessionFactory the session factory used to begin transactions
+   */
+  @Override
+  public void setSessionFactory( SessionFactory sessionFactory ) {
+    super.setSessionFactory( sessionFactory );
+    if ( sessionFactory instanceof CredentialsStrategySessionFactory ) {
+      ( (CredentialsStrategySessionFactory) sessionFactory ).setTransactionManager( this );
+    }
+  }
 
   @Override protected void doBegin( Object transaction, TransactionDefinition transactionDefinition )
     throws TransactionException {
@@ -66,5 +82,19 @@ public class PentahoTransactionManager extends LocalTransactionManager {
       default:
         return false;
     }
+  }
+
+  /**
+   * Returns whether a {@code PROPAGATION_REQUIRES_NEW} transaction is in the process of being created. Such a
+   * transaction suspends the one in progress on this thread and must run on a session of its own: handing it the
+   * thread's cached session would share that session with the suspended transaction, and the inner commit would save
+   * the outer transaction's unsaved changes.
+   *
+   * @return {@code true} only while a {@code REQUIRES_NEW} transaction is being begun on this thread
+   */
+  public boolean isCreatingIndependentTransaction() {
+    TransactionDefinition definition = activeTransactionDefinition.get();
+    return definition != null
+      && definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW;
   }
 }
