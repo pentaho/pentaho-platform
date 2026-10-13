@@ -34,6 +34,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
 import javax.jcr.Session;
 import javax.jcr.Binary;
@@ -49,6 +50,7 @@ import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.jcr.RepositoryFileProxy;
 import org.pentaho.platform.repository2.unified.jcr.transform.SimpleRepositoryFileDataTransformer;
 import org.springframework.extensions.jcr.SessionFactory;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -239,7 +241,7 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
       }
       assertEquals( workers * rounds, sessions.size() );
       for ( Session session : sessions ) {
-        assertFalse( "Every evicted real session must close after its callback", session.isLive() );
+        awaitSessionClosed( session, "Every evicted real session must close after its callback" );
       }
     } finally {
       futures.forEach( future -> future.cancel( true ) );
@@ -305,7 +307,7 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
           return null;
         } );
 
-        assertFalse( "The inner transaction must dispose its evicted session", innerSession.get().isLive() );
+        awaitSessionClosed( innerSession.get(), "The inner transaction must dispose its evicted session" );
         assertTrue( "Completing the inner transaction must not release the suspended outer lease",
           outerSession.get().isLive() );
         jcrTemplate.execute( session -> {
@@ -315,7 +317,7 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
         }, true );
         return null;
       } );
-      assertFalse( "The outer transaction must dispose its session only after completing", outerSession.get().isLive() );
+      awaitSessionClosed( outerSession.get(), "The outer transaction must dispose its session only after completing" );
       assertFalse( "Transaction completion must leave no JCR binding",
         TransactionSynchronizationManager.hasResource( credentialsFactory ) );
     } finally {
@@ -325,6 +327,64 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
           session.logout();
         }
       }
+    }
+  }
+
+  /**
+   * Verifies the repository Spring configuration wires the Pentaho transaction manager to the session cache, which is
+   * what lets the cache log in directly while a transaction is being created.
+   */
+  @Test
+  public void springConfigurationWiresTheTransactionManagerToTheSessionCache() {
+    CredentialsStrategySessionFactory credentialsFactory =
+      (CredentialsStrategySessionFactory) jcrTemplate.getSessionFactory();
+    GuavaCachePoolPentahoJcrSessionFactory cacheFactory =
+      (GuavaCachePoolPentahoJcrSessionFactory) credentialsFactory.getSessionFactory();
+
+    Object transactionManager = jcrTransactionTemplate.getTransactionManager();
+
+    assertTrue( "The transaction manager must report transaction creation",
+      transactionManager instanceof PentahoTransactionManager );
+    assertSame( "The session cache must use the same transaction manager", transactionManager,
+      ReflectionTestUtils.getField( cacheFactory, "transactionManager" ) );
+  }
+
+  /**
+   * Verifies a {@code REQUIRES_NEW} transaction gets its own session rather than the cached session of the
+   * transaction it suspended: sharing would let the inner commit save the outer transaction's unsaved changes, so
+   * those changes must survive neither the inner transaction nor the outer rollback.
+   */
+  @Test
+  public void requiresNewTransactionDoesNotShareOrCommitTheSuspendedTransactionsChanges() {
+    loginAsRepositoryAdmin();
+    TransactionTemplate requiresNew = new TransactionTemplate( jcrTransactionTemplate.getTransactionManager() );
+    requiresNew.setPropagationBehavior( TransactionDefinition.PROPAGATION_REQUIRES_NEW );
+    String nodeName = "suspended-transaction-" + UUID.randomUUID();
+
+    try {
+      jcrTransactionTemplate.execute( outerTransaction -> {
+        jcrTemplate.execute( session -> {
+          session.getRootNode().addNode( nodeName );
+          return null;
+        }, true );
+
+        requiresNew.execute( innerTransaction -> jcrTemplate.execute( session -> {
+          assertFalse( "REQUIRES_NEW must not see the suspended transaction's unsaved changes",
+            session.hasPendingChanges() );
+          return null;
+        }, true ) );
+
+        outerTransaction.setRollbackOnly();
+        return null;
+      } );
+
+      jcrTemplate.execute( session -> {
+        assertFalse( "The rolled-back outer transaction's node must not have been committed by the inner one",
+          session.getRootNode().hasNode( nodeName ) );
+        return null;
+      }, true );
+    } finally {
+      removeTestNode( nodeName );
     }
   }
 
@@ -371,7 +431,7 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
         }
         return null;
       } );
-      assertFalse( "The write session must be closed after transaction completion", writeSession.get().isLive() );
+      awaitSessionClosed( writeSession.get(), "The write session must be closed after transaction completion" );
       jcrTemplate.execute( session -> {
         assertEquals( "Eviction must not change commit/rollback semantics", !rollback, session.getRootNode().hasNode( nodeName ) );
         return null;
@@ -418,7 +478,7 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
       assertNotNull( "The callback should have received a repository session", session );
       assertEquals( "The template should release its usage count after the callback", 0,
         ( (AtomicInteger) session.getAttribute( GuavaCachePoolPentahoJcrSessionFactory.USAGE_COUNT ) ).get() );
-      assertFalse( "An evicted session must be logged out after its final use", session.isLive() );
+      awaitSessionClosed( session, "An evicted session must be logged out after its final use" );
     } finally {
       Session session = evictedSession.get();
       if ( session != null && session.isLive() ) {
@@ -455,8 +515,8 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
       assertNotNull( "The callback should have received a repository session", session );
       assertEquals( "The template should release its usage count after callback failure", 0,
         ( (AtomicInteger) session.getAttribute( GuavaCachePoolPentahoJcrSessionFactory.USAGE_COUNT ) ).get() );
-      assertFalse( "An evicted session must be logged out after its final use, even when the callback fails",
-        session.isLive() );
+      awaitSessionClosed( session,
+        "An evicted session must be logged out after its final use, even when the callback fails" );
     } finally {
       Session session = evictedSession.get();
       if ( session != null && session.isLive() ) {
@@ -535,14 +595,28 @@ public class GuavaCachePoolPentahoJcrOrphanedSessionIT extends DefaultUnifiedRep
 
       assertNotNull( "Outer callback should have received a session", outerSession.get() );
       assertNotNull( "Nested callback should have received a session", innerSession.get() );
-      assertFalse( "Logout should occur after nested uses and their Spring synchronization release the session",
-        outerSession.get().isLive() );
+      awaitSessionClosed( outerSession.get(),
+        "Logout should occur after nested uses and their Spring synchronization release the session" );
     } finally {
       Session session = outerSession.get();
       if ( session != null && session.isLive() ) {
         session.logout();
       }
     }
+  }
+
+  /**
+   * Waits for the asynchronous cache-removal cleanup to close a real repository session.
+   *
+   * @param session session expected to be closed by the removal listener or the final lease release
+   * @param message assertion message describing the lifecycle expectation
+   */
+  private void awaitSessionClosed( Session session, String message ) {
+    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos( 10 );
+    while ( session.isLive() && System.nanoTime() < deadline ) {
+      LockSupport.parkNanos( TimeUnit.MILLISECONDS.toNanos( 10 ) );
+    }
+    assertFalse( message, session.isLive() );
   }
 
 }

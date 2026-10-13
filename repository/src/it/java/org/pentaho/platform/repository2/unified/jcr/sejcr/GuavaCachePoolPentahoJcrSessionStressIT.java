@@ -35,6 +35,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.LockSupport;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -279,17 +280,26 @@ public class GuavaCachePoolPentahoJcrSessionStressIT {
       return System.nanoTime() - startNanos;
     }
 
-    /** Checks session creation, closure, and duplicate-logout totals when correctness validation is enabled. */
+    /**
+     * Checks session creation, closure, and duplicate-logout totals when correctness validation is enabled. Eviction
+     * cleanup is asynchronous, so closures are awaited for a bounded time before the totals are compared.
+     */
     private void validateSessions() {
       if ( validate ) {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos( 30 );
+        while ( metrics.closed.get() < metrics.created.get() && System.nanoTime() < deadline ) {
+          LockSupport.parkNanos( TimeUnit.MILLISECONDS.toNanos( 10 ) );
+        }
         assertEquals( "All sessions must be disposed after callbacks and final cache invalidation",
           metrics.created.get(), metrics.closed.get() );
         assertEquals( "Session logout must happen at most once", 0, metrics.duplicateLogouts.get() );
       }
     }
 
-    /** Intentional CLI benchmark protocol: metrics must reach stdout even without an SLF4J provider. */
-    /** Writes one locale-stable benchmark row, including latency, resource, and lifecycle measurements. */
+    /**
+     * Writes one locale-stable benchmark row, including latency, resource, and lifecycle measurements.
+     * This is an intentional CLI benchmark protocol: metrics must reach stdout even without an SLF4J provider.
+     */
     @SuppressWarnings( "java:S106" )
     private void printResult( long elapsed ) {
       System.out.printf( Locale.ROOT,

@@ -16,6 +16,9 @@ package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.SessionFactory;
+import org.springframework.extensions.jcr.SessionHolder;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,17 +29,22 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -196,6 +204,144 @@ public class PentahoJcrTemplateTest {
 
     assertSame( acquisitionFailure, actual );
     verifyNoInteractions( session, action );
+  }
+
+  /**
+   * Verifies a Spring-bound session survives eviction between callbacks: it is closed only when the bound
+   * synchronization completes, and only once, even though the callbacks released their own leases.
+   */
+  @Test
+  public void boundSessionStaysOpenUntilTransactionCompletionEvenAfterRetirement() throws Exception {
+    CachedJcrSession cachedSession = new CachedJcrSession( session );
+    assertTrue( cachedSession.acquire() );
+    when( session.isLive() ).thenReturn( true );
+    when( session.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE ) ).thenReturn( cachedSession );
+    when( action.doInJcr( session ) ).thenAnswer( invocation -> {
+      cachedSession.retire();
+      return null;
+    } );
+
+    bindSessionToTransaction();
+    try {
+      jcrTemplate.execute( action, true );
+
+      verify( session, never() ).logout();
+      completeSynchronizations();
+      verify( session, times( 1 ) ).logout();
+    } finally {
+      unbindSessionFromTransaction();
+    }
+  }
+
+  /**
+   * Verifies sequential callbacks in one transaction share a single synchronization, reuse the bound session without
+   * a new factory handoff, and leave the retired session open until the transaction completes.
+   */
+  @Test
+  public void callbacksInOneTransactionShareOneSynchronizationAndReuseTheBoundSession() throws Exception {
+    CachedJcrSession cachedSession = new CachedJcrSession( session );
+    assertTrue( cachedSession.acquire() );
+    when( session.isLive() ).thenReturn( true );
+    when( session.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE ) ).thenReturn( cachedSession );
+
+    bindSessionToTransaction();
+    try {
+      jcrTemplate.execute( action, true );
+      jcrTemplate.execute( nestedAction, true );
+
+      verify( action ).doInJcr( session );
+      verify( nestedAction ).doInJcr( session );
+      assertEquals( "Both callbacks must be retained by one synchronization", 1,
+        TransactionSynchronizationManager.getSynchronizations().size() );
+
+      cachedSession.retire();
+      verify( session, never() ).logout();
+      completeSynchronizations();
+      verify( session, times( 1 ) ).logout();
+    } finally {
+      unbindSessionFromTransaction();
+    }
+  }
+
+  /** Verifies a session whose final lease was already released is refused instead of being revived. */
+  @Test
+  public void sessionWhoseFinalLeaseWasReleasedCannotBeUsedAgain() throws Exception {
+    CachedJcrSession cachedSession = new CachedJcrSession( session );
+    when( session.isLive() ).thenReturn( true );
+    cachedSession.retire();
+    when( session.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE ) ).thenReturn( cachedSession );
+
+    IllegalStateException actual =
+      assertThrows( IllegalStateException.class, () -> jcrTemplate.execute( action, true ) );
+
+    assertTrue( actual.getMessage().contains( "final lease was released" ) );
+    verify( action, never() ).doInJcr( any() );
+    verify( session, times( 1 ) ).logout();
+  }
+
+  /** Verifies a bound session that cannot be retained for its transaction fails instead of being used unprotected. */
+  @Test
+  public void boundSessionThatCannotBeRetainedForItsTransactionFails() throws Exception {
+    CachedJcrSession cachedSession = spy( new CachedJcrSession( session ) );
+    doReturn( true ).when( cachedSession ).consumeFactoryLease();
+    doReturn( false ).when( cachedSession ).acquireForBoundUse();
+    when( session.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE ) ).thenReturn( cachedSession );
+
+    bindSessionToTransaction();
+    try {
+      IllegalStateException actual =
+        assertThrows( IllegalStateException.class, () -> jcrTemplate.execute( action, true ) );
+
+      assertTrue( actual.getMessage().contains( "Spring-bound" ) );
+      verify( action, never() ).doInJcr( any() );
+    } finally {
+      unbindSessionFromTransaction();
+    }
+  }
+
+  /** Verifies a failure while closing an uncached session is contained and does not change the callback result. */
+  @Test
+  public void failureClosingAnUncachedSessionDoesNotAffectTheCallbackResult() throws Exception {
+    when( action.doInJcr( session ) ).thenReturn( "result" );
+    doThrow( new IllegalStateException( "logout failed" ) ).when( session ).logout();
+
+    assertEquals( "result", jcrTemplate.execute( action, true ) );
+
+    verify( session, times( 1 ) ).logout();
+  }
+
+  /** Verifies a session without a usage-count attribute is still used and released safely. */
+  @Test
+  public void sessionWithoutUsageCountAttributeIsStillExecuted() throws Exception {
+    when( session.getAttribute( USAGE_COUNT ) ).thenReturn( null );
+    when( action.doInJcr( session ) ).thenReturn( "result" );
+
+    assertEquals( "result", jcrTemplate.execute( action, true ) );
+
+    verify( action ).doInJcr( session );
+  }
+
+  /** Binds the mock session to the template's session factory inside an active synchronization scope. */
+  private void bindSessionToTransaction() {
+    TransactionSynchronizationManager.initSynchronization();
+    SessionHolder holder = new SessionHolder( session );
+    // Prevents SessionFactoryUtils from registering its own synchronization for this holder.
+    holder.setSynchronizedWithTransaction( true );
+    TransactionSynchronizationManager.bindResource( sessionFactory, holder );
+  }
+
+  /** Removes the binding and synchronization scope created by {@link #bindSessionToTransaction()}. */
+  private void unbindSessionFromTransaction() {
+    TransactionSynchronizationManager.unbindResource( sessionFactory );
+    TransactionSynchronizationManager.clearSynchronization();
+  }
+
+  /** Completes every synchronization registered in the current scope as if the transaction had committed. */
+  private void completeSynchronizations() {
+    List<TransactionSynchronization> synchronizations = TransactionSynchronizationManager.getSynchronizations();
+    for ( TransactionSynchronization synchronization : synchronizations ) {
+      synchronization.afterCompletion( TransactionSynchronization.STATUS_COMMITTED );
+    }
   }
 
 }

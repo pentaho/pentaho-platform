@@ -18,9 +18,11 @@ import org.apache.jackrabbit.api.XASession;
 import org.junit.Test;
 import org.springframework.extensions.jcr.SessionFactory;
 import org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 
+import javax.jcr.Repository;
 import javax.transaction.xa.XAResource;
 import java.util.Arrays;
 import java.util.List;
@@ -89,6 +91,55 @@ public class PentahoTransactionManagerTest {
     transactionManager.getTransaction( transactionDefinition );
 
 
+  }
+
+  /**
+   * Verifies only a {@code REQUIRES_NEW} transaction is reported as independent, and only while it is being begun.
+   * Other propagation behaviors keep using the thread's session, as does code that is not beginning a transaction.
+   */
+  @Test
+  public void isCreatingIndependentTransaction() throws Exception {
+    PentahoTransactionManager transactionManager = new PentahoTransactionManager();
+    SessionFactory sessionFactory = mock( SessionFactory.class );
+    XASession xaSession = mock( XASession.class );
+    when( xaSession.getXAResource() ).thenReturn( mock( XAResource.class ) );
+    transactionManager.setSessionFactory( sessionFactory );
+    TransactionDefinition transactionDefinition = mock( TransactionDefinition.class );
+    when( transactionDefinition.getIsolationLevel() ).thenReturn( -1 );
+    assertFalse( "Nothing is being created outside doBegin", transactionManager.isCreatingIndependentTransaction() );
+
+    List<Boolean> observed = new java.util.ArrayList<>();
+    when( sessionFactory.getSession() ).then( invocation -> {
+      for ( Integer propagation : Arrays.asList( TransactionDefinition.PROPAGATION_REQUIRED,
+        TransactionDefinition.PROPAGATION_NESTED, TransactionDefinition.PROPAGATION_SUPPORTS,
+        TransactionDefinition.PROPAGATION_REQUIRES_NEW ) ) {
+        when( transactionDefinition.getPropagationBehavior() ).thenReturn( propagation );
+        observed.add( transactionManager.isCreatingIndependentTransaction() );
+      }
+      return xaSession;
+    } );
+
+    transactionManager.getTransaction( transactionDefinition );
+
+    assertEquals( Arrays.asList( false, false, false, true ), observed );
+    assertFalse( "Nothing is being created after doBegin", transactionManager.isCreatingIndependentTransaction() );
+  }
+
+  /**
+   * Verifies that binding the manager to a {@link CredentialsStrategySessionFactory} registers it with that factory
+   * and its cache-backed delegate, which is what lets session creation tell that a transaction is being created.
+   */
+  @Test
+  public void setSessionFactoryRegistersTheManagerWithACredentialsStrategySessionFactory() {
+    CredentialsStrategySessionFactory sessionFactory =
+      new CredentialsStrategySessionFactory( mock( Repository.class ), mock( CredentialsStrategy.class ) );
+    PentahoTransactionManager transactionManager = new PentahoTransactionManager();
+
+    transactionManager.setSessionFactory( sessionFactory );
+
+    assertSame( sessionFactory, transactionManager.getSessionFactory() );
+    assertSame( transactionManager,
+      ReflectionTestUtils.getField( sessionFactory.getSessionFactory(), "transactionManager" ) );
   }
 
 }

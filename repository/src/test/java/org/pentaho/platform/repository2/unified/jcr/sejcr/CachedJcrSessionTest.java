@@ -158,6 +158,17 @@ public class CachedJcrSessionTest {
     verify( session, never() ).logout();
   }
 
+  /** Verifies rolling back a factory lease that was never taken is ignored and leaves the holder usable. */
+  @Test
+  public void unmatchedFactoryLeaseRollbackDoesNotLogOutSession() {
+    CachedJcrSession cachedSession = new CachedJcrSession( session );
+
+    cachedSession.releaseUnhandedFactoryLease();
+
+    assertTrue( "The holder must remain usable after an ignored rollback", cachedSession.acquire() );
+    verify( session, never() ).logout();
+  }
+
   /** Verifies retirement does not invoke logout again when the underlying session is already closed. */
   @Test
   public void retirementDoesNotLogOutSessionThatIsAlreadyClosed() {
