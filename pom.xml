@@ -161,7 +161,6 @@
     <hamcrest-library.version>1.3</hamcrest-library.version>
     <xmlenc.version>0.52</xmlenc.version>
     <jsendnsca.version>2.0.1</jsendnsca.version>
-    <neethi.version>2.0.1</neethi.version>
     <barbecue.version>1.5-beta1</barbecue.version>
     <antlr-complete.version>3.5.2</antlr-complete.version>
     <license.inception.year>2002</license.inception.year>
