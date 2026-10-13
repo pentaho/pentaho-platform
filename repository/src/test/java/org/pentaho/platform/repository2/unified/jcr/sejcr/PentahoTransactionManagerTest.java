@@ -98,6 +98,7 @@ public class PentahoTransactionManagerTest {
    * Other propagation behaviors keep using the thread's session, as does code that is not beginning a transaction.
    */
   @Test
+  @SuppressWarnings( "java:S1874" ) // The manager's doBegin requires Jackrabbit's (deprecated) XASession.
   public void isCreatingIndependentTransaction() throws Exception {
     PentahoTransactionManager transactionManager = new PentahoTransactionManager();
     SessionFactory sessionFactory = mock( SessionFactory.class );

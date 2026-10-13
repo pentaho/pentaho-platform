@@ -139,7 +139,7 @@ public class CredentialsStrategySessionFactoryTest {
 
   /** Verifies a direct session is logged out when the proxy/listener handoff fails, and the failure propagates. */
   @Test
-  public void failedHandoffLogsOutADirectSession() throws Exception {
+  public void failedHandoffLogsOutADirectSession() {
     RepositoryException failure = new RepositoryException( "listener registration failed" );
     CredentialsStrategySessionFactory factory = failingHandoffFactory( credentials -> underlyingSession, failure );
 
@@ -151,7 +151,7 @@ public class CredentialsStrategySessionFactoryTest {
 
   /** Verifies a cached session's diagnostic count and lease are rolled back when the handoff fails. */
   @Test
-  public void failedHandoffRollsBackACachedSessionsCountAndLease() throws Exception {
+  public void failedHandoffRollsBackACachedSessionsCountAndLease() {
     RepositoryException failure = new RepositoryException( "listener registration failed" );
     CachedJcrSession holder = new CachedJcrSession( underlyingSession );
     assertTrue( holder.acquire() );
@@ -170,7 +170,7 @@ public class CredentialsStrategySessionFactoryTest {
 
   /** Verifies a cached session without a usage counter is still retired and released when the handoff fails. */
   @Test
-  public void failedHandoffReleasesACachedSessionThatHasNoUsageCounter() throws Exception {
+  public void failedHandoffReleasesACachedSessionThatHasNoUsageCounter() {
     RepositoryException failure = new RepositoryException( "listener registration failed" );
     CachedJcrSession holder = new CachedJcrSession( underlyingSession );
     assertTrue( holder.acquire() );
@@ -185,7 +185,7 @@ public class CredentialsStrategySessionFactoryTest {
 
   /** Verifies a failure while discarding the session is contained and the original handoff failure still propagates. */
   @Test
-  public void failureDiscardingASessionDoesNotMaskTheHandoffFailure() throws Exception {
+  public void failureDiscardingASessionDoesNotMaskTheHandoffFailure() {
     RepositoryException failure = new RepositoryException( "listener registration failed" );
     when( underlyingSession.getAttribute( any( String.class ) ) )
       .thenThrow( new IllegalStateException( "session attributes are unavailable" ) );

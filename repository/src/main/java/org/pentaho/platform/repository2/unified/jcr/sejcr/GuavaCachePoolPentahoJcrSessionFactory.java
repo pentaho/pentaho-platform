@@ -77,8 +77,11 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
   private int cacheSize = 100;
 
   private Logger logger = LoggerFactory.getLogger( getClass() );
-  /** Reports whether a REQUIRES_NEW transaction is being created; {@code null} disables the cache bypass. */
-  private volatile PentahoTransactionManager transactionManager;
+  /**
+   * Reports whether a REQUIRES_NEW transaction is being created; {@code null} disables the cache bypass. Set while the
+   * Spring context wires the factory, before it serves requests.
+   */
+  private PentahoTransactionManager transactionManager;
   /** Cache of per-thread session lifecycle holders. */
   private final LoadingCache<CacheKey, CachedJcrSession> sessionCache;
 
@@ -245,8 +248,7 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
    * @return {@code true} when a manager is configured and an independent transaction is being created
    */
   private boolean isCreatingIndependentTransaction() {
-    PentahoTransactionManager manager = transactionManager;
-    return manager != null && manager.isCreatingIndependentTransaction();
+    return transactionManager != null && transactionManager.isCreatingIndependentTransaction();
   }
 
   /**
