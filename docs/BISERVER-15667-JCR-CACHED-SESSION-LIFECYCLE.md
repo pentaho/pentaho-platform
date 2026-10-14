@@ -4,6 +4,12 @@ This document records the problem behind BISERVER-15667 (pull request #6371), wh
 
 All code is in module `repository`, package `org.pentaho.platform.repository2.unified.jcr.sejcr`.
 
+## Relationship to BISERVER-14405 and PR #6329
+
+This change continues the JCR session-cache work from [PR #6329](https://github.com/pentaho/pentaho-platform/pull/6329), which was merged for BISERVER-14405. That PR addressed the excessive log and disk growth caused by cache eviction: it guarded eviction of dead or in-use sessions, restored `PentahoJcrTemplate` wiring so the cache's usage protection was applied, fixed tenant-manager stack-trace logging, and repaired and re-enabled `FileResourceIT` and `UserRoleDaoIT`.
+
+Those changes reduced the log-growth symptoms and restored the affected tests, but they did not establish safe ownership of a cached session across acquisition, template callbacks, transaction binding, eviction, and lazy reads. In particular, a session could still be logged out while an operation was using it, or remain open after eviction because no owner was responsible for its eventual logout. PR #6371 (BISERVER-15667) continues that work by adding explicit session leases and coordinating retirement with the final release. Therefore, PR #6329 alone does not fully address the session-lifecycle problem tracked by the Jira; this follow-up addresses the remaining ownership and cleanup races described below.
+
 ## 1. Background: how sessions are cached
 
 Jackrabbit sessions are expensive to create, so `GuavaCachePoolPentahoJcrSessionFactory` keeps a Guava `LoadingCache` of sessions keyed by *(user, thread)*. A session is handed to `PentahoJcrTemplate.execute(...)`, which runs a callback with it. A session can also be bound to a Spring transaction (or to a read-only `SUPPORTS` synchronization) and then be used by several callbacks over the life of that operation.
