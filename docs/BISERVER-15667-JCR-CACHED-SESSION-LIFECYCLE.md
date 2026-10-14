@@ -8,7 +8,7 @@ All code is in module `repository`, package `org.pentaho.platform.repository2.un
 
 Jackrabbit sessions are expensive to create, so `GuavaCachePoolPentahoJcrSessionFactory` keeps a Guava `LoadingCache` of sessions keyed by *(user, thread)*. A session is handed to `PentahoJcrTemplate.execute(...)`, which runs a callback with it. A session can also be bound to a Spring transaction (or to a read-only `SUPPORTS` synchronization) and then be used by several callbacks over the life of that operation.
 
-The cache evicts by size (`cache-size`, default 100) and by idle time (`cache-ttl`, default 300 seconds), both read from the `repository` system configuration. Eviction can happen at any moment, on any thread that touches the cache.
+The cache evicts by size (`cache-size`, default 100) and by idle time (`cache-ttl`, default 300 seconds). Those values are read from the `repository` system configuration in the factory constructor, via `ISystemConfig.getConfiguration( REPOSITORY_CONFIG_ID )`, before the Guava cache is created. The production defaults live in [assemblies/pentaho-solutions/src/main/resources/pentaho-solutions/system/repository.spring.properties](../assemblies/pentaho-solutions/src/main/resources/pentaho-solutions/system/repository.spring.properties), where they are defined as `cache-size=100` and `cache-ttl=300`. Eviction can happen at any moment, on any thread that touches the cache.
 
 ## 2. The problem
 
@@ -27,7 +27,7 @@ Reproducing and reviewing the fix exposed other defects, in the original code or
 
 | Defect | Consequence |
 |---|---|
-| Cache size and TTL were read *after* the cache was built (a field initializer used the defaults) | Configured `cache-size` / `cache-ttl` were ignored |
+| Cache size and TTL were read *after* the cache was built (a field initializer used the defaults) | Configured `cache-size` / `cache-ttl` were ignored because the values were being loaded from `ISystemConfig` too late |
 | `credentialsStrategySessionFactory` was never assigned, so the thread-bound-session guard compared against `null` | The guard that stops a transaction-bound session being handed out again never fired |
 | A session whose `refresh` failed stayed in the cache | Every later caller got the same broken session |
 | Direct-login fallback sessions, and sessions whose proxy or listener setup failed, were never closed | Leaked sessions |
