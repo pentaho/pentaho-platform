@@ -76,10 +76,25 @@ public class CredentialsStrategySessionFactoryTest {
     verify( underlyingSession, times( 0 ) ).logout();
 
     logoutHandler.setLogout( true );
+    when( underlyingSession.isLive() ).thenReturn( true );
     // This should hit the real session
     sessionProxy.logout();
     verify( underlyingSession, times( 1 ) ).logout();
 
+  }
+
+  /**
+   * Verifies a second logout through the proxy is not forwarded once the session is closed, as happens when the
+   * transaction manager closes its bound proxy after the cached-session lease already logged the session out.
+   */
+  @Test
+  public void repeatedLogoutOfAnAlreadyClosedSessionIsNotForwarded() throws Exception {
+    when( underlyingSession.isLive() ).thenReturn( true, false );
+
+    sessionProxy.logout();
+    sessionProxy.logout();
+
+    verify( underlyingSession, times( 1 ) ).logout();
   }
 
   /** Verifies the lazily created default delegate is cache-backed and wired to this factory and its transaction manager. */

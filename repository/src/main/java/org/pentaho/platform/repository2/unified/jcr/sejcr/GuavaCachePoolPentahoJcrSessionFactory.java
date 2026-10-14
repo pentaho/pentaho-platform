@@ -98,8 +98,8 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
 
   /**
    * Creates a cache-backed factory and optionally bypasses the cache while a transaction is being created.
-  * Cache configuration is read before the cache is constructed; a size or TTL of zero selects managed direct
-  * sessions instead of retaining entries.
+   * Cache configuration is read before the cache is constructed; a size or TTL of zero selects managed direct
+   * sessions instead of retaining entries.
    *
    * @param repository repository used to create JCR sessions
    * @param workspace workspace passed to repository login
@@ -129,7 +129,8 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
     this.sessionCache = createSessionCache();
   }
 
-  /**   * Creates the bounded daemon pool used for eviction cleanup; idle workers time out.
+  /**
+   * Creates the bounded daemon pool used for eviction cleanup; idle workers time out.
    *
    * @return the configured executor
    */
@@ -145,7 +146,8 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
     return executor;
   }
 
-  /**  * Builds the cache keyed by credentials and calling thread ID, keeping concurrent callers on separate entries.
+  /**
+   * Builds the cache keyed by credentials and calling thread ID, keeping concurrent callers on separate entries.
    * Removal notifications retire lifecycle holders asynchronously; active holders defer logout until their leases
    * are released. The loader wraps each newly logged-in session with its lifecycle holder.
    *
@@ -226,7 +228,9 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
         creds );
       return super.getSession( creds );
     }
-    if ( cacheSize == 0 || cacheDuration == 0 ) {
+    // The cache key is built from SimpleCredentials; other credential types (for example GuestCredentials) are
+    // not cacheable, so they take the managed direct login instead of failing in the cache and logging an error.
+    if ( cacheSize == 0 || cacheDuration == 0 || ( creds != null && !( creds instanceof SimpleCredentials ) ) ) {
       return getUncachedSession( creds );
     }
 
@@ -347,20 +351,21 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
   }
 
   /**
-  * Wires the owning {@link SessionFactory} used as the key for
-  * {@code SessionFactoryUtils.isSessionThreadBound(Session, SessionFactory)}. Without this reference, the guard
-  * cannot detect a session bound to this factory and may return it again from the cache.
-  *
-  * @param credentialsStrategySessionFactory owning Spring session factory used for resource lookup
+   * Wires the owning {@link SessionFactory} used as the key for
+   * {@code SessionFactoryUtils.isSessionThreadBound(Session, SessionFactory)}. Without this reference, the guard
+   * cannot detect a session bound to this factory and may return it again from the cache.
+   *
+   * @param credentialsStrategySessionFactory owning Spring session factory used for resource lookup
    */
   void setCredentialsStrategySessionFactory( CredentialsStrategySessionFactory credentialsStrategySessionFactory ) {
     this.credentialsStrategySessionFactory = credentialsStrategySessionFactory;
   }
 
-  /**{@code REQUIRES_NEW} transaction is being created. While
-   * one is, sessions are logged in directly and never taken from, or shared through, the per-thread cache: the new
-   *er taken from, or shared through, the per-thread cache: a transaction owns its session,
-   * and a {@code REQUIRES_NEW} transaction must not reuse the session of the transaction it suspended.
+  /**
+   * Registers the manager that reports when a {@code REQUIRES_NEW} transaction is being created. While one is,
+   * sessions are logged in directly and never taken from, or shared through, the per-thread cache: a transaction
+   * owns its session, and a {@code REQUIRES_NEW} transaction must not reuse the session of the transaction it
+   * suspended.
    *
    * @param transactionManager manager reporting transaction creation; {@code null} disables the bypass
    */
@@ -369,8 +374,8 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
   }
 
   /**
-  * Immutable cache key that partitions a credentials identity by the requesting thread ID.
-  * Credentials equality intentionally uses the user ID; the thread component keeps concurrent callers separated.
+   * Immutable cache key that partitions a credentials identity by the requesting thread ID.
+   * Credentials equality intentionally uses the user ID; the thread component keeps concurrent callers separated.
    */
   private static final class CacheKey {
     /** Credentials used to derive the user identity portion of this key. */

@@ -734,7 +734,9 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
       } else if ( method.getName().equals( "hashCode" ) ) {
         return this.hashCode();
       } else if ( method.getName().equals( "logout" ) ) {
-        if ( logoutDelegate.shouldLogout() ) {
+        // Spring runs transaction synchronizations (which can release the last cached-session lease and log the
+        // session out) before the transaction manager closes its bound proxy, so the session may already be closed.
+        if ( logoutDelegate.shouldLogout() && target.isLive() ) {
           target.logout();
         }
         return null;
