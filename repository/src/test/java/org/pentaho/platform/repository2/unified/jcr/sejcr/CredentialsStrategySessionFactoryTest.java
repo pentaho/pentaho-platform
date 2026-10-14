@@ -89,7 +89,7 @@ public class CredentialsStrategySessionFactoryTest {
    * transaction manager closes its bound proxy after the cached-session lease already logged the session out.
    */
   @Test
-  public void repeatedLogoutOfAnAlreadyClosedSessionIsNotForwarded() throws Exception {
+  public void repeatedLogoutOfAnAlreadyClosedSessionIsNotForwarded() {
     when( underlyingSession.isLive() ).thenReturn( true, false );
 
     sessionProxy.logout();

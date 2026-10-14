@@ -37,6 +37,7 @@ Reproducing and reviewing the fix exposed other defects, in the original code or
 | Cache acquisition retried without limit when every returned entry was evicted | Unbounded logins under continuous eviction (found in the first version of the fix) |
 | DEBUG logging cast credentials to `SimpleCredentials` | `ClassCastException` for `GuestCredentials` |
 | In CE, `PentahoTransactionManager` was not wired into the session cache | A `REQUIRES_NEW` transaction could be handed the session of the transaction it suspended (section 4.5) |
+| `RepositoryFileProxy` objects are resolved lazily, after the callback that created them, and nothing kept their cached session open | Once eviction closed that session, the lazy read failed: `This session has been closed` logged as ERROR, a missing value, or an HTTP 500 on a listing (section 4.6) |
 
 ## 3. Solution overview
 
@@ -57,6 +58,7 @@ stateDiagram-v2
 | Factory hand-off (`acquire()`) | The cache factory when it returns a cached session | Consumed by the template (`consumeFactoryLease()`), or rolled back (`releaseUnhandedFactoryLease()`) if the hand-off fails |
 | Callback use | The template, for the duration of `execute(...)` | `release()` in the template's `finally` block |
 | Bound use (`acquireForBoundUse()`) | The template, when the session is already Spring-bound or is bound by this call | A transaction synchronization, in `afterCompletion`, once per holder per transaction scope |
+| Lazy read (`SessionLease`) | `RepositoryFileProxy`, for the duration of one lazy read outside any callback | `SessionLease.close()` in the proxy's `try`-with-resources; closing the last lease of a retired session logs it out |
 
 Retirement only blocks *new* cache acquisitions. A callback that already holds the session, or a nested callback on a session Spring has bound, may still extend it while an earlier lease keeps it alive. A holder whose final lease has been released cannot be revived.
 
@@ -73,6 +75,8 @@ Retirement only blocks *new* cache acquisitions. A callback that already holds t
 - **`CredentialsStrategySessionFactory`**: wires itself and the transaction manager into its cache delegate, whether the delegate is created lazily or injected. If proxy creation or listener registration fails, the session's diagnostic count is rolled back and its lease is released even if that counter cannot be read (or a direct session is logged out), and the original exception is rethrown. The logout-suppressing proxy forwards `logout()` only while the session is still live: Spring runs transaction synchronizations (which can release the last lease and log the session out) before the transaction manager closes its bound proxy, so the manager's later `logout()` must not reach the session a second time.
 - **`PentahoJcrTemplate`**: distinguishes the factory hand-off from reuse of a bound session; registers a `TransactionSynchronization` that holds the bound lease until `afterCompletion` (so a session stays open between callbacks, across nested callbacks and across a suspended transaction); releases leases in `finally`; and never lets cleanup failures replace the callback's own exception.
 - **`PentahoTransactionManager`**: registers itself with its session factory and reports when a `REQUIRES_NEW` transaction is being begun (section 4.5).
+- **`SessionLease`** (public, same package): a short claim on a cached session for code that uses it outside a template callback. `tryAcquire( session )` returns a lease, a no-op lease for a session without a lifecycle holder, or nothing when the session is already closed or closing. It reuses `acquireForBoundUse()`, so no new lifecycle state exists.
+- **`RepositoryFileProxy`**: each lazy read holds a `SessionLease` while it runs. If no lease can be taken, or the session is no longer live, it reloads its node through the template exactly as before (section 4.6).
 
 ## 4. Design decisions
 
@@ -110,6 +114,16 @@ The fix restores the wiring in CE, narrowly:
 - `isCreatingIndependentTransaction()` is true only while a `REQUIRES_NEW` transaction is being begun. Only then does the cache factory perform a direct login that never enters the cache.
 - **`REQUIRED`, `NESTED` and `SUPPORTS` keep using the cached session in CE, as before.** The 2016 predicate, `isCreatingTransaction()`, also bypassed the cache for `REQUIRED` and `NESTED`. Restoring that would make every transaction log in afresh, a platform-wide cost and behavior change. When it was tried, one existing integration test (`JcrAclNodeHelperIT.canDeleteTargetIfAclNodeRemoved`) failed, because it relies on a lazily loaded `RepositoryFileProxy` keeping a live session. If it is ever restored it needs its own performance measurement and that test adjusted.
 
+### 4.6 Lazy reads hold a lease instead of racing eviction
+
+`RepositoryFileProxy` is returned to callers and resolves its fields (name, title, dates, metadata, id) on first use, often while the response is being built, long after the callback ended. Its `executeOperation` checked `session.isLive()` and then used the session. Nothing kept the session open between the two steps, so eviction could log it out in between. Because every lazy getter catches `RepositoryException` and logs it, the symptom was an ERROR line plus a missing value, and sometimes an `IllegalStateException` from Jackrabbit's access manager that surfaced as an HTTP 500.
+
+The read now takes a `SessionLease` first. Eviction can retire the session while the read runs, but the logout waits for the lease to close. If the lease cannot be taken (the session is already closed or closing) or the session is not live, the proxy reloads its node through the template, as it already did for a closed session.
+
+A retry was considered and rejected. The getters swallow the exception inside the operation, so a retry in `executeOperation` would first require reworking about 25 getters. A grace period before logout only narrows the window. The lease closes it with an existing primitive and about 30 changed lines.
+
+A retired session whose last lease is a lazy read is logged out on the reading thread when that read ends, so the next lazy read on the same proxy reloads. That costs one reload per lazy read under constant eviction, which is the expected price of a tiny cache.
+
 ## 5. Behavior and configuration notes
 
 - `cache-size` and `cache-ttl` (repository system configuration) now take effect. Setting either to `0` disables caching: each use is one managed direct login that closes when its callback and any Spring binding finish.
@@ -121,8 +135,8 @@ The fix restores the wiring in CE, narrowly:
 
 ### 6.1 Test layout
 
-- **Unit tests** (`repository/src/test`, Surefire): `CachedJcrSessionTest` (lease transitions, retirement, no revival, logout failures, concurrent retirement against final release), `GuavaCachePoolPentahoJcrSessionFactoryTest` and `GuavaCachePoolPentahoJcrRaceConditionTest` (configuration, bounded retries, refresh and fallback cleanup, closed-session replacement, the bounded and non-blocking asynchronous eviction, the `REQUIRES_NEW` bypass), `PentahoJcrTemplateTest` (usage accounting, security translation, bound-lease retention until completion, unusable and unprotectable sessions, contained cleanup failures), `CredentialsStrategySessionFactoryTest` (delegate wiring, failed hand-off cleanup), `PentahoTransactionManagerTest`.
-- **Integration tests** (`repository/src/it`, Failsafe, activated with `-DrunITs`): `GuavaCachePoolPentahoJcrOrphanedSessionIT` runs against a real Jackrabbit repository: eviction during and after callbacks, failing callbacks, externally closed sessions, read-only and nested bound callbacks, commit and rollback, 12 workers × 16 rounds of concurrent real sessions, lazily loaded files and binary streams that outlive their session, `REQUIRES_NEW` suspension and resumption, the Spring wiring, and `REQUIRES_NEW` isolation. `GuavaCachePoolPentahoJcrSessionStressIT` and `CachedJcrSessionStressIT` are opt-in stress cases (50,000 operations per scenario; 200,000 simultaneously live holders). They use lightweight session fixtures, not 200,000 real Jackrabbit sessions.
+- **Unit tests** (`repository/src/test`, Surefire): `CachedJcrSessionTest` (lease transitions, retirement, no revival, logout failures, concurrent retirement against final release), `SessionLeaseTest` (lease on tracked, untracked and closed sessions, deferred logout, idempotent close), `RepositoryFileProxyLeaseTest` (a lazy read holds its lease, reloads when the session is closing, keeps the old behavior for untracked sessions, releases the lease when the read fails), `GuavaCachePoolPentahoJcrSessionFactoryTest` and `GuavaCachePoolPentahoJcrRaceConditionTest` (configuration, bounded retries, refresh and fallback cleanup, closed-session replacement, the bounded and non-blocking asynchronous eviction, the `REQUIRES_NEW` bypass), `PentahoJcrTemplateTest` (usage accounting, security translation, bound-lease retention until completion, unusable and unprotectable sessions, contained cleanup failures), `CredentialsStrategySessionFactoryTest` (delegate wiring, failed hand-off cleanup), `PentahoTransactionManagerTest`.
+- **Integration tests** (`repository/src/it`, Failsafe, activated with `-DrunITs`): `GuavaCachePoolPentahoJcrOrphanedSessionIT` runs against a real Jackrabbit repository: eviction during and after callbacks, failing callbacks, externally closed sessions, read-only and nested bound callbacks, commit and rollback, 12 workers × 16 rounds of concurrent real sessions, lazily loaded files and binary streams that outlive their session, `REQUIRES_NEW` suspension and resumption, the Spring wiring, and `REQUIRES_NEW` isolation. `RepositoryFileProxyEvictionIT` runs against a real Jackrabbit repository too: one test retires the session at the first repository access inside each lazy read (the deterministic form of eviction landing between the liveness check and the read), and one reads proxies from 8 threads while another thread keeps evicting the cache. `GuavaCachePoolPentahoJcrSessionStressIT` and `CachedJcrSessionStressIT` are opt-in stress cases (50,000 operations per scenario; 200,000 simultaneously live holders). They use lightweight session fixtures, not 200,000 real Jackrabbit sessions.
 
 To run everything: `mvn --batch-mode -o -pl repository -DrunITs verify`.
 
@@ -131,16 +145,27 @@ To run everything: `mvn --batch-mode -o -pl repository -DrunITs verify`.
 - Against the original implementation, the real-repository concurrency case leaves evicted sessions open after their callbacks, and a read-only `SUPPORTS` operation had its session closed between callbacks by the first version of the fix. Both fail without the fix.
 - With the old XML, the two `REQUIRES_NEW` integration tests fail: the wiring check, and the isolation test, which fails with `CannotCreateTransaction`.
 - Temporarily restoring the unchecked `SimpleCredentials` cast reproduces the `GuestCredentials` DEBUG failure.
+- Reverting only the `RepositoryFileProxy` change makes both `RepositoryFileProxyEvictionIT` cases fail (the lazy name comes back `null`; created dates and ids go missing under concurrent eviction) and two `RepositoryFileProxyLeaseTest` cases fail.
 
 ### 6.3 Results for this change
 
-The full module run passed 426 unit tests and 167 integration tests with no failures, errors or skips.
+The full module run passed 437 unit tests and 170 integration tests with no failures, errors or skips.
+
+**Manual validation on a running server.** A Pentaho 11.1 server was driven by 60 users and 60 parallel clients (2,400 calls of create, list, properties, download and tree per run), with the cache cut to 3 entries and a 2 s TTL to force constant eviction. The pre-change row is master with only its hard-coded cache defaults reduced, because the original code ignores the configured values. Each row is one run, so read the numbers as indicative.
+
+| Build | Calls with HTTP 200 | HTTP 500 | `RepositoryFileProxy` errors logged | "session has been closed" lines |
+|---|---|---|---|---|
+| Pre-change code | 1,233 | 582 | 37 | 541 |
+| This PR without the lazy-read lease | 2,271 | 120 | 661 | 706 |
+| This PR with the lazy-read lease | 2,400 | 0 | 0 | 0 |
+
+With the default cache (100 entries, 300 s) both the pre-change code and this PR returned every call with 200 at 60 and at 150 parallel clients. Without the lazy-read lease, this PR logged one "session has been closed" in the 150-client run. Live session objects fall back to a bounded number a few seconds after the load stops (about 127 with the tiny cache), so there is no leak. A reading taken immediately after the load is inflated while eviction cleanup is still running.
 
 A microbenchmark comparing the original and the fixed lifecycle logic with lightweight sessions (two JVM forks per revision, identical harness, 400,000 operations per sample) showed no regression: cache-hit throughput was within run-to-run noise (about 5.1 M versus 5.5 M ops/s), churn throughput was unchanged (about 805 K ops/s), and allocation per 400,000 operations was lower (churn: about 267 MiB versus 218 MiB). It measured lifecycle bookkeeping only and was taken before the bounded eviction pool and the `REQUIRES_NEW` bypass; it says nothing about repository I/O, disk-backed throughput or real concurrent sessions.
 
 ## 7. Known limits
 
-- `RepositoryFileProxy` has a live-session fast path that can operate on its retained `Node` without going through the template. Closed-session reload and returned-stream compatibility are tested; a race between that fast path and eviction is not claimed to be solved.
+- `RepositoryFileProxy` lazy reads are protected against eviction by a `SessionLease` (section 4.6). Other objects that outlive their callback and read from the session later, such as returned binary streams, are not leased. Closed-session reload and returned-stream compatibility are tested, but a race between such a read and eviction is not claimed to be solved. A session that something outside the lease model logs out directly, such as the transaction manager closing its bound proxy, can still be closed under a lazy read; the proxy then reloads.
 - Sessions that are not Jackrabbit `SessionImpl` cannot carry the holder attribute, so they are not lifecycle-tracked. Raw consumers of the factory and transactions that never enter `PentahoJcrTemplate` were not established as safe.
 - A `logout()` that throws is contained and logged, and exactly-once initiation is preserved, but the repository may not have freed that session.
 - Eviction cleanup has no queue-depth metric (section 4.1).
