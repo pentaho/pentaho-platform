@@ -14,10 +14,16 @@
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.extensions.jcr.SessionFactory;
+import org.springframework.extensions.jcr.SessionHolder;
 import org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import javax.jcr.Session;
 
 /**
  * A customized version of the SE-JCR LocalTransactionManager which captures transaction information to inform
@@ -26,6 +32,7 @@ import org.springframework.transaction.TransactionException;
  * Created by nbaker on 10/17/16.
  */
 public class PentahoTransactionManager extends LocalTransactionManager {
+  private static final Logger LOG = LoggerFactory.getLogger( PentahoTransactionManager.class );
   private ThreadLocal<TransactionDefinition> activeTransactionDefinition = new ThreadLocal<>();
 
   /**
@@ -53,6 +60,34 @@ public class PentahoTransactionManager extends LocalTransactionManager {
     } finally {
       // Likely not needed, but clean up just in-case.
       activeTransactionDefinition.remove();
+    }
+  }
+
+  /**
+   * Hands back the factory lease taken when this transaction began if no template callback ever consumed it, so a
+   * transaction that completes without touching JCR cannot keep its cached session from being closed after eviction.
+   * Runs before the bound session is released because Spring completes synchronizations first.
+   */
+  @Override
+  protected void doCleanupAfterCompletion( Object transaction ) {
+    try {
+      releaseUnconsumedFactoryLease();
+    } catch ( RuntimeException e ) {
+      LOG.warn( "Could not release the unconsumed factory lease of a completed transaction", e );
+    } finally {
+      super.doCleanupAfterCompletion( transaction );
+    }
+  }
+
+  private void releaseUnconsumedFactoryLease() {
+    Object resource = TransactionSynchronizationManager.getResource( getSessionFactory() );
+    if ( !( resource instanceof SessionHolder ) ) {
+      return;
+    }
+    Session session = CredentialsStrategySessionFactory.unwrapSessionProxy( ( (SessionHolder) resource ).getSession() );
+    Object attribute = session == null ? null : session.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE );
+    if ( attribute instanceof CachedJcrSession ) {
+      ( (CachedJcrSession) attribute ).releaseUnconsumedFactoryLease();
     }
   }
 

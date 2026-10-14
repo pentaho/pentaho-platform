@@ -136,6 +136,20 @@ final class CachedJcrSession {
   }
 
   /**
+   * Rolls back a factory lease only if no template callback has consumed it. A transaction begin takes a factory
+   * lease that only a template callback consumes; a transaction that never runs one must hand the lease back when it
+   * completes, or the session could never be closed after eviction. Does nothing when no lease is pending.
+   */
+  void releaseUnconsumedFactoryLease() {
+    synchronized ( this ) {
+      if ( pendingFactoryLeases == 0 ) {
+        return;
+      }
+    }
+    releaseUnhandedFactoryLease();
+  }
+
+  /**
    * Permanently prevents new cache acquisitions and logs out immediately when no active leases remain.
    * Repeated calls are safe; logout is claimed at most once.
    */

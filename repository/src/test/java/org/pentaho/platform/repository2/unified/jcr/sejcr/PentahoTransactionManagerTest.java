@@ -15,6 +15,7 @@
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
 import org.apache.jackrabbit.api.XASession;
+import org.apache.jackrabbit.core.SessionImpl;
 import org.junit.Test;
 import org.springframework.extensions.jcr.SessionFactory;
 import org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager;
@@ -30,7 +31,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Created by nbaker on 10/17/16.
@@ -124,6 +129,41 @@ public class PentahoTransactionManagerTest {
 
     assertEquals( Arrays.asList( false, false, false, true ), observed );
     assertFalse( "Nothing is being created after doBegin", transactionManager.isCreatingIndependentTransaction() );
+  }
+
+  /**
+   * Verifies a transaction that completes without any template callback hands its factory lease back, so the cached
+   * session can still be closed after eviction. The session is bound as the logout-suppressing proxy, as in production.
+   */
+  @Test
+  @SuppressWarnings( "java:S1874" ) // The manager's doBegin requires Jackrabbit's (deprecated) XASession.
+  public void transactionCompletedWithoutTemplateCallbackReleasesItsFactoryLease() throws Exception {
+    SessionImpl target = mock( SessionImpl.class, withSettings().extraInterfaces( XASession.class ) );
+    when( ( (XASession) target ).getXAResource() ).thenReturn( mock( XAResource.class ) );
+    when( target.isLive() ).thenReturn( true );
+    CachedJcrSession cachedSession = new CachedJcrSession( target );
+    when( target.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE ) ).thenReturn( cachedSession );
+
+    CredentialsStrategySessionFactory proxyFactory =
+      new CredentialsStrategySessionFactory( mock( Repository.class ), mock( CredentialsStrategy.class ) );
+    // A suppressed proxy logout leaves the lease as the only thing that can close the session.
+    proxyFactory.setLogoutDelegate( () -> false );
+    SessionFactory sessionFactory = mock( SessionFactory.class );
+    when( sessionFactory.getSession() ).then( invocation -> {
+      assertTrue( cachedSession.acquire() );
+      return proxyFactory.createSessionProxy( target );
+    } );
+    PentahoTransactionManager transactionManager = new PentahoTransactionManager();
+    transactionManager.setSessionFactory( sessionFactory );
+    TransactionDefinition transactionDefinition = mock( TransactionDefinition.class );
+    when( transactionDefinition.getIsolationLevel() ).thenReturn( -1 );
+
+    TransactionStatus status = transactionManager.getTransaction( transactionDefinition );
+    cachedSession.retire();
+    verify( target, never() ).logout();
+    transactionManager.rollback( status );
+
+    verify( target, times( 1 ) ).logout();
   }
 
   /**

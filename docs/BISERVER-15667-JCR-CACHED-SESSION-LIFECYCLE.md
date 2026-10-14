@@ -29,6 +29,8 @@ Reproducing and reviewing the fix exposed other defects, in the original code or
 |---|---|
 | Cache size and TTL were read *after* the cache was built (a field initializer used the defaults) | Configured `cache-size` / `cache-ttl` were ignored because the values were being loaded from `ISystemConfig` too late |
 | `credentialsStrategySessionFactory` was never assigned, so the thread-bound-session guard compared against `null` | The guard that stops a transaction-bound session being handed out again never fired |
+| The thread-bound guard compared the cached session with the object Spring binds, which is the logout-suppressing proxy from `CredentialsStrategySessionFactory` | Even once wired, the guard could never match in production; it now unwraps the proxy before comparing |
+| A transaction begin takes a factory lease that only a template callback consumes | A read-only transaction that never ran a callback kept the lease forever, so the session could not be closed after eviction; `PentahoTransactionManager` now hands an unconsumed lease back on completion |
 | A session whose `refresh` failed stayed in the cache | Every later caller got the same broken session |
 | Direct-login fallback sessions, and sessions whose proxy or listener setup failed, were never closed | Leaked sessions |
 | Eviction logout ran synchronously inside Guava's removal notification | An unrelated caller loading its own session paid for another user's slow `logout()` |

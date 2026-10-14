@@ -25,7 +25,8 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.extensions.jcr.SessionFactory;
-import org.springframework.extensions.jcr.SessionFactoryUtils;
+import org.springframework.extensions.jcr.SessionHolder;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.jcr.Credentials;
 import javax.jcr.Repository;
@@ -302,7 +303,7 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
         return null;
       }
 
-      if ( SessionFactoryUtils.isSessionThreadBound( session, credentialsStrategySessionFactory ) ) {
+      if ( isBoundToTransaction( session ) ) {
         logger.debug( "Session is bound to a transaction. Ignoring it and creating a new session: {}", creds );
         sessionCache.asMap().remove( key, cachedSession );
         return null;
@@ -320,6 +321,26 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
         cachedSession.releaseUnhandedFactoryLease();
       }
     }
+  }
+
+  /**
+   * Reports whether the session is the one bound to the current Spring transaction. Spring binds the
+   * logout-suppressing proxy returned by {@link CredentialsStrategySessionFactory#getSession()}, so the bound session
+   * is unwrapped before it is compared with the cached session.
+   *
+   * @param session cached session to look for
+   * @return {@code true} when the current thread's bound holder wraps this session
+   */
+  private boolean isBoundToTransaction( Session session ) {
+    if ( credentialsStrategySessionFactory == null ) {
+      return false;
+    }
+    Object resource = TransactionSynchronizationManager.getResource( credentialsStrategySessionFactory );
+    if ( !( resource instanceof SessionHolder ) ) {
+      return false;
+    }
+    Session bound = ( (SessionHolder) resource ).getSession();
+    return bound == session || CredentialsStrategySessionFactory.unwrapSessionProxy( bound ) == session;
   }
 
   /**

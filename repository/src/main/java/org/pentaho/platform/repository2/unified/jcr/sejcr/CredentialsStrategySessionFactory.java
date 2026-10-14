@@ -431,6 +431,23 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
             handler );
   }
 
+  /**
+   * Returns the session behind a logout-suppressing proxy created by {@link #createSessionProxy(Session)}. Spring
+   * binds that proxy, not the cached session, so identity checks against cached sessions must unwrap it first.
+   *
+   * @param session a session or a proxy created by this factory; may be {@code null}
+   * @return the wrapped session for a proxy, otherwise the argument itself
+   */
+  static Session unwrapSessionProxy( Session session ) {
+    if ( session != null && Proxy.isProxyClass( session.getClass() ) ) {
+      Object handler = Proxy.getInvocationHandler( session );
+      if ( handler instanceof LogoutSuppressingInvocationHandler ) {
+        return ( (LogoutSuppressingInvocationHandler) handler ).getTargetSession();
+      }
+    }
+    return session;
+  }
+
   public LogoutSuppressingInvocationHandler.LogoutDelegate getLogoutDelegate() {
     return logoutDelegate;
   }
@@ -757,6 +774,11 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
 
     public SessionImpl getSession() {
       return (SessionImpl) target;
+    }
+
+    /** @return the wrapped session, whatever its implementation type */
+    Session getTargetSession() {
+      return target;
     }
 
   }

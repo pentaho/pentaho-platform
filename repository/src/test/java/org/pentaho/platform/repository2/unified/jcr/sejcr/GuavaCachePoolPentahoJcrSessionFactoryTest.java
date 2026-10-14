@@ -466,10 +466,11 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     Session primed = factory.getSession( credentials );
     assertSame( "Sanity check: the cache must hand out the session it just created", boundSession, primed );
 
-    // Simulate the cached session legitimately being bound to an active Spring-managed transaction elsewhere,
+    // Simulate the cached session legitimately being bound to an active Spring-managed transaction elsewhere.
+    // Spring binds the logout-suppressing proxy handed out by the credentials factory, not the cached session itself,
     // under the exact key (credentialsFactory) the template/transaction infrastructure binds against.
     org.springframework.transaction.support.TransactionSynchronizationManager.bindResource(
-      credentialsFactory, new org.springframework.extensions.jcr.SessionHolder( primed ) );
+      credentialsFactory, new org.springframework.extensions.jcr.SessionHolder( credentialsFactory.createSessionProxy( primed ) ) );
     try {
       Session reacquired = factory.getSession( credentials );
       assertNotSame( "A session already bound to an active transaction must never be handed out again from the "

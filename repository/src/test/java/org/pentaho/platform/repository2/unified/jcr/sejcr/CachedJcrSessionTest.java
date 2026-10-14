@@ -71,6 +71,25 @@ public class CachedJcrSessionTest {
     verify( session, times( 1 ) ).logout();
   }
 
+  /** Verifies an unconsumed factory lease is rolled back once, and that nothing happens when none is pending. */
+  @Test
+  public void unconsumedFactoryLeaseIsRolledBackOnlyWhilePending() {
+    CachedJcrSession cachedSession = new CachedJcrSession( session );
+
+    assertTrue( cachedSession.acquire() );
+    assertTrue( cachedSession.acquire() );
+    assertTrue( cachedSession.consumeFactoryLease() );
+    cachedSession.retire();
+
+    cachedSession.releaseUnconsumedFactoryLease();
+    verify( session, never() ).logout();
+    cachedSession.releaseUnconsumedFactoryLease();
+    verify( session, never() ).logout();
+
+    cachedSession.release();
+    verify( session, times( 1 ) ).logout();
+  }
+
   /** Verifies an already-active bound operation can nest after retirement without reviving cache access. */
   @Test
   public void boundNestedUseCanExtendRetiredSessionWhileOuterLeaseRemainsActive() {
