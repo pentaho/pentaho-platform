@@ -33,6 +33,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
@@ -196,6 +197,28 @@ public class CredentialsStrategySessionFactoryTest {
     assertSame( failure, assertThrows( RepositoryException.class, factory::getSession ) );
 
     verify( underlyingSession, times( 1 ) ).logout();
+  }
+
+  /**
+   * Verifies the lifecycle lease is still released, so the retired session is logged out, when the diagnostic usage
+   * counter cannot be read during handoff cleanup, and that the original handoff failure still propagates.
+   * Only the repository session is a mock, because a real Jackrabbit session cannot be made to fail on one attribute.
+   */
+  @Test
+  public void failedHandoffReleasesTheLeaseWhenTheUsageCounterCannotBeRead() {
+    RepositoryException failure = new RepositoryException( "listener registration failed" );
+    CachedJcrSession holder = new CachedJcrSession( underlyingSession );
+    assertTrue( holder.acquire() );
+    when( underlyingSession.isLive() ).thenReturn( true );
+    when( underlyingSession.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE ) ).thenReturn( holder );
+    when( underlyingSession.getAttribute( GuavaCachePoolPentahoJcrSessionFactory.USAGE_COUNT ) )
+      .thenThrow( new IllegalStateException( "usage counter is unavailable" ) );
+    CredentialsStrategySessionFactory factory = failingHandoffFactory( credentials -> underlyingSession, failure );
+
+    assertSame( failure, assertThrows( RepositoryException.class, factory::getSession ) );
+
+    verify( underlyingSession, times( 1 ) ).logout();
+    assertFalse( "The released holder must not be reusable", holder.acquire() );
   }
 
   /** Verifies a failure while discarding the session is contained and the original handoff failure still propagates. */

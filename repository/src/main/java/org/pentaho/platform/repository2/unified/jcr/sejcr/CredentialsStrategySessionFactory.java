@@ -449,27 +449,32 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
 
   /**
    * Releases a session whose proxy/listener handoff failed before the caller could own it. Cached sessions have both
-   * their diagnostic factory count and lifecycle lease rolled back; direct sessions are logged out.
-   * Cleanup failures are logged so the original handoff exception remains primary.
+   * their diagnostic factory count and lifecycle lease rolled back; direct sessions are logged out. The lease is
+   * released even if the diagnostic counter cannot be read, otherwise a retired session would stay leased forever
+   * and never be logged out. Cleanup failures are logged so the original handoff exception remains primary.
    *
    * @param session acquired session that could not be handed to the caller
    */
   private void discardFailedSession( Session session ) {
+    CachedJcrSession cachedSession = null;
     try {
       Object attribute = session.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE );
       if ( attribute instanceof CachedJcrSession ) {
-        CachedJcrSession cachedSession = (CachedJcrSession) attribute;
+        cachedSession = (CachedJcrSession) attribute;
         cachedSession.retire();
         Object usageCount = session.getAttribute( GuavaCachePoolPentahoJcrSessionFactory.USAGE_COUNT );
         if ( usageCount instanceof AtomicInteger ) {
           ( (AtomicInteger) usageCount ).decrementAndGet();
         }
-        cachedSession.releaseUnhandedFactoryLease();
       } else {
         session.logout();
       }
     } catch ( RuntimeException e ) {
       LOG.warn( "Could not discard JCR session after a failed factory handoff", e );
+    } finally {
+      if ( cachedSession != null ) {
+        cachedSession.releaseUnhandedFactoryLease();
+      }
     }
   }
 

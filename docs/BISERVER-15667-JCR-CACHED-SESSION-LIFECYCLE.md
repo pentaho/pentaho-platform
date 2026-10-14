@@ -70,7 +70,7 @@ Retirement only blocks *new* cache acquisitions. A callback that already holds t
   - Sends credentials that are not `SimpleCredentials` (for example `GuestCredentials`) straight to a managed direct login, because the cache key is built from `SimpleCredentials`.
   - Tries the cache at most three times (a lookup can lose a race with eviction), then falls back to a managed direct login. Fallback sessions are tracked and retired up front so they close when the callback and any Spring binding finish.
   - Discards entries whose session is closed, already bound to a transaction, or fails `refresh`, rolling back the factory lease.
-- **`CredentialsStrategySessionFactory`**: wires itself and the transaction manager into its cache delegate, whether the delegate is created lazily or injected. If proxy creation or listener registration fails, the session's lease and diagnostic count are rolled back, or a direct session is logged out, and the original exception is rethrown. The logout-suppressing proxy forwards `logout()` only while the session is still live: Spring runs transaction synchronizations (which can release the last lease and log the session out) before the transaction manager closes its bound proxy, so the manager's later `logout()` must not reach the session a second time.
+- **`CredentialsStrategySessionFactory`**: wires itself and the transaction manager into its cache delegate, whether the delegate is created lazily or injected. If proxy creation or listener registration fails, the session's diagnostic count is rolled back and its lease is released even if that counter cannot be read (or a direct session is logged out), and the original exception is rethrown. The logout-suppressing proxy forwards `logout()` only while the session is still live: Spring runs transaction synchronizations (which can release the last lease and log the session out) before the transaction manager closes its bound proxy, so the manager's later `logout()` must not reach the session a second time.
 - **`PentahoJcrTemplate`**: distinguishes the factory hand-off from reuse of a bound session; registers a `TransactionSynchronization` that holds the bound lease until `afterCompletion` (so a session stays open between callbacks, across nested callbacks and across a suspended transaction); releases leases in `finally`; and never lets cleanup failures replace the callback's own exception.
 - **`PentahoTransactionManager`**: registers itself with its session factory and reports when a `REQUIRES_NEW` transaction is being begun (section 4.5).
 
@@ -134,7 +134,7 @@ To run everything: `mvn --batch-mode -o -pl repository -DrunITs verify`.
 
 ### 6.3 Results for this change
 
-The full module run passed 425 unit tests and 167 integration tests with no failures, errors or skips.
+The full module run passed 426 unit tests and 167 integration tests with no failures, errors or skips.
 
 A microbenchmark comparing the original and the fixed lifecycle logic with lightweight sessions (two JVM forks per revision, identical harness, 400,000 operations per sample) showed no regression: cache-hit throughput was within run-to-run noise (about 5.1 M versus 5.5 M ops/s), churn throughput was unchanged (about 805 K ops/s), and allocation per 400,000 operations was lower (churn: about 267 MiB versus 218 MiB). It measured lifecycle bookkeeping only and was taken before the bounded eviction pool and the `REQUIRES_NEW` bypass; it says nothing about repository I/O, disk-backed throughput or real concurrent sessions.
 
