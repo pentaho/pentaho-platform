@@ -44,7 +44,7 @@ sequenceDiagram
   Cache-->>Factory: Session
   Note over Factory,Cache: Factory protection is recorded after cache lookup
   alt eviction wins before factory protection
-    Cache->>Session: evict; usage_count is zero
+    Cache->>Session: evict, usage_count is zero
     Session->>Session: logout
     Factory->>Session: increment factory usage_count
     Factory-->>Caller: return already-closed session
@@ -53,8 +53,8 @@ sequenceDiagram
   else factory protection is recorded first
     Factory->>Session: increment factory usage_count
     Factory-->>Caller: return session
-    Cache->>Session: evict; usage_count is non-zero
-    Note over Session: logout skipped; eviction does not arrange a later logout
+    Cache->>Session: evict, usage_count is non-zero
+    Note over Session: logout skipped, eviction does not arrange a later logout
   end
 ```
 
@@ -73,11 +73,11 @@ sequenceDiagram
   Holder-->>Factory: lease acquired
   Factory-->>Caller: session with hand-off lease
   Caller->>Template: execute callback
-  Template->>Holder: consume hand-off; retain callback/bound leases
+  Template->>Holder: consume hand-off and retain callback/bound leases
   par callback work
     Template->>Session: use session
   and eviction
-    Holder->>Holder: retire; reject future cache acquisitions
+    Holder->>Holder: retire and reject future cache acquisitions
   end
   Template->>Holder: release callback lease
   Note over Holder: Bound/lazy-read leases may still keep it alive
@@ -186,7 +186,7 @@ sequenceDiagram
     Note over Outer,Inner: Before: CE used LocalTransactionManager
     Outer->>Cache: acquire cached session A
     Outer->>Manager: begin inner transaction
-    Manager->>Manager: suspend outer; unbind session A
+    Manager->>Manager: suspend outer and unbind session A
     Inner->>Cache: request session during begin
     Cache-->>Inner: may return session A (no bound holder visible)
     Note over Inner: Begin can fail, or the inner transaction can share outer state
@@ -198,9 +198,9 @@ sequenceDiagram
     Note over Outer,Inner: After: PentahoTransactionManager signals REQUIRES_NEW creation
     Outer->>Cache: acquire cached session A
     Outer->>Manager: begin inner transaction
-    Manager->>Manager: suspend outer; mark REQUIRES_NEW creation
+    Manager->>Manager: suspend outer and mark REQUIRES_NEW creation
     Inner->>Cache: request session during begin
-    Cache-->>Inner: fresh direct-login session B; do not reuse cache
+    Cache-->>Inner: fresh direct-login session B, not reused from cache
     Inner->>Manager: complete and close B
     Manager->>Outer: resume with session A
   end
