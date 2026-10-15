@@ -27,6 +27,63 @@ That has two failure modes, and neither can be fixed by tuning the counter:
 
 The cache holds a bare `Session`, so there is nowhere to record "this was evicted, close it when the last user is done" and no atomic way to decide between "in use" and "free".
 
+### Before and after: ownership during eviction
+
+The original counter left a gap after the cache returned a session but before the factory recorded its protection and the template began using it. An eviction in that gap could see zero and close a session that was about to be used. If the counter was already non-zero, eviction skipped logout but did not arrange a later one, so the session could remain open indefinitely.
+
+```mermaid
+sequenceDiagram
+  participant Caller
+  participant Factory as Cache factory
+  participant Cache as Guava cache
+  participant Template as JCR template
+  participant Session as JCR session
+
+  Caller->>Factory: request session
+  Factory->>Cache: get cached session
+  Cache-->>Factory: Session
+  Note over Factory,Cache: Factory protection is recorded after cache lookup
+  alt eviction wins before factory protection
+    Cache->>Session: evict; usage_count is zero
+    Session->>Session: logout
+    Factory->>Session: increment factory usage_count
+    Factory-->>Caller: return already-closed session
+    Caller->>Template: begin callback
+    Template-->>Caller: session-closed failure
+  else factory protection is recorded first
+    Factory->>Session: increment factory usage_count
+    Factory-->>Caller: return session
+    Cache->>Session: evict; usage_count is non-zero
+    Note over Session: logout skipped; eviction does not arrange a later logout
+  end
+```
+
+With the lifecycle holder, acquisition and retirement coordinate through leases. Eviction marks the session retired; the last owner to release its lease performs the one logout. If eviction wins before a lease can be acquired, the factory retries rather than handing out the retired session.
+
+```mermaid
+sequenceDiagram
+  participant Caller
+  participant Factory as Cache factory
+  participant Holder as CachedJcrSession
+  participant Template as JCR template
+  participant Session as JCR session
+
+  Caller->>Factory: request session
+  Factory->>Holder: acquire factory lease
+  Holder-->>Factory: lease acquired
+  Factory-->>Caller: session with hand-off lease
+  Caller->>Template: execute callback
+  Template->>Holder: consume hand-off; retain callback/bound leases
+  par callback work
+    Template->>Session: use session
+  and eviction
+    Holder->>Holder: retire; reject future cache acquisitions
+  end
+  Template->>Holder: release callback lease
+  Note over Holder: Bound/lazy-read leases may still keep it alive
+  Holder->>Session: logout when retired and final lease is released
+```
+
 ### Further defects found while fixing it
 
 Reproducing and reviewing the fix exposed other defects, in the original code or in intermediate versions of the fix. Each is covered by a test:
@@ -116,6 +173,39 @@ The Enterprise Edition (`pentaho-platform-ee`) was not affected: its own `reposi
 
 In CE, without the wiring, a `REQUIRES_NEW` transaction begun while another is suspended on the same thread was given the cached session the suspended transaction still owned. Spring unbinds the outer transaction's session holder during the suspension, so the thread-bound guard cannot see it. In practice the inner transaction fails to begin (`CannotCreateTransaction`); if it did begin on the shared session, its commit would save the outer transaction's unsaved changes.
 
+The distinction is the session chosen while the inner transaction is being created:
+
+```mermaid
+sequenceDiagram
+  participant Outer as Outer transaction
+  participant Manager as Transaction manager
+  participant Cache as Session cache
+  participant Inner as REQUIRES_NEW transaction
+
+  rect rgb(255, 235, 235)
+    Note over Outer,Inner: Before: CE used LocalTransactionManager
+    Outer->>Cache: acquire cached session A
+    Outer->>Manager: begin inner transaction
+    Manager->>Manager: suspend outer; unbind session A
+    Inner->>Cache: request session during begin
+    Cache-->>Inner: may return session A (no bound holder visible)
+    Note over Inner: Begin can fail, or the inner transaction can share outer state
+    Inner->>Manager: complete
+    Manager->>Outer: resume
+  end
+
+  rect rgb(235, 255, 235)
+    Note over Outer,Inner: After: PentahoTransactionManager signals REQUIRES_NEW creation
+    Outer->>Cache: acquire cached session A
+    Outer->>Manager: begin inner transaction
+    Manager->>Manager: suspend outer; mark REQUIRES_NEW creation
+    Inner->>Cache: request session during begin
+    Cache-->>Inner: fresh direct-login session B; do not reuse cache
+    Inner->>Manager: complete and close B
+    Manager->>Outer: resume with session A
+  end
+```
+
 The fix restores the wiring in CE, narrowly:
 
 - `PentahoTransactionManager.setSessionFactory` registers the manager with its `CredentialsStrategySessionFactory`, which passes it to the cache delegate. `repository/src/main/resources/repository.spring.xml` and the deployed `assemblies/pentaho-solutions/.../system/repository.spring.xml` now declare `PentahoTransactionManager` for the user and admin managers.
@@ -127,6 +217,38 @@ The fix restores the wiring in CE, narrowly:
 `RepositoryFileProxy` is returned to callers and resolves its fields (name, title, dates, metadata, id) on first use, often while the response is being built, long after the callback ended. Its `executeOperation` checked `session.isLive()` and then used the session. Nothing kept the session open between the two steps, so eviction could log it out in between. Because every lazy getter catches `RepositoryException` and logs it, the symptom was an ERROR line plus a missing value, and sometimes an `IllegalStateException` from Jackrabbit's access manager that surfaced as an HTTP 500.
 
 The read now takes a `SessionLease` first. Eviction can retire the session while the read runs, but the logout waits for the lease to close. If the lease cannot be taken (the session is already closed or closing) or the session is not live, the proxy reloads its node through the template, as it already did for a closed session.
+
+```mermaid
+sequenceDiagram
+  participant Proxy as RepositoryFileProxy
+  participant Holder as CachedJcrSession
+  participant Cache as Guava cache
+  participant Session as JCR session
+  participant Template as JCR template
+
+  rect rgb(255, 235, 235)
+    Note over Proxy,Template: Before: check and use were separate
+    Proxy->>Session: isLive() returns true
+    Cache->>Session: eviction logs out
+    Proxy->>Session: lazy read (for example getItem)
+    Session-->>Proxy: session closed exception
+  end
+
+  rect rgb(235, 255, 235)
+    Note over Proxy,Template: After: lease protects the read
+    Proxy->>Holder: tryAcquire session lease
+    alt lease acquired and session live
+      Holder-->>Proxy: lease
+      Proxy->>Session: perform lazy read
+      Cache->>Holder: retire on eviction
+      Note over Holder,Session: Retired session stays live while lease is held
+      Proxy->>Holder: close lease
+      Holder->>Session: logout if this was the final lease
+    else already closing or unavailable
+      Proxy->>Template: reload node using normal callback path
+    end
+  end
+```
 
 A retry was considered and rejected. The getters swallow the exception inside the operation, so a retry in `executeOperation` would first require reworking about 25 getters. A grace period before logout only narrows the window. The lease closes it with an existing primitive and about 30 changed lines.
 
