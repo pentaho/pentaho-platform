@@ -11,7 +11,6 @@
  ******************************************************************************/
 
 
-
 package org.pentaho.platform.repository2.unified.jcr;
 
 import org.apache.commons.logging.Log;
@@ -45,6 +44,7 @@ public class RepositoryCleaner {
 
   /**
    * Exists primary for testing
+   *
    * @param systemSessionFactory
    */
   public void setSystemSessionFactory( IPentahoSystemSessionFactory systemSessionFactory ) {
@@ -58,13 +58,11 @@ public class RepositoryCleaner {
       return;
     }
 
-    if ( !( jcrRepository instanceof RepositoryImpl ) ) {
+    if ( !( jcrRepository instanceof RepositoryImpl repository ) ) {
       logger.error(
-          String.format( "Expected RepositoryImpl, but got: [%s]. Exiting", jcrRepository.getClass().getName() ) );
+        String.format( "Expected RepositoryImpl, but got: [%s]. Exiting", jcrRepository.getClass().getName() ) );
       return;
     }
-
-    final RepositoryImpl repository = (RepositoryImpl) jcrRepository;
 
     try {
       logger.debug( "Starting Orphaned Version Purge" );
@@ -77,6 +75,8 @@ public class RepositoryCleaner {
       logger.error( "Error running Orphaned Version purge", e );
     }
 
+    boolean markingFailed = false;
+    boolean collectorClosed = false;
     try {
       logger.info( "Creating garbage collector" );
       // JCR's documentation recommends not to use RepositoryImpl.createDataStoreGarbageCollector() and
@@ -92,17 +92,58 @@ public class RepositoryCleaner {
       try {
         logger.debug( "Starting marking stage" );
         gc.setPersistenceManagerScan( false );
-        gc.mark();
-        logger.debug( "Starting sweeping stage" );
-        int deleted = gc.sweep();
-        logger.info( String.format( "Garbage collecting completed. %d items were deleted", deleted ) );
+        markingFailed = !mark( gc );
+        if ( !markingFailed ) {
+          logger.debug( "Starting sweeping stage" );
+          int deleted = gc.sweep();
+          logger.info( String.format( "Garbage collecting completed. %d items were deleted", deleted ) );
+        }
       } finally {
         gc.close();
+        collectorClosed = true;
       }
-    } catch ( RepositoryException e ) {
+    } catch ( RepositoryException | RuntimeException e ) {
       logger.error( "Error during garbage collecting", e );
     }
 
+    if ( markingFailed && collectorClosed ) {
+      diagnoseBinaryProperties( repository );
+    }
+  }
+
+  private boolean mark( DataStoreGarbageCollector collector ) {
+    try {
+      collector.mark();
+      return true;
+    } catch ( RepositoryException | RuntimeException e ) {
+      logger.error( "Error during garbage collecting: marking failed; sweeping skipped", e );
+      return false;
+    }
+  }
+
+  private void diagnoseBinaryProperties( RepositoryImpl repository ) {
+    Session diagnosticSession = null;
+    try {
+      diagnosticSession = systemSessionFactory.create( repository );
+      Node root = diagnosticSession.getRootNode();
+      logger.warn( "GC marking failed; sweeping was skipped. Starting read-only binary diagnostics for workspace ["
+        + diagnosticSession.getWorkspace().getName() + "]. This scan may take substantial time." );
+      new RepositoryBinaryDiagnosticScanner( logger ).scan( root );
+    } catch ( RepositoryException | RuntimeException e ) {
+      logger.warn( "Binary diagnostics could not complete; repository remains unchanged by diagnostics", e );
+    } finally {
+      if ( diagnosticSession != null ) {
+        closeDiagnosticSession( diagnosticSession );
+      }
+    }
+  }
+
+  private void closeDiagnosticSession( Session session ) {
+    try {
+      session.logout();
+    } catch ( RuntimeException e ) {
+      logger.warn( "Cannot close binary diagnostic session", e );
+    }
   }
 
   private void findVersionNodesAndPurge( Node node, Session session ) {
@@ -111,7 +152,7 @@ public class RepositoryCleaner {
     }
     try {
       if ( node.getName().equals( JCR_FROZEN_NODE ) && node.hasProperty( JCR_FROZEN_UUID ) && !node.getParent()
-          .getName().equals( JCR_ROOT_VERSION ) ) {
+        .getName().equals( JCR_ROOT_VERSION ) ) {
         // Version Node
         Property property = node.getProperty( JCR_FROZEN_UUID );
         Value uuid = property.getValue();
