@@ -29,7 +29,11 @@ The cache holds a bare `Session`, so there is nowhere to record "this was evicte
 
 ### Before and after: ownership during eviction
 
-The original counter left a gap after the cache returned a session but before the factory recorded its protection and the template began using it. An eviction in that gap could see zero and close a session that was about to be used. If the counter was already non-zero, eviction skipped logout but did not arrange a later one, so the session could remain open indefinitely.
+In the original code, `usage_count` could not coordinate eviction with active use in three places:
+
+1. **Hand-off race in the factory:** `getSession` checked `isLive()` and called `refresh(false)` before incrementing `usage_count`. An eviction in that window saw `usage_count == 0` and logged the session out before the factory incremented the counter and returned it.
+2. **Gap between callbacks of a bound operation:** `PentahoJcrTemplate`'s `finally` block decremented both the callback count and the factory count at the end of every callback, dropping `usage_count` to `0` even when Spring still held the session bound for a transaction or `SUPPORTS` scope. An eviction before the next callback saw `usage_count == 0` and closed the bound session.
+3. **Eviction while in use (session leak):** when eviction ran while `usage_count > 0`, the removal listener logged `"May be orphaned"` and skipped `logout()`, and nothing logged the session out after the owner later decremented `usage_count` to `0`.
 
 ```mermaid
 sequenceDiagram
@@ -39,26 +43,40 @@ sequenceDiagram
   participant Template as JCR template
   participant Session as JCR session
 
-  Caller->>Factory: request session
-  Factory->>Cache: get cached session
-  Cache-->>Factory: Session
-  Note over Factory,Cache: Factory protection is recorded after cache lookup
-  alt eviction wins before factory protection
-    Cache->>Session: evict, usage_count is zero
-    Session->>Session: logout
-    Factory->>Session: increment factory usage_count
+  rect rgb(255, 235, 235)
+    Note over Caller,Session: 1. Eviction between refresh(false) and factory increment
+    Caller->>Factory: getSession
+    Factory->>Cache: get cached session
+    Cache-->>Factory: Session (usage_count is 0)
+    Factory->>Session: isLive() and refresh(false)
+    Cache->>Session: evict while usage_count is 0
+    Session->>Session: logout()
+    Factory->>Session: increment usage_count from 0 to 1 on closed session
     Factory-->>Caller: return already-closed session
-    Caller->>Template: begin callback
+    Caller->>Template: execute callback
     Template-->>Caller: session-closed failure
-  else factory protection is recorded first
-    Factory->>Session: increment factory usage_count
-    Factory-->>Caller: return session
-    Cache->>Session: evict, usage_count is non-zero
-    Note over Session: logout skipped, eviction does not arrange a later logout
+  end
+
+  rect rgb(255, 235, 235)
+    Note over Caller,Session: 2. Eviction between callbacks of a Spring-bound operation
+    Caller->>Template: callback 1 (Spring binds session to thread)
+    Template->>Session: callback 1 finishes and drops usage_count back to 0
+    Cache->>Session: evict between callbacks while usage_count is 0
+    Session->>Session: logout()
+    Caller->>Template: callback 2 reuses bound session
+    Template-->>Caller: session-closed failure
+  end
+
+  rect rgb(255, 235, 235)
+    Note over Caller,Session: 3. Eviction while usage_count > 0 (session leak)
+    Caller->>Template: execute callback (usage_count > 0)
+    Cache->>Session: evict while usage_count > 0, skip logout and log warning
+    Template->>Session: callback finishes and drops usage_count to 0
+    Note over Session: Never logged out (template does not know entry was evicted)
   end
 ```
 
-With the lifecycle holder, acquisition and retirement coordinate through leases. Eviction marks the session retired; the last owner to release its lease performs the one logout. If eviction wins before a lease can be acquired, the factory retries rather than handing out the retired session.
+With `CachedJcrSession`, acquisition and retirement coordinate through leases on the holder. If eviction wins before the factory can acquire a lease, `acquire()` returns `false` and the factory retries (up to three attempts before falling back to a managed direct login). Once a lease is held, eviction only marks the holder retired, and the last owner to release its lease performs the single logout.
 
 ```mermaid
 sequenceDiagram
@@ -68,20 +86,28 @@ sequenceDiagram
   participant Template as JCR template
   participant Session as JCR session
 
-  Caller->>Factory: request session
-  Factory->>Holder: acquire factory lease
-  Holder-->>Factory: lease acquired
-  Factory-->>Caller: session with hand-off lease
-  Caller->>Template: execute callback
-  Template->>Holder: consume hand-off and retain callback/bound leases
-  par callback work
-    Template->>Session: use session
-  and eviction
-    Holder->>Holder: retire and reject future cache acquisitions
+  rect rgb(235, 255, 235)
+    Caller->>Factory: getSession
+    Factory->>Holder: acquire() (activeUses=1, pendingFactoryLeases=1)
+    Holder-->>Factory: lease acquired (or false if retired, retry up to 3 times)
+    Factory->>Session: verify isLive(), unbound, and refresh(false)
+    Factory-->>Caller: session protected by hand-off lease
+    Caller->>Template: execute callback
+    Template->>Holder: consumeFactoryLease() (or acquireForBoundUse() if already bound)
+    opt Session is bound to a Spring transaction or synchronization
+      Template->>Holder: acquireForBoundUse() until afterCompletion
+    end
+    par Active callback or bound transaction
+      Template->>Session: use session safely
+    and Concurrent eviction at any point
+      Holder->>Holder: retire() marks retired=true (no logout while activeUses > 0)
+    end
+    Template->>Holder: release() at end of callback
+    opt Bound transaction or lazy read still holds a lease
+      Holder->>Holder: final release() on afterCompletion or SessionLease.close()
+    end
+    Holder->>Session: logout() once when retired and activeUses reaches 0
   end
-  Template->>Holder: release callback lease
-  Note over Holder: Bound/lazy-read leases may still keep it alive
-  Holder->>Session: logout when retired and final lease is released
 ```
 
 ### Further defects found while fixing it
@@ -120,7 +146,7 @@ stateDiagram-v2
 
 | Lease | Taken by | Released by |
 |---|---|---|
-| Factory hand-off (`acquire()`) | The cache factory when it returns a cached session | Consumed by the template (`consumeFactoryLease()`), or rolled back (`releaseUnhandedFactoryLease()`) if the hand-off fails |
+| Factory hand-off (`acquire()`) | The cache factory when it returns a cached session | Consumed by the template (`consumeFactoryLease()`), or rolled back (`releaseUnhandedFactoryLease()` / `releaseUnconsumedFactoryLease()`) if the hand-off fails or a transaction completes without a callback |
 | Callback use | The template, for the duration of `execute(...)` | `release()` in the template's `finally` block |
 | Bound use (`acquireForBoundUse()`) | The template, when the session is already Spring-bound or is bound by this call | A transaction synchronization, in `afterCompletion`, once per holder per transaction scope |
 | Lazy read (`SessionLease`) | `RepositoryFileProxy`, for the duration of one lazy read outside any callback | `SessionLease.close()` in the proxy's `try`-with-resources; closing the last lease of a retired session logs it out |
@@ -129,17 +155,17 @@ Retirement only blocks *new* cache acquisitions. A callback that already holds t
 
 ### 3.2 Components
 
-- **`CachedJcrSession`**: the per-session state machine (`acquire`, `consumeFactoryLease`, `acquireForBoundUse`, `release`, `releaseUnhandedFactoryLease`, `retire`). State changes are synchronized per holder; `isLive()` and `logout()` run outside the monitor. Logout is claimed at most once, a session that is already closed is not logged out again, and a failing `logout()` is contained.
+- **`CachedJcrSession`**: the per-session state machine (`acquire`, `consumeFactoryLease`, `acquireForBoundUse`, `release`, `releaseUnhandedFactoryLease`, `releaseUnconsumedFactoryLease`, `retire`). State changes are synchronized per holder; `isLive()` and `logout()` run outside the monitor. Logout is claimed at most once, a session that is already closed is not logged out again, and a failing `logout()` is contained.
 - **`GuavaCachePoolPentahoJcrSessionFactory`**:
   - Caches holders, not bare sessions; the loader attaches the holder and the legacy `usage_count` diagnostic counter to each session.
   - Reads size and TTL *before* building the cache. A size or TTL of zero selects a managed direct login instead of caching.
   - The removal listener retires holders asynchronously (section 4.1).
   - Sends credentials that are not `SimpleCredentials` (for example `GuestCredentials`) straight to a managed direct login, because the cache key is built from `SimpleCredentials`.
   - Tries the cache at most three times (a lookup can lose a race with eviction), then falls back to a managed direct login. In every case, "direct" means a fresh `repository.login(creds, workspace)` without cache reuse; it uses the same credentials supplied for that request and does not bypass repository authentication or authorization. Invalid credentials are still rejected; anonymous credentials (such as `GuestCredentials`, or `null` if supplied) work only if the repository is configured to allow them. Fallback sessions are tracked and retired up front so they close when the callback and any Spring binding finish.
-  - Discards entries whose session is closed, already bound to a transaction, or fails `refresh`, rolling back the factory lease.
+  - Discards entries whose session is closed, already bound to a transaction (unwrapping the `CredentialsStrategySessionFactory` proxy that Spring binds), or fails `refresh`, rolling back the factory lease.
 - **`CredentialsStrategySessionFactory`**: wires itself and the transaction manager into its cache delegate, whether the delegate is created lazily or injected. If proxy creation or listener registration fails, the session's diagnostic count is rolled back and its lease is released even if that counter cannot be read (or a direct session is logged out), and the original exception is rethrown. The logout-suppressing proxy forwards `logout()` only while the session is still live: Spring runs transaction synchronizations (which can release the last lease and log the session out) before the transaction manager closes its bound proxy, so the manager's later `logout()` must not reach the session a second time.
 - **`PentahoJcrTemplate`**: distinguishes the factory hand-off from reuse of a bound session; registers a `TransactionSynchronization` that holds the bound lease until `afterCompletion` (so a session stays open between callbacks, across nested callbacks and across a suspended transaction); releases leases in `finally`; and never lets cleanup failures replace the callback's own exception.
-- **`PentahoTransactionManager`**: registers itself with its session factory and reports when a `REQUIRES_NEW` transaction is being begun (section 4.5).
+- **`PentahoTransactionManager`**: registers itself with its session factory, reports when a `REQUIRES_NEW` transaction is being begun (section 4.5), and in `doCleanupAfterCompletion` hands back any factory lease that no template callback consumed.
 - **`SessionLease`** (public, same package): a short claim on a cached session for code that uses it outside a template callback. `tryAcquire( session )` returns a lease, a no-op lease for a session without a lifecycle holder, or nothing when the session is already closed or closing. It reuses `acquireForBoundUse()`, so no new lifecycle state exists.
 - **`RepositoryFileProxy`**: each lazy read holds a `SessionLease` while it runs. If no lease can be taken, or the session is no longer live, it reloads its node through the template exactly as before (section 4.6).
 
@@ -279,7 +305,7 @@ To run everything: `mvn --batch-mode -o -pl repository -DrunITs verify`.
 
 ### 6.3 Results for this change
 
-The full module run passed 437 unit tests and 170 integration tests with no failures, errors or skips.
+The full module run passed 439 unit tests and 170 integration tests with no failures, errors or skips.
 
 **Manual validation on a running server.** A Pentaho 11.1 server was driven by 60 users and 60 parallel clients (2,400 calls of create, list, properties, download and tree per run), with the cache cut to 3 entries and a 2 s TTL to force constant eviction. The pre-change row is master with only its hard-coded cache defaults reduced, because the original code ignores the configured values. Each row is one run, so read the numbers as indicative.
 
@@ -296,7 +322,7 @@ A microbenchmark comparing the original and the fixed lifecycle logic with light
 ## 7. Known limits
 
 - `RepositoryFileProxy` lazy reads are protected against eviction by a `SessionLease` (section 4.6). Other objects that outlive their callback and read from the session later, such as returned binary streams, are not leased. Closed-session reload and returned-stream compatibility are tested, but a race between such a read and eviction is not claimed to be solved. A session that something outside the lease model logs out directly, such as the transaction manager closing its bound proxy, can still be closed under a lazy read; the proxy then reloads.
-- Sessions that are not Jackrabbit `SessionImpl` cannot carry the holder attribute, so they are not lifecycle-tracked. Raw consumers of the factory and transactions that never enter `PentahoJcrTemplate` were not established as safe.
+- Sessions that are not Jackrabbit `SessionImpl` cannot carry the holder attribute, so they are not lifecycle-tracked. Raw consumers of the factory outside `PentahoJcrTemplate` and `PentahoTransactionManager` were not established as safe.
 - A `logout()` that throws is contained and logged, and exactly-once initiation is preserved, but the repository may not have freed that session.
 - Eviction cleanup has no queue-depth metric (section 4.1).
 - `REQUIRED` and `NESTED` transactions still share the thread's cached session (section 4.5).
