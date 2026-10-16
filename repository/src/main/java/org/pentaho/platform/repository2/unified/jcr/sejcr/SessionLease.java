@@ -66,7 +66,8 @@ public final class SessionLease implements AutoCloseable {
     try {
       attribute = session.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE );
     } catch ( RuntimeException e ) {
-      LOG.debug( "Could not read the lifecycle holder of a JCR session; treating it as unavailable", e );
+      // Reading a session attribute is not expected to fail; reload instead, but make the unexpected state visible.
+      LOG.warn( "Could not read the lifecycle holder of a JCR session; reloading instead", e );
       return Optional.empty();
     }
     if ( !( attribute instanceof CachedJcrSession ) ) {

@@ -231,10 +231,9 @@ public class PentahoJcrTemplate extends JcrTemplate {
             count == 0 ? " - SESSION SAFE FOR EVICTION" : "" );
         }
         if ( count < 0 ) {
-          LOG.warn( "[JCR-REFCOUNT-ERROR] Usage count went negative; factory protection decrement imbalance:"
-            + " SessionId=" + System.identityHashCode( session )
-            + " RefCount=" + count
-            + " Session=" + session );
+          LOG.error( "[JCR-REFCOUNT-ERROR] Usage count went negative; factory protection decrement imbalance:"
+              + " SessionId={} RefCount={}", System.identityHashCode( session ), count,
+            new IllegalStateException( "usage count underflow" ) );
         }
       }
     } catch ( Exception e ) {
