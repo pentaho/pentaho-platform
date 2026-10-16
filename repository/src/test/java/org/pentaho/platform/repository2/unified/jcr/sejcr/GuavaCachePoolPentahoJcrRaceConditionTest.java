@@ -13,7 +13,6 @@
 
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
-import com.google.common.cache.Cache;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,24 +26,26 @@ import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
-import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.pentaho.platform.repository2.unified.jcr.sejcr.GuavaCachePoolPentahoJcrSessionFactory.USAGE_COUNT;
 
 /**
- * Test suite for the JCR session race-condition fix (BISERVER-15667).
+ * Tests the JCR session usage-count race and the factory's cache-fallback behavior.
  *
  * <p>Unlike a pure arithmetic check on a local counter, these tests drive the real
  * {@link PentahoJcrTemplate#execute(JcrCallback, boolean)} code path so that the production
@@ -62,10 +63,9 @@ import static org.pentaho.platform.repository2.unified.jcr.sejcr.GuavaCachePoolP
  * tests protect is that after {@code execute()} completes the count is only back to {@code 0} (i.e. the
  * session becomes evictable) once BOTH the factory retrieval and the template are done with it.</p>
  *
- * <p>Note: the factory's actual cache retrieval requires a live Jackrabbit {@code Repository}, which is
- * out of scope for a unit test, so the factory-side {@code usage_count} increment is simulated by
- * incrementing the shared attribute immediately before each {@code execute()} (mirroring the contract in
- * {@link GuavaCachePoolPentahoJcrSessionFactory#getSession(javax.jcr.Credentials)}).</p>
+ * <p>The usage-count tests simulate the factory increment immediately before each {@code execute()} to isolate the
+ * template accounting contract. The additional factory tests use a mocked JCR {@code Repository} with the real Guava
+ * cache; real storage and transaction integration are covered by {@code *IT} tests.</p>
  */
 @RunWith( MockitoJUnitRunner.class )
 public class GuavaCachePoolPentahoJcrRaceConditionTest {
@@ -210,6 +210,7 @@ public class GuavaCachePoolPentahoJcrRaceConditionTest {
     assertEquals( "All balanced factory + template operations return the count to 0", 0, usageCount.get() );
   }
 
+  /** Verifies eviction of an already-closed session does not inspect its usage attribute or call logout again. */
   @Test
   public void evictingDeadSessionDoesNotReadUsageCountOrLogOut() throws Exception {
     Repository repository = org.mockito.Mockito.mock( Repository.class );
@@ -225,16 +226,49 @@ public class GuavaCachePoolPentahoJcrRaceConditionTest {
 
     clearInvocations( cachedSession );
     when( cachedSession.isLive() ).thenReturn( false );
-    getSessionCache( factory ).invalidateAll();
+    factory.invalidateCachedSessions();
 
     verify( cachedSession, never() ).getAttribute( USAGE_COUNT );
     verify( cachedSession, never() ).logout();
   }
 
-  @SuppressWarnings( "unchecked" )
-  private Cache<?, ?> getSessionCache( GuavaCachePoolPentahoJcrSessionFactory factory ) throws Exception {
-    Field cacheField = GuavaCachePoolPentahoJcrSessionFactory.class.getDeclaredField( "sessionCache" );
-    cacheField.setAccessible( true );
-    return (Cache<?, ?>) cacheField.get( factory );
+  /** Verifies a cache refresh failure releases the attempted lease and the factory falls back to direct login. */
+  @Test
+  public void refreshFailureReleasesCachedLeaseAndFallsBackToDirectLogin() throws Exception {
+    Repository repository = org.mockito.Mockito.mock( Repository.class );
+    Session cachedSession = org.mockito.Mockito.mock( Session.class );
+    Session fallbackSession = org.mockito.Mockito.mock( Session.class );
+    SimpleCredentials credentials = new SimpleCredentials( "user", "password".toCharArray() );
+    when( repository.login( any( SimpleCredentials.class ), eq( "workspace" ) ) )
+      .thenReturn( cachedSession, fallbackSession );
+    when( cachedSession.isLive() ).thenReturn( true );
+    doThrow( new RepositoryException( "refresh failed" ) ).when( cachedSession ).refresh( false );
+
+    GuavaCachePoolPentahoJcrSessionFactory factory =
+      new GuavaCachePoolPentahoJcrSessionFactory( repository, "workspace" );
+
+    assertSame( "A failed cached-session refresh should fall back to a direct repository login",
+      fallbackSession, factory.getSession( credentials ) );
+    verify( repository, times( 2 ) ).login( any( SimpleCredentials.class ), eq( "workspace" ) );
+  }
+
+  /** Verifies session acquisition bypasses the cache while an independent transaction is being created. */
+  @Test
+  public void sessionCreationDuringTransactionBypassesTheCache() throws Exception {
+    Repository repository = org.mockito.Mockito.mock( Repository.class );
+    Session directSession = org.mockito.Mockito.mock( Session.class );
+    SimpleCredentials credentials = new SimpleCredentials( "user", "password".toCharArray() );
+    when( repository.login( any( SimpleCredentials.class ), eq( "workspace" ) ) ).thenReturn( directSession );
+    PentahoTransactionManager transactionManager = new PentahoTransactionManager() {
+      @Override
+      public boolean isCreatingIndependentTransaction() {
+        return true;
+      }
+    };
+    GuavaCachePoolPentahoJcrSessionFactory factory =
+      new GuavaCachePoolPentahoJcrSessionFactory( repository, "workspace", transactionManager );
+
+    assertSame( "Transaction creation must use a direct session", directSession, factory.getSession( credentials ) );
+    verify( repository, times( 1 ) ).login( any( SimpleCredentials.class ), eq( "workspace" ) );
   }
 }

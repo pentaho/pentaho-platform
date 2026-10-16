@@ -15,12 +15,15 @@
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
 import org.apache.jackrabbit.api.XASession;
+import org.apache.jackrabbit.core.SessionImpl;
 import org.junit.Test;
 import org.springframework.extensions.jcr.SessionFactory;
 import org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 
+import javax.jcr.Repository;
 import javax.transaction.xa.XAResource;
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +31,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Created by nbaker on 10/17/16.
@@ -89,6 +96,91 @@ public class PentahoTransactionManagerTest {
     transactionManager.getTransaction( transactionDefinition );
 
 
+  }
+
+  /**
+   * Verifies only a {@code REQUIRES_NEW} transaction is reported as independent, and only while it is being begun.
+   * Other propagation behaviors keep using the thread's session, as does code that is not beginning a transaction.
+   */
+  @Test
+  @SuppressWarnings( "java:S1874" ) // The manager's doBegin requires Jackrabbit's (deprecated) XASession.
+  public void isCreatingIndependentTransaction() throws Exception {
+    PentahoTransactionManager transactionManager = new PentahoTransactionManager();
+    SessionFactory sessionFactory = mock( SessionFactory.class );
+    XASession xaSession = mock( XASession.class );
+    when( xaSession.getXAResource() ).thenReturn( mock( XAResource.class ) );
+    transactionManager.setSessionFactory( sessionFactory );
+    TransactionDefinition transactionDefinition = mock( TransactionDefinition.class );
+    when( transactionDefinition.getIsolationLevel() ).thenReturn( -1 );
+    assertFalse( "Nothing is being created outside doBegin", transactionManager.isCreatingIndependentTransaction() );
+
+    List<Boolean> observed = new java.util.ArrayList<>();
+    when( sessionFactory.getSession() ).then( invocation -> {
+      for ( Integer propagation : Arrays.asList( TransactionDefinition.PROPAGATION_REQUIRED,
+        TransactionDefinition.PROPAGATION_NESTED, TransactionDefinition.PROPAGATION_SUPPORTS,
+        TransactionDefinition.PROPAGATION_REQUIRES_NEW ) ) {
+        when( transactionDefinition.getPropagationBehavior() ).thenReturn( propagation );
+        observed.add( transactionManager.isCreatingIndependentTransaction() );
+      }
+      return xaSession;
+    } );
+
+    transactionManager.getTransaction( transactionDefinition );
+
+    assertEquals( Arrays.asList( false, false, false, true ), observed );
+    assertFalse( "Nothing is being created after doBegin", transactionManager.isCreatingIndependentTransaction() );
+  }
+
+  /**
+   * Verifies a transaction that completes without any template callback hands its factory lease back, so the cached
+   * session can still be closed after eviction. The session is bound as the logout-suppressing proxy, as in production.
+   */
+  @Test
+  @SuppressWarnings( "java:S1874" ) // The manager's doBegin requires Jackrabbit's (deprecated) XASession.
+  public void transactionCompletedWithoutTemplateCallbackReleasesItsFactoryLease() throws Exception {
+    SessionImpl target = mock( SessionImpl.class, withSettings().extraInterfaces( XASession.class ) );
+    when( ( (XASession) target ).getXAResource() ).thenReturn( mock( XAResource.class ) );
+    when( target.isLive() ).thenReturn( true );
+    CachedJcrSession cachedSession = new CachedJcrSession( target );
+    when( target.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE ) ).thenReturn( cachedSession );
+
+    CredentialsStrategySessionFactory proxyFactory =
+      new CredentialsStrategySessionFactory( mock( Repository.class ), mock( CredentialsStrategy.class ) );
+    // A suppressed proxy logout leaves the lease as the only thing that can close the session.
+    proxyFactory.setLogoutDelegate( () -> false );
+    SessionFactory sessionFactory = mock( SessionFactory.class );
+    when( sessionFactory.getSession() ).then( invocation -> {
+      assertTrue( cachedSession.acquire() );
+      return proxyFactory.createSessionProxy( target );
+    } );
+    PentahoTransactionManager transactionManager = new PentahoTransactionManager();
+    transactionManager.setSessionFactory( sessionFactory );
+    TransactionDefinition transactionDefinition = mock( TransactionDefinition.class );
+    when( transactionDefinition.getIsolationLevel() ).thenReturn( -1 );
+
+    TransactionStatus status = transactionManager.getTransaction( transactionDefinition );
+    cachedSession.retire();
+    verify( target, never() ).logout();
+    transactionManager.rollback( status );
+
+    verify( target, times( 1 ) ).logout();
+  }
+
+  /**
+   * Verifies that binding the manager to a {@link CredentialsStrategySessionFactory} registers it with that factory
+   * and its cache-backed delegate, which is what lets session creation tell that a transaction is being created.
+   */
+  @Test
+  public void setSessionFactoryRegistersTheManagerWithACredentialsStrategySessionFactory() {
+    CredentialsStrategySessionFactory sessionFactory =
+      new CredentialsStrategySessionFactory( mock( Repository.class ), mock( CredentialsStrategy.class ) );
+    PentahoTransactionManager transactionManager = new PentahoTransactionManager();
+
+    transactionManager.setSessionFactory( sessionFactory );
+
+    assertSame( sessionFactory, transactionManager.getSessionFactory() );
+    assertSame( transactionManager,
+      ReflectionTestUtils.getField( sessionFactory.getSessionFactory(), "transactionManager" ) );
   }
 
 }
