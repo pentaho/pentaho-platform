@@ -71,6 +71,37 @@ public class CachedJcrSessionTest {
     verify( session, times( 1 ) ).logout();
   }
 
+  /**
+   * Verifies marking an idle holder retired blocks new acquisitions and claims its logout without performing it, so
+   * the caller can run the repository logout on another thread.
+   */
+  @Test
+  public void markingAnIdleHolderRetiredClaimsItsLogoutWithoutPerformingIt() {
+    CachedJcrSession cachedSession = new CachedJcrSession( session );
+
+    assertTrue( "The caller must claim the logout of an idle holder", cachedSession.markRetired() );
+    assertFalse( "A retired session must not be acquired again", cachedSession.acquire() );
+    verify( session, never() ).logout();
+    assertFalse( "The logout can be claimed only once", cachedSession.markRetired() );
+
+    cachedSession.performClaimedLogout();
+    verify( session, times( 1 ) ).logout();
+  }
+
+  /** Verifies marking a holder retired while it is in use leaves the logout to the last release. */
+  @Test
+  public void markingABusyHolderRetiredLeavesTheLogoutToItsLastRelease() {
+    CachedJcrSession cachedSession = new CachedJcrSession( session );
+    assertTrue( cachedSession.acquire() );
+
+    assertFalse( "No logout may be claimed while the session is in use", cachedSession.markRetired() );
+    assertFalse( "A retired session must not be acquired again", cachedSession.acquire() );
+    verify( session, never() ).logout();
+
+    cachedSession.release();
+    verify( session, times( 1 ) ).logout();
+  }
+
   /** Verifies an unconsumed factory lease is rolled back once, and that nothing happens when none is pending. */
   @Test
   public void unconsumedFactoryLeaseIsRolledBackOnlyWhilePending() {

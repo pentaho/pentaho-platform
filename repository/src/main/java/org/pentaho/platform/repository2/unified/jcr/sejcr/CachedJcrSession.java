@@ -154,12 +154,31 @@ final class CachedJcrSession {
    * Repeated calls are safe; logout is claimed at most once.
    */
   void retire() {
-    boolean shouldLogout;
-    synchronized ( this ) {
-      retired = true;
-      shouldLogout = markLogoutIfReady();
-    }
-    logoutIfRequired( shouldLogout );
+    logoutIfRequired( markRetired() );
+  }
+
+  /**
+   * Permanently prevents new cache acquisitions without performing any repository I/O. This is the state change
+   * of {@link #retire()} on its own, so a caller that must not block (the cache's removal listener) can retire the
+   * holder immediately and run the logout elsewhere.
+   * <p>
+   * If the session is still in use, its last release logs it out and this method returns {@code false}. If it is
+   * idle, this call claims the single logout and returns {@code true}; the caller must then call
+   * {@link #performClaimedLogout()} exactly once.
+   *
+   * @return {@code true} when this call claimed the logout and the caller must perform it
+   */
+  synchronized boolean markRetired() {
+    retired = true;
+    return markLogoutIfReady();
+  }
+
+  /**
+   * Logs out the session after {@link #markRetired()} returned {@code true}. Safe to run on any thread; a failing
+   * logout is logged and contained.
+   */
+  void performClaimedLogout() {
+    logoutIfRequired( true );
   }
 
   /** Claims the sole logout attempt when retirement and the final release have both occurred. */

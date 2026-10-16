@@ -18,7 +18,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalListeners;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -40,12 +39,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * JCR session factory that caches sessions by credential identity and requesting thread ID.
  * Cache capacity and entry lifetime are configured with the repository system configuration. Eviction retires the
- * associated {@link CachedJcrSession} asynchronously; active template or transaction leases keep the session alive
- * until their owners release it. Zero cache size or TTL selects direct-login sessions managed for the duration of use.
+ * associated {@link CachedJcrSession} immediately; an idle session is then logged out on a background cleanup
+ * worker, while a session still in use is logged out by its last user when that user releases it. Zero cache size
+ * or TTL selects direct-login sessions managed for the duration of use.
  */
 class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFactory
   implements PentahoJcrSessionFactory {
@@ -59,16 +60,23 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
   static final int MAX_CONCURRENT_EVICTION_CLEANUPS = 4;
   /** Idle time after which an eviction worker thread exits, so an idle system holds no cleanup threads. */
   private static final long EVICTION_WORKER_KEEP_ALIVE_SECONDS = 60;
+  /** Number of queued eviction logouts at which a warning is logged that cleanup is falling behind. */
+  static final int EVICTION_QUEUE_WARNING_THRESHOLD = 100;
+  /** Minimum time between two backlog warnings from one factory, so a long stall does not flood the log. */
+  private static final long EVICTION_QUEUE_WARNING_INTERVAL_NANOS = TimeUnit.MINUTES.toNanos( 1 );
 
   /**
-   * Shared daemon executor for eviction cleanup. Session logout may perform repository I/O, so dispatching Guava
-   * removal notifications here prevents an unrelated cache-acquisition thread from blocking on that work.
+   * Shared daemon executor for the repository logouts of evicted idle sessions. Logout may perform repository I/O, so
+   * running it here prevents an unrelated cache-acquisition thread from blocking on that work.
    * <p>
    * Concurrency is bounded at {@link #MAX_CONCURRENT_EVICTION_CLEANUPS} worker threads, so slow or stuck logouts
-   * cannot exhaust native threads. Notifications beyond that wait in an unbounded queue: a retired session must
-   * always be logged out eventually, so cleanup is never rejected, dropped or run on the thread that triggered the
-   * eviction. Each queued entry is only a retired holder awaiting logout, and the queue grows only as fast as cache
-   * entries are evicted.
+   * cannot exhaust native threads. Logouts beyond that wait in an unbounded queue: a retired session must always be
+   * logged out eventually, so a logout is never rejected, dropped or run on the thread that triggered the eviction.
+   * <p>
+   * Every queued entry is a session that has already been retired (no new user can acquire it) and is idle. Each
+   * queued logout corresponds to one session that was previously logged in through the cache, so the queue can grow
+   * only as fast as new sessions are logged in. A backlog of {@link #EVICTION_QUEUE_WARNING_THRESHOLD} logouts is
+   * reported as a warning.
    */
   static final ThreadPoolExecutor EVICTION_EXECUTOR = createEvictionExecutor();
 
@@ -83,6 +91,8 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
    * Spring context wires the factory, before it serves requests.
    */
   private PentahoTransactionManager transactionManager;
+  /** Earliest {@link System#nanoTime()} at which this factory may log another eviction backlog warning. */
+  private final AtomicLong nextEvictionBacklogWarningNanos = new AtomicLong( System.nanoTime() );
   /** Cache of per-thread session lifecycle holders. */
   private final LoadingCache<CacheKey, CachedJcrSession> sessionCache;
 
@@ -149,8 +159,10 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
 
   /**
    * Builds the cache keyed by credentials and calling thread ID, keeping concurrent callers on separate entries.
-   * Removal notifications retire lifecycle holders asynchronously; active holders defer logout until their leases
-   * are released. The loader wraps each newly logged-in session with its lifecycle holder.
+   * The removal listener runs on the thread that caused the removal and only retires the holder, which is a short
+   * in-memory state change: from then on no caller can acquire the evicted session. Only the repository logout of an
+   * idle session is handed to {@link #EVICTION_EXECUTOR}; a session still in use is logged out by its last release.
+   * The loader wraps each newly logged-in session with its lifecycle holder.
    *
    * @return a configured loading cache for session holders
    * @see PentahoJcrTemplate#execute(org.springframework.extensions.jcr.JcrCallback, boolean)
@@ -159,20 +171,49 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
     return CacheBuilder.newBuilder()
       .expireAfterAccess( cacheDuration, TimeUnit.SECONDS )
       .maximumSize( cacheSize )
-      .removalListener( RemovalListeners.asynchronous(
-        (RemovalListener<CacheKey, CachedJcrSession>) objectObjectRemovalNotification -> {
-          CachedJcrSession cachedSession = objectObjectRemovalNotification.getValue();
-          if ( cachedSession != null ) {
-            logger.debug( "Retiring cached session after eviction {}", cachedSession.getSession() );
-            cachedSession.retire();
-          }
-        }, EVICTION_EXECUTOR ) ).recordStats()
+      .removalListener( (RemovalListener<CacheKey, CachedJcrSession>) objectObjectRemovalNotification -> {
+        CachedJcrSession cachedSession = objectObjectRemovalNotification.getValue();
+        if ( cachedSession != null && cachedSession.markRetired() ) {
+          logger.debug( "Logging out evicted idle cached session {}", cachedSession.getSession() );
+          scheduleEvictionLogout( cachedSession );
+        }
+      } ).recordStats()
       .build( new CacheLoader<CacheKey, CachedJcrSession>() {
         @Override public CachedJcrSession load( CacheKey credKey ) throws Exception {
           Session session = GuavaCachePoolPentahoJcrSessionFactory.super.getSession( credKey.creds );
           return trackSession( session );
         }
       } );
+  }
+
+  /**
+   * Queues the logout of an evicted idle session on {@link #EVICTION_EXECUTOR}, then warns if the backlog has reached
+   * {@link #EVICTION_QUEUE_WARNING_THRESHOLD}.
+   *
+   * @param cachedSession retired holder whose logout was claimed by {@link CachedJcrSession#markRetired()}
+   */
+  private void scheduleEvictionLogout( CachedJcrSession cachedSession ) {
+    EVICTION_EXECUTOR.execute( cachedSession::performClaimedLogout );
+    warnIfEvictionCleanupIsFallingBehind();
+  }
+
+  /**
+   * Logs a warning, at most once per {@link #EVICTION_QUEUE_WARNING_INTERVAL_NANOS} per factory, when the number of
+   * queued eviction logouts has reached {@link #EVICTION_QUEUE_WARNING_THRESHOLD}. A growing backlog usually means
+   * repository logouts are slow or stalled; the queued sessions stay open until their logout runs.
+   */
+  private void warnIfEvictionCleanupIsFallingBehind() {
+    int queued = EVICTION_EXECUTOR.getQueue().size();
+    if ( queued < EVICTION_QUEUE_WARNING_THRESHOLD ) {
+      return;
+    }
+    long now = System.nanoTime();
+    long next = nextEvictionBacklogWarningNanos.get();
+    if ( now - next >= 0
+      && nextEvictionBacklogWarningNanos.compareAndSet( next, now + EVICTION_QUEUE_WARNING_INTERVAL_NANOS ) ) {
+      logger.warn( "JCR session eviction cleanup is falling behind: {} session logouts are waiting for {} cleanup "
+        + "workers. Repository logouts may be slow or stalled.", queued, MAX_CONCURRENT_EVICTION_CLEANUPS );
+    }
   }
 
   /**

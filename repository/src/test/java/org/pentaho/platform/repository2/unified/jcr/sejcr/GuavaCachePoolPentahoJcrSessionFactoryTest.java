@@ -53,10 +53,12 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -523,8 +525,8 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
 
   /**
    * Verifies natural maximum-size eviction dispatches a slow logout away from an unrelated acquisition thread.
-   * {@code createSessionCache()}'s removal listener must run {@code retire()}/{@code session.logout()}
-   * asynchronously; otherwise a thread acquiring its own session would pay, inline, for another idle user's slow
+   * {@code createSessionCache()}'s removal listener must hand the idle session's {@code session.logout()} to the
+   * eviction executor; otherwise a thread acquiring its own session would pay, inline, for another idle user's slow
    * logout I/O as a side effect of crossing {@code maximumSize}. The idle session's logout is held behind a latch
    * while an unrelated acquisition runs on another thread, so the assertion does not depend on scheduler timing:
    * a synchronous listener would leave that acquisition blocked and the future below would time out.
@@ -635,6 +637,154 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
   }
 
   /**
+   * Verifies a session evicted while in use is retired by the eviction itself, so it closes when its last user
+   * releases it instead of waiting for a cleanup worker. Every worker is first held by a stalled logout, so a
+   * retirement that was only queued would leave the session open after its callback.
+   */
+  @Test
+  public void evictedSessionInUseClosesOnItsLastReleaseWhileCleanupWorkersAreStalled() throws Exception {
+    int bound = GuavaCachePoolPentahoJcrSessionFactory.MAX_CONCURRENT_EVICTION_CLEANUPS;
+    CountDownLatch releaseLogouts = new CountDownLatch( 1 );
+    AtomicInteger runningLogouts = new AtomicInteger();
+    AtomicInteger maxRunningLogouts = new AtomicInteger();
+    List<BlockingLogoutSession> stalled = new ArrayList<>();
+    // One more than the worker bound: evicting the first `bound` occupies every worker, the last one queues.
+    for ( int user = 0; user <= bound; user++ ) {
+      stalled.add( new BlockingLogoutSession( releaseLogouts, runningLogouts, maxRunningLogouts ) );
+    }
+    Session busy = trackedSession();
+    Session evictor = trackedSession();
+    List<Session> logins = new ArrayList<>();
+    stalled.forEach( blocking -> logins.add( blocking.session ) );
+    logins.add( busy );
+    logins.add( evictor );
+    AtomicInteger nextLogin = new AtomicInteger();
+    Repository repository = mock( Repository.class );
+    when( repository.login( any( SimpleCredentials.class ), eq( "workspace" ) ) )
+      .thenAnswer( invocation -> logins.get( nextLogin.getAndIncrement() ) );
+    GuavaCachePoolPentahoJcrSessionFactory factory = configuredFactory( repository, "1", "300" );
+
+    try {
+      for ( int user = 0; user <= bound; user++ ) {
+        templateFor( factory, new SimpleCredentials( "stalled-" + user, new char[ 0 ] ) ).execute( s -> null, true );
+      }
+      for ( int worker = 0; worker < bound; worker++ ) {
+        assertTrue( "Every cleanup worker must be held by a stalled logout",
+          stalled.get( worker ).logoutStarted.await( 5, TimeUnit.SECONDS ) );
+      }
+      PentahoJcrTemplate evictorTemplate = templateFor( factory, new SimpleCredentials( "evictor", new char[ 0 ] ) );
+
+      templateFor( factory, new SimpleCredentials( "busy", new char[ 0 ] ) ).execute( session -> {
+        assertSame( busy, session );
+        // With a cache size of 1, loading another user's session evicts this one while it is still in use.
+        evictorTemplate.execute( s -> null, true );
+        assertTrue( "Eviction must not close a session that is still in use", session.isLive() );
+        return null;
+      }, true );
+
+      assertFalse( "A session evicted while in use must close on its last release, not wait for a cleanup worker",
+        busy.isLive() );
+    } finally {
+      releaseLogouts.countDown();
+      factory.invalidateCachedSessions();
+    }
+  }
+
+  /**
+   * Verifies a backlog of eviction logouts is reported once it reaches the warning threshold, and that the warning is
+   * rate limited rather than repeated for every further eviction. Every worker is held by a stalled logout, so each
+   * later eviction adds exactly one queued logout.
+   */
+  @Test
+  public void evictionCleanupBacklogIsWarnedOnceWhenItReachesTheThreshold() throws Exception {
+    awaitIdleEvictionExecutor();
+    int bound = GuavaCachePoolPentahoJcrSessionFactory.MAX_CONCURRENT_EVICTION_CLEANUPS;
+    int threshold = GuavaCachePoolPentahoJcrSessionFactory.EVICTION_QUEUE_WARNING_THRESHOLD;
+    CountDownLatch releaseLogouts = new CountDownLatch( 1 );
+    AtomicInteger runningLogouts = new AtomicInteger();
+    AtomicInteger maxRunningLogouts = new AtomicInteger();
+    List<Session> logins = new ArrayList<>();
+    List<BlockingLogoutSession> stalled = new ArrayList<>();
+    for ( int worker = 0; worker < bound; worker++ ) {
+      BlockingLogoutSession blocking = new BlockingLogoutSession( releaseLogouts, runningLogouts, maxRunningLogouts );
+      stalled.add( blocking );
+      logins.add( blocking.session );
+    }
+    // threshold + 2 queued logouts, plus one session that stays cached.
+    for ( int queued = 0; queued <= threshold + 2; queued++ ) {
+      logins.add( trackedSession() );
+    }
+    AtomicInteger nextLogin = new AtomicInteger();
+    Repository repository = mock( Repository.class );
+    when( repository.login( any( SimpleCredentials.class ), eq( "workspace" ) ) )
+      .thenAnswer( invocation -> logins.get( nextLogin.getAndIncrement() ) );
+    GuavaCachePoolPentahoJcrSessionFactory factory = configuredFactory( repository, "1", "300" );
+    org.slf4j.Logger logger = mock( org.slf4j.Logger.class );
+    ReflectionTestUtils.setField( factory, "logger", logger );
+    String warning = "JCR session eviction cleanup is falling behind";
+
+    try {
+      int user = 0;
+      // Evicting the first `bound` sessions occupies every worker with a stalled logout.
+      for ( ; user <= bound; user++ ) {
+        templateFor( factory, new SimpleCredentials( "user-" + user, new char[ 0 ] ) ).execute( s -> null, true );
+      }
+      for ( BlockingLogoutSession blocking : stalled ) {
+        assertTrue( blocking.logoutStarted.await( 5, TimeUnit.SECONDS ) );
+      }
+      // Each later eviction queues exactly one logout; stop one short of the threshold.
+      for ( ; user < bound + threshold; user++ ) {
+        templateFor( factory, new SimpleCredentials( "user-" + user, new char[ 0 ] ) ).execute( s -> null, true );
+      }
+      verify( logger, never() ).warn( startsWith( warning ), any( Object.class ), any( Object.class ) );
+
+      templateFor( factory, new SimpleCredentials( "user-" + user++, new char[ 0 ] ) ).execute( s -> null, true );
+      verify( logger, times( 1 ) ).warn( startsWith( warning ), any( Object.class ), any( Object.class ) );
+
+      templateFor( factory, new SimpleCredentials( "user-" + user, new char[ 0 ] ) ).execute( s -> null, true );
+      verify( logger, times( 1 ) ).warn( startsWith( warning ), any( Object.class ), any( Object.class ) );
+    } finally {
+      releaseLogouts.countDown();
+      factory.invalidateCachedSessions();
+    }
+  }
+
+  /**
+   * Waits until earlier tests' eviction cleanups have drained from the shared executor, without polling. Each round
+   * occupies every worker with a marker task; while all markers run, no other cleanup can run or be dequeued, so an
+   * empty queue at that moment means everything earlier has finished. A marker can start on a newly created worker
+   * ahead of queued work, so a non-empty queue releases the markers and tries again.
+   */
+  private void awaitIdleEvictionExecutor() throws InterruptedException {
+    int workers = GuavaCachePoolPentahoJcrSessionFactory.MAX_CONCURRENT_EVICTION_CLEANUPS;
+    for ( int round = 0; round < 5; round++ ) {
+      CountDownLatch allWorkersReached = new CountDownLatch( workers );
+      CountDownLatch release = new CountDownLatch( 1 );
+      for ( int worker = 0; worker < workers; worker++ ) {
+        GuavaCachePoolPentahoJcrSessionFactory.EVICTION_EXECUTOR.execute( () -> {
+          allWorkersReached.countDown();
+          try {
+            release.await( 5, TimeUnit.SECONDS );
+          } catch ( InterruptedException e ) {
+            Thread.currentThread().interrupt();
+          }
+        } );
+      }
+      boolean drained;
+      try {
+        assertTrue( "Eviction workers did not become available", allWorkersReached.await( 5, TimeUnit.SECONDS ) );
+        drained = GuavaCachePoolPentahoJcrSessionFactory.EVICTION_EXECUTOR.getQueue().isEmpty();
+      } finally {
+        release.countDown();
+      }
+      if ( drained ) {
+        return;
+      }
+    }
+    org.junit.Assert.fail( "Earlier eviction cleanups did not drain" );
+  }
+
+  /**
    * Creates a template whose sessions come from the supplied cache factory for one set of credentials.
    *
    * @param factory cache factory under test
@@ -742,8 +892,8 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
   /**
    * Decorates the real loading cache so each lookup is invalidated before the factory can acquire its holder.
    * This deterministically exercises the cache-get/lease-acquire race while preserving the actual loader and
-   * removal-listener behavior. The returned holder is also retired directly: the removal listener retires
-   * asynchronously, so without that the race would depend on how quickly the eviction thread runs.
+   * removal-listener behavior. The removal listener retires the holder on the invalidating thread, so the holder is
+   * already retired when it is returned.
    *
    * @param factory factory whose cache is decorated for the test
    */
@@ -760,7 +910,6 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
           Object session = super.get( key );
           invalidate( key );
           cleanUp();
-          ( (CachedJcrSession) session ).retire();
           return session;
         }
       } );

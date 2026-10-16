@@ -124,6 +124,7 @@ Reproducing and reviewing the fix exposed other defects, in the original code or
 | Direct-login fallback sessions, and sessions whose proxy or listener setup failed, were never closed | Leaked sessions |
 | Eviction logout ran synchronously inside Guava's removal notification | An unrelated caller loading its own session paid for another user's slow `logout()` |
 | Cleanup ran on an unbounded cached thread pool | Slow or stuck logouts could each start a native thread |
+| Retirement itself was queued on the bounded cleanup pool (found in review of an intermediate version of the fix) | While logouts were stuck, an evicted session stayed acquirable and a session evicted while in use stayed open after its last user finished; now the holder is retired on the evicting thread and only the idle logout is queued (section 4.1) |
 | A bound session was closed between two callbacks of the same Spring operation | Premature close (found in the first version of the fix) |
 | Cache acquisition retried without limit when every returned entry was evicted | Unbounded logins under continuous eviction (found in the first version of the fix) |
 | DEBUG logging cast credentials to `SimpleCredentials` | `ClassCastException` for `GuestCredentials` |
@@ -159,7 +160,7 @@ Retirement only blocks *new* cache acquisitions. A callback that already holds t
 - **`GuavaCachePoolPentahoJcrSessionFactory`**:
   - Caches holders, not bare sessions; the loader attaches the holder and the legacy `usage_count` diagnostic counter to each session.
   - Reads size and TTL *before* building the cache. A size or TTL of zero selects a managed direct login instead of caching.
-  - The removal listener retires holders asynchronously (section 4.1).
+  - The removal listener retires holders immediately and sends only idle sessions' logouts to a bounded pool (section 4.1).
   - Sends credentials that are not `SimpleCredentials` (for example `GuestCredentials`) straight to a managed direct login, because the cache key is built from `SimpleCredentials`.
   - Tries the cache at most three times (a lookup can lose a race with eviction), then falls back to a managed direct login. In every case, "direct" means a fresh `repository.login(creds, workspace)` without cache reuse; it uses the same credentials supplied for that request and does not bypass repository authentication or authorization. Invalid credentials are still rejected; anonymous credentials (such as `GuestCredentials`, or `null` if supplied) work only if the repository is configured to allow them. Fallback sessions are tracked and retired up front so they close when the callback and any Spring binding finish.
   - Discards entries whose session is closed, already bound to a transaction (unwrapping the `CredentialsStrategySessionFactory` proxy that Spring binds), or fails `refresh`, rolling back the factory lease.
@@ -171,13 +172,42 @@ Retirement only blocks *new* cache acquisitions. A callback that already holds t
 
 ## 4. Design decisions
 
-### 4.1 Eviction cleanup is asynchronous, on a bounded pool
+### 4.1 Eviction retires immediately; idle logouts run on a bounded pool
 
-Guava runs removal notifications on whichever thread triggered the eviction. `logout()` can do repository I/O, so the listener hands cleanup to a shared executor, and an unrelated caller is never delayed by another user's slow logout.
+Guava runs removal notifications on whichever thread triggered the eviction. The listener therefore does only cheap work on that thread and hands the repository I/O to a shared executor, so an unrelated caller is never delayed by another user's slow `logout()`:
 
-The pool has `MAX_CONCURRENT_EVICTION_CLEANUPS` (4) daemon threads that time out when idle. Cleanups beyond four wait in an **unbounded queue**. That is deliberate: a retired session must always be logged out eventually, so a cleanup is never rejected or dropped (that would leak the session) and never run on the evicting thread (that would bring back the latency). The queue only holds retired holders and grows only as fast as entries are evicted. The cost is that four stuck logouts silently stall cleanup until they return; there is no metric or warning for queue depth.
+1. **Retire now, on the evicting thread.** `CachedJcrSession.markRetired()` is a short synchronized state change with no I/O. From that moment, no caller can acquire the evicted session.
+2. **Session in use:** nothing is queued. The session's last user logs it out when it releases its lease, as soon as its work ends.
+3. **Session idle:** `markRetired()` claims the logout, and only the `logout()` call is queued on the executor (`performClaimedLogout()`).
 
-Because cleanup is asynchronous, **code and tests must not assume a session is closed the instant it is evicted**. Tests wait on a logout latch or a bounded deadline.
+The pool has `MAX_CONCURRENT_EVICTION_CLEANUPS` (4) daemon threads that time out when idle. Logouts beyond four wait in an **unbounded queue**. That is deliberate, because every alternative is worse: rejecting or dropping a logout leaks the session permanently, running it on the evicting thread brings the latency back, and blocking stalls every caller that loads a session.
+
+Every queued entry is an idle session that is already retired. The queue cannot grow without limit on its own: each queued logout belongs to a session that was earlier logged in through the cache, so the backlog is at most the cache size plus the logins that succeed while logouts are stuck. If the repository is hung, logins usually stall too. If only logout is stuck, the backlog keeps growing at the login rate, and those sessions stay open until their logout runs.
+
+When the backlog reaches `EVICTION_QUEUE_WARNING_THRESHOLD` (100) queued logouts, the factory logs a warning (`JCR session eviction cleanup is falling behind: ...`), at most once a minute per factory. Before this warning, a stuck cleanup was silent.
+
+Because the idle logout is asynchronous, **code and tests must not assume an idle session is closed the instant it is evicted**. Tests wait on a logout latch or a bounded deadline.
+
+```mermaid
+sequenceDiagram
+  participant Caller as Evicting thread
+  participant Holder as CachedJcrSession
+  participant Pool as Eviction pool (4 workers)
+  participant Owner as Current user of the session
+
+  Caller->>Holder: markRetired() (no I/O)
+  Note over Holder: retired, new acquisitions now fail
+  alt session idle
+    Holder-->>Caller: logout claimed
+    Caller->>Pool: queue performClaimedLogout()
+    Caller->>Caller: warn if backlog reaches 100 (once a minute)
+    Pool->>Holder: logout() on a worker thread
+  else session in use
+    Holder-->>Caller: nothing to do
+    Owner->>Holder: release() at end of use
+    Holder->>Holder: logout() on the owner's thread
+  end
+```
 
 ### 4.2 Why a holder rather than a smarter counter
 
@@ -291,7 +321,7 @@ A retired session whose last lease is a lazy read is logged out on the reading t
 
 ### 6.1 Test layout
 
-- **Unit tests** (`repository/src/test`, Surefire): `CachedJcrSessionTest` (lease transitions, retirement, no revival, logout failures, concurrent retirement against final release), `SessionLeaseTest` (lease on tracked, untracked and closed sessions, deferred logout, idempotent close), `RepositoryFileProxyLeaseTest` (a lazy read holds its lease, reloads when the session is closing, keeps the old behavior for untracked sessions, releases the lease when the read fails), `GuavaCachePoolPentahoJcrSessionFactoryTest` and `GuavaCachePoolPentahoJcrRaceConditionTest` (configuration, bounded retries, refresh and fallback cleanup, closed-session replacement, the bounded and non-blocking asynchronous eviction, the `REQUIRES_NEW` bypass), `PentahoJcrTemplateTest` (usage accounting, security translation, bound-lease retention until completion, unusable and unprotectable sessions, contained cleanup failures), `CredentialsStrategySessionFactoryTest` (delegate wiring, failed hand-off cleanup), `PentahoTransactionManagerTest`.
+- **Unit tests** (`repository/src/test`, Surefire): `CachedJcrSessionTest` (lease transitions, retirement, retiring without I/O and handing the claimed logout to the caller, no revival, logout failures, concurrent retirement against final release), `SessionLeaseTest` (lease on tracked, untracked and closed sessions, deferred logout, idempotent close), `RepositoryFileProxyLeaseTest` (a lazy read holds its lease, reloads when the session is closing, keeps the old behavior for untracked sessions, releases the lease when the read fails), `GuavaCachePoolPentahoJcrSessionFactoryTest` and `GuavaCachePoolPentahoJcrRaceConditionTest` (configuration, bounded retries, refresh and fallback cleanup, closed-session replacement, the bounded and non-blocking eviction cleanup, a session evicted while in use closing on its last release even when every cleanup worker is stalled, the rate-limited backlog warning, the `REQUIRES_NEW` bypass), `PentahoJcrTemplateTest` (usage accounting, security translation, bound-lease retention until completion, unusable and unprotectable sessions, contained cleanup failures), `CredentialsStrategySessionFactoryTest` (delegate wiring, failed hand-off cleanup), `PentahoTransactionManagerTest`.
 - **Integration tests** (`repository/src/it`, Failsafe, activated with `-DrunITs`): `GuavaCachePoolPentahoJcrOrphanedSessionIT` runs against a real Jackrabbit repository: eviction during and after callbacks, failing callbacks, externally closed sessions, read-only and nested bound callbacks, commit and rollback, 12 workers × 16 rounds of concurrent real sessions, lazily loaded files and binary streams that outlive their session, `REQUIRES_NEW` suspension and resumption, the Spring wiring, and `REQUIRES_NEW` isolation. `RepositoryFileProxyEvictionIT` runs against a real Jackrabbit repository too: one test retires the session at the first repository access inside each lazy read (the deterministic form of eviction landing between the liveness check and the read), and one reads proxies from 8 threads while another thread keeps evicting the cache. `GuavaCachePoolPentahoJcrSessionStressIT` and `CachedJcrSessionStressIT` are opt-in stress cases (50,000 operations per scenario; 200,000 simultaneously live holders). They use lightweight session fixtures, not 200,000 real Jackrabbit sessions.
 
 To run everything: `mvn --batch-mode -o -pl repository -DrunITs verify`.
@@ -305,7 +335,7 @@ To run everything: `mvn --batch-mode -o -pl repository -DrunITs verify`.
 
 ### 6.3 Results for this change
 
-The full module run passed 439 unit tests and 170 integration tests with no failures, errors or skips.
+The full module run passed 443 unit tests and 170 integration tests with no failures, errors or skips.
 
 **Manual validation on a running server.** A Pentaho 11.1 server was driven by 60 users and 60 parallel clients (2,400 calls of create, list, properties, download and tree per run), with the cache cut to 3 entries and a 2 s TTL to force constant eviction. The pre-change row is master with only its hard-coded cache defaults reduced, because the original code ignores the configured values. Each row is one run, so read the numbers as indicative.
 
@@ -324,5 +354,5 @@ A microbenchmark comparing the original and the fixed lifecycle logic with light
 - `RepositoryFileProxy` lazy reads are protected against eviction by a `SessionLease` (section 4.6). Other objects that outlive their callback and read from the session later, such as returned binary streams, are not leased. Closed-session reload and returned-stream compatibility are tested, but a race between such a read and eviction is not claimed to be solved. A session that something outside the lease model logs out directly, such as the transaction manager closing its bound proxy, can still be closed under a lazy read; the proxy then reloads.
 - Sessions that are not Jackrabbit `SessionImpl` cannot carry the holder attribute, so they are not lifecycle-tracked. Raw consumers of the factory outside `PentahoJcrTemplate` and `PentahoTransactionManager` were not established as safe.
 - A `logout()` that throws is contained and logged, and exactly-once initiation is preserved, but the repository may not have freed that session.
-- Eviction cleanup has no queue-depth metric (section 4.1).
+- Eviction cleanup reports a backlog only as a rate-limited log warning (section 4.1); there is no queue-depth metric.
 - `REQUIRED` and `NESTED` transactions still share the thread's cached session (section 4.5).
