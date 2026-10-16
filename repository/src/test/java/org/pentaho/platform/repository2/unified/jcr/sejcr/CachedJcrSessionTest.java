@@ -219,6 +219,43 @@ public class CachedJcrSessionTest {
     verify( session, never() ).logout();
   }
 
+  /**
+   * Verifies a factory-lease rollback with no pending handoff does not take the lease of a template that is using the
+   * session. Here the handoff was already consumed, so the only active lease belongs to the running callback.
+   */
+  @Test
+  public void unmatchedFactoryLeaseRollbackDoesNotTakeAnActiveTemplateLease() {
+    CachedJcrSession cachedSession = new CachedJcrSession( session );
+    assertTrue( cachedSession.acquire() );
+    assertTrue( "The template has consumed the handoff", cachedSession.consumeFactoryLease() );
+    cachedSession.retire();
+
+    cachedSession.releaseUnhandedFactoryLease();
+
+    verify( session, never() ).logout();
+    cachedSession.release();
+    // The template's own release must still be the one that logs the session out.
+    verify( session, times( 1 ) ).logout();
+  }
+
+  /**
+   * Verifies transaction cleanup does not take a template's lease once the handoff it checked for has been consumed.
+   * Only a pending handoff may be rolled back.
+   */
+  @Test
+  public void unconsumedLeaseCleanupAfterConsumptionDoesNotTakeTheTemplateLease() {
+    CachedJcrSession cachedSession = new CachedJcrSession( session );
+    assertTrue( cachedSession.acquire() );
+    assertTrue( cachedSession.consumeFactoryLease() );
+    cachedSession.retire();
+
+    cachedSession.releaseUnconsumedFactoryLease();
+
+    verify( session, never() ).logout();
+    cachedSession.release();
+    verify( session, times( 1 ) ).logout();
+  }
+
   /** Verifies retirement does not invoke logout again when the underlying session is already closed. */
   @Test
   public void retirementDoesNotLogOutSessionThatIsAlreadyClosed() {

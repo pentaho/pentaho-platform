@@ -310,6 +310,20 @@ A retry was considered and rejected. The getters swallow the exception inside th
 
 A retired session whose last lease is a lazy read is logged out on the reading thread when that read ends, so the next lazy read on the same proxy reloads. That costs one reload per lazy read under constant eviction, which is the expected price of a tiny cache.
 
+### 4.7 Factory leases are per-session counters (known limitation)
+
+A factory handoff is recorded as the `pendingFactoryLeases` and `activeUses` counters of the session's `CachedJcrSession`, not as a token owned by the caller. The JCR and Spring APIs only pass a `Session` around, so there is no place to carry a per-handoff token without new plumbing. A release therefore means "release one pending lease on this session", not "release my lease". At transaction cleanup, `releaseUnconsumedFactoryLease()` can roll back a pending handoff that belongs to another `getSession()` caller on the same thread.
+
+Mitigations in place:
+
+- A release never takes a counter below zero, and a factory-lease release never falls back to taking an `activeUses` lease that belongs to a running callback or a Spring binding.
+- `releaseUnconsumedFactoryLease()` checks for a pending lease and releases it under one lock, so a concurrent consumption cannot slip in between.
+- A mismatch changes no state and is logged at ERROR with a stack trace (`Factory lease release without a matching lease ...` or `Release without a matching lease ...`). It does not throw, because releases run in `finally` and cleanup paths (section 4.4).
+
+An ERROR of this kind means some caller has a bookkeeping bug. It should be investigated, not suppressed. None were logged in any of the load tests in section 6.3.
+
+TODO (follow-up ticket): carry a per-handoff lease token in the logout-suppressing proxy created by `CredentialsStrategySessionFactory`, with an idempotent release, and have the template, the transaction cleanup and the failed-handoff path release that token.
+
 ## 5. Behavior and configuration notes
 
 - `cache-size` and `cache-ttl` (repository system configuration) now take effect. Setting either to `0` disables caching: each use is one managed direct login that closes when its callback and any Spring binding finish.
@@ -321,7 +335,7 @@ A retired session whose last lease is a lazy read is logged out on the reading t
 
 ### 6.1 Test layout
 
-- **Unit tests** (`repository/src/test`, Surefire): `CachedJcrSessionTest` (lease transitions, retirement, retiring without I/O and handing the claimed logout to the caller, no revival, logout failures, concurrent retirement against final release), `SessionLeaseTest` (lease on tracked, untracked and closed sessions, deferred logout, idempotent close), `RepositoryFileProxyLeaseTest` (a lazy read holds its lease, reloads when the session is closing, keeps the old behavior for untracked sessions, releases the lease when the read fails), `GuavaCachePoolPentahoJcrSessionFactoryTest` and `GuavaCachePoolPentahoJcrRaceConditionTest` (configuration, bounded retries, refresh and fallback cleanup, closed-session replacement, the bounded and non-blocking eviction cleanup, a session evicted while in use closing on its last release even when every cleanup worker is stalled, the rate-limited backlog warning, the `REQUIRES_NEW` bypass), `PentahoJcrTemplateTest` (usage accounting, security translation, bound-lease retention until completion, unusable and unprotectable sessions, contained cleanup failures), `CredentialsStrategySessionFactoryTest` (delegate wiring, failed hand-off cleanup), `PentahoTransactionManagerTest`.
+- **Unit tests** (`repository/src/test`, Surefire): `CachedJcrSessionTest` (lease transitions, retirement, retiring without I/O and handing the claimed logout to the caller, a factory-lease rollback without a pending lease never taking a running template's lease, no revival, logout failures, concurrent retirement against final release), `SessionLeaseTest` (lease on tracked, untracked and closed sessions, deferred logout, idempotent close), `RepositoryFileProxyLeaseTest` (a lazy read holds its lease, reloads when the session is closing, keeps the old behavior for untracked sessions, releases the lease when the read fails), `GuavaCachePoolPentahoJcrSessionFactoryTest` and `GuavaCachePoolPentahoJcrRaceConditionTest` (configuration, bounded retries, refresh and fallback cleanup, closed-session replacement, the bounded and non-blocking eviction cleanup, a session evicted while in use closing on its last release even when every cleanup worker is stalled, the rate-limited backlog warning, the `REQUIRES_NEW` bypass), `PentahoJcrTemplateTest` (usage accounting, security translation, bound-lease retention until completion, unusable and unprotectable sessions, contained cleanup failures), `CredentialsStrategySessionFactoryTest` (delegate wiring, failed hand-off cleanup), `PentahoTransactionManagerTest`.
 - **Integration tests** (`repository/src/it`, Failsafe, activated with `-DrunITs`): `GuavaCachePoolPentahoJcrOrphanedSessionIT` runs against a real Jackrabbit repository: eviction during and after callbacks, failing callbacks, externally closed sessions, read-only and nested bound callbacks, commit and rollback, 12 workers × 16 rounds of concurrent real sessions, lazily loaded files and binary streams that outlive their session, `REQUIRES_NEW` suspension and resumption, the Spring wiring, and `REQUIRES_NEW` isolation. `RepositoryFileProxyEvictionIT` runs against a real Jackrabbit repository too: one test retires the session at the first repository access inside each lazy read (the deterministic form of eviction landing between the liveness check and the read), and one reads proxies from 8 threads while another thread keeps evicting the cache. `GuavaCachePoolPentahoJcrSessionStressIT` and `CachedJcrSessionStressIT` are opt-in stress cases (50,000 operations per scenario; 200,000 simultaneously live holders). They use lightweight session fixtures, not 200,000 real Jackrabbit sessions.
 
 To run everything: `mvn --batch-mode -o -pl repository -DrunITs verify`.
@@ -335,7 +349,7 @@ To run everything: `mvn --batch-mode -o -pl repository -DrunITs verify`.
 
 ### 6.3 Results for this change
 
-The full module run passed 443 unit tests and 170 integration tests with no failures, errors or skips.
+The full module run passed 445 unit tests and 170 integration tests with no failures, errors or skips.
 
 **Manual validation on a running server.** A Pentaho 11.1 server was driven by 60 users and 60 parallel clients (2,400 calls of create, list, properties, download and tree per run), with the cache cut to 3 entries and a 2 s TTL to force constant eviction. The pre-change row is master with only its hard-coded cache defaults reduced, because the original code ignores the configured values. Each row is one run, so read the numbers as indicative.
 
@@ -356,3 +370,4 @@ A microbenchmark comparing the original and the fixed lifecycle logic with light
 - A `logout()` that throws is contained and logged, and exactly-once initiation is preserved, but the repository may not have freed that session.
 - Eviction cleanup reports a backlog only as a rate-limited log warning (section 4.1); there is no queue-depth metric.
 - `REQUIRED` and `NESTED` transactions still share the thread's cached session (section 4.5).
+- Factory leases are anonymous per-session counters, not per-caller tokens (section 4.7).

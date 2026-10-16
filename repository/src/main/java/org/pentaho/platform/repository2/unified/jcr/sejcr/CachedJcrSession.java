@@ -100,12 +100,14 @@ final class CachedJcrSession {
 
   /**
    * Releases one active-use lease and logs out the session if retirement has made this the final lease.
+   * A release without any active lease is a caller bug: it changes no state and is logged at ERROR with a stack trace.
    */
   void release() {
     boolean shouldLogout;
     synchronized ( this ) {
       if ( activeUses == 0 ) {
-        LOG.warn( "Ignoring unmatched release for cached JCR session {}", System.identityHashCode( session ) );
+        LOG.error( "Release without a matching lease for cached JCR session {}; ignoring it",
+          System.identityHashCode( session ), new IllegalStateException( "cached JCR session lease underflow" ) );
         return;
       }
       activeUses--;
@@ -121,16 +123,7 @@ final class CachedJcrSession {
   void releaseUnhandedFactoryLease() {
     boolean shouldLogout;
     synchronized ( this ) {
-      if ( pendingFactoryLeases > 0 ) {
-        pendingFactoryLeases--;
-      }
-      if ( activeUses == 0 ) {
-        LOG.warn( "Ignoring unmatched factory lease release for cached JCR session {}",
-          System.identityHashCode( session ) );
-        return;
-      }
-      activeUses--;
-      shouldLogout = markLogoutIfReady();
+      shouldLogout = releasePendingFactoryLeaseLocked();
     }
     logoutIfRequired( shouldLogout );
   }
@@ -139,14 +132,38 @@ final class CachedJcrSession {
    * Rolls back a factory lease only if no template callback has consumed it. A transaction begin takes a factory
    * lease that only a template callback consumes; a transaction that never runs one must hand the lease back when it
    * completes, or the session could never be closed after eviction. Does nothing when no lease is pending.
+   * The check and the release happen under one lock, so a concurrent consumption cannot slip in between them.
    */
   void releaseUnconsumedFactoryLease() {
+    boolean shouldLogout;
     synchronized ( this ) {
       if ( pendingFactoryLeases == 0 ) {
+        // Nothing pending at transaction cleanup: the expected, normal case.
         return;
       }
+      shouldLogout = releasePendingFactoryLeaseLocked();
     }
-    releaseUnhandedFactoryLease();
+    logoutIfRequired( shouldLogout );
+  }
+
+  /**
+   * Releases one pending factory lease together with the active-use lease it protects. Factory leases are
+   * per-session counters, not per-caller tokens, so a release without a pending lease is a caller bug. In that case
+   * no state changes (in particular, the release is never taken from another owner's active lease) and the mismatch
+   * is logged at ERROR with a stack trace. Must be called while holding this object's monitor.
+   *
+   * @return {@code true} when this release claimed the session's logout
+   */
+  private boolean releasePendingFactoryLeaseLocked() {
+    if ( pendingFactoryLeases == 0 || activeUses == 0 ) {
+      LOG.error( "Factory lease release without a matching lease for cached JCR session {} (pending={}, active={});"
+          + " ignoring it", System.identityHashCode( session ), pendingFactoryLeases, activeUses,
+        new IllegalStateException( "cached JCR session factory lease underflow" ) );
+      return false;
+    }
+    pendingFactoryLeases--;
+    activeUses--;
+    return markLogoutIfReady();
   }
 
   /**
