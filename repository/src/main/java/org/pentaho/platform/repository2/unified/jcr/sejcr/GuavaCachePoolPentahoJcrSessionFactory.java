@@ -91,6 +91,8 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
    * Spring context wires the factory, before it serves requests.
    */
   private PentahoTransactionManager transactionManager;
+  /** Workspace passed to repository login, kept for diagnostics; {@code null} means the repository default. */
+  private final String workspaceName;
   /** Earliest {@link System#nanoTime()} at which this factory may log another eviction backlog warning. */
   private final AtomicLong nextEvictionBacklogWarningNanos = new AtomicLong( System.nanoTime() );
   /** Cache of per-thread session lifecycle holders. */
@@ -119,6 +121,7 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
   public GuavaCachePoolPentahoJcrSessionFactory( Repository repository, String workspace,
                                                  PentahoTransactionManager transactionManager ) {
     super( repository, workspace );
+    this.workspaceName = workspace;
     this.transactionManager = transactionManager;
 
     ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
@@ -282,10 +285,64 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
       if ( session != null ) {
         return session;
       }
+    } catch ( ExecutionException e ) {
+      if ( e.getCause() instanceof RepositoryException ) {
+        return retryLoginAfterCacheLoadFailure( creds, (RepositoryException) e.getCause() );
+      }
+      logger.error( "Error obtaining session from cache. Creating one directly instead: {}", creds, e );
     } catch ( Exception e ) {
       logger.error( "Error obtaining session from cache. Creating one directly instead: {}", creds, e );
     }
     return getUncachedSession( creds );
+  }
+
+  /**
+   * Handles a repository login that failed inside the cache loader. Guava wraps the loader's exception, so without
+   * this the failure looks like a cache problem although the loader only calls {@code repository.login}. The failure
+   * is logged as a login failure with the user, workspace and thread, then the existing direct-login retry runs, and
+   * its outcome is logged too: a successful retry means the first failure was transient; a failed retry means the
+   * repository denies this user or workspace, which a session cache cannot fix. The password and credential
+   * attributes (such as the pre-authentication token) are never logged.
+   *
+   * @param creds credentials of the failed login
+   * @param loadFailure the repository exception thrown by the cache loader
+   * @return the session from the direct retry
+   * @throws RepositoryException the retry's own failure, propagated unchanged to the caller, which logs it
+   */
+  private Session retryLoginAfterCacheLoadFailure( Credentials creds, RepositoryException loadFailure )
+      throws RepositoryException {
+    String user = describeUser( creds );
+    String workspace = workspaceName == null ? "<default>" : workspaceName;
+    String thread = Thread.currentThread().getName();
+    logger.error( "Repository login failed while loading a cached JCR session: user={} workspace={} thread={}."
+      + " Retrying with a direct login.", user, workspace, thread, loadFailure );
+    boolean recovered = false;
+    try {
+      Session session = getUncachedSession( creds );
+      recovered = true;
+      logger.warn( "Direct login retry succeeded after the cached login failed: user={} workspace={} thread={}."
+        + " The first failure was transient.", user, workspace, thread );
+      return session;
+    } finally {
+      if ( !recovered ) {
+        // The retry's exception propagates unchanged to the caller, which logs its stack trace.
+        logger.error( "Direct login retry also failed: user={} workspace={} thread={}. The repository denies this"
+          + " login; it is not a session cache problem.", user, workspace, thread );
+      }
+    }
+  }
+
+  /**
+   * Identifies the login's user for diagnostics without exposing secrets.
+   *
+   * @param creds credentials of a login attempt; may be {@code null}
+   * @return the user ID for {@link SimpleCredentials}, otherwise the credentials type
+   */
+  private static String describeUser( Credentials creds ) {
+    if ( creds instanceof SimpleCredentials ) {
+      return ( (SimpleCredentials) creds ).getUserID();
+    }
+    return creds == null ? "<none>" : creds.getClass().getSimpleName();
   }
 
   /**

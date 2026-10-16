@@ -24,6 +24,7 @@ import org.springframework.extensions.jcr.SessionFactory;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.jcr.GuestCredentials;
+import javax.jcr.LoginException;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -57,6 +58,7 @@ import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -372,6 +374,96 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     } finally {
       createdSessions.forEach( Session::logout );
     }
+  }
+
+  /**
+   * Verifies a repository login that is denied both by the cache loader and by the direct retry is logged as a login
+   * failure with the user, workspace and thread, not as a cache error, and that the denial reaches the caller.
+   * Neither the password nor the pre-authentication token may appear in the log.
+   */
+  @Test
+  public void persistentLoginDenialIsLoggedWithContextForBothAttempts() throws Exception {
+    Repository repository = mock( Repository.class );
+    SimpleCredentials credentials = new SimpleCredentials( "denied-user", "secret-password".toCharArray() );
+    credentials.setAttribute( "pre_authentication_token", "secret-token" );
+    LoginException denial = new LoginException( "Workspace access denied" );
+    when( repository.login( credentials, "workspace" ) ).thenThrow( denial );
+    GuavaCachePoolPentahoJcrSessionFactory factory =
+      new GuavaCachePoolPentahoJcrSessionFactory( repository, "workspace" );
+    org.slf4j.Logger logger = mock( org.slf4j.Logger.class );
+    ReflectionTestUtils.setField( factory, "logger", logger );
+
+    try {
+      try {
+        factory.getSession( credentials );
+        org.junit.Assert.fail( "A persistent login denial must reach the caller" );
+      } catch ( LoginException expected ) {
+        assertSame( denial, expected );
+      }
+      verify( repository, times( 2 ) ).login( credentials, "workspace" );
+      List<String> errors = loggedFormats( logger, "error" );
+      assertTrue( "The cache-loader denial must be logged as a login failure", errors.stream()
+        .anyMatch( message -> message.startsWith( "Repository login failed while loading a cached JCR session" ) ) );
+      assertTrue( "The failed retry must be logged", errors.stream()
+        .anyMatch( message -> message.startsWith( "Direct login retry also failed" ) ) );
+      assertFalse( "A login denial must not be reported as a generic cache error", errors.stream()
+        .anyMatch( message -> message.startsWith( "Error obtaining session from cache" ) ) );
+      List<String> arguments = loggedArguments( logger );
+      assertTrue( "The user must be logged", arguments.contains( "denied-user" ) );
+      assertTrue( "The workspace must be logged", arguments.contains( "workspace" ) );
+      assertTrue( "The thread must be logged", arguments.contains( Thread.currentThread().getName() ) );
+      assertTrue( "Secrets must never be logged", arguments.stream()
+        .noneMatch( argument -> argument.contains( "secret-password" ) || argument.contains( "secret-token" ) ) );
+    } finally {
+      factory.invalidateCachedSessions();
+    }
+  }
+
+  /**
+   * Verifies a cache-loader login failure whose direct retry succeeds is reported as transient, so the logs show
+   * whether the retry helps.
+   */
+  @Test
+  public void transientLoginDenialIsLoggedAsRecoveredByTheDirectRetry() throws Exception {
+    Repository repository = mock( Repository.class );
+    SimpleCredentials credentials = new SimpleCredentials( "flaky-user", new char[ 0 ] );
+    Session retried = trackedSession();
+    when( repository.login( credentials, "workspace" ) )
+      .thenThrow( new LoginException( "Workspace access denied" ) )
+      .thenReturn( retried );
+    GuavaCachePoolPentahoJcrSessionFactory factory =
+      new GuavaCachePoolPentahoJcrSessionFactory( repository, "workspace" );
+    org.slf4j.Logger logger = mock( org.slf4j.Logger.class );
+    ReflectionTestUtils.setField( factory, "logger", logger );
+
+    try {
+      assertSame( "The direct retry's session is returned", retried, factory.getSession( credentials ) );
+      assertTrue( "A recovered login failure must be reported as transient", loggedFormats( logger, "warn" ).stream()
+        .anyMatch( message -> message.startsWith( "Direct login retry succeeded" ) ) );
+    } finally {
+      factory.invalidateCachedSessions();
+      retried.logout();
+    }
+  }
+
+  /** Returns the message formats passed to the given logger method, in call order. */
+  private static List<String> loggedFormats( org.slf4j.Logger logger, String level ) {
+    List<String> formats = new ArrayList<>();
+    mockingDetails( logger ).getInvocations().stream()
+      .filter( invocation -> invocation.getMethod().getName().equals( level ) )
+      .forEach( invocation -> formats.add( String.valueOf( invocation.getArguments()[ 0 ] ) ) );
+    return formats;
+  }
+
+  /** Returns every argument passed to any logger method, rendered as strings. */
+  private static List<String> loggedArguments( org.slf4j.Logger logger ) {
+    List<String> arguments = new ArrayList<>();
+    mockingDetails( logger ).getInvocations().forEach( invocation -> {
+      for ( Object argument : invocation.getArguments() ) {
+        arguments.add( String.valueOf( argument ) );
+      }
+    } );
+    return arguments;
   }
 
   /** Verifies a fallback session is released when its callback fails and the callback exception remains primary. */
