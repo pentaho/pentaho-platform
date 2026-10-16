@@ -133,7 +133,7 @@ Reproducing and reviewing the fix exposed other defects, in the original code or
 
 ## 3. Solution overview
 
-Each cached session is wrapped in a `CachedJcrSession` that counts who is using it and remembers whether it was evicted. Eviction *retires* the holder; the session is logged out exactly once, when the last user lets go. Everything else follows from that.
+Each cached session is wrapped in a `CachedJcrSession` that counts who is using it and remembers whether it was evicted. Eviction *retires* the holder; the session is logged out exactly once, when the last user lets go. Everything else follows from that. One pre-existing exception: a session bound to a Spring transaction is still logged out directly by the transaction manager when the transaction ends (section 4.8).
 
 ```mermaid
 stateDiagram-v2
@@ -187,6 +187,8 @@ Every queued entry is an idle session that is already retired. The queue cannot 
 When the backlog reaches `EVICTION_QUEUE_WARNING_THRESHOLD` (100) queued logouts, the factory logs a warning (`JCR session eviction cleanup is falling behind: ...`), at most once a minute per factory. Before this warning, a stuck cleanup was silent.
 
 Because the idle logout is asynchronous, **code and tests must not assume an idle session is closed the instant it is evicted**. Tests wait on a logout latch or a bounded deadline.
+
+Only idle evictions are moved off request threads. When a session is in use at eviction, its logout runs on whichever thread releases the last lease: a template's `finally` block, a transaction synchronization's `afterCompletion`, or a `RepositoryFileProxy` lazy read. These are request threads, so under constant eviction a request can pay for one logout. This is deliberate: sending every final logout to the pool would add to the same queue and change when sessions are closed, which tests and callers rely on.
 
 ```mermaid
 sequenceDiagram
@@ -322,7 +324,17 @@ Mitigations in place:
 
 An ERROR of this kind means some caller has a bookkeeping bug. It should be investigated, not suppressed. None were logged in any of the load tests in section 6.3.
 
-TODO (follow-up ticket): carry a per-handoff lease token in the logout-suppressing proxy created by `CredentialsStrategySessionFactory`, with an idempotent release, and have the template, the transaction cleanup and the failed-handoff path release that token.
+TODO (follow-up ticket): carry a per-handoff lease token in the logout-suppressing proxy created by `CredentialsStrategySessionFactory`, with an idempotent release, and have the template, the transaction cleanup and the failed-handoff path release that token. Section 8 lists possible directions that would provide this ownership model directly.
+
+### 4.8 Transactions end with a direct logout (pre-existing, known limitation)
+
+At the end of every Spring transaction, se-jcr's `LocalTransactionManager.doCleanupAfterCompletion` calls `logout()` on the bound session proxy. The proxy forwards the logout unless the transaction is read-only, but Spring clears the read-only flag (`TransactionSynchronizationManager.clear()`) before that cleanup runs, so the logout is always forwarded. This behavior dates from 2016 and is not introduced by this change. Its consequences:
+
+- The session is closed behind its `CachedJcrSession`: the holder is not retired, and the dead entry stays in the cache until the next acquisition finds it closed and replaces it (section 5).
+- A lease that is still held, such as a `RepositoryFileProxy` lazy read, has its session closed underneath it. The proxy then reloads (section 4.6).
+- The exactly-once logout of section 3 does not apply to sessions bound to a transaction. The `isLive()` checks in the proxy and in `CachedJcrSession` make the second close a silent no-op instead of an error.
+
+This is not changed here. Making the proxy's `logout()` retire the holder instead (so the holder owns the logout) would respect outstanding leases, but on its own it can leak sessions: code that takes a session from the factory and logs it out without going through the template never releases its factory lease, so a retired holder would wait forever. That needs per-handoff ownership (section 4.7) first.
 
 ## 5. Behavior and configuration notes
 
@@ -376,4 +388,18 @@ A microbenchmark comparing the original and the fixed lifecycle logic with light
 - Eviction cleanup reports a backlog only as a rate-limited log warning (section 4.1); there is no queue-depth metric.
 - `REQUIRED` and `NESTED` transactions still share the thread's cached session (section 4.5).
 - Factory leases are anonymous per-session counters, not per-caller tokens (section 4.7).
+- The transaction manager logs out a transaction's session directly when the transaction ends, so exactly-once logout does not hold for transaction-bound sessions (section 4.8).
+- `SessionLease` takes its lease with `acquireForBoundUse()`, which may extend a retired session while another lease still holds it. Lazy reads on one thread run one after another, so the count still reaches zero and the session is logged out. Only overlapping reads from several threads (next item) could keep an evicted session open longer.
+- Resolving a `RepositoryFileProxy` on a thread other than the one that created it is unsupported. Sessions are cached per (user, thread), and Jackrabbit sessions are not thread-safe; a lease only prevents logout, it does not serialize use. This predates this change.
 - `getSession()` falls back to a direct login after any exception on the cache path, including programming errors. Narrowing the catch changes error behavior and is left to a follow-up. A repository login failure in the cache loader is now logged as such and its retry outcome is recorded (section 5), but the retry is kept: it repeats the same login, so it only helps if the first failure was transient.
+
+## 8. Possible directions (require an approved architecture design)
+
+Most of the complexity in this change, and every item in sections 4.7 and 4.8, comes from one design decision made in 2014: JCR sessions are kept in a Guava `LoadingCache`. A cache assumes its entries can be dropped at any time and shared freely. A JCR session is stateful, not thread-safe, and needs exactly one owner at a time. `CachedJcrSession`, its leases, retirement and deferred logout rebuild an object pool on top of a cache.
+
+Fixing the remaining known issues properly means replacing the Guava cache for JCR sessions. That is an architecture change: it must be designed, reviewed and approved before any implementation approach is chosen. The options below are candidates found while working on this change, not decisions, and the design work may well find a better approach that is not considered here.
+
+- **Apache Commons Pool2** (`GenericKeyedObjectPool`, keyed by user). It is already a dependency of this module (2.11.1) and ships with the server. Borrowing is exclusive and returning is explicit, so the session proxy becomes the per-handoff token of section 4.7 and the proxy's `logout()` becomes "return to the pool", which also resolves section 4.8. Its evictor only removes idle objects, so a session in use is never evicted. `REQUIRES_NEW` would get a different session without the special bypass of section 4.5. It provides validation hooks on borrow and return, JMX statistics, and (through the three-argument constructor) tracking of objects that are borrowed and never returned. Points to plan for: its evictor is one thread shared by every Pool2 pool in the webapp, including database connection pools; the class name `GuavaCachePoolPentahoJcrSessionFactory` is referenced by the CE and EE `repository.spring.xml` and by customer copies of it, so it must remain as a compatible alias; and `cache-size` / `cache-ttl` need a mapping to the pool settings.
+- **Jackrabbit Oak.** Oak is the successor of the Jackrabbit 2 repository used here and is designed around short-lived sessions, which would make a session cache largely unnecessary. It is a repository migration (persistence, search, and Pentaho's Jackrabbit 2 access-control extensions), not a drop-in change.
+
+Whichever direction is taken, the design should start from data: measure whether session reuse is needed at all in this deployment. `cache-size=0` already selects a direct login per use, and the load test in section 6.3 can compare it with the default.
