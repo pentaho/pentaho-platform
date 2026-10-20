@@ -123,8 +123,11 @@
     <filter-class>org.pentaho.platform.web.http.filters.PentahoWebContextFilter</filter-class>
   </filter>
 
-  <!-- Clickjacking protection (PPP-5074): sends X-Frame-Options. To allow cross-origin framing, change
-       antiClickJackingOption (DENY | SAMEORIGIN) or set antiClickJackingEnabled to false. -->
+  <!-- Clickjacking protection (PPP-5074): sends X-Frame-Options.
+       antiClickJackingOption selects the policy: SAMEORIGIN (default here) allows framing only by pages of
+       the same origin; DENY blocks all framing. Neither allows cross-origin framing.
+       Setting antiClickJackingEnabled to false removes the header and DISABLES clickjacking protection
+       entirely; only do so if cross-origin embedding is required and the risk is accepted. -->
   <filter>
     <filter-name>HTTP Header Security Filter</filter-name>
     <filter-class>org.apache.catalina.filters.HttpHeaderSecurityFilter</filter-class>
