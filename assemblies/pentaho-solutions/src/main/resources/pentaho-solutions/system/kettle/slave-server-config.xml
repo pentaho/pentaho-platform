@@ -34,6 +34,26 @@
       <context-pattern>\/remove.*</context-pattern>
       <require>org.pentaho.repository.execute</require>
     </role-binding>
+    <role-binding>
+      <context-pattern>\/execute.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/run.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/prepareExec.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/add.*</context-pattern>
+      <require>org.pentaho.repository.create</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/register.*</context-pattern>
+      <require>org.pentaho.repository.create</require>
+    </role-binding>
   </role-bindings>
 
   <!--
@@ -46,4 +66,4 @@
     <scheme>pvfs</scheme>
   </allowedExecuteFileSchemes>
 
-</slave_config> 
+</slave_config>
