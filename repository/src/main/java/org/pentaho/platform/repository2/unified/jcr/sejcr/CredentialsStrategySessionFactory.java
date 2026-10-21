@@ -50,6 +50,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Copy-and-paste of {@link JcrSessionFactory} except that this implementation delegates to a {@link
@@ -98,6 +99,11 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
 
   protected PentahoJcrSessionFactory sessionFactory;
 
+  /**
+   * Transaction manager bound to this factory, if any. It is handed to a cache-backed delegate so that a
+   * {@code REQUIRES_NEW} transaction's session bypasses the per-thread cache.
+   */
+  private PentahoTransactionManager transactionManager;
   private LogoutSuppressingInvocationHandler.LogoutDelegate logoutDelegate =
       LogoutSuppressingInvocationHandler.LogoutDelegate.DefaultLogoutDelegate;
 
@@ -157,16 +163,54 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   }
 
 
+  /**
+   * Returns the configured delegate, lazily creating the default cache-backed factory when necessary.
+   * The default factory is wired back to this {@code SessionFactory} so thread-bound session detection uses the same
+   * Spring resource key as transaction binding, and it receives the registered transaction manager.
+   *
+   * @return the delegate used to acquire repository sessions
+   */
   public PentahoJcrSessionFactory getSessionFactory() {
     if ( sessionFactory == null ) {
       // use default
-      sessionFactory = new GuavaCachePoolPentahoJcrSessionFactory( this.repository, this.workspaceName, null );
+      setSessionFactory(
+        new GuavaCachePoolPentahoJcrSessionFactory( this.repository, this.workspaceName, transactionManager ) );
     }
     return sessionFactory;
   }
 
+  /**
+   * Sets the delegate used to acquire sessions and wires this factory as the resource key for a Guava delegate's
+   * thread-bound-session guard. A transaction manager already registered with this factory is passed on as well.
+   *
+   * @param sessionFactory delegate to configure; may be {@code null} to restore lazy default creation
+   */
   public void setSessionFactory( PentahoJcrSessionFactory sessionFactory ) {
     this.sessionFactory = sessionFactory;
+    if ( sessionFactory instanceof GuavaCachePoolPentahoJcrSessionFactory ) {
+      GuavaCachePoolPentahoJcrSessionFactory cacheFactory = (GuavaCachePoolPentahoJcrSessionFactory) sessionFactory;
+      // So the cache's thread-bound guard can recognize sessions bound against this factory as the
+      // Spring SessionFactory key, instead of never firing.
+      cacheFactory.setCredentialsStrategySessionFactory( this );
+      if ( transactionManager != null ) {
+        cacheFactory.setTransactionManager( transactionManager );
+      }
+    }
+  }
+
+  /**
+   * Registers the transaction manager that begins transactions on this factory's sessions. A cache-backed delegate
+   * then logs in directly while a {@code REQUIRES_NEW} transaction is being created, so that transaction never reuses
+   * the session of the transaction it suspended. {@link PentahoTransactionManager#setSessionFactory} calls this
+   * automatically.
+   *
+   * @param transactionManager the manager bound to this factory; may be {@code null} to remove the registration
+   */
+  public void setTransactionManager( PentahoTransactionManager transactionManager ) {
+    this.transactionManager = transactionManager;
+    if ( sessionFactory instanceof GuavaCachePoolPentahoJcrSessionFactory ) {
+      ( (GuavaCachePoolPentahoJcrSessionFactory) sessionFactory ).setTransactionManager( transactionManager );
+    }
   }
 
   public void afterPropertiesSet() throws Exception {
@@ -350,7 +394,12 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   }
 
   /**
-   * @see org.springframework.extensions.jcr.SessionFactory#getSession()
+   * Obtains a session using the configured credentials, then applies the session proxy and observation listeners.
+   * If proxy creation or listener registration fails after acquisition, the underlying session lease is discarded
+   * before the original failure is rethrown.
+   *
+   * @return the prepared session proxy
+   * @throws RepositoryException if acquisition or listener registration fails
    */
   public Session getSession() throws RepositoryException {
     Credentials creds = credentialsStrategy.getCredentials();
@@ -358,8 +407,12 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
       LOG.debug( "using credentials:" + creds );
     }
     Session session = getSessionFactory().getSession( creds );
-    session = createSessionProxy( session );
-    return addListeners( session );
+    try {
+      return addListeners( createSessionProxy( session ) );
+    } catch ( RepositoryException | RuntimeException e ) {
+      discardFailedSession( session );
+      throw e;
+    }
   }
 
   /**
@@ -377,6 +430,23 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
             handler );
   }
 
+  /**
+   * Returns the session behind a logout-suppressing proxy created by {@link #createSessionProxy(Session)}. Spring
+   * binds that proxy, not the cached session, so identity checks against cached sessions must unwrap it first.
+   *
+   * @param session a session or a proxy created by this factory; may be {@code null}
+   * @return the wrapped session for a proxy, otherwise the argument itself
+   */
+  static Session unwrapSessionProxy( Session session ) {
+    if ( session != null && Proxy.isProxyClass( session.getClass() ) ) {
+      Object handler = Proxy.getInvocationHandler( session );
+      if ( handler instanceof LogoutSuppressingInvocationHandler ) {
+        return ( (LogoutSuppressingInvocationHandler) handler ).getTargetSession();
+      }
+    }
+    return session;
+  }
+
   public LogoutSuppressingInvocationHandler.LogoutDelegate getLogoutDelegate() {
     return logoutDelegate;
   }
@@ -391,6 +461,37 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    */
   public SessionHolder getSessionHolder( Session session ) {
     return sessionHolderProvider.createSessionHolder( session );
+  }
+
+  /**
+   * Releases a session whose proxy/listener handoff failed before the caller could own it. Cached sessions have both
+   * their diagnostic factory count and lifecycle lease rolled back; direct sessions are logged out. The lease is
+   * released even if the diagnostic counter cannot be read, otherwise a retired session would stay leased forever
+   * and never be logged out. Cleanup failures are logged so the original handoff exception remains primary.
+   *
+   * @param session acquired session that could not be handed to the caller
+   */
+  private void discardFailedSession( Session session ) {
+    CachedJcrSession cachedSession = null;
+    try {
+      Object attribute = session.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE );
+      if ( attribute instanceof CachedJcrSession ) {
+        cachedSession = (CachedJcrSession) attribute;
+        cachedSession.retire();
+        Object usageCount = session.getAttribute( GuavaCachePoolPentahoJcrSessionFactory.USAGE_COUNT );
+        if ( usageCount instanceof AtomicInteger ) {
+          ( (AtomicInteger) usageCount ).decrementAndGet();
+        }
+      } else {
+        session.logout();
+      }
+    } catch ( RuntimeException e ) {
+      LOG.warn( "Could not discard JCR session after a failed factory handoff", e );
+    } finally {
+      if ( cachedSession != null ) {
+        cachedSession.releaseUnhandedFactoryLease();
+      }
+    }
   }
 
   /**
@@ -654,7 +755,9 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
       } else if ( method.getName().equals( "hashCode" ) ) {
         return this.hashCode();
       } else if ( method.getName().equals( "logout" ) ) {
-        if ( logoutDelegate.shouldLogout() ) {
+        // Spring runs transaction synchronizations (which can release the last cached-session lease and log the
+        // session out) before the transaction manager closes its bound proxy, so the session may already be closed.
+        if ( logoutDelegate.shouldLogout() && target.isLive() ) {
           target.logout();
         }
         return null;
@@ -670,6 +773,11 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
 
     public SessionImpl getSession() {
       return (SessionImpl) target;
+    }
+
+    /** @return the wrapped session, whatever its implementation type */
+    Session getTargetSession() {
+      return target;
     }
 
   }
