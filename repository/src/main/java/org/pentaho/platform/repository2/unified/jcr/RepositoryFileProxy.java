@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.SessionLease;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.extensions.jcr.JcrTemplate;
@@ -35,6 +36,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -625,11 +627,15 @@ public class RepositoryFileProxy extends RepositoryFile {
     return super.toString(); // To change body of overridden methods use File | Settings | File Templates.
   }
 
+  /**
+   * Runs a lazy read on the node's own session while that session is usable, otherwise on a freshly loaded node.
+   * The proxy outlives the callback that created it, so nothing else keeps its cached session open: eviction can
+   * log the session out between a liveness check and the read. The read therefore holds a lease on the session,
+   * which defers any logout until the read has finished.
+   */
   private void executeOperation( final SessionOperation op ) {
     try {
-      if ( node.getSession().isLive() ) {
-        op.execute( node.getSession() );
-      } else {
+      if ( !executeOnCurrentSession( op ) ) {
         template.execute( session -> {
           node = (Node) session.getItem( absPath );
           op.execute( node.getSession() );
@@ -640,6 +646,27 @@ public class RepositoryFileProxy extends RepositoryFile {
       getLogger().warn( Messages.getInstance().getString( INVALID_ITEM_STATE_EXCEPTION_MESSAGE, "toString" ) );
     } catch ( RepositoryException e ) {
       getLogger().error( Messages.getInstance().getString( REPOSITORY_EXCEPTION_WAS_FOUND_MESSAGE ), e );
+    }
+  }
+
+  /**
+   * Runs the operation on the node's current session if it can be retained and is still live.
+   *
+   * @return {@code true} if the operation ran; {@code false} if the session was closed or closing and the node must
+   * be reloaded
+   */
+  private boolean executeOnCurrentSession( final SessionOperation op ) throws RepositoryException {
+    Session session = node.getSession();
+    Optional<SessionLease> lease = SessionLease.tryAcquire( session );
+    if ( !lease.isPresent() ) {
+      return false;
+    }
+    try ( SessionLease held = lease.get() ) {
+      if ( !session.isLive() ) {
+        return false;
+      }
+      op.execute( session );
+      return true;
     }
   }
 

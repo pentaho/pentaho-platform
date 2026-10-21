@@ -37,11 +37,11 @@
     <property name="allowIfAllAbstainDecisions" value="false"/>
   </bean>
 
-  <bean id="jcrTransactionManager" class="org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager">
+  <bean id="jcrTransactionManager" class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoTransactionManager">
     <property name="sessionFactory" ref="jcrSessionFactory"/>
   </bean>
 
-  <bean id="jcrAdminTransactionManager" class="org.springframework.extensions.jcr.jackrabbit.LocalTransactionManager">
+  <bean id="jcrAdminTransactionManager" class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoTransactionManager">
     <property name="sessionFactory" ref="jcrAdminSessionFactory"/>
   </bean>
 
@@ -675,7 +675,7 @@
   </bean>
 
 
-  <bean id="adminJcrTemplate" class="org.springframework.extensions.jcr.JcrTemplate">
+  <bean id="adminJcrTemplate" class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrTemplate">
     <property name="sessionFactory" ref="jcrAdminSessionFactory"/>
     <property name="allowCreate" value="false"/>
     <property name="exposeNativeSession" value="true"/>
