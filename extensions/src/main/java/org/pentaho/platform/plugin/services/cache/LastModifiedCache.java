@@ -82,7 +82,12 @@ public class LastModifiedCache extends EnabledCaching implements ILastModifiedCa
     Cache<Object, Object> cache = ( (JCacheAccessImpl) getStorageAccess() ).getUnderlyingCache();
     Set<Object> keys = ConcurrentHashMap.newKeySet();
     if ( cache != null ) {
-      cache.forEach(entry -> keys.add( entry.getKey() ) );
+      cache.forEach( entry -> {
+        // Ehcache can hand back a null entry when the cache is modified concurrently (BISERVER-15667)
+        if ( entry != null ) {
+          keys.add( entry.getKey() );
+        }
+      } );
     }
     return new HashSet<>( keys );
   }
