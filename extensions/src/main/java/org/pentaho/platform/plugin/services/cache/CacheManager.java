@@ -457,7 +457,11 @@ public class CacheManager implements ICacheManager {
       if ( null != hvcache ) {
         javax.cache.Cache<Object, Object> cache =
           ( (JCacheAccessImpl) hvcache.getStorageAccess() ).getUnderlyingCache();
-        cache.forEach( entry -> list.add( entry.getValue() ) );
+        cache.forEach( entry -> {
+          if ( entry != null ) {
+            list.add( entry.getValue() );
+          }
+        } );
       }
     }
     return list;
@@ -481,7 +485,11 @@ public class CacheManager implements ICacheManager {
         javax.cache.Cache<Object, Object> cache =
           ( (JCacheAccessImpl) hvcache.getStorageAccess() ).getUnderlyingCache();
         Set cacheValues = new HashSet<>();
-        cache.forEach( entry -> cacheValues.add( entry.getValue() ) );
+        cache.forEach( entry -> {
+          if ( entry != null ) {
+            cacheValues.add( entry.getValue() );
+          }
+        } );
         return cacheValues;
       }
     }
@@ -534,6 +542,10 @@ public class CacheManager implements ICacheManager {
           Iterator<javax.cache.Cache.Entry<Object, Object>> cacheIterator = cache.iterator();
           while ( cacheIterator.hasNext() ) {
             javax.cache.Cache.Entry<Object, Object> entry = cacheIterator.next();
+            if ( entry == null ) {
+              // Ehcache can hand back a null entry when the cache is modified concurrently (BISERVER-15667)
+              continue;
+            }
             String key = ( String ) entry.getKey();
             if ( key.contains( session.getId() ) ) {
               hvcache.getStorageAccess().evictData( key );
