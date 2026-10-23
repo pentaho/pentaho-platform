@@ -54,6 +54,54 @@
       <context-pattern>\/register.*</context-pattern>
       <require>org.pentaho.repository.create</require>
     </role-binding>
+    <role-binding>
+      <context-pattern>\/status.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/transStatus.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/jobStatus.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/transImage.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/jobImage.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/sniffStep.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/cleanupTrans.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/allocateSocket.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/listSocket.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/nextSequence.*</context-pattern>
+      <require>org.pentaho.repository.execute</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/getSlaves.*</context-pattern>
+      <require>org.pentaho.security.administerSecurity</require>
+    </role-binding>
+    <role-binding>
+      <context-pattern>\/properties.*</context-pattern>
+      <require>org.pentaho.security.administerSecurity</require>
+    </role-binding>
   </role-bindings>
 
   <!--
