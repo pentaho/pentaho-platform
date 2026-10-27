@@ -545,11 +545,12 @@ public class CacheManager implements ICacheManager {
 
     javax.cache.Cache<Object, Object> cache = ( ( JCacheAccessImpl ) hvcache.getStorageAccess() ).getUnderlyingCache();
     if ( cache != null ) {
-      evictSessionCacheEntries( cache, hvcache, session.getId() );
+      evictSessionCacheEntries( cache, hvcache, session );
     }
   }
 
-  private void evictSessionCacheEntries( javax.cache.Cache<Object, Object> cache, HvCache hvcache, String sessionId ) {
+  private void evictSessionCacheEntries( javax.cache.Cache<Object, Object> cache, HvCache hvcache,
+                                         IPentahoSession session ) {
     Iterator<javax.cache.Cache.Entry<Object, Object>> cacheIterator = cache.iterator();
     while ( cacheIterator.hasNext() ) {
       javax.cache.Cache.Entry<Object, Object> entry = cacheIterator.next();
@@ -558,7 +559,7 @@ public class CacheManager implements ICacheManager {
         continue;
       }
       String key = ( String ) entry.getKey();
-      if ( key.contains( sessionId ) ) {
+      if ( key.contains( session.getId() ) ) {
         hvcache.getStorageAccess().evictData( key );
       }
     }
