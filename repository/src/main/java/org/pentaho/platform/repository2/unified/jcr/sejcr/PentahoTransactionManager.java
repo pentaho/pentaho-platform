@@ -120,6 +120,16 @@ public class PentahoTransactionManager extends LocalTransactionManager {
   }
 
   /**
+   * Returns whether a read-write transaction is in the process of being created.
+   *
+   * @return {@code true} only while a non-read-only transaction is being begun on this thread
+   */
+  public boolean isCreatingReadWriteTransaction() {
+    TransactionDefinition definition = activeTransactionDefinition.get();
+    return definition != null && !definition.isReadOnly() && isCreatingTransaction();
+  }
+
+  /**
    * Returns whether a {@code PROPAGATION_REQUIRES_NEW} transaction is in the process of being created. Such a
    * transaction suspends the one in progress on this thread and must run on a session of its own: handing it the
    * thread's cached session would share that session with the suspended transaction, and the inner commit would save

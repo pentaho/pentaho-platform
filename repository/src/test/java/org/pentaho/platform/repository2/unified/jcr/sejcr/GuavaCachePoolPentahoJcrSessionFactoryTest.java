@@ -285,6 +285,44 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
   }
 
   /**
+   * Verifies a read-write transaction does not start on a session reused by earlier calls: the cached session is
+   * retired and the transaction gets a new login.
+   */
+  @Test
+  public void readWriteTransactionStartsOnAFreshSession() throws Exception {
+    Repository repository = mock( Repository.class );
+    Session first = trackedSession();
+    Session second = trackedSession();
+    SimpleCredentials credentials = new SimpleCredentials( "user", new char[ 0 ] );
+    when( repository.login( credentials, "workspace" ) ).thenReturn( first, second );
+    AtomicBoolean creatingReadWrite = new AtomicBoolean( false );
+    PentahoTransactionManager transactionManager = new PentahoTransactionManager() {
+      @Override public boolean isCreatingReadWriteTransaction() {
+        return creatingReadWrite.get();
+      }
+    };
+    GuavaCachePoolPentahoJcrSessionFactory factory =
+      new GuavaCachePoolPentahoJcrSessionFactory( repository, "workspace" );
+    factory.setTransactionManager( transactionManager );
+
+    try {
+      Session reused = factory.getSession( credentials );
+      assertSame( first, reused );
+      ( (CachedJcrSession) reused.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE ) ).release();
+      Session again = factory.getSession( credentials );
+      assertSame( "Without a read-write begin the cached session is reused", first, again );
+      ( (CachedJcrSession) again.getAttribute( CachedJcrSession.SESSION_ATTRIBUTE ) ).release();
+
+      creatingReadWrite.set( true );
+      assertSame( "A read-write transaction gets a new login", second, factory.getSession( credentials ) );
+      verify( first ).logout();
+    } finally {
+      factory.invalidateCachedSessions();
+      second.logout();
+    }
+  }
+
+  /**
    * Verifies that while an independent transaction is being created the factory logs in directly instead of using
    * the cache, so a {@code REQUIRES_NEW} transaction cannot be handed the cached session that its suspended outer
    * transaction owns.
