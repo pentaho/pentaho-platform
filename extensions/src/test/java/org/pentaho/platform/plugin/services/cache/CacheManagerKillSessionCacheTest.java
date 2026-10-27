@@ -31,6 +31,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -60,16 +62,22 @@ public class CacheManagerKillSessionCacheTest {
   public void doesNothingWhenThereIsNoSessionRegion() {
     enableCache();
     ReflectionTestUtils.setField( cacheManager, "regionCache", new ConcurrentHashMap<String, Object>() );
+    IPentahoSession session = session( "s1" );
 
-    cacheManager.killSessionCache( session( "s1" ) );
+    cacheManager.killSessionCache( session );
+
+    verify( session, never() ).getId();
   }
 
   @Test
   public void doesNothingWhenUnderlyingCacheIsNull() {
     enableCache();
     registerSessionRegion( null );
+    IPentahoSession session = session( "s1" );
 
-    cacheManager.killSessionCache( session( "s1" ) );
+    cacheManager.killSessionCache( session );
+
+    verify( session, never() ).getId();
   }
 
   @Test
