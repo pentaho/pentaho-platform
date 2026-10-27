@@ -278,6 +278,14 @@ class GuavaCachePoolPentahoJcrSessionFactory extends NoCachePentahoJcrSessionFac
       return getUncachedSession( creds );
     }
 
+    if ( transactionManager != null && transactionManager.isCreatingReadWriteTransaction() ) {
+      // A read-write transaction must not start on a session that has been reused by earlier calls.
+      CachedJcrSession previous = sessionCache.asMap().remove( new CacheKey( creds ) );
+      if ( previous != null ) {
+        previous.retire();
+      }
+    }
+
     logger.debug( "Thread is not transacted, checking cache for session: {}", creds );
     try {
       Session session = getCachedSession( creds );
