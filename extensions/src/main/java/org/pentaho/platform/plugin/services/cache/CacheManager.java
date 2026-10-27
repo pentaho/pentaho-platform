@@ -534,24 +534,32 @@ public class CacheManager implements ICacheManager {
   }
 
   public void killSessionCache( IPentahoSession session ) {
-    if ( cacheEnabled ) {
-      HvCache hvcache = (HvCache) regionCache.get( SESSION );
-      if ( hvcache != null ) {
-        javax.cache.Cache<Object, Object> cache = ( ( JCacheAccessImpl ) hvcache.getStorageAccess() ).getUnderlyingCache();
-        if ( cache != null ) {
-          Iterator<javax.cache.Cache.Entry<Object, Object>> cacheIterator = cache.iterator();
-          while ( cacheIterator.hasNext() ) {
-            javax.cache.Cache.Entry<Object, Object> entry = cacheIterator.next();
-            if ( entry == null ) {
-              // Ehcache can hand back a null entry when the cache is modified concurrently (BISERVER-15667)
-              continue;
-            }
-            String key = ( String ) entry.getKey();
-            if ( key.contains( session.getId() ) ) {
-              hvcache.getStorageAccess().evictData( key );
-            }
-          }
-        }
+    if ( !cacheEnabled ) {
+      return;
+    }
+
+    HvCache hvcache = (HvCache) regionCache.get( SESSION );
+    if ( hvcache == null ) {
+      return;
+    }
+
+    javax.cache.Cache<Object, Object> cache = ( ( JCacheAccessImpl ) hvcache.getStorageAccess() ).getUnderlyingCache();
+    if ( cache != null ) {
+      evictSessionCacheEntries( cache, hvcache, session.getId() );
+    }
+  }
+
+  private void evictSessionCacheEntries( javax.cache.Cache<Object, Object> cache, HvCache hvcache, String sessionId ) {
+    Iterator<javax.cache.Cache.Entry<Object, Object>> cacheIterator = cache.iterator();
+    while ( cacheIterator.hasNext() ) {
+      javax.cache.Cache.Entry<Object, Object> entry = cacheIterator.next();
+      if ( entry == null ) {
+        // Ehcache can hand back a null entry when the cache is modified concurrently (BISERVER-15667)
+        continue;
+      }
+      String key = ( String ) entry.getKey();
+      if ( key.contains( sessionId ) ) {
+        hvcache.getStorageAccess().evictData( key );
       }
     }
   }
