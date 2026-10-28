@@ -40,6 +40,16 @@ sequenceDiagram
   Writer->>Lock: release write lock
 ```
 
+### Write-side lock order
+
+Writers take locks in one order so transactions that retain locks until completion cannot deadlock:
+
+1. The global fair tree write lease (`FILE_CONTENT_TREE_LOCK`) is taken first by every writer: create, update, delete, permanent delete, undelete, copy/move, version delete and restore, and any single-stripe write reached through the check-in path (ACL, metadata, locale and folder updates).
+2. The stripes for the full affected set are then taken in ascending index order in one acquisition. The set covers the target, its parent, their nearest versionable ancestors, moved or restored subtree IDs, and for version restore both the current and the restored (frozen) subtree.
+3. Inside a Spring transaction, both the tree lease and the stripes are released in `afterCompletion`; otherwise they are released in `finally`. Re-acquiring the lease in the same transaction is reentrant.
+
+Because writers are mutually exclusive on the tree lease, two transactions touching A then B and B then A cannot interleave. Readers take only their own stripe read lock.
+
 ## 3. Validation
 
 The focused DAO and lock-utility tests passed on the `master` worktree:
@@ -49,7 +59,7 @@ mvn -o -B -q -pl repository -Daudit -Djs.no.sandbox \
   -Dtest=JcrRepositoryFileDaoTest,JcrRepositoryFileUtilsTest test
 ```
 
-These tests cover the DAO read-lock behavior and the shared lock utility. Full repository-module validation is still required through CI for this PR.
+These tests cover the DAO read-lock behavior, the shared lock utility, writers waiting on the tree lease, and the tree-before-stripe order for single-stripe writers. They use mocks and do not replace a bounded live concurrent import/read run, which is still required. Full repository-module validation is still required through CI for this PR.
 
 ## 4. Scope and limits
 
