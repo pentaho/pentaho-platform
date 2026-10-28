@@ -325,7 +325,7 @@ public class JcrRepositoryFileDaoTest {
     javax.jcr.NodeIterator noChildren = mock( javax.jcr.NodeIterator.class );
     when( frozenChild.getNodes() ).thenReturn( noChildren );
     javax.jcr.NodeIterator frozenChildren = mock( javax.jcr.NodeIterator.class );
-    when( frozenChildren.hasNext() ).thenReturn( true, false );
+    when( frozenChildren.hasNext() ).thenReturn( true, true, false );
     when( frozenChildren.nextNode() ).thenReturn( frozenChild );
     when( frozenNode.getNodes() ).thenReturn( frozenChildren );
 
@@ -360,6 +360,7 @@ public class JcrRepositoryFileDaoTest {
       released = true;
       restore.get( 5, TimeUnit.SECONDS );
       assertTrue( restoreStarted.await( 5, TimeUnit.SECONDS ) );
+      org.mockito.Mockito.verify( movedFolder, org.mockito.Mockito.times( 1 ) ).getNodes();
     } finally {
       if ( !released ) {
         descendantReadLock.unlock();
