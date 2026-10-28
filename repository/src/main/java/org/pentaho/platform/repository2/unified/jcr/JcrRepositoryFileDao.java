@@ -997,138 +997,148 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
     try {
       jcrTemplate.execute( new JcrCallback() {
-      @Override
-      public Object doInJcr( final Session session ) throws RepositoryException, IOException {
-        // if we're moving the file,
-        // check that user has permissions to remove the file from it's current location
-        RepositoryFile file = getFileById( fileId );
-        if ( !copy ) {
-          RepositoryFileAcl acl = aclDao.getAcl( fileId );
-          if ( !accessVoterManager.hasAccess( file, RepositoryFilePermission.WRITE, acl,
-            PentahoSessionHolder.getSession() ) ) {
-            throw new AccessDeniedException( Messages.getInstance().getString(
-              "JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED_DELETE", fileId ) );
-          }
+        @Override
+        public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+          copyOrMoveInSession( session, fileId, destRelPath, versionMessage, copy );
+          return null;
         }
-
-        // check that user has permissions to write to the destination folder
-        RepositoryFile destFolder = getFile( destRelPath );
-        if ( destFolder != null ) {
-          RepositoryFileAcl destFolderAcl = aclDao.getAcl( destFolder.getId() );
-          if ( !accessVoterManager.hasAccess( destFolder, RepositoryFilePermission.WRITE, destFolderAcl,
-            PentahoSessionHolder.getSession() ) ) {
-            throw new AccessDeniedException( Messages.getInstance().getString(
-              "JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED_CREATE", destFolder.getId() ) );
-          }
-        }
-
-        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
-        String destAbsPath = pathConversionHelper.relToAbs( destRelPath );
-        String cleanDestAbsPath = destAbsPath;
-        if ( cleanDestAbsPath.endsWith( RepositoryFile.SEPARATOR ) ) {
-          cleanDestAbsPath.substring( 0, cleanDestAbsPath.length() - 1 );
-        }
-        Node srcFileNode = session.getNodeByIdentifier( fileId.toString() );
-        Serializable srcParentFolderId = JcrRepositoryFileUtils.getParentId( session, fileId );
-        boolean appendFileName = false;
-        boolean destExists = true;
-        Node destFileNode = null;
-        Node destParentFolderNode = null;
-        try {
-          destFileNode = (Node) session.getItem( JcrStringHelper.pathEncode( cleanDestAbsPath ) );
-        } catch ( PathNotFoundException e ) {
-          destExists = false;
-        }
-        if ( destExists ) {
-          // make sure it's a file or folder
-          Assert.isTrue( JcrRepositoryFileUtils.isSupportedNodeType( pentahoJcrConstants, destFileNode ), "" );
-          // existing item; make sure src is not a folder if dest is a file
-          Assert.isTrue(
-              !( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, srcFileNode ) && JcrRepositoryFileUtils
-                  .isPentahoFile( pentahoJcrConstants, destFileNode ) ), Messages.getInstance().getString(
-                  "JcrRepositoryFileDao.ERROR_0002_CANNOT_OVERWRITE_FILE_WITH_FOLDER" ) ); //$NON-NLS-1$
-          if ( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, destFileNode ) ) {
-            // existing item; caller is not renaming file, only moving it
-            appendFileName = true;
-            destParentFolderNode = destFileNode;
-          } else {
-            // get parent of existing dest item
-            int lastSlashIndex = cleanDestAbsPath.lastIndexOf( RepositoryFile.SEPARATOR );
-            Assert.isTrue( lastSlashIndex > 1, Messages.getInstance().getString(
-                "JcrRepositoryFileDao.ERROR_0003_ILLEGAL_DEST_PATH" ) ); //$NON-NLS-1$
-            String absPathToDestParentFolder = cleanDestAbsPath.substring( 0, lastSlashIndex );
-            destParentFolderNode = (Node) session.getItem( JcrStringHelper.pathEncode( absPathToDestParentFolder ) );
-          }
-        } else {
-          // destination doesn't exist; go up one level to a folder that does exist
-          int lastSlashIndex = cleanDestAbsPath.lastIndexOf( RepositoryFile.SEPARATOR );
-          Assert.isTrue( lastSlashIndex > 1, Messages.getInstance().getString(
-              "JcrRepositoryFileDao.ERROR_0003_ILLEGAL_DEST_PATH" ) ); //$NON-NLS-1$
-          String absPathToDestParentFolder = cleanDestAbsPath.substring( 0, lastSlashIndex );
-          // Not need to check the name if we encoded it
-          // JcrRepositoryFileUtils.checkName( cleanDestAbsPath.substring( lastSlashIndex + 1 ) );
-          try {
-            destParentFolderNode = (Node) session.getItem( JcrStringHelper.pathEncode( absPathToDestParentFolder ) );
-          } catch ( PathNotFoundException e1 ) {
-            Assert.isTrue( false, Messages.getInstance()
-                .getString( "JcrRepositoryFileDao.ERROR_0004_PARENT_MUST_EXIST" ) ); //$NON-NLS-1$
-          }
-          Assert.isTrue( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, destParentFolderNode ), Messages
-              .getInstance().getString( "JcrRepositoryFileDao.ERROR_0005_PARENT_MUST_BE_FOLDER" ) ); //$NON-NLS-1$
-        }
-        List<Serializable> lockIds = new ArrayList<>();
-        collectPentahoFileIds( pentahoJcrConstants, srcFileNode, lockIds );
-        if ( srcParentFolderId != null ) {
-          lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
-              srcParentFolderId ) );
-        }
-        lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
-            destParentFolderNode.getIdentifier() ) );
-        final boolean shouldAppendFileName = appendFileName;
-        final Node destinationParentFolderNode = destParentFolderNode;
-        JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
-          if ( !copy ) {
-            JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
-                srcParentFolderId );
-          }
-          JcrRepositoryFileUtils.checkoutNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
-              destinationParentFolderNode );
-          String finalEncodedSrcAbsPath = srcFileNode.getPath();
-          String finalEncodedDestAbsPath = null;
-          if ( shouldAppendFileName ) {
-            final String fileName = srcFileNode.getName();
-            if ( JcrStringHelper.isEncoded( fileName ) ) {
-              finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath ) + RepositoryFile.SEPARATOR + fileName;
-            } else {
-              finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath + RepositoryFile.SEPARATOR + fileName );
-            }
-          } else {
-            finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath );
-          }
-          try {
-            if ( copy ) {
-              session.getWorkspace().copy( finalEncodedSrcAbsPath, finalEncodedDestAbsPath );
-            } else {
-              session.getWorkspace().move( finalEncodedSrcAbsPath, finalEncodedDestAbsPath );
-            }
-          } catch ( ItemExistsException iae ) {
-            throw new UnifiedRepositoryException( ( file.isFolder() ? "Folder " : "File " ) + "with path ["
-                + cleanDestAbsPath + "] already exists in the repository" );
-          }
-
-          JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
-              destinationParentFolderNode, versionMessage );
-          if ( !copy && !destinationParentFolderNode.getIdentifier().equals( srcParentFolderId.toString() ) ) {
-            JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
-                srcParentFolderId, versionMessage );
-          }
-          session.save();
-        } );
-        return null;
-      }
       } );
     } finally {
       treeWriteLock.close();
+    }
+  }
+
+  private void copyOrMoveInSession( final Session session, final Serializable fileId, final String destRelPath,
+      final String versionMessage, final boolean copy ) throws RepositoryException, IOException {
+    RepositoryFile file = getFileById( fileId );
+    checkCopyOrMoveAccess( file, fileId, destRelPath, copy );
+
+    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+    String destAbsPath = pathConversionHelper.relToAbs( destRelPath );
+    String cleanDestAbsPath = destAbsPath;
+    if ( cleanDestAbsPath.endsWith( RepositoryFile.SEPARATOR ) ) {
+      cleanDestAbsPath.substring( 0, cleanDestAbsPath.length() - 1 );
+    }
+    Node srcFileNode = session.getNodeByIdentifier( fileId.toString() );
+    Serializable srcParentFolderId = JcrRepositoryFileUtils.getParentId( session, fileId );
+    Node destFileNode = getNodeIfExists( session, cleanDestAbsPath );
+    final boolean appendFileName =
+        destFileNode != null && JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, destFileNode );
+    final Node destParentFolderNode =
+        resolveDestParentFolder( session, pentahoJcrConstants, srcFileNode, destFileNode, cleanDestAbsPath );
+
+    List<Serializable> lockIds = new ArrayList<>();
+    collectPentahoFileIds( pentahoJcrConstants, srcFileNode, lockIds );
+    if ( srcParentFolderId != null ) {
+      lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
+          srcParentFolderId ) );
+    }
+    lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
+        destParentFolderNode.getIdentifier() ) );
+    JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
+      if ( !copy ) {
+        JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
+            srcParentFolderId );
+      }
+      JcrRepositoryFileUtils.checkoutNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
+          destParentFolderNode );
+      copyOrMoveNode( session, srcFileNode.getPath(),
+          encodedDestPath( srcFileNode, cleanDestAbsPath, appendFileName ), cleanDestAbsPath, file, copy );
+      JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
+          destParentFolderNode, versionMessage );
+      if ( !copy && !destParentFolderNode.getIdentifier().equals( srcParentFolderId.toString() ) ) {
+        JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
+            srcParentFolderId, versionMessage );
+      }
+      session.save();
+    } );
+  }
+
+  // When moving, the user must be able to remove the file from its location; the destination folder must be writable.
+  private void checkCopyOrMoveAccess( final RepositoryFile file, final Serializable fileId, final String destRelPath,
+      final boolean copy ) throws AccessDeniedException {
+    if ( !copy ) {
+      RepositoryFileAcl acl = aclDao.getAcl( fileId );
+      if ( !accessVoterManager.hasAccess( file, RepositoryFilePermission.WRITE, acl,
+          PentahoSessionHolder.getSession() ) ) {
+        throw new AccessDeniedException( Messages.getInstance().getString(
+          "JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED_DELETE", fileId ) );
+      }
+    }
+    RepositoryFile destFolder = getFile( destRelPath );
+    if ( destFolder != null ) {
+      RepositoryFileAcl destFolderAcl = aclDao.getAcl( destFolder.getId() );
+      if ( !accessVoterManager.hasAccess( destFolder, RepositoryFilePermission.WRITE, destFolderAcl,
+          PentahoSessionHolder.getSession() ) ) {
+        throw new AccessDeniedException( Messages.getInstance().getString(
+          "JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED_CREATE", destFolder.getId() ) );
+      }
+    }
+  }
+
+  private Node getNodeIfExists( final Session session, final String absPath ) throws RepositoryException {
+    try {
+      return (Node) session.getItem( JcrStringHelper.pathEncode( absPath ) );
+    } catch ( PathNotFoundException e ) {
+      return null;
+    }
+  }
+
+  private Node resolveDestParentFolder( final Session session, final PentahoJcrConstants pentahoJcrConstants,
+      final Node srcFileNode, final Node destFileNode, final String cleanDestAbsPath ) throws RepositoryException {
+    if ( destFileNode == null ) {
+      // destination doesn't exist; go up one level to a folder that does exist
+      Node parent = getNodeIfExists( session, parentPath( cleanDestAbsPath ) );
+      Assert.isTrue( parent != null, Messages.getInstance()
+          .getString( "JcrRepositoryFileDao.ERROR_0004_PARENT_MUST_EXIST" ) ); //$NON-NLS-1$
+      Assert.isTrue( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, parent ), Messages
+          .getInstance().getString( "JcrRepositoryFileDao.ERROR_0005_PARENT_MUST_BE_FOLDER" ) ); //$NON-NLS-1$
+      return parent;
+    }
+    // make sure it's a file or folder
+    Assert.isTrue( JcrRepositoryFileUtils.isSupportedNodeType( pentahoJcrConstants, destFileNode ), "" );
+    // existing item; make sure src is not a folder if dest is a file
+    Assert.isTrue(
+        !( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, srcFileNode ) && JcrRepositoryFileUtils
+            .isPentahoFile( pentahoJcrConstants, destFileNode ) ), Messages.getInstance().getString(
+            "JcrRepositoryFileDao.ERROR_0002_CANNOT_OVERWRITE_FILE_WITH_FOLDER" ) ); //$NON-NLS-1$
+    if ( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, destFileNode ) ) {
+      // existing item; caller is not renaming file, only moving it
+      return destFileNode;
+    }
+    return (Node) session.getItem( JcrStringHelper.pathEncode( parentPath( cleanDestAbsPath ) ) );
+  }
+
+  private String parentPath( final String absPath ) {
+    int lastSlashIndex = absPath.lastIndexOf( RepositoryFile.SEPARATOR );
+    Assert.isTrue( lastSlashIndex > 1, Messages.getInstance().getString(
+        "JcrRepositoryFileDao.ERROR_0003_ILLEGAL_DEST_PATH" ) ); //$NON-NLS-1$
+    return absPath.substring( 0, lastSlashIndex );
+  }
+
+  private String encodedDestPath( final Node srcFileNode, final String cleanDestAbsPath,
+      final boolean appendFileName ) throws RepositoryException {
+    if ( !appendFileName ) {
+      return JcrStringHelper.pathEncode( cleanDestAbsPath );
+    }
+    final String fileName = srcFileNode.getName();
+    if ( JcrStringHelper.isEncoded( fileName ) ) {
+      return JcrStringHelper.pathEncode( cleanDestAbsPath ) + RepositoryFile.SEPARATOR + fileName;
+    }
+    return JcrStringHelper.pathEncode( cleanDestAbsPath + RepositoryFile.SEPARATOR + fileName );
+  }
+
+  private void copyOrMoveNode( final Session session, final String srcPath, final String destPath,
+      final String cleanDestAbsPath, final RepositoryFile file, final boolean copy ) throws RepositoryException {
+    try {
+      if ( copy ) {
+        session.getWorkspace().copy( srcPath, destPath );
+      } else {
+        session.getWorkspace().move( srcPath, destPath );
+      }
+    } catch ( ItemExistsException iae ) {
+      throw new UnifiedRepositoryException( ( file.isFolder() ? "Folder " : "File " ) + "with path ["
+          + cleanDestAbsPath + "] already exists in the repository" );
     }
   }
 
