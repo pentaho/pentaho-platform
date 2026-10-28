@@ -15,6 +15,7 @@
 package org.pentaho.platform.repository2.unified.jcr;
 
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -36,6 +38,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
@@ -46,6 +50,8 @@ import javax.jcr.Workspace;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionManager;
+
+import java.io.IOException;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.jackrabbit.core.VersionManagerImpl;
@@ -66,6 +72,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 
 /**
@@ -366,6 +374,33 @@ public class JcrRepositoryFileUtilsTest {
   }
 
   @Test
+  public void shouldReleaseFileAndTreeWriteLocksAfterTransactionCompletion() {
+    String fileId = "transaction-content-lock-test";
+    ReentrantReadWriteLock fileLock = JcrRepositoryFileUtils.getFileContentLock( fileId );
+    TransactionSynchronizationManager.initSynchronization();
+    TransactionSynchronizationManager.setActualTransactionActive( true );
+    try {
+      JcrRepositoryFileUtils.FileContentLockLease fileLease =
+          JcrRepositoryFileUtils.acquireFileContentWriteLock( fileId );
+      JcrRepositoryFileUtils.FileContentLockLease treeLease =
+          JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
+
+      fileLease.close();
+      treeLease.close();
+      assertTrue( fileLock.isWriteLocked() );
+
+      for ( TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations() ) {
+        synchronization.afterCompletion( TransactionSynchronization.STATUS_COMMITTED );
+      }
+
+      assertFalse( fileLock.isWriteLocked() );
+    } finally {
+      TransactionSynchronizationManager.clearSynchronization();
+      TransactionSynchronizationManager.setActualTransactionActive( false );
+    }
+  }
+
+  @Test
   public void testCheckNodeForTree() {
     List<RepositoryFileTree> children = new ArrayList<>();
     IPathConversionHelper pathConversionHelper = new DefaultPathConversionHelper();
@@ -397,6 +432,34 @@ public class JcrRepositoryFileUtilsTest {
           fail();
         }
       }
+    }
+  }
+
+  @Test
+  public void testWithFileContentWriteLocksReleasesLocksWhenOperationThrows() throws Exception {
+    String fileId = "file-content-lock-cleanup";
+    try {
+      JcrRepositoryFileUtils.withFileContentWriteLocks( Collections.singletonList( fileId ), () -> {
+        throw new IOException( "expected test failure" );
+      } );
+      fail( "Expected the operation to throw" );
+    } catch ( IOException expected ) {
+      assertTrue( expected.getMessage().contains( "expected test failure" ) );
+    }
+
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    try {
+      Lock writeLock = JcrRepositoryFileUtils.getFileContentLock( fileId ).writeLock();
+      Future<Boolean> lockAcquired = executor.submit( () -> {
+        if ( !writeLock.tryLock() ) {
+          return false;
+        }
+        writeLock.unlock();
+        return true;
+      } );
+      assertTrue( lockAcquired.get( 5, TimeUnit.SECONDS ) );
+    } finally {
+      executor.shutdownNow();
     }
   }
 }

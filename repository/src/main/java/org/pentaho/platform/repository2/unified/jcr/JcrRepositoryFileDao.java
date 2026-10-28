@@ -201,39 +201,46 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     emptyDataNode.setProperty( " ", "content" ); //$NON-NLS-1$ //$NON-NLS-2$
     final IRepositoryFileData emptyContent = new NodeRepositoryFileData( emptyDataNode );
 
-    return (RepositoryFile) jcrTemplate.execute( new JcrCallback() {
+    JcrRepositoryFileUtils.FileContentLockLease treeWriteLock =
+        JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
+    try {
+      return (RepositoryFile) jcrTemplate.execute( new JcrCallback() {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
-        JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants, parentFolderId );
-        Node fileNode =
-            JcrRepositoryFileUtils.createFileNode( session, pentahoJcrConstants, parentFolderId, file, content == null
-                ? emptyContent : content, findTransformerForWrite( content == null ? emptyContent.getClass() : content
-                .getClass() ) );
-        // create a tmp file with correct path for default acl creation purposes.
-        String path = JcrRepositoryFileUtils.getAbsolutePath( session, pentahoJcrConstants, fileNode );
-        RepositoryFile tmpFile = new RepositoryFile.Builder( file ).path( path ).build();
-        // we must create the acl during checkout
-        aclDao.createAcl( fileNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl( tmpFile ) : acl );
-        session.save();
-        if ( file.isVersioned() ) {
-          JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary( session, pentahoJcrConstants, fileNode,
-              versionMessage, file.getCreatedDate(), false );
-
+        List<Serializable> lockIds = new ArrayList<>();
+        if ( parentFolderId != null ) {
+          lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
+            parentFolderId ) );
         }
-        JcrRepositoryFileUtils
-            .checkinNearestVersionableFileIfNecessary(
-                session,
-                pentahoJcrConstants,
-                parentFolderId,
-                Messages
-                    .getInstance()
-                    .getString(
-                        "JcrRepositoryFileDao.USER_0002_VER_COMMENT_ADD_FILE", file.getName(), ( parentFolderId == null ? "root" : parentFolderId.toString() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
-        return JcrRepositoryFileUtils.nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper,
-            fileNode );
+        RepositoryFile[] createdFile = new RepositoryFile[ 1 ];
+        JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
+          JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
+            parentFolderId );
+          Node fileNode =
+            JcrRepositoryFileUtils.createFileNode( session, pentahoJcrConstants, parentFolderId, file,
+              content == null ? emptyContent : content,
+              findTransformerForWrite( content == null ? emptyContent.getClass() : content.getClass() ) );
+          String path = JcrRepositoryFileUtils.getAbsolutePath( session, pentahoJcrConstants, fileNode );
+          RepositoryFile tmpFile = new RepositoryFile.Builder( file ).path( path ).build();
+          aclDao.createAcl( fileNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl( tmpFile ) : acl );
+          session.save();
+          if ( file.isVersioned() ) {
+          JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary( session, pentahoJcrConstants, fileNode,
+            versionMessage, file.getCreatedDate(), false );
+          }
+          JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants, parentFolderId,
+            Messages.getInstance().getString( "JcrRepositoryFileDao.USER_0002_VER_COMMENT_ADD_FILE", file.getName(),
+              ( parentFolderId == null ? "root" : parentFolderId.toString() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
+          createdFile[ 0 ] = JcrRepositoryFileUtils.nodeToFile( session, pentahoJcrConstants, pathConversionHelper,
+            lockHelper, fileNode );
+        } );
+        return createdFile[ 0 ];
       }
-    } );
+      } );
+    } finally {
+      treeWriteLock.close();
+    }
   }
 
   private RepositoryFile internalUpdateFile( final Session session, final PentahoJcrConstants pentahoJcrConstants,
@@ -324,12 +331,28 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     Assert.notNull( folder, "Folder must not be null" );
     Assert.isTrue( folder.isFolder(), "Folder must be a directory" );
 
-    return (RepositoryFile) jcrTemplate.execute( new JcrCallback() {
+    JcrRepositoryFileUtils.FileContentLockLease treeWriteLock =
+        JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
+    try {
+      return (RepositoryFile) jcrTemplate.execute( new JcrCallback() {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
-        return internalCreateFolder( session, parentFolderId, folder, acl, versionMessage );
+        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+        List<Serializable> lockIds = new ArrayList<>();
+        if ( parentFolderId != null ) {
+          lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
+              parentFolderId ) );
+        }
+        RepositoryFile[] createdFolder = new RepositoryFile[ 1 ];
+        JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
+          createdFolder[ 0 ] = internalCreateFolder( session, parentFolderId, folder, acl, versionMessage );
+        } );
+        return createdFolder[ 0 ];
       }
-    } );
+      } );
+    } finally {
+      treeWriteLock.close();
+    }
   }
 
   /**
@@ -562,20 +585,19 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
     Assert.notNull( file,"File must not be null" );
     Assert.isTrue( !file.isFolder(), "The provided file must not be a folder" );
-    java.util.concurrent.locks.Lock contentWriteLock =
-        JcrRepositoryFileUtils.getFileContentLock( file.getId() ).writeLock();
-    contentWriteLock.lock();
-    try {
-      return (RepositoryFile) jcrTemplate.execute( new JcrCallback() {
+    return (RepositoryFile) jcrTemplate.execute( new JcrCallback() {
         @Override
         public Object doInJcr( final Session session ) throws RepositoryException, IOException {
           PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
-          return internalUpdateFile( session, pentahoJcrConstants, file, content, versionMessage );
+          List<Serializable> fileIds = JcrRepositoryFileUtils.getFileContentWriteLockIds( session,
+              pentahoJcrConstants, file.getId() );
+          RepositoryFile[] updatedFile = new RepositoryFile[ 1 ];
+          JcrRepositoryFileUtils.withFileContentWriteLocks( fileIds, () -> {
+            updatedFile[ 0 ] = internalUpdateFile( session, pentahoJcrConstants, file, content, versionMessage );
+          } );
+          return updatedFile[ 0 ];
         }
       } );
-    } finally {
-      contentWriteLock.unlock();
-    }
   }
 
   /**
@@ -675,7 +697,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     }
 
     Assert.notNull( fileId, "File ID must not be null" );
-    jcrTemplate.execute( new JcrCallback() {
+    JcrRepositoryFileUtils.FileContentLockLease treeWriteLock =
+        JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
+    try {
+      jcrTemplate.execute( new JcrCallback() {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
         RepositoryFile fileToBeDeleted = getFileById( fileId );
@@ -697,14 +722,22 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         }
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
         Serializable parentFolderId = JcrRepositoryFileUtils.getParentId( session, fileId );
-        JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants, parentFolderId );
-        deleteHelper.deleteFile( session, pentahoJcrConstants, fileId );
-        session.save();
-        JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants, parentFolderId,
-            versionMessage );
+        List<Serializable> lockIds = JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
+          fileId );
+        JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
+          JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
+            parentFolderId );
+          deleteHelper.deleteFile( session, pentahoJcrConstants, fileId );
+          session.save();
+          JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
+            parentFolderId, versionMessage );
+        } );
         return null;
       }
-    } );
+      } );
+    } finally {
+      treeWriteLock.close();
+    }
   }
 
   /**
@@ -718,9 +751,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
     Assert.notNull( fileId, "File ID must not be null" );
     Assert.notNull( versionId, "Version ID must not be null" );
-    java.util.concurrent.locks.Lock contentWriteLock =
-        JcrRepositoryFileUtils.getFileContentLock( fileId ).writeLock();
-    contentWriteLock.lock();
+    JcrRepositoryFileUtils.FileContentLockLease contentWriteLock =
+      JcrRepositoryFileUtils.acquireFileContentWriteLock( fileId );
     try {
       jcrTemplate.execute( new JcrCallback() {
         @Override
@@ -743,7 +775,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         }
       } );
     } finally {
-      contentWriteLock.unlock();
+      contentWriteLock.close();
     }
   }
 
@@ -804,7 +836,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     }
 
     Assert.notNull( fileId, "File ID must not be null" );
-    jcrTemplate.execute( new JcrCallback() {
+    JcrRepositoryFileUtils.FileContentLockLease treeWriteLock =
+        JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
+    try {
+      jcrTemplate.execute( new JcrCallback() {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
         RepositoryFile fileToBeDeleted = getFileById( fileId );
@@ -823,17 +858,16 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         if ( fileIds.isEmpty() ) {
           fileIds.add( fileId );
         }
-        List<java.util.concurrent.locks.Lock> contentWriteLocks =
-            JcrRepositoryFileUtils.lockFileContentForWrite( fileIds );
-        try {
+        JcrRepositoryFileUtils.withFileContentWriteLocks( fileIds, () -> {
           deleteHelper.permanentlyDeleteFile( session, pentahoJcrConstants, fileId );
           session.save();
-        } finally {
-          JcrRepositoryFileUtils.unlockFileContentWriteLocks( contentWriteLocks );
-        }
+        } );
         return null;
       }
-    } );
+      } );
+    } finally {
+      treeWriteLock.close();
+    }
   }
 
   /**
@@ -846,7 +880,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     }
 
     Assert.notNull( fileId, "File ID must not be null" );
-    jcrTemplate.execute( new JcrCallback() {
+    JcrRepositoryFileUtils.FileContentLockLease treeWriteLock =
+        JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
+    try {
+      jcrTemplate.execute( new JcrCallback() {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
@@ -885,15 +922,27 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           }
           origParentFolderId = lastParentFolder.getId();
         }
-        JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
-            origParentFolderId );
-        deleteHelper.undeleteFile( session, pentahoJcrConstants, fileId );
-        session.save();
-        JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
-            origParentFolderId, versionMessage );
+        final Serializable restoredParentFolderId = origParentFolderId;
+        List<Serializable> lockIds = new ArrayList<>();
+        lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants, fileId ) );
+        if ( restoredParentFolderId != null ) {
+          lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
+              restoredParentFolderId ) );
+        }
+        JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
+          JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
+              restoredParentFolderId );
+          deleteHelper.undeleteFile( session, pentahoJcrConstants, fileId );
+          session.save();
+          JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
+              restoredParentFolderId, versionMessage );
+        } );
         return null;
       }
-    } );
+      } );
+    } finally {
+      treeWriteLock.close();
+    }
   }
 
   private void internalCopyOrMove( final Serializable fileId, final String destRelPath, final String versionMessage,
@@ -903,7 +952,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     }
 
     Assert.notNull( fileId, "File ID must not be null" );
-    jcrTemplate.execute( new JcrCallback() {
+    JcrRepositoryFileUtils.FileContentLockLease treeWriteLock =
+        JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
+    try {
+      jcrTemplate.execute( new JcrCallback() {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
         // if we're moving the file,
@@ -983,46 +1035,60 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           Assert.isTrue( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, destParentFolderNode ), Messages
               .getInstance().getString( "JcrRepositoryFileDao.ERROR_0005_PARENT_MUST_BE_FOLDER" ) ); //$NON-NLS-1$
         }
-        if ( !copy ) {
-          JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
-              srcParentFolderId );
+        List<Serializable> lockIds = new ArrayList<>();
+        collectPentahoFileIds( pentahoJcrConstants, srcFileNode, lockIds );
+        if ( srcParentFolderId != null ) {
+          lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
+              srcParentFolderId ) );
         }
-        JcrRepositoryFileUtils.checkoutNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
-            destParentFolderNode );
-        String finalEncodedSrcAbsPath = srcFileNode.getPath();
-        String finalEncodedDestAbsPath = null;
-        if ( appendFileName ) {
-          final String fileName = srcFileNode.getName();
-          if ( JcrStringHelper.isEncoded( fileName ) ) {
-            finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath ) + RepositoryFile.SEPARATOR + fileName;
-          } else {
-            finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath + RepositoryFile.SEPARATOR + fileName );
+        lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
+            destParentFolderNode.getIdentifier() ) );
+        final boolean shouldAppendFileName = appendFileName;
+        final Node destinationParentFolderNode = destParentFolderNode;
+        JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
+          if ( !copy ) {
+            JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
+                srcParentFolderId );
           }
-        } else {
-          finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath );
-        }
-        try {
-          if ( copy ) {
-            session.getWorkspace().copy( finalEncodedSrcAbsPath, finalEncodedDestAbsPath );
+          JcrRepositoryFileUtils.checkoutNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
+              destinationParentFolderNode );
+          String finalEncodedSrcAbsPath = srcFileNode.getPath();
+          String finalEncodedDestAbsPath = null;
+          if ( shouldAppendFileName ) {
+            final String fileName = srcFileNode.getName();
+            if ( JcrStringHelper.isEncoded( fileName ) ) {
+              finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath ) + RepositoryFile.SEPARATOR + fileName;
+            } else {
+              finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath + RepositoryFile.SEPARATOR + fileName );
+            }
           } else {
-            session.getWorkspace().move( finalEncodedSrcAbsPath, finalEncodedDestAbsPath );
+            finalEncodedDestAbsPath = JcrStringHelper.pathEncode( cleanDestAbsPath );
           }
-        } catch ( ItemExistsException iae ) {
-          throw new UnifiedRepositoryException( ( file.isFolder() ? "Folder " : "File " ) + "with path ["
-              + cleanDestAbsPath + "] already exists in the repository" );
-        }
+          try {
+            if ( copy ) {
+              session.getWorkspace().copy( finalEncodedSrcAbsPath, finalEncodedDestAbsPath );
+            } else {
+              session.getWorkspace().move( finalEncodedSrcAbsPath, finalEncodedDestAbsPath );
+            }
+          } catch ( ItemExistsException iae ) {
+            throw new UnifiedRepositoryException( ( file.isFolder() ? "Folder " : "File " ) + "with path ["
+                + cleanDestAbsPath + "] already exists in the repository" );
+          }
 
-        JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
-            destParentFolderNode, versionMessage );
-        // if it's a move within the same folder, then the next checkin is unnecessary
-        if ( !copy && !destParentFolderNode.getIdentifier().equals( srcParentFolderId.toString() ) ) {
-          JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
-              srcParentFolderId, versionMessage );
-        }
-        session.save();
+          JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary( session, pentahoJcrConstants,
+              destinationParentFolderNode, versionMessage );
+          if ( !copy && !destinationParentFolderNode.getIdentifier().equals( srcParentFolderId.toString() ) ) {
+            JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
+                srcParentFolderId, versionMessage );
+          }
+          session.save();
+        } );
         return null;
       }
-    } );
+      } );
+    } finally {
+      treeWriteLock.close();
+    }
   }
 
   /**
@@ -1075,9 +1141,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     }
     Assert.notNull( fileId, "File ID must not be null" );
     Assert.notNull( versionId, "Version ID must not be null" );
-    java.util.concurrent.locks.Lock contentWriteLock =
-        JcrRepositoryFileUtils.getFileContentLock( fileId ).writeLock();
-    contentWriteLock.lock();
+    JcrRepositoryFileUtils.FileContentLockLease contentWriteLock =
+      JcrRepositoryFileUtils.acquireFileContentWriteLock( fileId );
     try {
       jcrTemplate.execute( new JcrCallback() {
         @Override
@@ -1088,7 +1153,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         }
       } );
     } finally {
-      contentWriteLock.unlock();
+      contentWriteLock.close();
     }
   }
 
@@ -1097,6 +1162,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     if ( JcrRepositoryFileUtils.isPentahoFile( pentahoJcrConstants, node ) ) {
       fileIds.add( node.getIdentifier() );
     } else if ( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, node ) ) {
+      fileIds.add( node.getIdentifier() );
       javax.jcr.NodeIterator children = node.getNodes();
       while ( children.hasNext() ) {
         collectPentahoFileIds( pentahoJcrConstants, children.nextNode(), fileIds );

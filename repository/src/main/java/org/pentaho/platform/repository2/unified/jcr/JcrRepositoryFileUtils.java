@@ -74,6 +74,8 @@ import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoMalformedNameException;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -85,6 +87,7 @@ import org.springframework.util.StringUtils;
 public class JcrRepositoryFileUtils {
 
   private static final ReentrantReadWriteLock[] FILE_CONTENT_LOCKS = createFileContentLocks();
+  private static final ReentrantReadWriteLock FILE_CONTENT_TREE_LOCK = new ReentrantReadWriteLock( true );
 
   private static final Log logger = LogFactory.getLog( JcrRepositoryFileUtils.class );
 
@@ -928,9 +931,7 @@ public class JcrRepositoryFileUtils {
     Node versionableNode = findNearestVersionableNode( session, pentahoJcrConstants, node );
 
     if ( versionableNode != null ) {
-      ReentrantReadWriteLock.WriteLock writeLock = getFileContentLock( versionableNode.getIdentifier() ).writeLock();
-      writeLock.lock();
-      try {
+      try ( FileContentLockLease ignored = acquireFileContentWriteLock( versionableNode.getIdentifier() ) ) {
         versionableNode.setProperty( pentahoJcrConstants.getPHO_VERSIONAUTHOR(), getUsername() );
         if ( StringUtils.hasText( versionMessage ) ) {
           versionableNode.setProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE(), versionMessage );
@@ -977,8 +978,6 @@ public class JcrRepositoryFileUtils {
             }
           }
         }
-      } finally {
-        writeLock.unlock();
       }
     }
   }
@@ -995,27 +994,99 @@ public class JcrRepositoryFileUtils {
     return FILE_CONTENT_LOCKS[ getFileContentLockIndex( fileId ) ];
   }
 
-  static List<java.util.concurrent.locks.Lock> lockFileContentForWrite(
-      final Iterable<? extends Serializable> fileIds ) {
-    boolean[] lockIndexes = new boolean[ FILE_CONTENT_LOCKS.length ];
-    for ( Serializable fileId : fileIds ) {
-      lockIndexes[ getFileContentLockIndex( fileId ) ] = true;
-    }
-
-    List<java.util.concurrent.locks.Lock> acquiredLocks = new ArrayList<>();
-    for ( int index = 0; index < lockIndexes.length; index++ ) {
-      if ( lockIndexes[ index ] ) {
-        java.util.concurrent.locks.Lock lock = FILE_CONTENT_LOCKS[ index ].writeLock();
-        lock.lock();
-        acquiredLocks.add( lock );
-      }
-    }
-    return acquiredLocks;
+  static FileContentLockLease acquireFileContentWriteLock( final Serializable fileId ) {
+    return acquireWriteLock( getFileContentLock( fileId ).writeLock() );
   }
 
-  static void unlockFileContentWriteLocks( final List<java.util.concurrent.locks.Lock> locks ) {
-    for ( int index = locks.size() - 1; index >= 0; index-- ) {
-      locks.get( index ).unlock();
+  static FileContentLockLease acquireFileContentTreeWriteLock() {
+    return acquireWriteLock( FILE_CONTENT_TREE_LOCK.writeLock() );
+  }
+
+  private static FileContentLockLease acquireWriteLock( final java.util.concurrent.locks.Lock lock ) {
+    lock.lock();
+    try {
+      if ( deferUnlockUntilTransactionCompletion( lock::unlock ) ) {
+        return () -> { };
+      }
+      return lock::unlock;
+    } catch ( RuntimeException e ) {
+      lock.unlock();
+      throw e;
+    }
+  }
+
+  private static boolean deferUnlockUntilTransactionCompletion( final Runnable unlock ) {
+    if ( !TransactionSynchronizationManager.isSynchronizationActive()
+        || !TransactionSynchronizationManager.isActualTransactionActive() ) {
+      return false;
+    }
+    TransactionSynchronizationManager.registerSynchronization( new TransactionSynchronization() {
+      @Override
+      public void afterCompletion( final int status ) {
+        unlock.run();
+      }
+    } );
+    return true;
+  }
+
+  static List<Serializable> getFileContentWriteLockIds( final Session session,
+      final PentahoJcrConstants pentahoJcrConstants, final Serializable fileId ) throws RepositoryException {
+    List<Serializable> fileIds = new ArrayList<>();
+    fileIds.add( fileId );
+    Node fileNode = session.getNodeByIdentifier( fileId.toString() );
+    Node versionableNode = findNearestVersionableNode( session, pentahoJcrConstants, fileNode );
+    if ( versionableNode != null ) {
+      fileIds.add( versionableNode.getIdentifier() );
+    }
+    return fileIds;
+  }
+
+  interface FileContentLockLease extends AutoCloseable {
+    @Override
+    void close();
+  }
+
+  @FunctionalInterface
+  interface FileContentWriteOperation {
+    void execute() throws javax.jcr.RepositoryException, java.io.IOException;
+  }
+
+  static void withFileContentWriteLocks( final Iterable<? extends Serializable> fileIds,
+      final FileContentWriteOperation operation ) throws javax.jcr.RepositoryException, java.io.IOException {
+    boolean[] lockIndexes = new boolean[ FILE_CONTENT_LOCKS.length ];
+    int lockCount = 0;
+    for ( Serializable fileId : fileIds ) {
+      int lockIndex = getFileContentLockIndex( fileId );
+      if ( !lockIndexes[ lockIndex ] ) {
+        lockIndexes[ lockIndex ] = true;
+        lockCount++;
+      }
+    }
+
+    java.util.concurrent.locks.Lock[] acquiredLocks = new java.util.concurrent.locks.Lock[ lockCount ];
+    int acquiredLockCount = 0;
+    boolean unlockAfterCompletion = false;
+    try {
+      for ( int index = 0; index < lockIndexes.length; index++ ) {
+        if ( lockIndexes[ index ] ) {
+          java.util.concurrent.locks.Lock lock = FILE_CONTENT_LOCKS[ index ].writeLock();
+          lock.lock();
+          acquiredLocks[ acquiredLockCount++ ] = lock;
+        }
+      }
+      final int locksToRelease = acquiredLockCount;
+      unlockAfterCompletion = deferUnlockUntilTransactionCompletion( () -> {
+        for ( int index = locksToRelease - 1; index >= 0; index-- ) {
+          acquiredLocks[ index ].unlock();
+        }
+      } );
+      operation.execute();
+    } finally {
+      if ( !unlockAfterCompletion ) {
+        for ( int index = acquiredLockCount - 1; index >= 0; index-- ) {
+          acquiredLocks[ index ].unlock();
+        }
+      }
     }
   }
 
@@ -1134,8 +1205,8 @@ public class JcrRepositoryFileUtils {
     Version version =
         session.getWorkspace().getVersionManager().getVersionHistory( fileNode.getPath() ).getVersion( versionId
             .toString() );
-    return nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, getNodeAtVersion(
-        pentahoJcrConstants, version ) );
+    return nodeToFileOld( session, pentahoJcrConstants, pathConversionHelper, lockHelper,
+      getNodeAtVersion( pentahoJcrConstants, version ), true, null );
   }
 
   /**
