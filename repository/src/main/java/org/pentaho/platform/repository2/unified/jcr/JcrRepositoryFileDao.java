@@ -1189,8 +1189,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           List<Serializable> lockIds = new ArrayList<>();
           lockIds.add( fileId );
           collectPentahoFileIds( pentahoJcrConstants, fileNode, lockIds );
-          collectFrozenFileIds( session.getWorkspace().getVersionManager().getVersionHistory( fileNode.getPath() )
-            .getVersion( versionId.toString() ).getFrozenNode(), lockIds );
+          collectFrozenFileIds( session, pentahoJcrConstants, session.getWorkspace().getVersionManager()
+            .getVersionHistory( fileNode.getPath() ).getVersion( versionId.toString() ).getFrozenNode(), lockIds );
           JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
             session.getWorkspace().getVersionManager().restore( fileNode.getPath(), versionId.toString(), true );
           } );
@@ -1202,15 +1202,22 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     }
   }
 
-  private void collectFrozenFileIds( final Node frozenNode, final List<Serializable> fileIds )
-    throws RepositoryException {
+  private void collectFrozenFileIds( final Session session, final PentahoJcrConstants pentahoJcrConstants,
+      final Node frozenNode, final List<Serializable> fileIds ) throws RepositoryException {
     javax.jcr.NodeIterator children = frozenNode.getNodes();
     while ( children.hasNext() ) {
       Node child = children.nextNode();
       if ( child.hasProperty( "jcr:frozenUuid" ) ) {
-        fileIds.add( child.getProperty( "jcr:frozenUuid" ).getString() );
+        String frozenUuid = child.getProperty( "jcr:frozenUuid" ).getString();
+        fileIds.add( frozenUuid );
+        // removeExisting=true deletes a same-UUID node wherever it now lives, along with its descendants.
+        try {
+          collectPentahoFileIds( pentahoJcrConstants, session.getNodeByIdentifier( frozenUuid ), fileIds );
+        } catch ( javax.jcr.ItemNotFoundException e ) {
+          // not present in the workspace, nothing to remove
+        }
       }
-      collectFrozenFileIds( child, fileIds );
+      collectFrozenFileIds( session, pentahoJcrConstants, child, fileIds );
     }
   }
 

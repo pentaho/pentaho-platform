@@ -50,6 +50,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -300,6 +301,68 @@ public class JcrRepositoryFileDaoTest {
     } finally {
       if ( !released ) {
         contentReadLock.unlock();
+      }
+      executor.shutdownNow();
+    }
+  }
+
+  @Test
+  public void shouldWaitForReadersOfNodeRemovedByUuidCollisionBeforeRestoring() throws Exception {
+    String fileId = "file-content-lock-restore-collision-test";
+    String movedFolderId = "moved-folder";
+    String movedChildId = "moved-child";
+    assertNotSame( JcrRepositoryFileUtils.getFileContentLock( fileId ),
+        JcrRepositoryFileUtils.getFileContentLock( movedChildId ) );
+    assertNotSame( JcrRepositoryFileUtils.getFileContentLock( movedFolderId ),
+        JcrRepositoryFileUtils.getFileContentLock( movedChildId ) );
+
+    Node frozenNode = versionManager.getVersionHistory( "/file" ).getVersion( "version-id" ).getFrozenNode();
+    Node frozenChild = mock( Node.class );
+    Property frozenUuid = mock( Property.class );
+    when( frozenUuid.getString() ).thenReturn( movedFolderId );
+    when( frozenChild.hasProperty( "jcr:frozenUuid" ) ).thenReturn( true );
+    when( frozenChild.getProperty( "jcr:frozenUuid" ) ).thenReturn( frozenUuid );
+    javax.jcr.NodeIterator noChildren = mock( javax.jcr.NodeIterator.class );
+    when( frozenChild.getNodes() ).thenReturn( noChildren );
+    javax.jcr.NodeIterator frozenChildren = mock( javax.jcr.NodeIterator.class );
+    when( frozenChildren.hasNext() ).thenReturn( true, false );
+    when( frozenChildren.nextNode() ).thenReturn( frozenChild );
+    when( frozenNode.getNodes() ).thenReturn( frozenChildren );
+
+    Node movedChild = mock( Node.class );
+    when( movedChild.isNodeType( "null:pentahoFile" ) ).thenReturn( true );
+    when( movedChild.getIdentifier() ).thenReturn( movedChildId );
+    javax.jcr.NodeIterator movedChildren = mock( javax.jcr.NodeIterator.class );
+    when( movedChildren.hasNext() ).thenReturn( true, false );
+    when( movedChildren.nextNode() ).thenReturn( movedChild );
+    Node movedFolder = mock( Node.class );
+    when( movedFolder.isNodeType( "null:pentahoFolder" ) ).thenReturn( true );
+    when( movedFolder.getIdentifier() ).thenReturn( movedFolderId );
+    when( movedFolder.getNodes() ).thenReturn( movedChildren );
+    when( session.getNodeByIdentifier( movedFolderId ) ).thenReturn( movedFolder );
+
+    CountDownLatch restoreStarted = new CountDownLatch( 1 );
+    org.mockito.Mockito.doAnswer( invocation -> {
+      restoreStarted.countDown();
+      return null;
+    } ).when( versionManager ).restore( nullable( String.class ), nullable( String.class ),
+        org.mockito.ArgumentMatchers.anyBoolean() );
+
+    java.util.concurrent.locks.Lock descendantReadLock = JcrRepositoryFileUtils.getFileContentLock( movedChildId ).readLock();
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    descendantReadLock.lock();
+    boolean released = false;
+    try {
+      Future<?> restore = executor.submit( () -> dao.restoreFileAtVersion( fileId, "version-id", null ) );
+      assertFalse( "Restore must wait for readers of a descendant it may remove",
+          restoreStarted.await( 100, TimeUnit.MILLISECONDS ) );
+      descendantReadLock.unlock();
+      released = true;
+      restore.get( 5, TimeUnit.SECONDS );
+      assertTrue( restoreStarted.await( 5, TimeUnit.SECONDS ) );
+    } finally {
+      if ( !released ) {
+        descendantReadLock.unlock();
       }
       executor.shutdownNow();
     }
