@@ -57,6 +57,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -400,7 +401,7 @@ public class JcrRepositoryFileDaoTest {
         treeLease.close();
         treeLease = null;
         future.get( 5, TimeUnit.SECONDS );
-        assertTrue( jcrCallbackStarted.getCount() == 0 );
+        assertEquals( 0, jcrCallbackStarted.getCount() );
       } finally {
         if ( treeLease != null ) {
           treeLease.close();

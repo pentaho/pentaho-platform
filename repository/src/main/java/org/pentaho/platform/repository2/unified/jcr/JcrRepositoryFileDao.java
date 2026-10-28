@@ -962,6 +962,9 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     String[] segments = pathConversionHelper.absToRel( absFolderPath ).split( RepositoryFile.SEPARATOR );
     RepositoryFile lastParentFolder =
         internalGetFile( session, ServerRepositoryPaths.getTenantRootFolderPath(), false, null );
+    if ( lastParentFolder == null ) {
+      throw new RepositoryException( "Tenant root folder not found" );
+    }
     for ( String segment : segments ) {
       if ( StringUtils.hasLength( segment ) ) {
         lastParentFolder = getOrCreateChildFolder( session, lastParentFolder, segment );
@@ -1193,9 +1196,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           lockIds.add( fileId );
           collectFrozenFileIds( session, pentahoJcrConstants, session.getWorkspace().getVersionManager()
             .getVersionHistory( fileNode.getPath() ).getVersion( versionId.toString() ).getFrozenNode(), lockIds );
-          JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
-            session.getWorkspace().getVersionManager().restore( fileNode.getPath(), versionId.toString(), true );
-          } );
+          JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () ->
+            session.getWorkspace().getVersionManager().restore( fileNode.getPath(), versionId.toString(), true ) );
           return null;
         }
       } );
