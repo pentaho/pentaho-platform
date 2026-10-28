@@ -108,6 +108,10 @@ public class JcrRepositoryFileDaoTest {
     when( currentVersion.getName() ).thenReturn( "version-id" );
     when( currentVersion.getCreated() ).thenReturn( Calendar.getInstance() );
     when( currentVersion.getNode( nullable( String.class ) ) ).thenReturn( frozenNode );
+    javax.jcr.NodeIterator noChildren = mock( javax.jcr.NodeIterator.class );
+    when( noChildren.hasNext() ).thenReturn( false );
+    when( frozenNode.getNodes() ).thenReturn( noChildren );
+    when( currentVersion.getFrozenNode() ).thenReturn( frozenNode );
     when( frozenNode.getIdentifier() ).thenReturn( "file" );
     when( frozenNode.getName() ).thenReturn( "file" );
     when( frozenNode.getPath() ).thenReturn( "/file" );
@@ -269,7 +273,65 @@ public class JcrRepositoryFileDaoTest {
   public void shouldWaitForContentReadersBeforeRestoringVersion() throws Exception {
     String fileId = "file-content-lock-restore-version-test";
 
-    assertOperationWaitsForContentReaders( fileId, () -> dao.restoreFileAtVersion( fileId, "version-id", null ) );
+    CountDownLatch restoreStarted = new CountDownLatch( 1 );
+    org.mockito.Mockito.doAnswer( invocation -> {
+      restoreStarted.countDown();
+      return null;
+    } ).when( versionManager ).restore( nullable( String.class ), nullable( String.class ), org.mockito.ArgumentMatchers.anyBoolean() );
+
+    java.util.concurrent.locks.Lock contentReadLock = JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    contentReadLock.lock();
+    boolean released = false;
+    try {
+      Future<?> restore = executor.submit( () -> dao.restoreFileAtVersion( fileId, "version-id", null ) );
+      assertFalse( "Restore must wait while content is being read", restoreStarted.await( 100, TimeUnit.MILLISECONDS ) );
+      contentReadLock.unlock();
+      released = true;
+      restore.get( 5, TimeUnit.SECONDS );
+      assertTrue( restoreStarted.await( 5, TimeUnit.SECONDS ) );
+    } finally {
+      if ( !released ) {
+        contentReadLock.unlock();
+      }
+      executor.shutdownNow();
+    }
+  }
+
+  @Test
+  public void shouldSerializeUpdatesAndVersionOperationsBehindTreeWriteLease() throws Exception {
+    RepositoryFile file = new RepositoryFile.Builder( "f" ).id( "tree-lease-test" ).build();
+    IRepositoryFileData content = mock( IRepositoryFileData.class );
+    List<Runnable> writers = java.util.Arrays.asList(
+        () -> dao.updateFile( file, content, null ),
+        () -> dao.restoreFileAtVersion( "tree-lease-test", "version-id", null ),
+        () -> dao.deleteFileAtVersion( "tree-lease-test", "version-id" ) );
+
+    for ( Runnable writer : writers ) {
+      jcrCallbackStarted = new CountDownLatch( 1 );
+      ExecutorService executor = Executors.newSingleThreadExecutor();
+      JcrRepositoryFileUtils.FileContentLockLease treeLease = JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
+      try {
+        Future<?> future = executor.submit( () -> {
+          try {
+            writer.run();
+          } catch ( RuntimeException ignored ) {
+            // only lock ordering is under test
+          }
+        } );
+        assertFalse( "Writers must wait for the tree write lease",
+            jcrCallbackStarted.await( 100, TimeUnit.MILLISECONDS ) );
+        treeLease.close();
+        treeLease = null;
+        future.get( 5, TimeUnit.SECONDS );
+        assertTrue( jcrCallbackStarted.getCount() == 0 );
+      } finally {
+        if ( treeLease != null ) {
+          treeLease.close();
+        }
+        executor.shutdownNow();
+      }
+    }
   }
 
   @Test

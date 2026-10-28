@@ -585,7 +585,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
     Assert.notNull( file,"File must not be null" );
     Assert.isTrue( !file.isFolder(), "The provided file must not be a folder" );
-    return (RepositoryFile) jcrTemplate.execute( new JcrCallback() {
+    JcrRepositoryFileUtils.FileContentLockLease treeWriteLock =
+        JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
+    try {
+      return (RepositoryFile) jcrTemplate.execute( new JcrCallback() {
         @Override
         public Object doInJcr( final Session session ) throws RepositoryException, IOException {
           PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
@@ -598,6 +601,9 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           return updatedFile[ 0 ];
         }
       } );
+    } finally {
+      treeWriteLock.close();
+    }
   }
 
   /**
@@ -722,8 +728,13 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         }
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
         Serializable parentFolderId = JcrRepositoryFileUtils.getParentId( session, fileId );
-        List<Serializable> lockIds = JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
-          fileId );
+        List<Serializable> lockIds = new ArrayList<>();
+        collectPentahoFileIds( pentahoJcrConstants, session.getNodeByIdentifier( fileId.toString() ), lockIds );
+        lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants, fileId ) );
+        if ( parentFolderId != null ) {
+          lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
+            parentFolderId ) );
+        }
         JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
           JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
             parentFolderId );
@@ -751,6 +762,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
     Assert.notNull( fileId, "File ID must not be null" );
     Assert.notNull( versionId, "Version ID must not be null" );
+    JcrRepositoryFileUtils.FileContentLockLease treeWriteLock =
+      JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
     JcrRepositoryFileUtils.FileContentLockLease contentWriteLock =
       JcrRepositoryFileUtils.acquireFileContentWriteLock( fileId );
     try {
@@ -776,6 +789,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       } );
     } finally {
       contentWriteLock.close();
+      treeWriteLock.close();
     }
   }
 
@@ -924,6 +938,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         }
         final Serializable restoredParentFolderId = origParentFolderId;
         List<Serializable> lockIds = new ArrayList<>();
+        collectPentahoFileIds( pentahoJcrConstants, session.getNodeByIdentifier( fileId.toString() ), lockIds );
         lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants, fileId ) );
         if ( restoredParentFolderId != null ) {
           lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
@@ -1141,19 +1156,40 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     }
     Assert.notNull( fileId, "File ID must not be null" );
     Assert.notNull( versionId, "Version ID must not be null" );
-    JcrRepositoryFileUtils.FileContentLockLease contentWriteLock =
-      JcrRepositoryFileUtils.acquireFileContentWriteLock( fileId );
+    JcrRepositoryFileUtils.FileContentLockLease treeWriteLock =
+      JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
     try {
       jcrTemplate.execute( new JcrCallback() {
         @Override
         public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+          PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
           Node fileNode = session.getNodeByIdentifier( fileId.toString() );
-          session.getWorkspace().getVersionManager().restore( fileNode.getPath(), versionId.toString(), true );
+          // Both the current and the restored subtree can change membership during a restore.
+          List<Serializable> lockIds = new ArrayList<>();
+          lockIds.add( fileId );
+          collectPentahoFileIds( pentahoJcrConstants, fileNode, lockIds );
+          collectFrozenFileIds( session.getWorkspace().getVersionManager().getVersionHistory( fileNode.getPath() )
+            .getVersion( versionId.toString() ).getFrozenNode(), lockIds );
+          JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
+            session.getWorkspace().getVersionManager().restore( fileNode.getPath(), versionId.toString(), true );
+          } );
           return null;
         }
       } );
     } finally {
-      contentWriteLock.close();
+      treeWriteLock.close();
+    }
+  }
+
+  private void collectFrozenFileIds( final Node frozenNode, final List<Serializable> fileIds )
+    throws RepositoryException {
+    javax.jcr.NodeIterator children = frozenNode.getNodes();
+    while ( children.hasNext() ) {
+      Node child = children.nextNode();
+      if ( child.hasProperty( "jcr:frozenUuid" ) ) {
+        fileIds.add( child.getProperty( "jcr:frozenUuid" ).getString() );
+      }
+      collectFrozenFileIds( child, fileIds );
     }
   }
 
