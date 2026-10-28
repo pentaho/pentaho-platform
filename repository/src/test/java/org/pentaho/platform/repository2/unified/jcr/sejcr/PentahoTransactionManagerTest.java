@@ -97,6 +97,35 @@ public class PentahoTransactionManagerTest {
 
   }
 
+  /** Verifies only a read-write transaction that is being begun is reported as creating a read-write transaction. */
+  @Test
+  @SuppressWarnings( "java:S1874" ) // The manager's doBegin requires Jackrabbit's (deprecated) XASession.
+  public void isCreatingReadWriteTransaction() throws Exception {
+    PentahoTransactionManager transactionManager = new PentahoTransactionManager();
+    SessionFactory sessionFactory = mock( SessionFactory.class );
+    XASession xaSession = mock( XASession.class );
+    when( xaSession.getXAResource() ).thenReturn( mock( XAResource.class ) );
+    transactionManager.setSessionFactory( sessionFactory );
+    TransactionDefinition transactionDefinition = mock( TransactionDefinition.class );
+    when( transactionDefinition.getIsolationLevel() ).thenReturn( -1 );
+    when( transactionDefinition.getPropagationBehavior() ).thenReturn( TransactionDefinition.PROPAGATION_REQUIRED );
+    assertFalse( transactionManager.isCreatingReadWriteTransaction() );
+
+    List<Boolean> observed = new java.util.ArrayList<>();
+    when( sessionFactory.getSession() ).then( invocation -> {
+      when( transactionDefinition.isReadOnly() ).thenReturn( false );
+      observed.add( transactionManager.isCreatingReadWriteTransaction() );
+      when( transactionDefinition.isReadOnly() ).thenReturn( true );
+      observed.add( transactionManager.isCreatingReadWriteTransaction() );
+      return xaSession;
+    } );
+
+    transactionManager.getTransaction( transactionDefinition );
+
+    assertEquals( Arrays.asList( true, false ), observed );
+    assertFalse( transactionManager.isCreatingReadWriteTransaction() );
+  }
+
   /**
    * Verifies only a {@code REQUIRES_NEW} transaction is reported as independent, and only while it is being begun.
    * Other propagation behaviors keep using the thread's session, as does code that is not beginning a transaction.

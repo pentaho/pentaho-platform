@@ -1,6 +1,8 @@
 # BISERVER-15667: JCR cached-session lifecycle
 
-This document records the problem behind BISERVER-15667 (pull request #6371), why it happened, what was changed, how the change was verified, and what it deliberately does not cover. It is written for someone who finds this code later and needs to know why it looks the way it does.
+This document records the JCR session problems tracked by BISERVER-15667, the changes in pull requests #6371 and #6395, how they were verified, and what they deliberately do not cover. It is written for someone who finds this code later and needs to know why it looks the way it does.
+
+[PR #6371](https://github.com/pentaho/pentaho-platform/pull/6371) addresses session ownership across cache eviction and active use by adding leases and deferred retirement. [PR #6395](https://github.com/pentaho/pentaho-platform/pull/6395) addresses a separate stale version-history view: a read-write transaction must not reuse a cached session that performed earlier reads. The fresh-session behavior does not replace the lease and eviction protections from #6371; both are needed for their respective failure modes.
 
 All code is in module `repository`, package `org.pentaho.platform.repository2.unified.jcr.sejcr`.
 
@@ -336,6 +338,14 @@ At the end of every Spring transaction, se-jcr's `LocalTransactionManager.doClea
 
 This is not changed here. Making the proxy's `logout()` retire the holder instead (so the holder owns the logout) would respect outstanding leases, but on its own it can leak sessions: code that takes a session from the factory and logs it out without going through the template never releases its factory lease, so a retired holder would wait forever. That needs per-handoff ownership (section 4.7) first.
 
+### 4.9 Read-write transactions start on a fresh cached-session path
+
+PR #6395 fixes the `InvalidItemStateException` seen when updating an existing versionable file after earlier reads on the same thread. The failing check-in reports `Could not find child <A> of node <B>`; the missing child belongs to a version-history node. The triggering Pentaho Server 11.0.0.4-320 KTR import first reads repository content, then updates an existing shared partition schema. The failure reproduces without competing request threads, so it is distinct from the PUR lock inversion described in the separate Kettle work.
+
+The failure depends on reusing the cached JCR session. Setting `cache-size=0` (or `cache-ttl=0`) removed it in the server experiments, but disables useful session reuse and is diagnostic only. #6395 instead retires the current thread's cached session immediately before a non-read-only transaction is begun. The transaction then logs in a fresh session through the normal cache path. Read-only transactions and non-transactional reads continue to reuse cached sessions; session leases still defer logout while a session is in use.
+
+This is a targeted workaround for stale version-history state. The exact lifecycle operation inside the #6371 changes that leaves the cached view stale was not isolated, and #6395 does not claim to identify or repair that underlying Jackrabbit behavior.
+
 ## 5. Behavior and configuration notes
 
 - `cache-size` and `cache-ttl` (repository system configuration) now take effect. Setting either to `0` disables caching: each use is one managed direct login that closes when its callback and any Spring binding finish.
@@ -380,6 +390,24 @@ With the default cache (100 entries, 300 s) both the pre-change code and this PR
 
 A microbenchmark comparing the original and the fixed lifecycle logic with lightweight sessions (two JVM forks per revision, identical harness, 400,000 operations per sample) showed no regression: cache-hit throughput was within run-to-run noise (about 5.1 M versus 5.5 M ops/s), churn throughput was unchanged (about 805 K ops/s), and allocation per 400,000 operations was lower (churn: about 267 MiB versus 218 MiB). It measured lifecycle bookkeeping only and was taken before the bounded eviction pool and the `REQUIRES_NEW` bypass; it says nothing about repository I/O, disk-backed throughput or real concurrent sessions.
 
+### 6.4 Read-write transaction regression (#6395)
+
+The server-side reproducer uses `simulate_order_processing.ktr`, whose import updates existing shared partition schemas. On stock 11.0.0.4-320 the upload failed during version check-in. With the #6395 patch it passed on 320 in 2/2 fresh-server runs and on 319 in 3/3 runs. The stock 320 control failed; disabling the session cache passed 3/3 runs but is not an accepted product fix. The repository module's 86 unit tests, including the new transaction/session tests, passed.
+
+The matched endpoint workload used one writer, four readers, 20 CSV imports, 100 downloads and 80 directory listings per run. It completed with zero harness errors and no target JCR log signatures:
+
+| Variant | Throughput | Elapsed | Errors / JCR signatures |
+|---|---:|---:|---|
+| Stock 319 | 92.48 req/s | 2.163 s | 0 / none |
+| Stock 320 | 92.22 req/s | 2.169 s | 0 / none |
+| Patched 320 | 93.07 req/s | 2.149 s | 0 / none |
+
+No measurable performance impact was observed in this tested workload: throughput and operation latencies were close across the three variants. This is not a controlled measurement of #6395's extra JCR login for a read-write transaction: it was one low-volume run per variant, and the patched build also included the session-lifecycle changes. Three later runs of the combined lock-fix build ranged from 92.62 to 102.87 req/s, each with zero errors and no target JCR signatures; they are repeatability evidence for that workload, not an isolated before/after comparison. A sustained benchmark that isolates transaction login cost remains open.
+
+The platform PR build reported 28 failures among 898 tests, all represented by `NoClassDefFoundError: org/bouncycastle/jce/provider/BouncyCastleProvider` in `JcrBackedDatasourceMgmtServiceTest`. This was a Kettle startup/classpath failure, not a failure in the JCR transaction behavior. [Kettle PR #10746](https://github.com/pentaho/pentaho-kettle/pull/10746) removes eager Bouncy Castle provider initialization from general Kettle startup and initializes it for SSH use. With the Kettle engine rebuilt from the merged #10746 source, the affected class passed locally (14/14), and the full repository-module `mvn -o -B -e -Daudit -Djs.no.sandbox -pl repository clean verify` completed successfully with no test failures or Bouncy Castle errors. This verifies the reported failure mode against the local resolved dependencies; the original CI build itself remains historical evidence.
+
+No automated integration test currently reproduces the stale version-history failure. It was validated by real-server upload and JAR-swap experiments, while local repository ITs did not reproduce it. The fix has not been verified on 11.1.
+
 ## 7. Known limits
 
 - `RepositoryFileProxy` lazy reads are protected against eviction by a `SessionLease` (section 4.6). Other objects that outlive their callback and read from the session later, such as returned binary streams, are not leased. Closed-session reload and returned-stream compatibility are tested, but a race between such a read and eviction is not claimed to be solved. A session that something outside the lease model logs out directly, such as the transaction manager closing its bound proxy, can still be closed under a lazy read; the proxy then reloads.
@@ -392,6 +420,7 @@ A microbenchmark comparing the original and the fixed lifecycle logic with light
 - `SessionLease` takes its lease with `acquireForBoundUse()`, which may extend a retired session while another lease still holds it. Lazy reads on one thread run one after another, so the count still reaches zero and the session is logged out. Only overlapping reads from several threads (next item) could keep an evicted session open longer.
 - Resolving a `RepositoryFileProxy` on a thread other than the one that created it is unsupported. Sessions are cached per (user, thread), and Jackrabbit sessions are not thread-safe; a lease only prevents logout, it does not serialize use. This predates this change.
 - `getSession()` falls back to a direct login after any exception on the cache path, including programming errors. Narrowing the catch changes error behavior and is left to a follow-up. A repository login failure in the cache loader is now logged as such and its retry outcome is recorded (section 5), but the retry is kept: it repeats the same login, so it only helps if the first failure was transient.
+- Every read-write transaction that follows a reused cached session now retires that entry and performs a fresh login. The endpoint workload above showed no measurable impact, but it does not isolate this cost; 11.1 and a reproducing automated integration test remain unverified (section 6.4).
 
 ## 8. Possible directions (require an approved architecture design)
 
