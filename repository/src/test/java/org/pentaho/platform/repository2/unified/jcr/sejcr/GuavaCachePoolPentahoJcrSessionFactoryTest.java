@@ -293,6 +293,11 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
     Repository repository = mock( Repository.class );
     Session first = trackedSession();
     Session second = trackedSession();
+    CountDownLatch firstSessionLoggedOut = new CountDownLatch( 1 );
+    doAnswer( invocation -> {
+      firstSessionLoggedOut.countDown();
+      return null;
+    } ).when( first ).logout();
     SimpleCredentials credentials = new SimpleCredentials( "user", new char[ 0 ] );
     when( repository.login( credentials, "workspace" ) ).thenReturn( first, second );
     AtomicBoolean creatingReadWrite = new AtomicBoolean( false );
@@ -315,7 +320,7 @@ public class GuavaCachePoolPentahoJcrSessionFactoryTest {
 
       creatingReadWrite.set( true );
       assertSame( "A read-write transaction gets a new login", second, factory.getSession( credentials ) );
-      verify( first ).logout();
+      assertTrue( "Retired session logout should complete", firstSessionLoggedOut.await( 5, TimeUnit.SECONDS ) );
     } finally {
       factory.invalidateCachedSessions();
       second.logout();
