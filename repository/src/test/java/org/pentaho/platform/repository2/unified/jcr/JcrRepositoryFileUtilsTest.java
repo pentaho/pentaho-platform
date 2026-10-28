@@ -19,8 +19,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,6 +30,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
@@ -51,9 +59,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IRepositoryAccessVoterManager;
 import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.RepositoryRequest;
+import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
@@ -176,6 +186,7 @@ public class JcrRepositoryFileUtilsTest {
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( sessionMock );
 
     when( mockNode.isNodeType( pentahoJcrConstants.getPHO_MIX_VERSIONABLE() ) ).thenReturn( Boolean.TRUE );
+    when( mockNode.getIdentifier() ).thenReturn( "file-id" );
 
     PentahoSessionHolder.setSession( pentahoSession );
 
@@ -258,6 +269,100 @@ public class JcrRepositoryFileUtilsTest {
 
     // verify version is deleted
     verify( mockVersionHistory ).removeVersion( any() );
+  }
+
+  @Test
+  public void shouldWaitForCurrentVersionReadBeforePruningPreviousVersion() throws Exception {
+    String fileId = "file-id";
+    IPentahoSession previousSession = PentahoSessionHolder.getSession();
+    IRepositoryVersionManager previousVersionManager = JcrRepositoryFileUtils.getRepositoryVersionManager();
+    IPentahoSession testSession = mock( IPentahoSession.class );
+    when( testSession.getName() ).thenReturn( "admin" );
+    PentahoSessionHolder.setSession( testSession );
+    Node fileNode = mock( Node.class );
+    Node frozenNode = mock( Node.class );
+    Version version = mock( Version.class );
+    VersionManagerImpl versionManager = mock( VersionManagerImpl.class );
+    VersionHistory versionHistory = mock( VersionHistory.class );
+    Session readSession = mock( Session.class );
+    Workspace readWorkspace = mock( Workspace.class );
+    when( pJcrConstMock.getJCR_FROZENNODE() ).thenReturn( "jcr:frozenNode" );
+    when( pJcrConstMock.getPHO_MIX_VERSIONABLE() ).thenReturn( "mix:versionable" );
+    when( readSession.getNodeByIdentifier( fileId ) ).thenReturn( fileNode );
+    when( readSession.getWorkspace() ).thenReturn( readWorkspace );
+    when( readWorkspace.getVersionManager() ).thenReturn( versionManager );
+    when( versionManager.getBaseVersion( any() ) ).thenReturn( version );
+    when( version.getNode( "jcr:frozenNode" ) ).thenReturn( frozenNode );
+    when( sessionMock.getNodeByIdentifier( fileId ) ).thenReturn( nodeMock );
+    when( nodeMock.isNodeType( "mix:versionable" ) ).thenReturn( true );
+    when( nodeMock.getPath() ).thenReturn( "/file" );
+    when( nodeMock.getIdentifier() ).thenReturn( fileId );
+    when( workspaceMock.getVersionManager() ).thenReturn( versionManager );
+    when( versionManager.getVersionHistory( "/file" ) ).thenReturn( versionHistory );
+
+    CountDownLatch readEnteredTransformer = new CountDownLatch( 1 );
+    CountDownLatch releaseRead = new CountDownLatch( 1 );
+    CountDownLatch writerStarted = new CountDownLatch( 1 );
+    ExecutorService executor = Executors.newFixedThreadPool( 2 );
+    ITransformer<IRepositoryFileData> transformer = mock( ITransformer.class );
+    doAnswer( invocation -> {
+      readEnteredTransformer.countDown();
+      assertTrue( "Timed out waiting to release the content read", releaseRead.await( 5, TimeUnit.SECONDS ) );
+      return null;
+    } ).when( transformer ).fromContentNode( any(), any(), any() );
+
+    VersionSummary previousVersion = mock( VersionSummary.class );
+    VersionSummary olderVersion = mock( VersionSummary.class );
+    when( olderVersion.getId() ).thenReturn( "v1" );
+
+    try ( MockedStatic<JcrRepositoryFileUtils> utilities = mockStatic( JcrRepositoryFileUtils.class,
+        org.mockito.Mockito.CALLS_REAL_METHODS ) ) {
+      utilities.when( () -> JcrRepositoryFileUtils.isVersioned( readSession, pJcrConstMock, fileNode ) )
+        .thenReturn( true );
+      utilities.when( () -> JcrRepositoryFileUtils.isPentahoFolder( pJcrConstMock, frozenNode ) ).thenReturn( false );
+      utilities.when( () -> JcrRepositoryFileUtils.getVersionSummaries( sessionMock, pJcrConstMock, fileId, true ) )
+        .thenReturn( java.util.Arrays.asList( olderVersion, previousVersion ) );
+      JcrRepositoryFileUtils.setRepositoryVersionManager( repositoryVersionManagerMockFalse );
+
+      Future<IRepositoryFileData> read = executor.submit( () -> JcrRepositoryFileUtils.getContent( readSession,
+        pJcrConstMock, fileId, null, transformer ) );
+      assertTrue( "Content read did not reach the transformer",
+        readEnteredTransformer.await( 5, TimeUnit.SECONDS ) );
+
+      Future<?> write = executor.submit( () -> {
+        writerStarted.countDown();
+        try ( MockedStatic<JcrRepositoryFileUtils> writerUtilities = mockStatic( JcrRepositoryFileUtils.class,
+            org.mockito.Mockito.CALLS_REAL_METHODS ) ) {
+          writerUtilities.when( () -> JcrRepositoryFileUtils.getVersionSummaries( sessionMock, pJcrConstMock, fileId,
+              true ) ).thenReturn( java.util.Arrays.asList( olderVersion, previousVersion ) );
+          JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary( sessionMock, pJcrConstMock, nodeMock,
+            "update", new Date(), false );
+          return null;
+        }
+      } );
+      assertTrue( "Writer did not start", writerStarted.await( 5, TimeUnit.SECONDS ) );
+      try {
+        write.get( 200, TimeUnit.MILLISECONDS );
+        fail( "Version pruning completed while its content was being read" );
+      } catch ( TimeoutException expected ) {
+        verify( versionManager, never() ).checkin( any(), any() );
+      }
+
+      releaseRead.countDown();
+      read.get( 5, TimeUnit.SECONDS );
+      write.get( 5, TimeUnit.SECONDS );
+      verify( versionManager ).checkin( any(), any() );
+      verify( versionHistory ).removeVersion( "v1" );
+    } finally {
+      releaseRead.countDown();
+      executor.shutdownNow();
+      JcrRepositoryFileUtils.setRepositoryVersionManager( previousVersionManager );
+      if ( previousSession == null ) {
+        PentahoSessionHolder.removeSession();
+      } else {
+        PentahoSessionHolder.setSession( previousSession );
+      }
+    }
   }
 
   @Test

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.regex.Pattern;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Item;
@@ -82,6 +83,8 @@ import org.springframework.util.StringUtils;
  * @author mlowery
  */
 public class JcrRepositoryFileUtils {
+
+  private static final ReentrantReadWriteLock[] FILE_CONTENT_LOCKS = createFileContentLocks();
 
   private static final Log logger = LogFactory.getLog( JcrRepositoryFileUtils.class );
 
@@ -692,20 +695,26 @@ public class JcrRepositoryFileUtils {
   public static IRepositoryFileData getContent( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable fileId, final Serializable versionId, final ITransformer<IRepositoryFileData> transformer )
     throws RepositoryException {
-    Node fileNode = session.getNodeByIdentifier( fileId.toString() );
-    if ( isVersioned( session, pentahoJcrConstants, fileNode ) ) {
-      VersionManager vMgr = session.getWorkspace().getVersionManager();
-      Version version = null;
-      if ( versionId != null ) {
-        version = vMgr.getVersionHistory( fileNode.getPath() ).getVersion( versionId.toString() );
-      } else {
-        version = vMgr.getBaseVersion( fileNode.getPath() );
+    ReentrantReadWriteLock.ReadLock readLock = getFileContentLock( fileId ).readLock();
+    readLock.lock();
+    try {
+      Node fileNode = session.getNodeByIdentifier( fileId.toString() );
+      if ( isVersioned( session, pentahoJcrConstants, fileNode ) ) {
+        VersionManager vMgr = session.getWorkspace().getVersionManager();
+        Version version = null;
+        if ( versionId != null ) {
+          version = vMgr.getVersionHistory( fileNode.getPath() ).getVersion( versionId.toString() );
+        } else {
+          version = vMgr.getBaseVersion( fileNode.getPath() );
+        }
+        fileNode = getNodeAtVersion( pentahoJcrConstants, version );
       }
-      fileNode = getNodeAtVersion( pentahoJcrConstants, version );
-    }
-    Assert.isTrue( !isPentahoFolder( pentahoJcrConstants, fileNode ), "The file node must not be a folder. Ensure the provided node represents a valid file." );
+      Assert.isTrue( !isPentahoFolder( pentahoJcrConstants, fileNode ), "The file node must not be a folder. Ensure the provided node represents a valid file." );
 
-    return transformer.fromContentNode( session, pentahoJcrConstants, fileNode );
+      return transformer.fromContentNode( session, pentahoJcrConstants, fileNode );
+    } finally {
+      readLock.unlock();
+    }
   }
 
   public static List<RepositoryFile> getChildren( final Session session, final PentahoJcrConstants pentahoJcrConstants,
@@ -919,53 +928,99 @@ public class JcrRepositoryFileUtils {
     Node versionableNode = findNearestVersionableNode( session, pentahoJcrConstants, node );
 
     if ( versionableNode != null ) {
-      versionableNode.setProperty( pentahoJcrConstants.getPHO_VERSIONAUTHOR(), getUsername() );
-      if ( StringUtils.hasText( versionMessage ) ) {
-        versionableNode.setProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE(), versionMessage );
-      } else {
-        // TODO mlowery why do I need to check for hasProperty here? in JR 1.6, I didn't need to
-        if ( versionableNode.hasProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE() ) ) {
-          versionableNode.setProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE(), (String) null );
+      ReentrantReadWriteLock.WriteLock writeLock = getFileContentLock( versionableNode.getIdentifier() ).writeLock();
+      writeLock.lock();
+      try {
+        versionableNode.setProperty( pentahoJcrConstants.getPHO_VERSIONAUTHOR(), getUsername() );
+        if ( StringUtils.hasText( versionMessage ) ) {
+          versionableNode.setProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE(), versionMessage );
+        } else {
+          // TODO mlowery why do I need to check for hasProperty here? in JR 1.6, I didn't need to
+          if ( versionableNode.hasProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE() ) ) {
+            versionableNode.setProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE(), (String) null );
+          }
         }
-      }
-      if ( aclOnlyChange ) {
-        versionableNode.setProperty( pentahoJcrConstants.getPHO_ACLONLYCHANGE(), true );
-      } else {
-        // TODO mlowery why do I need to check for hasProperty here? in JR 1.6, I didn't need to
-        if ( versionableNode.hasProperty( pentahoJcrConstants.getPHO_ACLONLYCHANGE() ) ) {
-          versionableNode.getProperty( pentahoJcrConstants.getPHO_ACLONLYCHANGE() ).remove();
+        if ( aclOnlyChange ) {
+          versionableNode.setProperty( pentahoJcrConstants.getPHO_ACLONLYCHANGE(), true );
+        } else {
+          // TODO mlowery why do I need to check for hasProperty here? in JR 1.6, I didn't need to
+          if ( versionableNode.hasProperty( pentahoJcrConstants.getPHO_ACLONLYCHANGE() ) ) {
+            versionableNode.getProperty( pentahoJcrConstants.getPHO_ACLONLYCHANGE() ).remove();
+          }
         }
-      }
-      session.save(); // required before checkin since we set some properties above
+        session.save(); // required before checkin since we set some properties above
 
-      Calendar cal = Calendar.getInstance();
-      if ( versionDate != null ) {
-        cal.setTime( versionDate );
-      } else {
-        cal.setTime( new Date() );
-      }
-      ( (VersionManagerImpl) session.getWorkspace().getVersionManager() ).checkin( versionableNode.getPath(), cal );
+        Calendar cal = Calendar.getInstance();
+        if ( versionDate != null ) {
+          cal.setTime( versionDate );
+        } else {
+          cal.setTime( new Date() );
+        }
+        ( (VersionManagerImpl) session.getWorkspace().getVersionManager() ).checkin( versionableNode.getPath(), cal );
 
-      // if we're not versioning, delete only the previous version to
-      // prevent the number of versions from increasing. We still need a versioned node
-      if ( !getRepositoryVersionManager().isVersioningEnabled( versionableNode.getPath() ) ) {
+        // if we're not versioning, delete only the previous version to
+        // prevent the number of versions from increasing. We still need a versioned node
+        if ( !getRepositoryVersionManager().isVersioningEnabled( versionableNode.getPath() ) ) {
 
-        List<VersionSummary> versionSummaries =
+          List<VersionSummary> versionSummaries =
             (List<VersionSummary>) getVersionSummaries( session, pentahoJcrConstants, versionableNode.getIdentifier(),
                 Boolean.TRUE );
 
-        if ( ( versionSummaries != null ) && ( versionSummaries.size() > 1 ) ) {
-          VersionSummary versionSummary = (VersionSummary) versionSummaries.toArray()[versionSummaries.size() - 2];
+          if ( ( versionSummaries != null ) && ( versionSummaries.size() > 1 ) ) {
+            VersionSummary versionSummary = (VersionSummary) versionSummaries.toArray()[versionSummaries.size() - 2];
 
-          if ( versionSummary != null ) {
-            String versionId = (String) versionSummary.getId();
-            session.getWorkspace().getVersionManager().getVersionHistory( versionableNode.getPath() ).removeVersion(
-                versionId );
-            session.save();
+            if ( versionSummary != null ) {
+              String versionId = (String) versionSummary.getId();
+              session.getWorkspace().getVersionManager().getVersionHistory( versionableNode.getPath() ).removeVersion(
+                  versionId );
+              session.save();
+            }
           }
         }
+      } finally {
+        writeLock.unlock();
       }
     }
+  }
+
+  private static ReentrantReadWriteLock[] createFileContentLocks() {
+    ReentrantReadWriteLock[] locks = new ReentrantReadWriteLock[ 64 ];
+    for ( int index = 0; index < locks.length; index++ ) {
+      locks[ index ] = new ReentrantReadWriteLock( true );
+    }
+    return locks;
+  }
+
+  static ReentrantReadWriteLock getFileContentLock( final Serializable fileId ) {
+    return FILE_CONTENT_LOCKS[ getFileContentLockIndex( fileId ) ];
+  }
+
+  static List<java.util.concurrent.locks.Lock> lockFileContentForWrite(
+      final Iterable<? extends Serializable> fileIds ) {
+    boolean[] lockIndexes = new boolean[ FILE_CONTENT_LOCKS.length ];
+    for ( Serializable fileId : fileIds ) {
+      lockIndexes[ getFileContentLockIndex( fileId ) ] = true;
+    }
+
+    List<java.util.concurrent.locks.Lock> acquiredLocks = new ArrayList<>();
+    for ( int index = 0; index < lockIndexes.length; index++ ) {
+      if ( lockIndexes[ index ] ) {
+        java.util.concurrent.locks.Lock lock = FILE_CONTENT_LOCKS[ index ].writeLock();
+        lock.lock();
+        acquiredLocks.add( lock );
+      }
+    }
+    return acquiredLocks;
+  }
+
+  static void unlockFileContentWriteLocks( final List<java.util.concurrent.locks.Lock> locks ) {
+    for ( int index = locks.size() - 1; index >= 0; index-- ) {
+      locks.get( index ).unlock();
+    }
+  }
+
+  private static int getFileContentLockIndex( final Serializable fileId ) {
+    return Math.floorMod( fileId.toString().hashCode(), FILE_CONTENT_LOCKS.length );
   }
 
   private static String getUsername() {

@@ -483,10 +483,18 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       @Override
       public Object doInJcr( final Session session ) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
-        IRepositoryFileData data =
-            JcrRepositoryFileUtils.getContent( session, pentahoJcrConstants, fileId, versionId, findTransformerForRead(
-                JcrRepositoryFileUtils.getFileContentType( session, pentahoJcrConstants, fileId, versionId ),
-                contentClass ) );
+        java.util.concurrent.locks.Lock contentReadLock =
+            JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
+        contentReadLock.lock();
+        IRepositoryFileData data;
+        try {
+          data = JcrRepositoryFileUtils.getContent( session, pentahoJcrConstants, fileId, versionId,
+              findTransformerForRead(
+                  JcrRepositoryFileUtils.getFileContentType( session, pentahoJcrConstants, fileId, versionId ),
+                  contentClass ) );
+        } finally {
+          contentReadLock.unlock();
+        }
         if ( fileId != null ) {
           RepositoryFile file = internalGetFileById( fileId, false, null );
           if ( file != null ) {
@@ -554,13 +562,20 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
     Assert.notNull( file,"File must not be null" );
     Assert.isTrue( !file.isFolder(), "The provided file must not be a folder" );
-    return (RepositoryFile) jcrTemplate.execute( new JcrCallback() {
-      @Override
-      public Object doInJcr( final Session session ) throws RepositoryException, IOException {
-        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
-        return internalUpdateFile( session, pentahoJcrConstants, file, content, versionMessage );
-      }
-    } );
+    java.util.concurrent.locks.Lock contentWriteLock =
+        JcrRepositoryFileUtils.getFileContentLock( file.getId() ).writeLock();
+    contentWriteLock.lock();
+    try {
+      return (RepositoryFile) jcrTemplate.execute( new JcrCallback() {
+        @Override
+        public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+          PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+          return internalUpdateFile( session, pentahoJcrConstants, file, content, versionMessage );
+        }
+      } );
+    } finally {
+      contentWriteLock.unlock();
+    }
   }
 
   /**
@@ -610,13 +625,20 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   @SuppressWarnings( "unchecked" )
   public List<VersionSummary> getVersionSummaries( final Serializable fileId ) {
     Assert.notNull( fileId, "File ID must not be null" );
-    return (List<VersionSummary>) jcrTemplate.execute( new JcrCallback() {
-      @Override
-      public Object doInJcr( final Session session ) throws RepositoryException, IOException {
-        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
-        return JcrRepositoryFileUtils.getVersionSummaries( session, pentahoJcrConstants, fileId, true );
-      }
-    } );
+    java.util.concurrent.locks.Lock contentReadLock =
+        JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
+    contentReadLock.lock();
+    try {
+      return (List<VersionSummary>) jcrTemplate.execute( new JcrCallback() {
+        @Override
+        public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+          PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+          return JcrRepositoryFileUtils.getVersionSummaries( session, pentahoJcrConstants, fileId, true );
+        }
+      } );
+    } finally {
+      contentReadLock.unlock();
+    }
   }
 
   /**
@@ -626,14 +648,21 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   public RepositoryFile getFile( final Serializable fileId, final Serializable versionId ) {
     Assert.notNull( fileId, "File ID must not be null" );
     Assert.notNull( versionId, "Version ID must not be null" );
-    return (RepositoryFile) jcrTemplate.execute( new JcrCallback() {
-      @Override
-      public Object doInJcr( final Session session ) throws RepositoryException, IOException {
-        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
-        return JcrRepositoryFileUtils.getFileAtVersion( session, pentahoJcrConstants, pathConversionHelper, lockHelper,
-            fileId, versionId );
-      }
-    } );
+    java.util.concurrent.locks.Lock contentReadLock =
+        JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
+    contentReadLock.lock();
+    try {
+      return (RepositoryFile) jcrTemplate.execute( new JcrCallback() {
+        @Override
+        public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+          PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+          return JcrRepositoryFileUtils.getFileAtVersion( session, pentahoJcrConstants, pathConversionHelper,
+              lockHelper, fileId, versionId );
+        }
+      } );
+    } finally {
+      contentReadLock.unlock();
+    }
   }
 
   /**
@@ -689,26 +718,33 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
     Assert.notNull( fileId, "File ID must not be null" );
     Assert.notNull( versionId, "Version ID must not be null" );
-    jcrTemplate.execute( new JcrCallback() {
-      @Override
-      public Object doInJcr( final Session session ) throws RepositoryException, IOException {
-        RepositoryFile fileToBeDeleted = getFileById( fileId );
-        // Get repository file info and acl info of parent
-        if ( fileToBeDeleted != null ) {
-          RepositoryFileAcl toBeDeletedFileAcl = aclDao.getAcl( fileToBeDeleted.getId() );
-          // Invoke accessVoterManager to see if we have access to perform this operation
-          if ( !accessVoterManager.hasAccess( fileToBeDeleted, RepositoryFilePermission.DELETE, toBeDeletedFileAcl,
-              PentahoSessionHolder.getSession() ) ) {
-            return null;
+    java.util.concurrent.locks.Lock contentWriteLock =
+        JcrRepositoryFileUtils.getFileContentLock( fileId ).writeLock();
+    contentWriteLock.lock();
+    try {
+      jcrTemplate.execute( new JcrCallback() {
+        @Override
+        public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+          RepositoryFile fileToBeDeleted = getFileById( fileId );
+          // Get repository file info and acl info of parent
+          if ( fileToBeDeleted != null ) {
+            RepositoryFileAcl toBeDeletedFileAcl = aclDao.getAcl( fileToBeDeleted.getId() );
+            // Invoke accessVoterManager to see if we have access to perform this operation
+            if ( !accessVoterManager.hasAccess( fileToBeDeleted, RepositoryFilePermission.DELETE, toBeDeletedFileAcl,
+                PentahoSessionHolder.getSession() ) ) {
+              return null;
+            }
           }
+          Node fileToDeleteNode = session.getNodeByIdentifier( fileId.toString() );
+          session.getWorkspace().getVersionManager().getVersionHistory( fileToDeleteNode.getPath() ).removeVersion(
+              versionId.toString() );
+          session.save();
+          return null;
         }
-        Node fileToDeleteNode = session.getNodeByIdentifier( fileId.toString() );
-        session.getWorkspace().getVersionManager().getVersionHistory( fileToDeleteNode.getPath() ).removeVersion(
-            versionId.toString() );
-        session.save();
-        return null;
-      }
-    } );
+      } );
+    } finally {
+      contentWriteLock.unlock();
+    }
   }
 
   /**
@@ -782,8 +818,19 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           }
         }
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
-        deleteHelper.permanentlyDeleteFile( session, pentahoJcrConstants, fileId );
-        session.save();
+        List<Serializable> fileIds = new ArrayList<>();
+        collectPentahoFileIds( pentahoJcrConstants, session.getNodeByIdentifier( fileId.toString() ), fileIds );
+        if ( fileIds.isEmpty() ) {
+          fileIds.add( fileId );
+        }
+        List<java.util.concurrent.locks.Lock> contentWriteLocks =
+            JcrRepositoryFileUtils.lockFileContentForWrite( fileIds );
+        try {
+          deleteHelper.permanentlyDeleteFile( session, pentahoJcrConstants, fileId );
+          session.save();
+        } finally {
+          JcrRepositoryFileUtils.unlockFileContentWriteLocks( contentWriteLocks );
+        }
         return null;
       }
     } );
@@ -1000,13 +1047,20 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   @Override
   public VersionSummary getVersionSummary( final Serializable fileId, final Serializable versionId ) {
     Assert.notNull( fileId, "File ID must not be null" );
-    return (VersionSummary) jcrTemplate.execute( new JcrCallback() {
-      @Override
-      public Object doInJcr( final Session session ) throws RepositoryException, IOException {
-        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
-        return JcrRepositoryFileUtils.getVersionSummary( session, pentahoJcrConstants, fileId, versionId );
-      }
-    } );
+    java.util.concurrent.locks.Lock contentReadLock =
+        JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
+    contentReadLock.lock();
+    try {
+      return (VersionSummary) jcrTemplate.execute( new JcrCallback() {
+        @Override
+        public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+          PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+          return JcrRepositoryFileUtils.getVersionSummary( session, pentahoJcrConstants, fileId, versionId );
+        }
+      } );
+    } finally {
+      contentReadLock.unlock();
+    }
   }
 
   /**
@@ -1021,14 +1075,33 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     }
     Assert.notNull( fileId, "File ID must not be null" );
     Assert.notNull( versionId, "Version ID must not be null" );
-    jcrTemplate.execute( new JcrCallback() {
-      @Override
-      public Object doInJcr( final Session session ) throws RepositoryException, IOException {
-        Node fileNode = session.getNodeByIdentifier( fileId.toString() );
-        session.getWorkspace().getVersionManager().restore( fileNode.getPath(), versionId.toString(), true );
-        return null;
+    java.util.concurrent.locks.Lock contentWriteLock =
+        JcrRepositoryFileUtils.getFileContentLock( fileId ).writeLock();
+    contentWriteLock.lock();
+    try {
+      jcrTemplate.execute( new JcrCallback() {
+        @Override
+        public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+          Node fileNode = session.getNodeByIdentifier( fileId.toString() );
+          session.getWorkspace().getVersionManager().restore( fileNode.getPath(), versionId.toString(), true );
+          return null;
+        }
+      } );
+    } finally {
+      contentWriteLock.unlock();
+    }
+  }
+
+  private void collectPentahoFileIds( final PentahoJcrConstants pentahoJcrConstants, final Node node,
+      final List<Serializable> fileIds ) throws RepositoryException {
+    if ( JcrRepositoryFileUtils.isPentahoFile( pentahoJcrConstants, node ) ) {
+      fileIds.add( node.getIdentifier() );
+    } else if ( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, node ) ) {
+      javax.jcr.NodeIterator children = node.getNodes();
+      while ( children.hasNext() ) {
+        collectPentahoFileIds( pentahoJcrConstants, children.nextNode(), fileIds );
       }
-    } );
+    }
   }
 
   /**
