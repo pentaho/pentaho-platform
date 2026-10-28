@@ -1054,38 +1054,33 @@ public class JcrRepositoryFileUtils {
   static void withFileContentWriteLocks( final Iterable<? extends Serializable> fileIds,
       final FileContentWriteOperation operation ) throws javax.jcr.RepositoryException, java.io.IOException {
     boolean[] lockIndexes = new boolean[ FILE_CONTENT_LOCKS.length ];
-    int lockCount = 0;
     for ( Serializable fileId : fileIds ) {
-      int lockIndex = getFileContentLockIndex( fileId );
-      if ( !lockIndexes[ lockIndex ] ) {
-        lockIndexes[ lockIndex ] = true;
-        lockCount++;
-      }
+      lockIndexes[ getFileContentLockIndex( fileId ) ] = true;
+    }
+    runWithOrderedWriteLocks( lockIndexes, 0, operation );
+  }
+
+  // Acquires selected stripes in ascending order; each is released by its own finally.
+  private static void runWithOrderedWriteLocks( final boolean[] lockIndexes, final int from,
+      final FileContentWriteOperation operation ) throws javax.jcr.RepositoryException, java.io.IOException {
+    int next = from;
+    while ( next < lockIndexes.length && !lockIndexes[ next ] ) {
+      next++;
+    }
+    if ( next >= lockIndexes.length ) {
+      operation.execute();
+      return;
     }
 
-    java.util.concurrent.locks.Lock[] acquiredLocks = new java.util.concurrent.locks.Lock[ lockCount ];
-    int acquiredLockCount = 0;
+    java.util.concurrent.locks.Lock lock = FILE_CONTENT_LOCKS[ next ].writeLock();
+    lock.lock();
     boolean unlockAfterCompletion = false;
     try {
-      for ( int index = 0; index < lockIndexes.length; index++ ) {
-        if ( lockIndexes[ index ] ) {
-          java.util.concurrent.locks.Lock lock = FILE_CONTENT_LOCKS[ index ].writeLock();
-          lock.lock();
-          acquiredLocks[ acquiredLockCount++ ] = lock;
-        }
-      }
-      final int locksToRelease = acquiredLockCount;
-      unlockAfterCompletion = deferUnlockUntilTransactionCompletion( () -> {
-        for ( int index = locksToRelease - 1; index >= 0; index-- ) {
-          acquiredLocks[ index ].unlock();
-        }
-      } );
-      operation.execute();
+      unlockAfterCompletion = deferUnlockUntilTransactionCompletion( lock::unlock );
+      runWithOrderedWriteLocks( lockIndexes, next + 1, operation );
     } finally {
       if ( !unlockAfterCompletion ) {
-        for ( int index = acquiredLockCount - 1; index >= 0; index-- ) {
-          acquiredLocks[ index ].unlock();
-        }
+        lock.unlock();
       }
     }
   }
