@@ -66,3 +66,6 @@ These tests cover the DAO read-lock behavior, the shared lock utility, writers w
 This change coordinates JCR version reads with content mutations. It does not address cached-session ownership or stale session version-history views, which remain under BISERVER-15667. It also does not claim that unrelated file IDs always proceed independently: the fixed-size lock stripes can collide.
 
 The initial PR targets `master`. Release-line backports should follow only after the master change is reviewed and validated.
+### Versioned children during restore
+
+`pho_mix:pentahoVersionable` extends `mix:simpleVersionable`, and no Pentaho child node definition uses `OnParentVersion` VERSION. Frozen nodes therefore never contain `nt:versionedChild` entries (those require full versioning with `jcr:childVersionHistory`), and restore cannot relocate a separately versioned child. The restore lock set is limited to the current subtree and the frozen subtree identified by `jcr:frozenUuid`.
