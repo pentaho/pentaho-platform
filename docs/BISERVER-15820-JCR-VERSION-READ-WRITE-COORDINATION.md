@@ -51,6 +51,8 @@ mvn -o -B -q -pl repository -Daudit -Djs.no.sandbox \
 
 These tests cover the DAO read-lock behavior and the shared lock utility. Full repository-module validation is still required through CI for this PR.
 
+For a bounded live import/read probe, see [the repository concurrency harness](../tools/repository-concurrency/README.md). It requires an authorized test server and disposable repository directory; it does not inspect server logs.
+
 ## 4. Scope and limits
 
 This change coordinates JCR version reads with content mutations. It does not address cached-session ownership or stale session version-history views, which remain under BISERVER-15667. It also does not claim that unrelated file IDs always proceed independently: the fixed-size lock stripes can collide.
