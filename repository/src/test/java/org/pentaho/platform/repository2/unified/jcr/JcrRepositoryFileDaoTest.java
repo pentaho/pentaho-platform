@@ -14,6 +14,11 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Lock;
 import org.apache.jackrabbit.core.VersionManagerImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -109,7 +114,7 @@ public class JcrRepositoryFileDaoTest {
     when( currentVersion.getName() ).thenReturn( "version-id" );
     when( currentVersion.getCreated() ).thenReturn( Calendar.getInstance() );
     when( currentVersion.getNode( nullable( String.class ) ) ).thenReturn( frozenNode );
-    javax.jcr.NodeIterator noChildren = mock( javax.jcr.NodeIterator.class );
+    NodeIterator noChildren = mock( NodeIterator.class );
     when( noChildren.hasNext() ).thenReturn( false );
     when( frozenNode.getNodes() ).thenReturn( noChildren );
     when( currentVersion.getFrozenNode() ).thenReturn( frozenNode );
@@ -141,7 +146,7 @@ public class JcrRepositoryFileDaoTest {
         }
       }
     };
-    transformers = new java.util.ArrayList<>();
+    transformers = new ArrayList<>();
     IPathConversionHelper pathConversionHelper = new DefaultPathConversionHelper();
     IRepositoryFileAclDao aclDao = mock( IRepositoryFileAclDao.class );
     accessVoterManager = mock( IRepositoryAccessVoterManager.class );
@@ -156,8 +161,8 @@ public class JcrRepositoryFileDaoTest {
     RepositoryFile file = mock( RepositoryFile.class );
     when( file.getId() ).thenReturn( fileId );
     when( file.isFolder() ).thenReturn( false );
-    java.util.concurrent.locks.Lock readLock = JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
-    java.util.concurrent.locks.Lock ancestorReadLock = JcrRepositoryFileUtils.getFileContentLock( "" ).readLock();
+    Lock readLock = JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
+    Lock ancestorReadLock = JcrRepositoryFileUtils.getFileContentLock( "" ).readLock();
     ExecutorService executor = Executors.newSingleThreadExecutor();
     CountDownLatch updateStarted = new CountDownLatch( 1 );
     boolean readLockReleased = false;
@@ -193,7 +198,7 @@ public class JcrRepositoryFileDaoTest {
     try {
       future.get( 100, TimeUnit.MILLISECONDS );
       fail( message );
-    } catch ( java.util.concurrent.TimeoutException expected ) {
+    } catch ( TimeoutException expected ) {
       assertFalse( message, future.isDone() );
     }
   }
@@ -229,7 +234,7 @@ public class JcrRepositoryFileDaoTest {
         .thenReturn( data );
     transformers.add( transformer );
 
-    java.util.concurrent.locks.Lock contentWriteLock =
+    Lock contentWriteLock =
         JcrRepositoryFileUtils.getFileContentLock( fileId ).writeLock();
     ExecutorService executor = Executors.newSingleThreadExecutor();
     boolean writeLockReleased = false;
@@ -287,7 +292,7 @@ public class JcrRepositoryFileDaoTest {
       return null;
     } ).when( versionManager ).restore( nullable( String.class ), nullable( String.class ), org.mockito.ArgumentMatchers.anyBoolean() );
 
-    java.util.concurrent.locks.Lock contentReadLock = JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
+    Lock contentReadLock = JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
     ExecutorService executor = Executors.newSingleThreadExecutor();
     contentReadLock.lock();
     boolean released = false;
@@ -322,9 +327,9 @@ public class JcrRepositoryFileDaoTest {
     when( frozenUuid.getString() ).thenReturn( movedFolderId );
     when( frozenChild.hasProperty( "jcr:frozenUuid" ) ).thenReturn( true );
     when( frozenChild.getProperty( "jcr:frozenUuid" ) ).thenReturn( frozenUuid );
-    javax.jcr.NodeIterator noChildren = mock( javax.jcr.NodeIterator.class );
+    NodeIterator noChildren = mock( NodeIterator.class );
     when( frozenChild.getNodes() ).thenReturn( noChildren );
-    javax.jcr.NodeIterator frozenChildren = mock( javax.jcr.NodeIterator.class );
+    NodeIterator frozenChildren = mock( NodeIterator.class );
     when( frozenChildren.hasNext() ).thenReturn( true, true, false );
     when( frozenChildren.nextNode() ).thenReturn( frozenChild );
     when( frozenNode.getNodes() ).thenReturn( frozenChildren );
@@ -332,7 +337,7 @@ public class JcrRepositoryFileDaoTest {
     Node movedChild = mock( Node.class );
     when( movedChild.isNodeType( "null:pentahoFile" ) ).thenReturn( true );
     when( movedChild.getIdentifier() ).thenReturn( movedChildId );
-    javax.jcr.NodeIterator movedChildren = mock( javax.jcr.NodeIterator.class );
+    NodeIterator movedChildren = mock( NodeIterator.class );
     when( movedChildren.hasNext() ).thenReturn( true, false );
     when( movedChildren.nextNode() ).thenReturn( movedChild );
     Node movedFolder = mock( Node.class );
@@ -348,7 +353,7 @@ public class JcrRepositoryFileDaoTest {
     } ).when( versionManager ).restore( nullable( String.class ), nullable( String.class ),
         org.mockito.ArgumentMatchers.anyBoolean() );
 
-    java.util.concurrent.locks.Lock descendantReadLock = JcrRepositoryFileUtils.getFileContentLock( movedChildId ).readLock();
+    Lock descendantReadLock = JcrRepositoryFileUtils.getFileContentLock( movedChildId ).readLock();
     ExecutorService executor = Executors.newSingleThreadExecutor();
     descendantReadLock.lock();
     boolean released = false;
@@ -373,7 +378,7 @@ public class JcrRepositoryFileDaoTest {
   public void shouldSerializeUpdatesAndVersionOperationsBehindTreeWriteLease() throws Exception {
     RepositoryFile file = new RepositoryFile.Builder( "f" ).id( "tree-lease-test" ).build();
     IRepositoryFileData content = mock( IRepositoryFileData.class );
-    List<Runnable> writers = java.util.Arrays.asList(
+    List<Runnable> writers = Arrays.asList(
         () -> dao.updateFile( file, content, null ),
         () -> dao.restoreFileAtVersion( "tree-lease-test", "version-id", null ),
         () -> dao.deleteFileAtVersion( "tree-lease-test", "version-id" ) );
@@ -417,11 +422,11 @@ public class JcrRepositoryFileDaoTest {
       return null;
     } ).when( deleteHelper ).permanentlyDeleteFile( org.mockito.ArgumentMatchers.any( Session.class ),
         org.mockito.ArgumentMatchers.any( PentahoJcrConstants.class ), org.mockito.ArgumentMatchers.eq( fileId ) );
-    java.lang.reflect.Field deleteHelperField = JcrRepositoryFileDao.class.getDeclaredField( "deleteHelper" );
+    Field deleteHelperField = JcrRepositoryFileDao.class.getDeclaredField( "deleteHelper" );
     deleteHelperField.setAccessible( true );
     deleteHelperField.set( dao, deleteHelper );
 
-    java.util.concurrent.locks.Lock contentReadLock = JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
+    Lock contentReadLock = JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
     ExecutorService executor = Executors.newSingleThreadExecutor();
     boolean readLockReleased = false;
     contentReadLock.lock();
@@ -467,12 +472,12 @@ public class JcrRepositoryFileDaoTest {
       return null;
     } ).when( deleteHelper ).permanentlyDeleteFile( org.mockito.ArgumentMatchers.any( Session.class ),
         org.mockito.ArgumentMatchers.any( PentahoJcrConstants.class ), org.mockito.ArgumentMatchers.eq( folderId ) );
-    java.lang.reflect.Field deleteHelperField = JcrRepositoryFileDao.class.getDeclaredField( "deleteHelper" );
+    Field deleteHelperField = JcrRepositoryFileDao.class.getDeclaredField( "deleteHelper" );
     deleteHelperField.setAccessible( true );
     deleteHelperField.set( dao, deleteHelper );
 
-    java.util.concurrent.locks.Lock contentReadLock = JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
-    java.util.concurrent.locks.Lock folderReadLock = JcrRepositoryFileUtils.getFileContentLock( folderId ).readLock();
+    Lock contentReadLock = JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
+    Lock folderReadLock = JcrRepositoryFileUtils.getFileContentLock( folderId ).readLock();
     ExecutorService executor = Executors.newSingleThreadExecutor();
     boolean readLockReleased = false;
     boolean folderReadLockReleased = false;
@@ -503,7 +508,7 @@ public class JcrRepositoryFileDaoTest {
   }
 
   private void assertOperationWaitsForContentReaders( String fileId, Runnable operation ) throws Exception {
-    java.util.concurrent.locks.Lock contentReadLock = JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
+    Lock contentReadLock = JcrRepositoryFileUtils.getFileContentLock( fileId ).readLock();
     ExecutorService executor = Executors.newSingleThreadExecutor();
     boolean readLockReleased = false;
 
@@ -526,7 +531,7 @@ public class JcrRepositoryFileDaoTest {
   }
 
   private void assertReadOperationWaitsForContentWriter( String fileId, Runnable operation ) throws Exception {
-    java.util.concurrent.locks.Lock contentWriteLock = JcrRepositoryFileUtils.getFileContentLock( fileId ).writeLock();
+    Lock contentWriteLock = JcrRepositoryFileUtils.getFileContentLock( fileId ).writeLock();
     ExecutorService executor = Executors.newSingleThreadExecutor();
     boolean writeLockReleased = false;
 

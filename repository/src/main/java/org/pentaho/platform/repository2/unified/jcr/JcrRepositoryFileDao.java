@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -31,6 +32,7 @@ import javax.jcr.Item;
 import javax.jcr.ItemExistsException;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
@@ -1186,7 +1188,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
           Node fileNode = session.getNodeByIdentifier( fileId.toString() );
           // Both the current and the restored subtree can change membership during a restore.
-          java.util.Set<Serializable> lockIds = new java.util.LinkedHashSet<>();
+          Set<Serializable> lockIds = new LinkedHashSet<>();
           collectPentahoFileIdsOnce( pentahoJcrConstants, fileNode, lockIds );
           lockIds.add( fileId );
           collectFrozenFileIds( session, pentahoJcrConstants, session.getWorkspace().getVersionManager()
@@ -1203,8 +1205,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   }
 
   private void collectFrozenFileIds( final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final Node frozenNode, final java.util.Set<Serializable> fileIds ) throws RepositoryException {
-    javax.jcr.NodeIterator children = frozenNode.getNodes();
+      final Node frozenNode, final Set<Serializable> fileIds ) throws RepositoryException {
+    NodeIterator children = frozenNode.getNodes();
     while ( children.hasNext() ) {
       Node child = children.nextNode();
       if ( child.hasProperty( "jcr:frozenUuid" ) ) {
@@ -1212,7 +1214,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         // removeExisting=true deletes a same-UUID node wherever it now lives, along with its descendants.
         try {
           collectPentahoFileIdsOnce( pentahoJcrConstants, session.getNodeByIdentifier( frozenUuid ), fileIds );
-        } catch ( javax.jcr.ItemNotFoundException e ) {
+        } catch ( ItemNotFoundException e ) {
           // not present in the workspace, nothing to remove
         }
         fileIds.add( frozenUuid );
@@ -1223,11 +1225,11 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   // Skips folders already collected so overlapping live subtrees are walked once.
   private void collectPentahoFileIdsOnce( final PentahoJcrConstants pentahoJcrConstants, final Node node,
-      final java.util.Set<Serializable> fileIds ) throws RepositoryException {
+      final Set<Serializable> fileIds ) throws RepositoryException {
     if ( JcrRepositoryFileUtils.isPentahoFile( pentahoJcrConstants, node ) ) {
       fileIds.add( node.getIdentifier() );
     } else if ( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, node ) && fileIds.add( node.getIdentifier() ) ) {
-      javax.jcr.NodeIterator children = node.getNodes();
+      NodeIterator children = node.getNodes();
       while ( children.hasNext() ) {
         collectPentahoFileIdsOnce( pentahoJcrConstants, children.nextNode(), fileIds );
       }
@@ -1240,7 +1242,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       fileIds.add( node.getIdentifier() );
     } else if ( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, node ) ) {
       fileIds.add( node.getIdentifier() );
-      javax.jcr.NodeIterator children = node.getNodes();
+      NodeIterator children = node.getNodes();
       while ( children.hasNext() ) {
         collectPentahoFileIds( pentahoJcrConstants, children.nextNode(), fileIds );
       }

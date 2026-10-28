@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -329,7 +330,7 @@ public class JcrRepositoryFileUtilsTest {
         .thenReturn( true );
       utilities.when( () -> JcrRepositoryFileUtils.isPentahoFolder( pJcrConstMock, frozenNode ) ).thenReturn( false );
       utilities.when( () -> JcrRepositoryFileUtils.getVersionSummaries( sessionMock, pJcrConstMock, fileId, true ) )
-        .thenReturn( java.util.Arrays.asList( olderVersion, previousVersion ) );
+        .thenReturn( Arrays.asList( olderVersion, previousVersion ) );
       JcrRepositoryFileUtils.setRepositoryVersionManager( repositoryVersionManagerMockFalse );
 
       Future<IRepositoryFileData> read = executor.submit( () -> JcrRepositoryFileUtils.getContent( readSession,
@@ -342,7 +343,7 @@ public class JcrRepositoryFileUtilsTest {
         try ( MockedStatic<JcrRepositoryFileUtils> writerUtilities = mockStatic( JcrRepositoryFileUtils.class,
             org.mockito.Mockito.CALLS_REAL_METHODS ) ) {
           writerUtilities.when( () -> JcrRepositoryFileUtils.getVersionSummaries( sessionMock, pJcrConstMock, fileId,
-              true ) ).thenReturn( java.util.Arrays.asList( olderVersion, previousVersion ) );
+              true ) ).thenReturn( Arrays.asList( olderVersion, previousVersion ) );
           JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary( sessionMock, pJcrConstMock, nodeMock,
             "update", new Date(), false );
           return null;

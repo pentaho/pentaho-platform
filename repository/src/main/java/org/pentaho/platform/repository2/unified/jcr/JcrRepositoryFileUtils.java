@@ -14,6 +14,7 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1059,11 +1060,11 @@ public class JcrRepositoryFileUtils {
 
   @FunctionalInterface
   interface FileContentWriteOperation {
-    void execute() throws javax.jcr.RepositoryException, java.io.IOException;
+    void execute() throws RepositoryException, IOException;
   }
 
   static void withFileContentWriteLocks( final Iterable<? extends Serializable> fileIds,
-      final FileContentWriteOperation operation ) throws javax.jcr.RepositoryException, java.io.IOException {
+      final FileContentWriteOperation operation ) throws RepositoryException, IOException {
     boolean[] lockIndexes = new boolean[ FILE_CONTENT_LOCKS.length ];
     for ( Serializable fileId : fileIds ) {
       lockIndexes[ getFileContentLockIndex( fileId ) ] = true;
@@ -1073,7 +1074,7 @@ public class JcrRepositoryFileUtils {
 
   // Acquires selected stripes in ascending order; each is released by its own finally.
   private static void runWithOrderedWriteLocks( final boolean[] lockIndexes, final int from,
-      final FileContentWriteOperation operation ) throws javax.jcr.RepositoryException, java.io.IOException {
+      final FileContentWriteOperation operation ) throws RepositoryException, IOException {
     int next = from;
     while ( next < lockIndexes.length && !lockIndexes[ next ] ) {
       next++;
