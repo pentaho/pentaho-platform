@@ -401,6 +401,39 @@ public class JcrRepositoryFileUtilsTest {
   }
 
   @Test
+  public void shouldHoldTreeLeaseWhenOnlyStripeIsRequestedInTransaction() throws Exception {
+    TransactionSynchronizationManager.initSynchronization();
+    TransactionSynchronizationManager.setActualTransactionActive( true );
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    try {
+      JcrRepositoryFileUtils.acquireFileContentWriteLock( "acl-then-update-A" ).close();
+
+      Future<?> otherTransaction = executor.submit( () -> {
+        JcrRepositoryFileUtils.FileContentLockLease lease = JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
+        lease.close();
+      } );
+      try {
+        otherTransaction.get( 200, TimeUnit.MILLISECONDS );
+        fail( "Another writer must wait for the tree lease held by the ACL-style stripe writer" );
+      } catch ( TimeoutException expected ) {
+        // expected
+      }
+
+      // A later write in the same transaction must not block on the lease it already holds.
+      JcrRepositoryFileUtils.acquireFileContentWriteLock( "acl-then-update-B" ).close();
+
+      for ( TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations() ) {
+        synchronization.afterCompletion( TransactionSynchronization.STATUS_COMMITTED );
+      }
+      otherTransaction.get( 5, TimeUnit.SECONDS );
+    } finally {
+      TransactionSynchronizationManager.clearSynchronization();
+      TransactionSynchronizationManager.setActualTransactionActive( false );
+      executor.shutdownNow();
+    }
+  }
+
+  @Test
   public void testCheckNodeForTree() {
     List<RepositoryFileTree> children = new ArrayList<>();
     IPathConversionHelper pathConversionHelper = new DefaultPathConversionHelper();

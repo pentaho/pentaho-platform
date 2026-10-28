@@ -995,7 +995,18 @@ public class JcrRepositoryFileUtils {
   }
 
   static FileContentLockLease acquireFileContentWriteLock( final Serializable fileId ) {
-    return acquireWriteLock( getFileContentLock( fileId ).writeLock() );
+    // Tree lease first, so any writer reaching a stripe (ACL, metadata, locale, folder) follows the same order.
+    FileContentLockLease treeLease = acquireFileContentTreeWriteLock();
+    try {
+      FileContentLockLease stripeLease = acquireWriteLock( getFileContentLock( fileId ).writeLock() );
+      return () -> {
+        stripeLease.close();
+        treeLease.close();
+      };
+    } catch ( RuntimeException e ) {
+      treeLease.close();
+      throw e;
+    }
   }
 
   static FileContentLockLease acquireFileContentTreeWriteLock() {
