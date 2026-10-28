@@ -1014,7 +1014,7 @@ public class JcrRepositoryFileUtils {
   }
 
   private static FileContentLockLease acquireWriteLock( final java.util.concurrent.locks.Lock lock ) {
-    lock.lock();
+    lock.lock(); // NOSONAR released by the returned lease or after transaction completion
     try {
       if ( deferUnlockUntilTransactionCompletion( lock::unlock ) ) {
         return () -> { };
@@ -1084,7 +1084,7 @@ public class JcrRepositoryFileUtils {
     }
 
     java.util.concurrent.locks.Lock lock = FILE_CONTENT_LOCKS[ next ].writeLock();
-    lock.lock();
+    lock.lock(); // NOSONAR released in finally unless deferred to transaction completion
     boolean unlockAfterCompletion = false;
     try {
       unlockAfterCompletion = deferUnlockUntilTransactionCompletion( lock::unlock );

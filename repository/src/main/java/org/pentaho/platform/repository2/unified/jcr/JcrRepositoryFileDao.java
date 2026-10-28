@@ -184,17 +184,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     Assert.notNull( file, "File must not be null" );
     Assert.isTrue( !file.isFolder(), "File must not be a folder" );
 
-    // Get repository file info and acl info of parent
-    if ( parentFolderId != null ) {
-      RepositoryFile parentRepositoryFile = getFileById( parentFolderId );
-      if ( parentRepositoryFile != null ) {
-        RepositoryFileAcl parentAcl = aclDao.getAcl( parentRepositoryFile.getId() );
-        // Invoke accessVoterManager to see if we have access to perform this operation
-        if ( !accessVoterManager.hasAccess( parentRepositoryFile, RepositoryFilePermission.WRITE, parentAcl,
-            PentahoSessionHolder.getSession() ) ) {
-          return null;
-        }
-      }
+    if ( !hasWriteAccessToParent( parentFolderId ) ) {
+      return null;
     }
     // Assert.notNull(content);
     DataNode emptyDataNode = new DataNode( file.getName() );
@@ -205,42 +196,60 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
     try {
       return (RepositoryFile) jcrTemplate.execute( new JcrCallback() {
-      @Override
-      public Object doInJcr( final Session session ) throws RepositoryException, IOException {
-        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
-        List<Serializable> lockIds = new ArrayList<>();
-        if ( parentFolderId != null ) {
-          lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
-            parentFolderId ) );
+        @Override
+        public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+          return createFileInSession( session, parentFolderId, file, content == null ? emptyContent : content, acl,
+              versionMessage );
         }
-        RepositoryFile[] createdFile = new RepositoryFile[ 1 ];
-        JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
-          JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
-            parentFolderId );
-          Node fileNode =
-            JcrRepositoryFileUtils.createFileNode( session, pentahoJcrConstants, parentFolderId, file,
-              content == null ? emptyContent : content,
-              findTransformerForWrite( content == null ? emptyContent.getClass() : content.getClass() ) );
-          String path = JcrRepositoryFileUtils.getAbsolutePath( session, pentahoJcrConstants, fileNode );
-          RepositoryFile tmpFile = new RepositoryFile.Builder( file ).path( path ).build();
-          aclDao.createAcl( fileNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl( tmpFile ) : acl );
-          session.save();
-          if ( file.isVersioned() ) {
-          JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary( session, pentahoJcrConstants, fileNode,
-            versionMessage, file.getCreatedDate(), false );
-          }
-          JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants, parentFolderId,
-            Messages.getInstance().getString( "JcrRepositoryFileDao.USER_0002_VER_COMMENT_ADD_FILE", file.getName(),
-              ( parentFolderId == null ? "root" : parentFolderId.toString() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
-          createdFile[ 0 ] = JcrRepositoryFileUtils.nodeToFile( session, pentahoJcrConstants, pathConversionHelper,
-            lockHelper, fileNode );
-        } );
-        return createdFile[ 0 ];
-      }
       } );
     } finally {
       treeWriteLock.close();
     }
+  }
+
+  private boolean hasWriteAccessToParent( final Serializable parentFolderId ) {
+    if ( parentFolderId == null ) {
+      return true;
+    }
+    RepositoryFile parentRepositoryFile = getFileById( parentFolderId );
+    if ( parentRepositoryFile == null ) {
+      return true;
+    }
+    RepositoryFileAcl parentAcl = aclDao.getAcl( parentRepositoryFile.getId() );
+    return accessVoterManager.hasAccess( parentRepositoryFile, RepositoryFilePermission.WRITE, parentAcl,
+        PentahoSessionHolder.getSession() );
+  }
+
+  private RepositoryFile createFileInSession( final Session session, final Serializable parentFolderId,
+      final RepositoryFile file, final IRepositoryFileData content, final RepositoryFileAcl acl,
+      final String versionMessage ) throws RepositoryException, IOException {
+    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+    List<Serializable> lockIds = new ArrayList<>();
+    if ( parentFolderId != null ) {
+      lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
+          parentFolderId ) );
+    }
+    RepositoryFile[] createdFile = new RepositoryFile[ 1 ];
+    JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
+      JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
+          parentFolderId );
+      Node fileNode = JcrRepositoryFileUtils.createFileNode( session, pentahoJcrConstants, parentFolderId, file,
+          content, findTransformerForWrite( content.getClass() ) );
+      String path = JcrRepositoryFileUtils.getAbsolutePath( session, pentahoJcrConstants, fileNode );
+      RepositoryFile tmpFile = new RepositoryFile.Builder( file ).path( path ).build();
+      aclDao.createAcl( fileNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl( tmpFile ) : acl );
+      session.save();
+      if ( file.isVersioned() ) {
+        JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary( session, pentahoJcrConstants, fileNode,
+            versionMessage, file.getCreatedDate(), false );
+      }
+      JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants, parentFolderId,
+          Messages.getInstance().getString( "JcrRepositoryFileDao.USER_0002_VER_COMMENT_ADD_FILE", file.getName(),
+              ( parentFolderId == null ? "root" : parentFolderId.toString() ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
+      createdFile[ 0 ] = JcrRepositoryFileUtils.nodeToFile( session, pentahoJcrConstants, pathConversionHelper,
+          lockHelper, fileNode );
+    } );
+    return createdFile[ 0 ];
   }
 
   private RepositoryFile internalUpdateFile( final Session session, final PentahoJcrConstants pentahoJcrConstants,
@@ -344,9 +353,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
               parentFolderId ) );
         }
         RepositoryFile[] createdFolder = new RepositoryFile[ 1 ];
-        JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
-          createdFolder[ 0 ] = internalCreateFolder( session, parentFolderId, folder, acl, versionMessage );
-        } );
+        JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () ->
+          createdFolder[ 0 ] = internalCreateFolder( session, parentFolderId, folder, acl, versionMessage ) );
         return createdFolder[ 0 ];
       }
       } );
@@ -595,9 +603,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           List<Serializable> fileIds = JcrRepositoryFileUtils.getFileContentWriteLockIds( session,
               pentahoJcrConstants, file.getId() );
           RepositoryFile[] updatedFile = new RepositoryFile[ 1 ];
-          JcrRepositoryFileUtils.withFileContentWriteLocks( fileIds, () -> {
-            updatedFile[ 0 ] = internalUpdateFile( session, pentahoJcrConstants, file, content, versionMessage );
-          } );
+          JcrRepositoryFileUtils.withFileContentWriteLocks( fileIds, () ->
+            updatedFile[ 0 ] = internalUpdateFile( session, pentahoJcrConstants, file, content, versionMessage ) );
           return updatedFile[ 0 ];
         }
       } );
@@ -854,34 +861,41 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
     try {
       jcrTemplate.execute( new JcrCallback() {
-      @Override
-      public Object doInJcr( final Session session ) throws RepositoryException, IOException {
-        RepositoryFile fileToBeDeleted = getFileById( fileId );
-        // Get repository file info and acl info of parent
-        if ( fileToBeDeleted != null ) {
-          RepositoryFileAcl toBeDeletedFileAcl = aclDao.getAcl( fileToBeDeleted.getId() );
-          // Invoke accessVoterManager to see if we have access to perform this operation
-          if ( !accessVoterManager.hasAccess( fileToBeDeleted, RepositoryFilePermission.DELETE, toBeDeletedFileAcl,
-              PentahoSessionHolder.getSession() ) ) {
-            return null;
+        @Override
+        public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+          if ( hasDeleteAccess( fileId ) ) {
+            permanentlyDeleteInSession( session, fileId );
           }
+          return null;
         }
-        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
-        List<Serializable> fileIds = new ArrayList<>();
-        collectPentahoFileIds( pentahoJcrConstants, session.getNodeByIdentifier( fileId.toString() ), fileIds );
-        if ( fileIds.isEmpty() ) {
-          fileIds.add( fileId );
-        }
-        JcrRepositoryFileUtils.withFileContentWriteLocks( fileIds, () -> {
-          deleteHelper.permanentlyDeleteFile( session, pentahoJcrConstants, fileId );
-          session.save();
-        } );
-        return null;
-      }
       } );
     } finally {
       treeWriteLock.close();
     }
+  }
+
+  private boolean hasDeleteAccess( final Serializable fileId ) {
+    RepositoryFile fileToBeDeleted = getFileById( fileId );
+    if ( fileToBeDeleted == null ) {
+      return true;
+    }
+    RepositoryFileAcl toBeDeletedFileAcl = aclDao.getAcl( fileToBeDeleted.getId() );
+    return accessVoterManager.hasAccess( fileToBeDeleted, RepositoryFilePermission.DELETE, toBeDeletedFileAcl,
+        PentahoSessionHolder.getSession() );
+  }
+
+  private void permanentlyDeleteInSession( final Session session, final Serializable fileId )
+    throws RepositoryException, IOException {
+    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+    List<Serializable> fileIds = new ArrayList<>();
+    collectPentahoFileIds( pentahoJcrConstants, session.getNodeByIdentifier( fileId.toString() ), fileIds );
+    if ( fileIds.isEmpty() ) {
+      fileIds.add( fileId );
+    }
+    JcrRepositoryFileUtils.withFileContentWriteLocks( fileIds, () -> {
+      deleteHelper.permanentlyDeleteFile( session, pentahoJcrConstants, fileId );
+      session.save();
+    } );
   }
 
   /**
@@ -898,66 +912,73 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         JcrRepositoryFileUtils.acquireFileContentTreeWriteLock();
     try {
       jcrTemplate.execute( new JcrCallback() {
-      @Override
-      public Object doInJcr( final Session session ) throws RepositoryException, IOException {
-        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
-        String absOrigParentFolderPath =
-            deleteHelper.getOriginalParentFolderPath( session, pentahoJcrConstants, fileId );
-        Serializable origParentFolderId = null;
-        RepositoryFile file = getFileById( fileId );
-        RepositoryFileAcl acl = aclDao.getAcl( fileId );
-        if ( !accessVoterManager.hasAccess( file, RepositoryFilePermission.WRITE, acl, PentahoSessionHolder
-            .getSession() ) ) {
+        @Override
+        public Object doInJcr( final Session session ) throws RepositoryException, IOException {
+          undeleteInSession( session, fileId, versionMessage );
           return null;
         }
-        // original parent folder path may no longer exist!
-        if ( session.itemExists( JcrStringHelper.pathEncode( absOrigParentFolderPath ) ) ) {
-          origParentFolderId =
-              ( (Node) session.getItem( JcrStringHelper.pathEncode( absOrigParentFolderPath ) ) ).getIdentifier();
-        } else {
-          // go through each of the segments of the original parent folder path, creating as necessary
-          String[] segments = pathConversionHelper.absToRel( absOrigParentFolderPath ).split( RepositoryFile.SEPARATOR );
-          RepositoryFile lastParentFolder =
-              internalGetFile( session, ServerRepositoryPaths.getTenantRootFolderPath(), false, null );
-          for ( String segment : segments ) {
-            if ( StringUtils.hasLength( segment ) ) {
-              RepositoryFile tmp =
-                  internalGetFile( session, pathConversionHelper
-                      .relToAbs( ( lastParentFolder.getPath().equals( RepositoryFile.SEPARATOR )
-                          ? "" : lastParentFolder.getPath() ) + RepositoryFile.SEPARATOR + segment ), false, null ); //$NON-NLS-1$
-              if ( tmp == null ) {
-                lastParentFolder =
-                    internalCreateFolder( session, lastParentFolder.getId(), new RepositoryFile.Builder( segment )
-                        .folder( true ).build(), defaultAclHandler.createDefaultAcl( lastParentFolder ), null );
-              } else {
-                lastParentFolder = tmp;
-              }
-            }
-          }
-          origParentFolderId = lastParentFolder.getId();
-        }
-        final Serializable restoredParentFolderId = origParentFolderId;
-        List<Serializable> lockIds = new ArrayList<>();
-        collectPentahoFileIds( pentahoJcrConstants, session.getNodeByIdentifier( fileId.toString() ), lockIds );
-        lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants, fileId ) );
-        if ( restoredParentFolderId != null ) {
-          lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
-              restoredParentFolderId ) );
-        }
-        JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
-          JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
-              restoredParentFolderId );
-          deleteHelper.undeleteFile( session, pentahoJcrConstants, fileId );
-          session.save();
-          JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
-              restoredParentFolderId, versionMessage );
-        } );
-        return null;
-      }
       } );
     } finally {
       treeWriteLock.close();
     }
+  }
+
+  private void undeleteInSession( final Session session, final Serializable fileId, final String versionMessage )
+    throws RepositoryException, IOException {
+    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants( session );
+    String absOrigParentFolderPath = deleteHelper.getOriginalParentFolderPath( session, pentahoJcrConstants, fileId );
+    RepositoryFile file = getFileById( fileId );
+    RepositoryFileAcl acl = aclDao.getAcl( fileId );
+    if ( !accessVoterManager.hasAccess( file, RepositoryFilePermission.WRITE, acl, PentahoSessionHolder
+        .getSession() ) ) {
+      return;
+    }
+    final Serializable restoredParentFolderId = resolveOrCreateFolder( session, absOrigParentFolderPath );
+    List<Serializable> lockIds = new ArrayList<>();
+    collectPentahoFileIds( pentahoJcrConstants, session.getNodeByIdentifier( fileId.toString() ), lockIds );
+    lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants, fileId ) );
+    if ( restoredParentFolderId != null ) {
+      lockIds.addAll( JcrRepositoryFileUtils.getFileContentWriteLockIds( session, pentahoJcrConstants,
+          restoredParentFolderId ) );
+    }
+    JcrRepositoryFileUtils.withFileContentWriteLocks( lockIds, () -> {
+      JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
+          restoredParentFolderId );
+      deleteHelper.undeleteFile( session, pentahoJcrConstants, fileId );
+      session.save();
+      JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary( session, pentahoJcrConstants,
+          restoredParentFolderId, versionMessage );
+    } );
+  }
+
+  // The original parent folder path may no longer exist, so missing segments are created.
+  private Serializable resolveOrCreateFolder( final Session session, final String absFolderPath )
+    throws RepositoryException {
+    if ( session.itemExists( JcrStringHelper.pathEncode( absFolderPath ) ) ) {
+      return ( (Node) session.getItem( JcrStringHelper.pathEncode( absFolderPath ) ) ).getIdentifier();
+    }
+    String[] segments = pathConversionHelper.absToRel( absFolderPath ).split( RepositoryFile.SEPARATOR );
+    RepositoryFile lastParentFolder =
+        internalGetFile( session, ServerRepositoryPaths.getTenantRootFolderPath(), false, null );
+    for ( String segment : segments ) {
+      if ( StringUtils.hasLength( segment ) ) {
+        lastParentFolder = getOrCreateChildFolder( session, lastParentFolder, segment );
+      }
+    }
+    return lastParentFolder.getId();
+  }
+
+  private RepositoryFile getOrCreateChildFolder( final Session session, final RepositoryFile parent,
+      final String segment ) throws RepositoryException {
+    RepositoryFile existing =
+        internalGetFile( session, pathConversionHelper
+            .relToAbs( ( parent.getPath().equals( RepositoryFile.SEPARATOR )
+                ? "" : parent.getPath() ) + RepositoryFile.SEPARATOR + segment ), false, null ); //$NON-NLS-1$
+    if ( existing != null ) {
+      return existing;
+    }
+    return internalCreateFolder( session, parent.getId(), new RepositoryFile.Builder( segment )
+        .folder( true ).build(), defaultAclHandler.createDefaultAcl( parent ), null );
   }
 
   private void internalCopyOrMove( final Serializable fileId, final String destRelPath, final String versionMessage,

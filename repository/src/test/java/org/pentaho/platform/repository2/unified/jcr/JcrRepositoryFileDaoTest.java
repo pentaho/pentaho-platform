@@ -170,12 +170,10 @@ public class JcrRepositoryFileDaoTest {
         dao.updateFile( file, mock( IRepositoryFileData.class ), null );
       } );
       assertTrue( "File update worker should start", updateStarted.await( 5, TimeUnit.SECONDS ) );
-      Thread.sleep( 100 );
-      assertFalse( "File update must wait while content is being read", update.isDone() );
+      assertStillBlocked( "File update must wait while content is being read", update );
       readLock.unlock();
       readLockReleased = true;
-      Thread.sleep( 100 );
-      assertFalse( "File update must wait while its versionable ancestor is being read", update.isDone() );
+      assertStillBlocked( "File update must wait while its versionable ancestor is being read", update );
       ancestorReadLock.unlock();
       ancestorReadLockReleased = true;
       update.get( 5, TimeUnit.SECONDS );
@@ -187,6 +185,15 @@ public class JcrRepositoryFileDaoTest {
         ancestorReadLock.unlock();
       }
       executor.shutdownNow();
+    }
+  }
+
+  private static void assertStillBlocked( final String message, final Future<?> future ) throws Exception {
+    try {
+      future.get( 100, TimeUnit.MILLISECONDS );
+      fail( message );
+    } catch ( java.util.concurrent.TimeoutException expected ) {
+      assertFalse( message, future.isDone() );
     }
   }
 
