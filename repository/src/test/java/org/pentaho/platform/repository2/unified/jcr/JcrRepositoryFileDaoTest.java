@@ -380,6 +380,77 @@ public class JcrRepositoryFileDaoTest {
   }
 
   @Test
+  public void shouldWaitForReadersOfTrashedDescendantsBeforeRestoring() throws Exception {
+    String trashedId = "trashed-file";
+    String movedFolderId = "moved-folder-with-trash";
+    assertNotSame( JcrRepositoryFileUtils.getFileContentLock( movedFolderId ),
+        JcrRepositoryFileUtils.getFileContentLock( trashedId ) );
+
+    Node frozenNode = versionManager.getVersionHistory( "/file" ).getVersion( "version-id" ).getFrozenNode();
+    Node frozenChild = mock( Node.class );
+    Property frozenUuid = mock( Property.class );
+    when( frozenUuid.getString() ).thenReturn( movedFolderId );
+    when( frozenChild.hasProperty( "jcr:frozenUuid" ) ).thenReturn( true );
+    when( frozenChild.getProperty( "jcr:frozenUuid" ) ).thenReturn( frozenUuid );
+    NodeIterator noChildren = mock( NodeIterator.class );
+    when( frozenChild.getNodes() ).thenReturn( noChildren );
+    NodeIterator frozenChildren = mock( NodeIterator.class );
+    when( frozenChildren.hasNext() ).thenReturn( true, false );
+    when( frozenChildren.nextNode() ).thenReturn( frozenChild );
+    when( frozenNode.getNodes() ).thenReturn( frozenChildren );
+
+    Node trashedFile = mock( Node.class );
+    when( trashedFile.isNodeType( "null:pentahoFile" ) ).thenReturn( true );
+    when( trashedFile.getIdentifier() ).thenReturn( trashedId );
+    NodeIterator wrapperChildren = mock( NodeIterator.class );
+    when( wrapperChildren.hasNext() ).thenReturn( true, false );
+    when( wrapperChildren.nextNode() ).thenReturn( trashedFile );
+    Node wrapper = mock( Node.class );
+    when( wrapper.isNodeType( "null:pentahoInternalFolder" ) ).thenReturn( true );
+    when( wrapper.getNodes() ).thenReturn( wrapperChildren );
+    NodeIterator trashChildren = mock( NodeIterator.class );
+    when( trashChildren.hasNext() ).thenReturn( true, false );
+    when( trashChildren.nextNode() ).thenReturn( wrapper );
+    Node trash = mock( Node.class );
+    when( trash.isNodeType( "null:pentahoInternalFolder" ) ).thenReturn( true );
+    when( trash.getNodes() ).thenReturn( trashChildren );
+    NodeIterator movedChildren = mock( NodeIterator.class );
+    when( movedChildren.hasNext() ).thenReturn( true, false );
+    when( movedChildren.nextNode() ).thenReturn( trash );
+    Node movedFolder = mock( Node.class );
+    when( movedFolder.isNodeType( "null:pentahoFolder" ) ).thenReturn( true );
+    when( movedFolder.getIdentifier() ).thenReturn( movedFolderId );
+    when( movedFolder.getNodes() ).thenReturn( movedChildren );
+    when( session.getNodeByIdentifier( movedFolderId ) ).thenReturn( movedFolder );
+
+    CountDownLatch restoreStarted = new CountDownLatch( 1 );
+    org.mockito.Mockito.doAnswer( invocation -> {
+      restoreStarted.countDown();
+      return null;
+    } ).when( versionManager ).restore( nullable( String.class ), nullable( String.class ),
+        org.mockito.ArgumentMatchers.anyBoolean() );
+
+    Lock trashedReadLock = JcrRepositoryFileUtils.getFileContentLock( trashedId ).readLock();
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    trashedReadLock.lock();
+    boolean released = false;
+    try {
+      Future<?> restore = executor.submit( () -> dao.restoreFileAtVersion( "trash-restore-test", "version-id", null ) );
+      assertFalse( "Restore must wait for readers of a trashed descendant it may remove",
+          restoreStarted.await( 100, TimeUnit.MILLISECONDS ) );
+      trashedReadLock.unlock();
+      released = true;
+      restore.get( 5, TimeUnit.SECONDS );
+      assertTrue( restoreStarted.await( 5, TimeUnit.SECONDS ) );
+    } finally {
+      if ( !released ) {
+        trashedReadLock.unlock();
+      }
+      executor.shutdownNow();
+    }
+  }
+
+  @Test
   public void shouldSerializeUpdatesAndVersionOperationsBehindTreeWriteLease() throws Exception {
     RepositoryFile file = new RepositoryFile.Builder( "f" ).id( "tree-lease-test" ).build();
     IRepositoryFileData content = mock( IRepositoryFileData.class );

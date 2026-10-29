@@ -1245,7 +1245,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       final Set<Serializable> fileIds ) throws RepositoryException {
     if ( JcrRepositoryFileUtils.isPentahoFile( pentahoJcrConstants, node ) ) {
       fileIds.add( node.getIdentifier() );
-    } else if ( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, node ) && fileIds.add( node.getIdentifier() ) ) {
+    } else if ( isInternalFolder( pentahoJcrConstants, node ) || JcrRepositoryFileUtils.isPentahoFolder(
+        pentahoJcrConstants, node ) && fileIds.add( node.getIdentifier() ) ) {
       NodeIterator children = node.getNodes();
       while ( children.hasNext() ) {
         collectPentahoFileIdsOnce( pentahoJcrConstants, children.nextNode(), fileIds );
@@ -1253,12 +1254,21 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     }
   }
 
+  // Internal folders such as .trash wrap files whose readers still hold stripes, so collectors must descend into them.
+  private boolean isInternalFolder( final PentahoJcrConstants pentahoJcrConstants, final Node node )
+    throws RepositoryException {
+    return node.isNodeType( pentahoJcrConstants.getPHO_NT_INTERNALFOLDER() );
+  }
+
   private void collectPentahoFileIds( final PentahoJcrConstants pentahoJcrConstants, final Node node,
       final List<Serializable> fileIds ) throws RepositoryException {
     if ( JcrRepositoryFileUtils.isPentahoFile( pentahoJcrConstants, node ) ) {
       fileIds.add( node.getIdentifier() );
-    } else if ( JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, node ) ) {
-      fileIds.add( node.getIdentifier() );
+    } else if ( isInternalFolder( pentahoJcrConstants, node )
+        || JcrRepositoryFileUtils.isPentahoFolder( pentahoJcrConstants, node ) ) {
+      if ( !isInternalFolder( pentahoJcrConstants, node ) ) {
+        fileIds.add( node.getIdentifier() );
+      }
       NodeIterator children = node.getNodes();
       while ( children.hasNext() ) {
         collectPentahoFileIds( pentahoJcrConstants, children.nextNode(), fileIds );
