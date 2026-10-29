@@ -39,6 +39,8 @@ public class PlatformImportException extends Exception {
 
   public static final int PUBLISH_JOB_OR_TRANS_WITH_MISSING_PLUGINS = 11;
 
+  public static final int PUBLISH_CONFLICT = 14;
+
   private int errorStatusCode = PlatformImportException.PUBLISH_TO_SERVER_FAILED;
 
   public PlatformImportException( String s ) {

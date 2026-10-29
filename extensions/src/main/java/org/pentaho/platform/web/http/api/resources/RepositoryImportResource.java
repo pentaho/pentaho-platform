@@ -299,7 +299,15 @@ public class RepositoryImportResource {
 
         bundleBuilder.mime( mimeTypeFromFile );
         importer.getRepositoryImportLogger().setPerformingRestore( false );
-        importer.importFile( bundle );
+        try {
+          importer.importFile( bundle );
+        } catch ( PlatformImportException ex ) {
+          if ( ex.getErrorStatus() == PlatformImportException.PUBLISH_CONFLICT ) {
+            logJobStarted = true; // makes finally call endJob()
+            return Response.status( Response.Status.CONFLICT ).entity( ex.getMessage() ).build();
+          }
+          throw ex;
+        }
       }
 
       // Flush the Mondrian cache to show imported data-sources.
