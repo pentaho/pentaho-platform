@@ -183,6 +183,7 @@ public class RepositoryImportResourceTest {
         "true", "true", "true", "UTF-8", "WARN", mock( FormDataContentDisposition.class ), "f.csv" );
 
     Assert.assertEquals( 409, response.getStatus() );
+    verify( iRepositoryImportLogger ).endJob();
   }
 
   private Class<?> anyClass() {

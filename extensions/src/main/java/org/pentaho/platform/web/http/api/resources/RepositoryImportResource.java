@@ -322,6 +322,7 @@ public class RepositoryImportResource {
           if ( ex.getErrorStatus() == PlatformImportException.PUBLISH_PARTIAL_UPLOAD ) {
             return Response.ok( "INVALID_MIME_TYPE_PARTIAL", MediaType.TEXT_HTML ).build();
           } else if ( ex.getErrorStatus() == PlatformImportException.PUBLISH_CONFLICT ) {
+            logJobStarted = true; // makes finally call endJob()
             return Response.status( Response.Status.CONFLICT ).entity( ex.getMessage() ).build();
           } else {
             throw ex;

@@ -189,12 +189,15 @@ public class PentahoPlatformImporter implements IPlatformImporter {
     }
   }
 
-  // The repository rejects a stale update with an IllegalStateException wrapped in an update-file exception.
+  // Matches the Assert.state message of JcrRepositoryFileUtils.preventLostUpdate; other IllegalStateExceptions are not conflicts.
+  private static final String LOST_UPDATE_MESSAGE = "update to this file has occurred since its last read";
+
   private static boolean isLostUpdateConflict( Throwable error ) {
     boolean updateFailure = false;
     for ( Throwable t = error; t != null; t = t.getCause() ) {
       updateFailure |= t instanceof UnifiedRepositoryUpdateFileException;
-      if ( updateFailure && t instanceof IllegalStateException ) {
+      if ( updateFailure && t instanceof IllegalStateException && t.getMessage() != null
+          && t.getMessage().contains( LOST_UPDATE_MESSAGE ) ) {
         return true;
       }
     }

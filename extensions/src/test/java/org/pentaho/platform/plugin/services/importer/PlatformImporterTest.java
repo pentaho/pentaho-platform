@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -177,5 +178,26 @@ public class PlatformImporterTest {
 
     PlatformImportException thrown = assertThrows( PlatformImportException.class, () -> importer.importFile( bundle ) );
     assertEquals( PlatformImportException.PUBLISH_CONFLICT, thrown.getErrorStatus() );
+  }
+
+  @Test
+  public void testUnrelatedIllegalStateInUpdateIsNotConflict() throws Exception {
+    List<IMimeType> mimeList = Collections.singletonList( (IMimeType) new MimeType( "text/xmi+xml", "xmi" ) );
+    IPlatformImportHandler mockImportHandler = mock( IPlatformImportHandler.class );
+    when( mockImportHandler.getMimeTypes() ).thenReturn( mimeList );
+    doThrow( new UnifiedRepositoryUpdateFileException( new IllegalStateException( "no access control list applies" ) ) )
+        .when( mockImportHandler ).importFile( any( IPlatformImportBundle.class ) );
+
+    PentahoSystem.registerObject( new NameBaseMimeResolver() );
+    PentahoPlatformImporter importer = new PentahoPlatformImporter( Collections.singletonList( mockImportHandler ),
+        new DefaultRepositoryContentConverterHandler( new HashMap<String, Converter>() ) );
+    importer.setRepositoryImportLogger( new Log4JRepositoryImportLogger() );
+
+    final IPlatformImportBundle bundle = new RepositoryFileImportBundle.Builder()
+        .input( new ByteArrayInputStream( new byte[0] ) ).charSet( "UTF-8" ).mime( "text/xmi+xml" )
+        .name( "steel-wheels.xmi" ).build();
+
+    PlatformImportException thrown = assertThrows( PlatformImportException.class, () -> importer.importFile( bundle ) );
+    assertNotEquals( PlatformImportException.PUBLISH_CONFLICT, thrown.getErrorStatus() );
   }
 }
