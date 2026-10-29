@@ -33,6 +33,8 @@ import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurity
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import javax.jcr.InvalidItemStateException;
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
@@ -348,7 +350,11 @@ public class DefaultDeleteHelper implements IDeleteHelper {
         NodeIterator trashFileNodeIterator = trashFileNode.getNodes();
 
         if ( trashFileNodeIterator.hasNext() ) {
-          deletedFiles.add( nodeToDeletedFile( session, pentahoJcrConstants, trashFileNodeIterator.nextNode(), user ) );
+          RepositoryFile deletedFile =
+              nodeToDeletedFileOrNull( session, pentahoJcrConstants, trashFileNodeIterator.nextNode(), user );
+          if ( deletedFile != null ) {
+            deletedFiles.add( deletedFile );
+          }
         }
       }
     }
@@ -398,6 +404,18 @@ public class DefaultDeleteHelper implements IDeleteHelper {
   protected List<String> getUserList() {
     List<IPentahoUser> iusers = PentahoSystem.get( IUserRoleDao.class ).getUsers();
     return iusers.stream().map( IPentahoUser::getUsername ).collect( Collectors.toList() );
+  }
+
+  // A concurrent trash or restore can leave an entry half-written; skip it, the next listing sees it settled.
+  private RepositoryFile nodeToDeletedFileOrNull( final Session session, final PentahoJcrConstants pentahoJcrConstants,
+                                                  final Node trashFileNode, final String owner )
+      throws RepositoryException {
+    try {
+      return nodeToDeletedFile( session, pentahoJcrConstants, trashFileNode, owner );
+    } catch ( NullPointerException | InvalidItemStateException | ItemNotFoundException e ) { // NOSONAR
+      logger.debug( "Skipping trash entry that changed during listing", e );
+      return null;
+    }
   }
 
   private RepositoryFile nodeToDeletedFile( final Session session, final PentahoJcrConstants pentahoJcrConstants,
