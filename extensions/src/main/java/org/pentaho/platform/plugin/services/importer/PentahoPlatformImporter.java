@@ -34,6 +34,7 @@ import org.pentaho.platform.api.mimetype.IPlatformMimeResolver;
 import org.pentaho.platform.api.repository2.unified.IRepositoryContentConverterHandler;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryUpdateFileException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.messages.Messages;
@@ -156,6 +157,13 @@ public class PentahoPlatformImporter implements IPlatformImporter {
       }
     } catch ( Exception e ) {
       e.printStackTrace();
+      if ( isLostUpdateConflict( e ) ) {
+        if ( repositoryImportLogger.hasLogger() ) {
+          repositoryImportLogger.error( e );
+        }
+        throw new PlatformImportException( messages.getString( "PentahoPlatformImporter.ERROR_0009_PUBLISH_UPDATE_CONFLICT" ),
+            PlatformImportException.PUBLISH_CONFLICT, e );
+      }
       // If we are doing a logged import then we do not want to fail on a single file
       // so log the error and keep going.
       RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) file;
@@ -179,6 +187,18 @@ public class PentahoPlatformImporter implements IPlatformImporter {
         throw e;
       }
     }
+  }
+
+  // The repository rejects a stale update with an IllegalStateException wrapped in an update-file exception.
+  private static boolean isLostUpdateConflict( Throwable error ) {
+    boolean updateFailure = false;
+    for ( Throwable t = error; t != null; t = t.getCause() ) {
+      updateFailure |= t instanceof UnifiedRepositoryUpdateFileException;
+      if ( updateFailure && t instanceof IllegalStateException ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void logImportFile( IPlatformImportBundle file ) {

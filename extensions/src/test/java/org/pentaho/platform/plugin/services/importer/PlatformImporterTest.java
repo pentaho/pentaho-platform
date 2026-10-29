@@ -19,12 +19,14 @@ import org.junit.Test;
 import org.pentaho.platform.api.mimetype.IMimeType;
 import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.IPlatformImportBundle;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryUpdateFileException;
 import org.pentaho.platform.core.mimetype.MimeType;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,6 +35,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -151,5 +155,27 @@ public class PlatformImporterTest {
     importer.importFile( bundle1 );
 
     verify( mockDefaultImportHandler, times( 1 ) ).importFile( bundle1 );
+  }
+
+  @Test
+  public void testLostUpdateConflictIsPropagated() throws Exception {
+    List<IMimeType> mimeList = Collections.singletonList( (IMimeType) new MimeType( "text/xmi+xml", "xmi" ) );
+    IPlatformImportHandler mockImportHandler = mock( IPlatformImportHandler.class );
+    when( mockImportHandler.getMimeTypes() ).thenReturn( mimeList );
+    doThrow( new UnifiedRepositoryUpdateFileException(
+        new IllegalStateException( "update to this file has occurred since its last read" ) ) )
+        .when( mockImportHandler ).importFile( any( IPlatformImportBundle.class ) );
+
+    PentahoSystem.registerObject( new NameBaseMimeResolver() );
+    PentahoPlatformImporter importer = new PentahoPlatformImporter( Collections.singletonList( mockImportHandler ),
+        new DefaultRepositoryContentConverterHandler( new HashMap<String, Converter>() ) );
+    importer.setRepositoryImportLogger( new Log4JRepositoryImportLogger() );
+
+    final IPlatformImportBundle bundle = new RepositoryFileImportBundle.Builder()
+        .input( new ByteArrayInputStream( new byte[0] ) ).charSet( "UTF-8" ).mime( "text/xmi+xml" )
+        .name( "steel-wheels.xmi" ).build();
+
+    PlatformImportException thrown = assertThrows( PlatformImportException.class, () -> importer.importFile( bundle ) );
+    assertEquals( PlatformImportException.PUBLISH_CONFLICT, thrown.getErrorStatus() );
   }
 }
