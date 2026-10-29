@@ -982,8 +982,13 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     if ( existing != null ) {
       return existing;
     }
-    return internalCreateFolder( session, parent.getId(), new RepositoryFile.Builder( segment )
+    RepositoryFile created = internalCreateFolder( session, parent.getId(), new RepositoryFile.Builder( segment )
         .folder( true ).build(), defaultAclHandler.createDefaultAcl( parent ), null );
+    if ( created == null ) {
+      throw new AccessDeniedException( Messages.getInstance().getString(
+          "JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED_CREATE", parent.getId() ) );
+    }
+    return created;
   }
 
   private void internalCopyOrMove( final Serializable fileId, final String destRelPath, final String versionMessage,

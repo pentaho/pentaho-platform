@@ -15,6 +15,8 @@
 package org.pentaho.platform.repository2.unified.jcr;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
@@ -24,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IRepositoryAccessVoterManager;
+import org.pentaho.platform.api.repository2.unified.IRepositoryDefaultAclHandler;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IRepositoryVersionManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -58,6 +61,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -551,6 +555,41 @@ public class JcrRepositoryFileDaoTest {
         contentWriteLock.unlock();
       }
       executor.shutdownNow();
+    }
+  }
+
+  @Test
+  public void shouldFailRestoringIntoMissingTenantRootFolder() throws Exception {
+    when( session.getItem( nullable( String.class ) ) ).thenThrow( new PathNotFoundException() );
+
+    RepositoryException error = assertThrows( RepositoryException.class,
+        () -> invokePrivate( "resolveOrCreateFolder", new Class<?>[] { Session.class, String.class },
+            session, "/pentaho/tenant0/home/missing" ) );
+
+    assertEquals( "Tenant root folder not found", error.getMessage() );
+  }
+
+  @Test
+  public void shouldDenyCreatingMissingFolderWhenParentIsNotWritable() throws Exception {
+    when( session.getItem( nullable( String.class ) ) ).thenThrow( new PathNotFoundException() );
+    RepositoryFile parent = new RepositoryFile.Builder( "parent" ).id( "parent-id" ).path( "/parent" ).build();
+    doReturn( parent ).when( dao ).getFileById( "parent-id" );
+    Field aclHandlerField = JcrRepositoryFileDao.class.getDeclaredField( "defaultAclHandler" );
+    aclHandlerField.setAccessible( true );
+    aclHandlerField.set( dao, mock( IRepositoryDefaultAclHandler.class ) );
+
+    assertThrows( AccessDeniedException.class,
+        () -> invokePrivate( "getOrCreateChildFolder",
+            new Class<?>[] { Session.class, RepositoryFile.class, String.class }, session, parent, "child" ) );
+  }
+
+  private Object invokePrivate( final String name, final Class<?>[] types, final Object... args ) throws Exception {
+    Method method = JcrRepositoryFileDao.class.getDeclaredMethod( name, types );
+    method.setAccessible( true );
+    try {
+      return method.invoke( dao, args );
+    } catch ( InvocationTargetException e ) {
+      throw (Exception) e.getCause();
     }
   }
 
