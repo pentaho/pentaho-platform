@@ -13,8 +13,8 @@
 package org.pentaho.platform.plugin.services.cache;
 
 import net.sf.ehcache.Ehcache;
-import org.hibernate.SessionFactory;
 import org.hibernate.cache.ehcache.internal.StorageAccessImpl;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.internal.SessionImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +51,7 @@ public class CacheManagerNullEntryTest {
     LastModifiedCache region = mock( LastModifiedCache.class );
     storageAccess = mock( StorageAccessImpl.class );
     ehcache = mock( Ehcache.class );
-    SessionFactory sessionFactory = mock( SessionFactory.class );
+    SessionFactoryImplementor sessionFactory = mock( SessionFactoryImplementor.class );
     when( region.getStorageAccess() ).thenReturn( storageAccess );
     when( region.getSessionFactory() ).thenReturn( sessionFactory );
     when( sessionFactory.openSession() ).thenReturn( mock( SessionImpl.class ) );
