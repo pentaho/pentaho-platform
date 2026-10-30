@@ -35,6 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -118,5 +119,42 @@ public class CacheManagerNullEntryTest {
 
     verify( session, never() ).getId();
     verify( storageAccess, never() ).removeFromCache( any(), any() );
+  }
+
+  @Test
+  public void killSessionCacheDoesNothingWhenThereIsNoSessionRegion() {
+    ReflectionTestUtils.setField( cacheManager, "regionCache", new HashMap<String, Object>() );
+    IPentahoSession session = mock( IPentahoSession.class );
+
+    cacheManager.killSessionCache( session );
+
+    verify( session, never() ).getId();
+    verify( storageAccess, never() ).removeFromCache( any(), any() );
+  }
+
+  @Test
+  public void killSessionCacheDoesNothingWhenCacheReturnsNoEntries() {
+    cacheContains( null );
+    IPentahoSession session = mock( IPentahoSession.class );
+
+    cacheManager.killSessionCache( session );
+
+    verify( session, never() ).getId();
+    verify( storageAccess, never() ).removeFromCache( any(), any() );
+  }
+
+  @Test
+  public void killSessionCacheSkipsNullKeys() {
+    Map<Object, Object> map = new HashMap<>();
+    map.put( null, "v" );
+    map.put( "s1\ta", "v" );
+    cacheContains( map );
+    IPentahoSession session = mock( IPentahoSession.class );
+    when( session.getId() ).thenReturn( "s1" );
+
+    cacheManager.killSessionCache( session );
+
+    verify( storageAccess ).removeFromCache( eq( "s1\ta" ), any() );
+    verify( storageAccess, times( 1 ) ).removeFromCache( any(), any() );
   }
 }

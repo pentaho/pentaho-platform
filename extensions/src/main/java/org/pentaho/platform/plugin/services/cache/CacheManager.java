@@ -363,7 +363,7 @@ public class CacheManager implements ICacheManager {
           Iterator it = cacheMap.entrySet().iterator();
           while ( it.hasNext() ) {
             Map.Entry entry = (Map.Entry) it.next();
-            if ( entry != null ) {
+            if ( entry != null && entry.getValue() != null ) {
               list.add( entry.getValue() );
             }
           }
