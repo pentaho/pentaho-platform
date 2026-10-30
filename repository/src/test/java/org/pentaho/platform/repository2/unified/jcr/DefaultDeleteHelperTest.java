@@ -32,6 +32,7 @@ import org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoFileE
 import org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoReferentialIntegrityException;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
+import javax.jcr.InvalidItemStateException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
@@ -197,6 +198,29 @@ public class DefaultDeleteHelperTest {
     assertEquals( path2, deletedFiles.get( 1 ).getOriginalParentFolderPath() );
     assertEquals( date1.getTime(), deletedFiles.get( 0 ).getDeletedDate() );
     assertEquals( date2.getTime(), deletedFiles.get( 1 ).getDeletedDate() );
+  }
+
+  @Test
+  public void testGetDeletedFilesSkipsEntryThatChangesDuringListing() throws Exception {
+    final Node settled = createDeletedNode( "settled", Calendar.getInstance() );
+    final Node vanishing = createDeletedNode( "vanishing", Calendar.getInstance() );
+    when( vanishing.getNodes().nextNode().getParent() ).thenThrow( new InvalidItemStateException() );
+
+    final NodeIterator nodeIterator = mock( NodeIterator.class );
+    when( nodeIterator.hasNext() ).thenReturn( true, true, false );
+    when( nodeIterator.nextNode() ).thenReturn( vanishing, settled );
+
+    final Node nodeTrash = mock( Node.class );
+    when( nodeTrash.getNodes() ).thenReturn( nodeIterator );
+    final Node nodeUserFolder = mock( Node.class );
+    when( nodeUserFolder.hasNode( nullable( String.class ) ) ).thenReturn( true );
+    when( nodeUserFolder.getNode( nullable( String.class ) ) ).thenReturn( nodeTrash );
+    when( session.getItem( nullable( String.class ) ) ).thenReturn( nodeUserFolder );
+
+    final List<RepositoryFile> deletedFiles = defaultDeleteHelper.getDeletedFiles( session, pentahoJcrConstants );
+
+    assertEquals( 1, deletedFiles.size() );
+    assertEquals( "settled", deletedFiles.get( 0 ).getOriginalParentFolderPath() );
   }
 
   private Node createDeletedNode( String origParentFolderPath, Calendar date ) throws RepositoryException {

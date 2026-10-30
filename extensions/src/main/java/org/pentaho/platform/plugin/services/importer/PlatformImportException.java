@@ -43,6 +43,8 @@ public class PlatformImportException extends Exception {
 
   public static final int PUBLISH_NAME_ERROR = 13;
 
+  public static final int PUBLISH_CONFLICT = 14;
+
   private int errorStatusCode = PlatformImportException.PUBLISH_TO_SERVER_FAILED;
 
   public PlatformImportException( String s ) {
