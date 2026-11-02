@@ -233,7 +233,13 @@ public class LastModifiedCache implements ILastModifiedCacheItem, HvCache {
 
   @Override public Set getAllKeys() {
     Ehcache ehcache = getStorageAccess().getCache();
-    return new HashSet( ehcache.getKeys() );
+    Set keys = new HashSet();
+    for ( Object key : ehcache.getKeys() ) {
+      if ( key != null ) {
+        keys.add( key );
+      }
+    }
+    return keys;
   }
 
   @Override public DirectAccessRegion getDirectAccessRegion() {

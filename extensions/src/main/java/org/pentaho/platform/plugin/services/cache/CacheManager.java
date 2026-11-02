@@ -38,12 +38,12 @@ import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * This class provides an access point for pluggable caching mechanisms. Right now, it only supports the caching
@@ -363,7 +363,9 @@ public class CacheManager implements ICacheManager {
           Iterator it = cacheMap.entrySet().iterator();
           while ( it.hasNext() ) {
             Map.Entry entry = (Map.Entry) it.next();
-            list.add( entry.getValue() );
+            if ( entry != null && entry.getValue() != null ) {
+              list.add( entry.getValue() );
+            }
           }
         }
       }
@@ -386,7 +388,13 @@ public class CacheManager implements ICacheManager {
       HvCache hvcache = (HvCache) regionCache.get( region );  //This is our LastModifiedCache or CarteStatusCache
       try ( SessionImpl session = (SessionImpl) hvcache.getSessionFactory().openSession() ) {
         Ehcache ehcache = hvcache.getStorageAccess().getCache();
-        return ehcache.getAll( ehcache.getKeys() ).values().stream().collect( Collectors.toSet() );
+        Set cacheValues = new HashSet<>();
+        for ( Object value : ehcache.getAll( ehcache.getKeys() ).values() ) {
+          if ( value != null ) {
+            cacheValues.add( value );
+          }
+        }
+        return cacheValues;
       }
     }
     return null;
@@ -432,21 +440,31 @@ public class CacheManager implements ICacheManager {
   }
 
   public void killSessionCache( IPentahoSession session ) {
-    if ( cacheEnabled ) {
-      HvCache hvcache = (HvCache) regionCache.get( SESSION );
-      if ( hvcache != null ) {
-        Ehcache ehcache = hvcache.getStorageAccess().getCache();
-        Map cacheMap = ehcache.getAll( ehcache.getKeys() );
-        if ( cacheMap != null ) {
-          Iterator it = cacheMap.keySet().iterator();
-          while ( it.hasNext() ) {
-            String key = (String) it.next();
-            if ( key.indexOf( session.getId() ) >= 0 ) {
-              try ( SessionImpl hibSession = (SessionImpl) hvcache.getSessionFactory().openSession() ) {
-                hvcache.getStorageAccess().removeFromCache( key, hibSession );
-              }
-            }
-          }
+    if ( !cacheEnabled ) {
+      return;
+    }
+
+    HvCache hvcache = (HvCache) regionCache.get( SESSION );
+    if ( hvcache == null ) {
+      return;
+    }
+
+    Ehcache ehcache = hvcache.getStorageAccess().getCache();
+    Map cacheMap = ehcache.getAll( ehcache.getKeys() );
+    if ( cacheMap != null ) {
+      evictSessionCacheEntries( cacheMap, hvcache, session );
+    }
+  }
+
+  private void evictSessionCacheEntries( Map cacheMap, HvCache hvcache, IPentahoSession session ) {
+    for ( Object cacheKey : cacheMap.keySet() ) {
+      if ( cacheKey == null ) {
+        continue;
+      }
+      String key = (String) cacheKey;
+      if ( key.contains( session.getId() ) ) {
+        try ( SessionImpl hibSession = (SessionImpl) hvcache.getSessionFactory().openSession() ) {
+          hvcache.getStorageAccess().removeFromCache( key, hibSession );
         }
       }
     }
