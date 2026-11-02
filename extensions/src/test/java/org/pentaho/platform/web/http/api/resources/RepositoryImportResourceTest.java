@@ -20,8 +20,10 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sun.jersey.multipart.FormDataBodyPart;
+import javax.ws.rs.core.Response;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -164,6 +167,20 @@ public class RepositoryImportResourceTest {
     when( policy.isAllowed( nullable( String.class ) ) ).thenAnswer( (Answer<Boolean>) invocation -> true );
     importResource.doPostImport( IMPORT_DIR, fileParts, "true", "true", "true", "true", "UTF-8", "WARN", formDataContentDisposition, "" );
     Assert.assertNull( ImportSession.getSession().getManifest()  );
+  }
+
+  @Test
+  public void doPostImportReturnsConflictOnLostUpdate() throws Exception {
+    doReturn( "xml" ).when( iPlatformMimeResolver ).resolveMimeForFileName( "f.csv" );
+    doThrow( new PlatformImportException( "stale", PlatformImportException.PUBLISH_CONFLICT ) )
+        .when( importer ).importFile( any( IPlatformImportBundle.class ) );
+    when( policy.isAllowed( nullable( String.class ) ) ).thenAnswer( (Answer<Boolean>) invocation -> true );
+
+    Response response = new RepositoryImportResource().doPostImport( IMPORT_DIR, mock( InputStream.class ), "true",
+        "true", "true", "true", "UTF-8", "WARN", mock( FormDataContentDisposition.class ), "f.csv" );
+
+    Assert.assertEquals( 409, response.getStatus() );
+    verify( iRepositoryImportLogger ).endJob();
   }
 
   private Class<?> anyClass() {
