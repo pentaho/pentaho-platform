@@ -1068,6 +1068,24 @@
               </artifactItems>
             </configuration>
           </execution>
+          <execution>
+            <id>unpack-jquery-webjar</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.webjars.npm</groupId>
+                  <artifactId>jquery</artifactId>
+                  <type>jar</type>
+                  <includes>**/jquery.min.js</includes>
+                  <outputDirectory>${project.build.directory}/webjars</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -1101,30 +1119,6 @@
           <outputDirectory>${project.build.directory}</outputDirectory>
           <packagingExcludes>WEB-INF/default-object.xml,WEB-INF/jboss-app.xml,**/datasources/**</packagingExcludes>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>unpack</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.webjars.npm</groupId>
-                  <artifactId>jquery</artifactId>
-                  <type>jar</type>
-                  <includes>**/jquery.min.js</includes>
-                  <outputDirectory>${project.build.directory}/webjars</outputDirectory>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>

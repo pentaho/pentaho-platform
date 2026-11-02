@@ -384,18 +384,6 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.xmlbeans</groupId>
-      <artifactId>xmlbeans</artifactId>
-      <version>${xmlbeans.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.pentaho</groupId>
       <artifactId>json</artifactId>
       <version>${pentaho-json.version}</version>
@@ -515,7 +503,6 @@
       <groupId>jakarta.persistence</groupId>
       <artifactId>jakarta.persistence-api</artifactId>
       <version>${jakarta.persistence-api.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.core</groupId>
@@ -2682,18 +2669,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>jakarta.persistence</groupId>
-      <artifactId>jakarta.persistence-api</artifactId>
-      <version>${jakarta.persistence-api.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
       <version>${byte-buddy.version}</version>
@@ -2704,11 +2679,6 @@
           <groupId>*</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-crypto</artifactId>
-      <version>5.8.12</version>
     </dependency>
     <dependency>
       <groupId>com.zaxxer</groupId>
