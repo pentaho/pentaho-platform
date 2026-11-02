@@ -13,6 +13,7 @@
 
 package org.pentaho.platform.repository2.unified.jcr;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.regex.Pattern;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Item;
@@ -72,6 +74,8 @@ import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoMalformedNameException;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -81,6 +85,9 @@ import org.springframework.util.StringUtils;
  * @author mlowery
  */
 public class JcrRepositoryFileUtils {
+
+  private static final ReentrantReadWriteLock[] FILE_CONTENT_LOCKS = createFileContentLocks();
+  private static final ReentrantReadWriteLock FILE_CONTENT_TREE_LOCK = new ReentrantReadWriteLock( true );
 
   private static final Log logger = LogFactory.getLog( JcrRepositoryFileUtils.class );
 
@@ -691,20 +698,26 @@ public class JcrRepositoryFileUtils {
   public static IRepositoryFileData getContent( final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable fileId, final Serializable versionId, final ITransformer<IRepositoryFileData> transformer )
     throws RepositoryException {
-    Node fileNode = session.getNodeByIdentifier( fileId.toString() );
-    if ( isVersioned( session, pentahoJcrConstants, fileNode ) ) {
-      VersionManager vMgr = session.getWorkspace().getVersionManager();
-      Version version = null;
-      if ( versionId != null ) {
-        version = vMgr.getVersionHistory( fileNode.getPath() ).getVersion( versionId.toString() );
-      } else {
-        version = vMgr.getBaseVersion( fileNode.getPath() );
+    ReentrantReadWriteLock.ReadLock readLock = getFileContentLock( fileId ).readLock();
+    readLock.lock();
+    try {
+      Node fileNode = session.getNodeByIdentifier( fileId.toString() );
+      if ( isVersioned( session, pentahoJcrConstants, fileNode ) ) {
+        VersionManager vMgr = session.getWorkspace().getVersionManager();
+        Version version = null;
+        if ( versionId != null ) {
+          version = vMgr.getVersionHistory( fileNode.getPath() ).getVersion( versionId.toString() );
+        } else {
+          version = vMgr.getBaseVersion( fileNode.getPath() );
+        }
+        fileNode = getNodeAtVersion( pentahoJcrConstants, version );
       }
-      fileNode = getNodeAtVersion( pentahoJcrConstants, version );
-    }
-    Assert.isTrue( !isPentahoFolder( pentahoJcrConstants, fileNode ), "The file node must not be a folder. Ensure the provided node represents a valid file." );
+      Assert.isTrue( !isPentahoFolder( pentahoJcrConstants, fileNode ), "The file node must not be a folder. Ensure the provided node represents a valid file." );
 
-    return transformer.fromContentNode( session, pentahoJcrConstants, fileNode );
+      return transformer.fromContentNode( session, pentahoJcrConstants, fileNode );
+    } finally {
+      readLock.unlock();
+    }
   }
 
   public static List<RepositoryFile> getChildren( final Session session, final PentahoJcrConstants pentahoJcrConstants,
@@ -918,53 +931,173 @@ public class JcrRepositoryFileUtils {
     Node versionableNode = findNearestVersionableNode( session, pentahoJcrConstants, node );
 
     if ( versionableNode != null ) {
-      versionableNode.setProperty( pentahoJcrConstants.getPHO_VERSIONAUTHOR(), getUsername() );
-      if ( StringUtils.hasText( versionMessage ) ) {
-        versionableNode.setProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE(), versionMessage );
-      } else {
-        // TODO mlowery why do I need to check for hasProperty here? in JR 1.6, I didn't need to
-        if ( versionableNode.hasProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE() ) ) {
-          versionableNode.setProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE(), (String) null );
+      try ( FileContentLockLease ignored = acquireFileContentWriteLock( versionableNode.getIdentifier() ) ) {
+        versionableNode.setProperty( pentahoJcrConstants.getPHO_VERSIONAUTHOR(), getUsername() );
+        if ( StringUtils.hasText( versionMessage ) ) {
+          versionableNode.setProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE(), versionMessage );
+        } else {
+          // TODO mlowery why do I need to check for hasProperty here? in JR 1.6, I didn't need to
+          if ( versionableNode.hasProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE() ) ) {
+            versionableNode.setProperty( pentahoJcrConstants.getPHO_VERSIONMESSAGE(), (String) null );
+          }
         }
-      }
-      if ( aclOnlyChange ) {
-        versionableNode.setProperty( pentahoJcrConstants.getPHO_ACLONLYCHANGE(), true );
-      } else {
-        // TODO mlowery why do I need to check for hasProperty here? in JR 1.6, I didn't need to
-        if ( versionableNode.hasProperty( pentahoJcrConstants.getPHO_ACLONLYCHANGE() ) ) {
-          versionableNode.getProperty( pentahoJcrConstants.getPHO_ACLONLYCHANGE() ).remove();
+        if ( aclOnlyChange ) {
+          versionableNode.setProperty( pentahoJcrConstants.getPHO_ACLONLYCHANGE(), true );
+        } else {
+          // TODO mlowery why do I need to check for hasProperty here? in JR 1.6, I didn't need to
+          if ( versionableNode.hasProperty( pentahoJcrConstants.getPHO_ACLONLYCHANGE() ) ) {
+            versionableNode.getProperty( pentahoJcrConstants.getPHO_ACLONLYCHANGE() ).remove();
+          }
         }
-      }
-      session.save(); // required before checkin since we set some properties above
+        session.save(); // required before checkin since we set some properties above
 
-      Calendar cal = Calendar.getInstance();
-      if ( versionDate != null ) {
-        cal.setTime( versionDate );
-      } else {
-        cal.setTime( new Date() );
-      }
-      ( (VersionManagerImpl) session.getWorkspace().getVersionManager() ).checkin( versionableNode.getPath(), cal );
+        Calendar cal = Calendar.getInstance();
+        if ( versionDate != null ) {
+          cal.setTime( versionDate );
+        } else {
+          cal.setTime( new Date() );
+        }
+        ( (VersionManagerImpl) session.getWorkspace().getVersionManager() ).checkin( versionableNode.getPath(), cal );
 
-      // if we're not versioning, delete only the previous version to
-      // prevent the number of versions from increasing. We still need a versioned node
-      if ( !getRepositoryVersionManager().isVersioningEnabled( versionableNode.getPath() ) ) {
+        // if we're not versioning, delete only the previous version to
+        // prevent the number of versions from increasing. We still need a versioned node
+        if ( !getRepositoryVersionManager().isVersioningEnabled( versionableNode.getPath() ) ) {
 
-        List<VersionSummary> versionSummaries =
+          List<VersionSummary> versionSummaries =
             (List<VersionSummary>) getVersionSummaries( session, pentahoJcrConstants, versionableNode.getIdentifier(),
                 Boolean.TRUE );
 
-        if ( ( versionSummaries != null ) && ( versionSummaries.size() > 1 ) ) {
-          VersionSummary versionSummary = (VersionSummary) versionSummaries.toArray()[versionSummaries.size() - 2];
+          if ( ( versionSummaries != null ) && ( versionSummaries.size() > 1 ) ) {
+            VersionSummary versionSummary = (VersionSummary) versionSummaries.toArray()[versionSummaries.size() - 2];
 
-          if ( versionSummary != null ) {
-            String versionId = (String) versionSummary.getId();
-            session.getWorkspace().getVersionManager().getVersionHistory( versionableNode.getPath() ).removeVersion(
-                versionId );
-            session.save();
+            if ( versionSummary != null ) {
+              String versionId = (String) versionSummary.getId();
+              session.getWorkspace().getVersionManager().getVersionHistory( versionableNode.getPath() ).removeVersion(
+                  versionId );
+              session.save();
+            }
           }
         }
       }
     }
+  }
+
+  private static ReentrantReadWriteLock[] createFileContentLocks() {
+    ReentrantReadWriteLock[] locks = new ReentrantReadWriteLock[ 64 ];
+    for ( int index = 0; index < locks.length; index++ ) {
+      locks[ index ] = new ReentrantReadWriteLock( true );
+    }
+    return locks;
+  }
+
+  static ReentrantReadWriteLock getFileContentLock( final Serializable fileId ) {
+    return FILE_CONTENT_LOCKS[ getFileContentLockIndex( fileId ) ];
+  }
+
+  static FileContentLockLease acquireFileContentWriteLock( final Serializable fileId ) {
+    // Tree lease first, so any writer reaching a stripe (ACL, metadata, locale, folder) follows the same order.
+    FileContentLockLease treeLease = acquireFileContentTreeWriteLock();
+    try {
+      FileContentLockLease stripeLease = acquireWriteLock( getFileContentLock( fileId ).writeLock() );
+      return () -> {
+        stripeLease.close();
+        treeLease.close();
+      };
+    } catch ( RuntimeException e ) {
+      treeLease.close();
+      throw e;
+    }
+  }
+
+  static FileContentLockLease acquireFileContentTreeWriteLock() {
+    return acquireWriteLock( FILE_CONTENT_TREE_LOCK.writeLock() );
+  }
+
+  private static FileContentLockLease acquireWriteLock( final java.util.concurrent.locks.Lock lock ) {
+    lock.lock(); // NOSONAR released by the returned lease or after transaction completion
+    try {
+      if ( deferUnlockUntilTransactionCompletion( lock::unlock ) ) {
+        return () -> { };
+      }
+      return lock::unlock;
+    } catch ( RuntimeException e ) {
+      lock.unlock();
+      throw e;
+    }
+  }
+
+  private static boolean deferUnlockUntilTransactionCompletion( final Runnable unlock ) {
+    if ( !TransactionSynchronizationManager.isSynchronizationActive()
+        || !TransactionSynchronizationManager.isActualTransactionActive() ) {
+      return false;
+    }
+    TransactionSynchronizationManager.registerSynchronization( new TransactionSynchronization() {
+      @Override
+      public void afterCompletion( final int status ) {
+        unlock.run();
+      }
+    } );
+    return true;
+  }
+
+  static List<Serializable> getFileContentWriteLockIds( final Session session,
+      final PentahoJcrConstants pentahoJcrConstants, final Serializable fileId ) throws RepositoryException {
+    List<Serializable> fileIds = new ArrayList<>();
+    fileIds.add( fileId );
+    Node fileNode = session.getNodeByIdentifier( fileId.toString() );
+    Node versionableNode = findNearestVersionableNode( session, pentahoJcrConstants, fileNode );
+    if ( versionableNode != null ) {
+      fileIds.add( versionableNode.getIdentifier() );
+    }
+    return fileIds;
+  }
+
+  interface FileContentLockLease extends AutoCloseable {
+    @Override
+    void close();
+  }
+
+  @FunctionalInterface
+  interface FileContentWriteOperation {
+    void execute() throws RepositoryException, IOException;
+  }
+
+  static void withFileContentWriteLocks( final Iterable<? extends Serializable> fileIds,
+      final FileContentWriteOperation operation ) throws RepositoryException, IOException {
+    boolean[] lockIndexes = new boolean[ FILE_CONTENT_LOCKS.length ];
+    for ( Serializable fileId : fileIds ) {
+      lockIndexes[ getFileContentLockIndex( fileId ) ] = true;
+    }
+    runWithOrderedWriteLocks( lockIndexes, 0, operation );
+  }
+
+  // Acquires selected stripes in ascending order; each is released by its own finally.
+  private static void runWithOrderedWriteLocks( final boolean[] lockIndexes, final int from,
+      final FileContentWriteOperation operation ) throws RepositoryException, IOException {
+    int next = from;
+    while ( next < lockIndexes.length && !lockIndexes[ next ] ) {
+      next++;
+    }
+    if ( next >= lockIndexes.length ) {
+      operation.execute();
+      return;
+    }
+
+    java.util.concurrent.locks.Lock lock = FILE_CONTENT_LOCKS[ next ].writeLock();
+    lock.lock(); // NOSONAR released in finally unless deferred to transaction completion
+    boolean unlockAfterCompletion = false;
+    try {
+      unlockAfterCompletion = deferUnlockUntilTransactionCompletion( lock::unlock );
+      runWithOrderedWriteLocks( lockIndexes, next + 1, operation );
+    } finally {
+      if ( !unlockAfterCompletion ) {
+        lock.unlock();
+      }
+    }
+  }
+
+  private static int getFileContentLockIndex( final Serializable fileId ) {
+    return Math.floorMod( fileId.toString().hashCode(), FILE_CONTENT_LOCKS.length );
   }
 
   private static String getUsername() {
@@ -1078,8 +1211,8 @@ public class JcrRepositoryFileUtils {
     Version version =
         session.getWorkspace().getVersionManager().getVersionHistory( fileNode.getPath() ).getVersion( versionId
             .toString() );
-    return nodeToFile( session, pentahoJcrConstants, pathConversionHelper, lockHelper, getNodeAtVersion(
-        pentahoJcrConstants, version ) );
+    return nodeToFileOld( session, pentahoJcrConstants, pathConversionHelper, lockHelper,
+      getNodeAtVersion( pentahoJcrConstants, version ), true, null );
   }
 
   /**
