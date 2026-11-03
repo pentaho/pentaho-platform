@@ -648,17 +648,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-compress</artifactId>
-      <version>${commons-compress.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <exclusions>
@@ -782,7 +771,6 @@
       <groupId>jakarta.persistence</groupId>
       <artifactId>jakarta.persistence-api</artifactId>
       <version>${jakarta.persistence-api.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>javax.cache</groupId>
@@ -799,12 +787,6 @@
       <groupId>jakarta.servlet.jsp</groupId>
       <artifactId>jakarta.servlet.jsp-api</artifactId>
       <version>${jakarta.servlet.jsp.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-      <version>${jakarta.servlet.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -864,18 +846,6 @@
       <groupId>com.fasterxml</groupId>
       <artifactId>classmate</artifactId>
       <version>${classmate.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.persistence</groupId>
-      <artifactId>jakarta.persistence-api</artifactId>
-      <version>${jakarta.persistence-api.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
