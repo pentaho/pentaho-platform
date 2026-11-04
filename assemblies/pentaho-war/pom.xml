@@ -24,6 +24,8 @@
     <rxjava.version>2.2.3</rxjava.version>
     <google-http-client.version>1.42.3</google-http-client.version>
     <big-data-plugin.version>11.0.0.0-SNAPSHOT</big-data-plugin.version>
+    <jface.version>3.31.0</jface.version>
+    <commands.version>3.11.100</commands.version>
   </properties>
   <dependencies>
     <!-- region - Fasterxml jackson providers are required to be in the main classloader for serialization of POJOs
@@ -45,6 +47,18 @@
       <scope>runtime</scope>
     </dependency>
     <!-- endregion -->
+
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.jface</artifactId>
+      <version>${jface.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>org.eclipse.osgi</artifactId>
+          <groupId>org.eclipse.platform</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
     <dependency>
       <groupId>pentaho</groupId>
@@ -111,6 +125,18 @@
         <exclusion>
           <artifactId>hsqldb</artifactId>
           <groupId>org.hsqldb</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jface</artifactId>
+          <groupId>org.eclipse</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>common</artifactId>
+          <groupId>org.eclipse.equinox</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commands</artifactId>
+          <groupId>org.eclipse.core</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -719,8 +745,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.core</groupId>
-      <artifactId>commands</artifactId>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.core.commands</artifactId>
       <version>${commands.version}</version>
       <exclusions>
         <exclusion>
