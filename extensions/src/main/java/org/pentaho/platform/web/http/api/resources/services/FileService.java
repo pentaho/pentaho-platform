@@ -116,6 +116,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import javax.jcr.PathNotFoundException;
+
 public class FileService {
 
   public static final Integer MODE_OVERWRITE = 1;
@@ -1524,10 +1526,19 @@ public class FileService {
     try {
       tree = getRepoWs().getTreeFromRequest( repositoryRequest );
     } catch ( UnifiedRepositoryException e ) {
-      logger.error( e.getCause() );
+      var cause = e.getCause();
+      if ( cause != null && cause.getCause() instanceof PathNotFoundException ) {
+        logger.debug( Messages.getInstance().getString( "FileResource.FILE_NOT_FOUND", path ) );
+      } else {
+        logger.error( cause );
+      }
     }
 
-    //translating /home and /public folders titles
+    if ( tree == null || tree.getChildren() == null || tree.getChildren().isEmpty() ) {
+      return tree;
+    }
+
+    // translating /home and /public folders titles
     for ( RepositoryFileTreeDto dto : tree.getChildren() ) {
       if ( dto.getFile().getName().equals( ClientRepositoryPaths.getHomeFolderName() ) && dto.getFile().getPath().equals( ClientRepositoryPaths.getHomeFolderPath() ) ) {
         dto.getFile().setTitle( Messages.getInstance().getString( "FileResource.HOME_FOLDER_DISPLAY_TITLE" ) );
@@ -1535,8 +1546,9 @@ public class FileService {
         dto.getFile().setTitle( Messages.getInstance().getString( "FileResource.PUBLIC_FOLDER_DISPLAY_TITLE" ) );
       }
     }
+
     // BISERVER-9599 - Use special sort order
-    if ( tree != null && isShowingTitle( repositoryRequest ) ) {
+    if ( isShowingTitle( repositoryRequest ) ) {
       Collator collator = getCollatorInstance();
       collator.setStrength( Collator.PRIMARY ); // ignore case
       sortByLocaleTitle( collator, tree );
@@ -1547,7 +1559,7 @@ public class FileService {
 
   public void sortByLocaleTitle( final Collator collator, final RepositoryFileTreeDto tree ) {
 
-    if ( tree == null || tree.getChildren() == null || tree.getChildren().size() <= 0 ) {
+    if ( tree == null || tree.getChildren() == null || tree.getChildren().isEmpty() ) {
       return;
     }
 
@@ -1980,7 +1992,7 @@ public class FileService {
 
   public void sortByLocaleTitle( final Collator collator, final List<RepositoryFileDto> repositoryFileDtoList ) {
 
-    if ( repositoryFileDtoList == null || repositoryFileDtoList.size() <= 0 ) {
+    if ( repositoryFileDtoList == null || repositoryFileDtoList.isEmpty() ) {
       return;
     }
 
@@ -2024,7 +2036,7 @@ public class FileService {
   protected String decode( String folder ) {
     String decodeName = folder;
     try {
-      decodeName = URLDecoder.decode( folder, "UTF-8" );
+      decodeName = URLDecoder.decode( folder, StandardCharsets.UTF_8 );
     } catch ( Exception ex ) {
       logger.error( ex );
     }
