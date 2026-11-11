@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -159,7 +160,7 @@ public class HsqldbStartupListener implements ServletContextListener {
    * Load all database scripts synchronously before returning from contextInitialized.
    * This ensures data is available when Hibernate and other components initialize.
    * For in-memory databases: scripts load every startup (database is recreated).
-   * For file-based databases: scripts load on first initialization (checking for "already exists" errors).
+   * For file-based databases: scripts load only on first initialization (skipped when the database already has user tables).
    */
   private void loadAllDatabaseScripts( ServletContext ctx, Map<String, String> databases ) {
     String initScriptPath = ctx.getInitParameter( "hsqldb-init-script" ); //$NON-NLS-1$
@@ -172,7 +173,7 @@ public class HsqldbStartupListener implements ServletContextListener {
         
         // Load scripts for BOTH in-memory and file-based databases
         // For in-memory: scripts reload on each startup (database is recreated)
-        // For file-based: scripts run but gracefully skip "already exists" errors (preserving state)
+        // For file-based: scripts are skipped if the database already has user tables (preserving state)
         if ( dbUrl.startsWith( "mem:" ) || dbUrl.startsWith( "file:" ) ) { //$NON-NLS-1$ //$NON-NLS-2$
           // Resolve the script path relative to the web app context
           String webappPath = ctx.getRealPath( "/" ); //$NON-NLS-1$
@@ -250,12 +251,32 @@ public class HsqldbStartupListener implements ServletContextListener {
     logger.info( String.format( "HsqldbStartupListener: Connecting to database %s using URL %s as user sa", dbName, jdbcUrl ) ); //$NON-NLS-1$
     try ( Connection conn = DriverManager.getConnection( jdbcUrl, "sa", "" ); //$NON-NLS-1$ //$NON-NLS-2$
           Statement stmt = conn.createStatement() ) {
+      // File-based databases persist across restarts; re-running the script would duplicate rows in tables
+      // without primary keys (e.g. sampledata ORDERFACT), so only load it into an empty database.
+      if ( isDatabaseInitialized( conn ) ) {
+        logger.info( String.format( "HsqldbStartupListener: Database %s already contains user tables, skipping script %s", dbName, scriptFile.getAbsolutePath() ) ); //$NON-NLS-1$
+        return;
+      }
       logger.info( String.format( "HsqldbStartupListener: Successfully connected to %s, loading script %s", dbName, scriptFile.getAbsolutePath() ) ); //$NON-NLS-1$
       executeSqlStatements( dbName, scriptFile, stmt );
       logger.info( String.format( "Successfully loaded data for database %s from %s", dbName, scriptFile.getAbsolutePath() ) ); //$NON-NLS-1$
     } catch ( Exception e ) {
       logger.error( String.format( "HsqldbStartupListener: Failed to connect to %s at %s: %s", dbName, jdbcUrl, e.getMessage() ), e ); //$NON-NLS-1$
       throw e;
+    }
+  }
+
+  /**
+   * Checks whether the database already contains user-defined tables, meaning the init script was loaded before.
+   *
+   * @param conn A Connection to the database to check
+   * @return true if at least one user table exists, false otherwise
+   * @throws SQLException if the database metadata cannot be queried
+   */
+  boolean isDatabaseInitialized( Connection conn ) throws SQLException {
+    // System tables (INFORMATION_SCHEMA, SYSTEM_LOBS) are reported with type "SYSTEM TABLE", so only user tables match
+    try ( ResultSet rs = conn.getMetaData().getTables( null, null, "%", new String[] { "TABLE" } ) ) { //$NON-NLS-1$ //$NON-NLS-2$
+      return rs.next();
     }
   }
 

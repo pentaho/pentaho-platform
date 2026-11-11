@@ -14,7 +14,9 @@
 package org.pentaho.platform.web.http.context;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -23,9 +25,26 @@ import org.pentaho.platform.web.hsqldb.HsqlDatabaseStarterBean;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 
+import java.io.File;
+import java.net.ServerSocket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,6 +56,9 @@ import static org.mockito.Mockito.when;
 public class HsqldbStartupListenerTest {
 
   HsqldbStartupListener startupListener;
+
+  @Rule
+  public TemporaryFolder tempFolder = new TemporaryFolder();
 
   @Mock
   ServletContextEvent contextEvent;
@@ -126,6 +148,73 @@ public class HsqldbStartupListenerTest {
     startupListener.contextInitialized( contextEvent );
     // If no exception, parsing was successful
     assertNotNull( startupListener );
+  }
+
+  @Test
+  public void testIsDatabaseInitialized_emptyDatabase() throws Exception {
+    try ( Connection conn = DriverManager.getConnection( "jdbc:hsqldb:mem:emptydb_" + System.nanoTime(), "sa", "" );
+          Statement stmt = conn.createStatement() ) {
+      assertFalse( startupListener.isDatabaseInitialized( conn ) );
+      stmt.execute( "SHUTDOWN" );
+    }
+  }
+
+  @Test
+  public void testIsDatabaseInitialized_databaseWithUserTables() throws Exception {
+    try ( Connection conn = DriverManager.getConnection( "jdbc:hsqldb:mem:populateddb_" + System.nanoTime(), "sa", "" );
+          Statement stmt = conn.createStatement() ) {
+      stmt.execute( "CREATE TABLE PUBLIC.ORDERFACT(ORDERNUMBER INTEGER, TOTALPRICE REAL)" );
+      assertTrue( startupListener.isDatabaseInitialized( conn ) );
+      stmt.execute( "SHUTDOWN" );
+    }
+  }
+
+  @Test
+  public void testFileDatabaseScriptIsLoadedOnlyOnceAcrossRestarts() throws Exception {
+    // Mirrors web.xml: hsqldb-init-script is resolved relative to the webapp real path
+    File webappDir = tempFolder.newFolder( "webapp" );
+    File seedDir = tempFolder.newFolder( "seed" );
+    Files.write( new File( seedDir, "testdb.script" ).toPath(), Arrays.asList(
+      "CREATE TABLE PUBLIC.FACT(ID INTEGER, AMOUNT INTEGER);",
+      "INSERT INTO PUBLIC.FACT VALUES(1, 10);",
+      "INSERT INTO PUBLIC.FACT VALUES(2, 20);" ), StandardCharsets.UTF_8 );
+    String dbPath = new File( tempFolder.getRoot(), "db" + File.separator + "testdbdb" ).getAbsolutePath();
+    int port = findFreePort();
+
+    Map<String, Object> attributes = new HashMap<>();
+    doAnswer( inv -> attributes.put( inv.getArgument( 0 ), inv.getArgument( 1 ) ) )
+      .when( context ).setAttribute( anyString(), any() );
+    when( context.getAttribute( "hsqldb-starter-bean" ) ).thenAnswer( inv -> attributes.get( "hsqldb-starter-bean" ) );
+    when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( String.valueOf( port ) );
+    when( context.getInitParameter( "hsqldb-databases" ) ).thenReturn( "testdb@file:" + dbPath );
+    when( context.getInitParameter( "hsqldb-init-script" ) ).thenReturn( ".." + File.separator + "seed" );
+    when( context.getRealPath( "/" ) ).thenReturn( webappDir.getAbsolutePath() );
+
+    for ( int start = 1; start <= 2; start++ ) {
+      HsqldbStartupListener listener = new HsqldbStartupListener();
+      listener.contextInitialized( contextEvent );
+      try {
+        assertNotNull( "HSQLDB server should be running on start " + start, attributes.get( "hsqldb-starter-bean" ) );
+        try ( Connection conn = DriverManager.getConnection( "jdbc:hsqldb:hsql://localhost:" + port + "/testdb", "sa", "" );
+              Statement stmt = conn.createStatement() ) {
+          try ( ResultSet rs = stmt.executeQuery( "SELECT COUNT(*) FROM PUBLIC.FACT" ) ) {
+            assertTrue( rs.next() );
+            assertEquals( "Seed rows must not be duplicated on start " + start, 2, rs.getInt( 1 ) );
+          }
+          // Close the database so the next start reopens it from disk, like a real server restart
+          stmt.execute( "SHUTDOWN" );
+        }
+      } finally {
+        listener.contextDestroyed( contextEvent );
+        attributes.clear();
+      }
+    }
+  }
+
+  private static int findFreePort() throws Exception {
+    try ( ServerSocket socket = new ServerSocket( 0 ) ) {
+      return socket.getLocalPort();
+    }
   }
 
   @Test
