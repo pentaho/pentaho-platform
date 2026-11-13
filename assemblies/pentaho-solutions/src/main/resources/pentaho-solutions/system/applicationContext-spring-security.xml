@@ -45,6 +45,7 @@
                                    securityContextHolderAwareRequestFilterForWS,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
+                                   jwtAuthFilter,
                                    basicProcessingFilter,
                                    anonymousProcessingFilter,
                                    sessionMgmtFilter,
@@ -59,6 +60,7 @@
                                    securityContextHolderAwareRequestFilterForWS,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
+                                   jwtAuthFilter,
                                    basicProcessingFilter,
                                    requestParameterProcessingFilter,
                                    anonymousProcessingFilter,
@@ -75,6 +77,7 @@
                                    securityContextHolderAwareRequestFilterForWS,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
+                                   jwtAuthFilter,
                                    basicProcessingFilter,
                                    requestParameterProcessingFilter,
                                    anonymousProcessingFilter,
@@ -106,6 +109,7 @@
                                    securityContextHolderAwareRequestFilterForWS,
                                    httpSessionPentahoSessionContextIntegrationFilter,
                                    httpSessionContextIntegrationFilter,
+                                   jwtAuthFilter,
                                    basicProcessingFilter,
                                    requestParameterProcessingFilter,
                                    anonymousProcessingFilter,
@@ -123,6 +127,7 @@
                                    httpSessionContextIntegrationFilter,
                                    httpSessionReuseDetectionFilter,
                                    logoutFilter,
+                                   jwtAuthFilter,
                                    authenticationProcessingFilter,
                                    basicProcessingFilter,
                                    requestParameterProcessingFilter,
@@ -415,7 +420,7 @@
     <property name="filterProcessesUrl" value="/j_spring_security_check" />
     <property name="usernameParameter" value="j_username" />
     <property name="passwordParameter" value="j_password" />
-	<property name="sessionAuthenticationStrategy" ref="sas" />
+    <property name="sessionAuthenticationStrategy" ref="sas" />
   </bean>
 
   <bean id="authenticationProcessingFilterEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
@@ -578,6 +583,35 @@
 
   <bean id="preAuthenticatedSecurityFilter" class="org.pentaho.platform.web.http.security.PreAuthenticatedFilter">
     <constructor-arg ref="PreAuthenticatedSessionHolder"/>
+  </bean>
+
+
+  <bean id="jwtPreAuthenticatedSessionHolderMapper" class="org.pentaho.platform.web.jwt.JWTPreAuthenticatedSessionHolderMapper">
+    <constructor-arg ref="PreAuthenticatedSessionHolder"/>
+  </bean>
+
+  <bean id="PreAuthenticatedSessionHolder" class="org.pentaho.platform.web.http.PreAuthenticatedSessionHolder">
+    <!--    <constructor-arg ref="PreAuthenticatedSessionHolder"/>-->
+  </bean>
+
+
+  <bean id="jwtAuthFilter" class="org.pentaho.platform.web.http.security.JwtAuthFilter">
+    <constructor-arg ref="authService"/>
+    <constructor-arg ref="jwtPreAuthenticatedSessionHolderMapper"/>
+    <constructor-arg ref="jcrSessionFactory"/>
+  </bean>
+
+
+  <bean id="authService" class="org.pentaho.platform.web.jwt.KeycloakAuthService">
+    <constructor-arg ref="keycloakConfig"/>
+    <constructor-arg ref="jwtPreAuthenticatedSessionHolderMapper"/>
+  </bean>
+
+  <bean id="keycloakConfig" class="org.pentaho.platform.web.jwt.KeycloakConfig">
+    <constructor-arg name="authServerUrl" value="http://localhost:8090/keycloak/"/>
+    <constructor-arg name="realm" value="Pentaho_Fusion"/>
+    <constructor-arg name="clientId" value="connection-management-service-2"/>
+    <constructor-arg name="clientSecret" value="TOP_SECRET"/>
   </bean>
 
   <bean id="httpSessionSecurityContextRepository" class="org.springframework.security.web.context.HttpSessionSecurityContextRepository"/>
