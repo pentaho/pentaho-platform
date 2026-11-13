@@ -26,4 +26,16 @@ public interface IConfiguration {
   Properties getProperties() throws IOException;
 
   void update( Properties properties ) throws IOException;
+
+  /**
+   * Reloads the underlying configuration source. Implementations backed by a
+   * file on disk should override this to re-read the file, making changes
+   * visible without a server restart. The default implementation is a no-op,
+   * preserving backward compatibility for all existing implementors.
+   *
+   * @throws IOException if the backing source cannot be read
+   */
+  default void reload() throws IOException {
+    // no-op — override in file-backed implementations
+  }
 }
