@@ -18,6 +18,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Properties;
 
 import net.sf.saxon.query.StaticQueryContext;
@@ -91,6 +93,19 @@ public class XQueryIT extends BaseTest {
     } catch ( XPathException e ) {
       // valid
     }
+  }
+
+  public void testExecuteScalarQuery() throws Exception {
+    XQConnection connection = new XQConnection();
+    IPentahoResultSet data = connection.executeQuery(
+        "(true(), xs:decimal(\"1.25\"), 42, xs:double(\"2.5\"), xs:date(\"2024-01-02\"))" );
+
+    assertEquals( 5, data.getRowCount() );
+    assertEquals( "true", data.getValueAt( 0, 0 ) );
+    assertEquals( "1.25", data.getValueAt( 1, 0 ) );
+    assertEquals( "42", data.getValueAt( 2, 0 ) );
+    assertEquals( "2.5", data.getValueAt( 3, 0 ) );
+    assertEquals( new GregorianCalendar( 2024, Calendar.JANUARY, 2 ).getTime().toString(), data.getValueAt( 4, 0 ) );
   }
 
   public void testGetDataRow() throws Exception {
