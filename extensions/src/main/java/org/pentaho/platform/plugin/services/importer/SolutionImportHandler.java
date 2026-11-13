@@ -16,6 +16,7 @@ package org.pentaho.platform.plugin.services.importer;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
@@ -384,8 +385,10 @@ public class SolutionImportHandler implements IPlatformImportHandler {
       }
       IDatasourceMgmtService datasourceMgmtSvc = PentahoSystem.get( IDatasourceMgmtService.class );
       for ( DatabaseConnection databaseConnection : datasourceList ) {
-        if ( databaseConnection.getDatabaseType() == null ) {
-          // don't try to import the connection if there is no type it will cause an error
+        if ( databaseConnection.getDatabaseType() == null
+          || StringUtils.isBlank( databaseConnection.getDatabaseType().getShortName() ) ) {
+          // don't try to import the connection if there is no database type
+          // or its shortName is not valid (BISERVER-15741)
           // However, if this is the DI Server, and the connection is defined in a ktr, it will import automatically
           String connectionName = getConnectionNameForLog( databaseConnection );
           getLogger().error( Messages.getInstance()
