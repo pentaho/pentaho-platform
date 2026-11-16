@@ -97,6 +97,10 @@ public class HsqldbStartupListener implements ServletContextListener {
    * @throws Exception if an error occurs during file reading
    */
   private void executeSqlStatements( String dbName, File scriptFile, Statement stmt ) throws Exception {
+    // Seed scripts may declare foreign keys before the rows they reference (sampledata.script must, because the
+    // installer also opens a copy of it as a native HSQLDB database, which requires DDL before data). HSQLDB disables
+    // referential integrity while restoring a native script; do the same here so the row order doesn't matter.
+    stmt.execute( "SET DATABASE REFERENTIAL INTEGRITY FALSE" ); //$NON-NLS-1$
     try ( BufferedReader reader = new BufferedReader( new FileReader( scriptFile ) ) ) {
       StringBuilder sqlBuilder = new StringBuilder();
       String line;
@@ -119,6 +123,8 @@ public class HsqldbStartupListener implements ServletContextListener {
           sqlBuilder = new StringBuilder();
         }
       }
+    } finally {
+      stmt.execute( "SET DATABASE REFERENTIAL INTEGRITY TRUE" ); //$NON-NLS-1$
     }
   }
 
