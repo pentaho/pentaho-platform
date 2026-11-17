@@ -52,7 +52,8 @@ import static org.junit.Assert.assertTrue;
  * Verifies that the HSQLDB seed scripts shipped in assemblies/pentaho-data load into an empty database, using the
  * same loader as {@link HsqldbStartupListener}, without unexpected failures. The listener only loads a seed into an
  * empty database once, so any statement that fails on that first load leaves the sample data permanently incomplete.
- * sampledata.script must also open as a native HSQLDB database, because the installer reuses it for the design tools.
+ * sampledata.script must also open as a native HSQLDB database: the installer reuses it for the design tools, and the
+ * same file is shipped by pentaho-kettle, pentaho-metadata-editor(-ee), pentaho-reporting and pentaho-reportdesigner-ee.
  */
 @RunWith( Parameterized.class )
 public class HsqldbSeedScriptsTest {
@@ -60,9 +61,8 @@ public class HsqldbSeedScriptsTest {
   private static final File SEED_DIR = new File( "../assemblies/pentaho-data/src/main/resources/data/hsqldb" );
   private static final Pattern INSERT_TABLE = Pattern.compile( "^INSERT INTO ((?:\\w+\\.)?\\w+)\\s*VALUES", Pattern.CASE_INSENSITIVE );
 
-  // Harmless failures: the database already has SA and PUBLIC, and SCALE is not settable on HSQLDB 2.7.4
+  // Harmless failures: a new database already has the SA user and the PUBLIC schema
   private static final List<String> SAMPLEDATA_EXPECTED_FAILURES = Arrays.asList(
-    "SET FILES SCALE 1;",
     "CREATE USER SA PASSWORD '';",
     "CREATE SCHEMA PUBLIC AUTHORIZATION DBA;" );
 
@@ -108,7 +108,6 @@ public class HsqldbSeedScriptsTest {
         Collections.emptyList(), unexpected );
 
       assertRowCountsMatchInserts( script, stmt );
-      // The loader disables referential integrity, so check that every loaded row satisfies its foreign keys
       assertForeignKeysHold( conn );
       stmt.execute( "SHUTDOWN" );
     }
@@ -121,13 +120,16 @@ public class HsqldbSeedScriptsTest {
     Files.copy( new File( SEED_DIR, dbName + ".script" ).toPath(), new File( dir, dbName + ".script" ).toPath() );
     Files.copy( new File( SEED_DIR, dbName + ".properties" ).toPath(), new File( dir, dbName + ".properties" ).toPath() );
 
-    // Same URL form the installer writes for the design tools' SampleData JNDI connection
+    // Same URL form the installer writes for the design tools' SampleData JNDI connection. HSQLDB rewrites the script
+    // when it closes the database, so the second open reads HSQLDB's own output (this needs a valid SET FILES SCALE)
     String url = "jdbc:hsqldb:file:" + new File( dir, dbName ).getAbsolutePath() + ";ifexists=true";
-    try ( Connection conn = DriverManager.getConnection( url, "sa", "" );
-          Statement stmt = conn.createStatement() ) {
-      assertRowCountsMatchInserts( new File( SEED_DIR, dbName + ".script" ), stmt );
-      assertForeignKeysHold( conn );
-      stmt.execute( "SHUTDOWN" );
+    for ( int open = 1; open <= 2; open++ ) {
+      try ( Connection conn = DriverManager.getConnection( url, "sa", "" );
+            Statement stmt = conn.createStatement() ) {
+        assertRowCountsMatchInserts( new File( SEED_DIR, dbName + ".script" ), stmt );
+        assertForeignKeysHold( conn );
+        stmt.execute( "SHUTDOWN" );
+      }
     }
   }
 
