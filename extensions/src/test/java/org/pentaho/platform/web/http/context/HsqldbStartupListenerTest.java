@@ -134,10 +134,8 @@ public class HsqldbStartupListenerTest {
 
   @Test
   public void testContextInitialized() throws Exception {
-    when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( String.valueOf( findFreePort() ) );
-    when( context.getInitParameter( "hsqldb-allow-port-failover" ) ).thenReturn( "true" );
     when( context.getInitParameter( "hsqldb-databases" ) ).thenReturn( "test@mem:testContextInitialized" );
-    startupListener.contextInitialized( contextEvent );
+    startOnFreePort( startupListener, contextAttributes, "in testContextInitialized" );
     verify( context ).setAttribute( eq( "hsqldb-starter-bean" ), any() );
     startupListener.contextDestroyed( contextEvent );
   }
@@ -208,7 +206,7 @@ public class HsqldbStartupListenerTest {
 
     for ( int start = 1; start <= 2; start++ ) {
       HsqldbStartupListener listener = new HsqldbStartupListener();
-      int port = startOnFreePort( listener, attributes, start );
+      int port = startOnFreePort( listener, attributes, "on start " + start );
       try {
         try ( Connection conn = DriverManager.getConnection( "jdbc:hsqldb:hsql://localhost:" + port + "/testdb", "sa", "" );
               Statement stmt = conn.createStatement() ) {
@@ -229,10 +227,11 @@ public class HsqldbStartupListenerTest {
   /**
    * Starts the listener on a free port and returns it. findFreePort() releases the port before the HSQLDB server binds
    * it, so on a busy machine another process can take it in between and the server fails to start. In that case retry
-   * on a new port: the database is file-based, so the port may differ between starts. Failures unrelated to the port
-   * (e.g. the database can't be opened) still fail on every attempt.
+   * on a new port; port failover stays disabled, so the server never falls back to the default port 9001. Failures
+   * unrelated to the port (e.g. the database can't be opened) still fail on every attempt.
    */
-  private int startOnFreePort( HsqldbStartupListener listener, Map<String, Object> attributes, int start ) throws Exception {
+  private int startOnFreePort( HsqldbStartupListener listener, Map<String, Object> attributes, String description )
+    throws Exception {
     for ( int attempt = 1; attempt <= MAX_START_ATTEMPTS; attempt++ ) {
       int port = findFreePort();
       when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( String.valueOf( port ) );
@@ -241,7 +240,7 @@ public class HsqldbStartupListenerTest {
         return port;
       }
     }
-    fail( "HSQLDB server should be running on start " + start + " (tried " + MAX_START_ATTEMPTS + " ports)" );
+    fail( "HSQLDB server should be running " + description + " (tried " + MAX_START_ATTEMPTS + " ports)" );
     return -1;
   }
 
