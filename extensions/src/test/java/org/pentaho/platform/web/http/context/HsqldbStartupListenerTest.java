@@ -13,6 +13,7 @@
 
 package org.pentaho.platform.web.http.context;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,19 +42,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by rfellows on 10/28/15.
- */
 @RunWith(MockitoJUnitRunner.class)
 public class HsqldbStartupListenerTest {
+
+  private static final int MAX_START_ATTEMPTS = 3;
 
   HsqldbStartupListener startupListener;
 
@@ -67,10 +69,26 @@ public class HsqldbStartupListenerTest {
   @Mock
   HsqlDatabaseStarterBean starterBean;
 
+  // Backs the mocked context's attributes, so contextDestroyed() finds and stops a server started by contextInitialized()
+  private final Map<String, Object> contextAttributes = new HashMap<>();
+
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     startupListener = new HsqldbStartupListener();
     when( contextEvent.getServletContext() ).thenReturn( context );
+    lenient().doAnswer( inv -> contextAttributes.put( inv.getArgument( 0 ), inv.getArgument( 1 ) ) )
+      .when( context ).setAttribute( anyString(), any() );
+    lenient().when( context.getAttribute( "hsqldb-starter-bean" ) )
+      .thenAnswer( inv -> contextAttributes.get( "hsqldb-starter-bean" ) );
+  }
+
+  @After
+  public void tearDown() {
+    // Tests that start a real HSQLDB server must not leave it running: it would keep its port bound for the rest of the JVM
+    Object bean = contextAttributes.get( "hsqldb-starter-bean" );
+    if ( bean instanceof HsqlDatabaseStarterBean ) {
+      ( (HsqlDatabaseStarterBean) bean ).stop();
+    }
   }
 
   @Test
@@ -115,18 +133,18 @@ public class HsqldbStartupListenerTest {
   }
 
   @Test
-  public void testContextInitialized() {
-    when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( "9999" );
+  public void testContextInitialized() throws Exception {
+    when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( String.valueOf( findFreePort() ) );
     when( context.getInitParameter( "hsqldb-allow-port-failover" ) ).thenReturn( "true" );
-    when( context.getInitParameter( "hsqldb-databases" ) ).thenReturn( "test@localhost" );
+    when( context.getInitParameter( "hsqldb-databases" ) ).thenReturn( "test@mem:testContextInitialized" );
     startupListener.contextInitialized( contextEvent );
     verify( context ).setAttribute( eq( "hsqldb-starter-bean" ), any() );
     startupListener.contextDestroyed( contextEvent );
   }
 
   @Test
-  public void testContextInitialized_withInMemoryDatabases() {
-    when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( "9001" );
+  public void testContextInitialized_withInMemoryDatabases() throws Exception {
+    when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( String.valueOf( findFreePort() ) );
     when( context.getInitParameter( "hsqldb-allow-port-failover" ) ).thenReturn( "true" );
     when( context.getInitParameter( "hsqldb-databases" ) )
       .thenReturn( "sampledata@mem:sampledata,hibernate@mem:hibernate,quartz@mem:quartz" );
@@ -139,11 +157,11 @@ public class HsqldbStartupListenerTest {
   }
 
   @Test
-  public void testGetDatabaseConfiguration() {
+  public void testGetDatabaseConfiguration() throws Exception {
     // Test parsing of database configuration string from web.xml
     when( context.getInitParameter( "hsqldb-databases" ) )
       .thenReturn( "sampledata@mem:sampledata,hibernate@mem:hibernate,quartz@mem:quartz" );
-    when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( "9001" );
+    when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( String.valueOf( findFreePort() ) );
 
     startupListener.contextInitialized( contextEvent );
     // If no exception, parsing was successful
@@ -179,22 +197,19 @@ public class HsqldbStartupListenerTest {
       "INSERT INTO PUBLIC.FACT VALUES(1, 10);",
       "INSERT INTO PUBLIC.FACT VALUES(2, 20);" ), StandardCharsets.UTF_8 );
     String dbPath = new File( tempFolder.getRoot(), "db" + File.separator + "testdbdb" ).getAbsolutePath();
-    int port = findFreePort();
 
     Map<String, Object> attributes = new HashMap<>();
     doAnswer( inv -> attributes.put( inv.getArgument( 0 ), inv.getArgument( 1 ) ) )
       .when( context ).setAttribute( anyString(), any() );
     when( context.getAttribute( "hsqldb-starter-bean" ) ).thenAnswer( inv -> attributes.get( "hsqldb-starter-bean" ) );
-    when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( String.valueOf( port ) );
     when( context.getInitParameter( "hsqldb-databases" ) ).thenReturn( "testdb@file:" + dbPath );
     when( context.getInitParameter( "hsqldb-init-script" ) ).thenReturn( ".." + File.separator + "seed" );
     when( context.getRealPath( "/" ) ).thenReturn( webappDir.getAbsolutePath() );
 
     for ( int start = 1; start <= 2; start++ ) {
       HsqldbStartupListener listener = new HsqldbStartupListener();
-      listener.contextInitialized( contextEvent );
+      int port = startOnFreePort( listener, attributes, start );
       try {
-        assertNotNull( "HSQLDB server should be running on start " + start, attributes.get( "hsqldb-starter-bean" ) );
         try ( Connection conn = DriverManager.getConnection( "jdbc:hsqldb:hsql://localhost:" + port + "/testdb", "sa", "" );
               Statement stmt = conn.createStatement() ) {
           try ( ResultSet rs = stmt.executeQuery( "SELECT COUNT(*) FROM PUBLIC.FACT" ) ) {
@@ -211,6 +226,25 @@ public class HsqldbStartupListenerTest {
     }
   }
 
+  /**
+   * Starts the listener on a free port and returns it. findFreePort() releases the port before the HSQLDB server binds
+   * it, so on a busy machine another process can take it in between and the server fails to start. In that case retry
+   * on a new port: the database is file-based, so the port may differ between starts. Failures unrelated to the port
+   * (e.g. the database can't be opened) still fail on every attempt.
+   */
+  private int startOnFreePort( HsqldbStartupListener listener, Map<String, Object> attributes, int start ) throws Exception {
+    for ( int attempt = 1; attempt <= MAX_START_ATTEMPTS; attempt++ ) {
+      int port = findFreePort();
+      when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( String.valueOf( port ) );
+      listener.contextInitialized( contextEvent );
+      if ( attributes.get( "hsqldb-starter-bean" ) != null ) {
+        return port;
+      }
+    }
+    fail( "HSQLDB server should be running on start " + start + " (tried " + MAX_START_ATTEMPTS + " ports)" );
+    return -1;
+  }
+
   private static int findFreePort() throws Exception {
     try ( ServerSocket socket = new ServerSocket( 0 ) ) {
       return socket.getLocalPort();
@@ -218,9 +252,9 @@ public class HsqldbStartupListenerTest {
   }
 
   @Test
-  public void testScriptLoadingWithNullPath() {
+  public void testScriptLoadingWithNullPath() throws Exception {
     // Test graceful handling when hsqldb-init-script is null
-    when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( "9001" );
+    when( context.getInitParameter( "hsqldb-port" ) ).thenReturn( String.valueOf( findFreePort() ) );
     when( context.getInitParameter( "hsqldb-allow-port-failover" ) ).thenReturn( "true" );
     when( context.getInitParameter( "hsqldb-databases" ) )
       .thenReturn( "sampledata@mem:sampledata" );
