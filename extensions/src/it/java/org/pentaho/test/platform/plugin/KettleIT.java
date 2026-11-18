@@ -16,6 +16,13 @@ package org.pentaho.test.platform.plugin;
 import static org.junit.Assert.assertArrayEquals;
 
 import org.pentaho.commons.connection.memory.MemoryResultSet;
+import org.pentaho.di.core.exception.KettlePluginException;
+import org.pentaho.di.core.plugins.Plugin;
+import org.pentaho.di.core.plugins.PluginInterface;
+import org.pentaho.di.core.plugins.PluginRegistry;
+import org.pentaho.di.core.plugins.StepPluginType;
+import org.pentaho.di.trans.step.StepMetaInterface;
+import org.pentaho.di.trans.steps.scriptvalues_mod.ScriptValuesMetaMod;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
@@ -24,6 +31,8 @@ import org.pentaho.test.platform.engine.core.BaseTest;
 import org.pentaho.test.platform.utils.TestResourceLocation;
 
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 public class KettleIT extends BaseTest {
@@ -58,15 +67,31 @@ public class KettleIT extends BaseTest {
     super.tearDown();
   }
 
-  public void testKettleSuccessResult() {
-    assertNotNull( session );
-    IRuntimeContext context =
-      run( "/test/etl/SampleTransformation.xaction", null, false, parameterProvider, outputHandler, session );
-    assertEquals( IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() );
+  public void testKettleSuccessResult() throws KettlePluginException {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    PluginInterface existing = registry.findPluginWithId( StepPluginType.class, "ScriptValueMod" );
+    Map<Class<?>, String> classes = new HashMap<>();
+    classes.put( StepMetaInterface.class, ScriptValuesMetaMod.class.getName() );
+    PluginInterface plugin =
+      new Plugin( new String[] { "ScriptValueMod" }, StepPluginType.class, StepMetaInterface.class, "Scripting",
+        "ScriptValuesMetaMod", null, null, false, false, classes, Collections.emptyList(), null, null );
+    if ( existing == null ) {
+      registry.registerPlugin( StepPluginType.class, plugin );
+    }
+    try {
+      assertNotNull( session );
+      IRuntimeContext context =
+        run( "/test/etl/SampleTransformation.xaction", null, false, parameterProvider, outputHandler, session );
+      assertEquals( IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() );
 
-    assertSuccessResult( context, new Object[][] {
-      { "Central", "Sales", "District Manager", "Hello, District Manager" },
-      { "Central", "Sales", "Senior Sales Rep", "Hello, Senior Sales Rep" } } );
+      assertSuccessResult( context, new Object[][] {
+        { "Central", "Sales", "District Manager", "Hello, District Manager" },
+        { "Central", "Sales", "Senior Sales Rep", "Hello, Senior Sales Rep" } } );
+    } finally {
+      if ( existing == null ) {
+        registry.removePlugin( StepPluginType.class, plugin );
+      }
+    }
   }
 
   public void testKettleValidatationFailure() {
