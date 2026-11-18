@@ -388,7 +388,7 @@ public class MetadataQueryComponentIT {
     Domain domain = getBasicDomain();
     SqlDataSource dataSource = ( (SqlPhysicalModel) domain.getPhysicalModels().get( 0 ) ).getDatasource();
     dataSource.setType( DataSourceType.NATIVE );
-    dataSource.setDatabaseName( "file:src/test/resources/solution/system/data/sampledata;readonly=true" );
+    dataSource.setDatabaseName( "file:src/test/resources/solution/system/data/sampledata;files_readonly=true" );
     dataSource.setUsername( "pentaho_user" );
     dataSource.setPort( "-1" );
     dataSource.setPassword( "password" );
