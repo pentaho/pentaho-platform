@@ -93,6 +93,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.pentaho.di.plugins</groupId>
+      <artifactId>script-values-mod-plugins-impl</artifactId>
+      <version>${pdi.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-pool2</artifactId>
       <version>${commons-pool2.version}</version>
