@@ -312,7 +312,9 @@ public class ConnectionIT extends BaseTest {
   public void testXQueryConnection() {
     startTest();
     IPentahoSession session = new StandaloneSession( "Admin" );
-    OutputStream outputStream = this.getOutputStream( "ConnectionTest.testSQLConnection", ".csv" ); //$NON-NLS-1$ //$NON-NLS-2$
+    String outputName = "ConnectionTest.testSQLConnection"; //$NON-NLS-1$
+    File outputFile = new File( SOLUTION_PATH + "/test/tmp/" + outputName + ".csv" ); //$NON-NLS-1$ //$NON-NLS-2$
+    OutputStream outputStream = this.getOutputStream( outputName, ".csv" ); //$NON-NLS-1$
     try {
       IPentahoConnection connection =
           PentahoConnectionFactory.getConnection( IPentahoConnection.XML_DATASOURCE, session, this );
@@ -322,6 +324,12 @@ public class ConnectionIT extends BaseTest {
       IPentahoResultSet results = connection.executeQuery( query );
       assertNotNull( results );
       Object[][] columnHeaders = results.getMetaData().getColumnHeaders();
+      assertEquals( 4, results.getRowCount() );
+      assertEquals( 4, results.getColumnCount() );
+      assertEquals( "title", columnHeaders[0][0] );
+      assertEquals( "author", columnHeaders[0][1] );
+      assertEquals( "year", columnHeaders[0][2] );
+      assertEquals( "price", columnHeaders[0][3] );
       for ( int row = 0; row < columnHeaders.length; row++ ) {
         for ( int col = 0; col < columnHeaders[0].length; col++ ) {
           outputStream.write( columnHeaders[row][col].toString().getBytes() );
@@ -342,8 +350,16 @@ public class ConnectionIT extends BaseTest {
     } catch ( Exception e ) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+    } finally {
+      try {
+        outputStream.close();
+      } catch ( Exception e ) {
+        fail( e.getMessage() );
+      } finally {
+        assertTrue( outputFile.delete() );
+      }
+      finishTest();
     }
-    finishTest();
   }
 
   public static void main( String[] args ) {
