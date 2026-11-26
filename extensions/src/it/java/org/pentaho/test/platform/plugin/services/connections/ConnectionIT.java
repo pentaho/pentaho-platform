@@ -316,8 +316,9 @@ public class ConnectionIT extends BaseTest {
     try {
       IPentahoConnection connection =
           PentahoConnectionFactory.getConnection( IPentahoConnection.XML_DATASOURCE, session, this );
-      String query =
-          "doc(\"" + PentahoSystem.getApplicationContext().getSolutionPath( "samples/datasources/books.xml" ) + "\")/bookstore/book"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+      File books = new File( PentahoSystem.getApplicationContext()
+          .getSolutionPath( "samples/datasources/books.xml" ) );
+      String query = "doc(\"" + books.toURI() + "\")/bookstore/book";
       query = query.replace( '\\', '/' );
       IPentahoResultSet results = connection.executeQuery( query );
       assertNotNull( results );
