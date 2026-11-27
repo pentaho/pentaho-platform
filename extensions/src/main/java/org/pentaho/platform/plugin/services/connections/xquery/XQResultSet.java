@@ -57,9 +57,9 @@ public class XQResultSet implements IPentahoResultSet, IPeekable {
 
   protected XQMetaData metaData = null;
 
-  protected static final String DELIM = ", "; //$NON-NLS-1$
+  protected static final String DELIM = ", ";
 
-  protected static final String EMPTY_STR = ""; //$NON-NLS-1$
+  protected static final String EMPTY_STR = "";
 
   protected Object[] peekRow;
 
@@ -146,7 +146,7 @@ public class XQResultSet implements IPentahoResultSet, IPeekable {
     // Create a map of the headers and assign empty string to them
     OrderedMap resultList = new ListOrderedMap();
     for ( int i = 0; i < metaData.getColumnCount(); i++ ) {
-      resultList.put( metaData.getColumnHeaders()[0][i], XQResultSet.EMPTY_STR );
+      resultList.put( metaData.getColumnHeaders()[0][i], EMPTY_STR );
     }
     // Get the next row of data
     if ( iter.hasNext() ) {
@@ -164,7 +164,7 @@ public class XQResultSet implements IPentahoResultSet, IPeekable {
     // if all the values are the empty string then we're done.
     boolean done = true;
     for ( Object element : currentRow ) {
-      if ( !( "".equals( element ) ) ) { //$NON-NLS-1$
+      if ( !( EMPTY_STR.equals( element ) ) ) {
         done = false;
       }
     }
@@ -186,28 +186,28 @@ public class XQResultSet implements IPentahoResultSet, IPeekable {
           NodeInfo descNode = (NodeInfo) descendent;
           Object value = retValue.get( descNode.getDisplayName() );
           if ( value == null ) {
-            value = XQResultSet.EMPTY_STR;
+            value = EMPTY_STR;
           }
-          if ( !( XQResultSet.EMPTY_STR.equals( value ) ) ) {
-            value = value.toString() + XQResultSet.DELIM;
+          if ( !( EMPTY_STR.equals( value ) ) ) {
+            value = value.toString() + DELIM;
           }
           value = value.toString() + descNode.getStringValue();
           if ( ( value != null )
-              && !value.equals( "" ) && ( columnTypes != null ) && ( columnIndex >= 0 )
-            && ( columnIndex < columnTypes.length ) ) { //$NON-NLS-1$
+              && !EMPTY_STR.equals( value ) && ( columnTypes != null ) && ( columnIndex >= 0 )
+            && ( columnIndex < columnTypes.length ) ) {
             String columnType = columnTypes[columnIndex].trim();
-            if ( columnType.equals( "java.math.BigDecimal" ) ) { //$NON-NLS-1$
+            if ( columnType.equals( "java.math.BigDecimal" ) ) {
               value = new BigDecimal( value.toString() );
-            } else if ( columnType.equals( "java.sql.Timestamp" ) ) { //$NON-NLS-1$
+            } else if ( columnType.equals( "java.sql.Timestamp" ) ) {
               value = new Timestamp( Long.parseLong( value.toString() ) );
-            } else if ( columnType.equals( "java.sql.Date" ) ) { //$NON-NLS-1$
+            } else if ( columnType.equals( "java.sql.Date" ) ) {
               value = new Date( Long.parseLong( value.toString() ) );
-            } else if ( columnType.equals( "java.lang.Integer" ) ) { //$NON-NLS-1$
-              value = new Integer( Integer.parseInt( value.toString() ) );
-            } else if ( columnType.equals( "java.lang.Double" ) ) { //$NON-NLS-1$
-              value = new Double( Double.parseDouble( value.toString() ) );
-            } else if ( columnType.equals( "java.lang.Long" ) ) { //$NON-NLS-1$
-              value = new Long( Long.parseLong( value.toString() ) );
+            } else if ( columnType.equals( "java.lang.Integer" ) ) {
+              value = Integer.valueOf( Integer.parseInt( value.toString() ) );
+            } else if ( columnType.equals( "java.lang.Double" ) ) {
+              value = Double.valueOf( Double.parseDouble( value.toString() ) );
+            } else if ( columnType.equals( "java.lang.Long" ) ) {
+              value = Long.valueOf( Long.parseLong( value.toString() ) );
             }
           }
           retValue.put( descNode.getDisplayName(), value );
@@ -320,7 +320,7 @@ public class XQResultSet implements IPentahoResultSet, IPeekable {
     try {
       init();
     } catch ( XPathException e ) {
-      XQResultSet.logger.error( "Cannot initialize XQResultSet", e );
+      logger.error( "Cannot initialize XQResultSet", e );
     }
   }
 
