@@ -105,14 +105,11 @@ public class XQResultSet implements IPentahoResultSet, IPeekable {
     int maxRows = ( this.connection != null ) ? this.connection.getMaxRows() : -1;
     Item item = null;
     while ( ( item = sequenceiterator.next() ) != null ) {
-      if ( ( item == null ) ) {
-        break;
-      }
       rowCount++;
       if ( ( maxRows >= 0 ) && ( rowCount > maxRows ) ) {
         break;
       }
-      rtn.add( item.getStringValue() );
+      rtn.add( item instanceof NodeInfo ? item : item.getStringValue() );
     }
     return rtn;
   }
