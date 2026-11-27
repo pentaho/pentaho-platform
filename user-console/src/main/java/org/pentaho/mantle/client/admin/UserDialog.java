@@ -163,7 +163,7 @@ public class UserDialog extends GwtDialog {
         }
 
         if ( !isValidPassword( password ) ) {
-          String nonMatchingChars = getNonMatchingCharacters( password, ALLOWED_CHARS );
+          String nonMatchingChars = getNonMatchingCharacters( password );
           showErrorMessage( nonMatchingChars, ALLOWED_CHARS_LIST, "allowedNameCharacters" );
           return;
         }
@@ -176,7 +176,7 @@ public class UserDialog extends GwtDialog {
         return ALLOWED_CHARS_REGEXP.test( password );
       }
 
-      private String getNonMatchingCharacters( String value, String allowedCharacters ) {
+      private String getNonMatchingCharacters( String value ) {
         Set<Character> seen = new HashSet<>(); // Allows to identify unique non matching characters
         StringBuilder nonMatchingChars = new StringBuilder();
 
